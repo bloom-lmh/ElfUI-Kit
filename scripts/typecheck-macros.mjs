@@ -19,7 +19,7 @@ const localCompilerEntry = path.join(
   "dist",
   "macro-component.js"
 );
-const localCoreDist = path.join(localFrameworkRoot, "packages", "elfui", "dist");
+const localCoreDist = path.join(localFrameworkRoot, "packages", "core", "dist");
 const useLocalFramework =
   process.env.ELFUI_KIT_LOCAL_FRAMEWORK !== "0" &&
   existsSync(localCompilerEntry) &&

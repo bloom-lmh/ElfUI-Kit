@@ -18,7 +18,7 @@ export const loadElfuiWorkspace = async (): Promise<ElfuiWorkspaceConfig> => {
   const frameworkRoot = path.resolve(process.cwd(), "..", "elfui");
   const pluginEntry = path.join(frameworkRoot, "packages", "vite-plugin", "dist", "index.js");
   const compilerDist = path.join(frameworkRoot, "packages", "compiler", "dist");
-  const coreDist = path.join(frameworkRoot, "packages", "elfui", "dist");
+  const coreDist = path.join(frameworkRoot, "packages", "core", "dist");
   const coreEntry = path.join(coreDist, "index.js");
   const internalEntry = path.join(coreDist, "internal.js");
   const runtimeDist = path.join(frameworkRoot, "packages", "runtime", "dist");
