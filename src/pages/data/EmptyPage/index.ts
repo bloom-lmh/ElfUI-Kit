@@ -1,8 +1,10 @@
-import { defineHtml, html, useComponents } from "@elfui/core";
-import { PageEmptyProps } from "./props";
+import { defineHtml, useComponents } from "@elfui/core";
+
+import { createDocsTranslator } from "../../docsLocale";
 import { PageEmptyEx1 } from "./ex1";
 import { PageEmptyEx2 } from "./ex2";
 import { PageEmptyEx3 } from "./ex3";
+import { PageEmptyProps } from "./props";
 
 useComponents({
   "page-empty-ex1": PageEmptyEx1,
@@ -11,14 +13,22 @@ useComponents({
   "page-empty-props": PageEmptyProps
 });
 
-const PageEmpty = defineHtml(html`
+const t = createDocsTranslator({
+  title: { zh: "Empty 空状态", en: "Empty" },
+  description: {
+    zh: "用于无数据、无搜索结果和首次使用场景，支持默认或紧凑密度、自定义插画、清晰说明与就地操作。",
+    en: "Represent no-data, no-result, and first-use states with default or compact density, custom artwork, clear guidance, and contextual actions."
+  }
+});
+
+const PageEmpty = defineHtml(`
   <elf-container>
-    <h1>Empty 空状态</h1>
-    <p>用于列表、表格、搜索结果等空内容场景，支持默认插画、自定义图片、说明和底部操作。</p>
+    <h1>${t("title")}</h1>
+    <p>${t("description")}</p>
     <page-empty-ex1 />
     <page-empty-ex2 />
     <page-empty-ex3 />
-    <page-empty-props></page-empty-props>
+    <page-empty-props />
   </elf-container>
 `);
 
