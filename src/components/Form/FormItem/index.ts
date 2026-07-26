@@ -7,15 +7,17 @@
 // - 校验状态反射到 host attribute（data-state），由子控件样式响应
 
 import {
+  defineEmits,
+  defineExpose,
   defineProps,
   defineStyle,
-  html,
   inject,
   onBeforeUnmount,
-  onMount,
+  onMounted,
   provide,
-  useHost,
   useHostAttr,
+  useHostCssVar,
+  useHostFlag,
   useRef,
   defineHtml
 } from "@elfui/core";
@@ -26,10 +28,28 @@ import { getPath, setPath } from "../../../utils/path";
 import { validateFieldAsync } from "../../../utils/validator";
 import styles from "./style.scss?inline";
 import { useLocaleProvider } from "../../Providers/context";
+import type { FormItemEmits, FormItemProps, FormItemValidateState } from "./types";
 
-export type { FormItemProps, FormItemSize, FormItemValidateState, ValidateError } from "./types";
+export type {
+  FormItemEmits,
+  FormItemExpose,
+  FormItemProps,
+  FormItemSize,
+  FormItemValidateState,
+  ValidateError
+} from "./types";
 
-const props = defineProps({
+const snapshotValue = (value: unknown): unknown => {
+  if (value === null || typeof value !== "object") return value;
+  if (typeof structuredClone !== "function") return value;
+  try {
+    return structuredClone(value);
+  } catch {
+    return value;
+  }
+};
+
+const props = defineProps<FormItemProps>({
   prop: { type: String, default: "" },
   label: { type: String, default: "" },
   labelPosition: { type: String, default: "" },
@@ -45,23 +65,18 @@ const props = defineProps({
   showMessage: { type: Boolean, default: undefined }
 });
 
-const locale = useLocaleProvider();
+const emit = defineEmits<FormItemEmits>();
 
-const host = useHost();
+const locale = useLocaleProvider();
 
 const form = inject(FORM_KEY);
 
-const state = useRef<"" | "validating" | "success" | "error">("");
+const state = useRef<FormItemValidateState>("");
 
 const message = useRef("");
 
 let initialValue: unknown;
-
-onMount(() => {
-  if (form && props.prop) {
-    initialValue = getPath(form.model, props.prop as string);
-  }
-});
+let validationRun = 0;
 
 const collectRules = (): FormRule[] => {
   const formRules = form && props.prop ? (form.rules[props.prop as string] ?? []) : [];
@@ -74,46 +89,86 @@ const collectRules = (): FormRule[] => {
   return combined;
 };
 
+const resolvedState = (): FormItemValidateState => {
+  const override = String(props.validateStatus || "");
+  if (override === "error" || override === "success" || override === "validating") return override;
+  return state.value;
+};
+
+const hasError = (): boolean => resolvedState() === "error" || Boolean(props.error);
+const hasSuccess = (): boolean => resolvedState() === "success";
+const hasValidating = (): boolean => resolvedState() === "validating";
+const isRequired = (): boolean => Boolean(props.required) || collectRules().some((rule) => rule.required);
+const showMessage = (): boolean => props.showMessage ?? form?.showMessage ?? true;
+const isInline = (): boolean => props.inlineMessage ?? form?.inlineMessage ?? false;
+const showStatusIcon = (): boolean => Boolean(form?.statusIcon && resolvedState());
+const resolvedLabelPosition = (): string => String(props.labelPosition || form?.labelPosition || "right");
+const resolvedLabelWidth = (): string => String(props.labelWidth || form?.labelWidth || "100px");
+const labelSuffix = (): string => form?.labelSuffix ?? "";
+
+const feedbackClass = (): string => {
+  const classes = ["feedback"];
+  if (hasError()) classes.push("error");
+  if (hasSuccess()) classes.push("success");
+  if (hasValidating()) classes.push("validating");
+  return classes.join(" ");
+};
+
 const validate = async (trigger?: RuleTrigger): Promise<boolean> => {
   if (!form || !props.prop) return true;
+  const run = ++validationRun;
+
+  const finish = (isValid: boolean, nextMessage = ""): boolean => {
+    if (run !== validationRun) return resolvedState() !== "error";
+    state.set(isValid ? "success" : "error");
+    message.set(nextMessage);
+    const prop = String(props.prop);
+    emit("validate", prop, isValid, nextMessage);
+    form.notifyValidate(prop, isValid, nextMessage);
+    return isValid;
+  };
+
+  if (props.error) return finish(false, String(props.error));
+
   const rules = collectRules();
-  if (rules.length === 0) return true;
+  if (rules.length === 0) {
+    clearValidate();
+    return true;
+  }
 
   state.set("validating");
   const value = getPath(form.model, props.prop as string);
 
-  // 手动设置 error 时跳过内部校验
-  if (props.error) {
-    state.set("error");
-    message.set(props.error as string);
-    return false;
-  }
-
   const err = await validateFieldAsync(rules, value, form.model, trigger);
-  if (err) {
-    state.set("error");
-    message.set(err);
-    return false;
-  }
-  state.set("success");
-  message.set("");
-  return true;
+  return err ? finish(false, err) : finish(true);
 };
 
 const validateTrigger = (trigger: RuleTrigger): void => {
+  const configuredTrigger = String(props.trigger || "");
+  if (configuredTrigger && configuredTrigger !== trigger) return;
   void validate(trigger);
 };
 
 const clearValidate = (): void => {
+  validationRun += 1;
   state.set("");
   message.set("");
 };
 
 const resetField = (): void => {
-  if (form && props.prop && initialValue !== undefined) {
-    setPath(form.model, props.prop as string, initialValue);
+  if (form && props.prop) {
+    setPath(form.model, props.prop as string, snapshotValue(initialValue));
   }
   clearValidate();
+};
+
+const setInitialValue = (...values: [unknown?]): void => {
+  const next = values.length > 0
+    ? values[0]
+    : form && props.prop
+      ? getPath(form.model, String(props.prop))
+      : undefined;
+  initialValue = snapshotValue(next);
 };
 
 const itemCtx: FormItemContext = {
@@ -139,74 +194,48 @@ const itemCtx: FormItemContext = {
   validateTrigger,
   validate,
   clearValidate,
-  resetField
+  resetField,
+  setInitialValue
 };
 
 provide(FORM_ITEM_KEY, itemCtx);
 
 let unreg: (() => void) | null = null;
 
-onMount(() => {
+onMounted(() => {
   if (form) {
+    if (props.prop) initialValue = snapshotValue(getPath(form.model, String(props.prop)));
     unreg = form.registerItem(itemCtx);
-    const labelPosition = props.labelPosition || form.labelPosition;
-    const labelWidth = props.labelWidth || form.labelWidth;
-    host.setAttribute("data-label-position", labelPosition);
-    host.style.setProperty("--_label-width", labelWidth);
-    if (form.hideRequiredAsterisk) {
-      host.setAttribute("data-hide-asterisk", "");
-    }
-    if (form.requireAsteriskPosition === "right") host.setAttribute("data-asterisk-right", "");
-    if (form.inline) host.setAttribute("data-inline", "");
   }
 });
 
 onBeforeUnmount(() => {
   unreg?.();
-  if (form) form.unregisterItem(itemCtx);
 });
 
-const resolvedState = (): "" | "validating" | "success" | "error" => {
-  const override = props.validateStatus as string;
-  if (override === "error" || override === "success" || override === "validating") return override;
-  return state.value;
-};
-
-const hasError = (): boolean => resolvedState() === "error" || Boolean(props.error);
-
-const hasSuccess = (): boolean => resolvedState() === "success";
-
-const hasValidating = (): boolean => resolvedState() === "validating";
-
-const isRequired = (): boolean => {
-  return Boolean(props.required) || collectRules().some((rule) => rule.required);
-};
-
-const showMessage = (): boolean => {
-  return props.showMessage ?? form?.showMessage ?? true;
-};
-
-const isInline = (): boolean => {
-  return props.inlineMessage ?? form?.inlineMessage ?? false;
-};
-
-const showStatusIcon = (): boolean => Boolean(form?.statusIcon && resolvedState());
-
+useHostAttr("data-label-position", resolvedLabelPosition);
 useHostAttr("data-state", resolvedState);
+useHostCssVar("--_label-width", resolvedLabelWidth);
+useHostFlag("data-hide-asterisk", () => Boolean(form?.hideRequiredAsterisk));
+useHostFlag("data-asterisk-right", () => form?.requireAsteriskPosition === "right");
+useHostFlag("data-inline", () => Boolean(form?.inline));
 
-const labelSuffix = (): string => form?.labelSuffix ?? "";
-
-const feedbackClass = (): string => {
-  const classes = ["feedback"];
-  if (hasError()) classes.push("error");
-  if (hasSuccess()) classes.push("success");
-  if (hasValidating()) classes.push("validating");
-  return classes.join(" ");
-};
+defineExpose({
+  validate,
+  resetField,
+  clearValidate,
+  setInitialValue,
+  get validateMessage() {
+    return itemCtx.message;
+  },
+  get validateState() {
+    return resolvedState();
+  }
+});
 
 defineStyle(styles);
 
-const FormItem = defineHtml(html`
+const FormItem = defineHtml(`
   <div class="row">
     <label v-if=${props.label} :for=${props.for || undefined} :class=${{ required: isRequired() }}>
       <slot name="label">${props.label}</slot><span v-if=${labelSuffix()} class="label-suffix">${labelSuffix()}</span>
@@ -218,12 +247,22 @@ const FormItem = defineHtml(html`
           <span v-if=${hasSuccess()}>✓</span><span v-else-if=${hasError()}>!</span><span v-else>…</span>
         </span>
       </div>
-      <div v-if=${showMessage() && !isInline()} :class=${feedbackClass()}>
+      <div
+        v-if=${showMessage() && !isInline()}
+        :class=${feedbackClass()}
+        :role=${hasError() ? "alert" : undefined}
+        aria-live="polite"
+      >
         <span v-if=${hasValidating()}>${locale.t("field.validating")}</span>
         <slot v-else-if=${hasError()} name="error">${message}</slot>
       </div>
     </div>
-    <span v-if=${showMessage() && isInline()} :class=${feedbackClass() + " inline"}>
+    <span
+      v-if=${showMessage() && isInline()}
+      :class=${feedbackClass() + " inline"}
+      :role=${hasError() ? "alert" : undefined}
+      aria-live="polite"
+    >
       <slot v-if=${hasError()} name="error">${message}</slot>
     </span>
   </div>

@@ -29,3 +29,16 @@ export interface ValidateError {
   trigger?: RuleTrigger;
   message: string;
 }
+
+export interface FormItemExpose {
+  readonly validateMessage: string;
+  readonly validateState: FormItemValidateState;
+  validate(trigger?: RuleTrigger): Promise<boolean>;
+  resetField(): void;
+  clearValidate(): void;
+  setInitialValue(value?: unknown): void;
+}
+
+export interface FormItemEmits {
+  validate: [prop: string, isValid: boolean, message: string];
+}

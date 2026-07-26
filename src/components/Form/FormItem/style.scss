@@ -48,6 +48,16 @@ label {
   margin-right: 4px;
 }
 
+:host([data-asterisk-right]:not([data-hide-asterisk])) .required::before {
+  content: none;
+}
+
+:host([data-asterisk-right]:not([data-hide-asterisk])) .required::after {
+  content: "*";
+  color: var(--elf-danger);
+  margin-left: 4px;
+}
+
 .content {
   flex: 1;
   min-width: 0;
@@ -58,6 +68,33 @@ label {
   align-items: center;
   width: 100%;
   min-height: 32px;
+}
+
+.status-icon {
+  display: inline-grid;
+  flex: 0 0 18px;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  margin-left: var(--elf-space-2);
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 700;
+
+  &.success {
+    color: var(--elf-success);
+    background: color-mix(in srgb, var(--elf-success) 12%, transparent);
+  }
+
+  &.error {
+    color: var(--elf-danger);
+    background: color-mix(in srgb, var(--elf-danger) 12%, transparent);
+  }
+
+  &.validating {
+    color: var(--elf-text-secondary);
+    background: color-mix(in srgb, var(--elf-text-secondary) 10%, transparent);
+  }
 }
 
 ::slotted(elf-input),

@@ -15,21 +15,36 @@ import {
   defineExpose,
   defineProps,
   defineStyle,
-  html,
+  onMounted,
   provide,
+  useEffect,
   useHost,
+  useHostAttr,
   useHostFlag,
   defineHtml
 } from "@elfui/core";
 
 import { FORM_KEY, type FormContext, type FormItemContext } from "../context";
+import { getPath } from "../../../utils/path";
 import styles from "./style.scss?inline";
 
-import type { FormRules, RuleTrigger } from "./types";
+import type { FormEmits, FormProps, FormRules, RuleTrigger } from "./types";
 
-export type { FormProps, FormRule, FormRules, RuleTrigger, ValidateField } from "./types";
+export type {
+  FormEmits,
+  FormExpose,
+  FormField,
+  FormProps,
+  FormRule,
+  FormRules,
+  RuleTrigger,
+  ValidateField
+} from "./types";
 
-const props = defineProps({
+const isScrollIntoViewOptions = (value: unknown): value is ScrollIntoViewOptions =>
+  typeof value === "object" && value !== null;
+
+const props = defineProps<FormProps>({
   model: { type: Object, default: () => ({}) },
   rules: { type: Object, default: () => ({}) },
   size: { type: String, default: "md" },
@@ -49,14 +64,12 @@ const props = defineProps({
   preventSubmit: { type: Boolean, default: true }
 });
 
-const emit = defineEmits(["validate", "submit"]);
+const emit = defineEmits<FormEmits>();
 
 const host = useHost();
 
-const isScrollIntoViewOptions = (value: unknown): value is ScrollIntoViewOptions =>
-  typeof value === "object" && value !== null;
-
 const items: FormItemContext[] = [];
+let rulesReady = false;
 
 const findItems = (propPath?: string | string[]): FormItemContext[] => {
   if (!propPath) return [...items];
@@ -64,28 +77,34 @@ const findItems = (propPath?: string | string[]): FormItemContext[] => {
   return items.filter((it) => arr.includes(it.prop));
 };
 
+const getField = (prop: string): FormItemContext | undefined =>
+  items.find((item) => item.prop === prop);
+
+const findItemElement = (prop: string): HTMLElement | undefined =>
+  Array.from(host.querySelectorAll<HTMLElement>("elf-form-item")).find((element) => {
+    const value = (element as HTMLElement & { prop?: string }).prop;
+    return value === prop || element.getAttribute("prop") === prop;
+  });
+
+const scrollToField = (
+  prop: string,
+  options: ScrollIntoViewOptions | boolean = props.scrollIntoViewOptions
+): void => {
+  const element = findItemElement(prop);
+  if (!element) return;
+  if (options === false) element.scrollIntoView({ block: "nearest" });
+  else if (isScrollIntoViewOptions(options)) element.scrollIntoView(options);
+  else element.scrollIntoView();
+};
+
 const validate = async (): Promise<boolean> => {
   const results = await Promise.all(items.map((it) => it.validate()));
   const ok = results.every(Boolean);
 
   if (!ok && props.scrollToError) {
-    await queueMicrotask(() => {
-      const firstErr = items.find((it) => it.state === "error");
-      if (firstErr) {
-        const el = host.querySelector(`[prop="${firstErr.prop}"]`);
-        const options = props.scrollIntoViewOptions;
-        if (options === false) el?.scrollIntoView({ block: "nearest" });
-        else if (isScrollIntoViewOptions(options)) el?.scrollIntoView(options);
-        else el?.scrollIntoView();
-      }
-    });
+    const firstError = items.find((item) => item.state === "error");
+    if (firstError) scrollToField(firstError.prop);
   }
-
-  emit(
-    "validate",
-    ok,
-    items.map((it) => ({ prop: it.prop, message: it.message }))
-  );
   return ok;
 };
 
@@ -98,12 +117,22 @@ const validateField = async (
   return results.every(Boolean);
 };
 
-const resetFields = (): void => {
-  for (const it of items) it.resetField();
+const resetFields = (propPath?: string | string[]): void => {
+  for (const item of findItems(propPath)) item.resetField();
 };
 
 const clearValidate = (propPath?: string | string[]): void => {
   for (const it of findItems(propPath)) it.clearValidate();
+};
+
+const setInitialValues = (values: Record<string, unknown> = props.model): void => {
+  for (const item of items) {
+    item.setInitialValue(getPath(values, item.prop));
+  }
+};
+
+const notifyValidate = (prop: string, isValid: boolean, message: string): void => {
+  emit("validate", prop, isValid, message);
 };
 
 const onSubmit = (event: Event): void => {
@@ -168,17 +197,41 @@ const formCtx: FormContext = {
   validateField,
   validate,
   resetFields,
-  clearValidate
+  clearValidate,
+  notifyValidate
 };
 
 provide(FORM_KEY, formCtx);
 
+onMounted(() => {
+  rulesReady = true;
+});
+
+useEffect(() => {
+  void props.rules;
+  if (!rulesReady || !props.validateOnRuleChange) return;
+  queueMicrotask(() => void validate());
+});
+
+useHostAttr("size", () => String(props.size || "md"));
+useHostFlag("disabled", () => Boolean(props.disabled));
 useHostFlag("inline", () => Boolean(props.inline));
 
-defineExpose({ validate, validateField, resetFields, clearValidate });
+defineExpose({
+  validate,
+  validateField,
+  resetFields,
+  scrollToField,
+  clearValidate,
+  getField,
+  setInitialValues,
+  get fields() {
+    return [...items];
+  }
+});
 
 defineStyle(styles);
 
-const Form = defineHtml(html`<form @submit=${onSubmit}><slot></slot></form>`);
+const Form = defineHtml(`<form @submit=${onSubmit}><slot></slot></form>`);
 
 export { Form };

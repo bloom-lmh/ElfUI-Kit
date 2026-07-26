@@ -28,8 +28,9 @@ export interface FormContext {
   unregisterItem(item: FormItemContext): void;
   validateField: ValidateField;
   validate(): Promise<boolean>;
-  resetFields(): void;
+  resetFields(props?: string | string[]): void;
   clearValidate(props?: string | string[]): void;
+  notifyValidate(prop: string, isValid: boolean, message: string): void;
 }
 
 export interface FormItemContext {
@@ -43,6 +44,7 @@ export interface FormItemContext {
   validate(trigger?: RuleTrigger): Promise<boolean>;
   clearValidate(): void;
   resetField(): void;
+  setInitialValue(value?: unknown): void;
 }
 
 export interface CheckboxGroupContext {

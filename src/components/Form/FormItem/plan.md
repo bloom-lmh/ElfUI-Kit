@@ -162,19 +162,25 @@
 
 ## 差距与任务
 
-- [ ] P0 补齐核心属性差距：`model`、`inline`、`label-position`、`label-width`、`label-suffix`、`hide-required-asterisk`、`require-asterisk-position`、`status-icon`、`validate-on-rule-change`、`disabled`、`scroll-to-error`、`scroll-into-view-options ^`、`label-position ^`、`for`、`validate-status`、`trigger`
-- [ ] P0 补齐事件差距：`validate`
-- [ ] P1 补齐插槽/暴露方法：`label`、`error`、`validate`、`validateField`、`resetFields`、`scrollToField`、`clearValidate`、`fields ^`、`getField ^`、`setInitialValues ^`、`size`、`validateMessage`、`validateState`、`resetField`、`setInitialValue ^`
-- [ ] P1 对齐交互行为、键盘访问、禁用态、清空态、受控/非受控同步、表单联动和无障碍属性。
-- [ ] P2 更新页面示例：Template / Script 双视图、所有动态绑定使用 `${...}`，补齐 Element Plus 关键场景示例。
-- [ ] P2 补齐组件单测、页面冒烟和类型导出；必要时补视觉回归截图。
+- [x] P0 补齐 Item 自有属性：`label-position`、`label-width`、`for`、`validate-status`、`trigger`；模型、布局、全局禁用与滚动属性继续由 Form 上下文统一管理。
+- [x] P0 补齐逐字段 `validate` 事件，并同步通知所属 Form。
+- [x] P1 补齐 `label` / `error` 插槽及 `validateMessage`、`validateState`、`validate`、`resetField`、`clearValidate`、`setInitialValue` 暴露方法；`size` 保持 Custom Element 原生 prop，避免 expose 覆盖警告。
+- [x] P1 对齐异步竞态、触发时机、尺寸/禁用继承、左右星号、状态图标与错误 `aria-live`。
+- [x] P2 页面命令案例和 API 表覆盖字段级状态、滚动及重置基线。
+- [x] P2 补齐集成测试、页面冒烟与类型导出，并完成真实浏览器验证。
 
 ## 验收清单
 
-- [ ] API props/types 与页面 PropsTable 同步。
-- [ ] 关键交互和边界状态有单测覆盖。
-- [ ] 文档示例能在 Playground 中显示 Template / Script，且复制内容正确。
-- [ ] `npm --prefix ui-kit run build` 通过；涉及运行时能力时补跑目标测试。
+- [x] API props/types 与页面 PropsTable 同步。
+- [x] 关键交互和边界状态有单测覆盖。
+- [x] 文档示例能在 Playground 中显示 Template / Script，且复制内容正确。
+- [x] `pnpm typecheck`、目标测试、全量测试与生产构建通过。
+
+## 2026-07-27 字段契约收尾
+
+- [x] 初始值按值快照保存，允许将 `undefined` 作为合法重置目标。
+- [x] 新校验会使旧异步结果失效，避免错误消息回写覆盖新状态。
+- [x] 标签位置、标签宽度、星号位置和 inline 状态随父级运行时配置同步。
 
 ---
 
@@ -195,4 +201,4 @@
   - [x] 向下通过 `provide(FORM_ITEM_KEY)` 向内部的具体输入型控件（如 `Input`, `Select`, `Checkbox` 等）提供字段上下文，用于触发联动校验。
 - [x] **2.2 嵌套字段支持**: 支持使用路径字符串（如 `prop="user.name"`）访问和操作 `form.model` 中深层嵌套的数据结构。
 - [x] **2.3 多触发时机校验 (Trigger)**: 支持配置 `blur`, `change`, `input` 等触发类型，根据用户交互动态调度异步校验器。
-- [x] **2.4 自定义重置 (Reset) 机制**: 在 `onMount` 时期缓存字段的初始值 `initialValue`，当触发 `resetField` 时精确还原数据并清理校验状态。
+- [x] **2.4 自定义重置 (Reset) 机制**: 在 `onMounted` 时期缓存字段的初始值 `initialValue`，当触发 `resetField` 时精确还原数据并清理校验状态。

@@ -8,7 +8,7 @@
 // - rules 合并（form.rules[prop] + item.rules）
 
 import { useReactive } from "@elfui/core";
-import { afterEach, beforeAll, describe, expect, it } from "vitest";
+import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
 beforeAll(async () => {
   await import("../../../components");
@@ -22,11 +22,26 @@ const tick = (): Promise<void> => new Promise((r) => queueMicrotask(r));
 
 interface FormHost extends HTMLElement {
   validate(): Promise<boolean>;
-  resetFields(): void;
-  clearValidate(): void;
+  resetFields(prop?: string | string[]): void;
+  clearValidate(prop?: string | string[]): void;
   validateField(prop: string | string[], trigger?: string): Promise<boolean>;
+  scrollToField(prop: string, options?: ScrollIntoViewOptions | boolean): void;
+  getField(prop: string): FormItemHost | undefined;
+  setInitialValues(values?: Record<string, unknown>): void;
+  readonly fields: readonly FormItemHost[];
   model?: unknown;
   rules?: unknown;
+}
+
+interface FormItemHost {
+  readonly prop: string;
+  readonly initialValue: unknown;
+  readonly state: "" | "validating" | "success" | "error";
+  readonly message: string;
+  validate(trigger?: string): Promise<boolean>;
+  resetField(): void;
+  clearValidate(): void;
+  setInitialValue(value?: unknown): void;
 }
 
 const buildSimpleForm = async (): Promise<{
@@ -132,6 +147,106 @@ describe("Form 联动", () => {
     await tick();
     expect(item.shadowRoot!.querySelector(".error")).toBeNull();
     expect(data.name).toBe("");
+  });
+
+  it("validateField 只校验指定字段", async () => {
+    const { form, item } = await buildSimpleForm();
+
+    const ok = await form.validateField("name");
+    await tick();
+
+    expect(ok).toBe(false);
+    expect(item.shadowRoot!.querySelector(".error")?.textContent).toContain("必填");
+  });
+
+  it("scrollToError 会定位到第一个错误字段", async () => {
+    const { form, item } = await buildSimpleForm();
+    (form as FormHost & { scrollToError?: boolean }).scrollToError = true;
+    const scrollIntoView = vi.fn();
+    item.scrollIntoView = scrollIntoView;
+
+    expect(await form.validate()).toBe(false);
+    await tick();
+
+    expect(scrollIntoView).toHaveBeenCalledWith({ behavior: "smooth", block: "center" });
+  });
+
+  it("exposes registered fields and scrolls a requested field with explicit options", async () => {
+    const { form, item } = await buildSimpleForm();
+    const scrollIntoView = vi.fn();
+    item.scrollIntoView = scrollIntoView;
+
+    expect(form.fields).toHaveLength(1);
+    expect(form.getField("name")?.prop).toBe("name");
+    expect(form.getField("missing")).toBeUndefined();
+
+    form.scrollToField("name", { behavior: "auto", block: "start" });
+    expect(scrollIntoView).toHaveBeenCalledWith({ behavior: "auto", block: "start" });
+  });
+
+  it("updates reset baselines through setInitialValues", async () => {
+    const { form, data } = await buildSimpleForm();
+    data.name = "Current";
+    form.setInitialValues({ name: "Baseline" });
+    data.name = "Changed";
+
+    form.resetFields("name");
+    expect(data.name).toBe("Baseline");
+  });
+
+  it("accepts undefined as an explicit reset baseline", async () => {
+    const { form, data } = await buildSimpleForm();
+    data.name = "Current";
+    form.setInitialValues({ name: undefined });
+    data.name = "Changed";
+
+    form.resetFields("name");
+    expect(data.name).toBeUndefined();
+  });
+
+  it("emits Element-compatible per-field validation details", async () => {
+    const { form } = await buildSimpleForm();
+    const validateEvent = vi.fn();
+    form.addEventListener("validate", validateEvent);
+
+    expect(await form.validateField("name")).toBe(false);
+    const event = validateEvent.mock.calls[0]![0] as CustomEvent;
+    expect(event.detail).toEqual(["name", false, "必填"]);
+  });
+
+  it("exposes FormItem validation state and command methods", async () => {
+    const { form, item } = await buildSimpleForm();
+    const exposed = item as HTMLElement & {
+      validate(): Promise<boolean>;
+      resetField(): void;
+      clearValidate(): void;
+      setInitialValue(value?: unknown): void;
+      readonly validateState: string;
+      readonly validateMessage: string;
+    };
+
+    expect(await exposed.validate()).toBe(false);
+    expect(exposed.validateState).toBe("error");
+    expect(exposed.validateMessage).toBe("必填");
+
+    exposed.clearValidate();
+    expect(exposed.validateState).toBe("");
+    expect(form.fields[0]?.state).toBe("");
+  });
+
+  it("reflects asterisk placement, status icons, and accessible feedback", async () => {
+    const { form, item } = await buildSimpleForm();
+    (form as FormHost & { requireAsteriskPosition?: string; statusIcon?: boolean }).requireAsteriskPosition = "right";
+    (form as FormHost & { requireAsteriskPosition?: string; statusIcon?: boolean }).statusIcon = true;
+    item.setAttribute("required", "");
+    await tick();
+
+    expect(await form.validate()).toBe(false);
+    await tick();
+
+    expect(item.hasAttribute("data-asterisk-right")).toBe(true);
+    expect(item.shadowRoot!.querySelector(".status-icon.error")?.textContent).toContain("!");
+    expect(item.shadowRoot!.querySelector(".feedback.error")?.getAttribute("role")).toBe("alert");
   });
 
   it("keeps inline layout on the native form and supports native submit opt-out", async () => {
@@ -247,5 +362,38 @@ describe("异步校验", () => {
     const ok = await form.validate();
     expect(ok).toBe(false);
     expect(item.shadowRoot!.querySelector(".error")?.textContent).toContain("异步校验失败");
+  });
+
+  it("ignores a stale asynchronous result after a newer validation completes", async () => {
+    const data = useReactive({ name: "old" });
+    const form = document.createElement("elf-form") as FormHost;
+    form.model = data;
+    form.rules = {
+      name: [
+        {
+          validator: async (value) => {
+            await new Promise((resolve) => setTimeout(resolve, value === "old" ? 30 : 1));
+            return value === "old" ? "stale error" : true;
+          }
+        }
+      ]
+    };
+    document.body.appendChild(form);
+
+    const item = document.createElement("elf-form-item");
+    item.setAttribute("prop", "name");
+    form.appendChild(item);
+    await tick();
+    await tick();
+
+    const field = form.getField("name")!;
+    const stale = field.validate();
+    data.name = "new";
+    const current = field.validate();
+    await Promise.all([stale, current]);
+
+    expect(field.state).toBe("success");
+    expect(field.message).toBe("");
+    expect(item.shadowRoot!.querySelector(".error")).toBeNull();
   });
 });

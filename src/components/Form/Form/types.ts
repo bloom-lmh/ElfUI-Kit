@@ -45,6 +45,33 @@ export type FormRules = Record<string, FormRule[]>;
 /** 校验单字段 API */
 export type ValidateField = (prop: string | string[], trigger?: RuleTrigger) => Promise<boolean>;
 
+export interface FormField {
+  readonly prop: string;
+  readonly initialValue: unknown;
+  readonly state: "" | "validating" | "success" | "error";
+  readonly message: string;
+  validate(trigger?: RuleTrigger): Promise<boolean>;
+  clearValidate(): void;
+  resetField(): void;
+  setInitialValue(value?: unknown): void;
+}
+
+export interface FormExpose {
+  validate(): Promise<boolean>;
+  validateField: ValidateField;
+  resetFields(prop?: string | string[]): void;
+  scrollToField(prop: string, options?: ScrollIntoViewOptions | boolean): void;
+  clearValidate(prop?: string | string[]): void;
+  getField(prop: string): FormField | undefined;
+  setInitialValues(values?: Record<string, unknown>): void;
+  readonly fields: readonly FormField[];
+}
+
+export interface FormEmits {
+  validate: [prop: string, isValid: boolean, message: string];
+  submit: [event: Event];
+}
+
 /** elf-form props */
 export interface FormProps {
   model: Record<string, unknown>;

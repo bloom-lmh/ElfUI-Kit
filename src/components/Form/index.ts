@@ -19,7 +19,16 @@ export {
   type FormItemInfo,
   type UseFormControlOptions
 } from "../../composables/form";
-export type { FormProps, FormRule, FormRules, RuleTrigger, ValidateField } from "./Form/types";
+export type {
+  FormEmits,
+  FormExpose,
+  FormField,
+  FormProps,
+  FormRule,
+  FormRules,
+  RuleTrigger,
+  ValidateField
+} from "./Form/types";
 export type {
   AutocompleteFetchSuggestions,
   AutocompleteOption,
@@ -28,6 +37,8 @@ export type {
 } from "./Autocomplete/types";
 export type {
   FormItemProps,
+  FormItemEmits,
+  FormItemExpose,
   FormItemSize,
   FormItemValidateState,
   ValidateError
@@ -60,6 +71,7 @@ export type {
   CascaderModelValue,
   CascaderNodeSnapshot,
   CascaderOption,
+  CascaderPanelMode,
   CascaderPanelProps,
   CascaderProps,
   CascaderSize,
