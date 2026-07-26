@@ -27,3 +27,12 @@
 ## 本轮案例页
 
 - [x] 新增独立展示页面，覆盖 Template / Script、items 数据结构、column、border、vertical、size 和 span 示例。
+
+## 2026-07-26 v0.0.2-beta.1 内容边界与插槽复核
+
+- [x] 新增基于组件自身宽度的 `responsive` 列策略，在最大列数、2 列和 1 列之间稳定切换，数据项与声明式子项的 span 同步收敛。
+- [x] 新增 `empty-text` 与 `empty` slot；null、undefined、空字符串使用占位文本，同时保留 `0` 与 `false`。
+- [x] 修复仅提供 `title` / `extra` slot 时头部不显示的问题，默认 slot 始终监听声明式子项的动态增删。
+- [x] 声明式子项补齐 `rowspan`、`label-class-name`、`empty-text`，水平标签统一进入共享宽度轨道。
+- [x] DOM 语义调整为 `dl` / `dt` / `dd`，长标签、长链接和值内容统一安全换行。
+- [x] 文档收敛为响应式内容边界、边框方向密度、插槽操作与空集合 3 个双语场景，补齐 Template、Script 和完整 API。

@@ -1,9 +1,10 @@
-import { defineHtml, html, useComponents } from "@elfui/core";
+import { defineHtml, useComponents } from "@elfui/core";
+
 import { createDocsTranslator } from "../../docsLocale";
-import { PageDescriptionsProps } from "./props";
 import { PageDescriptionsEx1 } from "./ex1";
 import { PageDescriptionsEx2 } from "./ex2";
 import { PageDescriptionsEx3 } from "./ex3";
+import { PageDescriptionsProps } from "./props";
 
 useComponents({
   "page-descriptions-ex1": PageDescriptionsEx1,
@@ -15,12 +16,12 @@ useComponents({
 const t = createDocsTranslator({
   title: { zh: "Descriptions 描述列表", en: "Descriptions" },
   description: {
-    zh: "成组展示键值信息，支持列数、边框、方向、尺寸和字段跨列。",
-    en: "Present grouped key-value details with columns, borders, directions, sizes, and spans."
+    zh: "成组呈现结构化键值信息，支持容器响应式列、长内容与空值边界、具名插槽、丰富子项和可切换密度。",
+    en: "Present structured key-value information with container-responsive columns, long-content and empty-value boundaries, named slots, rich items, and adjustable density."
   }
 });
 
-const PageDescriptions = defineHtml(html`
+const PageDescriptions = defineHtml(`
   <elf-container>
     <h1>${t("title")}</h1>
     <p>${t("description")}</p>
