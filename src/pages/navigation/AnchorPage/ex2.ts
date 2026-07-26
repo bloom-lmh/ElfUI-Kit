@@ -1,5 +1,6 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, defineStyle, useRef, useTemplateRef } from "@elfui/core";
 import { createDocsTranslator } from "../../docsLocale";
+import styles from "./demo.scss?inline";
 
 const t = createDocsTranslator({
   nested: { zh: "嵌套与受控模式", en: "Nested and controlled" },
@@ -24,6 +25,8 @@ const t = createDocsTranslator({
 
 const active = useRef("#anchor-nested-install");
 const horizontalActive = useRef("#anchor-horizontal-overview");
+const horizontalScrollProgress = useRef(0);
+const horizontalScroll = useTemplateRef<HTMLElement>("horizontalScroll");
 const items = () => [
   { title: t("start"), href: "#anchor-nested-start", children: [
     { title: t("install"), href: "#anchor-nested-install" },
@@ -44,23 +47,76 @@ const horizontalItems = () => [
   { title: t("release"), href: "#anchor-horizontal-release" }
 ];
 const horizontalSections = () => horizontalItems().map((item, index) => ({
-  ...item, id: item.href.slice(1), body: `${index + 1}. ${t("sectionBody")}`
+  ...item,
+  id: item.href.slice(1),
+  body: `${index + 1}. ${t("sectionBody")}`,
+  tone: `tone-${(index % 4) + 1}`
 }));
 const onUpdate = (event: CustomEvent<string>): void => active.set(event.detail);
 const onHorizontalUpdate = (event: CustomEvent<string>): void => horizontalActive.set(event.detail);
+const onHorizontalContentScroll = (event: Event): void => {
+  const target = event.currentTarget as HTMLElement;
+  const max = Math.max(1, target.scrollWidth - target.clientWidth);
+  horizontalScrollProgress.set(Math.min(1, Math.max(0, target.scrollLeft / max)));
+};
+const horizontalScrollbarValue = (): number => Math.round(horizontalScrollProgress.value * 1000);
+const onHorizontalScrollbarInput = (event: Event): void => {
+  const target = horizontalScroll.value;
+  if (!target) return;
+  const progress = Math.min(1, Math.max(0, Number((event.currentTarget as HTMLInputElement).value) / 1000));
+  target.scrollLeft = progress * Math.max(0, target.scrollWidth - target.clientWidth);
+  horizontalScrollProgress.set(progress);
+};
 
 const code = `<elf-anchor :items.prop="items" :modelValue.prop="active" container="#anchor-nested-scroll" :bound="24" @update:modelValue="onUpdate" />`;
-const horizontalCode = `<elf-anchor :items.prop="horizontalItems" direction="horizontal" type="underline" :marker="false" container="#anchor-horizontal-scroll" :modelValue.prop="horizontalActive" />`;
-const script = `const active = useRef("#anchor-nested-install");
+const horizontalCode = `<elf-anchor :items.prop="horizontalItems" direction="horizontal" type="underline" :marker="false" container="#anchor-horizontal-scroll" :modelValue.prop="horizontalActive" />
+<div class="horizontal-scroll-shell">
+  <div id="anchor-horizontal-scroll" class="horizontal-scroll" @scroll="onHorizontalContentScroll">
+    <section v-for="section in sections" :key="section.id" :id="section.id" class="horizontal-section">
+      <h3>{{ section.title }}</h3>
+      <p>{{ section.body }}</p>
+    </section>
+  </div>
+  <input class="horizontal-scrollbar" type="range" min="0" max="1000" value="0" aria-label="Horizontal content position" @input="onHorizontalScrollbarInput" />
+</div>`;
+const script = `const active = useRef("#install");
 const items = [
-  { title: "Getting started", href: "#start", children: [
-    { title: "Install", href: "#install" },
-    { title: "Register", href: "#register" }
-  ] }
+  {
+    title: "Getting started",
+    href: "#start",
+    children: [
+      { title: "Install", href: "#install" },
+      { title: "Register", href: "#register" }
+    ]
+  }
 ];
-const onUpdate = (event) => active.set(event.detail);`;
 
-const PageAnchorEx2 = defineHtml(html`
+const onUpdate = (event) => active.set(event.detail);
+
+const horizontalActive = useRef("#overview");
+const horizontalItems = [
+  { title: "Overview", href: "#overview" },
+  { title: "Installation", href: "#installation" },
+  { title: "API", href: "#api" }
+];
+const sections = horizontalItems.map((item, index) => ({
+  ...item,
+  id: item.href.slice(1),
+  body: \`Section \${index + 1}\`
+}));
+
+const onHorizontalContentScroll = (event) => {
+  const { scrollLeft, scrollWidth, clientWidth } = event.currentTarget;
+  const progress = scrollLeft / Math.max(1, scrollWidth - clientWidth);
+  // Synchronize a custom scrollbar or other external navigation here.
+};
+
+const onHorizontalScrollbarInput = (event) => {
+  const progress = Number(event.currentTarget.value) / 1000;
+  // Apply progress to the horizontal content container's scrollLeft.
+};`;
+
+const PageAnchorEx2 = defineHtml(`
   <h2>${t("nested")}</h2>
   <elf-playground :title=${t("nestedTitle")} :code=${code} :script=${script}>
     <div style="display:grid;grid-template-columns:minmax(180px,240px) minmax(0,1fr);gap:20px;width:100%;max-width:900px">
@@ -78,16 +134,30 @@ const PageAnchorEx2 = defineHtml(html`
 
   <elf-playground :title=${t("horizontalTitle")} :code=${horizontalCode} :script=${script}>
     <div style="width:100%;max-width:960px;min-width:0">
-      <elf-anchor :key=${t("horizontalTitle")} :items.prop=${horizontalItems()} direction="horizontal" type="underline" :marker=${false} container="#anchor-horizontal-scroll" :bound=${24} :modelValue.prop=${horizontalActive.value} @update:modelValue=${onHorizontalUpdate}></elf-anchor>
-      <div id="anchor-horizontal-scroll" style="height:300px;overflow:auto;overscroll-behavior:contain;border:1px solid var(--elf-divider);border-top:0;background:var(--elf-bg-paper)">
-        <section v-for="section in horizontalSections()" :key="section.id" :id="section.id" style="min-height:220px;padding:28px;border-bottom:1px solid var(--elf-divider)">
-          <h3 style="margin:0 0 10px">{{ section.title }}</h3>
-          <p style="margin:0;color:var(--elf-text-secondary)">{{ section.body }}</p>
-        </section>
+      <elf-anchor style="width:min(480px,100%)" :key=${t("horizontalTitle")} :items.prop=${horizontalItems()} direction="horizontal" type="underline" :marker=${false} :smooth=${false} container="#anchor-horizontal-scroll" :bound=${24} :modelValue.prop=${horizontalActive.value} @update:modelValue=${onHorizontalUpdate}></elf-anchor>
+      <div class="horizontal-scroll-shell">
+        <div ref="horizontalScroll" id="anchor-horizontal-scroll" class="horizontal-scroll" @scroll=${onHorizontalContentScroll}>
+          <section v-for="section in horizontalSections()" :key="section.id" :id="section.id" :class="['horizontal-section', section.tone]">
+            <span class="section-index">{{ section.body.slice(0, 2) }}</span>
+            <h3>{{ section.title }}</h3>
+            <p>{{ section.body.slice(3) }}</p>
+          </section>
+        </div>
+        <input
+          class="horizontal-scrollbar"
+          type="range"
+          min="0"
+          max="1000"
+          :value=${horizontalScrollbarValue()}
+          aria-label="水平内容位置"
+          @input=${onHorizontalScrollbarInput}
+        />
       </div>
       <span slot="status" class="demo-state">${t("current")}: {{ horizontalActive }}</span>
     </div>
   </elf-playground>
 `);
+
+defineStyle(styles);
 
 export { PageAnchorEx2 };

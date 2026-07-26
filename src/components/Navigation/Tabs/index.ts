@@ -4,13 +4,13 @@ import {
   defineHtml,
   defineProps,
   defineStyle,
-  html,
-  onMount,
+  onMounted,
   useComputed,
+  useEventListener,
   useHost,
   useHostFlag,
   useRef,
-  watchEffect
+  useEffect
 } from "@elfui/core";
 
 import styles from "./style.scss?inline";
@@ -25,6 +25,7 @@ import type {
   TabsPaneContext,
   TabsPosition,
   TabsProps,
+  TabsReorderDetail,
   TabsSlots,
   TabsTransition,
   TabsType
@@ -44,6 +45,7 @@ export type {
   TabsPaneContext,
   TabsPosition,
   TabsProps,
+  TabsReorderDetail,
   TabsSlots,
   TabsTransition,
   TabsType
@@ -104,6 +106,7 @@ const props = defineProps<TabsProps>({
   fixedTabs: { type: Boolean, default: false },
   centerActive: { type: Boolean, default: false },
   showArrows: { type: Boolean, default: false },
+  draggable: { type: Boolean, default: false },
   stacked: { type: Boolean, default: false },
   showPanels: { type: Boolean, default: false },
   hideSlider: { type: Boolean, default: false },
@@ -133,6 +136,8 @@ const emit = defineEmits<{
   "tab-change": [value: TabPaneName];
   "tab-remove": [value: TabPaneName];
   "tab-add": [];
+  "tab-reorder": [detail: TabsReorderDetail];
+  "update:items": [items: TabsRawItem[]];
   edit: [value: TabPaneName | undefined, action: "add" | "remove"];
 }>();
 
@@ -140,6 +145,9 @@ const host = useHost();
 const active = useRef<TabPaneName | "">("");
 const syncKey = useRef("");
 const hasPaneChildren = useRef(false);
+const sliderStyle = useRef<Record<string, string>>({ opacity: "0" });
+const orderedKeys = useRef<string[]>([]);
+const draggingKey = useRef("");
 const visitedKeys = new Set<string>();
 const labelClones = new Map<TabPaneElement, LabelCloneRecord>();
 
@@ -184,7 +192,7 @@ const panelId = (item: TabsViewItem): string => `${instanceId}-panel-${encodeURI
 const dataItems = (): TabsViewItem[] => {
   const fields = fieldNames();
   const source = Array.isArray(props.items) ? props.items : [];
-  return source.map((raw, index) => {
+  const normalized = source.map((raw, index) => {
     const item = (raw || {}) as TabsRawItem;
     const value = (item[fields.value] ?? index) as TabPaneName;
     return {
@@ -201,6 +209,12 @@ const dataItems = (): TabsViewItem[] => {
       labelSlot: ""
     };
   });
+  if (orderedKeys.value.length === 0) return normalized;
+  const positions = new Map(orderedKeys.value.map((key, index) => [key, index]));
+  return normalized.slice().sort((left, right) =>
+    (positions.get(left.key) ?? Number.MAX_SAFE_INTEGER) -
+    (positions.get(right.key) ?? Number.MAX_SAFE_INTEGER)
+  );
 };
 
 const paneItems = (): TabsViewItem[] =>
@@ -302,6 +316,35 @@ const tabButtons = (): HTMLButtonElement[] =>
 const tabListRef = (): HTMLElement | null => host.shadowRoot?.querySelector<HTMLElement>(".tab-list") ?? null;
 const tabBarRef = (): HTMLElement | null => host.shadowRoot?.querySelector<HTMLElement>(".tab-slider") ?? null;
 
+const syncSlider = (): void => {
+  const index = viewItems().findIndex((item) => isActive(item));
+  const button = tabButtons()[index];
+  if (!button) {
+    sliderStyle.set({ opacity: "0" });
+    return;
+  }
+
+  const vertical = tabPosition() === "left" || tabPosition() === "right";
+  if (vertical) {
+    sliderStyle.set({
+      opacity: "1",
+      width: "3px",
+      height: `${Math.max(0, button.offsetHeight - 16)}px`,
+      transform: `translate3d(0, ${button.offsetTop + 8}px, 0)`
+    });
+    return;
+  }
+
+  sliderStyle.set({
+    opacity: "1",
+    width: `${Math.max(0, button.offsetWidth - 24)}px`,
+    height: "3px",
+    transform: `translate3d(${button.offsetLeft + 12}px, 0, 0)`
+  });
+};
+
+const scheduleSliderSync = (): void => queueMicrotask(syncSlider);
+
 const syncLabelClone = (pane: TabPaneElement, index: number): void => {
   const source = labelSource(pane);
   const existing = labelClones.get(pane);
@@ -350,7 +393,10 @@ const commitActive = (item: TabsViewItem): void => {
   emit("update:modelValue", item.value);
   emit("change", item.value, item.raw);
   emit("tab-change", item.value);
-  queueMicrotask(scrollToActiveTab);
+  queueMicrotask(() => {
+    syncSlider();
+    scrollToActiveTab();
+  });
 };
 
 const runBeforeLeave = (item: TabsViewItem, oldValue: TabPaneName | "", commit: () => void): void => {
@@ -452,25 +498,79 @@ const scrollToActiveTab = (): void => {
     inline: props.centerActive && (tabPosition() === "top" || tabPosition() === "bottom") ? "center" : "nearest"
   });
 };
-const scrollTabs = (direction: -1 | 1): void => {
-  const list = tabListRef();
-  if (!list) return;
-  const vertical = tabPosition() === "left" || tabPosition() === "right";
-  const distance = Math.max(160, (vertical ? list.clientHeight : list.clientWidth) * 0.8) * direction;
-  list.scrollBy?.({
-    left: vertical ? 0 : distance,
-    top: vertical ? distance : 0,
-    behavior: "smooth"
-  });
+const selectRelative = (direction: -1 | 1): void => {
+  const enabled = viewItems().filter((item) => !item.disabled);
+  if (enabled.length === 0) return;
+  const current = Math.max(0, enabled.findIndex((item) => isActive(item)));
+  const next = enabled[(current + direction + enabled.length) % enabled.length];
+  if (!next) return;
+  select(next.value);
+  focusTab(next.value);
+};
+
+const onSlottedControlClick = (event: Event): void => {
+  const control = event.composedPath().find((node): node is HTMLElement =>
+    node instanceof HTMLElement
+    && (node.slot === "prev-control" || node.slot === "next-control")
+  );
+  if (!control) return;
+  selectRelative(control.slot === "prev-control" ? -1 : 1);
+};
+
+const onTabDragStart = (item: TabsViewItem, event: Event): void => {
+  const dragEvent = event as DragEvent;
+  if (!props.draggable || item.disabled) {
+    dragEvent.preventDefault();
+    return;
+  }
+  draggingKey.set(item.key);
+  dragEvent.dataTransfer?.setData("text/plain", item.key);
+  if (dragEvent.dataTransfer) dragEvent.dataTransfer.effectAllowed = "move";
+};
+
+const onTabDragEnd = (): void => draggingKey.set("");
+
+const onTabDragOver = (item: TabsViewItem, event: Event): void => {
+  const dragEvent = event as DragEvent;
+  if (!props.draggable || item.disabled || !draggingKey.peek()) return;
+  dragEvent.preventDefault();
+  if (dragEvent.dataTransfer) dragEvent.dataTransfer.dropEffect = "move";
+};
+
+const onTabDrop = (target: TabsViewItem, event: Event): void => {
+  const dragEvent = event as DragEvent;
+  if (!props.draggable || target.disabled) return;
+  dragEvent.preventDefault();
+  const sourceKey = draggingKey.peek() || dragEvent.dataTransfer?.getData("text/plain") || "";
+  const current = viewItems();
+  const from = current.findIndex((item) => item.key === sourceKey);
+  const to = current.findIndex((item) => item.key === target.key);
+  draggingKey.set("");
+  if (from < 0 || to < 0 || from === to) return;
+  const reordered = current.slice();
+  const [moved] = reordered.splice(from, 1);
+  if (!moved) return;
+  reordered.splice(to, 0, moved);
+  orderedKeys.set(reordered.map((item) => item.key));
+  const nextItems = reordered.map((item) => item.raw);
+  emit("update:items", nextItems);
+  emit("tab-reorder", { from, to, value: moved.value, items: nextItems });
+  queueMicrotask(syncSlider);
 };
 const removeFocus = (): void => {
   const root = host.shadowRoot;
   if (root?.activeElement instanceof HTMLElement) root.activeElement.blur();
 };
-const update = (): DOMRect | null => tabBarRef()?.getBoundingClientRect() ?? null;
-const onPanesSlotChange = (): void => syncPaneChildren();
+const update = (): DOMRect | null => {
+  syncSlider();
+  return tabBarRef()?.getBoundingClientRect() ?? null;
+};
+const onPanesSlotChange = (): void => {
+  syncPaneChildren();
+  scheduleSliderSync();
+};
 
-watchEffect(() => {
+useEffect(() => {
   const next = hasName(props.modelValue)
     ? props.modelValue
     : hasName(props.defaultValue)
@@ -483,14 +583,26 @@ watchEffect(() => {
   if (hasName(next)) visitedKeys.add(nameKey(next));
 });
 
-watchEffect(() => {
+useEffect(() => {
   void active.value;
   void props.closable;
   void props.editable;
+  void props.grow;
+  void props.stretch;
+  void props.stacked;
+  void props.alignTabs;
+  void props.tabPosition;
+  void props.direction;
   syncPaneChildren();
+  scheduleSliderSync();
 });
 
-onMount(syncPaneChildren);
+onMounted(() => {
+  syncPaneChildren();
+  scheduleSliderSync();
+});
+useEventListener(window, "resize", scheduleSliderSync);
+useEventListener(host, "click", onSlottedControlClick);
 useHostFlag("data-composed", () => hasPaneChildren.value);
 
 defineExpose({
@@ -524,20 +636,21 @@ defineExpose({
 
 defineStyle(styles);
 
-const Tabs = defineHtml<TabsProps, Record<string, never>, TabsSlots>(html`
+const Tabs = defineHtml<TabsProps, Record<string, never>, TabsSlots>(`
   <div :class=${["tabs", rootClass()]} :style=${hostStyle}>
     <div class="tab-navigation">
-      <button
-        v-if=${props.showArrows}
-        type="button"
-        class="tab-scroll tab-scroll-prev"
-        :aria-label=${locale.t("pagination.previous")}
-        @click=${() => scrollTabs(-1)}
-      >
-        <slot name="prev-icon">
-          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m10 3.5-4.5 4.5 4.5 4.5"></path></svg>
-        </slot>
-      </button>
+      <slot v-if=${props.showArrows} name="prev-control">
+          <button
+            type="button"
+            class="tab-scroll tab-scroll-prev"
+            :aria-label=${locale.t("pagination.previous")}
+            @click=${() => selectRelative(-1)}
+          >
+            <slot name="prev-icon">
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m10 3.5-4.5 4.5 4.5 4.5"></path></svg>
+            </slot>
+          </button>
+      </slot>
       <div
         class="tab-list"
         role="tablist"
@@ -554,8 +667,13 @@ const Tabs = defineHtml<TabsProps, Record<string, never>, TabsSlots>(html`
         :disabled="item.disabled"
         :aria-selected="isActive(item) ? 'true' : 'false'"
         :tabindex="isActive(item) ? props.tabindex : -1"
+        :draggable="props.draggable && !item.disabled ? 'true' : 'false'"
         @click="onTabClick(item, $event)"
         @keydown="onTabKeydown(item, $event)"
+        @dragstart="onTabDragStart(item, $event)"
+        @dragend=${onTabDragEnd}
+        @dragover="onTabDragOver(item, $event)"
+        @drop="onTabDrop(item, $event)"
       >
         <span v-if="item.icon" class="tab-icon">{{ item.icon }}</span>
         <span class="tab-label">
@@ -575,8 +693,8 @@ const Tabs = defineHtml<TabsProps, Record<string, never>, TabsSlots>(html`
             <path d="M4.25 4.25 11.75 11.75M11.75 4.25 4.25 11.75"></path>
           </svg>
         </span>
-        <span v-if="isActive(item)" class="tab-slider"></span>
       </button>
+      <span class="tab-slider" aria-hidden="true" :style=${sliderStyle.value}></span>
       <button
         v-if=${props.addable || props.editable}
         class="tab-add"
@@ -593,17 +711,18 @@ const Tabs = defineHtml<TabsProps, Record<string, never>, TabsSlots>(html`
         </slot>
       </button>
       </div>
-      <button
-        v-if=${props.showArrows}
-        type="button"
-        class="tab-scroll tab-scroll-next"
-        :aria-label=${locale.t("pagination.next")}
-        @click=${() => scrollTabs(1)}
-      >
-        <slot name="next-icon">
-          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m6 3.5 4.5 4.5L6 12.5"></path></svg>
-        </slot>
-      </button>
+      <slot v-if=${props.showArrows} name="next-control">
+          <button
+            type="button"
+            class="tab-scroll tab-scroll-next"
+            :aria-label=${locale.t("pagination.next")}
+            @click=${() => selectRelative(1)}
+          >
+            <slot name="next-icon">
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m6 3.5 4.5 4.5L6 12.5"></path></svg>
+            </slot>
+          </button>
+      </slot>
     </div>
     <div v-if=${showPanels()} class="tab-panels">
       <slot v-if=${hasPaneChildren} @slotchange=${onPanesSlotChange}></slot>

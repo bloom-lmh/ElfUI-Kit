@@ -1,4 +1,4 @@
-import { defineHtml, defineStyle, html, useHost, useRef } from "@elfui/core";
+import { defineHtml, defineStyle, useHost, useRef } from "@elfui/core";
 import type { ScrollbarExpose } from "../../../components/Layout/Scrollbar/types";
 import styles from "./style.scss?inline";
 const mail = Array.from({ length: 10 }, (_, index) => ({
@@ -57,7 +57,7 @@ const script =
     "  scrollbar?.setScrollTop(scrollbar.wrapRef?.scrollHeight ?? Number.MAX_SAFE_INTEGER);\n" +
     "};";
 
-const PageScrollbarEx3 = defineHtml(html`
+const PageScrollbarEx3 = defineHtml(`
     <h2>命令控制</h2>
     <elf-playground title="setScrollTop" :code=${code} :script=${script}>
         <span slot="status" class="cmd-row">

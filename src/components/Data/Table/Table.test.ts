@@ -70,7 +70,8 @@ interface TableEl extends HTMLElement {
   expandFormatter?: (row: Record<string, unknown>, index: number) => unknown;
   setScrollTop(value: number): void;
   setScrollLeft(value: number): void;
-  scrollTo(x: number, y?: number): void;
+  scrollTableTo(x: number, y?: number): void;
+  sort(prop: string, order?: "" | "ascending" | "descending"): void;
   toggleAllSelection(): void;
   getSelectionRows(): Record<string, unknown>[];
   clearFilter(columnKeys?: string | string[]): void;
@@ -462,6 +463,7 @@ describe("elf-table", () => {
     expect(tooltip.textContent).toContain("Alice 的完整档案");
     expect(tooltip.dataset.placement).toBe("bottom-start");
     expect(tooltip.style.maxWidth).toBe("240px");
+    expect(tooltip.getAttribute("popover")).toBe("manual");
     expect(cell.getAttribute("aria-describedby")).toBe(tooltip.id);
     expect(formatter).toHaveBeenCalledWith(rows[0], expect.objectContaining({ prop: "name" }), 0);
 
@@ -491,6 +493,49 @@ describe("elf-table", () => {
     expect(el.shadowRoot!.activeElement).toBe(cell);
   });
 
+  it("溢出提示在外部滚动时跟随锚点更新位置", async () => {
+    const el = await mount((table) => {
+      table.columns = [{ prop: "name", label: "姓名", width: 80, showOverflowTooltip: true }];
+      table.tooltipOptions = { placement: "bottom-start", showAfter: 0, hideAfter: 0 };
+    });
+    const scrollParent = document.createElement("div");
+    Object.defineProperties(scrollParent, {
+      clientHeight: { configurable: true, value: 100 },
+      scrollHeight: { configurable: true, value: 300 }
+    });
+    scrollParent.style.overflowY = "auto";
+    document.body.append(scrollParent);
+    scrollParent.append(el);
+    const cell = el.shadowRoot!.querySelector<HTMLTableCellElement>("tbody td")!;
+    const content = cell.querySelector<HTMLElement>(".cell-text")!;
+    Object.defineProperty(content, "clientWidth", { value: 60, configurable: true });
+    Object.defineProperty(content, "scrollWidth", { value: 160, configurable: true });
+    let anchorTop = 80;
+    cell.getBoundingClientRect = vi.fn(() => ({
+      left: 100,
+      top: anchorTop,
+      right: 180,
+      bottom: anchorTop + 40,
+      width: 80,
+      height: 40,
+      x: 100,
+      y: anchorTop,
+      toJSON: () => ({})
+    })) as unknown as Element["getBoundingClientRect"];
+
+    cell.dispatchEvent(new MouseEvent("mouseenter"));
+    await tick();
+    const tooltip = el.shadowRoot!.querySelector<HTMLElement>('[role="tooltip"]')!;
+    const firstTop = tooltip.style.top;
+
+    anchorTop = 180;
+    scrollParent.dispatchEvent(new Event("scroll"));
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+
+    expect(tooltip.style.top).not.toBe(firstTop);
+    scrollParent.remove();
+  });
+
   it("支持 empty/append 插槽、scroll 事件与滚动公开方法", async () => {
     const el = document.createElement("elf-table") as TableEl;
     el.data = [];
@@ -509,7 +554,7 @@ describe("elf-table", () => {
     el.setScrollLeft(18);
     expect(wrap.scrollTop).toBe(40);
     expect(wrap.scrollLeft).toBe(18);
-    el.scrollTo(7, 12);
+    el.scrollTableTo(7, 12);
     expect(wrap.scrollLeft).toBe(7);
     expect(wrap.scrollTop).toBe(12);
 
@@ -568,6 +613,25 @@ describe("elf-table", () => {
     expect(el.shadowRoot!.textContent).toContain("任务 #00001");
     expect(el.shadowRoot!.textContent).not.toContain("任务 #10000");
     expect((el.shadowRoot!.querySelector("tbody") as HTMLElement).style.paddingBlockStart).toBe("0px");
+  });
+
+  it("快速虚拟路径在排序后立即重绘当前窗口", async () => {
+    const el = document.createElement("elf-table") as TableEl;
+    el.data = Array.from({ length: 300 }, (_, index) => ({ id: index + 1, score: index + 1 }));
+    el.columns = [{ prop: "score", label: "分数", sortable: true }];
+    el.virtual = true;
+    el.virtualThreshold = 1;
+    el.height = 240;
+    el.rowHeight = 40;
+    document.body.appendChild(el);
+    await tick();
+    await tick();
+
+    expect(el.shadowRoot!.querySelector("tbody tr")?.textContent).toContain("1");
+    el.sort("score", "descending");
+    await tick();
+
+    expect(el.shadowRoot!.querySelector("tbody tr")?.textContent).toContain("300");
   });
 
   it("span-method 支持数组和对象结果，并隐藏被合并单元格", async () => {
@@ -1014,6 +1078,22 @@ describe("elf-table", () => {
     strict.shadowRoot!.querySelector<HTMLButtonElement>("tbody .table-checkbox")!.click();
     await tick();
     expect(strict.getSelectionRows().map((row) => row.id)).toEqual(["root"]);
+  });
+
+  it("allows selecting a tree child without implicitly selecting its parent", async () => {
+    const el = await mount((table) => {
+      table.data = [{ id: "root", name: "Parent", children: [{ id: "leaf", name: "Child" }] }];
+      table.columns = [{ type: "selection" }, { prop: "name", label: "Name" }];
+      table.defaultExpandedRowKeys = ["root"];
+    });
+    const checkboxes = el.shadowRoot!.querySelectorAll<HTMLButtonElement>("tbody .table-checkbox");
+
+    checkboxes[1]!.click();
+    await tick();
+
+    expect(el.getSelectionRows().map((row) => row.id)).toEqual(["leaf"]);
+    expect(checkboxes[0]!.getAttribute("aria-checked")).toBe("mixed");
+    expect(checkboxes[1]!.getAttribute("aria-checked")).toBe("true");
   });
 
   it("renderHeader/renderCell 可安全挂载真实 DOM 节点并接收完整上下文", async () => {

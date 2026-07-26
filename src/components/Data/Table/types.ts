@@ -252,8 +252,8 @@ export interface TableExpose {
   clearFilter(columnKeys?: string | string[]): void;
   sort(prop: string, order?: TableSortOrder): void;
   doLayout(): void;
-  scrollTo(options: ScrollToOptions): void;
-  scrollTo(x: number, y?: number): void;
+  scrollTableTo(options: ScrollToOptions): void;
+  scrollTableTo(x: number, y?: number): void;
   setScrollTop(value: number): void;
   setScrollLeft(value: number): void;
   readonly columns: TableColumn[];

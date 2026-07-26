@@ -1,10 +1,10 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 import { opts, optsWithDisabled } from "./shared";
 
 const clearValue = useRef("");
 
-const code1 = `<div style="width:240px;margin-bottom:8px">
-  <elf-select
+const code1 = `<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+  <elf-select style="width:240px"
     :options.prop=\${opts}
     :modelValue=\${clearValue}
     clearable
@@ -12,9 +12,7 @@ const code1 = `<div style="width:240px;margin-bottom:8px">
     placeholder="选了能清"
     @update:modelValue=\${onClearUpdate}
   />
-</div>
-<div style="width:240px">
-  <elf-select :options.prop=\${optsWithDisabled} placeholder="选项C不可选" />
+  <elf-select style="width:240px" :options.prop=\${optsWithDisabled} placeholder="选项C不可选" />
 </div>`;
 
 const script1 = `const clearValue = useRef("");
@@ -39,9 +37,10 @@ const onClearUpdate = (event: CustomEvent): void => {
   clearValue.set(String(event.detail || ""));
 };
 
-const PageSelectEx2 = defineHtml(html`
+const PageSelectEx2 = defineHtml(`
   <elf-playground title="clearable / value-on-clear / 禁用项" :code=${code1} :script=${script1}>
-    <div style="width:240px;margin-bottom:8px">
+    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;width:100%;justify-content:center">
+      <div style="width:240px">
       <elf-select
         :options.prop=${opts}
         :modelValue=${clearValue}
@@ -50,9 +49,10 @@ const PageSelectEx2 = defineHtml(html`
         placeholder="选了能清"
         @update:modelValue=${onClearUpdate}
       ></elf-select>
-    </div>
-    <div style="width:240px">
-      <elf-select :options.prop=${optsWithDisabled} placeholder="选项C不可选"></elf-select>
+      </div>
+      <div style="width:240px">
+        <elf-select :options.prop=${optsWithDisabled} placeholder="选项C不可选"></elf-select>
+      </div>
     </div>
   </elf-playground>
 `);

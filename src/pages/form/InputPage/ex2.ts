@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 const clearValue = useRef("");
 const readonlyText = useRef("只读内容");
@@ -7,8 +7,10 @@ const code1 = `<elf-input size="small" placeholder="small" />
 <elf-input size="default" placeholder="default" />
 <elf-input size="large" placeholder="large" />`;
 
-const code2 = `<elf-input disabled placeholder="禁用" />
-<elf-input readonly :modelValue.prop=\${readonlyText.value} />`;
+const code2 = `<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+  <elf-input style="width:200px" disabled placeholder="禁用" />
+  <elf-input style="width:200px" readonly :modelValue.prop=\${readonlyText.value} />
+</div>`;
 
 const script2 = `const readonlyText = useRef("只读内容");`;
 
@@ -33,7 +35,7 @@ const onClearUpdate = (event: CustomEvent): void => {
   clearValue.set(String(event.detail || ""));
 };
 
-const PageInputEx2 = defineHtml(html`
+const PageInputEx2 = defineHtml(`
   <h2>尺寸</h2>
   <elf-playground title="small / default / large" :code=${code1}>
     <div style="width:200px;margin-bottom:8px">
@@ -47,10 +49,12 @@ const PageInputEx2 = defineHtml(html`
 
   <h2>状态</h2>
   <elf-playground title="disabled / readonly" :code=${code2} :script=${script2}>
-    <div style="width:200px;margin-bottom:8px">
+    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;width:100%;justify-content:center">
+      <div style="width:200px">
       <elf-input disabled placeholder="禁用"></elf-input>
+      </div>
+      <div style="width:200px"><elf-input readonly :modelValue.prop=${readonlyText.value}></elf-input></div>
     </div>
-    <div style="width:200px"><elf-input readonly :modelValue.prop=${readonlyText.value}></elf-input></div>
   </elf-playground>
 
   <h2>可清空</h2>

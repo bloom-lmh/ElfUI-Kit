@@ -437,6 +437,14 @@ Table 与 TableV2 的渲染模型不同：前者使用原生表格语义，后�
 - [ ] 补齐 column-sort、expanded-rows-change、end-reached、rows-rendered、row-expand 事件。
 - [ ] 使用大数据案例验证渲染窗口、滚动定位、键盘访问与性能边界。
 
+#### 2026-07-22 P0 基线
+
+- [x] 新增独立 `elf-table-v2`，以适配层复用 Table 的固定行高窗口、固定头列、排序、横纵滚动与渲染器。
+- [x] 新增 `rows-rendered` / `end-reached` / `column-sort` 等事件及 `scrollToRow` 等滚动方法。
+- [x] 5,000 行 TableV2 与 10,000 行经典 Table 案例均补齐 Template / Script，并覆盖窄屏横向滚动。
+- [x] TableV2 3 项 + Table 页面 13 项测试、Vite 796 模块构建与真实浏览器截图通过。
+- [ ] 动态行高、固定数据区和完整 overlay/footer 插槽继续作为阶段 C 增强项，不阻塞本轮 P0 性能基线。
+
 ## 验收清单
 
 - [x] 阶段 A 的 API props/types 与页面 PropsTable 同步。
@@ -476,3 +484,8 @@ Table 与 TableV2 的渲染模型不同：前者使用原生表格语义，后�
 - [x] 选择操作先同步更新可见行、复选框与 ARIA，再合并声明式提交，快速连续点击仍以最后状态为准。
 - [x] 文档分页案例改为直接更新目标 Table，移除父案例受控值造成的整段重复渲染。
 - [x] 组件与页面回归覆盖连续选择、连续翻页和最终状态；真实浏览器交互耗时较修复前约降低一半。
+
+## 2026-07-22 标题栏案例
+
+- [x] 增加带 `title` 与 `title-variant="primary"` 的双语 Table 案例并接入页面注册。
+- [x] 页面测试覆盖案例导入、注册和标题样式配置。

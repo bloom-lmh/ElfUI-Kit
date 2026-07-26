@@ -3,9 +3,8 @@ import {
   defineExpose,
   defineProps,
   defineStyle,
-  html,
-  onMount,
-  onUnmount,
+  onMounted,
+  onUnmounted,
   useEffect,
   useEventListener,
   useHost,
@@ -13,7 +12,6 @@ import {
   useHostCssVar,
   useHostFlag,
   useRef,
-  watchEffect,
   defineHtml,
 } from "@elfui/core";
 
@@ -171,7 +169,7 @@ const renderedDataItems = (): AnchorViewItem[] => (hasLinkChildren.value ? [] : 
 
 const firstEnabledHref = (): string => flatItems().find((item) => !item.disabled)?.href || "";
 
-watchEffect(() => {
+useEffect(() => {
   const controlled = String(props.modelValue || "");
   if (controlled) {
     activeHref.set(controlled);
@@ -291,10 +289,14 @@ const scrollHorizontal = (directionValue: -1 | 1): void => {
   const list = host.shadowRoot?.querySelector<HTMLElement>(".list");
   if (!list || direction() !== "horizontal") return;
   const distance = Math.max(160, list.clientWidth * 0.75) * directionValue;
-  if (typeof list.scrollBy === "function") {
-    list.scrollBy({ left: distance, behavior: props.smooth ? "smooth" : "auto" });
+  const maximum = Math.max(0, list.scrollWidth - list.clientWidth);
+  const next = Math.max(0, Math.min(maximum, list.scrollLeft + distance));
+  if (props.smooth && typeof list.scrollTo === "function") {
+    list.scrollTo({ left: next, behavior: "smooth" });
   } else {
-    list.scrollLeft += distance;
+    // Assigning scrollLeft is deterministic in browsers and test DOMs; native
+    // scrollBy is missing or a no-op in several Custom Element environments.
+    list.scrollLeft = next;
   }
 };
 
@@ -403,7 +405,7 @@ useEventListener(host, "elf-anchor-link-click", (event) => {
   onItemClick(item, customEvent.detail.event);
 });
 
-watchEffect(() => {
+useEffect(() => {
   void activeHref.value;
   void props.modelValue;
   void props.direction;
@@ -428,14 +430,14 @@ const renderLevelStyle = (item: AnchorViewItem): Record<string, string> => ({
   "--anchor-level": String(item.level),
 });
 
-onMount(() => {
+onMounted(() => {
   if (typeof window === "undefined") return;
   mounted.set(true);
   syncLinkChildren();
   connect();
 });
 
-onUnmount(() => {
+onUnmounted(() => {
   mounted.set(false);
   cleanup();
 });
@@ -456,7 +458,7 @@ defineExpose({ scrollToAnchor: scrollTo });
 
 defineStyle(styles);
 
-const Anchor = defineHtml<AnchorProps, Record<string, never>, AnchorSlots>(html`
+const Anchor = defineHtml<AnchorProps, Record<string, never>, AnchorSlots>(`
   <nav :class=${["anchor", rootClass()]} :aria-label=${locale.t("a11y.anchorNavigation")}>
     <div v-if=${props.marker} class="track" aria-hidden="true"></div>
     <button

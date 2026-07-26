@@ -222,9 +222,9 @@ describe("elf-dropdown", () => {
     expect(el.hasAttribute("data-open")).toBe(false);
   });
 
-  it("disabled 时 handleOpen 无效", async () => {
+  it("disabled 时 openMenu 无效", async () => {
     const el = await mount({ disabled: true });
-    el.handleOpen?.();
+    el.openMenu?.();
     await flush();
     expect(el.hasAttribute("data-open")).toBe(false);
   });
@@ -238,30 +238,22 @@ describe("elf-dropdown", () => {
 
   // ─── 暴露方法与键盘 ───────────────────────────────────────
 
-  it("supports handleOpen, handleClose, show, hide, toggle", async () => {
+  it("supports collision-safe menu methods", async () => {
     const el = await mount();
 
-    el.handleOpen?.();
+    el.openMenu?.();
     await flush();
     expect(el.hasAttribute("data-open")).toBe(true);
 
-    el.handleClose?.();
+    el.closeMenu?.();
     await flush();
     expect(el.hasAttribute("data-open")).toBe(false);
 
-    el.show?.();
+    el.toggleMenu?.();
     await flush();
     expect(el.hasAttribute("data-open")).toBe(true);
 
-    el.hide?.();
-    await flush();
-    expect(el.hasAttribute("data-open")).toBe(false);
-
-    el.toggle?.();
-    await flush();
-    expect(el.hasAttribute("data-open")).toBe(true);
-
-    el.toggle?.();
+    el.toggleMenu?.();
     await flush();
     expect(el.hasAttribute("data-open")).toBe(false);
   });
@@ -287,6 +279,22 @@ describe("elf-dropdown", () => {
     await flush();
 
     expect(el.hasAttribute("data-open")).toBe(false);
+  });
+
+  it("moves focus out of the menu before hiding a persistent popover", async () => {
+    const el = await mount({ persistent: true, teleported: true });
+    await openByClick(el);
+
+    const item = el.shadowRoot!.querySelector<HTMLButtonElement>(".item")!;
+    item.focus();
+    expect(el.shadowRoot!.activeElement).toBe(item);
+
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    await flush();
+
+    expect(el.shadowRoot!.activeElement).toBe(trigger(el));
+    expect(menu(el)?.getAttribute("aria-hidden")).toBe("true");
+    expect(menu(el)?.hasAttribute("inert")).toBe(true);
   });
 
   it("菜单内 ArrowDown / ArrowUp / Home / End 移动焦点", async () => {
@@ -555,7 +563,7 @@ describe("elf-dropdown", () => {
     await flush();
     expect(el.hasAttribute("data-open")).toBe(true);
 
-    el.handleClose();
+    el.closeMenu();
     await flush();
     trigger(el).click();
     await flush();

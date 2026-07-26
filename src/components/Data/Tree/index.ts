@@ -10,21 +10,23 @@ import {
   defineExpose,
   defineProps,
   defineStyle,
-  html,
   useComputed,
+  useHost,
   useRef,
-  watchEffect,
-  defineHtml,
+  useEffect,
+  defineHtml
 } from "@elfui/core";
 
 import styles from "./style.scss?inline";
 import { useLocaleProvider } from "../../Providers/context";
+import { computeVirtualWindow } from "../virtual-window";
+import type { TreeNode, TreeProps } from "./types";
 
-export type { TreeFieldNames, TreeNode, TreeProps } from "./types";
+export type { TreeExpose, TreeFieldNames, TreeNode, TreeProps } from "./types";
 
 const SIGNATURE_SEP = "::elf-tree::";
 
-const props = defineProps({
+const props = defineProps<TreeProps>({
   data: { type: Array, default: () => [] },
   nodeKey: { type: String, default: "" },
   modelValue: { type: String, default: "" },
@@ -47,9 +49,20 @@ const props = defineProps({
   emptyText: { type: String, default: "" },
   indent: { type: Number, default: 20 },
   bordered: { type: Boolean, default: false },
+  lazy: { type: Boolean, default: false },
+  load: { type: Function, default: undefined },
+  filterNodeMethod: { type: Function, default: undefined },
+  draggable: { type: Boolean, default: false },
+  allowDrag: { type: Function, default: undefined },
+  allowDrop: { type: Function, default: undefined },
+  virtual: { type: Boolean, default: false },
+  height: { type: [String, Number], default: 420 },
+  itemSize: { type: Number, default: 40 },
+  overscan: { type: Number, default: 6 },
 });
 
 const locale = useLocaleProvider();
+const host = useHost();
 
 const emit = defineEmits([
   "update:modelValue",
@@ -60,6 +73,12 @@ const emit = defineEmits([
   "node-collapse",
   "check",
   "check-change",
+  "node-contextmenu",
+  "current-change",
+  "node-drag-start",
+  "node-drag-end",
+  "node-drop",
+  "node-load",
 ]);
 
 const allNodes = useRef<TreeViewNode[]>([]);
@@ -73,6 +92,16 @@ const checkedState = useRef<string[]>([]);
 const selectedKey = useRef("");
 
 const filterText = useRef("");
+
+const scrollTop = useRef(0);
+
+const loadingKeys = useRef<string[]>([]);
+
+const loadedKeys = useRef<string[]>([]);
+
+const draggingKey = useRef("");
+
+const dropTargetKey = useRef("");
 
 const nodeMap = useRef<Record<string, TreeViewNode>>({});
 
@@ -144,7 +173,10 @@ const rebuildVisible = (): void => {
 
   const matched = new Set<string>();
   for (const row of rows) {
-    if (!row.label.toLowerCase().includes(keyword)) continue;
+    const matches = typeof props.filterNodeMethod === "function"
+      ? Boolean(props.filterNodeMethod(filterText.peek(), row.raw as TreeNode))
+      : row.label.toLowerCase().includes(keyword);
+    if (!matches) continue;
     for (const key of row.path) matched.add(key);
   }
   visibleNodes.set(rows.filter((row) => matched.has(row.key)));
@@ -235,8 +267,8 @@ const buildNodes = (): void => {
         icon: String(raw[field.icon] ?? ""),
         level,
         disabled: Boolean(raw[field.disabled]),
-        isLeaf: Boolean(raw[field.isLeaf]) || children.length === 0,
-        hasChildren: children.length > 0,
+        isLeaf: Boolean(raw[field.isLeaf]) || (!props.lazy && children.length === 0),
+        hasChildren: children.length > 0 || (Boolean(props.lazy) && raw[field.isLeaf] !== true),
         parentKey,
         path: [...parentPath, key],
         raw,
@@ -275,11 +307,11 @@ const buildNodes = (): void => {
   rebuildVisible();
 };
 
-watchEffect(() => {
+useEffect(() => {
   buildNodes();
 });
 
-watchEffect(() => {
+useEffect(() => {
   if (!Array.isArray(props.expandedKeys)) return;
   const next = normalizeKeys(props.expandedKeys);
   const sig = signature(next);
@@ -287,7 +319,7 @@ watchEffect(() => {
   setExpandedKeys(next, false);
 });
 
-watchEffect(() => {
+useEffect(() => {
   if (!Array.isArray(props.checkedKeys)) return;
   const next = normalizeKeys(props.checkedKeys);
   const sig = signature(next);
@@ -295,13 +327,40 @@ watchEffect(() => {
   commitCheckedKeys(next, false);
 });
 
-watchEffect(() => {
+useEffect(() => {
   const next = String(props.modelValue || props.currentNodeKey || "");
   if (next === lastSelectedSig.peek()) return;
   setSelectedKey(next, false);
 });
 
-const getVisibleNodes = (): TreeViewNode[] => visibleNodes.value;
+const itemSize = (): number => Math.max(28, Number(props.itemSize) || 40);
+const numericHeight = (): number => Math.max(itemSize(), Number.parseFloat(String(props.height)) || 420);
+const virtualWindow = () => computeVirtualWindow({
+  count: visibleNodes.value.length,
+  itemSize: itemSize(),
+  viewportSize: numericHeight(),
+  scrollOffset: scrollTop.value,
+  overscan: Math.max(0, Number(props.overscan) || 0),
+});
+const getVisibleNodes = (): TreeViewNode[] => {
+  if (!props.virtual) return visibleNodes.value;
+  const state = virtualWindow();
+  return visibleNodes.value.slice(state.start, state.end);
+};
+const bodyStyle = (): Record<string, string> => props.virtual
+  ? {
+      height: `${numericHeight()}px`,
+      maxHeight: `${numericHeight()}px`,
+    }
+  : { maxHeight: `${numericHeight()}px` };
+const windowStyle = (): Record<string, string> => {
+  if (!props.virtual) return {};
+  const state = virtualWindow();
+  return {
+    paddingTop: `${state.offset}px`,
+    paddingBottom: `${Math.max(0, state.totalSize - state.offset - (state.end - state.start) * itemSize())}px`,
+  };
+};
 
 const isExpanded = (key: string): boolean => expandedState.value.includes(key);
 
@@ -324,10 +383,14 @@ const nodeClass = (row: TreeViewNode): Record<string, boolean> => ({
   "is-disabled": row.disabled,
   "is-leaf": row.isLeaf,
   "has-children": row.hasChildren,
+  "is-loading": loadingKeys.value.includes(row.key),
+  "is-dragging": draggingKey.value === row.key,
+  "is-drop-target": dropTargetKey.value === row.key,
 });
 
 const rowStyle = (row: TreeViewNode): Record<string, string> => ({
   paddingLeft: `${row.level * (Number(props.indent) || 20)}px`,
+  minHeight: props.virtual ? `${itemSize()}px` : "",
 });
 
 const commitExpand = (row: TreeViewNode, open: boolean): void => {
@@ -354,8 +417,36 @@ const commitExpand = (row: TreeViewNode, open: boolean): void => {
   emit(open ? "node-expand" : "node-collapse", row.raw, row.key, next);
 };
 
-const toggleExpand = (row: TreeViewNode): void => {
+const loadChildren = async (row: TreeViewNode): Promise<void> => {
+  if (!props.lazy || typeof props.load !== "function" || loadedKeys.peek().includes(row.key)) return;
+  loadingKeys.set([...loadingKeys.peek(), row.key]);
+  let resolved = false;
+  const resolve = (children: TreeNode[]): void => {
+    if (resolved) return;
+    resolved = true;
+    const field = fields();
+    row.raw[field.children] = Array.isArray(children) ? children : [];
+    loadedKeys.set(Array.from(new Set([...loadedKeys.peek(), row.key])));
+    loadingKeys.set(loadingKeys.peek().filter((key) => key !== row.key));
+    buildNodes();
+    const refreshed = findNode(row.key);
+    if (refreshed?.hasChildren) commitExpand(refreshed, true);
+    emit("node-load", row.raw, children);
+  };
+  try {
+    const result = await props.load(row.raw as TreeNode, resolve);
+    if (Array.isArray(result)) resolve(result);
+  } finally {
+    if (!resolved) loadingKeys.set(loadingKeys.peek().filter((key) => key !== row.key));
+  }
+};
+
+const toggleExpand = async (row: TreeViewNode): Promise<void> => {
   if (!row.hasChildren) return;
+  if (!isExpanded(row.key) && props.lazy && !loadedKeys.peek().includes(row.key) && childRowsOf(row).length === 0) {
+    await loadChildren(row);
+    return;
+  }
   commitExpand(row, !isExpanded(row.key));
 };
 
@@ -475,6 +566,59 @@ const setCurrentNode = (node: Record<string, unknown> | null): void => {
   setCurrentKey(node ? keyOf(node) : null);
 };
 
+interface RawLocation {
+  list: Record<string, unknown>[];
+  index: number;
+  node: Record<string, unknown>;
+}
+
+const findRawLocation = (target: unknown): RawLocation | undefined => {
+  const wanted = keyOf(target);
+  const field = fields();
+  const visit = (list: Record<string, unknown>[]): RawLocation | undefined => {
+    for (let index = 0; index < list.length; index += 1) {
+      const node = list[index]!;
+      if (keyOf(node) === wanted) return { list, index, node };
+      const found = visit(childListOf(node, field.children));
+      if (found) return found;
+    }
+    return undefined;
+  };
+  return visit((props.data || []) as Record<string, unknown>[]);
+};
+
+const appendNode = (data: TreeNode, parent: TreeNode | string | number | null = null): void => {
+  const source = props.data as Record<string, unknown>[];
+  if (parent == null) source.push(data as Record<string, unknown>);
+  else {
+    const location = findRawLocation(parent);
+    if (!location) return;
+    const field = fields();
+    if (!Array.isArray(location.node[field.children])) location.node[field.children] = [];
+    (location.node[field.children] as Record<string, unknown>[]).push(data as Record<string, unknown>);
+  }
+  buildNodes();
+  if (parent != null) expand(keyOf(parent));
+};
+
+const removeNode = (target: TreeNode | string | number): TreeNode | undefined => {
+  const location = findRawLocation(target);
+  if (!location) return undefined;
+  const [removed] = location.list.splice(location.index, 1);
+  buildNodes();
+  return removed as TreeNode | undefined;
+};
+
+const insertRelative = (data: TreeNode, reference: TreeNode | string | number, offset: 0 | 1): void => {
+  const location = findRawLocation(reference);
+  if (!location) return;
+  location.list.splice(location.index + offset, 0, data as Record<string, unknown>);
+  buildNodes();
+};
+
+const insertBeforeNode = (data: TreeNode, reference: TreeNode | string | number): void => insertRelative(data, reference, 0);
+const insertAfterNode = (data: TreeNode, reference: TreeNode | string | number): void => insertRelative(data, reference, 1);
+
 const getNode = (target: unknown): Record<string, unknown> | undefined => {
   const row = findNode(keyOf(target));
   return row?.raw;
@@ -485,6 +629,7 @@ const select = (key: string): void => {
   if (!row || row.disabled) return;
   setSelectedKey(row.key, true);
   emit("node-click", row.raw, row.key, row);
+  emit("current-change", row.raw, row.key);
 };
 
 const onNodeClick = (row: TreeViewNode): void => {
@@ -500,15 +645,101 @@ const onNodeKeydown = (row: TreeViewNode, event: KeyboardEvent): void => {
     onNodeClick(row);
     return;
   }
-  if (event.key === "ArrowRight" && row.hasChildren && !isExpanded(row.key)) {
+  const rows = visibleNodes.peek();
+  const index = rows.findIndex((item) => item.key === row.key);
+  const focusRow = (target?: TreeViewNode): void => {
+    if (!target) return;
+    queueMicrotask(() => host.shadowRoot?.querySelector<HTMLElement>(`.tree-content[data-tree-key="${target.key}"]`)?.focus());
+  };
+  if (event.key === "ArrowDown" || event.key === "ArrowUp" || event.key === "Home" || event.key === "End") {
     event.preventDefault();
-    expand(row.key);
+    const nextIndex = event.key === "Home"
+      ? 0
+      : event.key === "End"
+        ? rows.length - 1
+        : Math.max(0, Math.min(rows.length - 1, index + (event.key === "ArrowDown" ? 1 : -1)));
+    focusRow(rows[nextIndex]);
     return;
   }
-  if (event.key === "ArrowLeft" && row.hasChildren && isExpanded(row.key)) {
+  if (event.key === "ArrowRight" && row.hasChildren) {
     event.preventDefault();
-    collapse(row.key);
+    if (!isExpanded(row.key)) void toggleExpand(row);
+    else focusRow(rows[index + 1]?.parentKey === row.key ? rows[index + 1] : undefined);
+    return;
   }
+  if (event.key === "ArrowLeft") {
+    event.preventDefault();
+    if (row.hasChildren && isExpanded(row.key)) collapse(row.key);
+    else focusRow(findNode(row.parentKey));
+  }
+};
+
+const onNodeContextMenu = (row: TreeViewNode, event: MouseEvent): void => {
+  emit("node-contextmenu", event, row.raw, row.key);
+};
+
+const canDrag = (row: TreeViewNode): boolean =>
+  Boolean(props.draggable) && (typeof props.allowDrag !== "function" || Boolean(props.allowDrag(row.raw as TreeNode)));
+
+const onDragStart = (row: TreeViewNode, event: Event): void => {
+  const dragEvent = event as DragEvent;
+  if (!canDrag(row)) {
+    dragEvent.preventDefault();
+    return;
+  }
+  draggingKey.set(row.key);
+  dragEvent.dataTransfer?.setData("text/plain", row.key);
+  emit("node-drag-start", row.raw, dragEvent);
+};
+
+const onDragOver = (row: TreeViewNode, event: Event): void => {
+  const dragging = findNode(draggingKey.peek());
+  if (!dragging || dragging.key === row.key || row.path.includes(dragging.key)) return;
+  const allowed = typeof props.allowDrop !== "function"
+    || Boolean(props.allowDrop(dragging.raw as TreeNode, row.raw as TreeNode, "inner"));
+  if (!allowed) return;
+  event.preventDefault();
+  dropTargetKey.set(row.key);
+};
+
+const onDragLeave = (row: TreeViewNode, event: Event): void => {
+  const dragEvent = event as DragEvent;
+  const currentTarget = dragEvent.currentTarget as HTMLElement;
+  if (dragEvent.relatedTarget instanceof Node && currentTarget.contains(dragEvent.relatedTarget)) return;
+  if (dropTargetKey.peek() === row.key) dropTargetKey.set("");
+};
+
+const onDrop = (row: TreeViewNode, event: Event): void => {
+  const dragEvent = event as DragEvent;
+  event.preventDefault();
+  dropTargetKey.set("");
+  const dragging = findNode(draggingKey.peek());
+  if (!dragging || dragging.key === row.key || row.path.includes(dragging.key)) return;
+  if (typeof props.allowDrop === "function" && !props.allowDrop(dragging.raw as TreeNode, row.raw as TreeNode, "inner")) return;
+  const moved = removeNode(dragging.key);
+  if (!moved) return;
+  appendNode(moved, row.key);
+  emit("node-drop", dragging.raw, row.raw, "inner", dragEvent);
+  draggingKey.set("");
+};
+
+const onDragEnd = (row: TreeViewNode, event: Event): void => {
+  draggingKey.set("");
+  dropTargetKey.set("");
+  emit("node-drag-end", row.raw, event as DragEvent);
+};
+
+const onTreeScroll = (event: Event): void => {
+  scrollTop.set((event.currentTarget as HTMLElement).scrollTop);
+};
+
+const scrollToNode = (target: string | number): void => {
+  const index = visibleNodes.peek().findIndex((row) => row.key === String(target));
+  if (index < 0) return;
+  const body = host.shadowRoot?.querySelector<HTMLElement>(".tree-body");
+  if (!body) return;
+  body.scrollTop = index * itemSize();
+  scrollTop.set(body.scrollTop);
 };
 
 const onFilterInput = (event: Event): void => {
@@ -543,13 +774,20 @@ defineExpose({
   getCurrentNode,
   getNode,
   filter,
+  appendNode,
+  removeNode,
+  insertBeforeNode,
+  insertAfterNode,
+  scrollToNode,
 });
 
 defineStyle(styles);
 
+const hasVisibleNodes = (): boolean => visibleNodes.value.length > 0;
+
 const rootClass = useComputed(() => (props.bordered ? "tree is-bordered" : "tree"));
 
-const Tree = defineHtml(html`
+const Tree = defineHtml(`
   <div :class=${rootClass} role="tree" :aria-multiselectable=${props.showCheckbox ? "true" : "false"}>
     <div class="tree-filter" v-if=${props.filterable}>
       <input
@@ -560,8 +798,10 @@ const Tree = defineHtml(html`
       />
     </div>
 
-    <div class="tree-body">
-      <div v-if=${getVisibleNodes().length === 0} class="tree-empty">${props.emptyText || locale.t("table.empty")}</div>
+    <div class="tree-body" :style=${bodyStyle()} @scroll=${onTreeScroll}>
+      <div v-if=${!hasVisibleNodes()} class="tree-empty">${props.emptyText || locale.t("table.empty")}</div>
+
+      <div class="tree-window" :style=${windowStyle()}>
 
       <div
         v-for="row in getVisibleNodes()"
@@ -573,16 +813,23 @@ const Tree = defineHtml(html`
         :aria-level="row.level + 1"
         :aria-expanded="row.hasChildren ? (isExpanded(row.key) ? 'true' : 'false') : null"
         :aria-selected="isSelected(row.key) ? 'true' : 'false'"
+        :draggable="canDrag(row)"
+        @dragstart="onDragStart(row, $event)"
+        @dragover="onDragOver(row, $event)"
+        @dragleave="onDragLeave(row, $event)"
+        @drop="onDrop(row, $event)"
+        @dragend="onDragEnd(row, $event)"
+        @contextmenu="onNodeContextMenu(row, $event)"
       >
         <button
           class="tree-switch"
           :class="{ 'is-expanded': isExpanded(row.key) }"
           type="button"
           :disabled="!row.hasChildren"
-          :title=${locale.t(isExpanded(row.key) ? "common.collapse" : "common.expand")}
+          :title='locale.t(isExpanded(row.key) ? "common.collapse" : "common.expand")'
           @click.stop="toggleExpand(row)"
         >
-          <span v-if="row.hasChildren" class="switch-icon"></span>
+          <span v-if="row.hasChildren" :class='["switch-icon", { "is-loading": loadingKeys.includes(row.key) }]'></span>
         </button>
 
         <button
@@ -597,10 +844,17 @@ const Tree = defineHtml(html`
           <span class="checkbox-mark"></span>
         </button>
 
-        <div class="tree-content" tabindex="0" @click="onNodeClick(row)" @keydown="onNodeKeydown(row, $event)">
+        <div
+          class="tree-content"
+          tabindex="0"
+          :data-tree-key="row.key"
+          @click="onNodeClick(row)"
+          @keydown="onNodeKeydown(row, $event)"
+        >
           <span v-if="row.icon" class="tree-icon">{{ row.icon }}</span>
           <span class="tree-label">{{ row.label }}</span>
         </div>
+      </div>
       </div>
     </div>
   </div>

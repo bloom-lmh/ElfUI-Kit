@@ -1,20 +1,18 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 import { customOptions, optionFields, opts, remoteSource } from "./shared";
 
 const remoteOptions = useRef(remoteSource.slice(0, 2));
 const remoteLoading = useRef(false);
 
-const code1 = `<div style="width:240px;margin-bottom:8px">
-  <elf-select
+const code1 = `<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+  <elf-select style="width:240px"
     :options.prop=\${opts}
     filterable
     allow-create
     default-first-option
     placeholder="输入后可创建"
   />
-</div>
-<div style="width:240px;margin-bottom:8px">
-  <elf-select
+  <elf-select style="width:240px"
     :options.prop=\${remoteOptions}
     :loading=\${remoteLoading}
     filterable
@@ -22,9 +20,7 @@ const code1 = `<div style="width:240px;margin-bottom:8px">
     :remote-method.prop=\${remoteMethod}
     placeholder="输入城市搜索"
   />
-</div>
-<div style="width:240px">
-  <elf-select
+  <elf-select style="width:240px"
     :options.prop=\${customOptions}
     :props.prop=\${optionFields}
     value-key="id"
@@ -86,23 +82,21 @@ const remoteMethod = (query: string): void => {
   }, 260);
 };
 
-const PageSelectEx4 = defineHtml(html`
+const PageSelectEx4 = defineHtml(`
   <elf-playground
     title="filterable / allow-create / remote / props 字段映射"
     :code=${code1}
     :script=${script1}
   >
-    <div style="width:240px;margin-bottom:8px">
-      <elf-select
+    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;width:100%;justify-content:center">
+      <elf-select style="width:240px"
         :options.prop=${opts}
         filterable
         allow-create
         default-first-option
         placeholder="输入后可创建"
       ></elf-select>
-    </div>
-    <div style="width:240px;margin-bottom:8px">
-      <elf-select
+      <elf-select style="width:240px"
         :options.prop=${remoteOptions}
         :loading=${remoteLoading}
         filterable
@@ -110,9 +104,7 @@ const PageSelectEx4 = defineHtml(html`
         :remoteMethod.prop=${remoteMethod}
         placeholder="输入城市搜索"
       ></elf-select>
-    </div>
-    <div style="width:240px">
-      <elf-select
+      <elf-select style="width:240px"
         :options.prop=${customOptions}
         :props.prop=${optionFields}
         value-key="id"

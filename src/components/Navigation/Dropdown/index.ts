@@ -8,9 +8,8 @@ import {
   defineHtml,
   defineProps,
   defineStyle,
-  html,
-  onMount,
-  onUnmount,
+  onMounted,
+  onUnmounted,
   useClickOutside,
   useEffect,
   useEscapeKey,
@@ -18,7 +17,7 @@ import {
   useHost,
   useHostAttr,
   useHostFlag,
-  useRef,
+  useRef
 } from "@elfui/core";
 
 import styles from "./style.scss?inline";
@@ -443,9 +442,25 @@ const focusFirstEnabledItem = (): void => {
   });
 };
 
+const restoreFocusBeforeClose = (): void => {
+  const panel = getMenuEl();
+  let activeElement: Element | null = null;
+  try {
+    activeElement = host.shadowRoot?.activeElement ?? null;
+  } catch {
+    // Some DOM implementations cannot resolve activeElement while a slotted
+    // command item is being disconnected.
+  }
+  if (!panel || !activeElement || !panel.contains(activeElement)) return;
+
+  const target = anchorReference();
+  if (target instanceof HTMLElement) target.focus({ preventScroll: true });
+};
+
 const closeDropdown = (): void => {
   clearHoverTimers();
   if (!open.peek()) return;
+  restoreFocusBeforeClose();
   open.set(false);
   syncTopLayer();
   emit("visible-change", false);
@@ -757,13 +772,13 @@ useEffect(() => {
     });
 });
 
-onMount(() => {
+onMounted(() => {
   mounted = true;
   connectVirtualTrigger();
   connectAnchoredOverlay();
 });
 
-onUnmount(() => {
+onUnmounted(() => {
   mounted = false;
   clearHoverTimers();
   cleanupVirtualTrigger();
@@ -771,12 +786,16 @@ onUnmount(() => {
   if (overlayFrame) cancelAnimationFrame(overlayFrame);
 });
 
-defineExpose({ show, hide, toggle, handleOpen, handleClose });
+defineExpose({
+  openMenu: handleOpen,
+  closeMenu: handleClose,
+  toggleMenu: toggle,
+});
 defineStyle(styles);
 
 // ─── template ───────────────────────────────────────────────
 
-const Dropdown = defineHtml<DropdownProps, DropdownEmits, DropdownSlots>(html`
+const Dropdown = defineHtml<DropdownProps, DropdownEmits, DropdownSlots>(`
   <div class="dropdown" @mouseenter=${onMouseEnter} @mouseleave=${onMouseLeave} @contextmenu=${onContextMenu}>
     <button
       v-if=${shouldRenderTrigger() && !props.splitButton}
@@ -835,6 +854,7 @@ const Dropdown = defineHtml<DropdownProps, DropdownEmits, DropdownSlots>(html`
       :data-append-to=${typeof props.appendTo === "string" ? props.appendTo : "element"}
       :role=${menuRole()}
       :aria-hidden=${open ? "false" : "true"}
+      :inert=${open ? undefined : ""}
       @keydown=${onMenuKeydown}
     >
       <slot name="dropdown">

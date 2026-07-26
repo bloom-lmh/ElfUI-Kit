@@ -55,6 +55,7 @@ export interface TabsProps {
   fixedTabs: boolean;
   centerActive: boolean;
   showArrows: boolean;
+  draggable: boolean;
   stacked: boolean;
   showPanels: boolean;
   hideSlider: boolean;
@@ -80,6 +81,8 @@ export interface TabsSlots {
   default?: unknown;
   "add-icon"?: unknown;
   addIcon?: unknown;
+  "prev-control"?: unknown;
+  "next-control"?: unknown;
   "prev-icon"?: unknown;
   "next-icon"?: unknown;
 }
@@ -103,4 +106,11 @@ export interface TabsExpose {
   update: () => DOMRect | null;
   readonly tabListRef: HTMLElement | null;
   readonly tabBarRef: HTMLElement | null;
+}
+
+export interface TabsReorderDetail {
+  from: number;
+  to: number;
+  value: TabPaneName;
+  items: TabsItem[];
 }

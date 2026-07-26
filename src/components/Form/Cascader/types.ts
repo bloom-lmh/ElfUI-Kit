@@ -11,6 +11,7 @@ export type CascaderModelValue =
 export type CascaderSize = "small" | "default" | "large" | "sm" | "md" | "lg";
 export type CascaderVariant = FieldVariant;
 export type CascaderExpandTrigger = "click" | "hover";
+export type CascaderPanelMode = "auto" | "columns" | "tree";
 export type CascaderShowCheckedStrategy = "child" | "parent";
 export type CascaderPlacement =
   | "top"
@@ -84,6 +85,7 @@ export interface CascaderProps {
   options: CascaderOption[];
   size: CascaderSize | "";
   variant: CascaderVariant;
+  backgroundColor: string;
   label: string;
   placeholder: string;
   disabled: boolean;
@@ -91,6 +93,8 @@ export interface CascaderProps {
   clearIcon: string;
   multiple: boolean;
   checkable: boolean;
+  panelMode: CascaderPanelMode;
+  treeThreshold: number;
   separator: string;
   props: CascaderFieldNames;
   showAllLevels: boolean;
@@ -176,9 +180,9 @@ export interface CascaderSlots {
 }
 
 export interface CascaderExpose {
-  clear: () => void;
-  open: () => void;
-  close: () => void;
+  clearSelection: () => void;
+  openPanel: () => void;
+  closePanel: () => void;
   togglePopperVisible: (visible?: boolean) => void;
   getCheckedNodes: (leafOnly?: boolean) => CascaderNodeSnapshot[];
   presentText: () => string;

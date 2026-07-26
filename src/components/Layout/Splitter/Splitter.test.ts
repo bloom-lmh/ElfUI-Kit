@@ -288,6 +288,25 @@ describe("elf-splitter", () => {
     expect(update).not.toHaveBeenCalled();
   });
 
+  it("reacts when a slotted panel becomes non-resizable after mount", async () => {
+    const el = document.createElement("elf-splitter") as SplitterEl;
+    const first = document.createElement("elf-splitter-panel") as SplitterPanelEl;
+    first.slot = "first";
+    el.appendChild(first);
+    document.body.appendChild(el);
+    await tick();
+
+    const bar = el.shadowRoot!.querySelector<HTMLElement>(".bar")!;
+    expect(bar.getAttribute("aria-disabled")).toBeNull();
+
+    first.resizable = false;
+    await tick();
+
+    expect(first.getAttribute("data-resizable")).toBe("false");
+    expect(bar.getAttribute("tabindex")).toBe("-1");
+    expect(bar.getAttribute("aria-disabled")).toBe("true");
+  });
+
   it("activates lazy panel content only after expansion", async () => {
     const panel = document.createElement("elf-splitter-panel") as SplitterPanelEl;
     panel.lazy = true;

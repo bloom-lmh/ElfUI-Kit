@@ -264,16 +264,13 @@ describe("elf-anchor", () => {
     Object.defineProperty(list, "clientWidth", { configurable: true, value: 200 });
     Object.defineProperty(list, "scrollWidth", { configurable: true, value: 600 });
     Object.defineProperty(list, "scrollLeft", { configurable: true, value: 0, writable: true });
-    const scrollBy = vi.fn();
-    Object.defineProperty(list, "scrollBy", { configurable: true, value: scrollBy });
-
     const wheel = new WheelEvent("wheel", { deltaY: 80, cancelable: true, bubbles: true });
     list.dispatchEvent(wheel);
     expect(wheel.defaultPrevented).toBe(true);
     expect(list.scrollLeft).toBe(80);
 
     (el.shadowRoot!.querySelector(".scroll-control.is-next") as HTMLButtonElement).click();
-    expect(scrollBy).toHaveBeenCalledWith({ left: 160, behavior: "auto" });
+    expect(list.scrollLeft).toBe(240);
     expect(el.shadowRoot!.querySelectorAll(".scroll-control")).toHaveLength(2);
   });
 

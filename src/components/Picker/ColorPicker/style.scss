@@ -8,18 +8,20 @@
 }
 
 .color-picker {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
+  display: inline-block;
+  width: 280px;
+  max-width: 100%;
   min-width: 0;
 }
 
 .trigger {
   position: relative;
-  display: inline-flex;
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr) auto;
   align-items: center;
   gap: 8px;
-  min-width: 180px;
+  width: 100%;
+  min-width: 244px;
   min-height: 52px;
   padding: 0 10px;
   box-sizing: border-box;
@@ -29,7 +31,23 @@
 @include field.floating-label(".trigger");
 
 :host([data-has-label]) .trigger {
-  padding-top: 14px;
+  padding-top: 16px;
+}
+
+:host([data-has-label]:not([data-dirty]):not([data-open])) .field-label {
+  left: 58px;
+}
+
+:host([data-has-label]:not([data-dirty]):not([data-open])) .value {
+  opacity: 0;
+}
+
+:host(:not([data-dirty]):not([data-open])) .trigger:has(.field-label) .field-label {
+  left: 58px;
+}
+
+:host(:not([data-dirty]):not([data-open])) .trigger:has(.field-label) .value {
+  opacity: 0;
 }
 
 .swatch {
@@ -52,14 +70,32 @@
   overflow: hidden;
 }
 
+.open-button {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 auto;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+}
+
+.open-button:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--elf-primary) 48%, transparent);
+  outline-offset: 2px;
+}
+
 .swatch-fill {
   width: 100%;
   height: 100%;
 }
 
 .native {
-  width: 32px;
-  height: 32px;
+  width: 54px;
+  height: 54px;
   padding: 0;
   border: 0;
   background: transparent;
@@ -67,8 +103,9 @@
 }
 
 .value {
-  width: 144px;
+  width: 100%;
   min-width: 0;
+  padding: 0 4px;
   border: 0;
   outline: none;
   background: transparent;
@@ -78,7 +115,8 @@
 }
 
 .alpha {
-  width: 84px;
+  min-width: 0;
+  width: 100%;
   accent-color: var(--elf-primary);
 }
 
@@ -106,20 +144,129 @@
 }
 
 .presets {
-  display: inline-flex;
+  display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 10px;
+  padding: 4px 16px 16px;
 }
 
 .preset {
-  width: 22px;
-  height: 22px;
+  width: 30px;
+  height: 30px;
   border: 1px solid var(--elf-divider);
   border-radius: 50%;
   cursor: pointer;
 }
 
+.preset:focus-visible {
+  outline: 2px solid var(--elf-primary);
+  outline-offset: 3px;
+}
+
+.panel {
+  position: fixed;
+  z-index: 1;
+  width: 304px;
+  max-width: calc(100vw - 16px);
+  overflow: hidden;
+  padding: 0;
+  border: 1px solid var(--elf-divider);
+  border-radius: 16px;
+  background: var(--elf-bg-paper);
+  box-shadow: 0 18px 52px rgb(0 0 0 / 18%);
+  animation: color-panel-enter 150ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+.panel[popover] {
+  inset: auto;
+  margin: 0;
+}
+
+.panel[popover]::backdrop {
+  background: transparent;
+}
+
+.panel-color-row {
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+}
+
+.panel-color-row div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.panel-color-row strong {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  font-variant-numeric: tabular-nums;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.panel-color-row small,
+.panel-footer span {
+  color: var(--elf-text-disabled);
+  font-size: 11px;
+}
+
+.alpha-row {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) 36px;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 16px 16px;
+  color: var(--elf-text-secondary);
+  font-size: 12px;
+}
+
+.alpha-row output {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.panel-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 48px;
+  padding: 8px 12px 8px 16px;
+  border-top: 1px solid var(--elf-divider);
+}
+
+.panel-footer button {
+  min-height: 32px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 9px;
+  background: var(--elf-primary);
+  color: var(--elf-text-on-primary, #fff);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+}
+
 .color-picker.is-disabled {
   opacity: 0.55;
   pointer-events: none;
+}
+
+:host([size="sm"]),
+:host([size="small"]) {
+  .trigger { min-height: 40px; }
+}
+
+:host([size="lg"]),
+:host([size="large"]) {
+  .trigger { min-height: 60px; }
+}
+
+@keyframes color-panel-enter {
+  from { opacity: 0; transform: translateY(-4px) scale(0.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }

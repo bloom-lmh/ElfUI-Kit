@@ -26,6 +26,8 @@ interface CascaderEl extends HTMLElement {
   disabled?: boolean;
   multiple?: boolean;
   checkable?: boolean;
+  panelMode?: "auto" | "columns" | "tree";
+  treeThreshold?: number;
   filterable?: boolean;
   debounce?: number;
   filterMethod?: (node: { label: string }, keyword: string) => boolean;
@@ -89,6 +91,17 @@ const mountPanel = async (patch: Partial<CascaderPanelEl> = {}): Promise<Cascade
 };
 
 describe("elf-cascader", () => {
+  it("keeps complete parent and child labels in multiple tags", async () => {
+    const el = await mount({
+      multiple: true,
+      collapseTags: true,
+      modelValue: [["zhejiang", "hangzhou"], ["zhejiang", "ningbo"]]
+    });
+
+    expect(el.shadowRoot!.querySelector(".tag-label")?.textContent?.trim()).toBe("浙江 / 杭州");
+    expect(el.shadowRoot!.querySelector(".collapsed-tag")?.textContent?.trim()).toBe("+1");
+  });
+
   it("点击 trigger 展开根级选项", async () => {
     const el = await mount();
 
@@ -98,6 +111,152 @@ describe("elf-cascader", () => {
     expect(el.hasAttribute("data-open")).toBe(true);
     expect(el.shadowRoot!.querySelectorAll(".column")).toHaveLength(1);
     expect(el.shadowRoot!.textContent).toContain("浙江");
+  });
+
+  it("automatically switches paths deeper than the threshold to a compact tree", async () => {
+    const deepOptions: CascaderOption[] = [
+      {
+        label: "产品",
+        value: "product",
+        children: [
+          {
+            label: "平台",
+            value: "platform",
+            children: [
+              {
+                label: "组件库",
+                value: "components",
+                children: [{ label: "稳定版", value: "stable" }]
+              }
+            ]
+          }
+        ]
+      }
+    ];
+    const el = await mount({ options: deepOptions, teleported: false });
+    const onUpdate = vi.fn();
+    el.addEventListener("update:modelValue", onUpdate as EventListener);
+
+    el.shadowRoot!.querySelector<HTMLElement>(".trigger")!.click();
+    await tick();
+    expect(el.shadowRoot!.querySelector(".tree-panel")).toBeTruthy();
+    expect(el.shadowRoot!.querySelector(".columns")).toBeNull();
+
+    for (let level = 0; level < 4; level += 1) {
+      const entries = el.shadowRoot!.querySelectorAll<HTMLButtonElement>(".tree-option");
+      entries[entries.length - 1]!.click();
+      await tick();
+    }
+
+    expect((onUpdate.mock.calls.at(-1)![0] as CustomEvent).detail).toEqual([
+      "product",
+      "platform",
+      "components",
+      "stable"
+    ]);
+  });
+
+  it("supports explicitly forcing the columns or tree panel", async () => {
+    const deepOptions: CascaderOption[] = [{
+      label: "A",
+      value: "a",
+      children: [{ label: "B", value: "b", children: [{ label: "C", value: "c", children: [{ label: "D", value: "d" }] }] }]
+    }];
+    const columns = await mount({ options: deepOptions, panelMode: "columns", teleported: false });
+    columns.shadowRoot!.querySelector<HTMLElement>(".trigger")!.click();
+    await tick();
+    expect(columns.shadowRoot!.querySelector(".columns")).toBeTruthy();
+
+    columns.remove();
+    const tree = await mount({ panelMode: "tree", teleported: false });
+    tree.shadowRoot!.querySelector<HTMLElement>(".trigger")!.click();
+    await tick();
+    expect(tree.shadowRoot!.querySelector(".tree-panel")).toBeTruthy();
+  });
+
+  it("supports hierarchical keyboard navigation in tree mode", async () => {
+    const el = await mount({ panelMode: "tree", teleported: false });
+    const trigger = el.shadowRoot!.querySelector<HTMLElement>(".trigger")!;
+
+    trigger.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }));
+    await tick();
+    await tick();
+    let root = el.shadowRoot!.querySelector<HTMLButtonElement>('.tree-option[aria-level="1"]')!;
+    expect(el.shadowRoot!.activeElement).toBe(root);
+
+    root.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
+    await tick();
+    expect(el.shadowRoot!.querySelector('.tree-option[aria-level="2"]')).toBeTruthy();
+
+    root = el.shadowRoot!.querySelector<HTMLButtonElement>('.tree-option[aria-level="1"]')!;
+    root.focus();
+    root.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
+    await tick();
+    const child = el.shadowRoot!.querySelector<HTMLButtonElement>('.tree-option[aria-level="2"]')!;
+    expect(el.shadowRoot!.activeElement).toBe(child);
+
+    child.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowLeft", bubbles: true }));
+    await tick();
+    expect(el.shadowRoot!.activeElement).toBe(root);
+  });
+
+  it("supports optional linked checkboxes and indeterminate state in tree mode", async () => {
+    const deepOptions: CascaderOption[] = [{
+      label: "产品",
+      value: "product",
+      children: [{
+        label: "平台",
+        value: "platform",
+        children: [{
+          label: "组件库",
+          value: "components",
+          children: [
+            { label: "稳定版", value: "stable" },
+            { label: "预览版", value: "preview" }
+          ]
+        }]
+      }]
+    }];
+    const el = await mount({ options: deepOptions, panelMode: "tree", checkable: true, teleported: false });
+    const onUpdate = vi.fn();
+    el.addEventListener("update:modelValue", onUpdate as EventListener);
+
+    el.shadowRoot!.querySelector<HTMLElement>(".trigger")!.click();
+    await tick();
+    el.shadowRoot!.querySelector<HTMLButtonElement>('.tree-option[aria-level="1"]')!.click();
+    await tick();
+
+    expect((onUpdate.mock.calls.at(-1)![0] as CustomEvent).detail).toEqual([
+      ["product", "platform", "components", "stable"],
+      ["product", "platform", "components", "preview"]
+    ]);
+    expect(el.shadowRoot!.querySelector('.tree-option[aria-level="1"] .option-checkbox.is-checked')).toBeTruthy();
+
+    el.shadowRoot!.querySelector<HTMLButtonElement>('.tree-option[aria-level="2"]')!.click();
+    await tick();
+    el.shadowRoot!.querySelector<HTMLButtonElement>('.tree-option[aria-level="3"]')!.click();
+    await tick();
+    el.shadowRoot!.querySelector<HTMLButtonElement>('.tree-option[aria-level="4"]')!.click();
+    await tick();
+
+    expect(el.shadowRoot!.querySelector('.tree-option[aria-level="1"] .option-checkbox.is-indeterminate')).toBeTruthy();
+  });
+
+  it("keeps an active indeterminate parent label in the rendered option row", async () => {
+    const el = await mount({
+      multiple: true,
+      modelValue: [["zhejiang", "hangzhou"]],
+      teleported: false
+    });
+
+    (el.shadowRoot!.querySelector(".trigger") as HTMLElement).click();
+    await tick();
+    await tick();
+
+    const firstOption = el.shadowRoot!.querySelector<HTMLElement>(".option")!;
+    const label = firstOption.querySelector<HTMLElement>(".option-label")!;
+    expect(firstOption.classList.contains("is-indeterminate")).toBe(true);
+    expect(label.textContent?.trim()).toBe("浙江");
   });
 
   it("supports trigger and menu keyboard navigation", async () => {
@@ -116,6 +275,10 @@ describe("elf-cascader", () => {
     items[1].dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
     await tick();
     expect(el.hasAttribute("data-open")).toBe(false);
+    expect(el.shadowRoot!.activeElement).toBe(trigger);
+    const closedDropdown = el.shadowRoot!.querySelector<HTMLElement>(".dropdown")!;
+    expect(closedDropdown.getAttribute("aria-hidden")).toBe("true");
+    expect(closedDropdown.hasAttribute("inert")).toBe(true);
   });
 
   it("keeps vertical focus in one column and supports horizontal keyboard navigation", async () => {
@@ -558,6 +721,49 @@ describe("elf-cascader", () => {
     expect(dropdown.hidePopover).toHaveBeenCalled();
   });
 
+  it("keeps a non-fitted overlay at its intrinsic menu width", async () => {
+    const el = await mount({ fitInputWidth: false });
+    const trigger = el.shadowRoot!.querySelector<HTMLElement>(".trigger")!;
+    const dropdown = el.shadowRoot!.querySelector<HTMLElement>(".dropdown")! as HTMLElement & {
+      showPopover: () => void;
+      hidePopover: () => void;
+    };
+
+    trigger.getBoundingClientRect = vi.fn(() => ({
+      left: 80,
+      top: 60,
+      right: 340,
+      bottom: 96,
+      width: 260,
+      height: 36,
+      x: 80,
+      y: 60,
+      toJSON: () => ({})
+    })) as unknown as Element["getBoundingClientRect"];
+    dropdown.getBoundingClientRect = vi.fn(() => ({
+      left: 0,
+      top: 0,
+      right: 142,
+      bottom: 212,
+      width: 142,
+      height: 212,
+      x: 0,
+      y: 0,
+      toJSON: () => ({})
+    })) as unknown as Element["getBoundingClientRect"];
+    dropdown.showPopover = vi.fn();
+    dropdown.hidePopover = vi.fn();
+
+    trigger.click();
+    await tick();
+    await frame();
+    await tick();
+
+    expect(dropdown.showPopover).toHaveBeenCalled();
+    expect(dropdown.style.width).toBe("auto");
+    expect(dropdown.style.minWidth).toBe("0px");
+  });
+
   it("reflects the shared field surface contract", async () => {
     const el = await mount({});
     el.setAttribute("variant", "outlined");
@@ -567,6 +773,7 @@ describe("elf-cascader", () => {
     expect(el.getAttribute("variant")).toBe("outlined");
     expect(el.hasAttribute("data-has-label")).toBe(true);
     expect(el.shadowRoot!.querySelector(".field-label")?.textContent).toBe("Region");
+    expect(el.shadowRoot!.querySelector(".field-outline legend")?.textContent).toBe("Region");
   });
 
   it.each(["default", "underlined", "solo", "solo-filled", "solo-inverted"])(

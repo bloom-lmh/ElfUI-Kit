@@ -6,10 +6,9 @@ import {
   defineHtml,
   defineProps,
   defineStyle,
-  html,
   useHostCssVar,
   useRef,
-  watchEffect
+  useEffect
 } from "@elfui/core";
 
 import styles from "./style.scss?inline";
@@ -425,7 +424,7 @@ const clearCheckedNodes = (): void => {
   emitChange([]);
 };
 
-watchEffect(() => {
+useEffect(() => {
   const next = toValuePaths(props.modelValue);
   selectedValues.set(config().multiple ? next : next.slice(0, 1));
   // Controlled multi-select updates must not force the open columns back to the
@@ -439,7 +438,7 @@ useHostCssVar("--_cascader-column-count", () => String(columns().length));
 defineExpose({ getCheckedNodes, clearCheckedNodes });
 defineStyle(styles);
 
-const CascaderPanel = defineHtml<CascaderPanelProps>(html`
+const CascaderPanel = defineHtml<CascaderPanelProps>(`
   <div class="panel" part="panel">
     <div v-if=${rawOptions().length === 0} class="empty"><slot name="empty">${locale.t("table.empty")}</slot></div>
     <div v-else class="columns">

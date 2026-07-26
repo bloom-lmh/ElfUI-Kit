@@ -75,6 +75,11 @@
   }
 }
 
+.tree-window {
+  box-sizing: border-box;
+  min-height: 100%;
+}
+
 .tree-empty {
   display: flex;
   align-items: center;
@@ -106,6 +111,15 @@
   &.is-disabled {
     color: var(--elf-text-disabled);
     cursor: not-allowed;
+  }
+
+  &.is-dragging {
+    opacity: 0.46;
+  }
+
+  &.is-drop-target {
+    background: color-mix(in srgb, var(--elf-primary) 16%, var(--elf-bg-paper));
+    box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--elf-primary) 72%, transparent);
   }
 }
 
@@ -153,6 +167,16 @@
 
 .tree-switch.is-expanded .switch-icon {
   transform: rotate(45deg);
+}
+
+.switch-icon.is-loading {
+  width: 12px;
+  height: 12px;
+  border: 2px solid color-mix(in srgb, currentColor 24%, transparent);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: tree-loading 700ms linear infinite;
+  transform: none;
 }
 
 .tree-checkbox {
@@ -244,4 +268,8 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+@keyframes tree-loading {
+  to { transform: rotate(360deg); }
 }

@@ -31,6 +31,7 @@ interface TabsEl extends HTMLElement {
   fixedTabs?: boolean;
   centerActive?: boolean;
   showArrows?: boolean;
+  draggable?: boolean;
   props?: Record<string, string>;
   select?: (value: string | number) => void;
   remove?: (value: string | number) => void;
@@ -198,7 +199,7 @@ describe("elf-tabs", () => {
     expect(root.className).toContain("is-stretch");
   });
 
-  it("supports interactive appearance, fixed tabs, centered active item and scroll arrows", async () => {
+  it("supports interactive appearance, fixed tabs, centered active item and navigation controls", async () => {
     const el = await mount({
       backgroundColor: "#eef2ff",
       sliderColor: "#0f766e",
@@ -214,6 +215,124 @@ describe("elf-tabs", () => {
     expect(root.style.getPropertyValue("--tabs-background-color")).toBe("#eef2ff");
     expect(root.style.getPropertyValue("--tabs-slider-color")).toBe("#0f766e");
     expect(el.shadowRoot!.querySelectorAll(".tab-scroll")).toHaveLength(2);
+    (el.shadowRoot!.querySelector(".tab-scroll-next") as HTMLButtonElement).click();
+    await tick();
+    expect(activeText(el)).toContain("任务");
+  });
+
+  it("allows callers to replace the complete previous and next controls", async () => {
+    const el = document.createElement("elf-tabs") as TabsEl;
+    Object.assign(el, { items: baseItems, showArrows: true });
+    el.innerHTML = `
+      <button slot="prev-control" data-test="previous">Back</button>
+      <button slot="next-control" data-test="next">Forward</button>
+    `;
+    document.body.appendChild(el);
+    await tick();
+    await tick();
+
+    const previousSlot = el.shadowRoot!.querySelector<HTMLSlotElement>('slot[name="prev-control"]')!;
+    const nextSlot = el.shadowRoot!.querySelector<HTMLSlotElement>('slot[name="next-control"]')!;
+    expect(previousSlot.assignedElements()[0]?.textContent).toBe("Back");
+    expect(nextSlot.assignedElements()[0]?.textContent).toBe("Forward");
+
+    (el.querySelector('[data-test="next"]') as HTMLButtonElement).click();
+    await tick();
+    expect(activeText(el)).toContain("任务");
+  });
+
+  it("reorders data-driven tabs with drag and drop", async () => {
+    const el = await mount({ draggable: true });
+    const onReorder = vi.fn();
+    const onUpdateItems = vi.fn();
+    el.addEventListener("tab-reorder", onReorder as EventListener);
+    el.addEventListener("update:items", onUpdateItems as EventListener);
+    const tabs = el.shadowRoot!.querySelectorAll<HTMLButtonElement>(".tab");
+    expect(tabs[0]!.getAttribute("draggable")).toBe("true");
+    const transfer = {
+      value: "",
+      effectAllowed: "",
+      dropEffect: "",
+      setData(_type: string, value: string) { this.value = value; },
+      getData() { return this.value; }
+    };
+    const start = new Event("dragstart", { bubbles: true, cancelable: true }) as DragEvent;
+    Object.defineProperty(start, "dataTransfer", { configurable: true, value: transfer });
+    tabs[0]!.dispatchEvent(start);
+    const drop = new Event("drop", { bubbles: true, cancelable: true }) as DragEvent;
+    Object.defineProperty(drop, "dataTransfer", { configurable: true, value: transfer });
+    tabs[1]!.dispatchEvent(drop);
+    await tick();
+
+    const labels = Array.from(el.shadowRoot!.querySelectorAll(".tab-label"), (node) => node.textContent?.trim());
+    expect(labels.slice(0, 2)).toEqual(["任务", "概览"]);
+    expect((onReorder.mock.calls[0]![0] as CustomEvent).detail).toEqual(
+      expect.objectContaining({ from: 0, to: 1, value: "overview" })
+    );
+    expect((onUpdateItems.mock.calls[0]![0] as CustomEvent).detail[0].value).toBe("tasks");
+  });
+
+  it("moves one persistent slider between active tabs", async () => {
+    const el = await mount();
+    const buttons = el.shadowRoot!.querySelectorAll<HTMLElement>(".tab");
+    Object.defineProperties(buttons[0], {
+      offsetLeft: { configurable: true, value: 0 },
+      offsetTop: { configurable: true, value: 0 },
+      offsetWidth: { configurable: true, value: 100 },
+      offsetHeight: { configurable: true, value: 48 }
+    });
+    Object.defineProperties(buttons[1], {
+      offsetLeft: { configurable: true, value: 104 },
+      offsetTop: { configurable: true, value: 0 },
+      offsetWidth: { configurable: true, value: 120 },
+      offsetHeight: { configurable: true, value: 48 }
+    });
+
+    const slider = el.shadowRoot!.querySelector<HTMLElement>(".tab-slider")!;
+    el.update!();
+    await tick();
+    expect(el.shadowRoot!.querySelectorAll(".tab-slider")).toHaveLength(1);
+    expect(slider.style.transform).toBe("translate3d(12px, 0, 0)");
+    expect(slider.style.width).toBe("76px");
+
+    buttons[1]!.click();
+    await tick();
+    await tick();
+
+    expect(el.shadowRoot!.querySelector(".tab-slider")).toBe(slider);
+    expect(slider.style.transform).toBe("translate3d(116px, 0, 0)");
+    expect(slider.style.width).toBe("96px");
+  });
+
+  it("moves the persistent slider vertically for side tabs", async () => {
+    const el = await mount({ direction: "vertical" });
+    const buttons = el.shadowRoot!.querySelectorAll<HTMLElement>(".tab");
+    Object.defineProperties(buttons[0], {
+      offsetLeft: { configurable: true, value: 0 },
+      offsetTop: { configurable: true, value: 0 },
+      offsetWidth: { configurable: true, value: 160 },
+      offsetHeight: { configurable: true, value: 48 }
+    });
+    Object.defineProperties(buttons[1], {
+      offsetLeft: { configurable: true, value: 0 },
+      offsetTop: { configurable: true, value: 52 },
+      offsetWidth: { configurable: true, value: 160 },
+      offsetHeight: { configurable: true, value: 56 }
+    });
+
+    const slider = el.shadowRoot!.querySelector<HTMLElement>(".tab-slider")!;
+    el.update!();
+    await tick();
+    expect(slider.style.transform).toBe("translate3d(0, 8px, 0)");
+    expect(slider.style.height).toBe("32px");
+
+    buttons[1]!.click();
+    await tick();
+    await tick();
+
+    expect(el.shadowRoot!.querySelector(".tab-slider")).toBe(slider);
+    expect(slider.style.transform).toBe("translate3d(0, 60px, 0)");
+    expect(slider.style.height).toBe("40px");
   });
 
   it("supports numeric names and roving keyboard navigation", async () => {

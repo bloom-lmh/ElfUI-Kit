@@ -3,8 +3,7 @@ import {
   defineHtml,
   defineProps,
   defineStyle,
-  html,
-  onMount,
+  onMounted,
   useEffect,
   useHost,
   useHostAttr,
@@ -56,6 +55,8 @@ const size = useRef(50);
 const collapsed = useRef(false);
 const lastExpandedSize = useRef(50);
 const firstPanel = useRef<SplitterPanelElement | null>(null);
+const panelContractRevision = useRef(0);
+let panelContractObserver: MutationObserver | null = null;
 
 // Size helpers
 const numberOr = (value: unknown, fallback: number): number => {
@@ -73,8 +74,15 @@ const clamp = (value: number): number => {
 };
 
 const currentSize = (): number => (collapsed.value ? 0 : clamp(size.value));
-const canResize = (): boolean =>
-  !props.disabled && props.resizable && firstPanel.value?.resizable !== false;
+const panelCanResize = (): boolean => {
+  void panelContractRevision.value;
+  const panel = firstPanel.value;
+  if (!panel) return true;
+  const reflected = panel.getAttribute("data-resizable");
+  if (reflected != null) return reflected !== "false";
+  return panel.resizable !== false;
+};
+const canResize = (): boolean => !props.disabled && props.resizable && panelCanResize();
 const canCollapse = (): boolean => Boolean(props.collapsible || firstPanel.value?.collapsible);
 
 const persist = (value: number): void => {
@@ -139,9 +147,19 @@ const resolvePanel = (event: Event): SplitterPanelElement | null => {
 };
 
 const onFirstSlotChange = (event: Event): void => {
+  panelContractObserver?.disconnect();
+  panelContractObserver = null;
   firstPanel.set(resolvePanel(event));
   const panel = firstPanel.value;
   if (!panel) return;
+  panelContractObserver = new MutationObserver(() => {
+    panelContractRevision.set(panelContractRevision.peek() + 1);
+    if (!canResize() && dragging.peek()) endResize();
+  });
+  panelContractObserver.observe(panel, {
+    attributes: true,
+    attributeFilter: ["data-resizable"]
+  });
   if (!host.hasAttribute("model-value") && !hasPersistedSize() && panel.tagName.toLowerCase() === "elf-splitter-panel") {
     const initial = clamp(numberOr(panel.size, 50));
     size.set(initial);
@@ -231,7 +249,7 @@ useEffect(() => {
   }
 });
 
-onMount(() => {
+onMounted(() => {
   if (!props.storageKey) return;
   try {
     const storedValue = localStorage.getItem(props.storageKey);
@@ -249,6 +267,11 @@ onMount(() => {
   }
 });
 
+onMounted(() => () => {
+  panelContractObserver?.disconnect();
+  panelContractObserver = null;
+});
+
 useHostAttr("vertical", () => (props.vertical ? "" : null));
 useHostFlag("disabled", () => Boolean(props.disabled));
 useHostFlag("collapsed", () => collapsed.value);
@@ -256,7 +279,7 @@ useHostCssVar("--_splitter-size", () => `${currentSize()}%`);
 
 defineStyle(styles);
 
-const Splitter = defineHtml<SplitterProps, SplitterEmits, SplitterSlots>(html`
+const Splitter = defineHtml<SplitterProps, SplitterEmits, SplitterSlots>(`
   <div class="splitter" part="splitter">
     <section :class=${["pane", "first", { "is-collapsed": collapsed }]} part="first">
       <slot name="first" @slotchange=${onFirstSlotChange}></slot>

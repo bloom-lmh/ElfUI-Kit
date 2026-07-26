@@ -6,15 +6,16 @@ import {
   defineHtml,
   defineProps,
   defineStyle,
-  html,
   inject,
-  onMount,
-  onUnmount,
+  onMounted,
+  onUnmounted,
   useClickOutside,
+  useComputed,
   useEffect,
   useEventListener,
   useHost,
   useHostAttr,
+  useHostCssVar,
   useHostFlag,
   useRef,
 } from "@elfui/core";
@@ -35,6 +36,7 @@ import type {
   CascaderModelValue,
   CascaderNodeSnapshot,
   CascaderOption,
+  CascaderPanelMode,
   CascaderPlacement,
   CascaderPathValue,
   CascaderPopperModifier,
@@ -61,6 +63,7 @@ export type {
   CascaderNodeSnapshot,
   CascaderOption,
   CascaderPanelProps,
+  CascaderPanelMode,
   CascaderPlacement,
   CascaderPathValue,
   CascaderPopperModifier,
@@ -102,6 +105,14 @@ interface CascaderTagEntry {
   value: CascaderPathValue;
 }
 
+interface CascaderTreeEntry {
+  key: string;
+  level: number;
+  option: RawOption;
+  path: RawOption[];
+  column: CascaderColumn;
+}
+
 interface CascaderConfig extends Required<Omit<CascaderFieldNames, "disabled" | "leaf" | "lazyLoad">> {
   disabled: string | ((data: CascaderOption) => boolean);
   leaf: string | ((data: CascaderOption) => boolean);
@@ -113,6 +124,7 @@ const props = defineProps<CascaderProps>({
   options: { type: Array, default: () => [] as CascaderOption[] },
   size: { type: String, default: "" },
   variant: { type: String, default: "filled" },
+  backgroundColor: { type: String, default: "" },
   label: { type: String, default: "" },
   placeholder: { type: String, default: "" },
   disabled: { type: Boolean, default: false },
@@ -120,6 +132,8 @@ const props = defineProps<CascaderProps>({
   clearIcon: { type: String, default: "" },
   multiple: { type: Boolean, default: false },
   checkable: { type: Boolean, default: false },
+  panelMode: { type: String, default: "auto" },
+  treeThreshold: { type: Number, default: 3 },
   separator: { type: String, default: " / " },
   showAllLevels: { type: Boolean, default: true },
   collapseTags: { type: Boolean, default: false },
@@ -324,6 +338,17 @@ const optionLeaf = (option: RawOption): boolean => {
   }
   return optionChildren(option).length === 0;
 };
+
+const optionTreeDepth = (options = rawOptions()): number =>
+  options.reduce((depth, option) => Math.max(depth, 1 + optionTreeDepth(optionChildren(option))), 0);
+
+const resolvedPanelModeState = useComputed((): Exclude<CascaderPanelMode, "auto"> => {
+  if (props.panelMode === "tree" || props.panelMode === "columns") return props.panelMode;
+  const threshold = Math.max(1, Math.floor(Number(props.treeThreshold) || 3));
+  return optionTreeDepth() > threshold ? "tree" : "columns";
+});
+
+const resolvedPanelMode = (): Exclude<CascaderPanelMode, "auto"> => resolvedPanelModeState.value;
 
 const sameValue = (a: unknown, b: unknown): boolean => Object.is(a, b);
 
@@ -563,8 +588,21 @@ const emitChange = (paths: CascaderPathValue[]): void => {
   if (props.validateEvent) formItem?.validateTrigger("change");
 };
 
+const restoreFocusBeforeClose = (): void => {
+  const dropdown = host.shadowRoot?.querySelector<HTMLElement>(".dropdown");
+  let activeElement: Element | null = null;
+  try {
+    activeElement = host.shadowRoot?.activeElement ?? null;
+  } catch {
+    // The panel can be removed in the same task as an option command.
+  }
+  if (!dropdown || !activeElement || !dropdown.contains(activeElement)) return;
+  host.shadowRoot?.querySelector<HTMLElement>(".trigger")?.focus({ preventScroll: true });
+};
+
 const closeDropdown = (): void => {
   if (!open.peek()) return;
+  restoreFocusBeforeClose();
   open.set(false);
   clearFilter();
   emit("visible-change", false);
@@ -742,6 +780,23 @@ const onColumnsClick = (event: Event): void => {
   if (path.length > 0) onOptionPathClick(path, event);
 };
 
+const onTreeClick = (event: Event): void => {
+  const target = event.target as HTMLElement | null;
+  const optionButton = target?.closest?.(".tree-option") as HTMLElement | null;
+  const key = optionButton?.dataset.pathKey;
+  if (!key) return;
+  const path = findPathByKey(key);
+  if (path.length === 0) return;
+  if (target?.closest?.(".tree-toggle") && isTreePathExpanded(path)) {
+    event.preventDefault();
+    event.stopPropagation();
+    activePath.set(path.slice(0, -1));
+    focusPathOption(path);
+    return;
+  }
+  onOptionPathClick(path, event);
+};
+
 const stopClick = (event: Event): void => {
   event.stopPropagation();
 };
@@ -814,6 +869,62 @@ const expandWithKeyboard = (path: RawOption[]): void => {
   focusFirstChild(path);
 };
 
+const treeOptionButtons = (): HTMLButtonElement[] =>
+  Array.from(host.shadowRoot?.querySelectorAll<HTMLButtonElement>(".tree-option:not(:disabled)") || []);
+
+const onTreeKeydown = (event: KeyboardEvent, option: HTMLButtonElement, path: RawOption[]): void => {
+  const items = treeOptionButtons();
+  const current = items.indexOf(option);
+  if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+    event.preventDefault();
+    const step = event.key === "ArrowDown" ? 1 : -1;
+    focusElement(items[(current + step + items.length) % items.length]);
+    return;
+  }
+  if (event.key === "Home" || event.key === "End") {
+    event.preventDefault();
+    focusElement(event.key === "Home" ? items[0] : items[items.length - 1]);
+    return;
+  }
+  if (event.key === "ArrowRight") {
+    event.preventDefault();
+    const currentOption = path[path.length - 1];
+    if (!currentOption || optionLeaf(currentOption)) return;
+    if (!isTreePathExpanded(path)) {
+      activePath.set(path);
+      emitExpand(path);
+      if (optionChildren(currentOption).length === 0) loadLazyChildren(path);
+      return;
+    }
+    queueMicrotask(() => {
+      const next = treeOptionButtons().find((item) => {
+        const childPath = findPathByKey(item.dataset.pathKey || "");
+        return childPath.length === path.length + 1 && isRawPathPrefix(path, childPath);
+      });
+      focusElement(next);
+    });
+    return;
+  }
+  if (event.key === "ArrowLeft" && path.length > 0) {
+    event.preventDefault();
+    if (isTreePathExpanded(path)) {
+      activePath.set(path.slice(0, -1));
+      focusPathOption(path);
+      return;
+    }
+    if (path.length > 1) {
+      const parentPath = path.slice(0, -1);
+      activePath.set(parentPath);
+      focusPathOption(parentPath);
+    }
+    return;
+  }
+  if (event.key === "Enter" || event.key === " ") {
+    event.preventDefault();
+    onOptionPathClick(path, event);
+  }
+};
+
 const onFilterKeydown = (event: KeyboardEvent): void => {
   if (event.key === "Escape") {
     event.preventDefault();
@@ -852,6 +963,10 @@ const onDropdownKeydown = (event: KeyboardEvent): void => {
   if (!pathKey) return;
   const path = findPathByKey(pathKey);
   if (path.length === 0) return;
+  if (option.classList.contains("tree-option")) {
+    onTreeKeydown(event, option, path);
+    return;
+  }
   const items = columnOptions(option);
   const current = items.indexOf(option);
   if (event.key === "ArrowDown" || event.key === "ArrowUp") {
@@ -950,6 +1065,39 @@ const optionClass = (option: RawOption, column: CascaderColumn): Record<string, 
   "is-loading": isLazyLoading(option),
 });
 
+const isRawPathPrefix = (prefix: RawOption[], path: RawOption[]): boolean =>
+  prefix.length <= path.length &&
+  prefix.every((option, index) => sameValue(optionValue(option), optionValue(path[index] ?? {})));
+
+const isTreePathExpanded = (path: RawOption[]): boolean => {
+  const option = path[path.length - 1];
+  return Boolean(option && !optionLeaf(option) && isRawPathPrefix(path, activePath.value));
+};
+
+const treeEntries = (): CascaderTreeEntry[] => {
+  const entries: CascaderTreeEntry[] = [];
+  const visit = (options: RawOption[], parentPath: RawOption[] = []): void => {
+    for (const option of options) {
+      const path = [...parentPath, option];
+      const level = path.length - 1;
+      entries.push({
+        key: valuePathKey(pathValues(path)),
+        level,
+        option,
+        path,
+        column: { key: valuePathKey(pathValues(parentPath)), level, parentPath, options },
+      });
+      if (isTreePathExpanded(path)) visit(optionChildren(option), path);
+    }
+  };
+  visit(rawOptions());
+  return entries;
+};
+
+const treeOptionStyle = (entry: CascaderTreeEntry): Record<string, string> => ({
+  "--_cascader-tree-level": String(entry.level),
+});
+
 const nodeSnapshot = (path: RawOption[]): CascaderNodeSnapshot | null => {
   const option = path[path.length - 1];
   if (!option) return null;
@@ -1023,7 +1171,12 @@ const dropdownClass = (): unknown[] => [
   props.popperClass,
   `placement-${props.teleported ? resolvedPlacement.value : placement()}`,
   `is-effect-${String(props.effect || "light")}`,
-  { "is-teleported": props.teleported, "is-open": open.value },
+  {
+    "is-teleported": props.teleported,
+    "is-open": open.value,
+    "is-fit-input": props.fitInputWidth,
+    "is-tree-panel": resolvedPanelMode() === "tree",
+  },
 ];
 
 const dropdownStyle = (): Record<string, string> => ({
@@ -1047,9 +1200,8 @@ const updateOverlayPosition = (): void => {
   }
   const dropdownRect = dropdown.getBoundingClientRect();
   const visualViewport = window.visualViewport;
-  const width = props.fitInputWidth
-    ? anchorRect.width
-    : Math.max(anchorRect.width, dropdownRect.width || dropdown.offsetWidth || 184);
+  const measuredDropdownWidth = dropdownRect.width || dropdown.offsetWidth || 184;
+  const width = props.fitInputWidth ? anchorRect.width : measuredDropdownWidth;
   const next = computeAnchoredPosition(
     anchorRect,
     { width, height: dropdownRect.height || dropdown.offsetHeight || 0 },
@@ -1076,7 +1228,7 @@ const updateOverlayPosition = (): void => {
     bottom: "auto",
     margin: "0",
     width: props.fitInputWidth ? `${Math.round(width * 100) / 100}px` : "auto",
-    minWidth: `${Math.round(anchorRect.width * 100) / 100}px`,
+    minWidth: props.fitInputWidth ? `${Math.round(anchorRect.width * 100) / 100}px` : "0px",
   });
 };
 
@@ -1148,11 +1300,11 @@ useEffect(() => {
 });
 
 useClickOutside(host, closeDropdown);
-onMount(() => {
+onMounted(() => {
   mounted = true;
   connectAnchoredOverlay();
 });
-onUnmount(() => {
+onUnmounted(() => {
   mounted = false;
   clearPendingFilter();
   cleanupAnchoredOverlay();
@@ -1167,12 +1319,13 @@ useHostFlag("disabled", isDisabled);
 useHostAttr("size", () => fi.formSize);
 useHostAttr("variant", () => normalizeFieldVariant(props.variant));
 useHostFlag("data-dirty", hasValue);
+useHostCssVar("--elf-field-custom-bg", () => props.backgroundColor || "");
 useHostFlag("data-has-label", () => Boolean(props.label));
 
 defineExpose({
-  clear,
-  open: openDropdown,
-  close: closeDropdown,
+  clearSelection: clear,
+  openPanel: openDropdown,
+  closePanel: closeDropdown,
   togglePopperVisible,
   getCheckedNodes,
   presentText: displayLabel,
@@ -1180,88 +1333,58 @@ defineExpose({
 });
 defineStyle(styles);
 
-const Cascader = defineHtml<CascaderProps, CascaderEmits, CascaderSlots>(html`
-  <div
-    class="trigger"
-    part="trigger"
-    :tabindex=${props.filterable ? undefined : 0}
-    role="combobox"
-    :aria-expanded=${open ? "true" : "false"}
-    @click=${toggleOpen}
-    @focus=${onTriggerFocus}
-    @blur=${onTriggerBlur}
-    @keydown=${onTriggerKeydown}
-  >
+const Cascader = defineHtml<CascaderProps, CascaderEmits, CascaderSlots>(`
+  <div class="trigger" part="trigger" :tabindex=${props.filterable ? undefined : 0} role="combobox"
+    :aria-expanded=${open ? "true" : "false"} @click=${toggleOpen} @focus=${onTriggerFocus} @blur=${onTriggerBlur}
+    @keydown=${onTriggerKeydown}>
+    <fieldset v-if=${props.label} class="field-outline" aria-hidden="true">
+      <legend><span>${props.label}</span></legend>
+    </fieldset>
     <span v-if=${props.label} class="field-label">${props.label}</span>
-    <span class="prefix" part="prefix"><slot name="prefix"></slot></span>
-    <input
-      v-if=${props.filterable}
-      class="filter-input"
-      type="text"
-      autocomplete="off"
-      :value=${query}
-      :placeholder=${hasValue() ? displayLabel() : props.placeholder}
-      :aria-label=${placeholderText()}
-      @click=${stopClick}
-      @input=${onFilterInput}
-      @keydown=${onFilterKeydown}
-      @focus=${onTriggerFocus}
-      @blur=${onTriggerBlur}
-    />
+    <span class="prefix" part="prefix">
+      <slot name="prefix"></slot>
+    </span>
+    <input v-if=${props.filterable} class="filter-input" type="text" autocomplete="off" :value=${query}
+      :placeholder=${hasValue() ? displayLabel() : props.placeholder} :aria-label=${placeholderText()} @click=${stopClick}
+      @input=${onFilterInput} @keydown=${onFilterKeydown} @focus=${onTriggerFocus} @blur=${onTriggerBlur} />
     <span v-else-if=${!hasValue()} class="placeholder">${placeholderText()}</span>
     <slot v-else-if=${isMultiple() && hasValue()} name="tag" :data=${getCheckedNodes()}>
       <span class="tags value">
         <span v-for="entry in visibleTagEntries()" :key="entry.key" :class=${tagClass()}>
           <span class="tag-label">{{ entry.label }}</span>
-          <button
-            type="button"
-            class="tag-remove"
-            :data-path-key="entry.key"
-            :aria-label=${`${locale.t("common.remove")} ${entry.label}`}
-            @click=${removeTag}
-          >
-            <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4 4l8 8M12 4l-8 8"></path></svg>
+          <button type="button" class="tag-remove" :data-path-key="entry.key"
+            :aria-label='locale.t("common.remove") + " " + entry.label' @click=${removeTag}>
+            <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+              <path d="M4 4l8 8M12 4l-8 8"></path>
+            </svg>
           </button>
         </span>
-        <span
-          v-if="collapsedTagEntries().length > 0"
-          :class=${[...tagClass(), "collapsed-tag"]}
-          :title=${props.collapseTagsTooltip ? collapseTooltipText() : null}
-          >+{{ collapsedTagEntries().length }}</span
-        >
+        <span v-if="collapsedTagEntries().length > 0" :class=${[...tagClass(), "collapsed-tag"]}
+          :title=${props.collapseTagsTooltip ? collapseTooltipText() : null}>+${collapsedTagEntries().length}</span>
       </span>
     </slot>
     <span v-else class="value">${displayLabel()}</span>
     <span class="suffix" part="suffix">
-      <button v-if=${showClear()} type="button" class="clear" :aria-label=${locale.t("common.clear")} @click=${clear}><span v-if=${props.clearIcon}>${props.clearIcon}</span><svg v-else viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4 4l8 8M12 4l-8 8"></path></svg></button>
+      <button v-if=${showClear()} type="button" class="clear" :aria-label=${locale.t("common.clear")}
+        @click=${clear}><span v-if=${props.clearIcon}>${props.clearIcon}</span><svg v-else viewBox="0 0 16 16"
+          aria-hidden="true" focusable="false">
+          <path d="M4 4l8 8M12 4l-8 8"></path>
+        </svg></button>
       <span v-else class="arrow" aria-hidden="true">▼</span>
     </span>
   </div>
-  <div
-    v-if=${shouldRenderDropdown() && !isDisabled()}
-    :class=${dropdownClass()}
-    :style=${dropdownStyle()}
-    part="dropdown"
+  <div v-if=${shouldRenderDropdown() && !isDisabled()} :class=${dropdownClass()} :style=${dropdownStyle()} part="dropdown"
     :popover=${props.teleported ? "manual" : undefined}
-    :data-append-to=${typeof props.appendTo === "string" ? props.appendTo : "element"}
-    role="menu"
-    :aria-hidden=${open ? "false" : "true"}
-    @click=${stopClick}
-    @keydown=${onDropdownKeydown}
-  >
+    :data-append-to=${typeof props.appendTo === "string" ? props.appendTo : "element"} role="menu"
+    :aria-hidden=${open ? "false" : "true"} :inert=${open ? undefined : ""}
+    @click=${stopClick} @keydown=${onDropdownKeydown}>
     <slot name="header"></slot>
     <div v-if=${isSearchMode()} class="filter-results" role="listbox" @click=${onFilterResultsClick}>
       <div v-if=${filtering} class="empty" aria-live="polite">${locale.t("table.loading")}</div>
       <template v-else>
-        <button
-          v-for="path in filteredPaths"
-          :key="valuePathKey(pathValues(path))"
-          class="filter-option"
-          type="button"
-          role="option"
-          :data-path-key="valuePathKey(pathValues(path))"
-          :aria-selected="isPathSelected(pathValues(path)) ? 'true' : 'false'"
-        >
+        <button v-for="path in filteredPaths" :key="valuePathKey(pathValues(path))" class="filter-option" type="button"
+          role="option" :data-path-key="valuePathKey(pathValues(path))"
+          :aria-selected="isPathSelected(pathValues(path)) ? 'true' : 'false'">
           <slot name="suggestion-item" :node="nodeSnapshot(path)" :data="path[path.length - 1]">
             {{ displayPathLabel(path) }}
           </slot>
@@ -1271,20 +1394,36 @@ const Cascader = defineHtml<CascaderProps, CascaderEmits, CascaderSlots>(html`
         </slot>
       </template>
     </div>
-    <slot v-else-if=${rawOptions().length === 0} name="empty"><div class="empty">${locale.t("table.empty")}</div></slot>
+    <slot v-else-if=${rawOptions().length === 0} name="empty">
+      <div class="empty">${locale.t("table.empty")}</div>
+    </slot>
+    <div v-else-if=${resolvedPanelMode() === "tree"} class="tree-panel" role="tree" @click=${onTreeClick}>
+      <button v-for="entry in treeEntries()" :key="entry.key" :data-path-key="entry.key" :style="treeOptionStyle(entry)"
+        type="button" :class="['option', 'tree-option', optionClass(entry.option, entry.column)]"
+        :disabled="optionDisabled(entry.option)" role="treeitem" :aria-level="entry.level + 1"
+        :aria-expanded="optionLeaf(entry.option) ? undefined : (isTreePathExpanded(entry.path) ? 'true' : 'false')"
+        :aria-selected="isSelected(entry.option, entry.column) ? 'true' : 'false'"
+        :aria-checked="ariaChecked(entry.option, entry.column)" @pointerenter=${onOptionHover}>
+        <span v-if="!optionLeaf(entry.option)" class="tree-toggle"
+          :class="{ 'is-expanded': isTreePathExpanded(entry.path), 'is-loading': isLazyLoading(entry.option) }"
+          aria-hidden="true"></span>
+        <span v-else class="tree-leaf" aria-hidden="true"></span>
+        <span v-if=${showPrefix()} class="option-checkbox" :class="checkboxClass(entry.option, entry.column)">
+          <span class="checkbox-mark"></span>
+        </span>
+        <span class="option-label">
+          <slot :node="nodeSnapshot(entry.path)" :data="entry.option"> {{ optionLabel(entry.option) }} </slot>
+        </span>
+        <span v-if="optionLeaf(entry.option) && isSelected(entry.option, entry.column) && !props.checkable"
+          class="check">✓</span>
+      </button>
+    </div>
     <div v-else class="columns" @click=${onColumnsClick}>
       <div v-for="column in columns()" :key="column.key" class="column">
-        <button
-          v-for="option in column.options"
-          :key="optionKey(option, column.level)"
-          :data-path-key="optionPathKey(option, column)"
-          type="button"
-          :class="['option', optionClass(option, column)]"
-          :disabled="optionDisabled(option)"
-          :role=${showPrefix() ? "menuitemcheckbox" : "menuitem"}
-          :aria-checked="ariaChecked(option, column)"
-          @pointerenter=${onOptionHover}
-        >
+        <button v-for="option in column.options" :key="optionKey(option, column.level)"
+          :data-path-key="optionPathKey(option, column)" type="button" :class="['option', optionClass(option, column)]"
+          :disabled="optionDisabled(option)" :role=${showPrefix() ? "menuitemcheckbox" : "menuitem"}
+          :aria-checked="ariaChecked(option, column)" @pointerenter=${onOptionHover}>
           <span v-if=${showPrefix()} class="option-checkbox" :class="checkboxClass(option, column)">
             <span class="checkbox-mark"></span>
           </span>

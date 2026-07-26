@@ -458,6 +458,7 @@ tbody tr.is-selected td {
 
 .table-tooltip {
   position: fixed;
+  inset: auto;
   z-index: 1200;
   box-sizing: border-box;
   width: max-content;
@@ -471,6 +472,10 @@ tbody tr.is-selected td {
   line-height: 1.45;
   overflow-wrap: anywhere;
   pointer-events: none;
+}
+
+.table-tooltip[popover] {
+  margin: 0;
 }
 
 .table-tooltip::after {

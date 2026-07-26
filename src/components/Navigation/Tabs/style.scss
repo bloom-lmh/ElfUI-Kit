@@ -15,7 +15,7 @@
   --tabs-panel-from-transform: translateY(6px);
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 0;
   min-width: 0;
   color: inherit;
 }
@@ -209,6 +209,15 @@
     outline: 2px solid var(--tabs-color);
     outline-offset: -2px;
   }
+}
+
+.tab[draggable="true"] {
+  cursor: grab;
+  touch-action: pan-y;
+}
+
+.tab[draggable="true"]:active {
+  cursor: grabbing;
 }
 
 .tabs.is-vertical .tab {
@@ -416,10 +425,23 @@
 
 .tab-slider {
   position: absolute;
-  inset: auto 12px 0;
+  z-index: 2;
+  right: auto;
+  bottom: 0;
+  left: 0;
+  width: 0;
   height: 3px;
   border-radius: 999px 999px 0 0;
   background: var(--tabs-slider-color);
+  pointer-events: none;
+  transform: translate3d(0, 0, 0);
+  transform-origin: left center;
+  transition:
+    width var(--tabs-transition-duration) cubic-bezier(0.2, 0, 0, 1),
+    height var(--tabs-transition-duration) cubic-bezier(0.2, 0, 0, 1),
+    opacity var(--elf-transition-fast),
+    transform var(--tabs-transition-duration) cubic-bezier(0.2, 0, 0, 1);
+  will-change: width, height, transform;
 }
 
 @media (max-width: 600px) {
@@ -451,8 +473,10 @@
   }
 
   .tabs.is-vertical .tab-slider {
-    inset: auto 12px 0;
-    width: auto;
+    top: auto;
+    right: auto;
+    bottom: 0;
+    left: 0;
     height: 3px;
   }
 
@@ -469,10 +493,14 @@
 }
 
 .tabs.is-vertical .tab-slider {
-  inset: 8px 0 8px auto;
+  top: 0;
+  right: 0;
+  bottom: auto;
+  left: auto;
   width: 3px;
-  height: auto;
+  height: 0;
   border-radius: 999px 0 0 999px;
+  transform-origin: center top;
 }
 
 .tabs.is-hide-slider .tab-slider {

@@ -137,11 +137,9 @@ export interface DropdownItemSlots {
 }
 
 export interface DropdownExpose {
-  show: () => void;
-  hide: () => void;
-  toggle: () => void;
-  handleOpen: () => void;
-  handleClose: () => void;
+  openMenu: () => void;
+  closeMenu: () => void;
+  toggleMenu: () => void;
 }
 
 export type DropdownElement = HTMLElement & DropdownExpose & Partial<DropdownProps>;

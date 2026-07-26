@@ -2,8 +2,8 @@ import {
   defineHtml,
   defineProps,
   defineStyle,
-  html,
   useEffect,
+  useHostAttr,
   useHostFlag,
   useRef
 } from "@elfui/core";
@@ -27,6 +27,10 @@ useEffect(() => {
 });
 
 useHostFlag("collapsed", () => props.collapsed);
+// The parent splitter cannot reliably observe a child custom element's
+// boolean property during the same upgrade turn. Reflect an explicit string
+// contract so slot discovery and later property updates stay in sync.
+useHostAttr("data-resizable", () => (props.resizable ? "true" : "false"));
 
 defineStyle(`
   :host {
@@ -43,7 +47,7 @@ defineStyle(`
   }
 `);
 
-const SplitterPanel = defineHtml<SplitterPanelProps, Record<string, never>, SplitterPanelSlots>(html`
+const SplitterPanel = defineHtml<SplitterPanelProps, Record<string, never>, SplitterPanelSlots>(`
   <slot v-if=${!props.lazy || activated}></slot>
 `);
 

@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 
 const propsRows = [
   {
@@ -32,6 +32,7 @@ const propsRows = [
   { name: "fixedTabs", type: "boolean", default: "false", desc: "标签使用固定宽度并居中分布" },
   { name: "centerActive", type: "boolean", default: "false", desc: "切换时将激活项滚动到中央" },
   { name: "showArrows", type: "boolean", default: "false", desc: "显示标签滚动翻页按钮" },
+  { name: "draggable", type: "boolean", default: "false", desc: "允许拖动数据驱动标签并重新排序" },
   { name: "stacked", type: "boolean", default: "false", desc: "图标和文字上下排列" },
   { name: "showPanels", type: "boolean", default: "false", desc: "显示内置内容面板" },
   { name: "hideSlider", type: "boolean", default: "false", desc: "隐藏激活指示条" },
@@ -57,7 +58,9 @@ const eventsRows = [
   { name: "tab-change", type: "(name: string | number) => void", desc: "激活标签变化时触发" },
   { name: "tab-remove", type: "(name: string | number) => void", desc: "关闭标签时触发" },
   { name: "tab-add", type: "() => void", desc: "点击新增按钮时触发" },
-  { name: "edit", type: "(name, action) => void", desc: "新增或移除时触发" }
+  { name: "edit", type: "(name, action) => void", desc: "新增或移除时触发" },
+  { name: "update:items", type: "(items: TabsItem[]) => void", desc: "拖动排序后的完整标签列表" },
+  { name: "tab-reorder", type: "({ from, to, value, items }) => void", desc: "拖动排序完成时触发" }
 ];
 
 const methodsRows = [
@@ -84,6 +87,7 @@ const slotsRows = [
   { name: "default", type: "elf-tab-pane[]", desc: "组合式标签面板" },
   { name: "add-icon", type: "unknown", desc: "自定义新增按钮内容" },
   { name: "addIcon", type: "unknown", desc: "旧版新增按钮插槽别名" },
+  { name: "prev-control / next-control", type: "unknown", desc: "完整替换前后翻页控制；点击仍驱动相对切换" },
   { name: "prev-icon / next-icon", type: "unknown", desc: "自定义标签滚动翻页图标" }
 ];
 
@@ -92,7 +96,7 @@ const paneSlotsRows = [
   { name: "label", type: "unknown", desc: "富标签内容" }
 ];
 
-const PageTabsProps = defineHtml(html`
+const PageTabsProps = defineHtml(`
   <h2>API</h2>
   <elf-props-table title="Props" :rows=${propsRows}></elf-props-table>
   <elf-props-table title="Events" :rows=${eventsRows}></elf-props-table>

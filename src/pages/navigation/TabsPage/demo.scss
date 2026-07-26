@@ -65,6 +65,39 @@
   width: min(920px, 100%);
 }
 
+.tabs-sortable-demo {
+  display: grid;
+  gap: 12px;
+}
+
+.tabs-control-button {
+  align-self: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--elf-divider);
+  border-radius: var(--elf-radius-sm);
+  background: var(--elf-bg-paper);
+  color: var(--elf-text-primary);
+  cursor: pointer;
+}
+
+.tabs-control-button:hover,
+.tabs-control-button:focus-visible {
+  border-color: var(--elf-primary);
+  color: var(--elf-primary);
+}
+
+.tabs-control-button:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--elf-primary) 36%, transparent);
+  outline-offset: 2px;
+}
+
+.tabs-sortable-hint {
+  margin: 0;
+  color: var(--elf-text-secondary);
+  font-size: var(--elf-font-size-sm);
+}
+
 .tabs-variant-demo svg[slot] {
   width: 16px;
   height: 16px;

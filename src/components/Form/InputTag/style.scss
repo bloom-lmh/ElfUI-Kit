@@ -2,6 +2,7 @@
 @use "../../../styles/field-surface" as field;
 
 :host {
+  @include field.tokens;
   display: block;
   width: 100%;
   min-width: 0;
@@ -12,7 +13,7 @@
 .input-tag {
   display: flex;
   width: 100%;
-  min-height: 52px;
+  min-height: var(--elf-field-control-height);
   align-items: center;
   gap: var(--elf-space-2);
   position: relative;
@@ -20,10 +21,26 @@
 }
 
 @include field.surface(".input-tag");
+@include field.floating-label(".input-tag");
+@include field.reduced-motion(".input-tag");
+
+:host([data-has-label]) .input-tag {
+  padding-top: 20px;
+}
+
+:host([data-has-label]:not([data-dirty])) .input-tag:not(:focus-within) input::placeholder {
+  color: transparent;
+}
 
 .input-token {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   flex: 0 0 auto;
+  align-self: center;
+  line-height: 1;
   max-width: min(180px, 100%);
+  vertical-align: middle;
   white-space: nowrap;
 }
 
@@ -33,11 +50,16 @@
   flex: 1 1 auto;
   max-width: 100%;
   align-items: center;
+  align-content: center;
   flex-wrap: wrap;
   gap: var(--elf-space-2);
 }
 
 .tag-label {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1em;
+  line-height: 1;
   max-width: 160px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -72,9 +94,11 @@
 }
 
 input {
-  min-width: 96px;
-  flex: 1 1 140px;
+  min-width: 48px;
+  flex: 1 1 64px;
   height: 28px;
+  align-self: center;
+  line-height: 28px;
   border: 0;
   outline: none;
   background: transparent;
@@ -92,11 +116,36 @@ input:disabled {
 }
 
 :host([size="sm"]) .input-tag {
-  min-height: 40px;
+  --elf-field-control-height: 40px;
   padding-block: 4px;
 }
 
 :host([size="lg"]) .input-tag {
-  min-height: 60px;
+  --elf-field-control-height: 64px;
   padding-block: 9px;
+}
+
+/* Outlined labels live in the notch, so their content remains centered in the full field. */
+:host([variant="outlined"][data-has-label]) .input-tag {
+  padding-block: 16px 10px;
+}
+
+:host([variant="outlined"][data-has-label]) .tag-strip {
+  padding-block: 0;
+}
+
+:host([variant="outlined"][data-has-label][size="sm"]) .tag-strip {
+  padding-block: 0;
+}
+
+:host([variant="outlined"][data-has-label][size="lg"]) .tag-strip {
+  padding-block: 0;
+}
+
+:host([variant="outlined"][data-has-label][size="sm"]) .input-tag {
+  padding-block: 12px 8px;
+}
+
+:host([variant="outlined"][data-has-label][size="lg"]) .input-tag {
+  padding-block: 18px 12px;
 }

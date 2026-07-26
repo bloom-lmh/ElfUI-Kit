@@ -40,4 +40,23 @@ export interface TreeProps {
   emptyText: string;
   indent: number;
   bordered: boolean;
+  lazy: boolean;
+  load?: (node: TreeNode, resolve: (children: TreeNode[]) => void) => void | TreeNode[] | Promise<TreeNode[]>;
+  filterNodeMethod?: (keyword: string, node: TreeNode) => boolean;
+  draggable: boolean;
+  allowDrag?: (node: TreeNode) => boolean;
+  allowDrop?: (dragging: TreeNode, drop: TreeNode, type: "inner") => boolean;
+  virtual: boolean;
+  height: string | number;
+  itemSize: number;
+  overscan: number;
+}
+
+export interface TreeExpose {
+  appendNode: (data: TreeNode, parent?: TreeNode | string | number | null) => void;
+  removeNode: (target: TreeNode | string | number) => TreeNode | undefined;
+  insertBeforeNode: (data: TreeNode, reference: TreeNode | string | number) => void;
+  insertAfterNode: (data: TreeNode, reference: TreeNode | string | number) => void;
+  filter: (keyword: string) => void;
+  scrollToNode: (key: string | number) => void;
 }

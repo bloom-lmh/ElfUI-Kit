@@ -1,20 +1,18 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 import { opts } from "./shared";
 
 const multi = useRef<string[]>([]);
 const limited = useRef<string[]>(["vue"]);
 
-const code1 = `<div style="width:320px;margin-bottom:8px">
-  <elf-select
+const code1 = `<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+  <elf-select style="width:320px"
     :options.prop=\${opts}
     :modelValue=\${multi}
     multiple
     placeholder="多选"
     @update:modelValue=\${onMultiUpdate}
   />
-</div>
-<div style="width:280px">
-  <elf-select
+  <elf-select style="width:280px"
     :options.prop=\${opts}
     :modelValue=\${limited}
     multiple
@@ -61,19 +59,17 @@ const onRemoveTag = (): void => {
   // 示例里保留 remove-tag 事件入口，方便用户复制后接自己的业务逻辑。
 };
 
-const PageSelectEx3 = defineHtml(html`
+const PageSelectEx3 = defineHtml(`
   <elf-playground title="多选 / 限制数量 / 折叠标签" :code=${code1} :script=${script1}>
-    <div style="width:320px;margin-bottom:8px">
-      <elf-select
+    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;width:100%;justify-content:center">
+      <elf-select style="width:320px"
         :options.prop=${opts}
         :modelValue=${multi}
         multiple
         placeholder="多选"
         @update:modelValue=${onMultiUpdate}
       ></elf-select>
-    </div>
-    <div style="width:280px">
-      <elf-select
+      <elf-select style="width:280px"
         :options.prop=${opts}
         :modelValue=${limited}
         multiple

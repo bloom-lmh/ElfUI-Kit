@@ -2,20 +2,20 @@
 
 import {
   defineEmits,
+  defineDirective,
   defineExpose,
   defineProps,
   defineStyle,
-  html,
-  onMount,
-  onUnmount,
+  onMounted,
+  onUnmounted,
   useHost,
   useRef,
   useShallowRef,
   useTemplateRef,
-  watchEffect,
-  defineHtml
+  useEffect,
+  defineHtml,
 } from "@elfui/core";
-import { directive, type DirectiveBinding } from "@elfui/core";
+import type { DirectiveBinding } from "@elfui/core";
 
 import styles from "./style.scss?inline";
 import { computeAnchoredPosition } from "../../Common/anchored-overlay";
@@ -37,7 +37,7 @@ import type {
   TableTreeNodeContext,
   TableRenderValue,
   TableTooltipOptions,
-  TableTooltipPlacement
+  TableTooltipPlacement,
 } from "./types";
 
 export type {
@@ -71,7 +71,7 @@ export type {
   TableTitleVariant,
   TableSpanMethod,
   TableSpanResult,
-  TableSortOrder
+  TableSortOrder,
 } from "./types";
 
 const SIGNATURE_SEP = "::elf-table::";
@@ -81,13 +81,14 @@ const TOOLTIP_PLACEMENTS: TableTooltipPlacement[] = [
   "top-end",
   "bottom",
   "bottom-start",
-  "bottom-end"
+  "bottom-end",
 ];
 let tableTooltipSeed = 0;
 
 const mountTableContent = (element: HTMLElement, value: TableRenderValue): void => {
   element.replaceChildren();
   const values = Array.isArray(value) ? value : [value];
+
   for (const item of values) {
     if (item == null) continue;
     if (typeof item === "object" && "nodeType" in item) element.appendChild(item);
@@ -95,12 +96,9 @@ const mountTableContent = (element: HTMLElement, value: TableRenderValue): void 
   }
 };
 
-directive(
-  "elf-table-content",
-  (element: HTMLElement, binding: DirectiveBinding<TableRenderValue>) => {
-    mountTableContent(element, binding.value);
-  }
-);
+const elfTableContent = defineDirective((element: HTMLElement, binding: DirectiveBinding<TableRenderValue>) => {
+  mountTableContent(element, binding.value);
+});
 
 const props = defineProps<TableProps>({
   title: { type: String, default: "" },
@@ -143,7 +141,7 @@ const props = defineProps<TableProps>({
   defaultExpandAll: { type: Boolean, default: false },
   treeProps: {
     type: Object,
-    default: () => ({ children: "children", hasChildren: "hasChildren", checkStrictly: false })
+    default: () => ({ children: "children", hasChildren: "hasChildren", checkStrictly: false }),
   },
   indent: { type: Number, default: 16 },
   lazy: { type: Boolean, default: false },
@@ -155,12 +153,12 @@ const props = defineProps<TableProps>({
   showOverflowTooltip: { type: Boolean, default: false },
   tooltipOptions: {
     type: Object,
-    default: () => ({ placement: "top", offset: 8, showAfter: 300, hideAfter: 80, maxWidth: 320 })
+    default: () => ({ placement: "top", offset: 8, showAfter: 300, hideAfter: 80, maxWidth: 320 }),
   },
   showSummary: { type: Boolean, default: false },
   sumText: { type: String, default: "" },
   summaryMethod: { type: Function },
-  spanMethod: { type: Function }
+  spanMethod: { type: Function },
 });
 
 const emit = defineEmits([
@@ -185,7 +183,7 @@ const emit = defineEmits([
   "sort-change",
   "filter-change",
   "header-dragend",
-  "scroll"
+  "scroll",
 ]);
 
 // Template references
@@ -268,10 +266,12 @@ let initialized = false;
 let initialExpansionApplied = false;
 let externalSortObserved = false;
 let filterOverlayFrame = 0;
+let tooltipPositionFrame = 0;
 let tooltipAnchor: HTMLElement | null = null;
 let tooltipShowTimer = 0;
 let tooltipHideTimer = 0;
 let cleanupFilterOverlay = (): void => {};
+let cleanupTooltipScrollTracking = (): void => {};
 const externalFilterSignatures = new Map<string, string>();
 
 const normalizeKeys = (value: unknown): string[] => {
@@ -293,8 +293,7 @@ const filterValueKey = (value: unknown): string => {
   }
 };
 
-const filterSignature = (values: unknown[]): string =>
-  values.map(filterValueKey).join(SIGNATURE_SEP);
+const filterSignature = (values: unknown[]): string => values.map(filterValueKey).join(SIGNATURE_SEP);
 
 const cssSize = (value: unknown): string => {
   if (value == null || value === "") return "";
@@ -308,13 +307,8 @@ const cssSizeNumber = (value: string): number => {
   return Number.isFinite(parsed) ? parsed : 0;
 };
 
-const columnSize = (
-  column: TableColumnView,
-  widths: Record<string, number> = columnWidthsState.peek()
-): number =>
-  widths[column.id]
-  || cssSizeNumber(column.width || column.minWidth || "120px")
-  || 120;
+const columnSize = (column: TableColumnView, widths: Record<string, number> = columnWidthsState.peek()): number =>
+  widths[column.id] || cssSizeNumber(column.width || column.minWidth || "120px") || 120;
 
 const columnWidth = (column: TableColumnView): string => `${columnSize(column)}px`;
 
@@ -341,8 +335,7 @@ const rawColumns = (): Record<string, unknown>[] =>
 
 const rawRows = (): TableRow[] => (Array.isArray(props.data) ? (props.data as TableRow[]) : []);
 
-const filterKeyOf = (column: TableColumnView): string =>
-  String(column.raw.columnKey || column.prop);
+const filterKeyOf = (column: TableColumnView): string => String(column.raw.columnKey || column.prop);
 
 const filterOptionsOf = (column: TableColumnView): TableFilterOption[] => {
   const filters = Array.isArray(column.raw.filters) ? column.raw.filters : [];
@@ -353,8 +346,7 @@ const filterOptionsOf = (column: TableColumnView): TableFilterOption[] => {
 
 const hasFilters = (column: TableColumnView): boolean => filterOptionsOf(column).length > 0;
 
-const filterValuesOf = (column: TableColumnView): unknown[] =>
-  filterValuesState.value[filterKeyOf(column)] || [];
+const filterValuesOf = (column: TableColumnView): unknown[] => filterValuesState.value[filterKeyOf(column)] || [];
 
 const syncExternalFilters = (columns: TableColumnView[]): void => {
   const next = { ...filterValuesState.peek() };
@@ -383,9 +375,7 @@ const syncExternalFilters = (columns: TableColumnView[]): void => {
   if (changed) filterValuesState.set(next);
 };
 
-const normalizeColumns = (
-  widths: Record<string, number> = columnWidthsState.peek()
-): TableColumnView[] => {
+const normalizeColumns = (widths: Record<string, number> = columnWidthsState.peek()): TableColumnView[] => {
   const source = rawColumns();
   if (source.length === 0) {
     const first = rawRows()[0] || {};
@@ -402,7 +392,7 @@ const normalizeColumns = (
       fixed: "",
       fixedOffset: "",
       fixedLast: false,
-      raw: { prop: key, label: key }
+      raw: { prop: key, label: key },
     }));
   }
 
@@ -410,9 +400,7 @@ const normalizeColumns = (
     const type = String(column.type || "default") as TableColumnView["type"];
     const prop = String(column.prop || (type === "default" ? `column_${index}` : type));
     const normalizedType: TableColumnView["type"] =
-      type === "selection" || type === "index" || type === "expand" || type === "actions"
-        ? type
-        : "default";
+      type === "selection" || type === "index" || type === "expand" || type === "actions" ? type : "default";
     return {
       id: String(column.id || prop || index),
       prop,
@@ -424,19 +412,13 @@ const normalizeColumns = (
               ? "#"
               : type === "actions"
                 ? locale.t("table.actions")
-                : prop)
+                : prop),
       ),
       type: normalizedType,
       width: cssSize(column.width),
       minWidth: cssSize(
         column.minWidth ||
-          (type === "selection" || type === "expand"
-            ? 48
-            : type === "index"
-              ? 64
-              : type === "actions"
-                ? 140
-                : 120)
+          (type === "selection" || type === "expand" ? 48 : type === "index" ? 64 : type === "actions" ? 140 : 120),
       ),
       align: column.align === "center" || column.align === "right" ? column.align : "left",
       headerAlign:
@@ -449,7 +431,7 @@ const normalizeColumns = (
       fixed: column.fixed === "left" || column.fixed === "right" ? column.fixed : "",
       fixedOffset: "",
       fixedLast: false,
-      raw: column
+      raw: column,
     };
   });
   let left = 0;
@@ -484,7 +466,7 @@ const resolveSortValue = (
   row: TableRow,
   index: number,
   rows: TableRow[],
-  fallbackProp: string
+  fallbackProp: string,
 ): unknown => {
   if (typeof sortBy === "function") {
     try {
@@ -500,7 +482,7 @@ const compareRows = (
   left: { row: TableRow; index: number },
   right: { row: TableRow; index: number },
   column: TableColumnView,
-  rows: TableRow[]
+  rows: TableRow[],
 ): number => {
   const method = column.raw.sortMethod;
   if (typeof method === "function") {
@@ -520,7 +502,7 @@ const compareRows = (
   }
   return compareValue(
     resolveSortValue(sortBy, left.row, left.index, rows, column.prop),
-    resolveSortValue(sortBy, right.row, right.index, rows, column.prop)
+    resolveSortValue(sortBy, right.row, right.index, rows, column.prop),
   );
 };
 
@@ -607,9 +589,10 @@ const normalizeTreeSelection = (keys: string[]): string[] => {
     if (!row.hasChildren || !isSelectable(row)) continue;
     const children = rows.filter((child) => child.parentKey === row.key && isSelectable(child));
     if (children.length === 0) continue;
-    if (children.every((child) => selected.has(child.key))) {
-      selected.add(row.key);
-    } else {
+    // Child selection must not implicitly promote a parent into the selection.
+    // Keep a parent selected only while all of its selectable children remain
+    // selected; selecting the parent itself still cascades in the pass above.
+    if (selected.has(row.key) && !children.every((child) => selected.has(child.key))) {
       selected.delete(row.key);
     }
   }
@@ -628,7 +611,7 @@ const rebuildRows = (): void => {
     keyOf: rowKeyOf,
     isExpandable: isTreeExpandable,
     sortRows: (rows) => sortedData(columns, rows),
-    ...(hasActiveFilters ? { matchesRow: (row: TableRow) => matchesFilters(row, columns) } : {})
+    ...(hasActiveFilters ? { matchesRow: (row: TableRow) => matchesFilters(row, columns) } : {}),
   });
   const rows = tree.visible as TableRowView[];
   const allRows = tree.all as TableRowView[];
@@ -690,12 +673,7 @@ const setSelectedKeys = (keys: string[], shouldEmit = true): void => {
   }
 };
 
-const setExpandedKeys = (
-  keys: string[],
-  shouldEmit = true,
-  row?: TableRowView,
-  treeExpanded?: boolean
-): void => {
+const setExpandedKeys = (keys: string[], shouldEmit = true, row?: TableRowView, treeExpanded?: boolean): void => {
   const rowKeys = new Set(allRowsState.peek().map((item) => item.key));
   const next = Array.from(new Set(keys.map(String).filter((key) => rowKeys.has(key))));
   expandedState.set(next);
@@ -706,31 +684,23 @@ const setExpandedKeys = (
   }
 };
 
-watchEffect(() => {
+useEffect(() => {
   if (!initialized) {
     initialized = true;
     selectedState.set(
-      normalizeKeys(
-        Array.isArray(props.selectedKeys) ? props.selectedKeys : props.defaultSelectedKeys
-      )
+      normalizeKeys(Array.isArray(props.selectedKeys) ? props.selectedKeys : props.defaultSelectedKeys),
     );
     expandedState.set(
-      normalizeKeys(
-        Array.isArray(props.expandedRowKeys) ? props.expandedRowKeys : props.defaultExpandedRowKeys
-      )
+      normalizeKeys(Array.isArray(props.expandedRowKeys) ? props.expandedRowKeys : props.defaultExpandedRowKeys),
     );
     currentKey.set(String(props.currentRowKey || ""));
     const defaultSort = (props.defaultSort || {}) as TableDefaultSort;
     const initialSortProp = String(props.sortProp || defaultSort.prop || "");
     const initialSortOrder = String(
-      props.sortOrder || defaultSort.order || (initialSortProp ? "ascending" : "")
+      props.sortOrder || defaultSort.order || (initialSortProp ? "ascending" : ""),
     ) as SortOrder;
     sortPropState.set(initialSortProp);
-    sortOrderState.set(
-      initialSortOrder === "ascending" || initialSortOrder === "descending"
-        ? initialSortOrder
-        : ""
-    );
+    sortOrderState.set(initialSortOrder === "ascending" || initialSortOrder === "descending" ? initialSortOrder : "");
   }
   rebuildRows();
   if (!initialExpansionApplied) {
@@ -741,45 +711,42 @@ watchEffect(() => {
       normalizeKeys(props.defaultExpandedRowKeys).length === 0
     ) {
       setExpandedKeys(
-        allRowsState.peek()
+        allRowsState
+          .peek()
           .filter((row) => !isTreeState.peek() || row.hasChildren)
           .map((row) => row.key),
-        false
+        false,
       );
     }
   }
 });
 
-watchEffect(() => {
+useEffect(() => {
   if (!Array.isArray(props.expandedRowKeys)) return;
   const next = normalizeKeys(props.expandedRowKeys);
   if (signature(next) === lastExpandedSig.peek()) return;
   setExpandedKeys(next, false);
 });
 
-watchEffect(() => {
+useEffect(() => {
   if (!Array.isArray(props.selectedKeys)) return;
   const next = normalizeKeys(props.selectedKeys);
   if (signature(next) === lastSelectedSig.peek()) return;
   setSelectedKeys(next, false);
 });
 
-watchEffect(() => {
+useEffect(() => {
   const next = String(props.currentRowKey || "");
   if (next !== currentKey.peek()) currentKey.set(next);
 });
 
-watchEffect(() => {
+useEffect(() => {
   const nextProp = String(props.sortProp || "");
   const nextOrder = String(props.sortOrder || "") as SortOrder;
   if (!externalSortObserved && !nextProp && !nextOrder) return;
   externalSortObserved = true;
   const normalizedOrder =
-    nextOrder === "ascending" || nextOrder === "descending"
-      ? nextOrder
-      : nextProp
-        ? "ascending"
-        : "";
+    nextOrder === "ascending" || nextOrder === "descending" ? nextOrder : nextProp ? "ascending" : "";
   if (nextProp !== sortPropState.peek() || normalizedOrder !== sortOrderState.peek()) {
     sortPropState.set(nextProp);
     sortOrderState.set(normalizedOrder);
@@ -792,14 +759,17 @@ const getColumns = (): TableColumnView[] => columnsState.value;
 const getRows = (): TableRowView[] => rowsState.value;
 
 const isVirtualized = (): boolean =>
-  Boolean(props.virtual)
-  && Boolean(props.height)
-  && !isTreeState.value
-  && rowsState.value.length >= Math.max(0, Number(props.virtualThreshold) || 0);
+  Boolean(props.virtual) &&
+  Boolean(props.height) &&
+  !isTreeState.value &&
+  rowsState.value.length >= Math.max(0, Number(props.virtualThreshold) || 0);
 
 const virtualWindowAt = (scrollOffset: number): VirtualWindow => {
   const wrap = wrapRef.value;
-  const viewportSize = Math.max(0, (wrap?.clientHeight || cssSizeNumber(cssSize(props.height))) - (props.showHeader ? 48 : 0));
+  const viewportSize = Math.max(
+    0,
+    (wrap?.clientHeight || cssSizeNumber(cssSize(props.height))) - (props.showHeader ? 48 : 0),
+  );
   const count = rowsState.value.length;
   const itemSize = Math.max(1, Number(props.rowHeight) || 48);
   const overscan = Math.max(0, Number(props.overscan) || 0);
@@ -811,7 +781,7 @@ const virtualWindowAt = (scrollOffset: number): VirtualWindow => {
     itemSize,
     viewportSize,
     scrollOffset,
-    overscan
+    overscan,
   });
   return cachedVirtualWindow;
 };
@@ -837,7 +807,7 @@ const virtualBodyStyle = (): Record<string, string> => {
   const range = virtualWindow();
   return {
     height: `${range.totalSize}px`,
-    paddingBlockStart: `${range.offset}px`
+    paddingBlockStart: `${range.offset}px`,
   };
 };
 
@@ -854,7 +824,7 @@ const tableClass = (): Record<string, boolean> => ({
   "is-fit": Boolean(props.fit),
   "is-scrollbar-always": Boolean(props.scrollbarAlwaysOn),
   "is-resizing": Boolean(resizeState.value),
-  "is-virtualized": isVirtualized()
+  "is-virtualized": isVirtualized(),
 });
 
 const wrapStyle = (): Record<string, string> => {
@@ -886,7 +856,7 @@ const columnBoxStyle = (column: TableColumnView): Record<string, string> => {
 
 const baseCellClass = (
   column: TableColumnView,
-  align: TableColumnView["align"] = column.align
+  align: TableColumnView["align"] = column.align,
 ): Record<string, boolean> => ({
   "is-center": align === "center",
   "is-right": align === "right",
@@ -897,17 +867,12 @@ const baseCellClass = (
   "is-sortable": Boolean(column.sortable),
   "is-fixed-left": column.fixed === "left",
   "is-fixed-right": column.fixed === "right",
-  "is-fixed-last": column.fixedLast
+  "is-fixed-last": column.fixedLast,
 });
 
-const columnIndexOf = (column: TableColumnView): number =>
-  getColumns().findIndex((item) => item.id === column.id);
+const columnIndexOf = (column: TableColumnView): number => getColumns().findIndex((item) => item.id === column.id);
 
-const resolveColumnClass = (
-  value: unknown,
-  row: TableRowView | null,
-  column: TableColumnView
-): string => {
+const resolveColumnClass = (value: unknown, row: TableRowView | null, column: TableColumnView): string => {
   if (typeof value === "function" && row) {
     try {
       return String(value(row.raw, column.raw, row.index) ?? "");
@@ -946,7 +911,7 @@ const cellContext = (column: TableColumnView, row: TableRowView): TableCellConte
   row: row.raw,
   rowIndex: row.index,
   column: column.raw as TableColumn,
-  columnIndex: columnIndexOf(column)
+  columnIndex: columnIndexOf(column),
 });
 
 const resolveGlobalCellClass = (column: TableColumnView, row: TableRowView): string => {
@@ -976,7 +941,7 @@ const resolveGlobalCellStyle = (column: TableColumnView, row: TableRowView): Tab
 const headerContext = (column: TableColumnView): TableHeaderCellContext => ({
   rowIndex: 0,
   column: column.raw as TableColumn,
-  columnIndex: columnIndexOf(column)
+  columnIndex: columnIndexOf(column),
 });
 
 const resolveHeaderCellClass = (column: TableColumnView): string => {
@@ -1006,14 +971,14 @@ const resolveHeaderCellStyle = (column: TableColumnView): TableStyle => {
 const headerCellClass = (column: TableColumnView): ClassValue => [
   baseCellClass(column, column.headerAlign),
   resolveColumnClass(column.raw.headerClassName || column.raw.className, null, column),
-  resolveHeaderCellClass(column)
+  resolveHeaderCellClass(column),
 ];
 
 const cellClass = (column: TableColumnView, row: TableRowView): ClassValue => [
   baseCellClass(column),
   resolveColumnClass(column.raw.className, row, column),
   resolveColumnClass(column.raw.cellClassName, row, column),
-  resolveGlobalCellClass(column, row)
+  resolveGlobalCellClass(column, row),
 ];
 
 const cellStyle = (column: TableColumnView, row: TableRowView): StyleValue => {
@@ -1033,9 +998,10 @@ const fixedStyle = (column: TableColumnView): Record<string, string> => {
   if (!column.fixed) return {};
   const columns = getColumns();
   const index = columns.findIndex((item) => item.id === column.id);
-  const adjacent = column.fixed === "left"
-    ? columns.slice(0, Math.max(0, index)).filter((item) => item.fixed === "left")
-    : columns.slice(index + 1).filter((item) => item.fixed === "right");
+  const adjacent =
+    column.fixed === "left"
+      ? columns.slice(0, Math.max(0, index)).filter((item) => item.fixed === "left")
+      : columns.slice(index + 1).filter((item) => item.fixed === "right");
   const offset = adjacent.reduce((sum, item) => sum + columnSize(item), 0);
   return { [column.fixed]: `${offset}px` };
 };
@@ -1043,22 +1009,22 @@ const fixedStyle = (column: TableColumnView): Record<string, string> => {
 const headerCellStyle = (column: TableColumnView): StyleValue => ({
   ...columnBoxStyle(column),
   ...fixedStyle(column),
-  ...resolveHeaderCellStyle(column)
+  ...resolveHeaderCellStyle(column),
 });
 
 const mergedCellStyle = (column: TableColumnView, row: TableRowView): StyleValue => ({
   ...columnBoxStyle(column),
   ...fixedStyle(column),
   ...resolveGlobalCellStyle(column, row),
-  ...(cellStyle(column, row) as Record<string, string | number>)
+  ...(cellStyle(column, row) as Record<string, string | number>),
 });
 
 const rowClass = (row: TableRowView): ClassValue => [
   {
     "is-current": Boolean(props.highlightCurrentRow && currentKey.value === row.key),
-    "is-selected": selectedKeysSnapshot(true).includes(row.key)
+    "is-selected": selectedKeysSnapshot(true).includes(row.key),
   },
-  resolveRowClass(row)
+  resolveRowClass(row),
 ];
 
 const rowStyle = (row: TableRowView): StyleValue => resolveRowStyle(row);
@@ -1088,19 +1054,15 @@ const headerRowStyle = (): StyleValue => {
 };
 
 const normalizeSpan = (value: TableSpanResult | undefined): TableSpanView => {
-  const [rowspan, colspan] = Array.isArray(value)
-    ? value
-    : [value?.rowspan ?? 1, value?.colspan ?? 1];
+  const [rowspan, colspan] = Array.isArray(value) ? value : [value?.rowspan ?? 1, value?.colspan ?? 1];
   const rowValue = Number(rowspan);
   const columnValue = Number(colspan);
   const normalizedRowspan = Number.isFinite(rowValue) ? Math.max(0, Math.trunc(rowValue)) : 1;
-  const normalizedColspan = Number.isFinite(columnValue)
-    ? Math.max(0, Math.trunc(columnValue))
-    : 1;
+  const normalizedColspan = Number.isFinite(columnValue) ? Math.max(0, Math.trunc(columnValue)) : 1;
   return {
     rowspan: normalizedRowspan,
     colspan: normalizedColspan,
-    hidden: normalizedRowspan === 0 || normalizedColspan === 0
+    hidden: normalizedRowspan === 0 || normalizedColspan === 0,
   };
 };
 
@@ -1117,7 +1079,7 @@ const bodyCells = (row: TableRowView): TableCellView[] =>
     return {
       column,
       columnIndex,
-      ...normalizeSpan(span)
+      ...normalizeSpan(span),
     };
   });
 
@@ -1167,8 +1129,7 @@ const renderHeaderValue = (column: TableColumnView): TableRenderValue => {
   }
 };
 
-const hasCustomFilterIcon = (column: TableColumnView): boolean =>
-  typeof column.raw.renderFilterIcon === "function";
+const hasCustomFilterIcon = (column: TableColumnView): boolean => typeof column.raw.renderFilterIcon === "function";
 
 const renderFilterIconValue = (column: TableColumnView): TableRenderValue => {
   const renderer = column.raw.renderFilterIcon;
@@ -1176,7 +1137,7 @@ const renderFilterIconValue = (column: TableColumnView): TableRenderValue => {
   try {
     return renderer({
       column: column.raw as TableColumn,
-      filtered: filterValuesOf(column).length > 0
+      filtered: filterValuesOf(column).length > 0,
     }) as TableRenderValue;
   } catch {
     return "";
@@ -1184,8 +1145,7 @@ const renderFilterIconValue = (column: TableColumnView): TableRenderValue => {
 };
 
 const hasCellTooltip = (column: TableColumnView): boolean =>
-  column.type === "default"
-  && Boolean(column.raw.showOverflowTooltip ?? props.showOverflowTooltip);
+  column.type === "default" && Boolean(column.raw.showOverflowTooltip ?? props.showOverflowTooltip);
 
 const cellTooltipText = (row: TableRowView, column: TableColumnView): string => {
   if (!hasCellTooltip(column)) return "";
@@ -1208,19 +1168,18 @@ const tooltipOptions = (): Required<TableTooltipOptions> => {
     return Number.isFinite(normalized) ? Math.max(0, normalized) : fallback;
   };
   const placement = TOOLTIP_PLACEMENTS.includes(raw.placement as TableTooltipPlacement)
-    ? raw.placement as TableTooltipPlacement
+    ? (raw.placement as TableTooltipPlacement)
     : "top";
   return {
     placement,
     offset: numberOr(raw.offset, 8),
     showAfter: numberOr(raw.showAfter, 300),
     hideAfter: numberOr(raw.hideAfter, 80),
-    maxWidth: raw.maxWidth || 320
+    maxWidth: raw.maxWidth || 320,
   };
 };
 
-const tooltipCellKey = (row: TableRowView, column: TableColumnView): string =>
-  `${row.key}${SIGNATURE_SEP}${column.id}`;
+const tooltipCellKey = (row: TableRowView, column: TableColumnView): string => `${row.key}${SIGNATURE_SEP}${column.id}`;
 
 const clearTooltipTimers = (): void => {
   if (tooltipShowTimer) window.clearTimeout(tooltipShowTimer);
@@ -1229,9 +1188,21 @@ const clearTooltipTimers = (): void => {
   tooltipHideTimer = 0;
 };
 
+const getTooltipElement = (): (HTMLElement & {
+  showPopover?: () => void;
+  hidePopover?: () => void;
+}) | null => host.shadowRoot?.querySelector<HTMLElement>(".table-tooltip") ?? null;
+
 const closeTooltip = (): void => {
   if (!tooltipOpenState.peek() && !tooltipAnchor && !tooltipCellKeyState.peek()) return;
   clearTooltipTimers();
+  cleanupTooltipScrollTracking();
+  cleanupTooltipScrollTracking = (): void => {};
+  try {
+    getTooltipElement()?.hidePopover?.();
+  } catch {
+    // A conditionally removed popover is already closed by the browser.
+  }
   tooltipAnchor = null;
   tooltipOpenState.set(false);
   tooltipCellKeyState.set("");
@@ -1252,34 +1223,69 @@ const updateTooltipPosition = (): void => {
       width: viewport?.width || window.innerWidth,
       height: viewport?.height || window.innerHeight,
       offsetLeft: viewport?.offsetLeft || 0,
-      offsetTop: viewport?.offsetTop || 0
+      offsetTop: viewport?.offsetTop || 0,
     },
     {
       placement: options.placement,
       offset: [0, options.offset],
       padding: 8,
-      flip: true
-    }
+      flip: true,
+    },
   );
   tooltipPlacementState.set(position.placement);
   tooltipStyleState.set({
     left: `${position.left}px`,
     top: `${position.top}px`,
-    maxWidth: cssSize(options.maxWidth)
+    maxWidth: cssSize(options.maxWidth),
   });
+};
+
+const requestTooltipPositionUpdate = (): void => {
+  if (typeof window === "undefined" || !tooltipOpenState.peek()) return;
+  if (tooltipPositionFrame) window.cancelAnimationFrame(tooltipPositionFrame);
+  tooltipPositionFrame = window.requestAnimationFrame(() => {
+    tooltipPositionFrame = 0;
+    updateTooltipPosition();
+  });
+};
+
+const composedParentElement = (element: HTMLElement): HTMLElement | null => {
+  if (element.parentElement) return element.parentElement;
+  const root = element.getRootNode();
+  return root instanceof ShadowRoot && root.host instanceof HTMLElement ? root.host : null;
+};
+
+const isScrollableElement = (element: HTMLElement): boolean => {
+  const style = window.getComputedStyle(element);
+  const canScrollY = /(auto|scroll|overlay)/.test(style.overflowY)
+    && element.scrollHeight > element.clientHeight + 1;
+  const canScrollX = /(auto|scroll|overlay)/.test(style.overflowX)
+    && element.scrollWidth > element.clientWidth + 1;
+  return canScrollX || canScrollY;
+};
+
+const trackTooltipScrollAncestors = (anchor: HTMLElement): void => {
+  cleanupTooltipScrollTracking();
+  const targets: HTMLElement[] = [];
+  let current = composedParentElement(anchor);
+  while (current) {
+    if (isScrollableElement(current)) targets.push(current);
+    current = composedParentElement(current);
+  }
+  targets.forEach((target) =>
+    target.addEventListener("scroll", requestTooltipPositionUpdate, { passive: true })
+  );
+  cleanupTooltipScrollTracking = () => {
+    targets.forEach((target) => target.removeEventListener("scroll", requestTooltipPositionUpdate));
+  };
 };
 
 const isCellOverflowing = (cell: HTMLElement): boolean => {
   const content = cell.querySelector<HTMLElement>(".cell-text") || cell;
-  return content.scrollWidth > content.clientWidth + 1
-    || content.scrollHeight > content.clientHeight + 1;
+  return content.scrollWidth > content.clientWidth + 1 || content.scrollHeight > content.clientHeight + 1;
 };
 
-const openCellTooltip = (
-  row: TableRowView,
-  column: TableColumnView,
-  cell: HTMLElement
-): void => {
+const openCellTooltip = (row: TableRowView, column: TableColumnView, cell: HTMLElement): void => {
   clearTooltipTimers();
   if (tooltipAnchor && tooltipAnchor !== cell) {
     tooltipAnchor = null;
@@ -1291,10 +1297,18 @@ const openCellTooltip = (
   if (!text) return;
   const open = (): void => {
     tooltipAnchor = cell;
+    trackTooltipScrollAncestors(cell);
     tooltipTextState.set(text);
     tooltipCellKeyState.set(tooltipCellKey(row, column));
     tooltipOpenState.set(true);
-    queueMicrotask(updateTooltipPosition);
+    queueMicrotask(() => {
+      try {
+        getTooltipElement()?.showPopover?.();
+      } catch {
+        // Native popover support is optional; fixed positioning remains valid.
+      }
+      updateTooltipPosition();
+    });
   };
   const delay = tooltipOptions().showAfter;
   if (delay > 0) tooltipShowTimer = window.setTimeout(open, delay);
@@ -1310,9 +1324,7 @@ const scheduleTooltipClose = (): void => {
 };
 
 const tooltipDescriptionId = (row: TableRowView, column: TableColumnView): string | null =>
-  tooltipOpenState.value && tooltipCellKeyState.value === tooltipCellKey(row, column)
-    ? tooltipId
-    : null;
+  tooltipOpenState.value && tooltipCellKeyState.value === tooltipCellKey(row, column) ? tooltipId : null;
 
 const isSelected = (row: TableRowView): boolean => selectedKeysSnapshot(true).includes(row.key);
 
@@ -1323,18 +1335,14 @@ const selectableRows = (): TableRowView[] => rowsState.value.filter(isSelectable
 const descendantRowsOf = (row: TableRowView, includeSelf = false): TableRowView[] =>
   allRowsState
     .peek()
-    .filter(
-      (item) =>
-        (includeSelf && item.key === row.key) ||
-        (item.key !== row.key && item.path.includes(row.key))
-    );
+    .filter((item) => (includeSelf && item.key === row.key) || (item.key !== row.key && item.path.includes(row.key)));
 
 const isRowIndeterminate = (row: TableRowView): boolean => {
   if (!row.hasChildren || treeConfig().checkStrictly) return false;
   const descendants = descendantRowsOf(row).filter(isSelectable);
   const keys = new Set(selectedKeysSnapshot(true));
   const selected = descendants.filter((item) => keys.has(item.key)).length;
-  return selected > 0 && selected < descendants.length;
+  return selected > 0 && (!keys.has(row.key) || selected < descendants.length);
 };
 
 const isAllSelected = (): boolean => {
@@ -1387,9 +1395,10 @@ const toggleRowSelection = (target: unknown, selected?: boolean, ignoreSelectabl
   if (!ignoreSelectable && !isSelectable(row)) return;
   const set = new Set(selectedKeysSnapshot());
   const shouldSelect = selected == null ? !set.has(row.key) : selected;
-  const affected = isTreeState.peek() && !treeConfig().checkStrictly
-    ? descendantRowsOf(row, true).filter((item) => ignoreSelectable || isSelectable(item))
-    : [row];
+  const affected =
+    isTreeState.peek() && !treeConfig().checkStrictly
+      ? descendantRowsOf(row, true).filter((item) => ignoreSelectable || isSelectable(item))
+      : [row];
   for (const item of affected) {
     if (shouldSelect) set.add(item.key);
     else set.delete(item.key);
@@ -1410,7 +1419,7 @@ const toggleAllSelection = (): void => {
     shouldClear
       ? [...retainedKeys, ...disabledKeys]
       : [...retainedKeys, ...disabledKeys, ...selectableRows().map((row) => row.key)],
-    true
+    true,
   );
 };
 
@@ -1448,7 +1457,7 @@ const updateKeyChildren = (key: string | number, children: TableRow[]): void => 
   const normalizedKey = String(key);
   lazyChildrenState.set({
     ...lazyChildrenState.peek(),
-    [normalizedKey]: Array.isArray(children) ? children : []
+    [normalizedKey]: Array.isArray(children) ? children : [],
   });
   treeLoadedState.set(Array.from(new Set([...treeLoadedState.peek(), normalizedKey])));
   setTreeLoading(normalizedKey, false);
@@ -1472,7 +1481,7 @@ const loadTreeChildren = (row: TableRowView, shouldExpand: boolean): void => {
     key: row.key,
     level: row.level,
     expanded: isExpanded(row),
-    loading: true
+    loading: true,
   };
   try {
     const result = props.load(row.raw, context, resolve);
@@ -1529,7 +1538,10 @@ const toggleRowExpansion = (target: unknown, expanded?: boolean): void => {
 
 function getSelectionRows(keys: string[] = selectedKeysSnapshot()): Record<string, unknown>[] {
   const selected = new Set(keys);
-  return allRowsState.peek().filter((row) => selected.has(row.key)).map((row) => row.raw);
+  return allRowsState
+    .peek()
+    .filter((row) => selected.has(row.key))
+    .map((row) => row.raw);
 }
 
 const setCurrentRow = (target: unknown): void => {
@@ -1563,30 +1575,18 @@ const onRowContextMenu = (row: TableRowView, event: MouseEvent): void => {
   emit("row-contextmenu", row.raw, columnFromEvent(event)?.raw, event);
 };
 
-const onCellMouseEnter = (
-  row: TableRowView,
-  column: TableColumnView,
-  event: MouseEvent
-): void => {
+const onCellMouseEnter = (row: TableRowView, column: TableColumnView, event: MouseEvent): void => {
   const cell = event.currentTarget as HTMLElement;
   emit("cell-mouse-enter", row.raw, column.raw, cell, event);
   if (hasCellTooltip(column)) openCellTooltip(row, column, cell);
 };
 
-const onCellMouseLeave = (
-  row: TableRowView,
-  column: TableColumnView,
-  event: MouseEvent
-): void => {
+const onCellMouseLeave = (row: TableRowView, column: TableColumnView, event: MouseEvent): void => {
   emit("cell-mouse-leave", row.raw, column.raw, event.currentTarget, event);
   if (hasCellTooltip(column)) scheduleTooltipClose();
 };
 
-const onCellFocusIn = (
-  row: TableRowView,
-  column: TableColumnView,
-  event: Event
-): void => {
+const onCellFocusIn = (row: TableRowView, column: TableColumnView, event: Event): void => {
   if (!(event instanceof FocusEvent)) return;
   if (hasCellTooltip(column)) openCellTooltip(row, column, event.currentTarget as HTMLElement);
 };
@@ -1613,11 +1613,7 @@ const onCellDblClick = (row: TableRowView, column: TableColumnView, event: Mouse
   emit("cell-dblclick", row.raw, column.raw, event.currentTarget, event);
 };
 
-const onCellContextMenu = (
-  row: TableRowView,
-  column: TableColumnView,
-  event: MouseEvent
-): void => {
+const onCellContextMenu = (row: TableRowView, column: TableColumnView, event: MouseEvent): void => {
   emit("cell-contextmenu", row.raw, column.raw, event.currentTarget, event);
 };
 
@@ -1652,14 +1648,13 @@ const getExpandContent = (row: TableRowView): TableRenderValue => {
 
 const hasExpandColumn = (): boolean => getColumns().some((column) => column.type === "expand");
 
-const treeColumnIndex = (): number =>
-  getColumns().findIndex((column) => column.type === "default");
+const treeColumnIndex = (): number => getColumns().findIndex((column) => column.type === "default");
 
 const isTreeCell = (row: TableRowView, columnIndex: number): boolean =>
   Boolean(isTreeState.value && columnIndex === treeColumnIndex() && row.level >= 0);
 
 const treeCellStyle = (row: TableRowView): Record<string, string> => ({
-  paddingInlineStart: `${Math.max(0, row.level * Math.max(0, Number(props.indent) || 0))}px`
+  paddingInlineStart: `${Math.max(0, row.level * Math.max(0, Number(props.indent) || 0))}px`,
 });
 
 const isTreeLoading = (row: TableRowView): boolean => treeLoadingState.value.includes(row.key);
@@ -1672,7 +1667,9 @@ const treeToggleLabel = (row: TableRowView): string => {
 const focusTreeToggle = (key: string): void => {
   queueMicrotask(() => {
     const buttons = host.shadowRoot?.querySelectorAll<HTMLButtonElement>(".tree-toggle[data-tree-key]");
-    Array.from(buttons || []).find((button) => button.dataset.treeKey === key)?.focus();
+    Array.from(buttons || [])
+      .find((button) => button.dataset.treeKey === key)
+      ?.focus();
   });
 };
 
@@ -1716,14 +1713,14 @@ const getActions = (row: TableRowView, column: TableColumnView): TableActionView
       label: String(raw.label || ""),
       type: actionType(raw.type),
       disabled,
-      raw
+      raw,
     };
   });
 };
 
 const actionClass = (action: TableActionView): Record<string, boolean> => ({
   "is-primary": action.type === "primary",
-  "is-danger": action.type === "danger"
+  "is-danger": action.type === "danger",
 });
 
 const invokeAction = (action: TableActionView, row: TableRowView): void => {
@@ -1733,11 +1730,9 @@ const invokeAction = (action: TableActionView, row: TableRowView): void => {
   emit("action-click", action.raw, row.raw, row.index);
 };
 
-const isColumnResizable = (column: TableColumnView): boolean =>
-  Boolean(props.border && column.raw.resizable !== false);
+const isColumnResizable = (column: TableColumnView): boolean => Boolean(props.border && column.raw.resizable !== false);
 
-const columnMinWidth = (column: TableColumnView): number =>
-  Math.max(48, cssSizeNumber(column.minWidth) || 48);
+const columnMinWidth = (column: TableColumnView): number => Math.max(48, cssSizeNumber(column.minWidth) || 48);
 
 const applyColumnWidth = (column: TableColumnView, width: number): number => {
   const next = Math.max(columnMinWidth(column), Math.round(Number(width) || columnSize(column)));
@@ -1798,7 +1793,7 @@ const onResizePointerDown = (column: TableColumnView, event: Event): void => {
     pointerId: event.pointerId,
     startX: event.clientX,
     oldWidth,
-    currentWidth: oldWidth
+    currentWidth: oldWidth,
   });
   document.addEventListener("pointermove", onResizePointerMove, { passive: false });
   document.addEventListener("pointerup", onResizePointerUp);
@@ -1811,41 +1806,39 @@ const onResizeKeydown = (column: TableColumnView, event: KeyboardEvent): void =>
   event.stopPropagation();
   const oldWidth = columnSize(column);
   const step = event.shiftKey ? 24 : 8;
-  const nextWidth = applyColumnWidth(
-    column,
-    oldWidth + (event.key === "ArrowRight" ? step : -step)
-  );
+  const nextWidth = applyColumnWidth(column, oldWidth + (event.key === "ArrowRight" ? step : -step));
   if (nextWidth !== oldWidth) emit("header-dragend", nextWidth, oldWidth, column.raw, event);
 };
 
 const resizeLabel = (column: TableColumnView): string =>
   locale.t("table.resizeColumn", { column: column.label || locale.t("table.currentColumn") });
 
-const isColumnResizing = (column: TableColumnView): boolean =>
-  resizeState.value?.columnId === column.id;
+const isColumnResizing = (column: TableColumnView): boolean => resizeState.value?.columnId === column.id;
 
 const stopResizeClick = (event: MouseEvent): void => event.stopPropagation();
 
 const sortOrdersOf = (column: TableColumnView): SortOrder[] => {
   const raw = Array.isArray(column.raw.sortOrders) ? column.raw.sortOrders : [];
   const normalized = raw
-    .map((order): SortOrder =>
-      order === "ascending" || order === "descending" ? order : ""
-    )
+    .map((order): SortOrder => (order === "ascending" || order === "descending" ? order : ""))
     .filter((order, index, orders) => orders.indexOf(order) === index) as SortOrder[];
   return normalized.length > 0 ? normalized : ["ascending", "descending", ""];
 };
 
 const sort = (prop: string, order: SortOrder = "ascending"): void => {
-  const normalizedOrder =
-    order === "ascending" || order === "descending" ? order : "";
+  const normalizedOrder = order === "ascending" || order === "descending" ? order : "";
   sortPropState.set(prop);
   sortOrderState.set(normalizedOrder);
   rebuildRows();
+  queueMicrotask(() => {
+    if (!canUseFastVirtualBody()) return;
+    const scrollTop = Math.max(0, getWrap()?.scrollTop || 0);
+    renderFastVirtualBody(virtualWindowAt(scrollTop));
+  });
   emit("sort-change", {
     column: getColumns().find((column) => column.prop === prop)?.raw,
     prop,
-    order: normalizedOrder
+    order: normalizedOrder,
   });
 };
 
@@ -1854,8 +1847,7 @@ const clearSort = (): void => sort("", "");
 const toggleSort = (column: TableColumnView): void => {
   if (!column.sortable) return;
   const orders = sortOrdersOf(column);
-  const currentIndex =
-    sortPropState.peek() === column.prop ? orders.indexOf(sortOrderState.peek()) : -1;
+  const currentIndex = sortPropState.peek() === column.prop ? orders.indexOf(sortOrderState.peek()) : -1;
   const next = orders[(currentIndex + 1) % orders.length] || "";
   sort(column.prop, next);
 };
@@ -1863,7 +1855,7 @@ const toggleSort = (column: TableColumnView): void => {
 const sortClass = (column: TableColumnView): Record<string, boolean> => ({
   "is-sorted": sortPropState.value === column.prop && !!sortOrderState.value,
   "is-asc": sortPropState.value === column.prop && sortOrderState.value === "ascending",
-  "is-desc": sortPropState.value === column.prop && sortOrderState.value === "descending"
+  "is-desc": sortPropState.value === column.prop && sortOrderState.value === "descending",
 });
 
 const ariaSort = (column: TableColumnView): "ascending" | "descending" | "none" | undefined => {
@@ -1874,11 +1866,9 @@ const ariaSort = (column: TableColumnView): "ascending" | "descending" | "none" 
 
 const sortLabel = (column: TableColumnView): string => {
   const order = ariaSort(column);
-  const state = locale.t(order === "ascending"
-    ? "table.ascending"
-    : order === "descending"
-      ? "table.descending"
-      : "table.unsorted");
+  const state = locale.t(
+    order === "ascending" ? "table.ascending" : order === "descending" ? "table.descending" : "table.unsorted",
+  );
   return locale.t("table.sortState", { column: column.label, state });
 };
 
@@ -1887,15 +1877,13 @@ const activeFilterColumn = (): TableColumnView | undefined =>
 
 const filterPlacementOf = (column: TableColumnView): FilterPlacement => {
   const placement = String(column.raw.filterPlacement || "bottom-start");
-  return FILTER_PLACEMENTS.includes(placement as FilterPlacement)
-    ? placement as FilterPlacement
-    : "bottom-start";
+  return FILTER_PLACEMENTS.includes(placement as FilterPlacement) ? (placement as FilterPlacement) : "bottom-start";
 };
 
 const filterPanelClass = (column: TableColumnView): ClassValue => [
   "filter-panel",
   String(column.raw.filterClassName || ""),
-  { "is-multiple": column.raw.filterMultiple !== false }
+  { "is-multiple": column.raw.filterMultiple !== false },
 ];
 
 const isFilterActive = (column: TableColumnView): boolean => filterValuesOf(column).length > 0;
@@ -1903,22 +1891,20 @@ const isFilterActive = (column: TableColumnView): boolean => filterValuesOf(colu
 const filterButtonClass = (column: TableColumnView): Record<string, boolean> => ({
   "is-active": isFilterActive(column),
   "is-open": filterOpenKey.value === filterKeyOf(column),
-  "has-custom-icon": hasCustomFilterIcon(column)
+  "has-custom-icon": hasCustomFilterIcon(column),
 });
 
 const filterLabel = (column: TableColumnView): string => {
   const count = filterValuesOf(column).length;
   return locale.t(count > 0 ? "table.filterSelected" : "table.filter", {
     column: column.label,
-    count
+    count,
   });
 };
 
-const filterPanelLabel = (column: TableColumnView): string =>
-  locale.t("table.filterOptions", { column: column.label });
+const filterPanelLabel = (column: TableColumnView): string => locale.t("table.filterOptions", { column: column.label });
 
-const filterValueEquals = (left: unknown, right: unknown): boolean =>
-  filterValueKey(left) === filterValueKey(right);
+const filterValueEquals = (left: unknown, right: unknown): boolean => filterValueKey(left) === filterValueKey(right);
 
 const isDraftFilterSelected = (value: unknown): boolean =>
   filterDraftState.value.some((item) => filterValueEquals(item, value));
@@ -1926,24 +1912,24 @@ const isDraftFilterSelected = (value: unknown): boolean =>
 const filterOptionViews = (column: TableColumnView): TableFilterOptionView[] =>
   filterOptionsOf(column).map((option) => ({
     ...option,
-    selected: isDraftFilterSelected(option.value)
+    selected: isDraftFilterSelected(option.value),
   }));
 
 const filterChangePayload = (): Record<string, unknown[]> =>
   Object.fromEntries(
     getColumns()
       .filter(hasFilters)
-      .map((column) => [filterKeyOf(column), [...filterValuesOf(column)]])
+      .map((column) => [filterKeyOf(column), [...filterValuesOf(column)]]),
   );
 
 const setAppliedFilters = (column: TableColumnView, values: unknown[], shouldEmit = true): void => {
   const key = filterKeyOf(column);
   const allowed = filterOptionsOf(column);
-  const normalized = values
-    .filter((value, index, source) =>
-      source.findIndex((item) => filterValueEquals(item, value)) === index
-      && allowed.some((option) => filterValueEquals(option.value, value))
-    );
+  const normalized = values.filter(
+    (value, index, source) =>
+      source.findIndex((item) => filterValueEquals(item, value)) === index &&
+      allowed.some((option) => filterValueEquals(option.value, value)),
+  );
   const nextValues = column.raw.filterMultiple === false ? normalized.slice(0, 1) : normalized;
   const current = filterValuesState.peek()[key] || [];
   if (filterSignature(current) === filterSignature(nextValues)) return;
@@ -1953,11 +1939,10 @@ const setAppliedFilters = (column: TableColumnView, values: unknown[], shouldEmi
 };
 
 const clearFilter = (columnKeys?: string | string[]): void => {
-  const requested = columnKeys == null
-    ? null
-    : new Set((Array.isArray(columnKeys) ? columnKeys : [columnKeys]).map(String));
-  const columns = getColumns().filter((column) =>
-    hasFilters(column) && (!requested || requested.has(filterKeyOf(column)))
+  const requested =
+    columnKeys == null ? null : new Set((Array.isArray(columnKeys) ? columnKeys : [columnKeys]).map(String));
+  const columns = getColumns().filter(
+    (column) => hasFilters(column) && (!requested || requested.has(filterKeyOf(column))),
   );
   if (columns.length === 0 || !columns.some((column) => filterValuesOf(column).length > 0)) return;
   const next = { ...filterValuesState.peek() };
@@ -1969,11 +1954,11 @@ const clearFilter = (columnKeys?: string | string[]): void => {
 };
 
 const getFilterTrigger = (key = filterOpenKey.peek()): HTMLButtonElement | null =>
-  Array.from(host.shadowRoot?.querySelectorAll<HTMLButtonElement>("[data-filter-trigger]") || [])
-    .find((item) => item.dataset.filterKey === key) || null;
+  Array.from(host.shadowRoot?.querySelectorAll<HTMLButtonElement>("[data-filter-trigger]") || []).find(
+    (item) => item.dataset.filterKey === key,
+  ) || null;
 
-const getFilterPanel = (): HTMLElement | null =>
-  host.shadowRoot?.querySelector<HTMLElement>(".filter-panel") || null;
+const getFilterPanel = (): HTMLElement | null => host.shadowRoot?.querySelector<HTMLElement>(".filter-panel") || null;
 
 const updateFilterOverlayPosition = (): void => {
   if (typeof window === "undefined") return;
@@ -1991,14 +1976,14 @@ const updateFilterOverlayPosition = (): void => {
       width: viewport?.width || window.innerWidth,
       height: viewport?.height || window.innerHeight,
       offsetLeft: viewport?.offsetLeft || 0,
-      offsetTop: viewport?.offsetTop || 0
+      offsetTop: viewport?.offsetTop || 0,
     },
-    { placement: filterPlacementOf(column), offset: [0, 7], padding: 8, flip: true }
+    { placement: filterPlacementOf(column), offset: [0, 7], padding: 8, flip: true },
   );
   filterOverlayStyle.set({
     position: "fixed",
     left: `${position.left}px`,
-    top: `${position.top}px`
+    top: `${position.top}px`,
   });
 };
 
@@ -2014,9 +1999,7 @@ const requestFilterOverlayUpdate = (): void => {
 const connectFilterOverlay = (): void => {
   cleanupFilterOverlay();
   if (!filterOpenKey.peek() || typeof window === "undefined") return;
-  const observer = typeof ResizeObserver !== "undefined"
-    ? new ResizeObserver(requestFilterOverlayUpdate)
-    : undefined;
+  const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(requestFilterOverlayUpdate) : undefined;
   const trigger = getFilterTrigger();
   const panel = getFilterPanel();
   if (trigger) observer?.observe(trigger);
@@ -2124,7 +2107,7 @@ const summaryCells = (): string[] => {
     try {
       const values = props.summaryMethod({
         columns: columns.map((column) => column.raw as TableColumn),
-        data
+        data,
       });
       return Array.isArray(values) ? values.map((value) => String(value ?? "")) : [];
     } catch {
@@ -2133,7 +2116,7 @@ const summaryCells = (): string[] => {
   }
   const labelIndex = Math.max(
     0,
-    columns.findIndex((column) => column.type === "default")
+    columns.findIndex((column) => column.type === "default"),
   );
   return columns.map((column, index) => {
     if (index === labelIndex) return String(props.sumText || locale.t("table.sum"));
@@ -2177,18 +2160,19 @@ const classNamesOf = (value: unknown): string[] => {
 };
 
 const canUseFastVirtualBody = (): boolean =>
-  isVirtualized()
-  && !props.showSummary
-  && typeof props.spanMethod !== "function"
-  && typeof props.rowClassName !== "function"
-  && typeof props.rowStyle !== "function"
-  && typeof props.cellClassName !== "function"
-  && typeof props.cellStyle !== "function"
-  && getColumns().every((column) =>
-    (column.type === "default" || column.type === "index")
-    && typeof column.raw.formatter !== "function"
-    && typeof column.raw.renderCell !== "function"
-    && !hasCellTooltip(column)
+  isVirtualized() &&
+  !props.showSummary &&
+  typeof props.spanMethod !== "function" &&
+  typeof props.rowClassName !== "function" &&
+  typeof props.rowStyle !== "function" &&
+  typeof props.cellClassName !== "function" &&
+  typeof props.cellStyle !== "function" &&
+  getColumns().every(
+    (column) =>
+      (column.type === "default" || column.type === "index") &&
+      typeof column.raw.formatter !== "function" &&
+      typeof column.raw.renderCell !== "function" &&
+      !hasCellTooltip(column),
   );
 
 const createFastVirtualCell = (): FastVirtualCellElement => {
@@ -2268,8 +2252,9 @@ const renderFastVirtualBody = (range: VirtualWindow): void => {
   const body = host.shadowRoot?.querySelector<HTMLTableSectionElement>("tbody");
   if (!body) return;
   const existing = new Map(
-    Array.from(body.querySelectorAll<FastVirtualRowElement>("tr[data-virtual-key]"))
-      .map((row) => [String(row.dataset.virtualKey), row] as const)
+    Array.from(body.querySelectorAll<FastVirtualRowElement>("tr[data-virtual-key]")).map(
+      (row) => [String(row.dataset.virtualKey), row] as const,
+    ),
   );
   const rows = rowsState.peek().slice(range.start, range.end);
   const nextElements = rows.map((row) => {
@@ -2295,8 +2280,9 @@ const flushScrollEvent = (): void => {
 };
 
 const onScroll = (event: Event): void => {
-  closeTooltip();
   const target = event.currentTarget as HTMLElement;
+  if (isVirtualized()) closeTooltip();
+  else requestTooltipPositionUpdate();
   if (isVirtualized()) {
     const next = virtualWindowAt(target.scrollTop);
     // Table and VirtualList share the same fixed-row window engine and update
@@ -2314,7 +2300,7 @@ const onScroll = (event: Event): void => {
   queueMicrotask(flushScrollEvent);
 };
 
-const scrollTo = (optionsOrX: ScrollToOptions | number, y = 0): void => {
+const scrollTableTo = (optionsOrX: ScrollToOptions | number, y = 0): void => {
   const wrap = getWrap();
   if (!wrap) return;
   if (typeof optionsOrX === "number") {
@@ -2345,17 +2331,30 @@ const doLayout = (): void => {
   void getWrap()?.offsetWidth;
 };
 
-onMount(() => {
+onMounted(() => {
   document.addEventListener("pointerdown", onDocumentPointerDown);
+  window.addEventListener("resize", requestTooltipPositionUpdate, { passive: true });
+  window.addEventListener("scroll", requestTooltipPositionUpdate, { passive: true, capture: true });
+  window.visualViewport?.addEventListener("resize", requestTooltipPositionUpdate, { passive: true });
+  window.visualViewport?.addEventListener("scroll", requestTooltipPositionUpdate, { passive: true });
 });
 
-onUnmount(() => {
+onUnmounted(() => {
   document.removeEventListener("pointerdown", onDocumentPointerDown);
+  window.removeEventListener("resize", requestTooltipPositionUpdate);
+  window.removeEventListener("scroll", requestTooltipPositionUpdate, { capture: true });
+  window.visualViewport?.removeEventListener("resize", requestTooltipPositionUpdate);
+  window.visualViewport?.removeEventListener("scroll", requestTooltipPositionUpdate);
   cleanupColumnResize();
   cleanupFilterOverlay();
+  cleanupTooltipScrollTracking();
+  cleanupTooltipScrollTracking = (): void => {};
   closeTooltip();
   if (filterOverlayFrame && typeof window !== "undefined") {
     window.cancelAnimationFrame(filterOverlayFrame);
+  }
+  if (tooltipPositionFrame && typeof window !== "undefined") {
+    window.cancelAnimationFrame(tooltipPositionFrame);
   }
   scrollEventQueued = false;
   pendingScrollDetail = null;
@@ -2364,13 +2363,6 @@ onUnmount(() => {
   selectionCommitFrame = 0;
   selectionCommitTimer = 0;
   pendingSelectedKeys = null;
-});
-
-// HTMLElement already defines scrollTo. The macro intentionally warns when an
-// expose shadows a platform method, so route the host method explicitly instead.
-Object.defineProperty(host, "scrollTo", {
-  configurable: true,
-  value: scrollTo
 });
 
 defineExpose({
@@ -2385,13 +2377,14 @@ defineExpose({
   clearSort,
   clearFilter,
   doLayout,
+  scrollTableTo,
   setScrollTop,
-  setScrollLeft
+  setScrollLeft,
 });
 
 defineStyle(styles);
 
-const Table = defineHtml<TableProps>(html`
+const Table = defineHtml<TableProps>(`
   <div class="table-root" :class=${tableClass()}>
     <div v-if=${props.title} class="table-title" part="title">${props.title}</div>
     <div ref="wrap" class="table-wrap" :style=${wrapStyle()} @scroll=${onScroll}>
@@ -2404,12 +2397,12 @@ const Table = defineHtml<TableProps>(html`
             <th
               v-for="column in getColumns()"
               :key="column.id"
-              :data-column-index=${columnIndexOf(column)}
-              :aria-sort=${ariaSort(column)}
+              :data-column-index="columnIndexOf(column)"
+              :aria-sort="ariaSort(column)"
               :class="headerCellClass(column)"
               :style="headerCellStyle(column)"
-              @click=${onHeaderClick(column, $event)}
-              @contextmenu=${onHeaderContextMenu(column, $event)}
+              @click="onHeaderClick(column, $event)"
+              @contextmenu="onHeaderContextMenu(column, $event)"
             >
               <button
                 v-if="column.type === 'selection'"
@@ -2429,68 +2422,68 @@ const Table = defineHtml<TableProps>(html`
                   type="button"
                   class="sort-button"
                   :class="sortClass(column)"
-                  :aria-label=${sortLabel(column)}
-                  @click=${toggleSort(column)}
+                  :aria-label="sortLabel(column)"
+                  @click="toggleSort(column)"
                 >
-                  <span class="rendered-content" v-elf-table-content=${renderHeaderValue(column)}></span>
+                  <span class="rendered-content" v-elf-table-content="renderHeaderValue(column)"></span>
                   <span class="sort-icon"></span>
                 </button>
                 <span
                   v-else
                   class="rendered-content"
-                  v-elf-table-content=${renderHeaderValue(column)}
+                  v-elf-table-content="renderHeaderValue(column)"
                 ></span>
                 <button
-                  v-if=${hasFilters(column)}
+                  v-if="hasFilters(column)"
                   type="button"
                   class="filter-trigger"
-                  :class=${filterButtonClass(column)}
+                  :class="filterButtonClass(column)"
                   data-filter-trigger
-                  :data-filter-key=${filterKeyOf(column)}
+                  :data-filter-key="filterKeyOf(column)"
                   aria-haspopup="listbox"
-                  :aria-expanded=${String(filterOpenKey === filterKeyOf(column))}
-                  :aria-label=${filterLabel(column)}
-                  @click.stop=${toggleFilterPanel(column)}
-                  @keydown=${onFilterTriggerKeydown(column, $event)}
+                  :aria-expanded="String(filterOpenKey === filterKeyOf(column))"
+                  :aria-label="filterLabel(column)"
+                  @click.stop="toggleFilterPanel(column)"
+                  @keydown="onFilterTriggerKeydown(column, $event)"
                 >
                   <span
                     class="filter-icon"
                     aria-hidden="true"
-                    v-elf-table-content=${renderFilterIconValue(column)}
+                    v-elf-table-content="renderFilterIconValue(column)"
                   ></span>
                 </button>
                 <div
-                  v-if=${filterOpenKey === filterKeyOf(column)}
+                  v-if="filterOpenKey === filterKeyOf(column)"
                   popover="manual"
-                  :class=${filterPanelClass(column)}
-                  :style=${filterOverlayStyle.value}
+                  :class="filterPanelClass(column)"
+                  :style="filterOverlayStyle.value"
                   role="listbox"
-                  :aria-multiselectable=${String(column.raw.filterMultiple !== false)}
-                  :aria-label=${filterPanelLabel(column)}
+                  :aria-multiselectable="String(column.raw.filterMultiple !== false)"
+                  :aria-label="filterPanelLabel(column)"
                   @keydown=${onFilterPanelKeydown}
                 >
                   <div class="filter-options">
                     <button
                       v-for="option in filterOptionViews(column)"
-                      :key=${filterValueKey(option.value)}
+                      :key="filterValueKey(option.value)"
                       type="button"
                       class="filter-option"
-                      :class=${{ "is-selected": option.selected }}
+                      :class='{ "is-selected": option.selected }'
                       role="option"
-                      :aria-selected=${String(option.selected)}
-                      @click=${toggleFilterDraft(column, option.value)}
+                      :aria-selected="String(option.selected)"
+                      @click="toggleFilterDraft(column, option.value)"
                     >
                       <span class="filter-check" aria-hidden="true"></span>
                       <span>{{ option.text }}</span>
                     </button>
                   </div>
                   <div class="filter-actions">
-                    <button type="button" @click=${resetFilter(column)}>${locale.t("common.reset")}</button>
+                    <button type="button" @click="resetFilter(column)">${locale.t("common.reset")}</button>
                     <button
-                      v-if=${column.raw.filterMultiple !== false}
+                      v-if="column.raw.filterMultiple !== false"
                       type="button"
                       class="is-primary"
-                      @click=${applyFilterDraft(column)}
+                      @click="applyFilterDraft(column)"
                     >
                       ${locale.t("common.confirm")}
                     </button>
@@ -2498,17 +2491,17 @@ const Table = defineHtml<TableProps>(html`
                 </div>
               </span>
               <span
-                v-if=${isColumnResizable(column)}
+                v-if="isColumnResizable(column)"
                 class="column-resizer"
-                :class=${{ "is-active": isColumnResizing(column) }}
+                :class='{ "is-active": isColumnResizing(column) }'
                 role="separator"
                 tabindex="0"
                 aria-orientation="vertical"
-                :aria-label=${resizeLabel(column)}
-                :aria-valuemin=${columnMinWidth(column)}
-                :aria-valuenow=${columnSize(column)}
-                @pointerdown=${onResizePointerDown(column, $event)}
-                @keydown=${onResizeKeydown(column, $event)}
+                :aria-label="resizeLabel(column)"
+                :aria-valuemin="columnMinWidth(column)"
+                :aria-valuenow="columnSize(column)"
+                @pointerdown="onResizePointerDown(column, $event)"
+                @keydown="onResizeKeydown(column, $event)"
                 @click.stop=${stopResizeClick}
               ></span>
             </th>
@@ -2517,42 +2510,42 @@ const Table = defineHtml<TableProps>(html`
         <tbody part="body" :style=${virtualBodyStyle()}>
           <template v-for="row in getRenderRows()" :key="row.key">
             <tr
-              :data-row-key=${row.key}
+              :data-row-key="row.key"
               :class="rowClass(row)"
               :style="rowStyle(row)"
-              :aria-level=${isTreeState ? String(row.level + 1) : null}
-              :aria-expanded=${row.hasChildren ? String(isExpanded(row)) : null}
-              @click=${onRowClick(row, $event)}
-              @dblclick=${onRowDblClick(row, $event)}
-              @contextmenu=${onRowContextMenu(row, $event)}
+              :aria-level="isTreeState ? String(row.level + 1) : null"
+              :aria-expanded="row.hasChildren ? String(isExpanded(row)) : null"
+              @click="onRowClick(row, $event)"
+              @dblclick="onRowDblClick(row, $event)"
+              @contextmenu="onRowContextMenu(row, $event)"
             >
               <template v-for="cell in bodyCells(row)" :key="cell.column.id">
                 <td
-                  v-if=${!cell.hidden}
-                  :rowspan=${cell.rowspan}
-                  :colspan=${cell.colspan}
-                  :data-column-index=${cell.columnIndex}
-                  :class=${cellClass(cell.column, row)}
-                  :style=${mergedCellStyle(cell.column, row)}
-                  :tabindex=${hasCellTooltip(cell.column) ? 0 : null}
-                  :aria-describedby=${tooltipDescriptionId(row, cell.column)}
-                  @mouseenter=${onCellMouseEnter(row, cell.column, $event)}
-                  @mouseleave=${onCellMouseLeave(row, cell.column, $event)}
-                  @focusin=${onCellFocusIn(row, cell.column, $event)}
-                  @focusout=${onCellFocusOut(cell.column, $event)}
+                  v-if="!cell.hidden"
+                  :rowspan="cell.rowspan"
+                  :colspan="cell.colspan"
+                  :data-column-index="cell.columnIndex"
+                  :class="cellClass(cell.column, row)"
+                  :style="mergedCellStyle(cell.column, row)"
+                  :tabindex="hasCellTooltip(cell.column) ? 0 : null"
+                  :aria-describedby="tooltipDescriptionId(row, cell.column)"
+                  @mouseenter="onCellMouseEnter(row, cell.column, $event)"
+                  @mouseleave="onCellMouseLeave(row, cell.column, $event)"
+                  @focusin="onCellFocusIn(row, cell.column, $event)"
+                  @focusout="onCellFocusOut(cell.column, $event)"
                   @keydown=${onCellKeydown}
-                  @click=${onCellClick(row, cell.column, $event)}
-                  @dblclick=${onCellDblClick(row, cell.column, $event)}
-                  @contextmenu=${onCellContextMenu(row, cell.column, $event)}
+                  @click="onCellClick(row, cell.column, $event)"
+                  @dblclick="onCellDblClick(row, cell.column, $event)"
+                  @contextmenu="onCellContextMenu(row, cell.column, $event)"
                 >
                 <button
                   v-if="cell.column.type === 'selection'"
                   type="button"
                   class="table-checkbox"
                   :class="{ 'is-checked': isSelected(row), 'is-indeterminate': isRowIndeterminate(row) }"
-                  :disabled=${!isSelectable(row)}
-                  :aria-checked=${isRowIndeterminate(row) ? "mixed" : String(isSelected(row))}
-                  @click.stop=${onToggleRowSelection(row)}
+                  :disabled="!isSelectable(row)"
+                  :aria-checked='isRowIndeterminate(row) ? "mixed" : String(isSelected(row))'
+                  @click.stop="onToggleRowSelection(row)"
                   :aria-label=${locale.t("table.selectRow")}
                 >
                   <span class="checkbox-mark"></span>
@@ -2562,7 +2555,7 @@ const Table = defineHtml<TableProps>(html`
                   type="button"
                   class="expand-toggle"
                   :class="{ 'is-expanded': isExpanded(row) }"
-                  @click.stop=${row.hasChildren ? toggleTreeRow(row) : toggleDetailRowExpansion(row)}
+                  @click.stop="row.hasChildren ? toggleTreeRow(row) : toggleDetailRowExpansion(row)"
                   :aria-label=${locale.t("table.expandRow")}
                 >
                   <span class="expand-icon"></span>
@@ -2575,49 +2568,49 @@ const Table = defineHtml<TableProps>(html`
                     class="action-button"
                     :class="actionClass(action)"
                     :disabled="action.disabled"
-                    @click.stop=${invokeAction(action, row)}
+                    @click.stop="invokeAction(action, row)"
                   >
                     {{ action.label }}
                   </button>
                 </span>
                 <span
-                  v-else-if=${isTreeCell(row, cell.columnIndex)}
+                  v-else-if="isTreeCell(row, cell.columnIndex)"
                   class="tree-cell"
-                  :style=${treeCellStyle(row)}
+                  :style="treeCellStyle(row)"
                 >
                   <button
-                    v-if=${row.hasChildren}
+                    v-if="row.hasChildren"
                     type="button"
                     class="tree-toggle"
                     :class="{ 'is-expanded': isExpanded(row), 'is-loading': isTreeLoading(row) }"
-                    :data-tree-key=${row.key}
-                    :disabled=${isTreeLoading(row)}
-                    :aria-expanded=${String(isExpanded(row))}
-                    :aria-label=${treeToggleLabel(row)}
-                    @click.stop=${toggleTreeRow(row)}
-                    @keydown=${onTreeToggleKeydown(row, $event)}
+                    :data-tree-key="row.key"
+                    :disabled="isTreeLoading(row)"
+                    :aria-expanded="String(isExpanded(row))"
+                    :aria-label="treeToggleLabel(row)"
+                    @click.stop="toggleTreeRow(row)"
+                    @keydown="onTreeToggleKeydown(row, $event)"
                   >
                     <span class="tree-toggle-icon" aria-hidden="true"></span>
                   </button>
                   <span v-else class="tree-toggle-spacer" aria-hidden="true"></span>
                   <span
                     class="cell-text rendered-content"
-                    v-elf-table-content=${renderCellValue(row, cell.column)}
+                    v-elf-table-content="renderCellValue(row, cell.column)"
                   ></span>
                 </span>
                 <span
                   v-else
                   class="cell-text rendered-content"
-                  v-elf-table-content=${renderCellValue(row, cell.column)}
+                  v-elf-table-content="renderCellValue(row, cell.column)"
                 ></span>
                 </td>
               </template>
             </tr>
-            <tr v-if=${hasExpandColumn() && !row.hasChildren && isExpanded(row)} class="expand-row">
+            <tr v-if="hasExpandColumn() && !row.hasChildren && isExpanded(row)" class="expand-row">
               <td :colspan=${getColumns().length}>
                 <div
                   class="expand-content rendered-content"
-                  v-elf-table-content=${getExpandContent(row)}
+                  v-elf-table-content="getExpandContent(row)"
                 ></div>
               </td>
             </tr>
@@ -2627,9 +2620,9 @@ const Table = defineHtml<TableProps>(html`
           <tr class="summary-row">
             <td
               v-for="(value, index) in summaryCells()"
-              :key=${index}
-              :class=${summaryCellClass(index)}
-              :style=${summaryCellStyle(index)}
+              :key="index"
+              :class="summaryCellClass(index)"
+              :style="summaryCellStyle(index)"
             >
               <span class="summary-text">{{ value }}</span>
             </td>
@@ -2645,10 +2638,11 @@ const Table = defineHtml<TableProps>(html`
       v-if=${tooltipOpenState}
       :id=${tooltipId}
       class="table-tooltip"
+      popover="manual"
       :data-placement=${tooltipPlacementState}
-      :style=${tooltipStyleState.value}
+      :style="tooltipStyleState.value"
       role="tooltip"
-    >{{ tooltipTextState }}</div>
+    >${tooltipTextState}</div>
     <div v-if=${props.loading} class="loading">${locale.t("table.loading")}</div>
   </div>
 `);
@@ -2658,14 +2652,7 @@ type FilterPlacement = "bottom" | "bottom-start" | "bottom-end" | "top" | "top-s
 type ClassValue = string | Record<string, boolean> | Array<string | Record<string, boolean>>;
 type StyleValue = string | Record<string, string | number>;
 
-const FILTER_PLACEMENTS: FilterPlacement[] = [
-  "bottom",
-  "bottom-start",
-  "bottom-end",
-  "top",
-  "top-start",
-  "top-end"
-];
+const FILTER_PLACEMENTS: FilterPlacement[] = ["bottom", "bottom-start", "bottom-end", "top", "top-start", "top-end"];
 
 interface TableColumnView {
   id: string;
