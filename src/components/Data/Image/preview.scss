@@ -16,12 +16,22 @@
   user-select: none;
 }
 
+.elf-image-preview:focus-visible {
+  outline: 0;
+}
+
 .elf-image-preview__toolbar,
 .elf-image-preview__nav,
 .elf-image-preview__close,
 .elf-image-preview__counter {
   position: absolute;
   color: #fff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .elf-image-preview__image {
+    transition: none;
+  }
 }
 
 .elf-image-preview__toolbar {

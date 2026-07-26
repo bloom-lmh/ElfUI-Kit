@@ -1,0 +1,189 @@
+.image-demo-status,
+.image-demo-actions {
+  color: var(--elf-text-secondary);
+  font-size: var(--elf-font-size-sm);
+}
+
+.image-demo-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.image-demo-command {
+  min-height: 32px;
+  padding-inline: 12px;
+  color: var(--elf-primary);
+  font: inherit;
+  border: 1px solid color-mix(in srgb, var(--elf-primary) 38%, var(--elf-border));
+  border-radius: var(--elf-radius-sm);
+  background: color-mix(in srgb, var(--elf-primary) 7%, var(--elf-bg-paper));
+  cursor: pointer;
+}
+
+.image-demo-command:hover,
+.image-demo-command:focus-visible {
+  background: color-mix(in srgb, var(--elf-primary) 14%, var(--elf-bg-paper));
+}
+
+.image-demo-command:focus-visible {
+  outline: 2px solid var(--elf-focus-ring, var(--elf-primary));
+  outline-offset: 2px;
+}
+
+.image-fit-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+  width: min(1060px, 100%);
+  margin-inline: auto;
+}
+
+.image-fit-grid article {
+  display: grid;
+  gap: 12px;
+  justify-items: center;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid var(--elf-border);
+  border-radius: var(--elf-radius-md);
+  background: color-mix(in srgb, var(--elf-bg-paper) 94%, var(--elf-primary) 6%);
+}
+
+.image-fit-grid header {
+  display: grid;
+  gap: 2px;
+  width: 100%;
+}
+
+.image-fit-grid header strong {
+  color: var(--elf-primary);
+  font-family: var(--elf-font-family-mono, monospace);
+}
+
+.image-fit-grid header span {
+  color: var(--elf-text-secondary);
+  font-size: var(--elf-font-size-xs);
+}
+
+.image-fit-grid elf-image {
+  max-width: 100%;
+  border: 1px solid var(--elf-border);
+  background:
+    linear-gradient(45deg, color-mix(in srgb, var(--elf-border) 36%, transparent) 25%, transparent 25%) 0 0 / 16px 16px,
+    linear-gradient(-45deg, color-mix(in srgb, var(--elf-border) 36%, transparent) 25%, transparent 25%) 0 8px / 16px 16px,
+    linear-gradient(45deg, transparent 75%, color-mix(in srgb, var(--elf-border) 36%, transparent) 75%) 8px -8px / 16px 16px,
+    linear-gradient(-45deg, transparent 75%, color-mix(in srgb, var(--elf-border) 36%, transparent) 75%) -8px 0 / 16px 16px;
+}
+
+.image-retry-stage,
+.image-responsive-stage,
+.image-preview-stage {
+  width: min(820px, 100%);
+  margin-inline: auto;
+  padding: 22px;
+  border: 1px solid var(--elf-border);
+  border-radius: var(--elf-radius-md);
+  background: color-mix(in srgb, var(--elf-bg-paper) 94%, var(--elf-primary) 6%);
+}
+
+.image-retry-stage {
+  display: grid;
+  place-items: center;
+}
+
+.image-retry-stage elf-image {
+  max-width: 100%;
+}
+
+.image-retry-error {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  align-content: center;
+  gap: 8px;
+  padding: 20px;
+  color: var(--elf-text-secondary);
+  text-align: center;
+  background: var(--elf-bg-muted);
+}
+
+.image-retry-error strong {
+  color: var(--elf-text-primary);
+}
+
+.image-retry-mark {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  color: var(--elf-danger);
+  font-weight: 800;
+  border: 1px solid color-mix(in srgb, var(--elf-danger) 38%, transparent);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--elf-danger) 10%, transparent);
+}
+
+.image-responsive-stage,
+.image-preview-stage {
+  display: grid;
+  gap: 16px;
+  justify-items: center;
+}
+
+.image-responsive-stage p,
+.image-preview-stage p {
+  max-width: 720px;
+  margin: 0;
+  color: var(--elf-text-secondary);
+  line-height: 1.65;
+  text-align: center;
+}
+
+.image-responsive-stage elf-image,
+.image-preview-stage elf-image {
+  max-width: 100%;
+}
+
+.custom-image-loader {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  align-content: center;
+  gap: 10px;
+  color: var(--elf-text-secondary);
+  background: var(--elf-bg-muted);
+}
+
+.custom-image-loader__ring {
+  width: 32px;
+  height: 32px;
+  box-sizing: border-box;
+  border: 3px solid color-mix(in srgb, var(--elf-primary) 20%, transparent);
+  border-top-color: var(--elf-primary);
+  border-radius: 50%;
+  animation: image-demo-spin 700ms linear infinite;
+}
+
+@keyframes image-demo-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .custom-image-loader__ring { animation: none; }
+}
+
+@media (max-width: 680px) {
+  .image-demo-actions {
+    align-items: flex-end;
+    flex-direction: column;
+  }
+
+  .image-retry-stage,
+  .image-responsive-stage,
+  .image-preview-stage {
+    padding: 14px;
+  }
+}

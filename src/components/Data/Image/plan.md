@@ -33,3 +33,12 @@
 ## 本轮案例页
 
 - [x] 新增独立展示页面，覆盖 Template / Script、src、fit、width/height、lazy、error slot 与 preview / zoom / navigation 示例。
+
+## 2026-07-26 v0.0.2-beta.1 响应式与预览组复核
+
+- [x] 补齐 `srcset` / `sizes` 原生响应式图片契约，并让懒加载在进入视口前同时延迟 `src` 与 `srcset`。
+- [x] 补齐同地址重试、加载/错误宿主状态、内置错误回退，以及 `retry()` / `openPreview()` / `closePreview()` 方法。
+- [x] 预览组支持 Enter / Space 打开、方向键和 Home / End 切换、缩放与重置、Escape 关闭、焦点陷阱、焦点恢复和页面滚动锁。
+- [x] 预览控件接入 LocaleProvider，补齐中英文无障碍名称，并支持 Teleport 与动态空列表安全关闭。
+- [x] 将案例收敛为对象适配矩阵、失败重试、响应式懒加载、预览组键盘 4 个完整场景，补齐双语 Template、Script 与完整 API。
+- [x] 组件与页面共 21 项测试、beta 迁移扫描、宏类型检查、应用/发布库构建、完整度检查和真实浏览器截图均通过。

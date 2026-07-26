@@ -1,6 +1,18 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, defineStyle } from "@elfui/core";
 
-const fit = useRef("cover");
+import { createDocsTranslator } from "../../docsLocale";
+import styles from "./demo.scss?inline";
+
+const t = createDocsTranslator({
+  title: { zh: "对象适配矩阵", en: "Object-fit matrix" },
+  status: { zh: "统一容器 180 × 132", en: "Shared frame 180 × 132" },
+  fill: { zh: "拉伸填满", en: "Stretch to fill" },
+  contain: { zh: "完整显示", en: "Show all content" },
+  cover: { zh: "等比裁切", en: "Crop proportionally" },
+  none: { zh: "保持原始尺寸", en: "Keep intrinsic size" },
+  scaleDown: { zh: "仅在需要时缩小", en: "Shrink only when needed" },
+  alt: { zh: "竖版几何海报", en: "Portrait geometric poster" }
+});
 
 const sampleSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="220" height="360" viewBox="0 0 220 360">
   <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#2563eb"/><stop offset="1" stop-color="#7c3aed"/></linearGradient></defs>
@@ -12,55 +24,45 @@ const sampleSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="220" height="3
 
 const imageSrc = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(sampleSvg)}`;
 
-const code1 = `<elf-segmented
-  :options.prop="['fill', 'contain', 'cover', 'none', 'scale-down']"
-  :modelValue="fit"
-  @update:modelValue="onFitUpdate"
-/>
-<elf-image :src="imageSrc" :width="420" :height="220" :fit="fit" />`;
+const fitCode = `<elf-image src="poster.svg" width="180" height="132" fit="fill" />
+<elf-image src="poster.svg" width="180" height="132" fit="contain" />
+<elf-image src="poster.svg" width="180" height="132" fit="cover" />
+<elf-image src="poster.svg" width="180" height="132" fit="none" />
+<elf-image src="poster.svg" width="180" height="132" fit="scale-down" />`;
 
-const script1 = `const fit = useRef("cover");
+const fitScript = `const fits = ["fill", "contain", "cover", "none", "scale-down"];
 
-const onFitUpdate = (event) => {
-  fit.set(event.detail);
-};`;
+// A portrait source inside identical landscape frames makes each fit mode visible.
+const imageSrc = createPosterDataUrl({ width: 220, height: 360 });`;
 
-const onFitUpdate = (event: CustomEvent): void => {
-  const detail = Array.isArray(event.detail) ? event.detail[0] : event.detail;
-  fit.set(String(detail || "cover"));
-};
+defineStyle(styles);
 
-const fitDescription = (): string => {
-  const descriptions: Record<string, string> = {
-    fill: "拉伸填满容器，图片比例可能改变",
-    contain: "完整显示图片，并保留空白区域",
-    cover: "保持比例填满容器，超出部分会裁切",
-    none: "保持图片原始尺寸，不进行缩放",
-    "scale-down": "在 none 与 contain 中选择较小的尺寸"
-  };
-  return descriptions[fit.value] || "";
-};
-
-const PageImageEx1 = defineHtml(html`
-<elf-playground title="填充方式与固定尺寸" :code=${code1} :script=${script1}>
-      <div style="display:grid;gap:12px;width:100%;max-width:520px">
-        <elf-segmented
-          :options.prop=${["fill", "contain", "cover", "none", "scale-down"]}
-          :modelValue=${fit.value}
-          @update:modelValue=${onFitUpdate}
-        ></elf-segmented>
-        <div style="padding:12px;border-radius:12px;background:repeating-conic-gradient(var(--elf-bg-overlay) 0 25%,var(--elf-bg-paper) 0 50%) 50%/20px 20px">
-          <elf-image
-            :src=${imageSrc}
-            alt="对象填充方式示例"
-            :width=${420}
-            :height=${220}
-            :fit=${fit.value}
-          ></elf-image>
-        </div>
-        <p slot="status" class="demo-state">当前：{{ fit.value }} — {{ fitDescription() }}</p>
-      </div>
-    </elf-playground>
+const PageImageEx1 = defineHtml(`
+  <elf-playground :title=${t("title")} :code=${fitCode} :script=${fitScript}>
+    <span slot="status" class="image-demo-status">${t("status")}</span>
+    <div class="image-fit-grid">
+      <article>
+        <header><strong>fill</strong><span>${t("fill")}</span></header>
+        <elf-image :src=${imageSrc} :alt=${t("alt")} width="180" height="132" fit="fill" />
+      </article>
+      <article>
+        <header><strong>contain</strong><span>${t("contain")}</span></header>
+        <elf-image :src=${imageSrc} :alt=${t("alt")} width="180" height="132" fit="contain" />
+      </article>
+      <article>
+        <header><strong>cover</strong><span>${t("cover")}</span></header>
+        <elf-image :src=${imageSrc} :alt=${t("alt")} width="180" height="132" fit="cover" />
+      </article>
+      <article>
+        <header><strong>none</strong><span>${t("none")}</span></header>
+        <elf-image :src=${imageSrc} :alt=${t("alt")} width="180" height="132" fit="none" />
+      </article>
+      <article>
+        <header><strong>scale-down</strong><span>${t("scaleDown")}</span></header>
+        <elf-image :src=${imageSrc} :alt=${t("alt")} width="180" height="132" fit="scale-down" />
+      </article>
+    </div>
+  </elf-playground>
 `);
 
 export { PageImageEx1 };
