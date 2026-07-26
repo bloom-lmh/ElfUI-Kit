@@ -1,4 +1,4 @@
-import { directive, type DirectiveBinding } from "@elfui/core";
+import type { DirectiveBinding, DirectiveDefinition } from "@elfui/core";
 
 export type ListRenderValue = Node | string | number | boolean | null | undefined;
 
@@ -9,6 +9,6 @@ const mount = (element: HTMLElement, value: ListRenderValue): void => {
   else element.textContent = String(value);
 };
 
-directive("elf-list-content", (element: HTMLElement, binding: DirectiveBinding<ListRenderValue>) => {
+export const listContentDirective: DirectiveDefinition<ListRenderValue, HTMLElement> = (element: HTMLElement, binding: DirectiveBinding<ListRenderValue>) => {
   mount(element, binding.value);
-});
+};

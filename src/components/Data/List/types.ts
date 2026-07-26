@@ -10,4 +10,18 @@ export interface ListProps<T = unknown> {
   bordered: boolean;
   divided: boolean;
   emptyText: string;
+  loading: boolean;
+  loadingText: string;
+  ariaLabel: string;
+}
+
+export interface ListSlots {
+  default?: unknown;
+  empty?: unknown;
+  loading?: unknown;
+}
+
+export interface ListExposes {
+  /** Focus the first enabled, clickable declarative list item. */
+  focusFirst(): void;
 }

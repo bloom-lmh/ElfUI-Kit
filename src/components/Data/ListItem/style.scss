@@ -8,15 +8,28 @@
 
 .item {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr);
   align-items: center;
-  gap: var(--elf-space-3);
   min-height: 48px;
   padding: 10px var(--elf-space-4);
   border: 0;
   background: transparent;
   color: inherit;
   text-align: left;
+}
+
+.item.has-leading {
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: var(--elf-space-3);
+}
+
+.item.has-trailing {
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: var(--elf-space-3);
+}
+
+.item.has-leading.has-trailing {
+  grid-template-columns: auto minmax(0, 1fr) auto;
 }
 
 .item.is-clickable {
@@ -32,7 +45,19 @@
 .item:disabled { color: var(--elf-text-disabled); cursor: not-allowed; }
 
 .leading,
-.trailing { display: inline-flex; align-items: center; justify-content: center; min-width: 0; }
+.trailing {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+}
+
+.has-leading .leading,
+.has-trailing .trailing {
+  display: inline-flex;
+}
+.leading { flex: 0 0 auto; }
+.leading ::slotted(elf-avatar) { flex: 0 0 auto; }
 .content { display: grid; min-width: 0; gap: 2px; }
 .title,
 .subtitle { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

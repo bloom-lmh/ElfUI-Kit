@@ -12,3 +12,14 @@ export interface ListItemEmits {
   click: [MouseEvent];
   select: [string | number];
 }
+
+export interface ListItemSlots {
+  default?: unknown;
+  leading?: unknown;
+  trailing?: unknown;
+}
+
+export interface ListItemExposes {
+  /** Focus the item's interactive surface when it is clickable and enabled. */
+  focusItem(): void;
+}

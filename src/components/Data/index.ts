@@ -68,9 +68,20 @@ export type {
 } from "./InfiniteScroll/types";
 
 export { List } from "./List/index";
-export type { ListItemKey, ListItemRenderer, ListProps } from "./List/types";
+export type {
+  ListExposes,
+  ListItemKey,
+  ListItemRenderer,
+  ListProps,
+  ListSlots
+} from "./List/types";
 export { ListItem } from "./ListItem/index";
-export type { ListItemEmits, ListItemProps } from "./ListItem/types";
+export type {
+  ListItemEmits,
+  ListItemExposes,
+  ListItemProps,
+  ListItemSlots
+} from "./ListItem/types";
 export { VirtualList } from "./VirtualList/index";
 export type { VirtualListExpose, VirtualListProps } from "./VirtualList/types";
 export { computeVirtualWindow } from "./virtual-window";
