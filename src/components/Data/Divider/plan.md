@@ -67,6 +67,14 @@
 
 2026-07-15 验收：Divider 定向测试通过；浏览器验证 9 个分割线实例、4 组 Template/Script 和 PropsTable 均正常，控制台无错误。
 
+## 2026-07-26 v0.0.2-beta.1 RTL 与语义复核
+
+- [x] 归一化 `direction`、`content-position`、`border-style`，非法值回退到公开默认值，`dashed` 兼容别名保持最高优先级。
+- [x] 宿主补齐 `role="separator"`、`aria-orientation`、动态插槽可访问名称与 `has-content` 状态反射。
+- [x] 水平与垂直线改用逻辑边框，文字位置和间距在 RTL 书写方向下自然镜像；长文字提供稳定省略边界。
+- [x] 将 4 个松散案例收敛为“线型与文字位置”“垂直分组与 RTL”2 个双语场景，补齐 Template、Script、Props 与 Slots。
+- [x] 组件与页面共 13 项定向测试通过；浏览器验证四种线型、三种位置、RTL 切换、英文与 Midnight，控制台 0 error / 0 warning。
+
 ---
 
 ## 历史计划保留

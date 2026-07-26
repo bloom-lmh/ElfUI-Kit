@@ -1,28 +1,55 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml, defineStyle } from "@elfui/core";
 
-const code1 = `<p>上面内容</p>
-<elf-divider />
-<p>下面内容</p>`;
+import { createDocsTranslator } from "../../docsLocale";
+import styles from "./demo.scss?inline";
 
-const code2 = `<elf-divider content-position="left">靠左</elf-divider>
-<elf-divider>居中</elf-divider>
-<elf-divider content-position="right">靠右</elf-divider>`;
+const t = createDocsTranslator({
+  title: { zh: "线型与文字位置", en: "Line styles and content positions" },
+  status: {
+    zh: "4 种线型 · 3 个文字位置 · dashed 别名兼容",
+    en: "4 line styles · 3 content positions · dashed alias compatible"
+  },
+  solid: { zh: "实线 · 靠左", en: "Solid · left" },
+  dashed: { zh: "虚线 · 居中", en: "Dashed · center" },
+  dotted: { zh: "点线 · 靠右", en: "Dotted · right" },
+  double: { zh: "双线 · 居中", en: "Double · center" }
+});
 
-const PageDividerEx1 = defineHtml(html`
-  <h2>基础</h2>
-  <elf-playground title="水平分割线" :code=${code1}>
-    <div style="width:100%;max-width:480px">
-      <p>上面内容</p>
-      <elf-divider />
-      <p>下面内容</p>
-    </div>
-  </elf-playground>
+const stylesCode = `<elf-divider content-position="left">Solid · left</elf-divider>
+<elf-divider border-style="dashed">Dashed · center</elf-divider>
+<elf-divider border-style="dotted" content-position="right">
+  Dotted · right
+</elf-divider>
+<elf-divider border-style="double">Double · center</elf-divider>`;
 
-  <h2>带文字</h2>
-  <elf-playground title="content-position: left | center | right" :code=${code2}>
-    <div style="width:100%;max-width:480px">
-      <elf-divider content-position="left">靠左</elf-divider><elf-divider>居中</elf-divider
-      ><elf-divider content-position="right">靠右</elf-divider>
+const stylesScript = `// border-style: solid | dashed | dotted | double
+// content-position: left | center | right
+// The legacy dashed boolean remains an alias for border-style="dashed".`;
+
+defineStyle(styles);
+
+const PageDividerEx1 = defineHtml(`
+  <elf-playground :title=${t("title")} :code=${stylesCode} :script=${stylesScript}>
+    <span slot="status" class="divider-demo-status">${t("status")}</span>
+    <div class="divider-style-grid">
+      <article>
+        <span>01</span>
+        <elf-divider content-position="left">${t("solid")}</elf-divider>
+      </article>
+      <article>
+        <span>02</span>
+        <elf-divider border-style="dashed">${t("dashed")}</elf-divider>
+      </article>
+      <article>
+        <span>03</span>
+        <elf-divider border-style="dotted" content-position="right">
+          ${t("dotted")}
+        </elf-divider>
+      </article>
+      <article>
+        <span>04</span>
+        <elf-divider border-style="double">${t("double")}</elf-divider>
+      </article>
     </div>
   </elf-playground>
 `);

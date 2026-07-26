@@ -1,0 +1,115 @@
+.divider-demo-status,
+.divider-demo-actions {
+  color: var(--elf-text-secondary);
+  font-size: var(--elf-font-size-sm);
+}
+
+.divider-demo-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.divider-demo-actions button {
+  min-height: 32px;
+  padding-inline: 12px;
+  color: var(--elf-primary);
+  font: inherit;
+  border: 1px solid color-mix(in srgb, var(--elf-primary) 38%, var(--elf-border));
+  border-radius: var(--elf-radius-sm);
+  background: color-mix(in srgb, var(--elf-primary) 7%, var(--elf-bg-paper));
+  cursor: pointer;
+}
+
+.divider-demo-actions button:hover,
+.divider-demo-actions button:focus-visible {
+  background: color-mix(in srgb, var(--elf-primary) 14%, var(--elf-bg-paper));
+}
+
+.divider-demo-actions button:focus-visible,
+.divider-toolbar a:focus-visible {
+  outline: 2px solid var(--elf-focus-ring, var(--elf-primary));
+  outline-offset: 2px;
+}
+
+.divider-style-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  width: min(900px, 100%);
+  margin-inline: auto;
+}
+
+.divider-style-grid article {
+  min-width: 0;
+  min-height: 116px;
+  padding: 18px;
+  border: 1px solid var(--elf-border);
+  border-radius: var(--elf-radius-md);
+  background: color-mix(in srgb, var(--elf-bg-paper) 92%, var(--elf-primary) 8%);
+}
+
+.divider-style-grid article > span {
+  display: inline-grid;
+  width: 30px;
+  height: 24px;
+  place-items: center;
+  color: var(--elf-primary);
+  font-size: var(--elf-font-size-xs);
+  font-weight: 700;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--elf-primary) 12%, transparent);
+}
+
+.divider-rtl-stage {
+  width: min(820px, 100%);
+  margin-inline: auto;
+  padding: 22px;
+  border: 1px solid var(--elf-border);
+  border-radius: var(--elf-radius-md);
+  background: color-mix(in srgb, var(--elf-bg-paper) 95%, var(--elf-primary) 5%);
+}
+
+.divider-toolbar {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+}
+
+.divider-toolbar a {
+  color: var(--elf-primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.divider-position-preview {
+  margin-block: 12px;
+  padding: 6px 16px;
+  border-radius: var(--elf-radius-sm);
+  background: var(--elf-bg-paper);
+}
+
+.divider-rtl-stage > p {
+  max-width: 680px;
+  margin: 14px auto 0;
+  color: var(--elf-text-secondary);
+  font-size: var(--elf-font-size-sm);
+  line-height: 1.65;
+  text-align: center;
+}
+
+@media (max-width: 680px) {
+  .divider-style-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .divider-demo-actions {
+    align-items: flex-end;
+    flex-direction: column;
+  }
+
+  .divider-rtl-stage {
+    padding: 16px;
+  }
+}
