@@ -1,7 +1,7 @@
 import { defineHtml, useRef } from "@elfui/core";
 import type { TreeNode } from "../../../components/Data/Tree";
 
-const activity = useRef("2,004 节点 · 将资源拖到另一个目录");
+const activity = useRef("2,004 节点 · 按住整行即可将资源拖到另一个目录");
 const folderKeys = Array.from({ length: 334 }, (_, index) => `folder-${index + 1}`);
 const expanded = useRef<string[]>(folderKeys);
 
@@ -65,7 +65,7 @@ const allowDrop = (_dragging, target) => target.isLeaf !== true;`;
 const PageTreeEx5 = defineHtml(`
   <h2>虚拟树与拖拽</h2>
   <elf-playground title="2,004 项分层资产目录" :code=${code} :script=${script}>
-    <span slot="status" class="demo-state">{{ activity }} · 拖动时目标目录会高亮</span>
+    <span slot="status" class="demo-state">{{ activity }} · 整行拖拽，目标目录进入时立即高亮</span>
     <elf-card variant="outlined" density="compact" style="width:100%;max-width:560px">
       <elf-tree
         :data.prop=${data}

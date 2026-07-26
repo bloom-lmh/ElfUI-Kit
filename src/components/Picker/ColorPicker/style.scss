@@ -2,6 +2,8 @@
 @use "../../../styles/field-surface" as field;
 
 :host {
+  @include field.tokens;
+
   display: inline-block;
   color: var(--elf-text-primary);
   font-size: var(--elf-font-size-sm);
@@ -29,6 +31,12 @@
 
 @include field.surface(".trigger");
 @include field.floating-label(".trigger");
+@include field.reduced-motion(".trigger");
+
+.trigger > :not(.field-outline):not(.field-label) {
+  position: relative;
+  z-index: 1;
+}
 
 :host([data-has-label]) .trigger {
   padding-top: 16px;
@@ -81,11 +89,6 @@
   border-radius: 50%;
   background: transparent;
   cursor: pointer;
-}
-
-.open-button:focus-visible {
-  outline: 2px solid color-mix(in srgb, var(--elf-primary) 48%, transparent);
-  outline-offset: 2px;
 }
 
 .swatch-fill {

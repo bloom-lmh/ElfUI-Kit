@@ -119,6 +119,9 @@ defineStyle(styles);
 const ColorPicker = defineHtml(html`
     <div :class=${["color-picker", { "is-disabled": props.disabled }]}>
         <label class="trigger">
+            <fieldset v-if=${props.label} class="field-outline" aria-hidden="true">
+                <legend><span>${props.label}</span></legend>
+            </fieldset>
             <span v-if=${props.label} class="field-label">${props.label}</span>
             <span class="swatch" aria-hidden="true"
                 ><span class="swatch-fill" :style=${{ background: outputValue() }}></span

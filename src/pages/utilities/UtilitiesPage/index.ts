@@ -1,8 +1,13 @@
-import { defineHtml, defineStyle, html, useRef } from "@elfui/core";
+import { defineHtml, defineStyle, html, useComponents, useRef } from "@elfui/core";
 
 import utilityStyles from "../../../styles/utilities.scss?inline";
 import pageStyles from "./style.scss?inline";
 import { CATALOG, type UtilityCategory, type UtilityKey } from "./catalog";
+import { PageUtilitiesDraggable } from "./draggable-demo";
+
+useComponents({
+  "page-utilities-draggable": PageUtilitiesDraggable
+});
 
 interface UtilityEntry {
   key: UtilityKey;
@@ -83,6 +88,7 @@ const PageUtilities = defineHtml(html`
     <h1>样式和动画</h1>
 
     <main class="utility-labs">
+      <page-utilities-draggable style="order:99"></page-utilities-draggable>
       <article
         v-for="entry in entries"
         :key="entry.key"

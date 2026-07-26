@@ -23,3 +23,10 @@
 - [x] Reuse the shared `elf-playground` source area for all 14 labs, including Template/Script tabs, language label, copy action and code panel.
 - [x] Keep preview and controls in the flat two-column workspace while removing page-owned scrolling and source overflow.
 - [x] Group Utilities under the no-icon `样式和动画` parent and verify the hierarchy, dark theme and standard source area in a real browser.
+
+## 2026-07-27 reusable draggable directive
+
+- [x] Export a reusable `draggableDirective` with source, target, group, handle, axis and placement contracts.
+- [x] Keep sorting state consumer-owned and report `before` / `after` / `inside` placement through typed callbacks.
+- [x] Reuse the directive in Tree rows and provide a Utilities example for list sorting and target drops.
+- [x] Cover registration, lifecycle cleanup, group isolation, disabled updates and drop details with focused tests.

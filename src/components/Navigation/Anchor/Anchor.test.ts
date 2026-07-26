@@ -258,8 +258,8 @@ describe("elf-anchor", () => {
     expect(scrollTo).toHaveBeenCalledWith({ left: 320, behavior: "auto" });
   });
 
-  it("supports horizontal wheel and button scrolling", async () => {
-    const el = await mount({ direction: "horizontal", smooth: false });
+  it("keeps wheel scrolling while previous and next controls select sibling anchors", async () => {
+    const el = await mount({ direction: "horizontal", smooth: false, defaultActive: "#intro" });
     const list = el.shadowRoot!.querySelector<HTMLElement>(".list")!;
     Object.defineProperty(list, "clientWidth", { configurable: true, value: 200 });
     Object.defineProperty(list, "scrollWidth", { configurable: true, value: 600 });
@@ -269,8 +269,14 @@ describe("elf-anchor", () => {
     expect(wheel.defaultPrevented).toBe(true);
     expect(list.scrollLeft).toBe(80);
 
-    (el.shadowRoot!.querySelector(".scroll-control.is-next") as HTMLButtonElement).click();
-    expect(list.scrollLeft).toBe(240);
+    const previous = el.shadowRoot!.querySelector(".scroll-control.is-previous") as HTMLButtonElement;
+    const next = el.shadowRoot!.querySelector(".scroll-control.is-next") as HTMLButtonElement;
+    expect(previous.disabled).toBe(true);
+    next.click();
+    await tick();
+
+    expect(activeText(el)).toContain("Usage");
+    expect(previous.disabled).toBe(false);
     expect(el.shadowRoot!.querySelectorAll(".scroll-control")).toHaveLength(2);
   });
 

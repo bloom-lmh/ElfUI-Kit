@@ -10,4 +10,5 @@ export * from "./components/Form";
 export * from "./components/Layout";
 export * from "./components/Providers";
 export * from "./composables";
+export * from "./directives";
 export * from "./types";

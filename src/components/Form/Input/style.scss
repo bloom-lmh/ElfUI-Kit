@@ -365,11 +365,13 @@ input:disabled {
   transition: color var(--input-motion), opacity var(--input-motion);
 }
 
-// A floating label shifts the editable text row down. Keep inner icons on the
-// same visual baseline as the caret instead of centring them in the full field.
-:host([data-has-label]) .prefix,
-:host([data-has-label]) .suffix {
-  transform: translateY(9px);
+// Keep icons centred beside an idle label. Only follow the editable text row
+// after the label floats, otherwise an empty labelled field looks misaligned.
+:host([data-has-label][data-dirty]) .prefix,
+:host([data-has-label][data-dirty]) .suffix,
+:host([data-has-label]) .wrapper:focus-within .prefix,
+:host([data-has-label]) .wrapper:focus-within .suffix {
+  transform: translateY(8px);
 }
 
 .prefix {
@@ -384,9 +386,11 @@ input:disabled {
   margin-left: 0;
 }
 
-:host([variant="underlined"][data-has-label]) .prefix,
-:host([variant="underlined"][data-has-label]) .suffix {
-  transform: translateY(10px);
+:host([variant="underlined"][data-has-label][data-dirty]) .prefix,
+:host([variant="underlined"][data-has-label][data-dirty]) .suffix,
+:host([variant="underlined"][data-has-label]) .wrapper:focus-within .prefix,
+:host([variant="underlined"][data-has-label]) .wrapper:focus-within .suffix {
+  transform: translateY(8px);
 }
 
 .prefix ::slotted(svg),

@@ -44,6 +44,7 @@ describe("elf-color-picker", () => {
 
     expect(el.getAttribute("variant")).toBe("outlined");
     expect(el.shadowRoot!.querySelector(".field-label")?.textContent).toBe("Brand color");
+    expect(el.shadowRoot!.querySelector(".field-outline legend")?.textContent).toBe("Brand color");
     expect((el.shadowRoot!.querySelector(".preset") as HTMLElement).style.backgroundColor).toBe("#ff0000");
   });
 

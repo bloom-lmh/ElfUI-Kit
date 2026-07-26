@@ -412,6 +412,8 @@ describe("elf-tree", () => {
     const rows = Array.from(el.shadowRoot!.querySelectorAll<HTMLElement>(".tree-node"));
     const source = rows.find((row) => row.textContent?.includes("设计资源"))!;
     const target = rows.find((row) => row.textContent?.includes("目标目录"))!;
+    expect(source.hasAttribute("data-draggable")).toBe(true);
+    expect(target.hasAttribute("data-droppable")).toBe(true);
     const dataTransfer = {
       setData: vi.fn(),
       getData: vi.fn(),

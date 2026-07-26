@@ -651,8 +651,13 @@ const setSinglePath = (path: RawOption[]): void => {
   const next = [pathValues(path)];
   selectedValues.set(next);
   activePath.set(path);
-  emitChange(next);
-  closeDropdown();
+  try {
+    emitChange(next);
+  } finally {
+    // A consumer update handler must not leave focus inside a panel that is
+    // about to become aria-hidden, even when that handler throws.
+    closeDropdown();
+  }
 };
 
 const setMultiplePath = (path: RawOption[]): void => {

@@ -559,11 +559,16 @@ describe("elf-cascader", () => {
     const results = el.shadowRoot!.querySelectorAll<HTMLButtonElement>(".filter-option");
     expect(results).toHaveLength(1);
     expect(results[0].textContent).toContain("杭州");
+    results[0].focus();
     results[0].click();
     await tick();
 
     expect((onUpdate.mock.calls[0]![0] as CustomEvent).detail).toEqual(["zhejiang", "hangzhou"]);
     expect(el.hasAttribute("data-open")).toBe(false);
+    expect(el.shadowRoot!.activeElement).toBe(el.shadowRoot!.querySelector(".trigger"));
+    const dropdown = el.shadowRoot!.querySelector<HTMLElement>(".dropdown")!;
+    expect(dropdown.getAttribute("aria-hidden")).toBe("true");
+    expect(dropdown.hasAttribute("inert")).toBe(true);
   });
 
   it("honors custom and asynchronous pre-filter hooks", async () => {

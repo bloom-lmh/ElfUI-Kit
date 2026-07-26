@@ -2,6 +2,8 @@
 @use "../../../styles/field-surface" as field;
 
 :host {
+  @include field.tokens;
+
   position: relative;
   display: inline-block;
   max-width: 100%;
@@ -99,6 +101,12 @@
 
 @include field.surface(".field-trigger");
 @include field.floating-label(".field-trigger");
+@include field.reduced-motion(".field-trigger");
+
+.field-trigger > :not(.field-outline):not(.field-label) {
+  position: relative;
+  z-index: 1;
+}
 
 .field:focus {
   border-bottom-color: var(--elf-primary);

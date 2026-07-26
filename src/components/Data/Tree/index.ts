@@ -6,6 +6,7 @@
 //   - filtering and accordion mode
 
 import {
+  defineDirective,
   defineEmits,
   defineExpose,
   defineProps,
@@ -19,12 +20,19 @@ import {
 
 import styles from "./style.scss?inline";
 import { useLocaleProvider } from "../../Providers/context";
+import {
+  draggableDirective,
+  type DraggableOptions
+} from "../../../directives/draggable";
 import { computeVirtualWindow } from "../virtual-window";
 import type { TreeNode, TreeProps } from "./types";
 
 export type { TreeExpose, TreeFieldNames, TreeNode, TreeProps } from "./types";
 
 const SIGNATURE_SEP = "::elf-tree::";
+let treeDragSequence = 0;
+
+const draggable = defineDirective(draggableDirective);
 
 const props = defineProps<TreeProps>({
   data: { type: Array, default: () => [] },
@@ -112,6 +120,7 @@ const lastCheckedSig = useRef("");
 const lastSelectedSig = useRef("");
 
 let initialized = false;
+const dragGroup = `elf-tree-${++treeDragSequence}`;
 
 const normalizeKeys = (value: unknown): string[] => {
   if (!Array.isArray(value)) return [];
@@ -681,6 +690,14 @@ const onNodeContextMenu = (row: TreeViewNode, event: MouseEvent): void => {
 const canDrag = (row: TreeViewNode): boolean =>
   Boolean(props.draggable) && (typeof props.allowDrag !== "function" || Boolean(props.allowDrag(row.raw as TreeNode)));
 
+const canDropOnRow = (dragging: TreeViewNode, row: TreeViewNode): boolean =>
+  dragging.key !== row.key
+  && !row.path.includes(dragging.key)
+  && (
+    typeof props.allowDrop !== "function"
+    || Boolean(props.allowDrop(dragging.raw as TreeNode, row.raw as TreeNode, "inner"))
+  );
+
 const onDragStart = (row: TreeViewNode, event: Event): void => {
   const dragEvent = event as DragEvent;
   if (!canDrag(row)) {
@@ -694,10 +711,7 @@ const onDragStart = (row: TreeViewNode, event: Event): void => {
 
 const onDragOver = (row: TreeViewNode, event: Event): void => {
   const dragging = findNode(draggingKey.peek());
-  if (!dragging || dragging.key === row.key || row.path.includes(dragging.key)) return;
-  const allowed = typeof props.allowDrop !== "function"
-    || Boolean(props.allowDrop(dragging.raw as TreeNode, row.raw as TreeNode, "inner"));
-  if (!allowed) return;
+  if (!dragging || !canDropOnRow(dragging, row)) return;
   event.preventDefault();
   dropTargetKey.set(row.key);
 };
@@ -714,8 +728,7 @@ const onDrop = (row: TreeViewNode, event: Event): void => {
   event.preventDefault();
   dropTargetKey.set("");
   const dragging = findNode(draggingKey.peek());
-  if (!dragging || dragging.key === row.key || row.path.includes(dragging.key)) return;
-  if (typeof props.allowDrop === "function" && !props.allowDrop(dragging.raw as TreeNode, row.raw as TreeNode, "inner")) return;
+  if (!dragging || !canDropOnRow(dragging, row)) return;
   const moved = removeNode(dragging.key);
   if (!moved) return;
   appendNode(moved, row.key);
@@ -728,6 +741,16 @@ const onDragEnd = (row: TreeViewNode, event: Event): void => {
   dropTargetKey.set("");
   emit("node-drag-end", row.raw, event as DragEvent);
 };
+
+const treeDragOptions = (row: TreeViewNode): DraggableOptions<TreeViewNode> => ({
+  key: row.key,
+  data: row,
+  group: dragGroup,
+  draggable: canDrag(row),
+  droppable: Boolean(props.draggable),
+  mode: "inside",
+  canDrop: ({ source }) => canDropOnRow(source.data, row)
+});
 
 const onTreeScroll = (event: Event): void => {
   scrollTop.set((event.currentTarget as HTMLElement).scrollTop);
@@ -813,7 +836,7 @@ const Tree = defineHtml(`
         :aria-level="row.level + 1"
         :aria-expanded="row.hasChildren ? (isExpanded(row.key) ? 'true' : 'false') : null"
         :aria-selected="isSelected(row.key) ? 'true' : 'false'"
-        :draggable="canDrag(row)"
+        v-draggable="treeDragOptions(row)"
         @dragstart="onDragStart(row, $event)"
         @dragover="onDragOver(row, $event)"
         @dragleave="onDragLeave(row, $event)"

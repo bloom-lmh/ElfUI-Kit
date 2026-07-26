@@ -500,6 +500,31 @@ describe("elf-dropdown", () => {
     expect(el.hasAttribute("data-open")).toBe(false);
   });
 
+  it("restores trigger focus before hiding a compositional menu", async () => {
+    const el = document.createElement("elf-dropdown") as DropdownElement;
+    el.trigger = "click";
+    el.innerHTML = `
+      <span>Account actions</span>
+      <elf-dropdown-menu slot="dropdown">
+        <elf-dropdown-item command="profile">Profile</elf-dropdown-item>
+      </elf-dropdown-menu>
+    `;
+    document.body.appendChild(el);
+    await flush();
+    await openByClick(el);
+
+    const item = el.querySelector("elf-dropdown-item")!
+      .shadowRoot!.querySelector<HTMLButtonElement>(".dropdown-item")!;
+    item.focus();
+    item.click();
+    await flush();
+
+    expect(el.hasAttribute("data-open")).toBe(false);
+    expect(el.shadowRoot!.activeElement).toBe(trigger(el));
+    expect(menu(el)?.getAttribute("aria-hidden")).toBe("true");
+    expect(menu(el)?.hasAttribute("inert")).toBe(true);
+  });
+
   it("keeps compositional selection after reopening and skips disabled items with the keyboard", async () => {
     const el = document.createElement("elf-dropdown") as DropdownElement;
     el.trigger = "click";

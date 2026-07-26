@@ -133,6 +133,7 @@ describe("elf-date-picker", () => {
     expect(el.shadowRoot!.querySelector(".panel")).toBeNull();
     expect(el.getAttribute("variant")).toBe("outlined");
     expect(el.shadowRoot!.querySelector(".field-label")?.textContent).toBe("Publish date");
+    expect(el.shadowRoot!.querySelector(".field-outline legend")?.textContent).toBe("Publish date");
   });
 
   it.each(["default", "underlined", "solo", "solo-filled", "solo-inverted"])(

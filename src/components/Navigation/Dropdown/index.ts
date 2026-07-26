@@ -442,16 +442,20 @@ const focusFirstEnabledItem = (): void => {
   });
 };
 
-const restoreFocusBeforeClose = (): void => {
-  const panel = getMenuEl();
-  let activeElement: Element | null = null;
-  try {
-    activeElement = host.shadowRoot?.activeElement ?? null;
-  } catch {
-    // Some DOM implementations cannot resolve activeElement while a slotted
-    // command item is being disconnected.
+const deepestActiveElement = (): HTMLElement | null => {
+  let active = document.activeElement as HTMLElement | null;
+  while (active?.shadowRoot?.activeElement instanceof HTMLElement) {
+    active = active.shadowRoot.activeElement;
   }
-  if (!panel || !activeElement || !panel.contains(activeElement)) return;
+  return active;
+};
+
+const restoreFocusBeforeClose = (): void => {
+  const activeElement = deepestActiveElement();
+  const focusIsInMenu = activeElement && getFocusableItems().some(
+    (item) => item === activeElement || item.contains(activeElement),
+  );
+  if (!focusIsInMenu) return;
 
   const target = anchorReference();
   if (target instanceof HTMLElement) target.focus({ preventScroll: true });

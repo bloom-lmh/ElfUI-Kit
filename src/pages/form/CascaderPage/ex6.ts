@@ -6,6 +6,10 @@ const searchValue = useRef<string[]>([]);
 
 const status = useRef("浙江 / 杭州");
 
+const onSearchUpdate = (event: CustomEvent<string[]>): void => {
+  searchValue.set(Array.isArray(event.detail) ? event.detail : []);
+};
+
 const options = [
   {
     label: "浙江",

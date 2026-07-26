@@ -285,19 +285,26 @@ const ensureHorizontalItemVisible = (href: string): void => {
   }
 };
 
-const scrollHorizontal = (directionValue: -1 | 1): void => {
-  const list = host.shadowRoot?.querySelector<HTMLElement>(".list");
-  if (!list || direction() !== "horizontal") return;
-  const distance = Math.max(160, list.clientWidth * 0.75) * directionValue;
-  const maximum = Math.max(0, list.scrollWidth - list.clientWidth);
-  const next = Math.max(0, Math.min(maximum, list.scrollLeft + distance));
-  if (props.smooth && typeof list.scrollTo === "function") {
-    list.scrollTo({ left: next, behavior: "smooth" });
-  } else {
-    // Assigning scrollLeft is deterministic in browsers and test DOMs; native
-    // scrollBy is missing or a no-op in several Custom Element environments.
-    list.scrollLeft = next;
-  }
+const horizontalControlDisabled = (directionValue: -1 | 1): boolean => {
+  const enabled = flatItems().filter((item) => !item.disabled);
+  if (enabled.length === 0) return true;
+  const index = enabled.findIndex((item) => item.href === currentHref());
+  return directionValue < 0 ? index <= 0 : index >= enabled.length - 1;
+};
+
+const selectHorizontalSibling = (directionValue: -1 | 1): void => {
+  if (direction() !== "horizontal") return;
+  const enabled = flatItems().filter((item) => !item.disabled);
+  if (enabled.length === 0) return;
+  const currentIndex = enabled.findIndex((item) => item.href === currentHref());
+  const fallbackIndex = directionValue > 0 ? 0 : enabled.length - 1;
+  const nextIndex = currentIndex < 0
+    ? fallbackIndex
+    : Math.max(0, Math.min(enabled.length - 1, currentIndex + directionValue));
+  const next = enabled[nextIndex];
+  if (!next || next.href === currentHref()) return;
+  setActive(next.href);
+  scrollTo(next.href);
 };
 
 const onHorizontalWheel = (event: WheelEvent): void => {
@@ -466,7 +473,8 @@ const Anchor = defineHtml<AnchorProps, Record<string, never>, AnchorSlots>(`
       type="button"
       class="scroll-control is-previous"
       :aria-label=${locale.t("common.previous")}
-      @click=${() => scrollHorizontal(-1)}
+      :disabled=${horizontalControlDisabled(-1)}
+      @click=${() => selectHorizontalSibling(-1)}
     >
       <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m10 3.5-4.5 4.5 4.5 4.5"></path></svg>
     </button>
@@ -497,7 +505,8 @@ const Anchor = defineHtml<AnchorProps, Record<string, never>, AnchorSlots>(`
       type="button"
       class="scroll-control is-next"
       :aria-label=${locale.t("common.next")}
-      @click=${() => scrollHorizontal(1)}
+      :disabled=${horizontalControlDisabled(1)}
+      @click=${() => selectHorizontalSibling(1)}
     >
       <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m6 3.5 4.5 4.5L6 12.5"></path></svg>
     </button>
