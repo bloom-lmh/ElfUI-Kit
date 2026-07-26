@@ -1,50 +1,34 @@
-import { defineHtml, html, useComponents } from "@elfui/core";
+import { defineHtml, useComponents } from "@elfui/core";
 
+import { createDocsTranslator } from "../../docsLocale";
 import { PageTextEx1 } from "./ex1";
 import { PageTextEx2 } from "./ex2";
 import { PageTextEx3 } from "./ex3";
-import { PageTextEx4 } from "./ex4";
-import { PageTextEx5 } from "./ex5";
-
-const propsRows = [
-  { name: "type", type: "primary|success|warning|danger|info", default: "''" },
-  { name: "size", type: "small|default|large|sm|md|lg", default: "''" },
-  { name: "truncated", type: "boolean", default: "false" },
-  { name: "line-clamp", type: "number", default: "undefined" },
-  { name: "tag", type: "TextTag", default: "span" },
-  { name: "mark", type: "boolean", default: "false" },
-  { name: "deleted", type: "boolean", default: "false" },
-  { name: "inserted", type: "boolean", default: "false" },
-  { name: "strong", type: "boolean", default: "false" },
-  { name: "italic", type: "boolean", default: "false" }
-];
+import { PageTextProps } from "./props";
 
 useComponents({
   "page-text-ex1": PageTextEx1,
   "page-text-ex2": PageTextEx2,
   "page-text-ex3": PageTextEx3,
-  "page-text-ex4": PageTextEx4,
-  "page-text-ex5": PageTextEx5
+  "page-text-props": PageTextProps
 });
 
-const PageText = defineHtml(html`
+const t = createDocsTranslator({
+  title: { zh: "Text 文本", en: "Text" },
+  description: {
+    zh: "用于正文、状态和语义排版，支持语义色、原生标签、文本装饰以及可靠的单行与多行截断。",
+    en: "Body copy, status, and semantic typography with semantic colors, native tags, text decoration, and reliable single- or multi-line truncation."
+  }
+});
+
+const PageText = defineHtml(`
   <elf-container>
-    <h1>Text 文本</h1>
-    <p>用于语义文本、尺寸和文本装饰，支持单行截断、多行截断和 tag 渲染。</p>
-
+    <h1>${t("title")}</h1>
+    <p>${t("description")}</p>
     <page-text-ex1 />
-
     <page-text-ex2 />
-
     <page-text-ex3 />
-
-    <page-text-ex4 />
-
-    <page-text-ex5 />
-
-    <h2>API</h2>
-    <elf-props-table title="Props" :rows=${propsRows} />
-    <elf-props-table title="Slots" :rows=${[{ name: "default", desc: "文本、图标或其他行内内容" }]} />
+    <page-text-props />
   </elf-container>
 `);
 

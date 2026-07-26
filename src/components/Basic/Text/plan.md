@@ -1,29 +1,30 @@
 # Text Element Plus API 对标计划
 
-## 本轮记录
+- 最近复核：2026-07-26 18:31（Asia/Shanghai）
+- 组件目录：`Basic/Text`
+- 对标文档：Element Plus `text.md`、`typography.md`
 
-- [x] 2026-07-16 修复嵌套 Text 的基线约束，并将容量单位案例从错误的 `sub` 语义改为同基线小号文本。
+## 公共契约
 
-## 本轮记录
-- [x] 第四阶段：补 Element Plus 标准 size、字符串 line-clamp、b/i/sub/sup 标签；以 h1-h6/p 语义 tag 完成标题段落组合，并保留 sm/md/lg 兼容别名。
-- [x] 第二阶段：实现 `tag` 的常用标签渲染，并补 PropsTable 示例。
-- [x] 第三阶段：tag 动态渲染已完整（v-if 链 8 种标签）；页面补 Script 视图；单测扩展到 15 条覆盖 type/size/truncated/lineClamp/mark/deleted/inserted/strong/italic/tag/part。
+- [x] 支持 `type`、`size`、`truncated`、`line-clamp`、`tag`、`mark`、`deleted`、`inserted`、`strong`、`italic`。
+- [x] `size` 接受 Element Plus 的 `small/default/large`，并保留 `sm/md/lg` 兼容别名。
+- [x] `tag` 只渲染白名单中的安全原生标签，非法值回退为 `span`。
+- [x] 默认插槽承载文本、图标或其他行内内容，内部语义元素暴露 `part="text"`。
+- [x] 不新增重复 Typography 组件；标题、段落与强调统一由原生语义 `tag` 组合。
 
-生成时间：2026-07-05
+## 本轮升级
 
-## 对标定位
+- [x] 修正 `line-clamp=0` 的存在性判断：仍启用截断并将行数归一为 1；清空属性后正确移除状态。
+- [x] 截断宿主具备可靠的收缩边界，单行省略和多行 clamp 不再依赖偶然的 inline 尺寸计算。
+- [x] 将 5 个单薄案例收敛为外观矩阵、语义与响应式排版、截断与阅读边界 3 个完整场景。
+- [x] 保留容量单位基线回归，使用 `inline-flex + align-items: baseline`，不滥用 `sub` 语义。
+- [x] 补齐 Provider 驱动的中英文文档、完整 API 描述、Template / Script 和页面集成测试。
 
-- ElfUI 组件目录：`Basic/Text`
-- Element Plus 文档：`text.md`、`typography.md`
+## 验证
 
-## 第一批实现
-
-- [x] 基础 props：`type`、`size`、`truncated`、`line-clamp`、`tag`、`mark`、`deleted`、`inserted`、`strong`、`italic`。
-- [x] 默认 slot 承载文本内容。
-- [x] 注册到 Basic 组件族并补单测。
-
-## 后续差距
-
-- [x] 补独立案例页：覆盖语义类型、文本装饰、truncated 和 line-clamp 截断场景。
-- [x] `tag` 动态标签渲染：span/p/div/strong/em/mark/del/ins 已全部实现。
-- [x] Typography 标题/段落组合：不新增重复组件，统一由 Text 的 h1-h6/p 语义 `tag`、`size` 与 `strong` 组合完成，并提供独立案例。
+- [x] Text 组件与页面定向回归共 15 项通过。
+- [x] beta API 迁移扫描覆盖 850 个源文件，无遗留 API。
+- [x] 宏类型检查扫描 109 个组件文件，0 macro error / 0 TypeScript error。
+- [x] 应用构建 774 模块、发布库构建 252 模块通过。
+- [x] 浏览器实测单行内部宽度 `226px`、内容宽度 `528px`；两行高度 `53px`、完整内容高度 `132px`。
+- [x] 中文、英文、Material 与 Midnight 暗色皮肤均完成截图验收，控制台 0 error / 0 warning。

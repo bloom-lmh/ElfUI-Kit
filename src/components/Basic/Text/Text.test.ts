@@ -3,187 +3,141 @@ import { afterEach, beforeAll, describe, expect, it } from "vitest";
 
 import { Text } from "./index";
 
+interface TextElement extends HTMLElement {
+  type?: string;
+  size?: string;
+  truncated?: boolean;
+  lineClamp?: number | string;
+  tag?: string;
+  mark?: boolean;
+  deleted?: boolean;
+  inserted?: boolean;
+  strong?: boolean;
+  italic?: boolean;
+}
+
 beforeAll(() => {
-    registerComponents(Text);
+  registerComponents(Text);
 });
 
 afterEach(() => {
-    document.body.innerHTML = "";
+  document.body.innerHTML = "";
 });
 
-const tick = (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 10));
+const tick = async (): Promise<void> => {
+  await new Promise<void>((resolve) => queueMicrotask(resolve));
+  await new Promise<void>((resolve) => queueMicrotask(resolve));
+};
 
-interface TextEl extends HTMLElement {
-    type?: string;
-    size?: string;
-    truncated?: boolean;
-    lineClamp?: number | string;
-    tag?: string;
-    mark?: boolean;
-    deleted?: boolean;
-    inserted?: boolean;
-    strong?: boolean;
-    italic?: boolean;
-}
+const mountText = async (configure?: (element: TextElement) => void): Promise<TextElement> => {
+  const element = document.createElement("elf-text") as TextElement;
+  configure?.(element);
+  document.body.appendChild(element);
+  await tick();
+  return element;
+};
 
 describe("elf-text", () => {
-    it("type 反射到 host", async () => {
-        const el = document.createElement("elf-text") as TextEl;
-        el.type = "success";
-        document.body.appendChild(el);
-        await tick();
-        expect(el.getAttribute("type")).toBe("success");
+  it("normalizes semantic types and invalid values", async () => {
+    const element = await mountText((text) => {
+      text.type = "success";
+    });
+    expect(element.getAttribute("type")).toBe("success");
+
+    element.type = "unknown";
+    await tick();
+    expect(element.getAttribute("type")).toBe("");
+  });
+
+  it("supports Element Plus sizes and compact aliases", async () => {
+    const element = await mountText((text) => {
+      text.size = "large";
+    });
+    expect(element.getAttribute("size")).toBe("large");
+
+    element.size = "sm";
+    await tick();
+    expect(element.getAttribute("size")).toBe("sm");
+
+    element.size = "oversized";
+    await tick();
+    expect(element.getAttribute("size")).toBe("");
+  });
+
+  it("reflects truncation and formatting flags", async () => {
+    const element = await mountText((text) => {
+      text.truncated = true;
+      text.mark = true;
+      text.deleted = true;
+      text.inserted = true;
+      text.strong = true;
+      text.italic = true;
     });
 
-    it("非法 type 回退为空", async () => {
-        const el = document.createElement("elf-text") as TextEl;
-        el.type = "unknown";
-        document.body.appendChild(el);
-        await tick();
-        expect(el.getAttribute("type")).toBe("");
+    for (const flag of ["truncated", "mark", "deleted", "inserted", "strong", "italic"]) {
+      expect(element.hasAttribute(flag)).toBe(true);
+    }
+  });
+
+  it("normalizes numeric, string, zero, and invalid line clamps", async () => {
+    const element = await mountText((text) => {
+      text.lineClamp = 3;
     });
+    expect(element.hasAttribute("data-line-clamp")).toBe(true);
+    expect(element.style.getPropertyValue("--_line-clamp")).toBe("3");
 
-    it("size 反射到 host", async () => {
-        const el = document.createElement("elf-text") as TextEl;
-        el.size = "lg";
-        document.body.appendChild(el);
-        await tick();
-        expect(el.getAttribute("size")).toBe("lg");
+    element.lineClamp = "2";
+    await tick();
+    expect(element.style.getPropertyValue("--_line-clamp")).toBe("2");
+
+    element.lineClamp = 0;
+    await tick();
+    expect(element.hasAttribute("data-line-clamp")).toBe(true);
+    expect(element.style.getPropertyValue("--_line-clamp")).toBe("1");
+
+    element.lineClamp = "invalid";
+    await tick();
+    expect(element.style.getPropertyValue("--_line-clamp")).toBe("1");
+  });
+
+  it("removes the line clamp flag when the property is cleared", async () => {
+    const element = await mountText((text) => {
+      text.lineClamp = 2;
     });
+    expect(element.hasAttribute("data-line-clamp")).toBe(true);
 
-    it("支持 Element Plus 标准 size 值", async () => {
-        const el = document.createElement("elf-text") as TextEl;
-        el.size = "large";
-        document.body.appendChild(el);
-        await tick();
-        expect(el.getAttribute("size")).toBe("large");
+    element.lineClamp = undefined;
+    await tick();
+    expect(element.hasAttribute("data-line-clamp")).toBe(false);
+  });
+
+  it.each([
+    ["span", "span"],
+    ["p", "p"],
+    ["strong", "strong"],
+    ["sub", "sub"],
+    ["sup", "sup"],
+    ["h2", "h2"]
+  ])("renders tag=%s with native semantics", async (tag, selector) => {
+    const element = await mountText((text) => {
+      text.tag = tag;
+      text.textContent = "Semantic text";
     });
+    expect(element.shadowRoot!.querySelector(`${selector}.text`)).toBeTruthy();
+    expect(element.getAttribute("tag")).toBe(tag);
+  });
 
-    it("truncated flag 反射到 host", async () => {
-        const el = document.createElement("elf-text") as TextEl;
-        el.truncated = true;
-        document.body.appendChild(el);
-        await tick();
-        expect(el.hasAttribute("truncated")).toBe(true);
+  it("falls back to a span for unsafe tags", async () => {
+    const element = await mountText((text) => {
+      text.tag = "script";
+      text.textContent = "Safe text";
     });
+    expect(element.shadowRoot!.querySelector("span.text")).toBeTruthy();
+    expect(element.getAttribute("tag")).toBe("span");
+  });
 
-    it("line-clamp CSS 变量", async () => {
-        const el = document.createElement("elf-text") as TextEl;
-        el.lineClamp = 3;
-        document.body.appendChild(el);
-        await tick();
-        expect(el.style.getPropertyValue("--_line-clamp")).toBe("3");
-    });
-
-    it("line-clamp 接受数字字符串并修正非法值", async () => {
-        const el = document.createElement("elf-text") as TextEl;
-        el.lineClamp = "2";
-        document.body.appendChild(el);
-        await tick();
-        expect(el.style.getPropertyValue("--_line-clamp")).toBe("2");
-
-        el.lineClamp = "invalid";
-        await tick();
-        expect(el.style.getPropertyValue("--_line-clamp")).toBe("1");
-    });
-
-    it("mark flag 反射", async () => {
-        const el = document.createElement("elf-text") as TextEl;
-        el.mark = true;
-        document.body.appendChild(el);
-        await tick();
-        expect(el.hasAttribute("mark")).toBe(true);
-    });
-
-    it("deleted flag 反射", async () => {
-        const el = document.createElement("elf-text") as TextEl;
-        el.deleted = true;
-        document.body.appendChild(el);
-        await tick();
-        expect(el.hasAttribute("deleted")).toBe(true);
-    });
-
-    it("inserted flag 反射", async () => {
-        const el = document.createElement("elf-text") as TextEl;
-        el.inserted = true;
-        document.body.appendChild(el);
-        await tick();
-        expect(el.hasAttribute("inserted")).toBe(true);
-    });
-
-    it("strong flag 反射", async () => {
-        const el = document.createElement("elf-text") as TextEl;
-        el.strong = true;
-        document.body.appendChild(el);
-        await tick();
-        expect(el.hasAttribute("strong")).toBe(true);
-    });
-
-    it("italic flag 反射", async () => {
-        const el = document.createElement("elf-text") as TextEl;
-        el.italic = true;
-        document.body.appendChild(el);
-        await tick();
-        expect(el.hasAttribute("italic")).toBe(true);
-    });
-
-    it("tag=span 渲染 span 元素", async () => {
-        const el = document.createElement("elf-text") as TextEl;
-        el.textContent = "text";
-        document.body.appendChild(el);
-        await tick();
-        const inner = el.shadowRoot!.querySelector("span.text");
-        expect(inner).toBeTruthy();
-    });
-
-    it("tag=p 渲染 p 元素", async () => {
-        const el = document.createElement("elf-text") as TextEl;
-        el.tag = "p";
-        el.textContent = "text";
-        document.body.appendChild(el);
-        await tick();
-        const inner = el.shadowRoot!.querySelector("p.text");
-        expect(inner).toBeTruthy();
-    });
-
-    it("tag=strong 渲染 strong 元素", async () => {
-        const el = document.createElement("elf-text") as TextEl;
-        el.tag = "strong";
-        el.textContent = "text";
-        document.body.appendChild(el);
-        await tick();
-        const inner = el.shadowRoot!.querySelector("strong.text");
-        expect(inner).toBeTruthy();
-    });
-
-    it("支持 sub、sup 与语义标题标签", async () => {
-        const el = document.createElement("elf-text") as TextEl;
-        el.tag = "sub";
-        document.body.appendChild(el);
-        await tick();
-        expect(el.shadowRoot!.querySelector("sub.text")).toBeTruthy();
-
-        el.tag = "h2";
-        await tick();
-        expect(el.shadowRoot!.querySelector("h2.text")).toBeTruthy();
-        expect(el.getAttribute("tag")).toBe("h2");
-    });
-
-    it("非法 tag 回退 span", async () => {
-        const el = document.createElement("elf-text") as TextEl;
-        el.tag = "script";
-        el.textContent = "text";
-        document.body.appendChild(el);
-        await tick();
-        const inner = el.shadowRoot!.querySelector("span.text");
-        expect(inner).toBeTruthy();
-    });
-
-    it("part=text 可被 ::part 选中", async () => {
-        const el = document.createElement("elf-text") as TextEl;
-        document.body.appendChild(el);
-        await tick();
-        const inner = el.shadowRoot!.querySelector("[part='text']");
-        expect(inner).toBeTruthy();
-    });
+  it("exposes the semantic element through part=text", async () => {
+    const element = await mountText();
+    expect(element.shadowRoot!.querySelector("[part='text']")).toBeTruthy();
+  });
 });

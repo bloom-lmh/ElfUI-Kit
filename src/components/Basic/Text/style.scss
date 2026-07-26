@@ -1,7 +1,9 @@
 @use "../../../styles/reset";
 
 :host {
+  box-sizing: border-box;
   display: inline;
+  min-width: 0;
   vertical-align: baseline;
   color: var(--_text-color, var(--elf-text-primary));
   font-size: var(--_text-size, inherit);
@@ -56,9 +58,11 @@
 }
 
 .text {
+  min-width: 0;
   color: inherit;
   font: inherit;
   margin: 0;
+  overflow-wrap: break-word;
 }
 
 :host([strong]) .text {
@@ -85,13 +89,23 @@
   text-underline-offset: 3px;
 }
 
-:host([truncated]) .text {
+:host([truncated]) {
   display: inline-block;
   max-width: 100%;
+}
+
+:host([truncated]) .text {
+  display: block;
+  width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  vertical-align: bottom;
+}
+
+:host([line-clamp]),
+:host([data-line-clamp]) {
+  display: block;
+  max-width: 100%;
 }
 
 :host([line-clamp]) .text,
