@@ -102,3 +102,28 @@
 - [x] 新增带内嵌封面、标题收藏操作与日期元信息的旅行卡片案例。
 - [x] 收藏和日历均使用 SVG 图标，收藏按钮具备 `aria-pressed` 状态。
 - [x] 修复纯图片 `cover` 插槽被误判为空的问题，并补齐组件与页面回归测试。
+
+## 2026-07-26 v0.0.2-beta.1 状态与案例复核
+
+### 公共契约
+
+- [x] 新增 `disabled` / `loading`，整卡交互在禁用或加载期间退出 Tab 顺序，并同步 `aria-disabled` / `aria-busy`。
+- [x] 新增 `image-alt`、`image-load` / `image-error` 事件与 `image-error` 插槽；快捷封面失败后保持卡片尺寸并允许恢复。
+- [x] 整卡点击、Enter、Space 统一触发 `click`；按钮、链接、输入控件等嵌套交互不再额外激活整卡。
+- [x] `shadow`、`variant`、`density`、`image-placement` 非法输入具有稳定回退值。
+- [x] 加载与封面动效遵循 `prefers-reduced-motion`。
+
+### 案例与文档
+
+- [x] 将分散案例收敛为“Surface 与内容密度”“整卡交互与键盘”“加载、骨架与媒体恢复”3 个完整场景。
+- [x] Skeleton 继续作为可组合组件负责正文占位，Card 只负责容器加载语义与交互锁定，避免重复 API。
+- [x] 页面标题、状态、Template、Script、Props、Events、Slots 全部支持中英文运行时切换。
+
+### 验证
+
+- [x] Card 组件 27 项 + 页面 2 项，共 29 项定向测试通过。
+- [x] 宏类型检查扫描 109 个组件文件，0 macro error / 0 TypeScript error。
+- [x] beta API 扫描 850 个源文件通过。
+- [x] 应用 775 模块、发布库 252 模块构建通过。
+- [x] 真实浏览器验证键盘激活、嵌套收藏、禁用状态、加载切换、图片失败恢复、中英文与暗色主题；控制台 0 error / 0 warning。
+- [x] 截图：`card-keyboard-nested-action.png`、`card-loading-media-recovery.png`、`card-loading-media-dark-en.png`。

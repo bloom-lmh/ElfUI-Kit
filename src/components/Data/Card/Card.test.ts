@@ -1,5 +1,6 @@
 // elf-card 单元测试
 
+import { readFileSync } from "node:fs";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
 
 beforeAll(async () => {
@@ -10,7 +11,10 @@ afterEach(() => {
   document.body.innerHTML = "";
 });
 
-const tick = (): Promise<void> => new Promise((r) => queueMicrotask(r));
+const tick = async (): Promise<void> => {
+  await new Promise<void>((resolve) => queueMicrotask(resolve));
+  await new Promise<void>((resolve) => queueMicrotask(resolve));
+};
 
 describe("elf-card", () => {
   it("渲染默认卡片", async () => {
@@ -104,6 +108,50 @@ describe("elf-card", () => {
     expect(count).toBe(2);
   });
 
+  it("does not emit an extra card activation for nested controls", async () => {
+    const el = document.createElement("elf-card");
+    el.setAttribute("clickable", "");
+    el.setAttribute("title", "项目卡片");
+    const action = document.createElement("button");
+    action.type = "button";
+    action.slot = "extra";
+    action.textContent = "收藏";
+    el.appendChild(action);
+    document.body.appendChild(el);
+    await tick();
+
+    let nativeClicks = 0;
+    let cardActivations = 0;
+    el.addEventListener("click", (event) => {
+      if (event instanceof CustomEvent) cardActivations++;
+      else nativeClicks++;
+    });
+    action.click();
+    action.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true, composed: true }));
+
+    expect(nativeClicks).toBe(1);
+    expect(cardActivations).toBe(0);
+  });
+
+  it.each(["disabled", "loading"])("locks clickable cards while %s", async (state) => {
+    const el = document.createElement("elf-card");
+    el.setAttribute("clickable", "");
+    el.setAttribute(state, "");
+    document.body.appendChild(el);
+    await tick();
+
+    const content = el.shadowRoot!.querySelector<HTMLElement>(".card-content")!;
+    let count = 0;
+    el.addEventListener("click", () => count++);
+    content.click();
+    content.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
+
+    expect(content.getAttribute("role")).toBe("button");
+    expect(content.getAttribute("tabindex")).toBe("-1");
+    expect(content.getAttribute("aria-disabled")).toBe("true");
+    expect(count).toBe(0);
+  });
+
   it("image prop 渲染封面图", async () => {
     const el = document.createElement("elf-card");
     el.setAttribute("image", "test.jpg");
@@ -113,6 +161,38 @@ describe("elf-card", () => {
     const img = el.shadowRoot!.querySelector(".card-image-wrap img") as HTMLImageElement;
     expect(img).toBeTruthy();
     expect(img.src).toContain("test.jpg");
+  });
+
+  it("forwards image alt text and exposes a localized error state", async () => {
+    const el = document.createElement("elf-card") as HTMLElement & {
+      image?: string;
+    };
+    el.setAttribute("image", "/missing-cover.jpg");
+    el.setAttribute("image-alt", "项目封面");
+    document.body.appendChild(el);
+    await tick();
+
+    let loadCount = 0;
+    let errorCount = 0;
+    el.addEventListener("image-load", () => loadCount++);
+    el.addEventListener("image-error", () => errorCount++);
+
+    const image = el.shadowRoot!.querySelector<HTMLImageElement>(".card-image-wrap img")!;
+    expect(image.alt).toBe("项目封面");
+    image.dispatchEvent(new Event("error"));
+    await tick();
+
+    expect(errorCount).toBe(1);
+    expect(el.hasAttribute("image-error")).toBe(true);
+    expect(el.shadowRoot!.querySelector(".image-error")?.getAttribute("aria-label"))
+      .toBe("图片暂时无法显示");
+
+    el.image = "/logo.png";
+    await tick();
+    const recoveredImage = el.shadowRoot!.querySelector<HTMLImageElement>(".card-image-wrap img")!;
+    expect(el.hasAttribute("image-error")).toBe(false);
+    recoveredImage.dispatchEvent(new Event("load"));
+    expect(loadCount).toBe(1);
   });
 
   it("overlay 渲染叠加文字", async () => {
@@ -145,6 +225,15 @@ describe("elf-card", () => {
     expect(el.getAttribute("image-placement")).toBe("left");
   });
 
+  it("normalizes unsupported image placements", async () => {
+    const el = document.createElement("elf-card");
+    el.setAttribute("image-placement", "right");
+    document.body.appendChild(el);
+    await tick();
+
+    expect(el.getAttribute("image-placement")).toBe("top");
+  });
+
   it("footer slot 渲染", async () => {
     const el = document.createElement("elf-card");
     el.innerHTML = `<template #footer><button>确认</button></template>`;
@@ -168,5 +257,12 @@ describe("elf-card", () => {
     expect(el.hasAttribute("has-cover")).toBe(true);
     expect(el.shadowRoot!.querySelector<HTMLSlotElement>('slot[name="cover"]')?.assignedElements())
       .toContain(image);
+  });
+
+  it("includes a reduced-motion fallback for cover and loading animation", () => {
+    const cssText = readFileSync("src/components/Data/Card/style.scss", "utf8");
+    expect(cssText).toContain("@media (prefers-reduced-motion: reduce)");
+    expect(cssText).toContain(".loading-indicator");
+    expect(cssText).toContain("animation: none");
   });
 });

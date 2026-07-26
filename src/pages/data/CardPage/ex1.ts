@@ -1,90 +1,74 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, defineStyle } from "@elfui/core";
 
-const code1 = `<elf-card title="卡片标题" subtitle="副标题说明">
-  <p>这是一张 elevated 变体卡片，默认带阴影。</p>
-  <p style="color:var(--elf-text-secondary);margin-top:8px">支持标题、副标题、插槽内容。</p>
+import { createDocsTranslator } from "../../docsLocale";
+import styles from "./demo.scss?inline";
+
+const t = createDocsTranslator({
+  title: { zh: "Surface 与内容密度", en: "Surface and content density" },
+  status: {
+    zh: "5 种层级 · 3 档密度 · 阴影策略兼容",
+    en: "5 hierarchy variants · 3 densities · compatible shadow policies"
+  },
+  elevated: { zh: "浮层卡片", en: "Elevated card" },
+  elevatedCopy: { zh: "一级阴影表达独立内容层级。", en: "A restrained shadow establishes an independent content layer." },
+  outlined: { zh: "描边卡片", en: "Outlined card" },
+  outlinedCopy: { zh: "清晰边界适合同级信息并排。", en: "A clear boundary works well for peer content." },
+  tonal: { zh: "柔和卡片", en: "Tonal card" },
+  tonalCopy: { zh: "主题浅色强调关联信息。", en: "A subtle theme tint highlights related information." },
+  compact: { zh: "紧凑卡片", en: "Compact card" },
+  compactCopy: { zh: "适合侧栏、摘要和密集列表。", en: "Designed for sidebars, summaries, and dense lists." },
+  footer: { zh: "共计 4 个项目", en: "4 projects total" }
+});
+
+const appearanceCode = `<elf-card title="Elevated card" variant="elevated">
+  <p>A restrained shadow establishes hierarchy.</p>
+</elf-card>
+
+<elf-card title="Outlined card" variant="outlined" shadow="never">
+  <p>A clear boundary works well for peer content.</p>
+</elf-card>
+
+<elf-card title="Tonal card" variant="tonal" density="comfortable">
+  <p>A subtle theme tint highlights related information.</p>
+</elf-card>
+
+<elf-card
+  header="Compact card"
+  footer="4 projects total"
+  variant="filled"
+  density="compact"
+>
+  <p>Element Plus header/footer props remain supported.</p>
 </elf-card>`;
 
-const code2 = `<elf-card variant="elevated" title="浮层卡片">...</elf-card>
-<elf-card variant="outlined" title="描边卡片">...</elf-card>
-<elf-card variant="tonal" title="柔和卡片">...</elf-card>
-<elf-card variant="flat" title="平面卡片" density="compact">...</elf-card>`;
+const appearanceScript = `// variant controls surface hierarchy; density controls internal spacing.
+// shadow="always | hover | never" remains compatible with Element Plus.
+// header/footer props are shortcuts; named slots take precedence when present.`;
 
-const code3 = `<elf-card variant="outlined" clickable title="点击我" subtitle="悬浮时提升层级" @click=\${handle}>
-  <p>整张卡片可点击</p>
-  <template #footer>
-    <elf-button variant="text" color="primary" size="sm">查看</elf-button>
-  </template>
-</elf-card>`;
+defineStyle(styles);
 
-const code4 = `<elf-card header="订单摘要" footer="共计 ¥128.00" shadow="hover">
-  <p>Header / footer prop 也可以分别由同名 slot 覆盖。</p>
-</elf-card>`;
-
-const script3 = `const clickCount = useRef(0);
-
-const handle = () => {
-  clickCount.set(clickCount.value + 1);
-};`;
-
-const staticScript = `// 纯展示案例，无需额外状态。`;
-
-const clickCount = useRef(0);
-
-const handle = (): void => {
-  clickCount.set(clickCount.value + 1);
-};
-
-const PageCardEx1 = defineHtml(html`
-  <h2>基础</h2>
-  <elf-playground title="标题 + 副标题 + 内容" :code=${code1} :script=${staticScript}>
-    <elf-card title="卡片标题" subtitle="副标题说明" style="max-width:400px">
-      <p>这是一张 elevated 变体卡片，默认带阴影。</p>
-      <p style="color:var(--elf-text-secondary);margin-top:8px">支持标题、副标题、插槽内容。</p>
-    </elf-card>
-  </elf-playground>
-
-  <h2>Surface 变体</h2>
-  <elf-playground title="elevated / outlined / tonal / flat" :code=${code2} :script=${staticScript}>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;width:100%;max-width:880px">
-      <elf-card variant="elevated" title="浮层卡片">
-        <p>使用克制的一级阴影表达内容层级。</p>
+const PageCardEx1 = defineHtml(`
+  <elf-playground :title=${t("title")} :code=${appearanceCode} :script=${appearanceScript}>
+    <span slot="status" class="card-demo-status">${t("status")}</span>
+    <div class="card-appearance-grid">
+      <elf-card :title=${t("elevated")} variant="elevated">
+        <p>${t("elevatedCopy")}</p>
       </elf-card>
-      <elf-card variant="outlined" title="描边卡片">
-        <p>使用清晰边界承载同级信息。</p>
+      <elf-card :title=${t("outlined")} variant="outlined" shadow="never">
+        <p>${t("outlinedCopy")}</p>
       </elf-card>
-      <elf-card variant="tonal" title="柔和卡片">
-        <p>使用主题色浅层填充突出关联内容。</p>
+      <elf-card :title=${t("tonal")} variant="tonal" density="comfortable">
+        <p>${t("tonalCopy")}</p>
       </elf-card>
-      <elf-card variant="flat" density="compact" title="平面卡片">
-        <p>紧凑密度适合侧栏和小型信息块。</p>
+      <elf-card
+        :header=${t("compact")}
+        :footer=${t("footer")}
+        variant="filled"
+        density="compact"
+      >
+        <p>${t("compactCopy")}</p>
       </elf-card>
     </div>
-  </elf-playground>
-
-  <h2>可点击卡片</h2>
-  <elf-playground title="悬浮提升层级，不改变布局位置" :code=${code3} :script=${script3}>
-    <elf-card
-      variant="outlined"
-      clickable
-      title="点击我"
-      subtitle="悬浮时提升层级"
-      style="max-width:360px"
-      @click=${handle}
-    >
-      <p>整张卡片可点击，悬浮时只调整边界与阴影，不产生位置跳动。</p>
-      <template #footer>
-        <elf-button variant="text" color="primary" size="sm">了解详情</elf-button>
-      </template>
-    </elf-card>
-    <span slot="status" class="demo-state">点击次数：{{ clickCount }}</span>
-  </elf-playground>
-
-  <h2>Element Plus 兼容 API</h2>
-  <elf-playground title="header / footer / shadow" :code=${code4} :script=${staticScript}>
-    <elf-card header="订单摘要" footer="共计 ¥128.00" shadow="hover" style="max-width:360px">
-      <p style="color:var(--elf-text-secondary)">Header / footer prop 也可以分别由同名 slot 覆盖。</p>
-    </elf-card>
   </elf-playground>
 `);
 

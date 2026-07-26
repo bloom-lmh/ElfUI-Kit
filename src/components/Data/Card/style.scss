@@ -12,7 +12,7 @@
   min-width: 0;
   overflow: hidden;
   border: 1px solid color-mix(in srgb, var(--elf-divider) 58%, transparent);
-  border-radius: 16px;
+  border-radius: var(--elf-card-radius, var(--elf-radius-md));
   background: var(--elf-bg-paper);
   color: var(--elf-text-primary);
   box-shadow: 0 2px 8px rgb(15 23 42 / 8%), 0 1px 2px rgb(15 23 42 / 5%);
@@ -69,18 +69,57 @@
   box-shadow: 0 8px 24px rgb(15 23 42 / 12%), 0 2px 6px rgb(15 23 42 / 7%);
 }
 
-:host([clickable]) {
+:host([clickable]:not([disabled]):not([loading])) {
   cursor: pointer;
 }
 
-:host([clickable]:hover) {
+:host([clickable]:not([disabled]):not([loading]):hover) {
   border-color: color-mix(in srgb, var(--elf-primary) 28%, var(--elf-divider));
   box-shadow: 0 10px 28px rgb(15 23 42 / 13%), 0 2px 7px rgb(15 23 42 / 7%);
 }
 
-:host([clickable]:active) {
+:host([clickable]:not([disabled]):not([loading]):active) {
   background: color-mix(in srgb, var(--elf-primary) 4%, var(--elf-bg-paper));
   box-shadow: 0 3px 10px rgb(15 23 42 / 10%);
+}
+
+:host([disabled]) {
+  color: var(--elf-text-disabled);
+  cursor: not-allowed;
+  opacity: 0.62;
+}
+
+:host([loading]) {
+  cursor: progress;
+}
+
+.loading {
+  position: absolute;
+  z-index: 3;
+  inset: 0 0 auto;
+  height: 3px;
+  overflow: hidden;
+  color: transparent;
+  pointer-events: none;
+}
+
+.loading-indicator {
+  display: block;
+  width: 38%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--elf-primary);
+  animation: card-loading 1.1s ease-in-out infinite;
+}
+
+@keyframes card-loading {
+  from {
+    transform: translateX(-110%);
+  }
+
+  to {
+    transform: translateX(300%);
+  }
 }
 
 :host([image-placement="left"]) {
@@ -103,9 +142,16 @@
   transition: transform 360ms ease;
 }
 
-:host([clickable]:hover) .card-image-wrap img,
-:host([clickable]:hover) ::slotted(img[slot="cover"]) {
+:host([clickable]:not([disabled]):not([loading]):hover) .card-image-wrap img,
+:host([clickable]:not([disabled]):not([loading]):hover) ::slotted(img[slot="cover"]) {
   transform: scale(1.025);
+}
+
+::slotted([slot="cover"]) {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 :host(:not([image-placement="left"])) .card-image-wrap {
@@ -133,6 +179,37 @@
   font-weight: 600;
   line-height: 1.4;
   letter-spacing: 0.01em;
+}
+
+.image-error {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-content: center;
+  justify-items: center;
+  gap: 8px;
+  padding: 20px;
+  color: var(--elf-text-secondary);
+  text-align: center;
+}
+
+.image-error > span {
+  color: var(--elf-primary);
+  font-size: 30px;
+  line-height: 1;
+}
+
+.image-error small {
+  font-size: var(--elf-font-size-xs);
+}
+
+::slotted([slot="image-error"]) {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 10px;
+  width: 100%;
+  height: 100%;
 }
 
 .card-content {
@@ -238,8 +315,14 @@
 
 @media (prefers-reduced-motion: reduce) {
   :host,
+  .loading-indicator,
   .card-image-wrap img,
   ::slotted(img[slot="cover"]) {
+    animation: none;
     transition: none;
+  }
+
+  .loading-indicator {
+    transform: none;
   }
 }

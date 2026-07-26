@@ -1,63 +1,127 @@
-import { defineHtml, defineStyle, html, useRef } from "@elfui/core";
+import { defineHtml, defineStyle, useRef } from "@elfui/core";
 
-const favorite = useRef(false);
+import { createDocsTranslator } from "../../docsLocale";
+import styles from "./demo.scss?inline";
 
-const toggleFavorite = (): void => favorite.set(!favorite.value);
+const BROKEN_IMAGE = "data:image/png;base64,broken";
+const RECOVERED_IMAGE = "/logo.png";
 
-const code = `<elf-card class="destination-card" title="Misty Mountains" image-height="176px">
-  <img slot="cover" src="..." alt="云雾中的群山" />
-  <button slot="extra" aria-label="收藏">
-    <svg viewBox="0 0 24 24"><path d="..." /></svg>
-  </button>
-  <p class="destination-date">
-    <svg viewBox="0 0 24 24"><path d="..." /></svg>
-    2025 年 12 月 1 日
-  </p>
+const t = createDocsTranslator({
+  title: { zh: "加载、骨架与媒体恢复", en: "Loading, skeleton, and media recovery" },
+  loading: { zh: "加载中", en: "Loading" },
+  ready: { zh: "内容已就绪", en: "Content ready" },
+  complete: { zh: "完成加载", en: "Finish loading" },
+  reset: { zh: "重新加载", en: "Reload" },
+  report: { zh: "本周质量报告", en: "Weekly quality report" },
+  reportSubtitle: { zh: "正在汇总 12 个数据源", en: "Aggregating 12 data sources" },
+  reportCopy: {
+    zh: "Card 的 loading 负责锁定交互和加载状态；正文骨架由 Skeleton 组合提供。",
+    en: "Card loading locks interaction and announces status; Skeleton composes the body placeholder."
+  },
+  score: { zh: "通过率 98.6%", en: "Pass rate 98.6%" },
+  media: { zh: "媒体失败与重试", en: "Media failure and retry" },
+  mediaSubtitle: { zh: "封面失败不会压缩卡片结构", en: "A failed cover never collapses the card structure" },
+  mediaAlt: { zh: "ElfUI 项目封面", en: "ElfUI project cover" },
+  unavailable: { zh: "封面暂时不可用", en: "Cover is temporarily unavailable" },
+  retry: { zh: "重试图片", en: "Retry image" },
+  retrying: { zh: "正在重试", en: "Retrying" },
+  recovered: { zh: "图片已恢复", en: "Image recovered" }
+});
+
+// State
+const loading = useRef(true);
+const mediaSource = useRef(BROKEN_IMAGE);
+const mediaStatus = useRef<"unavailable" | "retrying" | "recovered">("unavailable");
+
+// Derived state
+const loadingStatus = (): string => (loading.value ? t("loading") : t("ready"));
+const mediaStatusText = (): string => t(mediaStatus.value);
+
+// Methods
+const toggleLoading = (): void => loading.set(!loading.value);
+
+const retryImage = (event: MouseEvent): void => {
+  event.stopPropagation();
+  mediaStatus.set("retrying");
+  mediaSource.set(RECOVERED_IMAGE);
+};
+
+const onImageError = (): void => mediaStatus.set("unavailable");
+const onImageLoad = (): void => mediaStatus.set("recovered");
+
+const statesCode = `<elf-card :loading.prop=\${loading} title="Weekly quality report">
+  <elf-skeleton :loading.prop=\${loading} animated rows="3">
+    <p>Pass rate 98.6%</p>
+  </elf-skeleton>
+</elf-card>
+
+<elf-card
+  :image.prop=\${mediaSource}
+  image-alt="ElfUI project cover"
+  @image-error=\${onImageError}
+  @image-load=\${onImageLoad}
+>
+  <div slot="image-error">
+    <span>Cover is temporarily unavailable</span>
+    <button type="button" @click=\${retryImage}>Retry image</button>
+  </div>
 </elf-card>`;
 
-const script = `const favorite = useRef(false);
+const statesScript = `const loading = useRef(true);
+const mediaSource = useRef("data:image/png;base64,broken");
 
-const toggleFavorite = () => favorite.set(!favorite.value);`;
+const retryImage = (event) => {
+  event.stopPropagation();
+  mediaSource.set("/logo.png");
+};
 
-defineStyle(`
-  :host { display:block; }
-  * { box-sizing:border-box; }
-  .destination-card { width:min(100%,376px); border-radius:10px; }
-  .destination-cover { padding:10px 10px 0; border-radius:10px; object-fit:cover; }
-  .favorite { display:grid; width:34px; height:34px; padding:0; place-items:center; border:0; border-radius:50%; background:transparent; color:var(--elf-text-secondary); cursor:pointer; }
-  .favorite:hover, .favorite:focus-visible, .favorite.is-active { color:var(--elf-error); background:color-mix(in srgb,var(--elf-error) 9%,transparent); outline:none; }
-  .favorite svg, .destination-date svg { width:20px; height:20px; fill:currentColor; }
-  .favorite:not(.is-active) svg { fill:none; stroke:currentColor; stroke-width:1.8; }
-  .destination-date { display:flex; align-items:center; gap:8px; margin:0; color:var(--elf-text-secondary); }
-  .destination-date svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
-`);
+// Card owns loading/disabled semantics and image events.
+// Skeleton remains a separate composable component for body placeholders.`;
 
-const PageCardEx3 = defineHtml(html`
-  <h2>旅行图片卡片</h2>
-  <elf-playground title="内嵌封面 + 收藏操作 + 日期信息" :code=${code} :script=${script}>
-    <elf-card class="destination-card" title="Misty Mountains" image-height="176px">
-      <img
-        slot="cover"
-        class="destination-cover"
-        src="https://picsum.photos/seed/misty-mountains/720/320"
-        alt="云雾中的群山"
-      />
-      <button
-        slot="extra"
-        type="button"
-        :class=${{ favorite: true, "is-active": favorite.value }}
-        :aria-pressed=${favorite.value ? "true" : "false"}
-        aria-label="收藏 Misty Mountains"
-        @click=${toggleFavorite}
-      >
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5 10.55 19.18C5.4 14.5 2 11.42 2 7.63 2 4.55 4.42 2.13 7.5 2.13c1.74 0 3.41.81 4.5 2.09a6.03 6.03 0 0 1 4.5-2.09c3.08 0 5.5 2.42 5.5 5.5 0 3.79-3.4 6.87-8.55 11.56Z" /></svg>
+defineStyle(styles);
+
+const PageCardEx3 = defineHtml(`
+  <elf-playground :title=${t("title")} :code=${statesCode} :script=${statesScript}>
+    <div slot="status" class="card-demo-actions">
+      <span role="status" aria-live="polite">${loadingStatus()} · ${mediaStatusText()}</span>
+      <button type="button" @click=${toggleLoading}>
+        ${loading.value ? t("complete") : t("reset")}
       </button>
-      <p class="destination-date">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 2v3m10-3v3M3.5 9h17M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z" /></svg>
-        2025 年 12 月 1 日
-      </p>
-    </elf-card>
-    <span slot="status" class="demo-state">收藏：{{ favorite ? "是" : "否" }}</span>
+    </div>
+    <div class="card-state-grid">
+      <elf-card
+        :loading.prop=${loading}
+        :title=${t("report")}
+        :subtitle=${t("reportSubtitle")}
+        variant="outlined"
+      >
+        <elf-skeleton :loading.prop=${loading} animated rows="3">
+          <div class="card-report-ready">
+            <strong>${t("score")}</strong>
+            <p>${t("reportCopy")}</p>
+          </div>
+        </elf-skeleton>
+      </elf-card>
+
+      <elf-card
+        class="card-media"
+        :image.prop=${mediaSource}
+        :image-alt=${t("mediaAlt")}
+        image-height="164px"
+        :title=${t("media")}
+        :subtitle=${t("mediaSubtitle")}
+        variant="outlined"
+        @image-error=${onImageError}
+        @image-load=${onImageLoad}
+      >
+        <div slot="image-error" class="card-media-error">
+          <span aria-hidden="true">⌁</span>
+          <strong>${t("unavailable")}</strong>
+          <button type="button" @click=${retryImage}>${t("retry")}</button>
+        </div>
+        <p>${mediaStatusText()}</p>
+      </elf-card>
+    </div>
   </elf-playground>
 `);
 

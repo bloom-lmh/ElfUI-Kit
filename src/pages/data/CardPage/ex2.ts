@@ -1,110 +1,114 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml, defineStyle, useRef } from "@elfui/core";
 
-const code1 = `<elf-card
-  image="https://picsum.photos/360/180"
-  image-height="180px"
-  title="西湖美景"
-  subtitle="浙江省杭州市"
-  overlay="热门推荐"
->
-  <p style="color:var(--elf-text-secondary)">西湖，中国大陆首批国家重点风景名胜区，中国十大风景名胜之一。</p>
-  <template #footer>
-    <elf-button variant="text" size="sm">分享</elf-button>
-    <elf-button variant="text" color="primary" size="sm">了解更多</elf-button>
-  </template>
-</elf-card>`;
+import { createDocsTranslator } from "../../docsLocale";
+import styles from "./demo.scss?inline";
 
-const code2 = `<elf-card
-  image="https://picsum.photos/240/320"
-  image-placement="left"
-  image-width="35%"
-  image-height="200px"
-  variant="outlined"
+const t = createDocsTranslator({
+  title: { zh: "整卡交互与键盘", en: "Whole-card interaction and keyboard" },
+  activations: { zh: "整卡激活", en: "Card activations" },
+  favoriteOn: { zh: "已收藏", en: "Favorited" },
+  favoriteOff: { zh: "未收藏", en: "Not favorited" },
+  project: { zh: "设计系统迁移", en: "Design system migration" },
+  subtitle: { zh: "本周五交付 · 8 位协作者", en: "Due Friday · 8 collaborators" },
+  description: {
+    zh: "Tab 聚焦卡片后可使用 Enter 或 Space 打开；内部收藏按钮拥有独立状态，不会额外激活整卡。",
+    en: "After Tab focuses the card, Enter or Space opens it. The nested favorite action keeps independent state without activating the card again."
+  },
+  open: { zh: "打开项目", en: "Open project" },
+  favorite: { zh: "收藏项目", en: "Favorite project" },
+  disabled: { zh: "已归档项目", en: "Archived project" },
+  disabledHint: { zh: "禁用卡片保留语义，但退出 Tab 顺序。", en: "A disabled card keeps its semantics but leaves the Tab order." },
+  disabledCopy: {
+    zh: "适合展示只读历史记录，不响应鼠标或键盘激活。",
+    en: "Useful for read-only history without pointer or keyboard activation."
+  }
+});
+
+// State
+const activationCount = useRef(0);
+const favorite = useRef(false);
+
+// Derived state
+const activityText = (): string =>
+  `${t("activations")} ${activationCount.value} · ${favorite.value ? t("favoriteOn") : t("favoriteOff")}`;
+
+// Methods
+const onCardActivate = (): void => activationCount.set(activationCount.value + 1);
+
+const onFavoriteClick = (event: MouseEvent): void => {
+  event.stopPropagation();
+  favorite.set(!favorite.value);
+};
+
+const interactionCode = `<elf-card
   clickable
-  title="水平布局"
-  subtitle="图片在左，内容在右"
+  variant="outlined"
+  title="Design system migration"
+  subtitle="Due Friday · 8 collaborators"
+  @click=\${openProject}
 >
-  <p style="color:var(--elf-text-secondary)">设置 image-placement="left" 即可切换为水平布局。</p>
-  <template #footer>
-    <elf-button variant="text" color="primary" size="sm">查看</elf-button>
-  </template>
+  <button
+    slot="extra"
+    type="button"
+    :aria-pressed=\${favorite}
+    aria-label="Favorite project"
+    @click=\${toggleFavorite}
+  >
+    ★
+  </button>
+  <p>Tab, Enter, and Space activate the whole card.</p>
 </elf-card>`;
 
-const code3 = `<elf-card
-  variant="tonal"
-  avatar="https://i.pravatar.cc/40?img=3"
-  title="张三"
-  subtitle="产品设计师"
->
-  <template #extra><elf-tag color="primary" size="sm">PRO</elf-tag></template>
-  <p style="color:var(--elf-text-secondary)">负责产品视觉设计与交互规范制定。</p>
-  <template #footer>
-    <elf-button variant="text" size="sm">私信</elf-button>
-    <elf-button variant="text" color="primary" size="sm">关注</elf-button>
-  </template>
-</elf-card>`;
+const interactionScript = `const activationCount = useRef(0);
+const favorite = useRef(false);
 
-const staticScript = `// 纯展示案例，无需额外状态。`;
+const openProject = () => activationCount.set(activationCount.value + 1);
 
-const PageCardEx2 = defineHtml(html`
-  <h2>图片封面 + 叠加文字</h2>
-  <elf-playground title="image + overlay 属性" :code=${code1} :script=${staticScript}>
-    <elf-card
-      image="https://picsum.photos/360/180"
-      image-height="180px"
-      title="西湖美景"
-      subtitle="浙江省杭州市"
-      overlay="热门推荐"
-      style="max-width:360px"
-    >
-      <p style="color:var(--elf-text-secondary)">
-        西湖，中国大陆首批国家重点风景名胜区，中国十大风景名胜之一。
-      </p>
-      <template #footer>
-        <elf-button variant="text" size="sm">分享</elf-button>
-        <elf-button variant="text" color="primary" size="sm">了解更多</elf-button>
-      </template>
-    </elf-card>
-  </elf-playground>
+const toggleFavorite = (event) => {
+  // A nested action owns its click and must not activate the whole card.
+  event.stopPropagation();
+  favorite.set(!favorite.value);
+};`;
 
-  <h2>水平布局</h2>
-  <elf-playground title="image-placement='left'" :code=${code2} :script=${staticScript}>
-    <elf-card
-      image="https://picsum.photos/240/320"
-      image-placement="left"
-      image-width="35%"
-      image-height="200px"
-      variant="outlined"
-      clickable
-      title="水平布局"
-      subtitle="图片在左，内容在右"
-      style="max-width:560px"
-    >
-      <p style="color:var(--elf-text-secondary)">
-        设置 image-placement="left" 即可切换为水平布局。
-      </p>
-      <template #footer>
-        <elf-button variant="text" color="primary" size="sm">查看</elf-button>
-      </template>
-    </elf-card>
-  </elf-playground>
+defineStyle(styles);
 
-  <h2>用户卡片（头像 + extra）</h2>
-  <elf-playground title="avatar + extra + tonal" :code=${code3} :script=${staticScript}>
-    <elf-card
-      variant="tonal"
-      avatar="https://i.pravatar.cc/40?img=3"
-      title="张三"
-      subtitle="产品设计师"
-      style="max-width:400px"
-    >
-      <template #extra><elf-tag color="primary" size="sm">PRO</elf-tag></template>
-      <p style="color:var(--elf-text-secondary)">负责产品视觉设计与交互规范制定。</p>
-      <template #footer>
-        <elf-button variant="text" size="sm">私信</elf-button>
-        <elf-button variant="text" color="primary" size="sm">关注</elf-button>
-      </template>
-    </elf-card>
+const PageCardEx2 = defineHtml(`
+  <elf-playground :title=${t("title")} :code=${interactionCode} :script=${interactionScript}>
+    <span slot="status" class="card-demo-status" role="status" aria-live="polite">${activityText()}</span>
+    <div class="card-interaction-grid">
+      <elf-card
+        class="card-project"
+        clickable
+        variant="outlined"
+        :title=${t("project")}
+        :subtitle=${t("subtitle")}
+        @click=${onCardActivate}
+      >
+        <button
+          slot="extra"
+          type="button"
+          :class=${{ "card-favorite": true, "is-active": favorite.value }}
+          :aria-pressed=${String(favorite.value)}
+          :aria-label=${t("favorite")}
+          @click=${onFavoriteClick}
+        >
+          <span aria-hidden="true">★</span>
+        </button>
+        <p>${t("description")}</p>
+        <template #footer>
+          <elf-tag type="success" size="sm">${t("open")}</elf-tag>
+        </template>
+      </elf-card>
+      <elf-card
+        clickable
+        disabled
+        variant="filled"
+        :title=${t("disabled")}
+        :subtitle=${t("disabledHint")}
+      >
+        <p>${t("disabledCopy")}</p>
+      </elf-card>
+    </div>
   </elf-playground>
 `);
 

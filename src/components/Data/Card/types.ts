@@ -3,6 +3,7 @@
 export type CardVariant = "elevated" | "outlined" | "filled" | "tonal" | "flat";
 export type CardShadow = "always" | "hover" | "never";
 export type CardDensity = "default" | "comfortable" | "compact";
+export type CardImagePlacement = "top" | "left";
 export type CardBodyStyle = Record<string, string | number>;
 
 export interface CardProps {
@@ -29,8 +30,10 @@ export interface CardProps {
   subtitle: string;
   /** 图片地址（快捷封面） */
   image: string;
+  /** 快捷封面图片替代文本；装饰图可留空。 */
+  imageAlt: string;
   /** 图片位置：top | left（水平布局） */
-  imagePlacement: "top" | "left";
+  imagePlacement: CardImagePlacement;
   /** 图片高度（top 模式），默认 200px */
   imageHeight: string;
   /** 图片宽度（left 模式），默认 40% */
@@ -39,4 +42,25 @@ export interface CardProps {
   overlay: string;
   /** 是否可点击，hover 时升阴影 + 光标变手 */
   clickable: boolean;
+  /** 禁用整卡交互。 */
+  disabled: boolean;
+  /** 显示加载进度并暂时锁定整卡交互。 */
+  loading: boolean;
+}
+
+export interface CardEmits {
+  click: [];
+  "image-load": [event: Event];
+  "image-error": [event: Event];
+}
+
+export interface CardSlots {
+  default?: unknown;
+  cover?: unknown;
+  title?: unknown;
+  extra?: unknown;
+  header?: unknown;
+  footer?: unknown;
+  loading?: unknown;
+  "image-error"?: unknown;
 }

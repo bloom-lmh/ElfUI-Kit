@@ -1,0 +1,126 @@
+.card-demo-status,
+.card-demo-actions {
+  color: var(--elf-text-secondary);
+  font-size: var(--elf-font-size-sm);
+}
+
+.card-appearance-grid,
+.card-interaction-grid,
+.card-state-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  width: min(880px, 100%);
+  margin-inline: auto;
+}
+
+.card-appearance-grid elf-card,
+.card-interaction-grid elf-card,
+.card-state-grid elf-card {
+  height: 100%;
+}
+
+.card-appearance-grid p,
+.card-interaction-grid p,
+.card-state-grid p {
+  margin: 0;
+}
+
+.card-demo-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.card-demo-actions button,
+.card-media-error button {
+  min-height: 32px;
+  padding-inline: 12px;
+  color: var(--elf-primary);
+  font: inherit;
+  border: 1px solid color-mix(in srgb, var(--elf-primary) 42%, var(--elf-border));
+  border-radius: var(--elf-radius-sm);
+  background: color-mix(in srgb, var(--elf-primary) 7%, var(--elf-bg-paper));
+  cursor: pointer;
+}
+
+.card-demo-actions button:hover,
+.card-demo-actions button:focus-visible,
+.card-media-error button:hover,
+.card-media-error button:focus-visible {
+  background: color-mix(in srgb, var(--elf-primary) 14%, var(--elf-bg-paper));
+}
+
+.card-demo-actions button:focus-visible,
+.card-media-error button:focus-visible,
+.card-favorite:focus-visible {
+  outline: 2px solid var(--elf-focus-ring, var(--elf-primary));
+  outline-offset: 2px;
+}
+
+.card-favorite {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  place-items: center;
+  color: var(--elf-text-secondary);
+  font: inherit;
+  font-size: 19px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+}
+
+.card-favorite:hover,
+.card-favorite.is-active {
+  color: var(--elf-warning);
+  background: color-mix(in srgb, var(--elf-warning) 12%, transparent);
+}
+
+.card-report-ready {
+  display: grid;
+  gap: 10px;
+  min-height: 82px;
+}
+
+.card-report-ready strong {
+  color: var(--elf-success);
+  font-size: 24px;
+  line-height: 1.2;
+}
+
+.card-media-error {
+  color: var(--elf-text-secondary);
+  text-align: center;
+}
+
+.card-media-error > span {
+  color: var(--elf-primary);
+  font-size: 30px;
+  line-height: 1;
+}
+
+.card-media-error strong {
+  color: var(--elf-text-primary);
+  font-size: var(--elf-font-size-sm);
+}
+
+.card-media-error button {
+  min-height: 30px;
+  font-size: var(--elf-font-size-xs);
+}
+
+@media (max-width: 720px) {
+  .card-appearance-grid,
+  .card-interaction-grid,
+  .card-state-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .card-demo-actions {
+    align-items: flex-end;
+    flex-direction: column;
+  }
+}
