@@ -1,4 +1,6 @@
-import { defineHtml, html, useComponents } from "@elfui/core";
+import { defineHtml, useComponents } from "@elfui/core";
+
+import { createDocsTranslator } from "../../docsLocale";
 import { PageTagEx1 } from "./ex1";
 import { PageTagEx2 } from "./ex2";
 import { PageTagProps } from "./props";
@@ -9,12 +11,22 @@ useComponents({
   "page-tag-props": PageTagProps
 });
 
-const PageTag = defineHtml(html`
-  <elf-container
-    ><h1>Tag 标签</h1>
-    <p>展示状态、分类等信息的小标签。</p>
-    <page-tag-ex1 /><page-tag-ex2 /><page-tag-props
-  /></elf-container>
+const t = createDocsTranslator({
+  title: { zh: "Tag 标签", en: "Tag" },
+  description: {
+    zh: "紧凑展示状态与分类，也可组合成可选择、可关闭和可编辑的动态标签列表。",
+    en: "A compact status and category primitive that composes into selectable, closable, and editable dynamic tag lists."
+  }
+});
+
+const PageTag = defineHtml(`
+  <elf-container>
+    <h1>${t("title")}</h1>
+    <p>${t("description")}</p>
+    <page-tag-ex1 />
+    <page-tag-ex2 />
+    <page-tag-props />
+  </elf-container>
 `);
 
 export { PageTag };

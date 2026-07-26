@@ -1,5 +1,15 @@
 # Tag Element Plus API 对标计划
 
+## v0.0.2-beta.1 案例缺口复核（2026-07-26）
+
+- [x] 7 个外观碎片收敛为“外观矩阵”“选择与溢出”“动态列表与行内编辑”3 个真实场景。
+- [x] 默认插槽增加独立 `label` part，宿主受限宽度时使用单行省略且不删除完整插槽内容。
+- [x] 可选择 Tag 通过 slotchange 同步无障碍名称，`role="button"`、`aria-pressed`、Enter 与 Space 形成完整键盘契约。
+- [x] `size`、`round`、`disabled` 与既有颜色/变体状态统一反射到宿主；非法尺寸回退 `md`。
+- [x] 动态列表案例覆盖新增、关闭、行内重命名、Enter 保存、Escape 取消和关闭按钮键盘操作；编辑状态保留在列表组合层，不污染 Tag 公共 API。
+- [x] 页面、Template、Script、Props、Events、Slots 全部接入 LocaleProvider 中英文。
+- [x] 组件 15 项 + 页面 2 项测试通过；应用和发布库构建通过；真实浏览器验证键盘选择、键盘关闭、编辑、溢出和暗色英文。
+
 ## 本轮记录
 - [x] 第二阶段：补 `type`、`effect`、`disable-transitions`、`hit`、`checked`、`change`/`update:checked` 基础行为和页面示例。
 - [x] 2026-07-15：完成 Tag / CheckTag 行为收口，支持任意 CSS `color`、受控同步、内部切换、键盘访问与禁用语义；12 项组件测试、生产构建和浏览器交互冒烟均通过。

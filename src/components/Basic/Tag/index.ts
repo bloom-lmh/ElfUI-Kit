@@ -3,21 +3,22 @@ import {
   defineHtml,
   defineProps,
   defineStyle,
-  html,
   useEffect,
   useHost,
   useHostAttr,
   useHostFlag,
-  useRef,
+  useRef
 } from "@elfui/core";
 
 import styles from "./style.scss?inline";
-import type { TagColor, TagEmits, TagProps, TagSlots, TagVariant } from "./types";
+import type { TagColor, TagEmits, TagProps, TagSize, TagSlots, TagVariant } from "./types";
 import { useLocaleProvider } from "../../Providers/context";
 
 export type { TagColor, TagEffect, TagEmits, TagProps, TagSize, TagSlots, TagVariant } from "./types";
 
-const props = defineProps({
+const COLORS: readonly TagColor[] = ["primary", "secondary", "success", "warning", "danger", "info"];
+
+const props = defineProps<TagProps>({
   type: { type: String, default: "" },
   color: { type: String, default: "primary" },
   size: { type: String, default: "md" },
@@ -29,33 +30,27 @@ const props = defineProps({
   disableTransitions: { type: Boolean, default: false },
   hit: { type: Boolean, default: false },
   checked: { type: Boolean, default: undefined },
-}) as unknown as Readonly<TagProps>;
+});
 
 const emit = defineEmits<TagEmits>();
 const locale = useLocaleProvider();
 const host = useHost();
 
-// Reactive state
+// State
 const innerChecked = useRef(props.checked === true);
 const checkable = useRef(typeof props.checked === "boolean" || host.hasAttribute("checked"));
+const slotLabel = useRef("");
 
-const colors: TagColor[] = ["primary", "secondary", "success", "warning", "danger", "info"];
-
-useEffect(() => {
-  if (typeof props.checked !== "boolean") return;
-  checkable.set(true);
-  innerChecked.set(props.checked);
-});
-
+// Derived state
 const normalizedColor = (): TagColor => {
   const type = String(props.type || "");
-  if (colors.includes(type as TagColor)) return type as TagColor;
-  return colors.includes(props.color as TagColor) ? (props.color as TagColor) : "primary";
+  if (COLORS.includes(type as TagColor)) return type as TagColor;
+  return COLORS.includes(props.color as TagColor) ? (props.color as TagColor) : "primary";
 };
 
 const customColor = (): string => {
   const color = String(props.color || "").trim();
-  return color && !colors.includes(color as TagColor) ? color : "";
+  return color && !COLORS.includes(color as TagColor) ? color : "";
 };
 
 const normalizedVariant = (): TagVariant => {
@@ -64,8 +59,15 @@ const normalizedVariant = (): TagVariant => {
   return props.variant === "filled" || props.variant === "outlined" ? props.variant : "light";
 };
 
+const normalizedSize = (): TagSize => {
+  const size = String(props.size || "");
+  return size === "sm" || size === "lg" ? size : "md";
+};
+
 const isCheckable = (): boolean => checkable.value;
 const isChecked = (): boolean => innerChecked.value;
+const accessibleLabel = (): string | null =>
+  isCheckable() ? slotLabel.value || host.textContent?.trim() || null : null;
 
 const tagStyle = (): Record<string, string> => {
   const color = customColor();
@@ -77,6 +79,7 @@ const tagStyle = (): Record<string, string> => {
     : {};
 };
 
+// Methods
 const toggleChecked = (): void => {
   if (!isCheckable()) return;
   const next = !isChecked();
@@ -103,15 +106,30 @@ const onKeyDown = (event: KeyboardEvent): void => {
   (event.currentTarget as HTMLElement).click();
 };
 
+const onSlotChange = (event: Event): void => {
+  const slot = event.currentTarget as HTMLSlotElement;
+  const label = slot.assignedNodes().map((node) => node.textContent || "").join("").trim();
+  slotLabel.set(label);
+};
+
+useEffect(() => {
+  if (typeof props.checked !== "boolean") return;
+  checkable.set(true);
+  innerChecked.set(props.checked);
+});
+
 useHostAttr("color", () => customColor() || normalizedColor());
 useHostAttr("variant", normalizedVariant);
+useHostAttr("size", normalizedSize);
+useHostFlag("round", () => Boolean(props.round));
+useHostFlag("disabled", () => Boolean(props.disabled));
 useHostFlag("disable-transitions", () => Boolean(props.disableTransitions));
 useHostFlag("hit", () => Boolean(props.hit));
 useHostFlag("checked", isChecked);
 
 defineStyle(styles);
 
-const Tag = defineHtml<TagProps, TagEmits, TagSlots>(html`
+const Tag = defineHtml<TagProps, TagEmits, TagSlots>(`
   <span
     class="tag"
     part="tag"
@@ -119,11 +137,12 @@ const Tag = defineHtml<TagProps, TagEmits, TagSlots>(html`
     :role=${isCheckable() ? "button" : null}
     :tabindex=${isCheckable() && !props.disabled ? "0" : null}
     :aria-pressed=${isCheckable() ? String(isChecked()) : null}
+    :aria-label=${accessibleLabel()}
     :aria-disabled=${props.disabled ? "true" : null}
     @click=${onClick}
     @keydown=${onKeyDown}
   >
-    <slot></slot>
+    <span class="label" part="label"><slot @slotchange=${onSlotChange}></slot></span>
     <button
       v-if=${props.closable && !props.disabled}
       class="close"

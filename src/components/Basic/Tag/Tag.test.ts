@@ -112,6 +112,7 @@ describe("elf-tag", () => {
   it("未选中的 CheckTag 可点击切换并派发模型事件", async () => {
     const el = document.createElement("elf-tag");
     el.setAttribute("checked", "false");
+    el.textContent = "Selectable";
     document.body.appendChild(el);
     await tick();
     await tick();
@@ -122,6 +123,7 @@ describe("elf-tag", () => {
     expect(tag.getAttribute("role")).toBe("button");
     expect(tag.getAttribute("tabindex")).toBe("0");
     expect(tag.getAttribute("aria-pressed")).toBe("false");
+    expect(tag.getAttribute("aria-label")).toBe("Selectable");
 
     tag.click();
     await tick();
@@ -183,5 +185,44 @@ describe("elf-tag", () => {
     expect(changes).toBe(0);
     expect(tag.getAttribute("aria-disabled")).toBe("true");
     expect(tag.hasAttribute("tabindex")).toBe(false);
+  });
+
+  it("使用独立 label part 承载长内容并保留完整文本", async () => {
+    const el = document.createElement("elf-tag");
+    el.textContent = "需要人工复核的超长状态标签";
+    document.body.appendChild(el);
+    await tick();
+
+    const label = el.shadowRoot!.querySelector<HTMLElement>('[part="label"]')!;
+    expect(label).toBeTruthy();
+    expect(label.querySelector("slot")?.assignedNodes().map((node) => node.textContent).join("")).toBe(
+      "需要人工复核的超长状态标签"
+    );
+  });
+
+  it("programmatic size、round 与 disabled 会反射到宿主", async () => {
+    const el = document.createElement("elf-tag") as HTMLElement & {
+      size: string;
+      round: boolean;
+      disabled: boolean;
+    };
+    document.body.appendChild(el);
+    el.size = "lg";
+    el.round = true;
+    el.disabled = true;
+    await tick();
+
+    expect(el.getAttribute("size")).toBe("lg");
+    expect(el.hasAttribute("round")).toBe(true);
+    expect(el.hasAttribute("disabled")).toBe(true);
+  });
+
+  it("非法 size 回退为 md", async () => {
+    const el = document.createElement("elf-tag") as HTMLElement & { size: string };
+    document.body.appendChild(el);
+    el.size = "giant";
+    await tick();
+
+    expect(el.getAttribute("size")).toBe("md");
   });
 });

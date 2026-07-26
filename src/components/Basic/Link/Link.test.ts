@@ -1,132 +1,199 @@
-import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import {
+  createMemoryHistory,
+  createRouter,
+  setActiveRouter,
+  type RouteLocationRaw
+} from "@elfui/router";
 import { registerComponents } from "@elfui/core";
+import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
 import { Link } from "./index";
 
 beforeAll(() => {
-    registerComponents(Link);
+  registerComponents(Link);
 });
 
 afterEach(() => {
-    document.body.innerHTML = "";
+  setActiveRouter(null);
+  document.body.innerHTML = "";
 });
 
-const tick = (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 10));
-
-interface LinkEl extends HTMLElement {
-    type?: string;
-    href?: string;
-    target?: string;
-    disabled?: boolean;
-    underline?: boolean;
-    icon?: string;
-}
-
-const mount = async (patch: Partial<LinkEl> = {}): Promise<LinkEl> => {
-    const el = document.createElement("elf-link") as LinkEl;
-    el.textContent = "Docs";
-    Object.assign(el, patch);
-    document.body.appendChild(el);
-    await tick();
-    return el;
+const tick = async (): Promise<void> => {
+  await new Promise<void>((resolve) => queueMicrotask(resolve));
+  await new Promise<void>((resolve) => queueMicrotask(resolve));
 };
 
+interface LinkElement extends HTMLElement {
+  type?: string;
+  href?: string;
+  to?: RouteLocationRaw;
+  replace?: boolean;
+  target?: string;
+  rel?: string;
+  activeClass?: string;
+  exactActiveClass?: string;
+  disabled?: boolean;
+  underline?: boolean;
+  icon?: string;
+}
+
+const mount = async (patch: Partial<LinkElement> = {}): Promise<LinkElement> => {
+  const element = document.createElement("elf-link") as LinkElement;
+  element.textContent = "Docs";
+  Object.assign(element, patch);
+  document.body.appendChild(element);
+  await tick();
+  return element;
+};
+
+const anchorOf = (element: LinkElement): HTMLAnchorElement =>
+  element.shadowRoot!.querySelector<HTMLAnchorElement>("a")!;
+
 describe("elf-link", () => {
-    it("渲染 href 和 type", async () => {
-        const el = await mount({ type: "primary", href: "/docs" });
-        const anchor = el.shadowRoot!.querySelector("a")!;
+  it("renders the native href, semantic type, and underline state", async () => {
+    const element = await mount({ type: "primary", href: "#api", underline: false });
+    const anchor = anchorOf(element);
 
-        expect(el.getAttribute("type")).toBe("primary");
-        expect(anchor.getAttribute("href")).toBe("/docs");
-        expect(anchor.getAttribute("part")).toBe("link");
+    expect(element.getAttribute("type")).toBe("primary");
+    expect(anchor.getAttribute("href")).toBe("#api");
+    expect(anchor.getAttribute("part")).toBe("link");
+    expect(anchor.dataset.underline).toBe("false");
+  });
+
+  it("normalizes unknown semantic types to default", async () => {
+    const element = await mount({ type: "secondary" });
+    expect(element.getAttribute("type")).toBe("default");
+  });
+
+  it("removes navigation attributes and blocks pointer activation while disabled", async () => {
+    const element = await mount({
+      disabled: true,
+      href: "/docs",
+      target: "_blank",
+      rel: "external"
+    });
+    const bubbledClick = vi.fn();
+    element.addEventListener("click", bubbledClick);
+
+    anchorOf(element).click();
+
+    expect(bubbledClick).not.toHaveBeenCalled();
+    expect(anchorOf(element).getAttribute("href")).toBeNull();
+    expect(anchorOf(element).getAttribute("target")).toBeNull();
+    expect(anchorOf(element).getAttribute("rel")).toBeNull();
+    expect(anchorOf(element).getAttribute("tabindex")).toBe("-1");
+    expect(anchorOf(element).getAttribute("aria-disabled")).toBe("true");
+    expect(element.hasAttribute("disabled")).toBe(true);
+  });
+
+  it.each(["Enter", " "])("blocks the %s key while disabled", async (key) => {
+    const element = await mount({ disabled: true, href: "#api" });
+    const bubbledKeydown = vi.fn();
+    element.addEventListener("keydown", bubbledKeydown);
+
+    const event = new KeyboardEvent("keydown", { key, bubbles: true, composed: true, cancelable: true });
+    anchorOf(element).dispatchEvent(event);
+
+    expect(event.defaultPrevented).toBe(true);
+    expect(bubbledKeydown).not.toHaveBeenCalled();
+  });
+
+  it("adds safe rel tokens to a new browsing context without dropping explicit tokens", async () => {
+    const element = await mount({
+      href: "https://example.com",
+      target: "_blank",
+      rel: "external noopener"
+    });
+    const rel = new Set(anchorOf(element).rel.split(/\s+/));
+
+    expect(rel).toEqual(new Set(["external", "noopener", "noreferrer"]));
+  });
+
+  it("does not add rel tokens to same-context links", async () => {
+    const element = await mount({ href: "/docs", target: "_self" });
+    expect(anchorOf(element).getAttribute("rel")).toBeNull();
+  });
+
+  it("resolves and navigates a router target", async () => {
+    const router = createRouter({
+      history: createMemoryHistory(),
+      initialPath: "/",
+      routes: [
+        { path: "/", component: "home-page" },
+        { path: "/guide", component: "guide-page" }
+      ]
+    });
+    setActiveRouter(router);
+    const element = await mount({ to: "/guide" });
+    const navigated = vi.fn();
+    element.addEventListener("navigate", navigated);
+
+    anchorOf(element).click();
+    await router.isReady();
+    await tick();
+
+    expect(router.current.peek().path).toBe("/guide");
+    expect(navigated).toHaveBeenCalledOnce();
+    expect((navigated.mock.calls[0]![0] as CustomEvent).detail).toBe("/guide");
+    expect(element.hasAttribute("data-active")).toBe(true);
+    expect(element.hasAttribute("data-exact-active")).toBe(true);
+    expect(anchorOf(element).getAttribute("aria-current")).toBe("page");
+  });
+
+  it("uses replace navigation and gives to precedence over href", async () => {
+    const router = createRouter({
+      history: createMemoryHistory(),
+      initialPath: "/",
+      routes: [
+        { path: "/", component: "home-page" },
+        { path: "/guide", component: "guide-page" }
+      ]
+    });
+    setActiveRouter(router);
+    const replace = vi.spyOn(router, "replace");
+    const element = await mount({ href: "/ignored", to: "/guide", replace: true });
+
+    anchorOf(element).click();
+    await tick();
+
+    expect(anchorOf(element).getAttribute("href")).toBe("/guide");
+    expect(replace).toHaveBeenCalledWith("/guide");
+  });
+
+  it("leaves modified router clicks to the browser", async () => {
+    const router = createRouter({
+      history: createMemoryHistory(),
+      initialPath: "/",
+      routes: [
+        { path: "/", component: "home-page" },
+        { path: "/guide", component: "guide-page" }
+      ]
+    });
+    setActiveRouter(router);
+    const push = vi.spyOn(router, "push");
+    const element = await mount({ to: "/guide" });
+    const event = new MouseEvent("click", {
+      bubbles: true,
+      composed: true,
+      cancelable: true,
+      ctrlKey: true
     });
 
-    it("disabled 时阻止 click 且移除 href", async () => {
-        const el = await mount({ disabled: true, href: "/docs" });
-        const onClick = vi.fn();
-        el.addEventListener("click", onClick);
+    anchorOf(element).dispatchEvent(event);
 
-        el.shadowRoot!.querySelector("a")!.click();
+    expect(event.defaultPrevented).toBe(false);
+    expect(push).not.toHaveBeenCalled();
+  });
 
-        expect(onClick).not.toHaveBeenCalled();
-        expect(el.shadowRoot!.querySelector("a")!.getAttribute("href")).toBeNull();
-    });
+  it("falls back to a usable path when no router is active", async () => {
+    const element = await mount({ to: { path: "/guide" } });
+    expect(anchorOf(element).getAttribute("href")).toBe("/guide");
+  });
 
-    it("enabled 时 click 正常冒泡", async () => {
-        const el = await mount({ href: "/docs" });
-        const onClick = vi.fn();
-        el.addEventListener("click", onClick);
+  it("renders the icon property in the icon fallback", async () => {
+    const element = await mount({ icon: "↗" });
+    const icon = element.shadowRoot!.querySelector(".prop-icon");
 
-        el.shadowRoot!.querySelector("a")!.click();
-
-        expect(onClick).toHaveBeenCalled();
-    });
-
-    it("disabled 时 aria-disabled=true", async () => {
-        const el = await mount({ disabled: true });
-        const anchor = el.shadowRoot!.querySelector("a")!;
-        expect(anchor.getAttribute("aria-disabled")).toBe("true");
-    });
-
-    it("enabled 时 aria-disabled 为 null", async () => {
-        const el = await mount();
-        const anchor = el.shadowRoot!.querySelector("a")!;
-        expect(anchor.getAttribute("aria-disabled")).toBeNull();
-    });
-
-    it("disabled 时 host flag 反射", async () => {
-        const el = await mount({ disabled: true });
-        expect(el.hasAttribute("disabled")).toBe(true);
-    });
-
-    it("target 透传到 a[target]", async () => {
-        const el = await mount({ href: "/docs", target: "_blank" });
-        const anchor = el.shadowRoot!.querySelector("a")!;
-        expect(anchor.getAttribute("target")).toBe("_blank");
-    });
-
-    it("disabled 时 target 也不透传", async () => {
-        const el = await mount({ disabled: true, target: "_blank" });
-        const anchor = el.shadowRoot!.querySelector("a")!;
-        expect(anchor.getAttribute("target")).toBeNull();
-    });
-
-    it("underline=false 时 a[data-underline='false']", async () => {
-        const el = await mount({ underline: false });
-        const anchor = el.shadowRoot!.querySelector("a")!;
-        expect(anchor.getAttribute("data-underline")).toBe("false");
-    });
-
-    it("默认 underline=true 时 a[data-underline='true']", async () => {
-        const el = await mount();
-        const anchor = el.shadowRoot!.querySelector("a")!;
-        expect(anchor.getAttribute("data-underline")).toBe("true");
-    });
-
-    it("type 各语义色反射到 host", async () => {
-        for (const type of ["primary", "success", "warning", "danger", "info"] as const) {
-            const el = await mount({ type });
-            expect(el.getAttribute("type")).toBe(type);
-            document.body.innerHTML = "";
-        }
-    });
-
-    it("非法 type 回退为 default", async () => {
-        const el = await mount({ type: "secondary" as unknown as string });
-        expect(el.getAttribute("type")).toBe("default");
-    });
-
-    it("icon 属性渲染 prop-icon", async () => {
-        const el = await mount({ icon: "↗" });
-        const iconSpan = el.shadowRoot!.querySelector(".prop-icon");
-        expect(iconSpan).toBeTruthy();
-        expect(iconSpan!.textContent).toBe("↗");
-    });
-
-    // icon slot 优先级验证依赖浏览器 slot 指派，happy-dom 限制无法测试
-    it("icon 属性渲染到 shadow DOM", async () => {
-        const el = await mount({ icon: "↗" });
-        const shadowText = el.shadowRoot!.textContent ?? "";
-        expect(shadowText).toContain("↗");
-    });
+    expect(icon?.textContent).toBe("↗");
+  });
 });

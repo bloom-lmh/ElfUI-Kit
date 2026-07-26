@@ -2,12 +2,17 @@
 
 :host {
   display: inline-flex;
+  min-width: 0;
+  max-width: 100%;
   vertical-align: middle;
 }
 
 .tag {
+  box-sizing: border-box;
   display: inline-flex;
   align-items: center;
+  min-width: 0;
+  max-width: 100%;
   gap: var(--elf-space-1);
   font-size: var(--elf-font-size-xs);
   line-height: 1;
@@ -21,6 +26,13 @@
     background-color var(--elf-transition-fast),
     color var(--elf-transition-fast),
     border-color var(--elf-transition-fast);
+}
+
+.label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .tag[role="button"] {
@@ -130,7 +142,8 @@
   color: inherit;
   cursor: pointer;
   border-radius: 50%;
-  margin-left: 2px;
+  flex: 0 0 auto;
+  margin-inline-start: 2px;
   padding: 0;
 
   &:hover {
