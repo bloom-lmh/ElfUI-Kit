@@ -2,8 +2,14 @@ import { registerComponents } from "@elfui/core";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
 import { InfiniteScroll } from "./index";
-import { infiniteScrollDirective } from "./directive";
-import type { InfiniteScrollDirectiveValue } from "./types";
+import {
+  infiniteScrollDirective,
+  registerInfiniteScrollDirective
+} from "./directive";
+import type {
+  InfiniteScrollDirectiveValue,
+  InfiniteScrollExposes
+} from "./types";
 
 beforeAll(() => {
   registerComponents(InfiniteScroll);
@@ -51,6 +57,23 @@ describe("elf-infinite-scroll", () => {
     await tick();
 
     expect((el.shadowRoot!.querySelector(".scroll") as HTMLElement).style.height).toBe("280px");
+  });
+
+  it("normalizes numeric string heights and labels the keyboard-scrollable region", async () => {
+    const el = document.createElement("elf-infinite-scroll") as HTMLElement & {
+      height: string;
+      ariaLabel: string;
+    };
+    el.height = "320";
+    el.ariaLabel = "Activity feed";
+    document.body.appendChild(el);
+    await tick();
+
+    const scroller = el.shadowRoot!.querySelector(".scroll") as HTMLElement;
+    expect(scroller.style.height).toBe("320px");
+    expect(scroller.tabIndex).toBe(0);
+    expect(scroller.getAttribute("role")).toBe("region");
+    expect(scroller.getAttribute("aria-label")).toBe("Activity feed");
   });
 
   it("uses the configured external container and coalesces delayed loads", async () => {
@@ -108,6 +131,33 @@ describe("elf-infinite-scroll", () => {
     expect(onLoad).toHaveBeenCalledTimes(1);
   });
 
+  it("treats finished as a permanent stop condition", async () => {
+    const container = document.createElement("div");
+    Object.defineProperties(container, {
+      scrollHeight: { value: 100, configurable: true },
+      clientHeight: { value: 50, configurable: true },
+      scrollTop: { value: 50, configurable: true }
+    });
+    document.body.appendChild(container);
+    const el = document.createElement("elf-infinite-scroll") as HTMLElement & {
+      container: HTMLElement;
+      delay: number;
+      finished: boolean;
+    };
+    el.container = container;
+    el.delay = 0;
+    el.finished = true;
+    const onLoad = vi.fn();
+    el.addEventListener("load", onLoad as EventListener);
+    document.body.appendChild(el);
+    await tick();
+
+    container.dispatchEvent(new Event("scroll"));
+    expect(onLoad).not.toHaveBeenCalled();
+    expect(el.hasAttribute("finished")).toBe(true);
+    expect(el.shadowRoot!.querySelector(".scroll")!.getAttribute("aria-disabled")).toBe("true");
+  });
+
   it("immediate only loads when the target is within the threshold", async () => {
     const container = document.createElement("div");
     Object.defineProperties(container, {
@@ -130,6 +180,89 @@ describe("elf-infinite-scroll", () => {
     await tick();
     await tick();
 
+    expect(onLoad).toHaveBeenCalledTimes(1);
+  });
+
+  it("rechecks an underfilled target after loading ends", async () => {
+    const container = document.createElement("div");
+    Object.defineProperties(container, {
+      scrollHeight: { value: 80, configurable: true },
+      clientHeight: { value: 80, configurable: true },
+      scrollTop: { value: 0, configurable: true }
+    });
+    document.body.appendChild(container);
+    const el = document.createElement("elf-infinite-scroll") as HTMLElement & {
+      container: HTMLElement;
+      delay: number;
+      immediate: boolean;
+      loading: boolean;
+    };
+    el.container = container;
+    el.delay = 0;
+    el.immediate = true;
+    el.loading = true;
+    const onLoad = vi.fn();
+    el.addEventListener("load", onLoad as EventListener);
+    document.body.appendChild(el);
+    await tick();
+    expect(onLoad).not.toHaveBeenCalled();
+
+    el.loading = false;
+    await tick();
+    await tick();
+    expect(onLoad).toHaveBeenCalledTimes(1);
+  });
+
+  it("supports Window as an external scroll target and cleans up its listener", async () => {
+    const root = document.documentElement;
+    Object.defineProperties(root, {
+      scrollHeight: { value: 1000, configurable: true },
+      scrollTop: { value: 500, configurable: true }
+    });
+    Object.defineProperties(window, {
+      innerHeight: { value: 500, configurable: true },
+      scrollY: { value: 500, configurable: true }
+    });
+    const el = document.createElement("elf-infinite-scroll") as HTMLElement & {
+      container: Window;
+      delay: number;
+    };
+    el.container = window;
+    el.delay = 0;
+    const onLoad = vi.fn();
+    el.addEventListener("load", onLoad as EventListener);
+    document.body.appendChild(el);
+    await tick();
+
+    window.dispatchEvent(new Event("scroll"));
+    expect(onLoad).toHaveBeenCalledTimes(1);
+    expect(el.getAttribute("data-scroll-target")).toBe("window");
+
+    el.remove();
+    await tick();
+    window.dispatchEvent(new Event("scroll"));
+    expect(onLoad).toHaveBeenCalledTimes(1);
+  });
+
+  it("exposes check for retry and content-update workflows", async () => {
+    const container = document.createElement("div");
+    Object.defineProperties(container, {
+      scrollHeight: { value: 100, configurable: true },
+      clientHeight: { value: 50, configurable: true },
+      scrollTop: { value: 50, configurable: true }
+    });
+    document.body.appendChild(container);
+    const el = document.createElement("elf-infinite-scroll") as HTMLElement
+      & InfiniteScrollExposes
+      & { container: HTMLElement; delay: number };
+    el.container = container;
+    el.delay = 0;
+    const onLoad = vi.fn();
+    el.addEventListener("load", onLoad as EventListener);
+    document.body.appendChild(el);
+    await tick();
+
+    el.check();
     expect(onLoad).toHaveBeenCalledTimes(1);
   });
 
@@ -200,5 +333,11 @@ describe("elf-infinite-scroll", () => {
     directiveHooks.beforeUnmount(el, disabled);
     el.dispatchEvent(new Event("scroll"));
     expect(handler).toHaveBeenCalledTimes(1);
+  });
+
+  it("registers the directive through the application instance", () => {
+    const directive = vi.fn();
+    registerInfiniteScrollDirective({ directive });
+    expect(directive).toHaveBeenCalledWith("infinite-scroll", infiniteScrollDirective);
   });
 });

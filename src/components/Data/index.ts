@@ -15,7 +15,6 @@ import { Image } from "./Image/index";
 import { InfiniteScroll } from "./InfiniteScroll/index";
 import { List } from "./List/index";
 import { ListItem } from "./ListItem/index";
-import { registerInfiniteScrollDirective } from "./InfiniteScroll/directive";
 import { Pagination } from "./Pagination/index";
 import { Progress } from "./Progress/index";
 import { Result } from "./Result/index";
@@ -56,14 +55,14 @@ registerComponents(
   Watermark
 );
 
-registerInfiniteScrollDirective();
-
 export { infiniteScrollDirective, registerInfiniteScrollDirective } from "./InfiniteScroll/directive";
 export type {
+  InfiniteScrollContainer,
   InfiniteScrollDirectiveHandler,
   InfiniteScrollDirectiveOptions,
   InfiniteScrollDirectiveValue,
   InfiniteScrollEmits,
+  InfiniteScrollExposes,
   InfiniteScrollProps,
   InfiniteScrollSlots
 } from "./InfiniteScroll/types";

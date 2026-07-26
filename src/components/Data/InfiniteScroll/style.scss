@@ -8,9 +8,16 @@
   display: block;
   min-height: 0;
   overflow: auto;
+  color: var(--elf-text-primary);
+  border-radius: inherit;
+  outline: none;
   overscroll-behavior: contain;
   scrollbar-color: color-mix(in srgb, var(--elf-text-secondary) 42%, transparent) transparent;
   scrollbar-width: thin;
+
+  &:focus-visible {
+    box-shadow: inset 0 0 0 2px var(--elf-focus-ring, var(--elf-primary));
+  }
 
   &::-webkit-scrollbar {
     width: 8px;

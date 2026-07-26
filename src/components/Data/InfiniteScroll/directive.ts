@@ -1,4 +1,4 @@
-import { directive, type DirectiveBinding, type DirectiveDefinition } from "@elfui/core";
+import type { DirectiveBinding, DirectiveDefinition, ElfUIApp } from "@elfui/core";
 
 import type {
   InfiniteScrollDirectiveOptions,
@@ -9,6 +9,7 @@ interface InfiniteScrollDirectiveState {
   value: InfiniteScrollDirectiveValue;
   timer?: ReturnType<typeof setTimeout>;
   onScroll: () => void;
+  observer?: ResizeObserver;
 }
 
 const states = new WeakMap<HTMLElement, InfiniteScrollDirectiveState>();
@@ -74,6 +75,10 @@ const mount = (el: HTMLElement, binding: DirectiveBinding<InfiniteScrollDirectiv
   state.onScroll = () => schedule(el, state);
   states.set(el, state);
   el.addEventListener("scroll", state.onScroll, { passive: true });
+  if (typeof ResizeObserver !== "undefined") {
+    state.observer = new ResizeObserver(state.onScroll);
+    state.observer.observe(el);
+  }
   if (optionsOf(el, binding.value).immediate) queueMicrotask(() => schedule(el, state));
 };
 
@@ -93,6 +98,7 @@ const unmount = (el: HTMLElement): void => {
   if (!state) return;
   clearTimer(state);
   el.removeEventListener("scroll", state.onScroll);
+  state.observer?.disconnect();
   states.delete(el);
 };
 
@@ -102,10 +108,6 @@ export const infiniteScrollDirective: DirectiveDefinition<InfiniteScrollDirectiv
   beforeUnmount: unmount
 };
 
-let registered = false;
-
-export const registerInfiniteScrollDirective = (): void => {
-  if (registered) return;
-  directive("infinite-scroll", infiniteScrollDirective);
-  registered = true;
+export const registerInfiniteScrollDirective = (app: Pick<ElfUIApp, "directive">): void => {
+  app.directive("infinite-scroll", infiniteScrollDirective as DirectiveDefinition);
 };
