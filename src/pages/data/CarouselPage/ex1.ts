@@ -1,97 +1,143 @@
-import { defineHtml, html } from "@elfui/core";
-import { createDocsTranslator } from "../../docsLocale";
+import { defineHtml, defineStyle, useRef, useTemplateRef } from "@elfui/core";
 
-const frameStyle = "width:min(100%,1000px);margin-inline:auto";
+import type { CarouselExposes } from "../../../components/Data/Carousel/types";
+import { createDocsTranslator } from "../../docsLocale";
+import styles from "./demo.scss?inline";
+
 const t = createDocsTranslator({
-  basic: { zh: "基础轮播", en: "Basic carousel" },
-  basicTitle: { zh: "真实图片、自动轮播与无感循环", en: "Images, autoplay, and seamless looping" },
-  fade: { zh: "渐隐、ghost 箭头与线形指示器", en: "Fade, ghost arrows, and line indicators" },
-  fadeTitle: { zh: "统一的渐隐轮播外观", en: "Consistent fade carousel styling" },
-  vertical: { zh: "垂直轮播与键盘操作", en: "Vertical carousel and keyboard controls" },
-  verticalTitle: { zh: "聚焦后使用方向键、Home 或 End", en: "Use arrow keys, Home, or End after focusing" },
-  outside: { zh: "外置指示器", en: "Outside indicators" },
-  outsideTitle: { zh: "指示器独立占位，不遮挡图片", en: "Indicators occupy their own space without covering images" },
-  cards: { zh: "带标签的卡片轮播", en: "Labeled card carousel" },
-  cardsTitle: { zh: "CarouselItem 卡片与可访问标签", en: "CarouselItem cards with accessible labels" },
-  valley: { zh: "山谷与河流", en: "Valley and river" }, lake: { zh: "群山与湖泊", en: "Mountains and lake" },
-  trail: { zh: "林间小路", en: "Forest trail" }, rocks: { zh: "海边礁石", en: "Coastal rocks" },
-  road: { zh: "山间公路", en: "Mountain road" }, shore: { zh: "海岸线", en: "Coastline" },
-  peak: { zh: "云雾山峰", en: "Misty peak" }, grassland: { zh: "草原", en: "Grassland" }, berries: { zh: "莓果", en: "Berries" },
-  seal: { zh: "海豹", en: "Seal" }, coast: { zh: "海边", en: "Coast" }, dog: { zh: "小狗", en: "Dog" },
-  forest: { zh: "森林", en: "Forest" }, city: { zh: "城市", en: "City" },
-  stream: { zh: "森林溪流", en: "Forest stream" }, office: { zh: "城市办公桌", en: "City workspace" }, mountains: { zh: "海岸群山", en: "Coastal mountains" }
+  title: { zh: "自动播放与暂停策略", en: "Autoplay and pause strategy" },
+  statusPlaying: { zh: "自动播放中", en: "Autoplay running" },
+  statusPaused: { zh: "已暂停", en: "Paused" },
+  current: { zh: "当前第", en: "Current slide" },
+  of: { zh: "张，共 3 张", en: "of 3" },
+  hint: {
+    zh: "悬停、键盘焦点、页面隐藏或系统减少动画时自动暂停；右上角按钮允许用户明确控制。",
+    en: "Pauses on hover, keyboard focus, hidden pages, or reduced motion; the top-right control gives the user explicit control."
+  },
+  previous: { zh: "上一张", en: "Previous" },
+  next: { zh: "下一张", en: "Next" },
+  valley: { zh: "山谷与河流", en: "Valley and river" },
+  lake: { zh: "群山与湖泊", en: "Mountains and lake" },
+  trail: { zh: "林间小路", en: "Forest trail" }
 });
 
-const code1 = `<elf-carousel height="clamp(220px,40vw,400px)" arrow="always">
-  <img loading="lazy" src="https://picsum.photos/id/1018/1200/480" alt="Valley and river" />
-  <img loading="lazy" src="https://picsum.photos/id/1015/1200/480" alt="Mountains and lake" />
-</elf-carousel>`;
-const code2 = `<elf-carousel effect="fade" show-arrow="ghost" indicator-type="line" height="clamp(220px,40vw,400px)">
-  <img loading="lazy" src="https://picsum.photos/id/1039/1200/480" alt="Coastal rocks" />
-  <img loading="lazy" src="https://picsum.photos/id/1043/1200/480" alt="Mountain road" />
-</elf-carousel>`;
-const code3 = `<elf-carousel direction="vertical" trigger="click" show-arrow="ghost" indicator-type="line" :autoplay="false">
-  <img loading="lazy" src="https://picsum.photos/id/1067/1200/480" alt="Misty peak" />
-  <img loading="lazy" src="https://picsum.photos/id/1074/1200/480" alt="Grassland" />
-</elf-carousel>`;
-const code4 = `<elf-carousel indicator-position="outside" arrow="always" :autoplay="false">
-  <img loading="lazy" src="https://picsum.photos/id/1084/1200/480" alt="Seal" />
-  <img loading="lazy" src="https://picsum.photos/id/1025/1200/480" alt="Dog" />
-</elf-carousel>`;
-const code5 = `<elf-carousel type="card" :autoplay="false">
-  <elf-carousel-item name="forest" label="Forest"><img src="https://picsum.photos/id/15/1200/480" alt="Forest stream" /></elf-carousel-item>
-  <elf-carousel-item name="city" label="City"><img src="https://picsum.photos/id/20/1200/480" alt="City workspace" /></elf-carousel-item>
-</elf-carousel>`;
-const script = `const slides = [
-  { src: "https://picsum.photos/id/1018/1200/480", alt: "Valley and river" },
-  { src: "https://picsum.photos/id/1015/1200/480", alt: "Mountains and lake" }
-];
-// Images may also be rendered from data with v-for.`;
+const playbackRef = useTemplateRef<HTMLElement & CarouselExposes>("playback");
 
-const PageCarouselEx1 = defineHtml(html`
-  <h2>${t("basic")}</h2>
-  <elf-playground :title=${t("basicTitle")} :code=${code1} :script=${script}>
-    <elf-carousel height="clamp(220px,40vw,400px)" arrow="always" radius="12px" :style=${frameStyle}>
-      <img loading="lazy" decoding="async" src="https://picsum.photos/id/1018/1200/480" :alt=${t("valley")} />
-      <img loading="lazy" decoding="async" src="https://picsum.photos/id/1015/1200/480" :alt=${t("lake")} />
-      <img loading="lazy" decoding="async" src="https://picsum.photos/id/1019/1200/480" :alt=${t("trail")} />
-    </elf-carousel>
-  </elf-playground>
+// State
+const current = useRef(0);
+const playing = useRef(true);
 
-  <h2>${t("fade")}</h2>
-  <elf-playground :title=${t("fadeTitle")} :code=${code2} :script=${script}>
-    <elf-carousel effect="fade" show-arrow="ghost" indicator-type="line" height="clamp(220px,40vw,400px)" radius="12px" :style=${frameStyle}>
-      <img loading="lazy" decoding="async" src="https://picsum.photos/id/1039/1200/480" :alt=${t("rocks")} />
-      <img loading="lazy" decoding="async" src="https://picsum.photos/id/1043/1200/480" :alt=${t("road")} />
-      <img loading="lazy" decoding="async" src="https://picsum.photos/id/1050/1200/480" :alt=${t("shore")} />
-    </elf-carousel>
-  </elf-playground>
+// Derived state
+const playbackStatus = (): string =>
+  `${playing.value ? t("statusPlaying") : t("statusPaused")} · ${t("current")} ${current.value + 1} ${t("of")}`;
 
-  <h2>${t("vertical")}</h2>
-  <elf-playground :title=${t("verticalTitle")} :code=${code3} :script=${script}>
-    <elf-carousel direction="vertical" trigger="click" arrow="always" show-arrow="ghost" indicator-type="line" height="clamp(220px,40vw,400px)" :autoplay=${false} radius="12px" :style=${frameStyle}>
-      <img loading="lazy" decoding="async" src="https://picsum.photos/id/1067/1200/480" :alt=${t("peak")} />
-      <img loading="lazy" decoding="async" src="https://picsum.photos/id/1074/1200/480" :alt=${t("grassland")} />
-      <img loading="lazy" decoding="async" src="https://picsum.photos/id/1080/1200/480" :alt=${t("berries")} />
-    </elf-carousel>
-  </elf-playground>
+// Methods
+const onChange = (event: CustomEvent<[number, number]>): void => {
+  current.set(event.detail[0]);
+};
 
-  <h2>${t("outside")}</h2>
-  <elf-playground :title=${t("outsideTitle")} :code=${code4} :script=${script}>
-    <elf-carousel indicator-position="outside" arrow="always" height="clamp(220px,40vw,400px)" :autoplay=${false} radius="12px" :style=${frameStyle}>
-      <img loading="lazy" decoding="async" src="https://picsum.photos/id/1084/1200/480" :alt=${t("seal")} />
-      <img loading="lazy" decoding="async" src="https://picsum.photos/id/1081/1200/480" :alt=${t("coast")} />
-      <img loading="lazy" decoding="async" src="https://picsum.photos/id/1025/1200/480" :alt=${t("dog")} />
-    </elf-carousel>
-  </elf-playground>
+const onPlayStateChange = (event: CustomEvent<[boolean]>): void => {
+  const nextPlaying = event.detail[0];
+  queueMicrotask(() => {
+    playing.set(playbackRef.value?.isPlaying ?? nextPlaying);
+  });
+};
 
-  <h2>${t("cards")}</h2>
-  <elf-playground :title=${t("cardsTitle")} :code=${code5} :script=${script}>
-    <elf-carousel type="card" height="clamp(220px,40vw,400px)" radius="12px" :autoplay=${false} :style=${frameStyle}>
-      <elf-carousel-item name="forest" :label=${t("forest")}><img style="width:100%;height:100%;object-fit:cover" loading="lazy" decoding="async" src="https://picsum.photos/id/15/1200/480" :alt=${t("stream")} /></elf-carousel-item>
-      <elf-carousel-item name="city" :label=${t("city")}><img style="width:100%;height:100%;object-fit:cover" loading="lazy" decoding="async" src="https://picsum.photos/id/20/1200/480" :alt=${t("office")} /></elf-carousel-item>
-      <elf-carousel-item name="coast" :label=${t("coast")}><img style="width:100%;height:100%;object-fit:cover" loading="lazy" decoding="async" src="https://picsum.photos/id/29/1200/480" :alt=${t("mountains")} /></elf-carousel-item>
-    </elf-carousel>
+const onStatusAction = (event: Event): void => {
+  const action = event
+    .composedPath()
+    .find((entry): entry is HTMLElement =>
+      entry instanceof HTMLElement && Boolean(entry.dataset.action)
+    )
+    ?.dataset.action;
+  if (action === "previous") playbackRef.value?.prev();
+  if (action === "next") playbackRef.value?.next();
+};
+
+const playbackCode = `<elf-carousel
+  ref="carousel"
+  autoplay
+  show-play-control
+  pause-on-hover
+  pause-on-focus
+  respect-reduced-motion
+  arrow="always"
+  @change=\${onChange}
+  @play-state-change=\${onPlayStateChange}
+>
+  <elf-carousel-item name="valley" label="Valley and river">
+    <img src="/valley.jpg" alt="Valley and river" loading="lazy" />
+  </elf-carousel-item>
+</elf-carousel>`;
+
+const playbackScript = `const carousel = useTemplateRef("carousel");
+const current = useRef(0);
+const playing = useRef(true);
+
+const onChange = (event) => current.set(event.detail[0]);
+const onPlayStateChange = (event) => playing.set(event.detail[0]);
+
+carousel.value?.pause();
+carousel.value?.play();
+carousel.value?.prev();
+carousel.value?.next();`;
+
+defineStyle(styles);
+
+const PageCarouselEx1 = defineHtml(`
+  <elf-playground :title=${t("title")} :code=${playbackCode} :script=${playbackScript}>
+    <div
+      slot="status"
+      class="carousel-demo-actions"
+      role="status"
+      aria-live="polite"
+      @click=${onStatusAction}
+    >
+      <span>${playbackStatus()}</span>
+      <button type="button" data-action="previous">${t("previous")}</button>
+      <button type="button" data-action="next">${t("next")}</button>
+    </div>
+    <div class="carousel-demo-frame">
+      <elf-carousel
+        ref="playback"
+        height="clamp(240px, 36vw, 380px)"
+        interval="3200"
+        arrow="always"
+        show-play-control
+        pause-on-hover
+        pause-on-focus
+        respect-reduced-motion
+        :aria-label=${t("title")}
+        @change=${onChange}
+        @play-state-change=${onPlayStateChange}
+      >
+        <elf-carousel-item name="valley" :label=${t("valley")}>
+          <img
+            src="https://picsum.photos/id/1018/1200/520"
+            :alt=${t("valley")}
+            loading="lazy"
+            decoding="async"
+          />
+        </elf-carousel-item>
+        <elf-carousel-item name="lake" :label=${t("lake")}>
+          <img
+            src="https://picsum.photos/id/1015/1200/520"
+            :alt=${t("lake")}
+            loading="lazy"
+            decoding="async"
+          />
+        </elf-carousel-item>
+        <elf-carousel-item name="trail" :label=${t("trail")}>
+          <img
+            src="https://picsum.photos/id/1019/1200/520"
+            :alt=${t("trail")}
+            loading="lazy"
+            decoding="async"
+          />
+        </elf-carousel-item>
+      </elf-carousel>
+      <p class="carousel-demo-hint">${t("hint")}</p>
+    </div>
   </elf-playground>
 `);
 

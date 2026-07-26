@@ -176,6 +176,66 @@
   }
 }
 
+.arrow:focus-visible,
+.play-control:focus-visible,
+.dot:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+
+.arrow:disabled {
+  cursor: not-allowed;
+  opacity: 0.38;
+}
+
+.play-control {
+  position: absolute;
+  z-index: 5;
+  top: 16px;
+  right: 16px;
+  display: grid;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  place-items: center;
+  color: rgb(15 23 42 / 72%);
+  border: 1px solid rgb(255 255 255 / 46%);
+  border-radius: 50%;
+  background: rgb(255 255 255 / 82%);
+  box-shadow: 0 3px 12px rgb(15 23 42 / 16%);
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+  transition:
+    background-color var(--elf-transition-fast),
+    color var(--elf-transition-fast),
+    transform var(--elf-transition-fast);
+}
+
+.play-control:hover {
+  color: var(--elf-primary);
+  background: #fff;
+}
+
+.play-control:active {
+  transform: scale(0.95);
+}
+
+.pause-icon {
+  width: 12px;
+  height: 14px;
+  border-right: 4px solid currentColor;
+  border-left: 4px solid currentColor;
+}
+
+.play-icon {
+  width: 0;
+  height: 0;
+  margin-inline-start: 3px;
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+  border-left: 11px solid currentColor;
+}
+
 .arrow span {
   width: 10px;
   height: 10px;
@@ -347,5 +407,11 @@
   :host([effect="fade"]) ::slotted(*),
   :host([type="card"]) ::slotted(elf-carousel-item) {
     transition-duration: 0.01ms;
+  }
+
+  .play-control,
+  .arrow,
+  .dot {
+    transition: none;
   }
 }

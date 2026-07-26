@@ -1,0 +1,123 @@
+.carousel-demo-status,
+.carousel-demo-actions,
+.carousel-demo-hint {
+  color: var(--elf-text-secondary);
+  font-size: var(--elf-font-size-sm);
+}
+
+.carousel-demo-actions {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.carousel-demo-actions button {
+  min-height: 30px;
+  padding-inline: 11px;
+  color: var(--elf-primary);
+  font: inherit;
+  border: 1px solid color-mix(in srgb, var(--elf-primary) 38%, var(--elf-border));
+  border-radius: var(--elf-radius-sm);
+  background: color-mix(in srgb, var(--elf-primary) 7%, var(--elf-bg-paper));
+  cursor: pointer;
+}
+
+.carousel-demo-actions button:hover,
+.carousel-demo-actions button:focus-visible {
+  background: color-mix(in srgb, var(--elf-primary) 14%, var(--elf-bg-paper));
+}
+
+.carousel-demo-actions button:focus-visible {
+  outline: 2px solid var(--elf-focus-ring, var(--elf-primary));
+  outline-offset: 2px;
+}
+
+.carousel-demo-frame {
+  width: min(960px, 100%);
+  margin-inline: auto;
+}
+
+.carousel-demo-hint {
+  max-width: 760px;
+  margin: 12px auto 0;
+  line-height: 1.65;
+  text-align: center;
+}
+
+.carousel-story {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-content: center;
+  justify-items: center;
+  gap: 10px;
+  color: #fff;
+}
+
+.carousel-story span {
+  font-size: clamp(54px, 9vw, 104px);
+  font-weight: 800;
+  line-height: 0.9;
+  letter-spacing: -0.06em;
+  opacity: 0.9;
+}
+
+.carousel-story strong {
+  font-size: 18px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.tone-blue {
+  background: linear-gradient(135deg, #0f4c81, #3686c9);
+}
+
+.tone-violet {
+  background: linear-gradient(135deg, #4c2f78, #8f65c7);
+}
+
+.tone-green {
+  background: linear-gradient(135deg, #185f4a, #43a77f);
+}
+
+.tone-amber {
+  background: linear-gradient(135deg, #8a4d12, #d38a2d);
+}
+
+.tone-rose {
+  background: linear-gradient(135deg, #87364d, #cf6b86);
+}
+
+.tone-cyan {
+  background: linear-gradient(135deg, #0c6470, #39a8b5);
+}
+
+.carousel-variant-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  width: min(1040px, 100%);
+  margin-inline: auto;
+}
+
+.carousel-variant-grid > article {
+  display: grid;
+  min-width: 0;
+  gap: 10px;
+}
+
+.carousel-variant-grid > article > strong {
+  color: var(--elf-text-primary);
+  font-size: var(--elf-font-size-sm);
+}
+
+@media (max-width: 760px) {
+  .carousel-variant-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .carousel-demo-actions {
+    justify-content: flex-end;
+  }
+}

@@ -1,7 +1,8 @@
-import { defineHtml, defineProps, defineStyle, html, useHostFlag } from "@elfui/core";
+import { defineHtml, defineProps, defineStyle, useHostFlag } from "@elfui/core";
 
-import styles from "./style.scss?inline";
 import type { CarouselItemProps } from "../Carousel/types";
+import { useLocaleProvider } from "../../Providers/context";
+import styles from "./style.scss?inline";
 
 export type { CarouselItemProps } from "../Carousel/types";
 
@@ -14,16 +15,30 @@ const props = defineProps<CarouselItemProps>({
     total: { type: Number, default: 0 },
 });
 
+const locale = useLocaleProvider();
+
+// Derived state
+const generatedAriaLabel = (): string => {
+  if (props.ariaLabel) return props.ariaLabel;
+  const index = props.index + 1;
+  if (locale.name.toLowerCase().startsWith("en")) {
+    return `${props.label || "Slide"} ${index} of ${props.total}`;
+  }
+  return props.label
+    ? `${props.label}，第 ${index} 张，共 ${props.total} 张`
+    : `第 ${index} 张，共 ${props.total} 张`;
+};
+
 useHostFlag("active", () => Boolean(props.active));
 
 defineStyle(styles);
 
-const CarouselItem = defineHtml(html`
+const CarouselItem = defineHtml(`
     <div
         class="carousel-item"
         role="group"
         aria-roledescription="slide"
-        :aria-label=${props.ariaLabel || (props.label || "Slide") + " " + (props.index + 1) + " of " + props.total}
+        :aria-label=${generatedAriaLabel()}
         :aria-hidden=${props.active ? "false" : "true"}
     >
         <slot></slot>

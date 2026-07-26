@@ -25,6 +25,12 @@ export interface CarouselProps {
   duration: string;
   /** 悬停暂停 */
   pauseOnHover: boolean;
+  /** Pause autoplay while the carousel or one of its controls has focus. */
+  pauseOnFocus: boolean;
+  /** Disable automatic movement when the operating system requests reduced motion. */
+  respectReducedMotion: boolean;
+  /** Render an accessible play/pause control when autoplay is enabled. */
+  showPlayControl: boolean;
   /** 圆角 */
   radius: string;
   /** Initial zero-based slide index. */
@@ -39,6 +45,21 @@ export interface CarouselProps {
   direction: CarouselDirection;
   /** Accessible label for the carousel region. */
   ariaLabel: string;
+}
+
+export interface CarouselEmits {
+  change: [current: number, previous: number];
+  "play-state-change": [playing: boolean];
+}
+
+export interface CarouselExposes {
+  readonly activeIndex: number;
+  readonly isPlaying: boolean;
+  setActiveItem(item: number | string): void;
+  prev(): void;
+  next(): void;
+  pause(): void;
+  play(): void;
 }
 
 export interface CarouselItemProps {

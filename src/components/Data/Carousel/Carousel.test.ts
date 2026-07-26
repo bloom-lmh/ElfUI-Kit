@@ -1,4 +1,6 @@
-import { afterEach, beforeAll, describe, expect, it } from "vitest";
+import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+
+const originalMatchMedia = window.matchMedia;
 
 beforeAll(async () => {
   await import("../../../components");
@@ -6,6 +8,12 @@ beforeAll(async () => {
 
 afterEach(() => {
   document.body.innerHTML = "";
+  Object.defineProperty(window, "matchMedia", {
+    configurable: true,
+    writable: true,
+    value: originalMatchMedia
+  });
+  vi.restoreAllMocks();
 });
 
 const tick = (): Promise<void> => new Promise((resolve) => queueMicrotask(resolve));
@@ -131,9 +139,11 @@ describe("elf-carousel", () => {
     await tick();
 
     const items = el.querySelectorAll<HTMLElement>("elf-carousel-item");
-    expect(items[0].shadowRoot!.querySelector("[role=group]")?.getAttribute("aria-label")).toBe("Welcome 1 of 2");
+    expect(items[0].shadowRoot!.querySelector("[role=group]")?.getAttribute("aria-label"))
+      .toBe("Welcome，第 1 张，共 2 张");
     expect(items[0].hasAttribute("active")).toBe(true);
     expect(items[1].getAttribute("aria-hidden")).toBe("true");
+    expect(items[1].hasAttribute("inert")).toBe(true);
 
     el.setActiveItem("plans");
     await tick();
@@ -234,5 +244,100 @@ describe("elf-carousel", () => {
       new PointerEvent("pointerup", { bubbles: true, pointerId: 2, pointerType: "touch", clientX: 80 })
     );
     expect(el.activeIndex).toBe(1);
+  });
+
+  it("supports an accessible manual playback control and pauses while focused", async () => {
+    const el = document.createElement("elf-carousel") as HTMLElement & {
+      isPlaying: boolean;
+      play: () => void;
+      pause: () => void;
+    };
+    el.setAttribute("show-play-control", "");
+    el.innerHTML = "<div>A</div><div>B</div>";
+    document.body.appendChild(el);
+    await tick();
+
+    const viewport = el.shadowRoot!.querySelector<HTMLElement>(".carousel")!;
+    const control = el.shadowRoot!.querySelector<HTMLButtonElement>(".play-control")!;
+    expect(el.isPlaying).toBe(true);
+    expect(viewport.getAttribute("aria-live")).toBe("off");
+    expect(control.getAttribute("aria-label")).toBe("暂停轮播");
+
+    control.click();
+    await tick();
+    expect(el.isPlaying).toBe(false);
+    expect(viewport.getAttribute("aria-live")).toBe("polite");
+    expect(control.getAttribute("aria-label")).toBe("播放轮播");
+
+    el.play();
+    viewport.dispatchEvent(new FocusEvent("focusin", { bubbles: true }));
+    await tick();
+    expect(el.isPlaying).toBe(false);
+
+    viewport.dispatchEvent(new FocusEvent("focusout", { bubbles: true }));
+    await tick();
+    expect(el.isPlaying).toBe(true);
+  });
+
+  it("blocks automatic movement for reduced motion until the user explicitly plays", async () => {
+    Object.defineProperty(window, "matchMedia", {
+      configurable: true,
+      writable: true,
+      value: vi.fn(() => ({
+        matches: true,
+        media: "(prefers-reduced-motion: reduce)",
+        onchange: null,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        addListener: vi.fn(),
+        removeListener: vi.fn(),
+        dispatchEvent: vi.fn()
+      }))
+    });
+
+    const el = document.createElement("elf-carousel") as HTMLElement & { isPlaying: boolean };
+    el.setAttribute("show-play-control", "");
+    el.innerHTML = "<div>A</div><div>B</div>";
+    document.body.appendChild(el);
+    await tick();
+
+    expect(el.isPlaying).toBe(false);
+    expect(el.hasAttribute("reduced-motion")).toBe(true);
+    const control = el.shadowRoot!.querySelector<HTMLButtonElement>(".play-control")!;
+    expect(control.getAttribute("aria-label")).toBe("播放轮播");
+
+    control.click();
+    await tick();
+    expect(el.isPlaying).toBe(true);
+    expect(el.hasAttribute("reduced-motion")).toBe(false);
+  });
+
+  it("clamps the active index and controls after dynamic slides are removed", async () => {
+    const el = document.createElement("elf-carousel") as HTMLElement & {
+      activeIndex: number;
+      setActiveItem: (item: number | string) => void;
+    };
+    el.setAttribute("autoplay", "false");
+    el.setAttribute("trigger", "click");
+    el.setAttribute("loop", "false");
+    el.innerHTML = "<div>A</div><div>B</div><div>C</div>";
+    document.body.appendChild(el);
+    await tick();
+
+    el.setActiveItem(2);
+    const changes: Array<[number, number]> = [];
+    el.addEventListener("change", (event) => {
+      changes.push((event as CustomEvent<[number, number]>).detail);
+    });
+    el.lastElementChild?.remove();
+    el.shadowRoot!.querySelector("slot")!.dispatchEvent(new Event("slotchange"));
+    await tick();
+
+    expect(el.activeIndex).toBe(1);
+    expect(el.shadowRoot!.querySelectorAll(".dot")).toHaveLength(2);
+    expect(el.shadowRoot!.querySelector<HTMLButtonElement>(".arrow-right")?.disabled).toBe(true);
+    expect((el.shadowRoot!.querySelector(".track") as HTMLElement).style.transform)
+      .toBe("translateX(-200%)");
+    expect(changes).toContainEqual([1, 2]);
   });
 });
