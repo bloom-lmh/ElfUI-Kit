@@ -34,6 +34,9 @@ describe("elf-collapse", () => {
     await tick();
 
     expect(el.shadowRoot!.querySelector(".item.is-active")?.textContent).toContain("Alpha");
+    const regions = el.shadowRoot!.querySelectorAll<HTMLElement>('[role="region"]');
+    expect(regions[0]!.hasAttribute("inert")).toBe(false);
+    expect(regions[1]!.hasAttribute("inert")).toBe(true);
     (el.shadowRoot!.querySelectorAll(".header")[1] as HTMLButtonElement).click();
 
     expect((onUpdate.mock.calls[0]![0] as CustomEvent).detail).toEqual(["a", "b"]);
@@ -110,5 +113,62 @@ describe("elf-collapse", () => {
 
     expect((onUpdate.mock.calls[0]![0] as CustomEvent).detail).toEqual(["guide", "api"]);
     expect(items[1]!.active).toBe(true);
+  });
+
+  it("moves focus with arrow, Home, and End keys while skipping disabled headers", async () => {
+    const el = document.createElement("elf-collapse") as CollapseEl;
+    el.items = [
+      { name: "first", title: "First" },
+      { name: "locked", title: "Locked", disabled: true },
+      { name: "last", title: "Last" }
+    ];
+    document.body.appendChild(el);
+    await tick();
+
+    const headers = el.shadowRoot!.querySelectorAll<HTMLButtonElement>(".header");
+    headers[0]!.focus();
+    headers[0]!.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }));
+    expect(el.shadowRoot!.activeElement).toBe(headers[2]);
+
+    headers[2]!.dispatchEvent(new KeyboardEvent("keydown", { key: "Home", bubbles: true }));
+    expect(el.shadowRoot!.activeElement).toBe(headers[0]);
+
+    headers[0]!.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowUp", bubbles: true }));
+    expect(el.shadowRoot!.activeElement).toBe(headers[2]);
+  });
+
+  it("coordinates keyboard focus for slotted items and isolates nested collapses", async () => {
+    const outer = document.createElement("elf-collapse") as CollapseEl;
+    outer.innerHTML = `
+      <elf-collapse-item name="one" title="One">
+        <elf-collapse>
+          <elf-collapse-item name="nested" title="Nested">Nested body</elf-collapse-item>
+        </elf-collapse>
+      </elf-collapse-item>
+      <elf-collapse-item name="two" title="Two">Second body</elf-collapse-item>
+    `;
+    const outerUpdate = vi.fn();
+    outer.addEventListener("update:modelValue", outerUpdate as EventListener);
+    document.body.appendChild(outer);
+    await tick();
+    await tick();
+
+    const items = outer.querySelectorAll<HTMLElement>(":scope > elf-collapse-item");
+    const firstHeader = items[0]!.shadowRoot!.querySelector<HTMLButtonElement>(".header")!;
+    const secondHeader = items[1]!.shadowRoot!.querySelector<HTMLButtonElement>(".header")!;
+    firstHeader.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true, composed: true })
+    );
+    expect(items[1]!.shadowRoot!.activeElement).toBe(secondHeader);
+
+    const nested = items[0]!.querySelector("elf-collapse")!;
+    const nestedUpdate = vi.fn();
+    nested.addEventListener("update:modelValue", nestedUpdate as EventListener);
+    const nestedItem = nested.querySelector("elf-collapse-item")!;
+    nestedItem.shadowRoot!.querySelector<HTMLButtonElement>(".header")!.click();
+    await tick();
+
+    expect(nestedUpdate).toHaveBeenCalledTimes(1);
+    expect(outerUpdate).not.toHaveBeenCalled();
   });
 });

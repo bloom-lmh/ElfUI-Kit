@@ -1,5 +1,5 @@
-import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { registerComponents } from "@elfui/core";
+import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
 import { CollapseItem } from "./index";
 
@@ -33,6 +33,7 @@ describe("elf-collapse-item", () => {
     expect(header.getAttribute("aria-expanded")).toBe("true");
     expect(el.shadowRoot!.querySelector("slot:not([name])")?.assignedNodes()).toHaveLength(1);
     expect(body.getAttribute("aria-hidden")).toBe("false");
+    expect(body.hasAttribute("inert")).toBe(false);
     expect(el.shadowRoot!.querySelector(".body-content")).toBeTruthy();
     header.click();
     expect(onToggle).toHaveBeenCalledTimes(1);
@@ -51,5 +52,25 @@ describe("elf-collapse-item", () => {
     expect(header.disabled).toBe(true);
     expect(body.getAttribute("aria-labelledby")).toBe(header.id);
     expect(body.getAttribute("aria-hidden")).toBe("true");
+    expect(body.hasAttribute("inert")).toBe(true);
+  });
+
+  it("requests parent focus navigation and exposes focusHeader", async () => {
+    const el = document.createElement("elf-collapse-item") as HTMLElement & {
+      focusHeader?: () => void;
+    };
+    const onNavigate = vi.fn();
+    el.addEventListener("elf-collapse-navigate", onNavigate as EventListener);
+    document.body.appendChild(el);
+    await tick();
+
+    const header = el.shadowRoot!.querySelector<HTMLButtonElement>(".header")!;
+    header.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "End", bubbles: true, composed: true })
+    );
+    expect((onNavigate.mock.calls[0]![0] as CustomEvent).detail).toBe("last");
+
+    el.focusHeader?.();
+    expect(el.shadowRoot!.activeElement).toBe(header);
   });
 });

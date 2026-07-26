@@ -23,6 +23,20 @@
   font: inherit;
   font-weight: 600;
   text-align: left;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease;
+}
+
+.header:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--elf-primary) 5%, transparent);
+}
+
+.header:focus-visible {
+  position: relative;
+  z-index: 1;
+  outline: 2px solid var(--elf-primary);
+  outline-offset: -3px;
 }
 
 .header:disabled {
@@ -52,6 +66,10 @@
 :host([data-active]) .arrow {
   color: var(--elf-primary);
   transform: rotate(180deg);
+}
+
+:host([data-active]) .header {
+  color: var(--elf-primary);
 }
 
 .body {

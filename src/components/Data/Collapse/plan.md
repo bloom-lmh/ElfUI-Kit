@@ -16,3 +16,12 @@
 
 - [x] `pnpm test src/components/Data/Collapse/Collapse.test.ts src/components/Data/CollapseItem/CollapseItem.test.ts` 通过。
 - [x] `pnpm build` 通过。
+
+## 2026-07-26 v0.0.2-beta.1 交互与组合复核
+
+- [x] `Collapse` / `CollapseItem` 补齐强类型 emits、exposes 与统一受控值归一化，手风琴模式只保留一个有效名称。
+- [x] 数据驱动和组合式模式均支持 `ArrowUp` / `ArrowDown` / `Home` / `End` 标题导航，循环移动并跳过禁用项。
+- [x] 收起内容统一使用 `aria-hidden` 与 `inert` 退出焦点树，嵌套面板事件只由直接父级处理。
+- [x] `CollapseItem` 新增 `focusHeader()`，自动生成稳定的 button / region ARIA 关联。
+- [x] 文档收敛为受控手风琴、动态增删与键盘、组合式插槽与嵌套 3 个双语场景，补齐 Template、Script 与完整 API。
+- [x] 单测覆盖受控、禁用、键盘焦点、动态边界、嵌套隔离、slots、exposes 与页面真实交互。

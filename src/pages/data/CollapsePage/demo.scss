@@ -1,0 +1,111 @@
+:host {
+  display: block;
+}
+
+.collapse-demo-shell {
+  width: min(100%, 760px);
+  margin: 0 auto;
+  padding: clamp(18px, 3vw, 32px);
+}
+
+.collapse-demo-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  min-width: 0;
+  color: var(--elf-text-secondary);
+  font-size: 13px;
+}
+
+.collapse-demo-actions span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.collapse-demo-actions button {
+  min-height: 30px;
+  padding: 0 11px;
+  border: 1px solid color-mix(in srgb, var(--elf-primary) 38%, var(--elf-border));
+  border-radius: var(--elf-radius-sm);
+  background: color-mix(in srgb, var(--elf-primary) 7%, var(--elf-bg-paper));
+  color: var(--elf-primary);
+  cursor: pointer;
+  font: inherit;
+}
+
+.collapse-demo-actions button:hover {
+  background: color-mix(in srgb, var(--elf-primary) 13%, var(--elf-bg-paper));
+}
+
+.collapse-demo-actions button:focus-visible {
+  outline: 2px solid var(--elf-primary);
+  outline-offset: 2px;
+}
+
+.collapse-demo-status {
+  color: var(--elf-text-secondary);
+  font-size: 13px;
+}
+
+.collapse-demo-hint {
+  max-width: 660px;
+  margin: 16px auto 0;
+  color: var(--elf-text-secondary);
+  font-size: 13px;
+  line-height: 1.65;
+  text-align: center;
+}
+
+.collapse-rich-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.collapse-title-mark {
+  display: inline-grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--elf-primary) 14%, transparent);
+  color: var(--elf-primary);
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.collapse-title-mark.secondary {
+  background: color-mix(in srgb, var(--elf-success) 14%, transparent);
+  color: var(--elf-success);
+}
+
+.collapse-custom-icon {
+  display: inline-block;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.collapse-nested-intro {
+  margin: 0 0 14px;
+}
+
+.collapse-nested {
+  border-radius: var(--elf-radius-md);
+}
+
+@media (max-width: 680px) {
+  .collapse-demo-actions {
+    flex-wrap: wrap;
+  }
+
+  .collapse-demo-actions span {
+    flex: 1 0 100%;
+    text-align: right;
+  }
+
+  .collapse-demo-shell {
+    padding: 16px;
+  }
+}

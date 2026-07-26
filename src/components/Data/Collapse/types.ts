@@ -21,6 +21,11 @@ export interface CollapseProps {
   props: CollapseFieldNames;
 }
 
+export interface CollapseEmits {
+  "update:modelValue": [value: CollapseModelValue];
+  change: [value: CollapseModelValue];
+}
+
 export interface CollapseItemProps {
   name: string | number;
   title: string;
@@ -33,4 +38,9 @@ export interface CollapseItemSlots {
   default?: unknown;
   title?: unknown;
   icon?: unknown;
+}
+
+export interface CollapseItemExposes {
+  toggle: () => void;
+  focusHeader: () => void;
 }
