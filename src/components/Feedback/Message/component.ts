@@ -4,7 +4,6 @@ import {
   defineHtml,
   defineProps,
   defineStyle,
-  html,
   useHostAttr,
   useHostFlag,
   useRef
@@ -46,10 +45,10 @@ const triggerAction = (): void => {
 };
 const icon = (): string => ICONS[String(props.type)] ?? "i";
 
-defineExpose({ close, closing });
+defineExpose({ close });
 defineStyle(styles);
 
-const Message = defineHtml(html`
+const Message = defineHtml(`
   <div class="message" part="message" role="status" aria-live="polite" aria-atomic="true">
     <span class="accent" aria-hidden="true"></span>
     <span class="icon" aria-hidden="true">${icon()}</span>

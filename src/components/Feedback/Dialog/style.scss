@@ -49,6 +49,11 @@
   font-size: 16px;
 }
 
+.elf-dialog-header-content {
+  min-width: 0;
+  flex: 1;
+}
+
 .elf-dialog-close {
   background: none;
   border: none;

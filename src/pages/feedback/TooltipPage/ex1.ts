@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 
 const code1 = `<elf-tooltip content="Tooltip 在上方" placement="top">
   <elf-button>Top</elf-button>
@@ -13,7 +13,7 @@ const code1 = `<elf-tooltip content="Tooltip 在上方" placement="top">
   <elf-button>Right</elf-button>
 </elf-tooltip>`;
 
-const PageTooltipEx1 = defineHtml(html`
+const PageTooltipEx1 = defineHtml(`
   <h2>基础用法（不同弹出位置）</h2>
   <elf-playground title="placement: top | bottom | left | right" :code="code1">
     <div

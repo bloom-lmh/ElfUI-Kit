@@ -18,6 +18,8 @@ export interface MessageOptions {
   onAction?: () => void;
   onClick?: () => void;
   onClose?: () => void;
+  /** ThemeProvider tokens forwarded to the document-level message host. */
+  themeTokens?: import("../../Providers/context").ThemeTokens;
 }
 
 export interface MessageHandle {

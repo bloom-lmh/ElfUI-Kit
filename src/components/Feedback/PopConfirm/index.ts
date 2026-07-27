@@ -1,28 +1,37 @@
 // elf-pop-confirm — 气泡确认框
 
 import {
-    defineEmits,
-    defineExpose,
-    defineHtml,
-    defineProps,
-    defineStyle,
-    html,
-    onBeforeUnmount,
-    useClickOutside,
-    useEffect,
-    useEscapeKey,
-    useFocusTrap,
-    useHost,
-    useHostFlag,
-    useRef,
-    useTemplateRef,
+  defineEmits,
+  defineExpose,
+  defineHtml,
+  defineProps,
+  defineStyle,
+  onBeforeUnmount,
+  onMounted,
+  useClickOutside,
+  useEffect,
+  useEscapeKey,
+  useFocusTrap,
+  useHost,
+  useHostFlag,
+  useRef,
+  useTemplateRef
 } from "@elfui/core";
 
 import styles from "./style.scss?inline";
-import type { PopConfirmPlacement, PopConfirmProps, PopConfirmTrigger } from "./types";
+import { computeAnchoredPosition, listenForExternalOverlayMotion } from "../../Common/anchored-overlay";
+import type { PopConfirmPlacement, PopConfirmProps, PopConfirmSlots, PopConfirmTrigger } from "./types";
 import { useLocaleProvider } from "../../Providers/context";
 
-export type { PopConfirmPlacement, PopConfirmProps, PopConfirmTrigger } from "./types";
+export type {
+    PopConfirmBeforeConfirm,
+    PopConfirmElement,
+    PopConfirmExpose,
+    PopConfirmPlacement,
+    PopConfirmProps,
+    PopConfirmSlots,
+    PopConfirmTrigger,
+} from "./types";
 
 const props = defineProps<PopConfirmProps>({
     title: { type: String, default: "" },
@@ -36,6 +45,9 @@ const props = defineProps<PopConfirmProps>({
     disabled: { type: Boolean, default: false },
     closeOnEscape: { type: Boolean, default: true },
     closeOnClickOutside: { type: Boolean, default: true },
+    teleported: { type: Boolean, default: true },
+    beforeConfirm: { type: Function, default: undefined },
+    loadingText: { type: String, default: "" },
 });
 
 const locale = useLocaleProvider();
@@ -45,6 +57,7 @@ const emit = defineEmits<{
     cancel: [];
     open: [];
     close: [];
+    "confirm-error": [error: unknown];
     "update:visible": [visible: boolean];
 }>();
 
@@ -53,10 +66,17 @@ const panelRef = useTemplateRef<HTMLElement>("panel");
 const openState = useRef(false);
 const rendered = useRef(false);
 const closing = useRef(false);
+const confirming = useRef(false);
+const overlayStyle = useRef<Record<string, string>>({});
+const resolvedPlacement = useRef<PopConfirmPlacement>("top");
 
 let hideTimer: ReturnType<typeof setTimeout> | null = null;
 let previousActive: HTMLElement | null = null;
 let cleanupPanelKeydown = (): void => {};
+let cleanupAnchoredOverlay = (): void => {};
+let overlayFrame = 0;
+let mounted = false;
+const triggerElements = new Set<HTMLElement>();
 
 const isControlled = (): boolean => props.visible !== undefined;
 const isOpen = (): boolean => (isControlled() ? Boolean(props.visible) : openState.value);
@@ -64,6 +84,16 @@ const trigger = (): PopConfirmTrigger =>
     props.trigger === "hover" || props.trigger === "focus" || props.trigger === "manual" ? props.trigger : "click";
 const placement = (): PopConfirmPlacement =>
     props.placement === "bottom" || props.placement === "left" || props.placement === "right" ? props.placement : "top";
+
+const getPanelEl = (): HTMLElement | null =>
+    panelRef.peek() || host.shadowRoot?.querySelector<HTMLElement>(".pop-confirm-popover") || null;
+
+const getTriggerEl = (): HTMLElement | null => host.shadowRoot?.querySelector<HTMLElement>(".pop-confirm-trigger") || null;
+
+const panelStyle = (): Record<string, string> => ({
+    width: props.width,
+    ...(props.teleported ? overlayStyle.value : {}),
+});
 
 const clearTimers = (): void => {
     if (hideTimer) clearTimeout(hideTimer);
@@ -89,11 +119,19 @@ const focusPanel = (): void => {
 const queryPanelFocusables = (): HTMLElement[] => {
     const panel = panelRef.peek() || host.shadowRoot?.querySelector<HTMLElement>(".pop-confirm-popover") || null;
     if (!panel) return [];
-    return Array.from(
+    const selector = "button:not([disabled]), [href], input:not([disabled]), [tabindex]:not([tabindex='-1'])";
+    const actionSlot = panel.querySelector<HTMLSlotElement>('slot[name="actions"]');
+    const assignedActions = actionSlot?.assignedElements({ flatten: true }) || [];
+    const internal = Array.from(
         panel.querySelectorAll<HTMLElement>(
-            "button:not([disabled]), [href], input:not([disabled]), [tabindex]:not([tabindex='-1'])",
+            selector,
         ),
-    );
+    ).filter((element) => assignedActions.length === 0 || !element.closest('slot[name="actions"]'));
+    const slotted = assignedActions.flatMap((element) => [
+        ...(element.matches(selector) ? [element as HTMLElement] : []),
+        ...Array.from(element.querySelectorAll<HTMLElement>(selector)),
+    ]);
+    return [...internal, ...slotted];
 };
 
 const onPanelKeydown = (event: KeyboardEvent): void => {
@@ -140,21 +178,39 @@ const setOpen = (next: boolean): void => {
 };
 
 const show = (): void => setOpen(true);
-const hide = (): void => setOpen(false);
+const hide = (): void => {
+    if (confirming.value) return;
+    setOpen(false);
+};
 const toggle = (): void => setOpen(!isOpen());
 
-const confirm = (): void => {
+const confirm = async (): Promise<void> => {
+    if (confirming.peek()) return;
+    if (props.beforeConfirm) {
+        confirming.set(true);
+        try {
+            const result = await props.beforeConfirm();
+            if (result === false) return;
+        } catch (error) {
+            emit("confirm-error", error);
+            return;
+        } finally {
+            confirming.set(false);
+        }
+    }
     emit("confirm");
     hide();
 };
 
 const cancel = (): void => {
+    if (confirming.value) return;
     emit("cancel");
     hide();
 };
 
-const onClick = (): void => {
+const onClick = (event?: MouseEvent): void => {
     if (trigger() !== "click") return;
+    event?.stopPropagation();
     toggle();
 };
 
@@ -178,6 +234,116 @@ const onFocusOut = (event: Event): void => {
     const next = (event as FocusEvent).relatedTarget as Node | null;
     if (next && (host.contains(next) || host.shadowRoot?.contains(next))) return;
     hide();
+};
+
+const disconnectTriggerEvents = (): void => {
+    for (const element of triggerElements) {
+        element.removeEventListener("click", onClick);
+        element.removeEventListener("mouseenter", onMouseEnter);
+        element.removeEventListener("mouseleave", onMouseLeave);
+        element.removeEventListener("focusin", onFocusIn);
+        element.removeEventListener("focusout", onFocusOut);
+    }
+    triggerElements.clear();
+};
+
+const connectTriggerEvents = (): void => {
+    disconnectTriggerEvents();
+    for (const child of Array.from(host.children)) {
+        if (!(child instanceof HTMLElement) || child.hasAttribute("slot")) continue;
+        child.addEventListener("click", onClick);
+        child.addEventListener("mouseenter", onMouseEnter);
+        child.addEventListener("mouseleave", onMouseLeave);
+        child.addEventListener("focusin", onFocusIn);
+        child.addEventListener("focusout", onFocusOut);
+        triggerElements.add(child);
+    }
+};
+
+const updateOverlayPosition = (): void => {
+    if (!props.teleported || typeof window === "undefined") {
+        overlayStyle.set({});
+        resolvedPlacement.set(placement());
+        return;
+    }
+    const triggerElement = getTriggerEl();
+    const panel = getPanelEl();
+    if (!triggerElement || !panel) return;
+    const anchorRect = triggerElement.getBoundingClientRect();
+    if (anchorRect.width === 0 && anchorRect.height === 0) return;
+    const panelRect = panel.getBoundingClientRect();
+    const visualViewport = window.visualViewport;
+    const next = computeAnchoredPosition(
+        anchorRect,
+        { width: panelRect.width || panel.offsetWidth || 260, height: panelRect.height || panel.offsetHeight || 120 },
+        {
+            width: visualViewport?.width || window.innerWidth,
+            height: visualViewport?.height || window.innerHeight,
+            offsetLeft: visualViewport?.offsetLeft || 0,
+            offsetTop: visualViewport?.offsetTop || 0,
+        },
+        { placement: placement(), offset: [0, 12], padding: 8, flip: true },
+    );
+    resolvedPlacement.set(next.placement);
+    overlayStyle.set({
+        position: "fixed",
+        left: `${Math.round(next.left * 100) / 100}px`,
+        top: `${Math.round(next.top * 100) / 100}px`,
+        right: "auto",
+        bottom: "auto",
+        margin: "0",
+    });
+};
+
+const requestOverlayUpdate = (): void => {
+    if (typeof window === "undefined") return;
+    if (overlayFrame) cancelAnimationFrame(overlayFrame);
+    overlayFrame = requestAnimationFrame(() => {
+        overlayFrame = 0;
+        updateOverlayPosition();
+    });
+};
+
+const syncTopLayer = (): void => {
+    const panel = getPanelEl() as (HTMLElement & {
+        showPopover?: () => void;
+        hidePopover?: () => void;
+    }) | null;
+    if (!panel) return;
+    try {
+        if (props.teleported && rendered.peek()) panel.showPopover?.();
+        else panel.hidePopover?.();
+    } catch {
+        // A conditional panel can disconnect while its top-layer state is settling.
+    }
+    if (rendered.peek()) requestOverlayUpdate();
+};
+
+const connectAnchoredOverlay = (): void => {
+    cleanupAnchoredOverlay();
+    if (!props.teleported || !rendered.peek() || typeof window === "undefined") return;
+    const triggerElement = getTriggerEl();
+    const panel = getPanelEl();
+    const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(requestOverlayUpdate) : undefined;
+    if (triggerElement) observer?.observe(triggerElement);
+    if (panel) observer?.observe(panel);
+    // A fixed top-layer panel must be re-anchored when an ancestor or the page
+    // scrolls. Closing or leaving the old coordinates behind makes the panel
+    // appear to drift with the document.
+    const cleanupMotion = listenForExternalOverlayMotion(
+        () => [host, panel],
+        requestOverlayUpdate,
+    );
+    window.addEventListener("resize", requestOverlayUpdate, { passive: true });
+    window.visualViewport?.addEventListener("resize", requestOverlayUpdate, { passive: true });
+    cleanupAnchoredOverlay = () => {
+        observer?.disconnect();
+        cleanupMotion();
+        window.removeEventListener("resize", requestOverlayUpdate);
+        window.visualViewport?.removeEventListener("resize", requestOverlayUpdate);
+    };
+    syncTopLayer();
+    requestOverlayUpdate();
 };
 
 useClickOutside(host, () => {
@@ -208,32 +374,62 @@ useEffect(() => {
     }, 140);
 });
 
+useEffect(() => {
+    void rendered.value;
+    void props.teleported;
+    void props.placement;
+    void props.width;
+    if (mounted) queueMicrotask(() => {
+        syncTopLayer();
+        connectAnchoredOverlay();
+    });
+});
+
+onMounted(() => {
+    mounted = true;
+    connectTriggerEvents();
+    connectAnchoredOverlay();
+});
+
 onBeforeUnmount(() => {
+    mounted = false;
+    disconnectTriggerEvents();
     clearTimers();
     cleanupPanelKeydown();
+    cleanupAnchoredOverlay();
+    if (overlayFrame) cancelAnimationFrame(overlayFrame);
     restoreFocus();
 });
 
 const popoverClass = (): string =>
-    ["pop-confirm-popover", `placement-${placement()}`, closing.value ? "is-closing" : "is-open"].join(" ");
+    [
+        "pop-confirm-popover",
+        `placement-${props.teleported ? resolvedPlacement.value : placement()}`,
+        props.teleported ? "is-teleported" : "",
+        closing.value ? "is-closing" : "is-open",
+    ].filter(Boolean).join(" ");
 
 useHostFlag("data-open", () => isOpen());
+useHostFlag("data-confirming", () => confirming.value);
 useHostFlag("disabled", () => props.disabled);
 
-defineExpose({ show, hide, toggle, isVisible: () => isOpen() });
+defineExpose({ show, hide, toggle, confirm, cancel, isVisible: () => isOpen() });
 defineStyle(styles);
 
-const PopConfirm = defineHtml<PopConfirmProps>(html`
+const PopConfirm = defineHtml<PopConfirmProps, Record<string, never>, PopConfirmSlots>(`
     <div
         class="pop-confirm"
-        @click=${onClick}
-        @mouseenter=${onMouseEnter}
-        @mouseleave=${onMouseLeave}
-        @focusin=${onFocusIn}
-        @focusout="onFocusOut($event)"
     >
-        <span class="pop-confirm-trigger" part="trigger">
-            <slot></slot>
+        <span
+            class="pop-confirm-trigger"
+            part="trigger"
+            @click.stop=${onClick}
+            @mouseenter=${onMouseEnter}
+            @mouseleave=${onMouseLeave}
+            @focusin=${onFocusIn}
+            @focusout=${onFocusOut}
+        >
+            <slot @slotchange=${connectTriggerEvents}></slot>
         </span>
         <section
             v-if=${rendered}
@@ -241,8 +437,10 @@ const PopConfirm = defineHtml<PopConfirmProps>(html`
             :class=${popoverClass()}
             role="alertdialog"
             aria-modal="false"
+            :aria-busy=${confirming}
             tabindex="-1"
-            :style=${{ width: props.width }}
+            :style=${panelStyle()}
+            :popover=${props.teleported ? "manual" : undefined}
             part="popover"
             @click.stop
             @keydown=${onPanelKeydown}
@@ -255,12 +453,27 @@ const PopConfirm = defineHtml<PopConfirmProps>(html`
                 </slot>
             </div>
             <div class="pop-confirm-actions">
-                <button class="pop-confirm-action ghost" type="button" @click=${cancel} @keydown=${onPanelKeydown}>
-                    ${props.cancelText || locale.t("common.cancel")}
-                </button>
-                <button class="pop-confirm-action primary" type="button" @click=${confirm} @keydown=${onPanelKeydown}>
-                    ${props.confirmText || locale.t("common.confirm")}
-                </button>
+                <slot name="actions" :confirm=${confirm} :cancel=${cancel} :loading=${confirming}>
+                    <button
+                        class="pop-confirm-action ghost"
+                        type="button"
+                        :disabled=${confirming}
+                        @click=${cancel}
+                        @keydown=${onPanelKeydown}
+                    >
+                        ${props.cancelText || locale.t("common.cancel")}
+                    </button>
+                    <button
+                        class="pop-confirm-action primary"
+                        type="button"
+                        :disabled=${confirming}
+                        @click=${confirm}
+                        @keydown=${onPanelKeydown}
+                    >
+                        <span v-if=${confirming} class="pop-confirm-spinner" aria-hidden="true"></span>
+                        ${confirming ? (props.loadingText || locale.t("table.loading")) : (props.confirmText || locale.t("common.confirm"))}
+                    </button>
+                </slot>
             </div>
         </section>
     </div>

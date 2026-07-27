@@ -133,16 +133,24 @@
 
 ## 差距与任务
 
-- [ ] P1 补齐核心属性差距：`model-value / v-model`、`width`、`fullscreen`、`top`、`modal`、`modal-penetrable ^`、`modal-class`、`header-class ^`、`body-class ^`、`footer-class ^`、`append-to-body`、`append-to ^`、`open-delay`、`close-delay`、`close-on-click-modal`、`close-on-press-escape`、`show-close`、`draggable`、`overflow ^`、`center`、`align-center ^`、`destroy-on-close`、`close-icon`、`z-index`、`header-aria-level ^`、`transition ^`、`custom-class ^`
-- [ ] P1 补齐事件差距：`open`、`open-auto-focus`、`close-auto-focus`
-- [ ] P1 补齐插槽/暴露方法：`header`、`footer`、`title ^`、`resetPosition ^`、`handleClose ^`
-- [ ] P1 对齐交互行为、键盘访问、禁用态、清空态、受控/非受控同步、表单联动和无障碍属性。
-- [ ] P2 更新页面示例：Template / Script 双视图、所有动态绑定使用 `${...}`，补齐 Element Plus 关键场景示例。
-- [ ] P2 补齐组件单测、页面冒烟和类型导出；必要时补视觉回归截图。
+- [x] P1 稳定核心契约：`v-model:open`、四档尺寸、遮罩/Escape 关闭、滚动锁与异步 `beforeClose`。
+- [x] P1 生命周期事件：`open`、`opened`、`close`、`closed`、`open-auto-focus`、`close-auto-focus`。
+- [x] P1 插槽与公开方法：default/header/footer、`close()`、`handleClose()`，公开类型同步导出。
+- [x] P1 完成 Top Layer 投射、嵌套层级、焦点圈闭/恢复、最上层 Escape 与 ARIA 对话框语义。
+- [x] P2 页面示例已包含受控状态、异步关闭守卫、焦点与嵌套边界，Template / Script 可复制。
+- [x] P2 组件测试、页面冒烟、类型导出与真实浏览器截图纳入本轮验收。
+- [ ] P2 可选扩展：自由宽度、拖拽、动态挂载目标和过渡适配器；不把底层实现参数纳入稳定 P1 API。
 
 ## 验收清单
 
-- [ ] API props/types 与页面 PropsTable 同步。
-- [ ] 关键交互和边界状态有单测覆盖。
-- [ ] 文档示例能在 Playground 中显示 Template / Script，且复制内容正确。
-- [ ] `npm --prefix ui-kit run build` 通过；涉及运行时能力时补跑目标测试。
+- [x] API props/types 与页面 PropsTable 同步。
+- [x] 关键交互和边界状态有单测覆盖。
+- [x] 文档示例能在 Playground 中显示 Template / Script，且复制内容正确。
+- [x] `pnpm build`、类型检查和目标测试通过。
+
+## 2026-07-22 焦点与嵌套浮层回归
+
+- [x] 打开后优先聚焦 `[autofocus]`，否则聚焦首个可交互元素或对话框面板。
+- [x] Tab / Shift+Tab 在最上层对话框内循环，支持穿透组件 ShadowRoot 收集真实焦点元素。
+- [x] Escape 只关闭最上层嵌套对话框，关闭动画完成后恢复触发元素焦点。
+- [x] 补 `open-auto-focus` / `close-auto-focus` 事件、页面案例与组件/页面回归测试。

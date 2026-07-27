@@ -12,17 +12,44 @@ export interface TourStep {
 }
 
 export interface TourProps {
-  steps: TourStep[];
-  visible: boolean;
-  current: number;
-  maskClosable: boolean;
-  keyboard: boolean;
-  lockScroll: boolean;
-  gap: number;
-  zIndex: number;
+  steps?: TourStep[];
+  visible?: boolean;
+  current?: number;
+  maskClosable?: boolean;
+  keyboard?: boolean;
+  closeOnPressEscape?: boolean;
+  showClose?: boolean;
+  mask?: boolean;
+  lockScroll?: boolean;
+  gap?: number;
+  zIndex?: number;
+  contentStyle?: Record<string, string>;
 }
 
 export interface TourChangeDetail {
   current: number;
   step: TourStep | null;
 }
+
+export interface TourEmits {
+  "update:current": [current: number];
+  change: [detail: TourChangeDetail];
+  close: [];
+  finish: [];
+}
+
+export interface TourSlots {
+  header?: unknown;
+  indicators?: unknown;
+}
+
+export interface TourExpose {
+  open: () => void;
+  close: () => void;
+  prev: () => void;
+  next: () => void;
+  skip: () => void;
+  finish: () => void;
+}
+
+export type TourElement = HTMLElement & TourExpose & Partial<TourProps>;

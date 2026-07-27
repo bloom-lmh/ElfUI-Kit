@@ -1,31 +1,33 @@
 // elf-dialog
 
 import {
-    defineEmits,
-    defineExpose,
-    defineModel,
-    defineProps,
-    defineStyle,
-    globalStyle,
-    html,
-    onBeforeUnmount,
-    projectLightDom,
-    useEffect,
-    useEscapeKey,
-    useHost,
-    useRef,
-    useScrollLock,
-    defineHtml,
+  defineEmits,
+  defineExpose,
+  defineModel,
+  defineProps,
+  defineStyle,
+  globalStyle,
+  onBeforeUnmount,
+  onMounted,
+  projectLightDom,
+  useEffect,
+  useEscapeKey,
+  useHost,
+  useRef,
+  useScrollLock,
+  defineHtml
 } from "@elfui/core";
 
 import styles from "./style.scss?inline";
+import { collectFocusable, deepActiveElement } from "../../Common/focus-scope";
 import { useLocaleProvider } from "../../Providers/context";
+import type { DialogEmits, DialogExpose, DialogProps, DialogSlots } from "./types";
 
-export type { DialogProps, DialogSize } from "./types";
+export type { DialogElement, DialogEmits, DialogExpose, DialogProps, DialogSize, DialogSlots } from "./types";
 
 globalStyle(styles);
 
-const props = defineProps({
+const props = defineProps<DialogProps>({
     title: { type: String, default: "" },
     size: { type: String, default: "md" },
     closeOnMask: { type: Boolean, default: true },
@@ -35,7 +37,7 @@ const props = defineProps({
     beforeClose: { type: Function, default: null },
 });
 
-const emit = defineEmits(["close", "closed", "opened"]);
+const emit = defineEmits<DialogEmits>();
 const model = defineModel<boolean>("open", { default: false });
 const locale = useLocaleProvider();
 
@@ -51,11 +53,13 @@ const titleId = `${id}-title`;
 const rendered = useRef(false);
 const closing = useRef(false);
 let closeTimer: number | null = null;
+let previousActiveElement: HTMLElement | null = null;
 
 const rootSelector = `[data-elf-dialog="${id}"]`;
 const projection = projectLightDom(host, {
     defaultTarget: () => document.querySelector(rootSelector)?.querySelector(".elf-dialog-body"),
     slots: {
+        header: () => document.querySelector(rootSelector)?.querySelector(".elf-dialog-header-content"),
         footer: () => document.querySelector(rootSelector)?.querySelector(".elf-dialog-footer"),
     },
 });
@@ -94,6 +98,58 @@ const removeTeleportedRoot = (): void => {
     document.querySelector(rootSelector)?.remove();
 };
 
+const rootElement = (): HTMLElement | null => document.querySelector(rootSelector);
+
+const panelElement = (): HTMLElement | null => rootElement()?.querySelector(".elf-dialog-panel") ?? null;
+
+const isTopmostDialog = (): boolean => {
+    const dialogs = Array.from(document.querySelectorAll<HTMLElement>(".elf-dialog-mask:not(.elf-dialog-closing)"));
+    return dialogs.at(-1) === rootElement();
+};
+
+const focusInitial = (): void => {
+    const panel = panelElement();
+    if (!panel || !model.value || !isTopmostDialog()) return;
+    const focusable = collectFocusable(panel);
+    const autofocus = focusable.find((element) => element.hasAttribute("autofocus"));
+    (autofocus ?? focusable[0] ?? panel).focus({ preventScroll: true });
+    emit("open-auto-focus");
+};
+
+const scheduleInitialFocus = (): void => {
+    queueMicrotask(() => queueMicrotask(focusInitial));
+};
+
+const restoreFocus = (): void => {
+    const target = previousActiveElement;
+    previousActiveElement = null;
+    if (target?.isConnected) target.focus({ preventScroll: true });
+    emit("close-auto-focus");
+};
+
+const onDocumentKeydown = (event: KeyboardEvent): void => {
+    if (event.key !== "Tab" || !rendered.value || closing.value || !isTopmostDialog()) return;
+    const panel = panelElement();
+    if (!panel) return;
+    const focusable = collectFocusable(panel);
+    if (focusable.length === 0) {
+        event.preventDefault();
+        panel.focus({ preventScroll: true });
+        return;
+    }
+    const active = deepActiveElement();
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (!first || !last) return;
+    if (event.shiftKey && (active === first || !panel.contains(document.activeElement))) {
+        event.preventDefault();
+        last.focus({ preventScroll: true });
+    } else if (!event.shiftKey && (active === last || !panel.contains(document.activeElement))) {
+        event.preventDefault();
+        first.focus({ preventScroll: true });
+    }
+};
+
 const requestClose = async (): Promise<void> => {
     if (closing.peek()) return;
     const before = props.beforeClose as unknown as (() => boolean | Promise<boolean>) | null;
@@ -122,18 +178,23 @@ const onMaskClick = (event: MouseEvent): void => {
 
 useScrollLock(() => Boolean(props.lockScroll) && rendered.value);
 useEscapeKey(() => {
-    if (rendered.value && props.closeOnEscape) void requestClose();
+    if (rendered.value && props.closeOnEscape && isTopmostDialog()) {
+        void requestClose();
+    }
 });
 
 useEffect(() => {
     if (model.value) {
         cleanupTimer();
         if (!rendered.peek()) {
+            previousActiveElement = deepActiveElement();
             rendered.set(true);
+            emit("open");
             emit("opened");
         }
         closing.set(false);
         scheduleProject();
+        scheduleInitialFocus();
         return;
     }
 
@@ -145,19 +206,25 @@ useEffect(() => {
         closing.set(false);
         closeTimer = null;
         emit("closed");
+        restoreFocus();
     }, 220);
 });
 
+onMounted(() => document.addEventListener("keydown", onDocumentKeydown));
+
 onBeforeUnmount(() => {
+    document.removeEventListener("keydown", onDocumentKeydown);
     cleanupTimer();
     restoreContent();
     removeTeleportedRoot();
+    if (model.value) restoreFocus();
 });
 
-defineExpose({ close: () => void requestClose() });
+const handleClose = (): void => void requestClose();
+defineExpose<DialogExpose>({ close: handleClose, handleClose });
 defineStyle(styles);
 
-const Dialog = defineHtml(html`
+const Dialog = defineHtml<DialogProps, DialogEmits, DialogSlots>(`
     <Teleport to="body">
         <div
             v-if=${rendered}
@@ -171,10 +238,13 @@ const Dialog = defineHtml(html`
                 :class=${panelClass()}
                 role="dialog"
                 aria-modal="true"
+                tabindex="-1"
                 :aria-labelledby=${props.title ? titleId : null}
             >
                 <header class="elf-dialog-header" v-if=${props.title || props.closable}>
-                    <span class="elf-dialog-title" :id=${titleId}>${title}</span>
+                    <span class="elf-dialog-header-content">
+                        <span class="elf-dialog-title" :id=${titleId}>${props.title}</span>
+                    </span>
                     <button
                         v-if=${props.closable}
                         class="elf-dialog-close close"

@@ -1,11 +1,11 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 
 const d = useRef(false);
 
 const beforeClose = (): boolean => confirm("确认关闭？未提交数据将丢失。");
 
-const code1 = `<elf-dialog :before-close="fn" v-model:open="open">...</elf-dialog>`;
+const code1 = `<elf-dialog :before-close="beforeClose" v-model:open="open">...</elf-dialog>`;
 
 const script1 = `import { useRef } from "@elfui/core";
 
@@ -30,7 +30,7 @@ const onOpenChange = (event: CustomEvent<boolean>): void => {
     d.set(Boolean(event.detail));
 };
 
-const PageDialogEx2 = defineHtml(html`
+const PageDialogEx2 = defineHtml(`
     <h2>拦截关闭 (before-close)</h2>
     <elf-playground title="点击关闭时拦截确认" :code=${code1} :script=${script1}>
         <elf-button @click=${open}>打开拦截关闭弹窗</elf-button>

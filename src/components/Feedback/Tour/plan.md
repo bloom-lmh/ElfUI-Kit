@@ -140,19 +140,20 @@
 
 ## 差距与任务
 
-- [ ] P1 补齐核心属性差距：`Property`、`append-to`、`show-arrow`、`placement`、`content-style`、`mask`、`type`、`model-value / v-model`、`scroll-into-view-options`、`show-close`、`close-icon`、`close-on-press-escape`、`target-area-clickable`、`target`、`title`、`next-button-props`、`prev-button-props`
-- [ ] P1 补齐事件差距：`close`、`finish`、`change`
-- [ ] P1 补齐插槽/暴露方法：`indicators`、`header`
-- [ ] P1 对齐交互行为、键盘访问、禁用态、清空态、受控/非受控同步、表单联动和无障碍属性。
-- [ ] P2 更新页面示例：Template / Script 双视图、所有动态绑定使用 `${...}`，补齐 Element Plus 关键场景示例。
-- [ ] P2 补齐组件单测、页面冒烟和类型导出；必要时补视觉回归截图。
+- [x] P1 稳定核心契约：步骤、受控可见/索引、四方向、mask/showClose/contentStyle、键盘、滚动锁、间距与层级。
+- [x] P1 事件契约：update:current/change/close/finish，首步即可键盘驱动且流程完成语义固定。
+- [x] P1 插槽与公开方法：header/indicators、open/close/prev/next/skip/finish，公开类型同步导出。
+- [x] P1 完成目标卸载降级、MutationObserver 跟踪、视口翻转、首焦点/焦点恢复、Escape 与 ARIA dialog。
+- [x] P2 页面示例覆盖基础流程、键盘焦点和目标动态卸载，Template / Script 可复制。
+- [x] P2 组件测试、页面冒烟、类型导出与真实浏览器截图纳入本轮验收。
+- [ ] P2 可选扩展：动态挂载目标、目标区域穿透和按钮配置适配器。
 
 ## 验收清单
 
-- [ ] API props/types 与页面 PropsTable 同步。
-- [ ] 关键交互和边界状态有单测覆盖。
-- [ ] 文档示例能在 Playground 中显示 Template / Script，且复制内容正确。
-- [ ] `npm --prefix ui-kit run build` 通过；涉及运行时能力时补跑目标测试。
+- [x] API props/types 与页面 PropsTable 同步。
+- [x] 关键交互和边界状态有单测覆盖。
+- [x] 文档示例能在 Playground 中显示 Template / Script，且复制内容正确。
+- [x] `pnpm build`、类型检查和目标测试通过。
 
 ## 2026-07-16 首步键盘回归
 

@@ -42,6 +42,21 @@ describe("ElfMessage()", () => {
     expect(cssText).toContain("border-radius: var(--elf-radius-sm, 6px)");
   });
 
+  it("accepts ThemeProvider tokens for document-level overlays", async () => {
+    const { ElfMessage } = await import("../Message/index");
+    ElfMessage.success("themed", {
+      duration: 0,
+      themeTokens: { primary: "#80cbc4", bgPaper: "#172525", textPrimary: "#ffffff" }
+    });
+    await tick();
+    await tick();
+
+    const message = document.body.querySelector<HTMLElement>("elf-message")!;
+    expect(message.style.getPropertyValue("--elf-primary")).toBe("#80cbc4");
+    expect(message.style.getPropertyValue("--elf-bg-paper")).toBe("#172525");
+    expect(message.style.getPropertyValue("--elf-text-primary")).toBe("#ffffff");
+  });
+
   it("normalizes error to danger", async () => {
     const { ElfMessage } = await import("../Message/index");
     ElfMessage.success("ok");

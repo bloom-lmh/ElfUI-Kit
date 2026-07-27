@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 
 const apiRows = [
   { name: "ElfMessage(options | string)", type: "Function", desc: "通用入口" },
@@ -25,7 +25,7 @@ const optsRows = [
   { name: "onClose", type: "() => void", default: "-", desc: "关闭并移除后触发" }
 ];
 
-const PageMessageProps = defineHtml(html`
+const PageMessageProps = defineHtml(`
   <h2>API</h2>
   <elf-props-table title="函数 API" :rows=${apiRows}></elf-props-table>
   <elf-props-table title="MessageOptions" :rows=${optsRows}></elf-props-table>

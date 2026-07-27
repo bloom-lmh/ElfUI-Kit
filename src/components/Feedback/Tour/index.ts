@@ -7,7 +7,6 @@ import {
   defineProps,
   defineStyle,
   globalStyle,
-  html,
   onBeforeUnmount,
   useEffect,
   useEscapeKey,
@@ -18,14 +17,23 @@ import {
   useRef,
   useResizeObserver,
   useScrollLock,
-  useTemplateRef,
+  useTemplateRef
 } from "@elfui/core";
 
 import styles from "./style.scss?inline";
-import type { TourChangeDetail, TourPlacement, TourProps, TourStep } from "./types";
+import type { TourEmits, TourExpose, TourPlacement, TourProps, TourSlots, TourStep } from "./types";
 import { useLocaleProvider } from "../../Providers/context";
 
-export type { TourChangeDetail, TourPlacement, TourProps, TourStep } from "./types";
+export type {
+  TourChangeDetail,
+  TourElement,
+  TourEmits,
+  TourExpose,
+  TourPlacement,
+  TourProps,
+  TourSlots,
+  TourStep
+} from "./types";
 
 let tourLayerId = 0;
 
@@ -48,17 +56,16 @@ const props = defineProps<TourProps>({
   current: { type: Number, default: 0 },
   maskClosable: { type: Boolean, default: true },
   keyboard: { type: Boolean, default: true },
+  closeOnPressEscape: { type: Boolean, default: true },
+  showClose: { type: Boolean, default: true },
+  mask: { type: Boolean, default: true },
   lockScroll: { type: Boolean, default: true },
   gap: { type: Number, default: 12 },
   zIndex: { type: Number, default: 3000 },
+  contentStyle: { type: Object, default: () => ({}) },
 });
 
-const emit = defineEmits<{
-  "update:current": [current: number];
-  change: [detail: TourChangeDetail];
-  close: [];
-  finish: [];
-}>();
+const emit = defineEmits<TourEmits>();
 
 const locale = useLocaleProvider();
 
@@ -77,6 +84,7 @@ let frameId = 0;
 let focusFrameId = 0;
 let previousActive: HTMLElement | null = null;
 let lastPropCurrent = 0;
+let targetObserver: MutationObserver | null = null;
 
 const steps = (): TourStep[] => (Array.isArray(props.steps) ? (props.steps as TourStep[]) : []);
 const stepCount = (): number => steps().length;
@@ -132,6 +140,27 @@ const scheduleUpdate = (): void => {
   });
 };
 
+const disconnectTargetObserver = (): void => {
+  targetObserver?.disconnect();
+  targetObserver = null;
+};
+
+const connectTargetObserver = (): void => {
+  disconnectTargetObserver();
+  if (typeof MutationObserver === "undefined") return;
+  targetObserver = new MutationObserver(scheduleUpdate);
+  const root = host.getRootNode();
+  targetObserver.observe(root, {
+    childList: true,
+    subtree: true,
+    attributes: true,
+    attributeFilter: ["id", "hidden"]
+  });
+  if (root !== document && document.body) {
+    targetObserver.observe(document.body, { childList: true, subtree: true });
+  }
+};
+
 const cancelScheduledFocus = (): void => {
   if (focusFrameId) cancelAnimationFrame(focusFrameId);
   focusFrameId = 0;
@@ -172,10 +201,11 @@ const open = (): void => {
   if (stepCount() === 0) return;
   clearCloseTimer();
   previousActive = document.activeElement as HTMLElement | null;
-  lastPropCurrent = clampIndex(props.current);
+  lastPropCurrent = clampIndex(Number(props.current) || 0);
   currentStep.set(lastPropCurrent);
   rendered.set(true);
   closing.set(false);
+  connectTargetObserver();
   scheduleUpdate();
   focusOverlay();
 };
@@ -183,6 +213,7 @@ const open = (): void => {
 const close = (): void => {
   if (!rendered.peek() || closing.peek()) return;
   cancelScheduledFocus();
+  disconnectTargetObserver();
   closing.set(true);
   clearCloseTimer();
   closeTimer = setTimeout(() => {
@@ -257,7 +288,7 @@ const bubbleStyle = (): Record<string, string> => {
       left: "50%",
       top: "50%",
       transform: "translate(-50%, -50%)",
-      zIndex: String(props.zIndex + 2),
+      zIndex: String((Number(props.zIndex) || 3000) + 2),
     };
   }
   const gap = Math.max(8, Number(props.gap) || 12) + 8;
@@ -330,13 +361,17 @@ const bubbleStyle = (): Record<string, string> => {
     left: `${left}px`,
     top: `${top}px`,
     transform,
-    zIndex: String(props.zIndex + 2),
+    zIndex: String((Number(props.zIndex) || 3000) + 2),
   };
 };
 
-const layerStyle = (): Record<string, string> => ({ zIndex: String(props.zIndex) });
+const layerStyle = (): Record<string, string> => ({ zIndex: String(Number(props.zIndex) || 3000) });
 const hasTarget = (): boolean => Boolean(targetBox.value);
 const layerClass = (): Record<string, boolean> => ({ "is-closing": closing.value });
+const panelStyle = (): Record<string, string> => ({
+  ...bubbleStyle(),
+  ...(props.contentStyle || {})
+});
 
 useEffect(() => {
   if (props.visible) open();
@@ -344,7 +379,7 @@ useEffect(() => {
 });
 
 useEffect(() => {
-  const next = clampIndex(props.current);
+  const next = clampIndex(Number(props.current) || 0);
   if (next === lastPropCurrent) return;
   lastPropCurrent = next;
   currentStep.set(next);
@@ -352,7 +387,7 @@ useEffect(() => {
 });
 
 useEscapeKey(() => {
-  if (props.keyboard && rendered.value) close();
+  if (props.keyboard && props.closeOnPressEscape && rendered.value) close();
 });
 useEventListener(window, "keydown", onKeydown);
 useScrollLock(() => Boolean(props.lockScroll) && rendered.value && !closing.value);
@@ -368,15 +403,20 @@ useHostFlag("data-visible", () => hostVisible.value);
 
 onBeforeUnmount(() => {
   clearCloseTimer();
+  disconnectTargetObserver();
   if (frameId) cancelAnimationFrame(frameId);
   cancelScheduledFocus();
+  resolveOverlay()?.remove();
+  rendered.set(false);
+  closing.set(false);
+  targetBox.set(null);
   restoreFocus();
 });
 
-defineExpose({ prev, next, skip, finish, close, open });
+defineExpose<TourExpose>({ prev, next, skip, finish, close, open });
 defineStyle(styles);
 
-const Tour = defineHtml<TourProps>(html`
+const Tour = defineHtml<TourProps, TourEmits, TourSlots>(`
   <Teleport to="body">
     <div
       v-if=${rendered}
@@ -390,12 +430,16 @@ const Tour = defineHtml<TourProps>(html`
       tabindex="-1"
       @click=${onLayerClick}
     >
-      <div v-if=${!hasTarget()} class="tour-backdrop"></div>
-      <div v-if=${hasTarget()} class="tour-highlight" :style=${highlightStyle()}></div>
-      <section ref="panel" class="tour-panel" :class=${placement()} :style=${bubbleStyle()}>
+      <div v-if=${props.mask && !hasTarget()} class="tour-backdrop"></div>
+      <div v-if=${hasTarget()} class="tour-highlight" :class=${{ "without-mask": !props.mask }} :style=${highlightStyle()}></div>
+      <section ref="panel" class="tour-panel" :class=${placement()} :style=${panelStyle()}>
         <header class="tour-header">
-          <span class="tour-progress">${currentNumber()} / ${stepCount()}</span>
-          <button class="tour-close" type="button" :aria-label=${locale.t("tour.close")} @click=${skip}>
+          <slot name="header">
+            <slot name="indicators">
+              <span class="tour-progress">${currentNumber()} / ${stepCount()}</span>
+            </slot>
+          </slot>
+          <button v-if=${props.showClose} class="tour-close" type="button" :aria-label=${locale.t("tour.close")} @click=${skip}>
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M6 6l12 12M18 6L6 18"></path>
             </svg>

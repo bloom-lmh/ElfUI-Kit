@@ -8,6 +8,7 @@
 import { registerComponents } from "@elfui/core";
 
 import { Message as MessageElement } from "./component";
+import { applyThemeTokens } from "../../Providers/context";
 
 import type {
     MessageHandle,
@@ -91,6 +92,7 @@ const createMessage = (
     if (opts.customClass) {
         el.classList.add(...opts.customClass.split(/\s+/).filter(Boolean));
     }
+    if (opts.themeTokens) applyThemeTokens(el, opts.themeTokens);
     if (opts.closable) el.closable = true;
     if (opts.action) el.action = opts.action;
     if (opts.onClick) el.addEventListener("click", opts.onClick);

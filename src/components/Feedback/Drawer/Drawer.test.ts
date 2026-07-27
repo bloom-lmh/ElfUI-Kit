@@ -22,6 +22,9 @@ type DrawerEl = HTMLElement & {
   title?: string;
   direction?: string;
   size?: string;
+  resizable?: boolean;
+  minSize?: number | string;
+  maxSize?: number | string;
   modal?: boolean;
   closeOnMask?: boolean;
   closeOnEscape?: boolean;
@@ -29,6 +32,19 @@ type DrawerEl = HTMLElement & {
   lockScroll?: boolean;
   beforeClose?: (() => boolean | Promise<boolean>) | null;
   close?: () => void;
+  resetSize?: () => void;
+};
+
+const pointerEvent = (type: string, clientX: number, clientY: number): Event => {
+  const event = new Event(type, { bubbles: true, composed: true, cancelable: true });
+  Object.defineProperties(event, {
+    button: { value: 0 },
+    clientX: { value: clientX },
+    clientY: { value: clientY },
+    pointerId: { value: 1 },
+    pointerType: { value: "mouse" }
+  });
+  return event;
 };
 
 describe("elf-drawer", () => {
@@ -71,6 +87,100 @@ describe("elf-drawer", () => {
     expect(el.getAttribute("direction")).toBe("ttb");
     expect(panel()?.className).toContain("ttb");
     expect(panel()?.getAttribute("style")).toContain("height: 150px");
+  });
+
+  it("rtl 抽屉支持拖动内侧边缘调整尺寸并派发完整事件", async () => {
+    const el = document.createElement("elf-drawer") as DrawerEl;
+    el.direction = "rtl";
+    el.size = "300px";
+    el.resizable = true;
+    el.minSize = 240;
+    el.maxSize = 480;
+    el.open = true;
+    document.body.appendChild(el);
+    await tick();
+
+    const drawerPanel = panel()!;
+    Object.defineProperty(drawerPanel, "getBoundingClientRect", {
+      value: () => ({ width: 300, height: 600, x: 700, y: 0, top: 0, left: 700, right: 1000, bottom: 600 })
+    });
+    const handle = document.body.querySelector<HTMLElement>(".elf-drawer-resize-handle")!;
+    const events: Array<[string, number]> = [];
+    for (const name of ["resize-start", "resize", "resize-end"]) {
+      el.addEventListener(name, (event) => {
+        events.push([name, (event as CustomEvent<{ size: number }>).detail.size]);
+      });
+    }
+
+    handle.dispatchEvent(pointerEvent("pointerdown", 700, 200));
+    document.dispatchEvent(pointerEvent("pointermove", 650, 200));
+    document.dispatchEvent(pointerEvent("pointerup", 650, 200));
+    await tick();
+
+    expect(drawerPanel.getAttribute("style")).toContain("width: 350px");
+    expect(events).toEqual([
+      ["resize-start", 300],
+      ["resize", 350],
+      ["resize-end", 350]
+    ]);
+    expect(document.body.style.userSelect).toBe("");
+  });
+
+  it("does not close when a resize gesture ends on the mask", async () => {
+    const el = document.createElement("elf-drawer") as DrawerEl;
+    el.direction = "rtl";
+    el.size = "300px";
+    el.resizable = true;
+    el.open = true;
+    document.body.appendChild(el);
+    await tick();
+
+    const drawerPanel = panel()!;
+    Object.defineProperty(drawerPanel, "getBoundingClientRect", {
+      value: () => ({ width: 300, height: 600, x: 700, y: 0, top: 0, left: 700, right: 1000, bottom: 600 })
+    });
+    const handle = document.body.querySelector<HTMLElement>(".elf-drawer-resize-handle")!;
+    const drawerMask = mask()!;
+    handle.dispatchEvent(pointerEvent("pointerdown", 700, 200));
+    document.dispatchEvent(pointerEvent("pointermove", 650, 200));
+    document.dispatchEvent(pointerEvent("pointerup", 650, 200));
+    drawerMask.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
+    await tick();
+
+    expect(el.open).toBe(true);
+    expect(drawerMask.classList.contains("closing")).toBe(false);
+  });
+
+  it("尺寸手柄支持键盘调整、边界限制和 resetSize", async () => {
+    const el = document.createElement("elf-drawer") as DrawerEl;
+    el.direction = "rtl";
+    el.size = "300px";
+    el.resizable = true;
+    el.minSize = 280;
+    el.maxSize = 320;
+    el.open = true;
+    document.body.appendChild(el);
+    await tick();
+
+    const drawerPanel = panel()!;
+    Object.defineProperty(drawerPanel, "getBoundingClientRect", {
+      value: () => ({ width: 300, height: 600, x: 700, y: 0, top: 0, left: 700, right: 1000, bottom: 600 })
+    });
+    const handle = document.body.querySelector<HTMLElement>(".elf-drawer-resize-handle")!;
+    expect(handle.getAttribute("role")).toBe("separator");
+    expect(handle.getAttribute("aria-orientation")).toBe("vertical");
+
+    handle.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowLeft", bubbles: true }));
+    await tick();
+    expect(drawerPanel.getAttribute("style")).toContain("width: 310px");
+
+    handle.dispatchEvent(new KeyboardEvent("keydown", { key: "End", bubbles: true }));
+    await tick();
+    expect(drawerPanel.getAttribute("style")).toContain("width: 320px");
+
+    el.resetSize?.();
+    await tick();
+    expect(drawerPanel.getAttribute("style")).toContain("width: 300px");
   });
 
   it("modal=false 添加 no-modal class", async () => {
@@ -186,6 +296,60 @@ describe("elf-drawer", () => {
     el.open = false;
     await wait(400);
     expect(document.body.style.overflow).toBe("");
+  });
+
+  it("打开后聚焦 autofocus，关闭动画完成后恢复触发元素焦点", async () => {
+    const trigger = document.createElement("button");
+    trigger.textContent = "打开设置";
+    document.body.appendChild(trigger);
+    trigger.focus();
+
+    const el = document.createElement("elf-drawer") as DrawerEl;
+    const input = document.createElement("input");
+    input.setAttribute("autofocus", "");
+    el.appendChild(input);
+    document.body.appendChild(el);
+
+    let openFocusEvents = 0;
+    let closeFocusEvents = 0;
+    el.addEventListener("open-auto-focus", () => openFocusEvents++);
+    el.addEventListener("close-auto-focus", () => closeFocusEvents++);
+
+    el.open = true;
+    await tick();
+    expect(document.activeElement).toBe(input);
+    expect(openFocusEvents).toBe(1);
+
+    el.close?.();
+    await wait(280);
+    expect(document.activeElement).toBe(trigger);
+    expect(closeFocusEvents).toBe(1);
+  });
+
+  it("嵌套抽屉按 Escape 时只关闭最上层", async () => {
+    const parent = document.createElement("elf-drawer") as DrawerEl;
+    const child = document.createElement("elf-drawer") as DrawerEl;
+    parent.title = "父抽屉";
+    child.title = "子抽屉";
+    parent.open = true;
+    child.open = true;
+    document.body.append(parent, child);
+    await tick();
+
+    const parentUpdate = { value: true };
+    const childUpdate = { value: true };
+    parent.addEventListener("update:open", (event) => {
+      parentUpdate.value = Boolean((event as CustomEvent).detail);
+    });
+    child.addEventListener("update:open", (event) => {
+      childUpdate.value = Boolean((event as CustomEvent).detail);
+    });
+
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    await tick();
+
+    expect(parentUpdate.value).toBe(true);
+    expect(childUpdate.value).toBe(false);
   });
 
   it("关闭时遮罩和面板同步离场", async () => {

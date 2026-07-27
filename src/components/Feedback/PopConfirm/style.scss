@@ -38,7 +38,22 @@
     0 4px 12px rgba(15, 23, 42, 0.08);
   color: var(--elf-text-primary, #202124);
   outline: none;
+  overflow: visible;
+  scrollbar-width: none;
   animation: pop-confirm-in 0.14s ease-out;
+}
+
+.pop-confirm-popover::-webkit-scrollbar {
+  display: none;
+}
+
+.pop-confirm-popover[popover] {
+  inset: auto;
+  margin: 0;
+}
+
+.pop-confirm-popover[popover]::backdrop {
+  background: transparent;
 }
 
 .pop-confirm-popover.is-closing {
@@ -111,6 +126,13 @@
   transform: translateY(-50%) rotate(-45deg);
 }
 
+.pop-confirm-popover.is-teleported {
+  position: fixed;
+  right: auto;
+  bottom: auto;
+  translate: none;
+}
+
 .pop-confirm-body {
   display: flex;
   flex-direction: column;
@@ -137,7 +159,15 @@
   gap: 8px;
 }
 
+.pop-confirm-actions ::slotted(*) {
+  flex: 0 0 auto;
+}
+
 .pop-confirm-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
   min-width: 56px;
   height: 30px;
   padding: 0 12px;
@@ -147,6 +177,11 @@
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
+}
+
+.pop-confirm-action:disabled {
+  cursor: wait;
+  opacity: 0.68;
 }
 
 .pop-confirm-action:focus-visible {
@@ -171,6 +206,21 @@
 
 .pop-confirm-action.primary:hover {
   background: color-mix(in srgb, var(--elf-primary, #1976d2) 88%, #000);
+}
+
+.pop-confirm-spinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid color-mix(in srgb, currentcolor 35%, transparent);
+  border-top-color: currentcolor;
+  border-radius: 50%;
+  animation: pop-confirm-spin 0.65s linear infinite;
+}
+
+@keyframes pop-confirm-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes pop-confirm-in {

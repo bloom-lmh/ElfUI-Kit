@@ -20,3 +20,25 @@ export interface DialogProps {
   /** 关闭前钩子，返回 false 阻止关闭 */
   beforeClose?: () => boolean | Promise<boolean>;
 }
+
+export interface DialogEmits {
+  open: [];
+  opened: [];
+  close: [];
+  closed: [];
+  "open-auto-focus": [];
+  "close-auto-focus": [];
+}
+
+export interface DialogSlots {
+  default?: unknown;
+  header?: unknown;
+  footer?: unknown;
+}
+
+export interface DialogExpose {
+  close: () => void;
+  handleClose: () => void;
+}
+
+export type DialogElement = HTMLElement & DialogExpose & Partial<DialogProps>;

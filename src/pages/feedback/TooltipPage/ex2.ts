@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 
 const code2 = `<elf-tooltip content="悬浮触发的提示" trigger="hover">
   <elf-button>Hover 我（默认）</elf-button>
@@ -20,7 +20,7 @@ const code3 = `<elf-tooltip content="深色主题提示" effect="dark">
   <elf-button>Light 主题</elf-button>
 </elf-tooltip>`;
 
-const PageTooltipEx2 = defineHtml(html`
+const PageTooltipEx2 = defineHtml(`
   <h2>不同触发时机</h2>
   <elf-playground title="trigger: hover | click | focus | contextmenu" :code="code2">
     <div style="display: flex; gap: 16px; align-items: center; justify-content: center;">

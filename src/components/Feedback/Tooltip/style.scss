@@ -16,7 +16,10 @@
   border-radius: 4px;
   font-size: 12px;
   line-height: 1.4;
-  white-space: nowrap;
+  width: max-content;
+  max-width: min(var(--elf-tooltip-max-width, 240px), calc(100vw - 24px));
+  white-space: normal;
+  overflow-wrap: anywhere;
   pointer-events: none;
 
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);

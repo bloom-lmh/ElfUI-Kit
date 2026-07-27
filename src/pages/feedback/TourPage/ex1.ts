@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 const code = `<elf-button @click="startTour">开始引导</elf-button>
 <elf-tour
@@ -58,7 +58,7 @@ const onCurrentChange = (event: Event): void => {
   current.set(Number((event as CustomEvent<number>).detail ?? 0));
 };
 
-const PageTourEx1 = defineHtml(html`
+const PageTourEx1 = defineHtml(`
   <h2>基础引导</h2>
   <elf-playground title="跟随目标定位" :code=${code} :script=${script}>
     <div

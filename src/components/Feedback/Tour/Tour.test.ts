@@ -21,6 +21,10 @@ interface TourEl extends HTMLElement {
   next?: () => void;
   prev?: () => void;
   close?: () => void;
+  mask?: boolean;
+  showClose?: boolean;
+  closeOnPressEscape?: boolean;
+  contentStyle?: Record<string, string>;
 }
 
 const steps: TourStep[] = [
@@ -80,6 +84,37 @@ describe("elf-tour", () => {
     expect(document.body.querySelector(".tour-highlight")).toBeNull();
     expect(document.body.querySelector(".tour-backdrop")).toBeTruthy();
     expect(document.body.querySelector(".tour-title")?.textContent).toContain("备用引导");
+  });
+
+  it("支持无蒙层、隐藏关闭按钮与内容样式", async () => {
+    await mount({ mask: false, showClose: false, contentStyle: { width: "280px" } });
+
+    expect(document.body.querySelector(".tour-highlight")?.classList.contains("without-mask")).toBe(true);
+    expect(document.body.querySelector(".tour-close")).toBeNull();
+    expect((document.body.querySelector(".tour-panel") as HTMLElement).style.width).toBe("280px");
+  });
+
+  it("closeOnPressEscape=false 时保留当前引导", async () => {
+    await mount({ closeOnPressEscape: false });
+
+    window.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
+    await wait(190);
+
+    expect(document.body.querySelector(".tour-layer")).toBeTruthy();
+  });
+
+  it("目标在引导期间被移除时自动切换为安全遮罩", async () => {
+    await mount();
+    expect(document.body.querySelector(".tour-highlight")).toBeTruthy();
+
+    document.querySelector("#tour-target-one")?.remove();
+    await tick();
+    await frame();
+    await tick();
+
+    expect(document.body.querySelector(".tour-highlight")).toBeNull();
+    expect(document.body.querySelector(".tour-backdrop")).toBeTruthy();
+    expect(document.body.querySelector(".tour-title")?.textContent).toContain("第一步");
   });
 
   it("目标靠近视口底部时自动向上翻转，操作区保持在视口内", async () => {
@@ -176,5 +211,16 @@ describe("elf-tour", () => {
 
     expect(onClose).toHaveBeenCalledTimes(1);
     expect(document.body.querySelector(".tour-layer")).toBeNull();
+  });
+
+  it("组件卸载时立即移除传送层，避免遮挡下一路由", async () => {
+    const el = await mount();
+    expect(document.body.querySelector(".tour-layer")).toBeTruthy();
+
+    el.remove();
+    await tick();
+
+    expect(document.body.querySelector(".tour-layer")).toBeNull();
+    expect(document.body.style.overflow).not.toBe("hidden");
   });
 });

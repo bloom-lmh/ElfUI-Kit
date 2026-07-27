@@ -32,6 +32,12 @@
     height 0.18s;
 }
 
+.tour-highlight.without-mask {
+  box-shadow:
+    0 0 0 2px color-mix(in srgb, var(--elf-primary, #1976d2) 70%, white),
+    0 10px 30px rgba(15, 23, 42, 0.18);
+}
+
 .tour-panel {
   position: fixed;
   display: flex;

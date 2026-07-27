@@ -1,4 +1,4 @@
-import { defineHtml, html, useComponents } from "@elfui/core";
+import { defineHtml, useComponents } from "@elfui/core";
 import { PageMessageEx1 } from "./ex1";
 import { PageMessageEx2 } from "./ex2";
 import { PageMessageEx3 } from "./ex3";
@@ -13,7 +13,7 @@ useComponents({
   "page-message-props": PageMessageProps
 });
 
-const PageMessage = defineHtml(html`
+const PageMessage = defineHtml(`
   <elf-container>
     <h1>Message 全局提示</h1>
     <p>用于反馈操作结果，支持操作按钮、关闭、堆叠和上下位置。</p>

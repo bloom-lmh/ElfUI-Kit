@@ -1,7 +1,11 @@
 // elf-dialog 测试
 
-import { compile } from "@elfui/compiler";
-import { defineComponent, useRef, type RenderFn } from "@elfui/core";
+import {
+  compile } from "@elfui/compiler";
+import { defineComponent,
+  useRef,
+  type RenderFn
+} from "@elfui/core";
 import { readFileSync } from "node:fs";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
 
@@ -176,6 +180,93 @@ describe("elf-dialog", () => {
     el.open = false;
     await wait(250);
     expect(document.body.style.overflow).toBe("");
+  });
+
+  it("打开后聚焦 autofocus，并在 Tab / Shift+Tab 时约束焦点", async () => {
+    const trigger = document.createElement("button");
+    trigger.textContent = "打开";
+    document.body.appendChild(trigger);
+    trigger.focus();
+
+    const el = document.createElement("elf-dialog") as DialogEl;
+    el.title = "键盘与焦点";
+    el.closable = false;
+    const input = document.createElement("input");
+    input.setAttribute("autofocus", "");
+    const action = document.createElement("button");
+    action.textContent = "保存";
+    el.append(input, action);
+    document.body.appendChild(el);
+
+    let autoFocusEvents = 0;
+    el.addEventListener("open-auto-focus", () => autoFocusEvents++);
+    el.open = true;
+    await tick();
+
+    expect(document.activeElement).toBe(input);
+    expect(autoFocusEvents).toBe(1);
+
+    action.focus();
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", bubbles: true, cancelable: true }));
+    expect(document.activeElement).toBe(input);
+
+    document.dispatchEvent(new KeyboardEvent("keydown", {
+      key: "Tab",
+      shiftKey: true,
+      bubbles: true,
+      cancelable: true
+    }));
+    expect(document.activeElement).toBe(action);
+  });
+
+  it("关闭动画完成后把焦点返回打开前的元素", async () => {
+    const trigger = document.createElement("button");
+    trigger.textContent = "打开";
+    document.body.appendChild(trigger);
+    trigger.focus();
+
+    const el = document.createElement("elf-dialog") as DialogEl;
+    const input = document.createElement("input");
+    input.setAttribute("autofocus", "");
+    el.appendChild(input);
+    document.body.appendChild(el);
+
+    let restoreEvents = 0;
+    el.addEventListener("close-auto-focus", () => restoreEvents++);
+    el.open = true;
+    await tick();
+    expect(document.activeElement).toBe(input);
+
+    el.close?.();
+    await wait(250);
+    expect(document.activeElement).toBe(trigger);
+    expect(restoreEvents).toBe(1);
+  });
+
+  it("嵌套对话框按 Escape 时只关闭最上层", async () => {
+    const parent = document.createElement("elf-dialog") as DialogEl;
+    const child = document.createElement("elf-dialog") as DialogEl;
+    parent.title = "父对话框";
+    child.title = "子对话框";
+    parent.open = true;
+    child.open = true;
+    document.body.append(parent, child);
+    await tick();
+
+    const parentUpdate = { value: true };
+    const childUpdate = { value: true };
+    parent.addEventListener("update:open", (event) => {
+      parentUpdate.value = Boolean((event as CustomEvent).detail);
+    });
+    child.addEventListener("update:open", (event) => {
+      childUpdate.value = Boolean((event as CustomEvent).detail);
+    });
+
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    await tick();
+
+    expect(parentUpdate.value).toBe(true);
+    expect(childUpdate.value).toBe(false);
   });
 
   it("footer light DOM 使用真实节点投射，事件不丢失", async () => {

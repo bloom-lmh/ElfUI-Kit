@@ -107,16 +107,16 @@
 
 ## 差距与任务
 
-- [ ] P1 补齐核心属性差距：当前粗扫未发现明显缺口，进入实现时逐项复核默认值与边界语义。
-- [ ] P1 补齐事件差距：当前粗扫未发现明显缺口，进入实现时复核事件 payload 与触发时机。
-- [ ] P1 补齐插槽/暴露方法：`close`
-- [ ] P1 对齐交互行为、键盘访问、禁用态、清空态、受控/非受控同步、表单联动和无障碍属性。
-- [ ] P2 更新页面示例：Template / Script 双视图、所有动态绑定使用 `${...}`，补齐 Element Plus 关键场景示例。
-- [ ] P2 补齐组件单测、页面冒烟和类型导出；必要时补视觉回归截图。
+- [x] P1 稳定函数契约：字符串/选项入口、五种语义、duration/closable/action/position/offset/zIndex/customClass/themeTokens。
+- [x] P1 回调与句柄：onAction/onClick/onClose、单实例 close() 与 closeAll()，回调触发时机有测试。
+- [x] P1 组件只暴露 `close()`；内部 closing 状态不泄漏到公共实例。
+- [x] P1 完成顶部/底部独立堆叠、关闭后重排、计时器清理、status/live-region 与本地化关闭标签。
+- [x] P2 页面示例覆盖语义类型、持续时间、堆叠关闭、操作与上下位置，Template / Script 可复制。
+- [x] P2 组件测试、页面冒烟、类型导出与真实浏览器截图纳入本轮验收。
 
 ## 验收清单
 
-- [ ] API props/types 与页面 PropsTable 同步。
-- [ ] 关键交互和边界状态有单测覆盖。
-- [ ] 文档示例能在 Playground 中显示 Template / Script，且复制内容正确。
-- [ ] `npm --prefix ui-kit run build` 通过；涉及运行时能力时补跑目标测试。
+- [x] API props/types 与页面 PropsTable 同步。
+- [x] 关键交互和边界状态有单测覆盖。
+- [x] 文档示例能在 Playground 中显示 Template / Script，且复制内容正确。
+- [x] `pnpm build`、类型检查和目标测试通过。

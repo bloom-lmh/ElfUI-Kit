@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 const code1 = `<elf-pop-confirm placement="right" title="确认退出？">
   <elf-button>右侧弹出</elf-button>
@@ -9,15 +9,38 @@ const code2 = `<elf-pop-confirm
   :visible="visible"
   title="提交审批？"
   content="提交后将进入审批流程"
+  loading-text="校验中"
+  :before-confirm="verifyApproval"
   @update:visible="visible = $event.detail"
-  @confirm="submit"
+  @confirm="onSubmitted"
+  @confirm-error="onSubmitError"
 >
   <elf-button color="primary">手动控制</elf-button>
-</elf-pop-confirm>`;
+</elf-pop-confirm>
+<elf-button variant="outlined" @click="toggleVisible">切换气泡</elf-button>`;
 
+const code2Script = `const visible = useRef(false);
+const status = useRef("等待提交");
+const attempts = useRef(0);
+
+const toggleVisible = () => visible.set(!visible.value);
+
+const verifyApproval = async () => {
+  attempts.set(attempts.value + 1);
+  status.set("正在校验审批条件…");
+  await new Promise((resolve) => setTimeout(resolve, 900));
+  if (attempts.value === 1) throw new Error("审批服务暂时不可用");
+};
+
+const onSubmitError = () => status.set("校验失败，请在气泡内重试");
+const onSubmitted = () => status.set("已提交审批");`;
+
+// state
 const visible = useRef(false);
 const status = useRef("等待提交");
+const attempts = useRef(0);
 
+// actions
 const toggleVisible = (): void => {
   visible.set(!visible.value);
 };
@@ -26,16 +49,23 @@ const onVisibleChange = (event: Event): void => {
   visible.set(Boolean((event as CustomEvent<boolean>).detail));
 };
 
-const submit = (): void => {
-  status.set("提交中...");
-  setTimeout(() => {
-    visible.set(false);
-    status.set("已提交审批");
-  }, 800);
+const verifyApproval = async (): Promise<void> => {
+  attempts.set(attempts.value + 1);
+  status.set("正在校验审批条件…");
+  await new Promise((resolve) => setTimeout(resolve, 900));
+  if (attempts.value === 1) throw new Error("审批服务暂时不可用");
 };
 
-const PagePopConfirmEx2 = defineHtml(html`
-  <h2>定位与受控</h2>
+const onSubmitError = (): void => {
+  status.set("校验失败，请在气泡内重试");
+};
+
+const onSubmitted = (): void => {
+  status.set("已提交审批");
+};
+
+const PagePopConfirmEx2 = defineHtml(`
+  <h2>定位与异步确认</h2>
   <elf-playground title="四个方向" :code=${code1}>
     <div style="display:flex;gap:12px;flex-wrap:wrap;padding:24px 0">
       <elf-pop-confirm title="上方弹出" content="默认方向" placement="top">
@@ -53,7 +83,8 @@ const PagePopConfirmEx2 = defineHtml(html`
     </div>
   </elf-playground>
 
-  <elf-playground title="受控模式与异步动作" :code=${code2}>
+  <elf-playground title="异步确认与失败重试" :code=${code2} :script=${code2Script}>
+    <span slot="status" class="demo-state">{{ status }}</span>
     <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
       <elf-pop-confirm
         trigger="manual"
@@ -62,13 +93,15 @@ const PagePopConfirmEx2 = defineHtml(html`
         content="提交后将进入审批流程"
         confirm-text="提交"
         cancel-text="再看看"
+        loading-text="校验中"
+        :before-confirm=${verifyApproval}
         @update:visible=${onVisibleChange}
-        @confirm=${submit}
+        @confirm=${onSubmitted}
+        @confirm-error=${onSubmitError}
       >
         <elf-button color="primary">手动控制</elf-button>
       </elf-pop-confirm>
       <elf-button variant="outlined" @click=${toggleVisible}>切换气泡</elf-button>
-      <span style="font-size:13px;color:var(--elf-text-secondary)">{{ status }}</span>
     </div>
   </elf-playground>
 `);

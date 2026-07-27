@@ -1,7 +1,7 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 import { ElfMessage } from "../../../components/Feedback";
 
-const PageMessageEx1 = defineHtml(html`
+const PageMessageEx1 = defineHtml(`
   <h2>基础类型</h2>
   <elf-playground title="四种语义提示">
     <elf-button @click=${() => ElfMessage.info("这是一条普通提示")}>info</elf-button>

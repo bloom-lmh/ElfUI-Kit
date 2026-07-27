@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 import { ElfMessage } from "../../../components/Feedback";
 
 const lastEvent = useRef("等待交互");
@@ -26,7 +26,7 @@ const showBottom = (): void => {
 
 const code4 = `ElfMessage.success("草稿已保存，可立即查看详情", { action: "查看", closable: true, duration: 0, onAction: () => {} })`;
 
-const PageMessageEx4 = defineHtml(html`
+const PageMessageEx4 = defineHtml(`
   <h2>操作与位置</h2>
   <elf-playground title="Snackbar 操作区" :code=${code4}>
     <elf-button color="success" @click=${showAction}>顶部操作提示</elf-button>

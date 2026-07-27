@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 
 const d1 = useRef(false),
@@ -10,6 +10,16 @@ const d1 = useRef(false),
 const code1 = `<elf-drawer direction="rtl" v-model:open="open">...</elf-drawer>`;
 
 const code2 = `<elf-drawer size="50%" v-model:open="open">...</elf-drawer>`;
+
+const code1Script = `const open = useRef(false);
+
+const showDrawer = () => open.set(true);
+const closeDrawer = () => open.set(false);`;
+
+const code2Script = `const open = useRef(false);
+
+const showWideDrawer = () => open.set(true);
+const closeWideDrawer = () => open.set(false);`;
 
 const open1 = () => d1.set(true);
 
@@ -29,9 +39,9 @@ const close = () => {
   d5.set(false);
 };
 
-const PageDrawerEx1 = defineHtml(html`
+const PageDrawerEx1 = defineHtml(`
   <h2>基础用法（不同弹出方向）</h2>
-  <elf-playground title="弹出方向（rtl / ltr / ttb / btt）" :code="code1">
+  <elf-playground title="弹出方向（rtl / ltr / ttb / btt）" :code="code1" :script=${code1Script}>
     <div style="display:flex;gap:12px;flex-wrap:wrap">
       <elf-button @click="open1">右滑 (RTL)</elf-button
       ><elf-button @click="open2">左滑 (LTR)</elf-button
@@ -58,7 +68,7 @@ const PageDrawerEx1 = defineHtml(html`
     >
   </elf-playground>
   <h2>自定义大小</h2>
-  <elf-playground title="自定义宽度（50%）" :code="code2">
+  <elf-playground title="自定义宽度（50%）" :code="code2" :script=${code2Script}>
     <elf-button @click="open5">打开 50% 宽抽屉</elf-button>
     <elf-drawer v-model:open="d5" title="大幅面设置" size="50%"
       ><div style="padding:16px"><h3>50% 屏幕宽度</h3></div></elf-drawer

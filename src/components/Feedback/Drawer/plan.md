@@ -132,16 +132,28 @@
 
 ## 差距与任务
 
-- [ ] P1 补齐核心属性差距：`model-value / v-model`、`append-to-body`、`append-to ^`、`close-on-click-modal`、`close-on-press-escape`、`open-delay`、`close-delay`、`destroy-on-close`、`modal-penetrable ^`、`resizable ^`、`show-close`、`with-header`、`modal-class`、`header-class ^`、`body-class ^`、`footer-class ^`、`z-index`、`header-aria-level ^`、`custom-class ^`
-- [ ] P1 补齐事件差距：`open`、`open-auto-focus`、`close-auto-focus`、`resize-start ^`、`resize ^`、`resize-end ^`
-- [ ] P1 补齐插槽/暴露方法：`header`、`footer`、`title ^`、`handleClose`
-- [ ] P1 对齐交互行为、键盘访问、禁用态、清空态、受控/非受控同步、表单联动和无障碍属性。
-- [ ] P2 更新页面示例：Template / Script 双视图、所有动态绑定使用 `${...}`，补齐 Element Plus 关键场景示例。
-- [ ] P2 补齐组件单测、页面冒烟和类型导出；必要时补视觉回归截图。
+- [x] P1 稳定核心契约：`v-model:open`、四方向、尺寸约束、遮罩/Escape 关闭、滚动锁与异步 `beforeClose`。
+- [x] P1 生命周期与调整事件：open/opened/close/closed、焦点事件和 resize-start/resize/resize-end。
+- [x] P1 插槽与公开方法：default/header/footer、`close()`、`handleClose()`、`resetSize()`，公开类型同步导出。
+- [x] P1 完成鼠标/触屏拖动、键盘调宽、嵌套层级、焦点圈闭/恢复、最上层 Escape 与 separator ARIA。
+- [x] P2 页面示例已包含四方向、可调整尺寸、移动端安全区和嵌套边界，Template / Script 可复制。
+- [x] P2 组件测试、页面冒烟、类型导出与真实浏览器截图纳入本轮验收。
+- [ ] P2 可选扩展：动态挂载目标、延迟开关和自定义过渡适配器。
 
 ## 验收清单
 
-- [ ] API props/types 与页面 PropsTable 同步。
-- [ ] 关键交互和边界状态有单测覆盖。
-- [ ] 文档示例能在 Playground 中显示 Template / Script，且复制内容正确。
-- [ ] `npm --prefix ui-kit run build` 通过；涉及运行时能力时补跑目标测试。
+- [x] API props/types 与页面 PropsTable 同步。
+- [x] 关键交互和边界状态有单测覆盖。
+- [x] 文档示例能在 Playground 中显示 Template / Script，且复制内容正确。
+- [x] `pnpm build`、类型检查和目标测试通过。
+
+## 2026-07-22 焦点、嵌套与窄屏回归
+
+- [x] 打开后优先聚焦 `[autofocus]`，Tab / Shift+Tab 在最上层抽屉内循环。
+- [x] Escape 只关闭最上层嵌套抽屉，关闭动画结束后恢复触发元素焦点。
+- [x] `aria-modal` 与 `modal` 保持一致，补 `open-auto-focus` / `close-auto-focus` 事件。
+- [x] 新增移动端安全宽度、滚动锁和焦点恢复案例，并完成组件/页面测试及截图。
+- [x] 补齐 `resizable`、`minSize`、`maxSize`，支持四方向拖动、键盘方向键、Home / End 和尺寸边界。
+- [x] 补齐 `resize-start` / `resize` / `resize-end`、`resetSize()`、分隔条无障碍语义及中英文标签。
+- [x] 新增可调整尺寸案例，完成组件 17 项、页面 2 项测试和真实页面键盘调宽截图。
+- [x] P1 补嵌套抽屉可视案例和四方向/移动端关键截图。

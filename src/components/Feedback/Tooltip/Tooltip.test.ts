@@ -12,6 +12,8 @@ afterEach(() => {
 
 const tick = (): Promise<void> => new Promise((r) => setTimeout(r, 20));
 const wait = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms));
+const triggerOf = (el: HTMLElement): HTMLElement =>
+  Array.from(el.children).find((child) => !child.hasAttribute("slot")) as HTMLElement;
 
 interface TooltipEl extends HTMLElement {
   content?: string;
@@ -21,10 +23,28 @@ interface TooltipEl extends HTMLElement {
   showAfter?: number;
   hideAfter?: number;
   effect?: string;
+  maxWidth?: number | string;
   visible?: boolean;
+  touchLongPress?: boolean;
+  longPressDelay?: number;
+  longPressTolerance?: number;
   show?: () => void;
   hide?: () => void;
 }
+
+const touchPointerEvent = (
+  type: "pointerdown" | "pointermove" | "pointerup" | "pointercancel",
+  clientX: number,
+  clientY: number
+): Event => {
+  const event = new Event(type, { bubbles: true, composed: true });
+  Object.defineProperties(event, {
+    pointerType: { value: "touch" },
+    clientX: { value: clientX },
+    clientY: { value: clientY }
+  });
+  return event;
+};
 
 describe("elf-tooltip", () => {
   it("默认隐藏，Hover 模式下 mouseenter 显示，mouseleave 隐藏", async () => {
@@ -39,7 +59,7 @@ describe("elf-tooltip", () => {
 
     // 模拟 mouseenter 触发
     const container = el.shadowRoot!.querySelector(".tooltip-container") as HTMLElement;
-    container.dispatchEvent(new MouseEvent("mouseenter"));
+    triggerOf(el).dispatchEvent(new MouseEvent("mouseenter"));
     await tick();
     await tick();
 
@@ -49,7 +69,7 @@ describe("elf-tooltip", () => {
     expect(tooltip!.className).toContain("active");
 
     // 模拟 mouseleave 触发
-    container.dispatchEvent(new MouseEvent("mouseleave"));
+    triggerOf(el).dispatchEvent(new MouseEvent("mouseleave"));
     await tick();
     await tick();
 
@@ -72,17 +92,64 @@ describe("elf-tooltip", () => {
     expect(el.shadowRoot!.querySelector(".tooltip-content")).toBeNull();
 
     const container = el.shadowRoot!.querySelector(".tooltip-container") as HTMLElement;
-    container.dispatchEvent(new FocusEvent("focusin"));
+    triggerOf(el).dispatchEvent(new FocusEvent("focusin"));
     await tick();
     await tick();
 
     expect(el.shadowRoot!.querySelector(".tooltip-content")).toBeTruthy();
 
-    container.dispatchEvent(new FocusEvent("focusout"));
+    triggerOf(el).dispatchEvent(new FocusEvent("focusout"));
     await tick();
     await wait(160);
 
     expect(el.shadowRoot!.querySelector(".tooltip-content")).toBeNull();
+  });
+
+  it("focus 触发时建立 aria-describedby，Escape 隐藏后恢复原值", async () => {
+    const el = document.createElement("elf-tooltip") as TooltipEl;
+    const button = document.createElement("button");
+    button.textContent = "查看权限说明";
+    button.setAttribute("aria-describedby", "existing-help");
+    el.appendChild(button);
+    el.content = "只有管理员可以修改此配置";
+    el.trigger = "focus";
+    el.maxWidth = 280;
+    document.body.appendChild(el);
+    await tick();
+
+    const container = el.shadowRoot!.querySelector(".tooltip-container") as HTMLElement;
+    triggerOf(el).dispatchEvent(new FocusEvent("focusin"));
+    await tick();
+
+    const tooltip = el.shadowRoot!.querySelector<HTMLElement>("[role='tooltip']");
+    expect(tooltip).toBeTruthy();
+    expect(tooltip?.style.getPropertyValue("--elf-tooltip-max-width")).toBe("280px");
+    expect(button.getAttribute("aria-describedby")?.split(" ")).toEqual([
+      "existing-help",
+      tooltip?.id
+    ]);
+
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    await tick();
+
+    expect(button.getAttribute("aria-describedby")).toBe("existing-help");
+    expect(el.shadowRoot!.querySelector(".tooltip-content")?.className).toContain("closing");
+  });
+
+  it("auto placement 在顶部空间不足时选择可用方向", async () => {
+    const el = document.createElement("elf-tooltip") as TooltipEl;
+    el.content = "自动避让";
+    el.placement = "auto";
+    el.innerHTML = "<button>目标</button>";
+    document.body.appendChild(el);
+    await tick();
+
+    const container = el.shadowRoot!.querySelector(".tooltip-container") as HTMLElement;
+    triggerOf(el).dispatchEvent(new MouseEvent("mouseenter"));
+    await tick();
+    await tick();
+
+    expect(el.shadowRoot!.querySelector(".tooltip-content")?.className).toContain("bottom");
   });
 
   it("Click 模式下点击切换，点击外部关闭", async () => {
@@ -96,19 +163,19 @@ describe("elf-tooltip", () => {
     const container = el.shadowRoot!.querySelector(".tooltip-container") as HTMLElement;
 
     // 第一次点击：显示
-    container.dispatchEvent(new MouseEvent("click"));
+    triggerOf(el).dispatchEvent(new MouseEvent("click"));
     await tick();
     await tick();
     expect(el.shadowRoot!.querySelector(".tooltip-content")).toBeTruthy();
 
     // 第二次点击：隐藏
-    container.dispatchEvent(new MouseEvent("click"));
+    triggerOf(el).dispatchEvent(new MouseEvent("click"));
     await tick();
     await wait(160);
     expect(el.shadowRoot!.querySelector(".tooltip-content")).toBeNull();
 
     // 再次显示后点击外部
-    container.dispatchEvent(new MouseEvent("click"));
+    triggerOf(el).dispatchEvent(new MouseEvent("click"));
     await tick();
     await tick();
     expect(el.shadowRoot!.querySelector(".tooltip-content")).toBeTruthy();
@@ -132,7 +199,7 @@ describe("elf-tooltip", () => {
 
     // 右键触发
     const contextMenuEvt = new MouseEvent("contextmenu", { cancelable: true });
-    container.dispatchEvent(contextMenuEvt);
+    triggerOf(el).dispatchEvent(contextMenuEvt);
     await tick();
     await tick();
     expect(contextMenuEvt.defaultPrevented).toBe(true);
@@ -171,12 +238,13 @@ describe("elf-tooltip", () => {
     el.content = "延迟提示";
     el.showAfter = 100;
     el.hideAfter = 100;
+    el.innerHTML = "<button>延迟触发</button>";
     document.body.appendChild(el);
     await tick();
 
     const container = el.shadowRoot!.querySelector(".tooltip-container") as HTMLElement;
 
-    container.dispatchEvent(new MouseEvent("mouseenter"));
+    triggerOf(el).dispatchEvent(new MouseEvent("mouseenter"));
     await tick();
     // 立即检查，因为有 100ms 延迟，应当还未显示
     expect(el.shadowRoot!.querySelector(".tooltip-content")).toBeNull();
@@ -185,7 +253,7 @@ describe("elf-tooltip", () => {
     await wait(110);
     expect(el.shadowRoot!.querySelector(".tooltip-content")).toBeTruthy();
 
-    container.dispatchEvent(new MouseEvent("mouseleave"));
+    triggerOf(el).dispatchEvent(new MouseEvent("mouseleave"));
     await tick();
     // 立即检查，应当还没开始隐藏
     expect(el.shadowRoot!.querySelector(".tooltip-content")!.className).not.toContain("closing");
@@ -203,11 +271,12 @@ describe("elf-tooltip", () => {
     const el = document.createElement("elf-tooltip") as TooltipEl;
     el.content = "禁用提示";
     el.disabled = true;
+    el.innerHTML = "<button>禁用触发</button>";
     document.body.appendChild(el);
     await tick();
 
     const container = el.shadowRoot!.querySelector(".tooltip-container") as HTMLElement;
-    container.dispatchEvent(new MouseEvent("mouseenter"));
+    triggerOf(el).dispatchEvent(new MouseEvent("mouseenter"));
     await tick();
     await tick();
 
@@ -219,11 +288,12 @@ describe("elf-tooltip", () => {
     el.content = "样式提示";
     el.placement = "bottom";
     el.effect = "light";
+    el.innerHTML = "<button>样式触发</button>";
     document.body.appendChild(el);
     await tick();
 
     const container = el.shadowRoot!.querySelector(".tooltip-container") as HTMLElement;
-    container.dispatchEvent(new MouseEvent("mouseenter"));
+    triggerOf(el).dispatchEvent(new MouseEvent("mouseenter"));
     await tick();
     await tick();
 
@@ -234,12 +304,12 @@ describe("elf-tooltip", () => {
 
   it("可以通过 slot name='content' 传入自定义内容", async () => {
     const el = document.createElement("elf-tooltip") as TooltipEl;
-    el.innerHTML = "<div slot='content'>自定义内容</div>";
+    el.innerHTML = "<button>触发</button><div slot='content'>自定义内容</div>";
     document.body.appendChild(el);
     await tick();
 
     const container = el.shadowRoot!.querySelector(".tooltip-container") as HTMLElement;
-    container.dispatchEvent(new MouseEvent("mouseenter"));
+    triggerOf(el).dispatchEvent(new MouseEvent("mouseenter"));
     await tick();
     await tick();
 
@@ -265,6 +335,70 @@ describe("elf-tooltip", () => {
     el.hide!();
     await tick();
     await wait(160);
+    expect(el.shadowRoot!.querySelector(".tooltip-content")).toBeNull();
+  });
+
+  it("公开显隐方法按顺序派发生命周期事件", async () => {
+    const el = document.createElement("elf-tooltip") as TooltipEl;
+    el.content = "生命周期";
+    document.body.appendChild(el);
+    await tick();
+    const events: string[] = [];
+    for (const name of ["before-show", "show", "before-hide", "hide"]) {
+      el.addEventListener(name, () => events.push(name));
+    }
+
+    el.show!();
+    await tick();
+    el.hide!();
+    await wait(170);
+
+    expect(events).toEqual(["before-show", "show", "before-hide", "hide"]);
+  });
+});
+
+describe("elf-tooltip touch long press", () => {
+  it("触屏长按打开提示，松手后保持，并允许外部点击关闭", async () => {
+    const el = document.createElement("elf-tooltip") as TooltipEl;
+    const button = document.createElement("button");
+    button.textContent = "长按查看说明";
+    el.appendChild(button);
+    el.content = "触屏补充说明";
+    el.longPressDelay = 120;
+    document.body.appendChild(el);
+    await tick();
+
+    const container = el.shadowRoot!.querySelector(".tooltip-container") as HTMLElement;
+    triggerOf(el).dispatchEvent(touchPointerEvent("pointerdown", 20, 20));
+    await wait(130);
+
+    const tooltip = el.shadowRoot!.querySelector<HTMLElement>("[role='tooltip']");
+    expect(tooltip).toBeTruthy();
+    expect(button.getAttribute("aria-describedby")).toContain(tooltip!.id);
+
+    triggerOf(el).dispatchEvent(touchPointerEvent("pointerup", 20, 20));
+    await tick();
+    expect(el.shadowRoot!.querySelector(".tooltip-content")).toBeTruthy();
+
+    document.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    await wait(170);
+    expect(el.shadowRoot!.querySelector(".tooltip-content")).toBeNull();
+  });
+
+  it("触屏长按期间移动超过容差时取消打开", async () => {
+    const el = document.createElement("elf-tooltip") as TooltipEl;
+    el.content = "不应显示";
+    el.longPressDelay = 120;
+    el.longPressTolerance = 8;
+    el.innerHTML = "<button>可滚动目标</button>";
+    document.body.appendChild(el);
+    await tick();
+
+    const container = el.shadowRoot!.querySelector(".tooltip-container") as HTMLElement;
+    triggerOf(el).dispatchEvent(touchPointerEvent("pointerdown", 10, 10));
+    triggerOf(el).dispatchEvent(touchPointerEvent("pointermove", 30, 10));
+    await wait(140);
+
     expect(el.shadowRoot!.querySelector(".tooltip-content")).toBeNull();
   });
 });
