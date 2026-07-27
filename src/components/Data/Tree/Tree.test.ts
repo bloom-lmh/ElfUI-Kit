@@ -539,4 +539,33 @@ describe("elf-tree", () => {
     expect(target.classList.contains("is-drop-target")).toBe(false);
     expect(labels(el)).toEqual(["源目录", "目标目录", "占位资源", "设计资源"]);
   });
+
+  it("supports keyboard grabbing and before/after sibling reordering", async () => {
+    const el = await mount((tree) => {
+      tree.data = [
+        { key: "a", label: "Alpha" },
+        { key: "b", label: "Beta" },
+        { key: "c", label: "Gamma" }
+      ];
+      tree.draggable = true;
+    });
+    const onDrop = vi.fn();
+    el.addEventListener("node-drop", onDrop as EventListener);
+    const contents = el.shadowRoot!.querySelectorAll<HTMLElement>(".tree-content");
+
+    contents[0]!.dispatchEvent(new KeyboardEvent("keydown", { key: " ", bubbles: true, cancelable: true }));
+    await tick();
+    expect(contents[0]!.closest(".tree-node")?.getAttribute("aria-grabbed")).toBe("true");
+
+    contents[0]!.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true, cancelable: true }));
+    await tick();
+    expect(el.shadowRoot!.activeElement?.textContent).toContain("Beta");
+    (el.shadowRoot!.activeElement as HTMLElement).dispatchEvent(
+      new KeyboardEvent("keydown", { key: "Enter", bubbles: true, cancelable: true })
+    );
+    await tick();
+
+    expect(labels(el)).toEqual(["Beta", "Alpha", "Gamma"]);
+    expect((onDrop.mock.calls[0]![0] as CustomEvent).detail[2]).toBe("after");
+  });
 });

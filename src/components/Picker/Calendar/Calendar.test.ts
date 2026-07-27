@@ -17,6 +17,7 @@ interface CalendarEl extends HTMLElement {
   modelValue?: string | string[];
   range?: boolean;
   disabledDate?: (date: Date) => boolean;
+  renderDateCell?: (cell: { label: number }) => Node;
   locale?: string;
 }
 
@@ -138,6 +139,26 @@ describe("elf-calendar", () => {
     expect(el.shadowRoot!.querySelector(".header")?.textContent).toContain("8");
   });
 
+  it("selects with Enter or Space and skips disabled dates during keyboard navigation", async () => {
+    const el = document.createElement("elf-calendar") as CalendarEl;
+    el.modelValue = "2026-07-03";
+    el.disabledDate = (date) => date.getDay() === 0 || date.getDay() === 6;
+    const onChange = vi.fn();
+    el.addEventListener("change", onChange as EventListener);
+    document.body.appendChild(el);
+    await tick();
+
+    const friday = el.shadowRoot!.querySelector('[data-date="2026-07-03"]') as HTMLButtonElement;
+    friday.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true, cancelable: true }));
+    await tick();
+    await tick();
+
+    const monday = el.shadowRoot!.querySelector('[data-date="2026-07-06"]') as HTMLButtonElement;
+    expect(el.shadowRoot!.activeElement).toBe(monday);
+    monday.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true, cancelable: true }));
+    expect((onChange.mock.calls.at(-1)![0] as CustomEvent).detail).toBe("2026-07-06");
+  });
+
   it("exposes both committed range endpoints as selected", async () => {
     const el = document.createElement("elf-calendar") as CalendarEl;
     el.modelValue = ["2026-07-08", "2026-07-12"];
@@ -147,5 +168,22 @@ describe("elf-calendar", () => {
 
     expect(el.shadowRoot!.querySelector('[data-date="2026-07-08"]')?.getAttribute("aria-selected")).toBe("true");
     expect(el.shadowRoot!.querySelector('[data-date="2026-07-12"]')?.getAttribute("aria-selected")).toBe("true");
+  });
+
+  it("renders typed date-cell content inside every semantic day button", async () => {
+    const el = document.createElement("elf-calendar") as CalendarEl;
+    el.modelValue = "2026-07-05";
+    el.renderDateCell = (cell) => {
+      const content = document.createElement("span");
+      content.textContent = `Day ${cell.label}`;
+      return content;
+    };
+    document.body.appendChild(el);
+    await tick();
+
+    const contents = el.shadowRoot!.querySelectorAll<HTMLElement>("button.day .date-cell-content");
+    expect(contents).toHaveLength(42);
+    expect(contents[0]?.textContent).toContain("Day");
+    expect(contents[0]?.parentElement?.tagName).toBe("BUTTON");
   });
 });

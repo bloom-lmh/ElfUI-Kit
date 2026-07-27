@@ -74,6 +74,7 @@ export interface TableTooltipOptions {
 
 export type TableRowClassName = string | ((context: TableRowContext) => string);
 export type TableRowStyle = TableStyle | ((context: TableRowContext) => TableStyle);
+export type TableRowHeight = number | ((context: TableRowContext) => number);
 export type TableCellClassName = string | ((context: TableCellContext) => string);
 export type TableCellStyle = TableStyle | ((context: TableCellContext) => TableStyle);
 export type TableHeaderRowClassName =
@@ -197,8 +198,8 @@ export interface TableProps {
   virtual: boolean;
   /** Minimum row count before virtualization activates. */
   virtualThreshold: number;
-  /** Fixed row height used by the virtual window. */
-  rowHeight: number;
+  /** Fixed or per-row height used by the virtual window. */
+  rowHeight: TableRowHeight;
   /** Extra rows rendered before and after the viewport. */
   overscan: number;
   fit: boolean;

@@ -12,8 +12,8 @@
 
 ## 后续项
 
-- [ ] P1 `append-to`：需要在 Shadow DOM 外建立并同步定位的覆盖层，不能以移动宿主节点的方式伪实现。
-- [ ] P2 `anti-tamper`：需要定义可恢复范围与 MutationObserver 的性能边界后再实现。
+- [x] P1 `append-to`：在目标容器创建独立覆盖层，内容与宿主节点保持原位，并同步主题化 SVG 背景。
+- [x] P2 `anti-tamper`：观察范围仅限目标直接子节点与覆盖层 `style/class`，删除或篡改后合并到单个微任务恢复。
 
 ## 验收记录
 

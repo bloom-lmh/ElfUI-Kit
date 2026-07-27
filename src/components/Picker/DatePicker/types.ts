@@ -5,6 +5,15 @@ export type DatePickerType = "date" | "datetime-local" | "month" | "week";
 export type DatePickerValue = string | string[];
 export type DatePickerVariant = FieldVariant;
 export type DatePickerSize = "small" | "default" | "large" | "sm" | "md" | "lg" | "";
+export type DatePickerPlacement = "bottom" | "bottom-start" | "bottom-end" | "top" | "top-start" | "top-end" | "left" | "right";
+
+export interface DatePickerPopperOptions {
+  placement?: DatePickerPlacement;
+  offset?: readonly [crossAxis: number, mainAxis: number];
+  padding?: number;
+  flip?: boolean;
+  fallbackPlacements?: DatePickerPlacement[];
+}
 
 export interface DateShortcut {
   label: string;
@@ -36,6 +45,12 @@ export interface DatePickerProps {
   startPlaceholder: string;
   endPlaceholder: string;
   rangeSeparator: string;
+  defaultValue: string;
+  defaultTime: string | [string, string];
+  unlinkPanels: boolean;
+  singlePanel: boolean;
+  cellClassName?: (date: Date) => string;
+  showWeekNumber: boolean;
   disabled: boolean;
   readonly: boolean;
   editable: boolean;
@@ -53,11 +68,21 @@ export interface DatePickerProps {
   clearText: string;
   /** 使用原生 Popover Top Layer 避免被父级层叠上下文遮挡 */
   teleported: boolean;
-  placement: "top-start" | "bottom-start";
+  placement: DatePickerPlacement;
+  fallbackPlacements: DatePickerPlacement[];
+  popperOptions: DatePickerPopperOptions;
   popperClass: string;
   popperStyle: Record<string, string>;
   showFooter: boolean;
   showConfirm: boolean;
+}
+
+export interface DatePickerSlots {
+  "range-separator"?: unknown;
+  "prev-month"?: unknown;
+  "next-month"?: unknown;
+  "prev-year"?: unknown;
+  "next-year"?: unknown;
 }
 
 export interface DatePickerExpose {

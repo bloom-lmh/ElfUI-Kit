@@ -1,9 +1,9 @@
-import { defineHtml, defineProps, defineStyle, html, useHostCssVar } from "@elfui/core";
+import { defineExpose, defineHtml, defineProps, defineStyle, onBeforeUnmount, onMounted, useEffect, useHost, useHostCssVar, useHostFlag } from "@elfui/core";
 
 import styles from "./style.scss?inline";
-import type { WatermarkFont, WatermarkProps, WatermarkSlots } from "./types";
+import type { WatermarkExpose, WatermarkFont, WatermarkProps, WatermarkSlots } from "./types";
 
-export type { WatermarkFont, WatermarkProps, WatermarkSlots } from "./types";
+export type { WatermarkExpose, WatermarkFont, WatermarkProps, WatermarkSlots } from "./types";
 
 const props = defineProps<WatermarkProps>({
   content: { type: [String, Array], default: "" },
@@ -18,8 +18,18 @@ const props = defineProps<WatermarkProps>({
   offsetY: { type: Number, default: undefined },
   fontSize: { type: Number, default: 16 },
   fontColor: { type: String, default: "rgba(0,0,0,0.15)" },
-  font: { type: Object, default: () => ({}) }
+  font: { type: Object, default: () => ({}) },
+  appendTo: { type: null, default: null },
+  antiTamper: { type: Boolean, default: false }
 });
+
+const host = useHost();
+let overlay: HTMLElement | null = null;
+let overlayTarget: HTMLElement | null = null;
+let observer: MutationObserver | null = null;
+let restoredTargetPosition = "";
+let targetPositionPatched = false;
+let restorationQueued = false;
 
 const font = (): WatermarkFont =>
   props.font && typeof props.font === "object" ? props.font : {};
@@ -73,6 +83,88 @@ const svgText = (): string => {
 };
 
 const backgroundImage = (): string => `url("data:image/svg+xml,${encodeURIComponent(svgText())}")`;
+const backgroundSize = (): string =>
+  `${tileWidth() + Number(props.gapX || 0)}px ${tileHeight() + Number(props.gapY || 0)}px`;
+const backgroundPosition = (): string =>
+  `${Number(props.offsetX ?? props.gapX / 2) || 0}px ${Number(props.offsetY ?? props.gapY / 2) || 0}px`;
+
+const resolveAppendTarget = (): HTMLElement | null => {
+  if (props.appendTo instanceof HTMLElement) return props.appendTo;
+  if (typeof props.appendTo !== "string" || !props.appendTo.trim()) return null;
+  const selector = props.appendTo.trim();
+  const localRoot = host.getRootNode() as Document | ShadowRoot;
+  return localRoot.querySelector<HTMLElement>(selector) ?? document.querySelector<HTMLElement>(selector);
+};
+
+const applyOverlayStyle = (element: HTMLElement): void => {
+  element.style.setProperty("--_watermark-image", backgroundImage());
+  Object.assign(element.style, {
+    position: "absolute",
+    inset: "0px",
+    zIndex: String(Number(props.zIndex) || 9),
+    pointerEvents: "none",
+    backgroundImage: "var(--_watermark-image)",
+    backgroundPosition: backgroundPosition(),
+    backgroundRepeat: "repeat",
+    backgroundSize: backgroundSize()
+  });
+};
+
+const disconnectObserver = (): void => {
+  observer?.disconnect();
+  observer = null;
+};
+
+const cleanupExternalOverlay = (): void => {
+  disconnectObserver();
+  overlay?.remove();
+  if (overlayTarget && targetPositionPatched) overlayTarget.style.position = restoredTargetPosition;
+  overlay = null;
+  overlayTarget = null;
+  targetPositionPatched = false;
+  restoredTargetPosition = "";
+};
+
+const queueRestore = (): void => {
+  if (restorationQueued) return;
+  restorationQueued = true;
+  queueMicrotask(() => {
+    restorationQueued = false;
+    syncExternalOverlay();
+  });
+};
+
+const observeExternalOverlay = (): void => {
+  disconnectObserver();
+  if (!props.antiTamper || !overlayTarget || typeof MutationObserver === "undefined") return;
+  observer = new MutationObserver(queueRestore);
+  observer.observe(overlayTarget, { childList: true });
+  if (overlay) observer.observe(overlay, { attributes: true, attributeFilter: ["style", "class"] });
+};
+
+const syncExternalOverlay = (): void => {
+  disconnectObserver();
+  const target = resolveAppendTarget();
+  if (!target || target === host || host.contains(target)) {
+    cleanupExternalOverlay();
+    return;
+  }
+  if (target !== overlayTarget) cleanupExternalOverlay();
+  overlayTarget = target;
+  if (getComputedStyle(target).position === "static") {
+    restoredTargetPosition = target.style.position;
+    target.style.position = "relative";
+    targetPositionPatched = true;
+  }
+  if (!overlay) {
+    overlay = document.createElement("div");
+    overlay.dataset.elfWatermarkOverlay = "";
+    overlay.setAttribute("aria-hidden", "true");
+  }
+  applyOverlayStyle(overlay);
+  if (overlay.parentElement !== target) target.appendChild(overlay);
+  observeExternalOverlay();
+};
 
 useHostCssVar("--_watermark-bg", backgroundImage);
 useHostCssVar(
@@ -82,10 +174,24 @@ useHostCssVar(
 useHostCssVar("--_watermark-z", () => String(Number(props.zIndex) || 9));
 useHostCssVar("--_watermark-offset-x", () => `${Number(props.offsetX ?? props.gapX / 2) || 0}px`);
 useHostCssVar("--_watermark-offset-y", () => `${Number(props.offsetY ?? props.gapY / 2) || 0}px`);
+useHostFlag("data-external", () => Boolean(resolveAppendTarget()));
+
+useEffect(() => {
+  void props.appendTo;
+  void props.antiTamper;
+  void backgroundImage();
+  void backgroundSize();
+  void backgroundPosition();
+  queueMicrotask(syncExternalOverlay);
+});
+
+onMounted(syncExternalOverlay);
+onBeforeUnmount(cleanupExternalOverlay);
+defineExpose<WatermarkExpose>({ refresh: syncExternalOverlay });
 
 defineStyle(styles);
 
-const Watermark = defineHtml<WatermarkProps, Record<string, never>, WatermarkSlots>(html`
+const Watermark = defineHtml<WatermarkProps, Record<string, never>, WatermarkSlots>(`
   <div class="watermark" part="watermark">
     <div class="content" part="content">
       <slot></slot>

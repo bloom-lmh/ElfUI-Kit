@@ -236,7 +236,7 @@
 
 ## 差距与任务
 
-- [ ] P0 剩余高级属性：`popper-options`、`fallback-placements` 与 `default-value`；格式、禁用时分秒、Top Layer、位置、图标、空值、标签和无障碍属性已完成。
+- [x] P0 高级属性：完成 `popper-options`、`fallback-placements` 与 `default-value`；格式、禁用时分秒、Top Layer、位置、图标、空值、标签和无障碍属性已完成。
 - [x] P0 补齐事件差距：`blur`、`focus`、`visible-change`
 - [x] P1 补齐插槽/暴露方法：`focus`、`blur`、`handleOpen ^`、`handleClose ^`
 - [x] P1 对齐交互行为、键盘访问、禁用态、清空态、受控同步、表单联动和无障碍属性。

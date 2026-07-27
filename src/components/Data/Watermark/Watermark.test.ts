@@ -24,6 +24,9 @@ interface WatermarkEl extends HTMLElement {
     fontFamily?: string;
     textAlign?: "left" | "center" | "right" | "start" | "end";
   };
+  appendTo?: string | HTMLElement;
+  antiTamper?: boolean;
+  refresh?: () => void;
 }
 
 describe("elf-watermark", () => {
@@ -69,5 +72,26 @@ describe("elf-watermark", () => {
     expect(background).toContain('font-family="Inter, sans-serif"');
     expect(background).toContain('x="100%"');
     expect(background).toContain('text-anchor="end"');
+  });
+
+  it("mounts an external overlay and restores it after tampering", async () => {
+    const target = document.createElement("section");
+    target.id = "watermark-target";
+    document.body.appendChild(target);
+    const el = document.createElement("elf-watermark") as WatermarkEl;
+    el.content = ["ElfUI", "Confidential"];
+    el.appendTo = target;
+    el.antiTamper = true;
+    target.appendChild(el);
+    await tick();
+    await tick();
+
+    const overlay = target.querySelector<HTMLElement>("[data-elf-watermark-overlay]")!;
+    expect(overlay.style.getPropertyValue("--_watermark-image")).toContain("data:image/svg+xml");
+    expect(el.hasAttribute("data-external")).toBe(true);
+    overlay.remove();
+    await tick();
+    await tick();
+    expect(target.querySelector("[data-elf-watermark-overlay]")).toBeTruthy();
   });
 });

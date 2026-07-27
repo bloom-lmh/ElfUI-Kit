@@ -21,7 +21,7 @@ import styles from "./style.scss?inline";
 import { computeAnchoredPosition } from "../../Common/anchored-overlay";
 import { useLocaleProvider } from "../../Providers/context";
 import { buildTableTree, normalizeTableTreeProps } from "./tree";
-import { computeVirtualWindow, type VirtualWindow } from "../virtual-window";
+import { computeVariableVirtualWindow, computeVirtualWindow, type VirtualWindow } from "../virtual-window";
 import type {
   TableCellContext,
   TableColumn,
@@ -57,6 +57,7 @@ export type {
   TableRenderValue,
   TableRow,
   TableRowContext,
+  TableRowHeight,
   TableRowKey,
   TableScrollDetail,
   TableSize,
@@ -114,7 +115,7 @@ const props = defineProps<TableProps>({
   maxHeight: { type: [String, Number], default: "" },
   virtual: { type: Boolean, default: false },
   virtualThreshold: { type: Number, default: 100 },
-  rowHeight: { type: Number, default: 48 },
+  rowHeight: { type: [Number, Function], default: 48 },
   overscan: { type: Number, default: 5 },
   fit: { type: Boolean, default: true },
   tableLayout: { type: String, default: "fixed" },
@@ -204,6 +205,9 @@ let scrollEventQueued = false;
 let pendingScrollDetail: TableScrollDetail | null = null;
 let cachedVirtualKey = "";
 let cachedVirtualWindow: VirtualWindow = { start: 0, end: 0, offset: 0, totalSize: 0 };
+let cachedRowHeightSource: TableRowView[] | null = null;
+let cachedRowHeightResolver: TableProps["rowHeight"] | null = null;
+let cachedRowOffsets: number[] = [];
 let cachedRenderSource: TableRowView[] | null = null;
 let cachedRenderStart = -1;
 let cachedRenderEnd = -1;
@@ -764,6 +768,34 @@ const isVirtualized = (): boolean =>
   !isTreeState.value &&
   rowsState.value.length >= Math.max(0, Number(props.virtualThreshold) || 0);
 
+const resolveVirtualRowHeight = (row: TableRowView): number => {
+  const value = props.rowHeight;
+  if (typeof value !== "function") return Math.max(1, Number(value) || 48);
+  try {
+    return Math.max(1, Number(value({ row: row.raw, rowIndex: row.index })) || 48);
+  } catch {
+    return 48;
+  }
+};
+
+const virtualRowOffsets = (): number[] => {
+  const source = rowsState.value;
+  if (
+    source === cachedRowHeightSource &&
+    props.rowHeight === cachedRowHeightResolver &&
+    cachedRowOffsets.length === source.length + 1
+  ) return cachedRowOffsets;
+  const offsets = new Array<number>(source.length + 1);
+  offsets[0] = 0;
+  for (let index = 0; index < source.length; index += 1) {
+    offsets[index + 1] = offsets[index]! + resolveVirtualRowHeight(source[index]!);
+  }
+  cachedRowHeightSource = source;
+  cachedRowHeightResolver = props.rowHeight;
+  cachedRowOffsets = offsets;
+  return offsets;
+};
+
 const virtualWindowAt = (scrollOffset: number): VirtualWindow => {
   const wrap = wrapRef.value;
   const viewportSize = Math.max(
@@ -771,18 +803,15 @@ const virtualWindowAt = (scrollOffset: number): VirtualWindow => {
     (wrap?.clientHeight || cssSizeNumber(cssSize(props.height))) - (props.showHeader ? 48 : 0),
   );
   const count = rowsState.value.length;
-  const itemSize = Math.max(1, Number(props.rowHeight) || 48);
   const overscan = Math.max(0, Number(props.overscan) || 0);
+  if (typeof props.rowHeight === "function") {
+    return computeVariableVirtualWindow({ offsets: virtualRowOffsets(), viewportSize, scrollOffset, overscan });
+  }
+  const itemSize = Math.max(1, Number(props.rowHeight) || 48);
   const key = `${count}:${itemSize}:${viewportSize}:${scrollOffset}:${overscan}`;
   if (key === cachedVirtualKey) return cachedVirtualWindow;
   cachedVirtualKey = key;
-  cachedVirtualWindow = computeVirtualWindow({
-    count,
-    itemSize,
-    viewportSize,
-    scrollOffset,
-    overscan,
-  });
+  cachedVirtualWindow = computeVirtualWindow({ count, itemSize, viewportSize, scrollOffset, overscan });
   return cachedVirtualWindow;
 };
 
@@ -831,7 +860,9 @@ const wrapStyle = (): Record<string, string> => {
   const style: Record<string, string> = {};
   if (props.height) style.height = cssSize(props.height);
   if (props.maxHeight) style.maxHeight = cssSize(props.maxHeight);
-  if (isVirtualized()) style["--_virtual-row-height"] = `${Math.max(1, Number(props.rowHeight) || 48)}px`;
+  if (isVirtualized() && typeof props.rowHeight !== "function") {
+    style["--_virtual-row-height"] = `${Math.max(1, Number(props.rowHeight) || 48)}px`;
+  }
   return style;
 };
 
@@ -897,14 +928,19 @@ const resolveRowClass = (row: TableRowView): string => {
 
 const resolveRowStyle = (row: TableRowView): TableStyle => {
   const value = props.rowStyle;
+  let style: TableStyle = {};
   if (typeof value === "function") {
     try {
-      return value({ row: row.raw, rowIndex: row.index }) || {};
+      style = value({ row: row.raw, rowIndex: row.index }) || {};
     } catch {
-      return {};
+      style = {};
     }
+  } else if (value && typeof value === "object") {
+    style = value as TableStyle;
   }
-  return value && typeof value === "object" ? (value as TableStyle) : {};
+  return isVirtualized() && typeof props.rowHeight === "function"
+    ? { ...style, height: `${resolveVirtualRowHeight(row)}px` }
+    : style;
 };
 
 const cellContext = (column: TableColumnView, row: TableRowView): TableCellContext => ({
@@ -2161,6 +2197,7 @@ const classNamesOf = (value: unknown): string[] => {
 
 const canUseFastVirtualBody = (): boolean =>
   isVirtualized() &&
+  typeof props.rowHeight !== "function" &&
   !props.showSummary &&
   typeof props.spanMethod !== "function" &&
   typeof props.rowClassName !== "function" &&
@@ -2387,7 +2424,7 @@ defineStyle(styles);
 const Table = defineHtml<TableProps>(`
   <div class="table-root" :class=${tableClass()}>
     <div v-if=${props.title} class="table-title" part="title">${props.title}</div>
-    <div ref="wrap" class="table-wrap" :style=${wrapStyle()} @scroll=${onScroll}>
+    <div ref="wrap" class="table-wrap" part="scroll" :style=${wrapStyle()} @scroll=${onScroll}>
       <table part="table" :style=${tableStyle()} :role=${isTreeState ? "treegrid" : null} :aria-label=${props.title || null}>
         <colgroup>
           <col v-for="column in getColumns()" :key="column.id" :style="colStyle(column)" />
@@ -2629,7 +2666,7 @@ const Table = defineHtml<TableProps>(`
           </tr>
         </tfoot>
       </table>
-      <div v-if=${getRows().length === 0} class="empty">
+      <div v-if=${getRows().length === 0} class="empty" part="empty">
         <slot name="empty">${props.emptyText || locale.t("table.empty")}</slot>
       </div>
       <div class="append"><slot name="append"></slot></div>

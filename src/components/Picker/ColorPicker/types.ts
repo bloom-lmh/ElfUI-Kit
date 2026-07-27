@@ -31,6 +31,10 @@ export interface ColorPickerProps {
   persistent: boolean;
   popperClass: string;
   popperStyle: Record<string, string>;
+  /** 将面板挂载到指定容器；面板仍保留独立 Shadow Root 与组件样式。 */
+  appendTo: string | HTMLElement | null;
+  hueSliderClass: string;
+  hueSliderStyle: Record<string, string>;
   border: boolean;
 }
 

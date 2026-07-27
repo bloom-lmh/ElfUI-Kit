@@ -53,6 +53,9 @@ const props = defineProps<ColorPickerProps>({
     persistent: { type: Boolean, default: false },
     popperClass: { type: String, default: "" },
     popperStyle: { type: Object, default: () => ({}) },
+    appendTo: { type: null, default: null },
+    hueSliderClass: { type: String, default: "" },
+    hueSliderStyle: { type: Object, default: () => ({}) },
     border: { type: Boolean, default: true },
 });
 
@@ -82,6 +85,9 @@ const open = useRef(false);
 const panelStyle = useRef<Record<string, string>>({});
 let cleanupOverlayMotion = (): void => {};
 let overlayFrame = 0;
+let portalHost: HTMLElement | null = null;
+let portalRoot: ShadowRoot | null = null;
+let panelOrigin: { parent: Node; next: Node | null } | null = null;
 
 const resolvedFormat = (): ColorFormat =>
     (props.colorFormat || props.format || "hex") as ColorFormat;
@@ -205,10 +211,46 @@ const presetStyle = (preset: ColorPreset): Record<string, string> => ({
 
 const nativeColorValue = (): string => normalizeHex(color.value) || "#6750a4";
 
-const getPanel = (): HTMLElement | null => host.shadowRoot?.querySelector<HTMLElement>(".panel") ?? null;
+const getPanel = (): HTMLElement | null =>
+    portalRoot?.querySelector<HTMLElement>(".panel")
+    ?? host.shadowRoot?.querySelector<HTMLElement>(".panel")
+    ?? null;
+
+const resolveAppendTarget = (): HTMLElement | null => {
+    if (props.appendTo instanceof HTMLElement) return props.appendTo;
+    if (typeof props.appendTo !== "string" || !props.appendTo.trim()) return null;
+    const selector = props.appendTo.trim();
+    const localRoot = host.getRootNode() as Document | ShadowRoot;
+    return localRoot.querySelector<HTMLElement>(selector) ?? document.querySelector<HTMLElement>(selector);
+};
+
+const usesTopLayer = (): boolean => Boolean(props.teleported || resolveAppendTarget());
+
+const mountPanelPortal = (panel: HTMLElement): void => {
+    const target = resolveAppendTarget();
+    if (!target || target === host || host.contains(target) || portalHost) return;
+    panelOrigin = { parent: panel.parentNode!, next: panel.nextSibling };
+    portalHost = document.createElement("div");
+    portalHost.dataset.elfColorPickerPortal = "";
+    portalHost.style.display = "contents";
+    portalRoot = portalHost.attachShadow({ mode: "open" });
+    const style = document.createElement("style");
+    style.textContent = styles;
+    portalRoot.append(style, panel);
+    target.appendChild(portalHost);
+};
+
+const restorePanelPortal = (): void => {
+    const panel = portalRoot?.querySelector<HTMLElement>(".panel");
+    if (panel && panelOrigin?.parent.isConnected) panelOrigin.parent.insertBefore(panel, panelOrigin.next);
+    portalHost?.remove();
+    portalHost = null;
+    portalRoot = null;
+    panelOrigin = null;
+};
 
 const updatePanelPosition = (): void => {
-    if (!props.teleported || !open.peek() || typeof window === "undefined") {
+    if (!usesTopLayer() || !open.peek() || typeof window === "undefined") {
         panelStyle.set({ ...(props.popperStyle || {}) });
         return;
     }
@@ -257,9 +299,11 @@ const show = (): void => {
     open.set(true);
     emit("visible-change", true);
     queueMicrotask(() => {
+        const initialPanel = getPanel();
+        if (initialPanel) mountPanelPortal(initialPanel);
         const panel = getPanel() as (HTMLElement & { showPopover?: () => void }) | null;
         try {
-            if (props.teleported) panel?.showPopover?.();
+            if (usesTopLayer()) panel?.showPopover?.();
         } catch {
             // The panel may already be promoted while the reactive tree settles.
         }
@@ -271,10 +315,11 @@ const hide = (): void => {
     if (!open.peek()) return;
     const panel = getPanel() as (HTMLElement & { hidePopover?: () => void }) | null;
     try {
-        if (props.teleported) panel?.hidePopover?.();
+        if (usesTopLayer()) panel?.hidePopover?.();
     } catch {
         // The panel may already be detached by the reactive render.
     }
+    restorePanelPortal();
     open.set(false);
     emit("visible-change", false);
 };
@@ -340,6 +385,7 @@ onBeforeUnmount(() => {
     window.removeEventListener("resize", requestPanelUpdate);
     window.visualViewport?.removeEventListener("resize", requestPanelUpdate);
     if (overlayFrame && typeof cancelAnimationFrame === "function") cancelAnimationFrame(overlayFrame);
+    restorePanelPortal();
 });
 
 defineExpose({
@@ -398,13 +444,14 @@ const ColorPicker = defineHtml(`
         <div
             v-if=${open}
             :class=${["panel", props.popperClass]}
-            :popover=${props.teleported ? "manual" : undefined}
+            :popover=${usesTopLayer() ? "manual" : undefined}
             :style=${resolvedPanelStyle}
             @keydown=${onPanelKeydown}
         >
             <div class="panel-color-row">
                 <input
-                    class="native"
+                    :class=${["native", props.hueSliderClass]}
+                    :style=${props.hueSliderStyle}
                     type="color"
                     :value.prop=${nativeColorValue()}
                     :disabled=${isDisabled()}

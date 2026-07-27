@@ -340,7 +340,7 @@
 - [x] P1 对齐键盘树导航、禁用态、空状态、受控/非受控同步、ARIA tree/treeitem 状态和 roving tabindex。
 - [x] P2 将“大数据虚拟树”和“小型目录拖拽”拆成独立案例，补齐 Template / Script 和类型导出。
 - [x] P2 补齐组件单测、页面冒烟与视觉验证。
-- [ ] P1 拖拽目前采用稳定的 `inner` 投放；若产品需要同级排序，再扩展 `before/after` 命中区域与键盘拖拽。
+- [x] P1 拖拽支持 `before / after / inner` 命中区域，并提供 Space 抓取、方向键定位、Enter 投放、Escape 取消的键盘路径。
 - [ ] P2 `render-after-expand=false` 与 scoped default slot 依赖重复宏模板的稳定作用域插槽能力，当前以 `render-content` 覆盖主要定制场景。
 - [ ] P2 TreeSelect 保持独立组合组件规划，不把 Select 的弹层、搜索和表单职责塞进 Tree。
 

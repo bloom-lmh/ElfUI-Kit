@@ -137,6 +137,18 @@
     background: color-mix(in srgb, var(--elf-primary) 16%, var(--elf-bg-paper));
     box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--elf-primary) 72%, transparent);
   }
+
+  &.is-drop-target[data-drop-placement="before"],
+  &.is-drag-over[data-drag-placement="before"] {
+    background: color-mix(in srgb, var(--elf-primary) 7%, transparent);
+    box-shadow: inset 0 2px 0 var(--elf-primary);
+  }
+
+  &.is-drop-target[data-drop-placement="after"],
+  &.is-drag-over[data-drag-placement="after"] {
+    background: color-mix(in srgb, var(--elf-primary) 7%, transparent);
+    box-shadow: inset 0 -2px 0 var(--elf-primary);
+  }
 }
 
 .tree-switch,

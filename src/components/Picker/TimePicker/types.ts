@@ -10,6 +10,14 @@ export type TimePickerModelValue = string | [string, string];
 export type TimePickerSize = "small" | "default" | "large" | "sm" | "md" | "lg" | "";
 export type TimePickerVariant = FieldVariant;
 export type TimePickerRole = "start" | "end";
+export type TimePickerPlacement = "bottom" | "bottom-start" | "bottom-end" | "top" | "top-start" | "top-end" | "left" | "right";
+export interface TimePickerPopperOptions {
+  placement?: TimePickerPlacement;
+  offset?: readonly [crossAxis: number, mainAxis: number];
+  padding?: number;
+  flip?: boolean;
+  fallbackPlacements?: TimePickerPlacement[];
+}
 export type DisabledHours = (role: TimePickerRole) => number[];
 export type DisabledMinutes = (hour: number, role: TimePickerRole) => number[];
 export type DisabledSeconds = (hour: number, minute: number, role: TimePickerRole) => number[];
@@ -45,9 +53,12 @@ export interface TimePickerProps {
   emptyValues: unknown[];
   saveOnBlur: boolean;
   shortcuts: TimeShortcut[];
+  defaultValue: string | [string, string];
   arrowControl: boolean;
   teleported: boolean;
-  placement: "top-start" | "bottom-start";
+  placement: TimePickerPlacement;
+  fallbackPlacements: TimePickerPlacement[];
+  popperOptions: TimePickerPopperOptions;
   popperClass: string;
   popperStyle: Record<string, string>;
   ariaLabel: string;

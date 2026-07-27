@@ -23,6 +23,10 @@ interface TimePickerEl extends HTMLElement {
   disabledHours?: (role: "start" | "end") => number[];
   disabledMinutes?: (hour: number, role: "start" | "end") => number[];
   disabledSeconds?: (hour: number, minute: number, role: "start" | "end") => number[];
+  defaultValue?: string | [string, string];
+  placement?: string;
+  fallbackPlacements?: string[];
+  popperOptions?: Record<string, unknown>;
 }
 
 describe("elf-time-picker", () => {
@@ -389,5 +393,22 @@ describe("elf-time-picker", () => {
     expect(panel.classList.contains("shift-clock")).toBe(true);
     expect(panel.hasAttribute("popover")).toBe(false);
     expect(panel.style.width).toBe("288px");
+  });
+
+  it("uses defaultValue as the empty clock draft and accepts advanced popper options", async () => {
+    const el = document.createElement("elf-time-picker") as TimePickerEl;
+    el.defaultValue = "09:30";
+    el.placement = "bottom-end";
+    el.fallbackPlacements = ["top-end", "bottom-start"];
+    el.popperOptions = { offset: [0, 12], padding: 12 };
+    document.body.appendChild(el);
+    await tick();
+    el.shadowRoot!.querySelector<HTMLButtonElement>(".field-trigger")!.click();
+    await tick();
+    await tick();
+
+    const parts = Array.from(el.shadowRoot!.querySelectorAll(".digital-part"), (part) => part.textContent?.trim());
+    expect(parts.slice(0, 2)).toEqual(["09", "30"]);
+    expect(el.shadowRoot!.querySelector(".panel")).toBeTruthy();
   });
 });

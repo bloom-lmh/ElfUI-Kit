@@ -25,9 +25,22 @@
 
 ## Follow-up
 
-- [ ] P1 Add virtual scrolling and `item-size` together with a measured-list primitive; simple DOM truncation would break keyboard and checkbox behavior.
-- [ ] P1 Add a typed render-content contract after scoped-slot behavior across repeated macro templates is established.
+- [x] P0 Add fixed-row virtual scrolling with shared `computeVirtualWindow`, `item-size`, overscan, keyboard focus navigation, and public key scrolling.
+- [x] P1 Add a typed `render-content(item, context)` contract with side/selection/disabled context.
+- [ ] P2 Keep scoped repeated-item slots private until the macro compiler provides stable scoped-slot locals; do not document a visually present but empty API.
+
+## 2026-07-27 rendering completion
+
+- [x] Added basic and side-aware typed render-content examples with Template / Script source.
+- [x] Covered both customization paths with component tests while preserving virtualization and keyboard selection.
 - [x] P2 Add browser visual regression coverage for long labels, custom panel footers, and narrow layouts.
+
+## 2026-07-22 P0 performance and keyboard completion
+
+- [x] Added a real 1,200-record virtualized assignment demo; only the visible rows and overscan remain mounted.
+- [x] Added Space/Enter selection, Arrow/Home/End focus navigation, directional keyboard transfer, filter empty state, and long-label titles.
+- [x] Preserved the select-all reset contract after moving all rows and covered it alongside virtualization with focused tests.
+- [x] Passed 14 component/page tests, a 799-module production build, and browser measurement at 12 + 3 rendered rows.
 
 ## 2026-07-15 visual acceptance
 

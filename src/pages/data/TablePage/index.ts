@@ -1,4 +1,4 @@
-import { defineHtml, html, useComponents } from "@elfui/core";
+import { defineHtml, useComponents } from "@elfui/core";
 import { PageTableEx1 } from "./ex1";
 import { PageTableEx10 } from "./ex10";
 import { PageTableEx11 } from "./ex11";
@@ -12,6 +12,9 @@ import { PageTableEx18 } from "./ex18";
 import { PageTableEx19 } from "./ex19";
 import { PageTableEx20 } from "./ex20";
 import { PageTableEx21 } from "./ex21";
+import { PageTableEx22 } from "./ex22";
+import { PageTableEx23 } from "./ex23";
+import { PageTableEx24 } from "./ex24";
 import { PageTableEx2 } from "./ex2";
 import { PageTableEx3 } from "./ex3";
 import { PageTableEx4 } from "./ex4";
@@ -36,6 +39,9 @@ useComponents({
   "page-table-ex19": PageTableEx19,
   "page-table-ex20": PageTableEx20,
   "page-table-ex21": PageTableEx21,
+  "page-table-ex22": PageTableEx22,
+  "page-table-ex23": PageTableEx23,
+  "page-table-ex24": PageTableEx24,
   "page-table-ex2": PageTableEx2,
   "page-table-ex3": PageTableEx3,
   "page-table-ex4": PageTableEx4,
@@ -47,7 +53,7 @@ useComponents({
   "page-table-props": PageTableProps
 });
 
-const PageTable = defineHtml(html`
+const PageTable = defineHtml(`
   <elf-container>
     <h1>Table 表格</h1>
     <p>用于结构化数据展示，支持排序、选择、当前行、高度滚动和分页联动。</p>
@@ -72,6 +78,9 @@ const PageTable = defineHtml(html`
     <page-table-ex19></page-table-ex19>
     <page-table-ex20></page-table-ex20>
     <page-table-ex21></page-table-ex21>
+    <page-table-ex22></page-table-ex22>
+    <page-table-ex23></page-table-ex23>
+    <page-table-ex24></page-table-ex24>
     <page-table-props></page-table-props>
   </elf-container>
 `);

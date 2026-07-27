@@ -27,6 +27,7 @@ import {
 import { computeVirtualWindow } from "../virtual-window";
 import { listContentDirective } from "../list-content";
 import type {
+  TreeDropType,
   TreeKey,
   TreeNode,
   TreeProps,
@@ -130,6 +131,8 @@ const loadedKeys = useRef<string[]>([]);
 const draggingKey = useRef("");
 
 const dropTargetKey = useRef("");
+const dropPlacement = useRef<TreeDropType>("inner");
+const keyboardDragging = useRef(false);
 
 const nodeMap = useRef<Record<string, TreeViewNode>>({});
 
@@ -724,6 +727,49 @@ const onNodeFocus = (row: TreeViewNode): void => {
 };
 
 const onNodeKeydown = (row: TreeViewNode, event: KeyboardEvent): void => {
+  if (props.draggable && canDrag(row) && event.key === " " && !keyboardDragging.peek()) {
+    event.preventDefault();
+    draggingKey.set(row.key);
+    dropTargetKey.set(row.key);
+    dropPlacement.set("inner");
+    keyboardDragging.set(true);
+    emit("node-drag-start", row.raw, event);
+    return;
+  }
+  if (keyboardDragging.peek()) {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      const dragging = findNode(draggingKey.peek());
+      clearDragState();
+      if (dragging) emit("node-drag-end", dragging.raw, event);
+      return;
+    }
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      const target = findNode(dropTargetKey.peek());
+      if (target) performDrop(target, dropPlacement.peek(), event);
+      return;
+    }
+    if (["ArrowUp", "ArrowDown", "ArrowRight"].includes(event.key)) {
+      event.preventDefault();
+      const rows = visibleNodes.peek();
+      const currentIndex = Math.max(0, rows.findIndex((item) => item.key === dropTargetKey.peek()));
+      const direction = event.key === "ArrowUp" ? -1 : event.key === "ArrowDown" ? 1 : 0;
+      const target = direction
+        ? rows[Math.max(0, Math.min(rows.length - 1, currentIndex + direction))]
+        : rows[currentIndex];
+      const dragging = findNode(draggingKey.peek());
+      const placement: TreeDropType = event.key === "ArrowRight" ? "inner" : direction < 0 ? "before" : "after";
+      if (target && dragging && canDropOnRow(dragging, target, placement)) {
+        dropTargetKey.set(target.key);
+        dropPlacement.set(placement);
+        queueMicrotask(() => host.shadowRoot
+          ?.querySelector<HTMLElement>(`.tree-content[data-tree-key="${target.key}"]`)
+          ?.focus());
+      }
+      return;
+    }
+  }
   if (event.key === "Enter" || event.key === " ") {
     event.preventDefault();
     onNodeClick(row);
@@ -765,13 +811,39 @@ const onNodeContextMenu = (row: TreeViewNode, event: MouseEvent): void => {
 const canDrag = (row: TreeViewNode): boolean =>
   Boolean(props.draggable) && (typeof props.allowDrag !== "function" || Boolean(props.allowDrag(row.raw as TreeNode)));
 
-const canDropOnRow = (dragging: TreeViewNode, row: TreeViewNode): boolean =>
+const canDropOnRow = (dragging: TreeViewNode, row: TreeViewNode, placement: TreeDropType = "inner"): boolean =>
   dragging.key !== row.key
   && !row.path.includes(dragging.key)
   && (
     typeof props.allowDrop !== "function"
-    || Boolean(props.allowDrop(dragging.raw as TreeNode, row.raw as TreeNode, "inner"))
+    || Boolean(props.allowDrop(dragging.raw as TreeNode, row.raw as TreeNode, placement))
   );
+
+const placementFromPointer = (event: DragEvent): TreeDropType => {
+  const target = event.currentTarget as HTMLElement;
+  const rect = target.getBoundingClientRect();
+  const ratio = rect.height > 0 ? (event.clientY - rect.top) / rect.height : 0.5;
+  return ratio < 0.25 ? "before" : ratio > 0.75 ? "after" : "inner";
+};
+
+const clearDragState = (): void => {
+  draggingKey.set("");
+  dropTargetKey.set("");
+  dropPlacement.set("inner");
+  keyboardDragging.set(false);
+};
+
+const performDrop = (row: TreeViewNode, placement: TreeDropType, event: Event): void => {
+  const dragging = findNode(draggingKey.peek());
+  if (!dragging || !canDropOnRow(dragging, row, placement)) return;
+  const moved = removeNode(dragging.key);
+  if (!moved) return;
+  if (placement === "before") insertBeforeNode(moved, row.key);
+  else if (placement === "after") insertAfterNode(moved, row.key);
+  else appendNode(moved, row.key);
+  emit("node-drop", dragging.raw, row.raw, placement, event);
+  clearDragState();
+};
 
 const onDragStart = (row: TreeViewNode, event: Event): void => {
   const dragEvent = event as DragEvent;
@@ -786,17 +858,21 @@ const onDragStart = (row: TreeViewNode, event: Event): void => {
 
 const onDragEnter = (row: TreeViewNode, event: Event): void => {
   const dragging = findNode(draggingKey.peek());
-  if (!dragging || !canDropOnRow(dragging, row)) return;
+  const placement = placementFromPointer(event as DragEvent);
+  if (!dragging || !canDropOnRow(dragging, row, placement)) return;
   event.preventDefault();
   dropTargetKey.set(row.key);
+  dropPlacement.set(placement);
   emit("node-drag-enter", dragging.raw, row.raw, event as DragEvent);
 };
 
 const onDragOver = (row: TreeViewNode, event: Event): void => {
   const dragging = findNode(draggingKey.peek());
-  if (!dragging || !canDropOnRow(dragging, row)) return;
+  const placement = placementFromPointer(event as DragEvent);
+  if (!dragging || !canDropOnRow(dragging, row, placement)) return;
   event.preventDefault();
   dropTargetKey.set(row.key);
+  dropPlacement.set(placement);
   emit("node-drag-over", dragging.raw, row.raw, event as DragEvent);
 };
 
@@ -812,19 +888,11 @@ const onDragLeave = (row: TreeViewNode, event: Event): void => {
 const onDrop = (row: TreeViewNode, event: Event): void => {
   const dragEvent = event as DragEvent;
   event.preventDefault();
-  dropTargetKey.set("");
-  const dragging = findNode(draggingKey.peek());
-  if (!dragging || !canDropOnRow(dragging, row)) return;
-  const moved = removeNode(dragging.key);
-  if (!moved) return;
-  appendNode(moved, row.key);
-  emit("node-drop", dragging.raw, row.raw, "inner", dragEvent);
-  draggingKey.set("");
+  performDrop(row, dropPlacement.peek(), dragEvent);
 };
 
 const onDragEnd = (row: TreeViewNode, event: Event): void => {
-  draggingKey.set("");
-  dropTargetKey.set("");
+  clearDragState();
   emit("node-drag-end", row.raw, event as DragEvent);
 };
 
@@ -834,8 +902,8 @@ const treeDragOptions = (row: TreeViewNode): DraggableOptions<TreeViewNode> => (
   group: dragGroup,
   draggable: canDrag(row),
   droppable: Boolean(props.draggable),
-  mode: "inside",
-  canDrop: ({ source }) => canDropOnRow(source.data, row)
+  mode: "sort",
+  canDrop: ({ source, placement }) => canDropOnRow(source.data, row, placement === "inside" ? "inner" : placement)
 });
 
 const onTreeScroll = (event: Event): void => {
@@ -954,6 +1022,8 @@ const Tree = defineHtml(`
         :aria-expanded="row.hasChildren ? (isExpanded(row.key) ? 'true' : 'false') : null"
         :aria-selected="isSelected(row.key) ? 'true' : 'false'"
         :aria-disabled="row.disabled ? 'true' : 'false'"
+        :aria-grabbed="draggingKey === row.key ? 'true' : 'false'"
+        :data-drop-placement="dropTargetKey === row.key ? dropPlacement : null"
         :aria-checked="props.showCheckbox ? (isIndeterminate(row) ? 'mixed' : isChecked(row) ? 'true' : 'false') : null"
         v-draggable="treeDragOptions(row)"
         @dragstart="onDragStart(row, $event)"

@@ -4,6 +4,7 @@ import { defineHtml, useComponents } from "@elfui/core";
 import { PageColorPickerEx1 } from "./ex1";
 import { PageColorPickerEx2 } from "./ex2";
 import { PageColorPickerEx3 } from "./ex3";
+import { PageColorPickerEx4 } from "./ex4";
 
 const propsRows = [
   { name: "variant / label", type: "filled | outlined / string", default: "filled / ''", desc: "输入表面与浮动标签" },
@@ -20,6 +21,8 @@ const propsRows = [
   { name: "validateEvent", type: "boolean", default: "true", desc: "是否触发表单校验" },
   { name: "teleported / persistent", type: "boolean", default: "true / false", desc: "Top Layer 与外部点击关闭策略" },
   { name: "popper-class / popper-style", type: "string / CSSProperties", default: "'' / {}", desc: "浮层外观" },
+  { name: "append-to", type: "string | HTMLElement", default: "null", desc: "将面板挂载到指定容器，并保留独立 Shadow 样式" },
+  { name: "hue-slider-class / hue-slider-style", type: "string / CSSProperties", default: "'' / {}", desc: "定制原生色板入口" },
   { name: "border", type: "boolean", default: "true", desc: "是否显示输入表面边框" }
 ];
 
@@ -41,7 +44,8 @@ const methodsRows = [
 useComponents({
   "page-color-picker-ex1": PageColorPickerEx1,
   "page-color-picker-ex2": PageColorPickerEx2,
-  "page-color-picker-ex3": PageColorPickerEx3
+  "page-color-picker-ex3": PageColorPickerEx3,
+  "page-color-picker-ex4": PageColorPickerEx4
 });
 
 const PageColorPicker = defineHtml(`
@@ -52,6 +56,7 @@ const PageColorPicker = defineHtml(`
 
     <page-color-picker-ex2 />
     <page-color-picker-ex3 />
+    <page-color-picker-ex4 />
     <h2>API</h2>
     <elf-props-table title="属性" :rows=${propsRows}></elf-props-table>
     <elf-props-table title="事件" :rows=${eventsRows}></elf-props-table>

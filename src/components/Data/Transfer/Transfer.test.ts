@@ -163,4 +163,75 @@ describe("elf-transfer", () => {
     });
     expect(el.shadowRoot!.querySelectorAll(".panel-empty")).toHaveLength(2);
   });
+
+  it("virtualizes a thousand options and scrolls to a key through the public API", async () => {
+    const el = await mount((transfer) => {
+      transfer.data = Array.from({ length: 1000 }, (_, index) => ({
+        key: `item-${index + 1}`,
+        label: `Item ${String(index + 1).padStart(4, "0")}`
+      }));
+      transfer.virtual = true;
+      transfer.height = 180;
+      transfer.itemSize = 36;
+      transfer.overscan = 2;
+    });
+
+    expect(el.shadowRoot!.querySelectorAll(".panel-left .panel-item").length).toBeLessThan(15);
+    expect(el.shadowRoot!.textContent).toContain("Item 0001");
+    expect(el.shadowRoot!.textContent).not.toContain("Item 1000");
+
+    el.scrollToItem("left", "item-1000");
+    await tick();
+    await tick();
+    expect(el.shadowRoot!.textContent).toContain("Item 1000");
+  });
+
+  it("supports Space selection and directional transfer from the keyboard", async () => {
+    const el = await mount();
+    let update: unknown;
+    el.addEventListener("update:modelValue", (event: Event) => (update = (event as CustomEvent).detail));
+    const option = el.shadowRoot!.querySelector<HTMLElement>('.panel-left [role="option"]')!;
+
+    option.dispatchEvent(new KeyboardEvent("keydown", { key: " ", bubbles: true }));
+    await tick();
+    expect(option.getAttribute("aria-selected")).toBe("true");
+
+    option.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
+    await tick();
+    expect(update).toEqual(["1"]);
+    expect(el.shadowRoot!.querySelector(".panel-right")?.textContent).toContain("Item 1");
+  });
+
+  it("shows the empty state after a filter has no matches", async () => {
+    const el = await mount((transfer) => {
+      transfer.filterable = true;
+      transfer.emptyText = "Nothing matched";
+    });
+    const input = el.shadowRoot!.querySelector<HTMLInputElement>(".panel-left .panel-filter input")!;
+    input.value = "missing";
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    await tick();
+
+    expect(el.shadowRoot!.querySelector(".panel-left .panel-empty")?.textContent).toContain("Nothing matched");
+  });
+
+  it("renders typed custom content with side and selection context", async () => {
+    const el = await mount((transfer) => {
+      transfer.renderContent = (item: { label: string }, context: { side: string; checked: boolean }) => {
+        const content = document.createElement("strong");
+        content.textContent = `${context.side}:${item.label}:${context.checked ? "checked" : "idle"}`;
+        return content;
+      };
+    });
+
+    expect(el.shadowRoot!.querySelector(".panel-left .item-content")?.textContent).toBe("left:Item 1:idle");
+    expect(el.shadowRoot!.querySelectorAll(".item-content")).toHaveLength(4);
+  });
+
+  it("falls back to the mapped label when no renderer is provided", async () => {
+    const el = await mount();
+    const options = el.shadowRoot!.querySelectorAll<HTMLElement>(".panel-item");
+    expect(options).toHaveLength(4);
+    expect(options[0]?.textContent).toContain("Item 1");
+  });
 });

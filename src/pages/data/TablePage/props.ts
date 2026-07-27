@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 
 const propsRows = [
   { name: "title", type: "string", default: "''", desc: "可选表格标题栏" },
@@ -11,7 +11,7 @@ const propsRows = [
   { name: "height / max-height", type: "string | number", default: "''", desc: "固定或最大高度，数字按 px 处理" },
   { name: "virtual", type: "boolean", default: "false", desc: "在固定 height 内启用大数据窗口化渲染" },
   { name: "virtual-threshold", type: "number", default: "100", desc: "达到该行数后启用虚拟窗口" },
-  { name: "row-height / overscan", type: "number", default: "48 / 5", desc: "虚拟模式的固定行高与视口缓冲行数" },
+  { name: "row-height / overscan", type: "number | (context) => number", default: "48 / 5", desc: "虚拟模式的固定或动态行高与视口缓冲行数" },
   { name: "fit", type: "boolean", default: "true", desc: "列宽是否适配容器" },
   { name: "table-layout", type: "fixed | auto", default: "fixed", desc: "原生 table-layout 策略" },
   { name: "scrollbar-always-on", type: "boolean", default: "false", desc: "始终显示滚动条轨道" },
@@ -99,18 +99,35 @@ const methodsRows = [
   { name: "setCurrentRow(rowOrKey)", type: "(Row | Key) => void", desc: "设置当前行" },
   { name: "sort(prop, order) / clearSort()", type: "function", desc: "设置或清除排序" },
   { name: "clearFilter(columnKeys?)", type: "(string | string[]) => void", desc: "清除指定列或全部列筛选" },
-  { name: "scrollTo(x, y) / scrollTo(options)", type: "function", desc: "滚动到目标坐标" },
+  { name: "scrollTableTo(x, y) / scrollTableTo(options)", type: "function", desc: "滚动表格内容到目标坐标" },
   { name: "setScrollTop(value) / setScrollLeft(value)", type: "(number) => void", desc: "设置单轴滚动位置" },
   { name: "doLayout()", type: "() => void", desc: "容器尺寸变化后同步布局" }
 ];
 
-const PageTableProps = defineHtml(html`
+const tableV2Rows = [
+  { name: "data / columns", type: "TableRow[] / TableV2Column[]", default: "[]", desc: "虚拟正文数据与类型化列配置" },
+  { name: "fixed-data", type: "TableRow[]", default: "[]", desc: "固定在表头下方并与正文同步横向滚动的数据" },
+  { name: "row-height", type: "number | (row, index) => number", default: "44", desc: "固定或逐行计算的虚拟行高" },
+  { name: "header-height / footer-height", type: "number", default: "44 / 0", desc: "表头与页脚占用高度" },
+  { name: "height / overscan", type: "string | number / number", default: "400 / 6", desc: "表格总高度与窗口缓冲行数" },
+  { name: "loading / empty-text", type: "boolean / string", default: "false / ''", desc: "遮罩状态与空状态文案" }
+];
+
+const tableV2Slots = [
+  { name: "empty", desc: "无固定数据和正文数据时的空状态" },
+  { name: "overlay", desc: "loading 时覆盖表格的状态内容" },
+  { name: "footer", desc: "由 footer-height 约束的固定页脚" }
+];
+
+const PageTableProps = defineHtml(`
   <h2>API</h2>
   <elf-props-table title="Props" :rows="propsRows"></elf-props-table>
   <elf-props-table title="Column" :rows="columnRows"></elf-props-table>
   <elf-props-table title="Events" :rows="eventsRows"></elf-props-table>
   <elf-props-table title="Slots" :rows="slotsRows"></elf-props-table>
   <elf-props-table title="Methods" :rows="methodsRows"></elf-props-table>
+  <elf-props-table title="TableV2 Props" :rows=${tableV2Rows}></elf-props-table>
+  <elf-props-table title="TableV2 Slots" :rows=${tableV2Slots}></elf-props-table>
 `);
 
 export { PageTableProps };

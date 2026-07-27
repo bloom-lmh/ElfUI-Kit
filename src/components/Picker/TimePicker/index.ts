@@ -19,7 +19,7 @@ import { normalizeFieldVariant } from "../../../types/field";
 import { useDisabled, useFormControl, useSize } from "../../../composables";
 import { computeAnchoredPosition, isEventInside, listenForExternalOverlayMotion } from "../../Common/anchored-overlay";
 import { useLocaleProvider } from "../../Providers/context";
-import type { TimePickerModelValue, TimePickerProps, TimePickerRole, TimeShortcut } from "./types";
+import type { TimePickerModelValue, TimePickerPlacement, TimePickerProps, TimePickerRole, TimeShortcut } from "./types";
 
 export type {
   DisabledHours,
@@ -28,6 +28,8 @@ export type {
   TimePickerElement,
   TimePickerExpose,
   TimePickerModelValue,
+  TimePickerPlacement,
+  TimePickerPopperOptions,
   TimePickerProps,
   TimePickerRole,
   TimePickerSize,
@@ -69,9 +71,12 @@ const props = defineProps<TimePickerProps>({
   emptyValues: { type: Array, default: () => [undefined, null, ""] },
   saveOnBlur: { type: Boolean, default: true },
   shortcuts: { type: Array, default: () => [] },
+  defaultValue: { type: null, default: "" },
   arrowControl: { type: Boolean, default: false },
   teleported: { type: Boolean, default: true },
   placement: { type: String, default: "bottom-start" },
+  fallbackPlacements: { type: Array, default: () => ["top-start"] },
+  popperOptions: { type: Object, default: () => ({}) },
   popperClass: { type: String, default: "" },
   popperStyle: { type: Object, default: () => ({}) },
   ariaLabel: { type: String, default: "" },
@@ -206,8 +211,14 @@ const setEditingValue = (value: string): void => {
   else setStart(value);
 };
 
+const defaultEditingValue = (): string => {
+  const value = props.defaultValue;
+  if (Array.isArray(value)) return String(value[editingTarget.value === "end" ? 1 : 0] || value[0] || "00:00");
+  return String(value || "00:00");
+};
+
 const editingValue = (): string =>
-  normalizeTime(editingTarget.value === "end" ? end.value || start.value : start.value);
+  normalizeTime(editingTarget.value === "end" ? end.value || start.value || defaultEditingValue() : start.value || defaultEditingValue());
 
 const editingHour = (): number => Number(editingValue().slice(0, 2));
 const editingMinute = (): number => Number(editingValue().slice(3, 5));
@@ -413,6 +424,7 @@ const updatePanelPosition = (): void => {
   const viewport = window.visualViewport;
   const width = Math.min(320, Math.max(240, (viewport?.width || window.innerWidth) - 16));
   const height = panelRect.height || panel.offsetHeight || 420;
+  const options = props.popperOptions || {};
   const next = computeAnchoredPosition(
     anchorRect,
     { width, height },
@@ -422,7 +434,13 @@ const updatePanelPosition = (): void => {
       offsetLeft: viewport?.offsetLeft || 0,
       offsetTop: viewport?.offsetTop || 0,
     },
-    { placement: props.placement === "top-start" ? "top-start" : "bottom-start", offset: [0, 8], padding: 8, flip: true },
+    {
+      placement: (options.placement || props.placement || "bottom-start") as TimePickerPlacement,
+      offset: options.offset || [0, 8],
+      padding: options.padding ?? 8,
+      flip: options.flip ?? true,
+      fallbackPlacements: options.fallbackPlacements || props.fallbackPlacements,
+    },
   );
   panelStyle.set({
     position: "fixed",

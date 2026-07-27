@@ -42,6 +42,21 @@
   font: inherit;
 }
 
+.date-cell-content,
+.date-cell-content > :first-child {
+  display: grid;
+  place-items: center;
+  gap: 2px;
+  line-height: 1;
+}
+
+.calendar-release-marker {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
 .period-button,
 .period-label {
   min-height: 34px;
@@ -88,9 +103,26 @@
 }
 
 .week,
-.days {
+.week-row {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.week.has-week-number,
+.week-row.has-week-number {
+  grid-template-columns: 24px repeat(7, minmax(0, 1fr));
+}
+
+.days {
+  display: grid;
+}
+
+.week-number {
+  display: grid;
+  place-items: center;
+  color: var(--elf-text-disabled);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
 }
 
 .week {

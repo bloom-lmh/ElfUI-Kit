@@ -21,9 +21,9 @@ import { useLocaleProvider } from "../../Providers/context";
 import styles from "./style.scss?inline";
 import { normalizeFieldVariant } from "../../../types/field";
 import { useDisabled, useFormControl, useSize } from "../../../composables";
-import type { DatePickerEmits, DatePickerProps, DatePickerType, DatePickerValue, DateShortcut } from "./types";
+import type { DatePickerEmits, DatePickerPlacement, DatePickerProps, DatePickerSlots, DatePickerType, DatePickerValue, DateShortcut } from "./types";
 
-export type { DatePickerElement, DatePickerEmits, DatePickerExpose, DatePickerProps, DatePickerSize, DatePickerType, DatePickerValue, DatePickerVariant, DateShortcut } from "./types";
+export type { DatePickerElement, DatePickerEmits, DatePickerExpose, DatePickerPlacement, DatePickerPopperOptions, DatePickerProps, DatePickerSize, DatePickerSlots, DatePickerType, DatePickerValue, DatePickerVariant, DateShortcut } from "./types";
 
 const props = defineProps<DatePickerProps>({
   modelValue: { type: null, default: "" },
@@ -46,6 +46,12 @@ const props = defineProps<DatePickerProps>({
   startPlaceholder: { type: String, default: "" },
   endPlaceholder: { type: String, default: "" },
   rangeSeparator: { type: String, default: "" },
+  defaultValue: { type: String, default: "" },
+  defaultTime: { type: null, default: "" },
+  unlinkPanels: { type: Boolean, default: false },
+  singlePanel: { type: Boolean, default: true },
+  cellClassName: { type: Function, default: undefined },
+  showWeekNumber: { type: Boolean, default: false },
   disabled: { type: Boolean, default: false },
   readonly: { type: Boolean, default: false },
   editable: { type: Boolean, default: true },
@@ -63,6 +69,8 @@ const props = defineProps<DatePickerProps>({
   clearText: { type: String, default: "" },
   teleported: { type: Boolean, default: true },
   placement: { type: String, default: "bottom-start" },
+  fallbackPlacements: { type: Array, default: () => ["top-start"] },
+  popperOptions: { type: Object, default: () => ({}) },
   popperClass: { type: String, default: "" },
   popperStyle: { type: Object, default: () => ({}) },
   showFooter: { type: Boolean, default: false },
@@ -85,6 +93,8 @@ const end = useRef("");
 const selected = useRef<string[]>([]);
 const open = useRef(false);
 const monthYear = useRef(new Date().getFullYear());
+const leftPanelView = useRef("");
+const rightPanelView = useRef("");
 const overlayStyle = useRef<Record<string, string>>({});
 const host = useHost();
 let overlayFrame = 0;
@@ -142,6 +152,19 @@ const toValues = (value: DatePickerValue): string[] => {
     .filter(Boolean);
 };
 
+const addMonths = (value: string, amount: number): string => {
+  const source = parseFormattedValue(value || props.defaultValue);
+  const match = /^(\d{4})-(\d{2})/.exec(source);
+  const date = match ? new Date(Number(match[1]), Number(match[2]) - 1 + amount, 1) : new Date();
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-01`;
+};
+
+const syncPanelViews = (): void => {
+  const base = start.peek() || props.defaultValue || new Date().toISOString().slice(0, 10);
+  leftPanelView.set(base);
+  rightPanelView.set(end.peek() || addMonths(base, 1));
+};
+
 let externalDraftSignature = "";
 let expectedDraftSignature = "";
 let expectedDraftToken = 0;
@@ -171,6 +194,7 @@ const resetDraft = (force = false): void => {
   end.set(parseFormattedValue(props.endValue));
   const year = Number(String(start.peek() || "").slice(0, 4));
   if (Number.isFinite(year) && year > 0) monthYear.set(year);
+  syncPanelViews();
 };
 
 useEffect(() => resetDraft());
@@ -256,6 +280,7 @@ const toggleMultiple = (value: string): void => {
 
 const setOpen = (visible: boolean): void => {
   if (open.peek() === visible) return;
+  if (visible) syncPanelViews();
   open.set(visible);
   emit("visible-change", visible);
 };
@@ -284,6 +309,8 @@ const updateOverlayPosition = (): void => {
   if (anchor.width === 0 && anchor.height === 0) return;
   const rect = panel.getBoundingClientRect();
   const viewport = window.visualViewport;
+  const options = props.popperOptions || {};
+  const preferredPlacement = (options.placement || props.placement || "bottom-start") as DatePickerPlacement;
   const next = computeAnchoredPosition(
     anchor,
     { width: rect.width || Math.min(420, window.innerWidth - 32), height: rect.height || 360 },
@@ -293,7 +320,13 @@ const updateOverlayPosition = (): void => {
       offsetLeft: viewport?.offsetLeft || 0,
       offsetTop: viewport?.offsetTop || 0
     },
-    { placement: props.placement === "top-start" ? "top-start" : "bottom-start", offset: [0, 8], padding: 8, flip: true }
+    {
+      placement: preferredPlacement,
+      offset: options.offset || [0, 8],
+      padding: options.padding ?? 8,
+      flip: options.flip ?? true,
+      fallbackPlacements: options.fallbackPlacements || props.fallbackPlacements
+    }
   );
   overlayStyle.set({
     position: "fixed",
@@ -361,16 +394,42 @@ const onDocumentPointerDown = (event: Event): void => {
 let cleanupOverlayMotion = (): void => {};
 
 const onNativeStart = (event: Event): void => {
-  const value = (event.target as HTMLInputElement).value;
+  const value = withDefaultTime((event.target as HTMLInputElement).value, "start");
   if (props.multiple) toggleMultiple(value);
   else setStart(value);
 };
 
-const onNativeEnd = (event: Event): void => setEnd((event.target as HTMLInputElement).value);
+const onNativeEnd = (event: Event): void => setEnd(withDefaultTime((event.target as HTMLInputElement).value, "end"));
+
+const defaultTimeFor = (target: "start" | "end"): string => {
+  const value = props.defaultTime;
+  return String(Array.isArray(value) ? value[target === "end" ? 1 : 0] || "" : value || "").replace(/^T/, "");
+};
+
+const withDefaultTime = (value: string, target: "start" | "end"): string => {
+  if (inputType() !== "datetime-local" || !value || value.includes("T")) return value;
+  const time = defaultTimeFor(target);
+  return time ? `${value}T${time}` : value;
+};
 
 const calendarValue = (): string | [string, string] => {
   if (props.range) return [start.value, end.value];
   return start.value;
+};
+
+const usesDualPanels = (): boolean => Boolean(props.range && !props.singlePanel);
+const onCalendarPanelChange = (side: "left" | "right", event: CustomEvent<Date>): void => {
+  const date = event.detail instanceof Date ? event.detail : new Date(String(event.detail));
+  if (Number.isNaN(date.getTime())) return;
+  const next = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-01`;
+  if (side === "left") {
+    leftPanelView.set(next);
+    if (!props.unlinkPanels) rightPanelView.set(addMonths(next, 1));
+  } else {
+    rightPanelView.set(next);
+    if (!props.unlinkPanels) leftPanelView.set(addMonths(next, -1));
+  }
+  emit("panel-change", date, "month");
 };
 
 const calendarDisabled = (date: Date): boolean => {
@@ -476,6 +535,10 @@ const removeValue = (value: string): void => {
 };
 
 const hasValue = (): boolean => Boolean(start.value || end.value || selected.value.length);
+const hasStartValue = (): boolean => Boolean(start.value);
+const hasEndValue = (): boolean => Boolean(end.value);
+const startDisplayValue = (): string => displayDate(start.value) || placeholderText();
+const endDisplayValue = (): string => displayDate(end.value) || endPlaceholderText();
 
 const displayValue = (): string => {
   if (props.multiple)
@@ -531,7 +594,7 @@ defineExpose({
   handleClose: closePanel
 });
 
-const DatePicker = defineHtml(`
+const DatePicker = defineHtml<DatePickerProps, DatePickerEmits, DatePickerSlots>(`
   <div
     :class=${[
       "date-picker",
@@ -600,7 +663,12 @@ const DatePicker = defineHtml(`
         </fieldset>
         <span v-if=${props.label} class="field-label">${props.label}</span>
         <span class="calendar-icon" aria-hidden="true"></span>
-        <span :class=${["field-value", { "is-placeholder": !hasValue() }]}>${displayValue()}</span>
+        <template v-if=${props.range && !props.multiple}>
+          <span :class=${["field-value", { "is-placeholder": !hasStartValue() }]}>${startDisplayValue()}</span>
+          <span class="separator"><slot name="range-separator">${rangeSeparatorText()}</slot></span>
+          <span :class=${["field-value", { "is-placeholder": !hasEndValue() }]}>${endDisplayValue()}</span>
+        </template>
+        <span v-else :class=${["field-value", { "is-placeholder": !hasValue() }]}>${displayValue()}</span>
         <span class="chevron" aria-hidden="true"></span>
       </button>
       <button v-if=${props.clearable && hasValue()} type="button" class="clear" @click=${clear}>
@@ -629,9 +697,9 @@ const DatePicker = defineHtml(`
     >
       <div v-if=${inputType() === "month"} class="month-panel">
         <div class="month-nav">
-          <button type="button" @click=${() => shiftMonthYear(-1)}>‹</button>
+          <button type="button" @click=${() => shiftMonthYear(-1)}><slot name="prev-year">‹</slot></button>
           <strong>${locale.t("datePicker.yearSuffix", { year: currentMonthYear() })}</strong>
-          <button type="button" @click=${() => shiftMonthYear(1)}>›</button>
+          <button type="button" @click=${() => shiftMonthYear(1)}><slot name="next-year">›</slot></button>
         </div>
         <div class="month-grid">
           <button
@@ -644,13 +712,36 @@ const DatePicker = defineHtml(`
           >{{ month.label }}</button>
         </div>
       </div>
-      <date-picker-calendar
-        v-else
-        :modelValue.prop=${calendarValue()}
-        :range=${props.range}
-        :disabledDate.prop=${calendarDisabled}
-        @update:modelValue=${onCalendarUpdate}
-      ></date-picker-calendar>
+      <div v-else :class=${["calendar-panels", { "is-dual": usesDualPanels() }]}>
+        <date-picker-calendar
+          :modelValue.prop=${calendarValue()}
+          :viewDate.prop=${leftPanelView}
+          :defaultValue.prop=${props.defaultValue}
+          :range=${props.range}
+          :disabledDate.prop=${calendarDisabled}
+          :cellClassName.prop=${props.cellClassName}
+          :showWeekNumber.prop=${props.showWeekNumber}
+          @panel-change="onCalendarPanelChange('left', $event)"
+          @update:modelValue=${onCalendarUpdate}
+        >
+          <span slot="prev-month"><slot name="prev-month">‹</slot></span>
+          <span slot="next-month"><slot name="next-month">›</slot></span>
+          <span slot="prev-year"><slot name="prev-year">‹</slot></span>
+          <span slot="next-year"><slot name="next-year">›</slot></span>
+        </date-picker-calendar>
+        <date-picker-calendar
+          v-if=${usesDualPanels()}
+          :modelValue.prop=${calendarValue()}
+          :viewDate.prop=${rightPanelView}
+          :defaultValue.prop=${addMonths(props.defaultValue, 1)}
+          range
+          :disabledDate.prop=${calendarDisabled}
+          :cellClassName.prop=${props.cellClassName}
+          :showWeekNumber.prop=${props.showWeekNumber}
+          @panel-change="onCalendarPanelChange('right', $event)"
+          @update:modelValue=${onCalendarUpdate}
+        ></date-picker-calendar>
+      </div>
 
       <div v-if=${shortcutItems().length > 0} class="shortcuts">
         <button

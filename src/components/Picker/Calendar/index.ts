@@ -1,36 +1,45 @@
-import { defineEmits, defineHtml, defineProps, defineStyle, html, useHost, useRef, watchEffect } from "@elfui/core";
+import { defineDirective, defineEmits, defineHtml, defineProps, defineStyle, useHost, useRef, useEffect } from "@elfui/core";
+import type { DirectiveBinding } from "@elfui/core";
 
 import styles from "./style.scss?inline";
 import { useLocaleProvider } from "../../Providers/context";
-import type { CalendarProps } from "./types";
+import type { CalendarDateCell, CalendarProps, CalendarRenderValue, CalendarSlots } from "./types";
 
-export type { CalendarProps } from "./types";
+export type { CalendarDateCell, CalendarDateCellRenderer, CalendarProps, CalendarRenderValue, CalendarSlots } from "./types";
 
-interface DayCell {
-    iso: string;
-    label: number;
-    muted: boolean;
-    current: boolean;
-    disabled: boolean;
-    rangeStart: boolean;
-    rangeEnd: boolean;
-    inRange: boolean;
-}
+type DayCell = CalendarDateCell;
 
 type CalendarView = "days" | "months" | "years";
 
 const props = defineProps<CalendarProps>({
     modelValue: { type: null, default: "" },
+    viewDate: { type: String, default: "" },
+    defaultValue: { type: String, default: "" },
     firstDayOfWeek: { type: Number, default: 1 },
     range: { type: Boolean, default: false },
     disabledDate: { type: Function, default: undefined },
+    cellClassName: { type: Function, default: undefined },
+    renderDateCell: { type: Function, default: undefined },
+    showWeekNumber: { type: Boolean, default: false },
     locale: { type: String, default: "" },
     ariaLabel: { type: String, default: "Calendar" },
 });
 
-const emit = defineEmits(["update:modelValue", "change"]);
+const emit = defineEmits(["update:modelValue", "change", "panel-change"]);
 const host = useHost();
 const locale = useLocaleProvider();
+
+const mountCellContent = (element: HTMLElement, value: CalendarRenderValue): void => {
+    element.replaceChildren();
+    for (const item of (Array.isArray(value) ? value : [value])) {
+        if (item == null) continue;
+        if (typeof item === "object" && "nodeType" in item) element.appendChild(item);
+        else element.appendChild(element.ownerDocument.createTextNode(String(item)));
+    }
+};
+const elfCalendarCell = defineDirective((element: HTMLElement, binding: DirectiveBinding<CalendarRenderValue>) => {
+    mountCellContent(element, binding.value);
+});
 
 const pad = (value: number): string => String(value).padStart(2, "0");
 const toIso = (date: Date): string => `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
@@ -44,10 +53,15 @@ const parseDate = (source: unknown): Date => {
 
 const selectedDate = (): Date => {
     const source = Array.isArray(props.modelValue) ? props.modelValue[0] : props.modelValue;
-    return parseDate(source);
+    return parseDate(source || props.defaultValue);
 };
 
-const viewedDate = useRef(selectedDate());
+const viewedSourceDate = (): Date => parseDate(props.viewDate || props.defaultValue || selectedDate());
+const hasSelectedValue = (): boolean => Array.isArray(props.modelValue)
+    ? props.modelValue.some(Boolean)
+    : Boolean(props.modelValue);
+
+const viewedDate = useRef(viewedSourceDate());
 const selectedIso = useRef(toIso(selectedDate()));
 const focusedIso = useRef(toIso(selectedDate()));
 const rangeStart = useRef<string | null>(null);
@@ -87,7 +101,7 @@ const syncRangeDraftDom = (iso: string): void => {
     });
 };
 
-watchEffect(() => {
+useEffect(() => {
     const signature = JSON.stringify(props.modelValue ?? "");
     if (pendingModelValue && signature !== pendingModelValue) return;
     if (signature === pendingModelValue) pendingModelValue = "";
@@ -98,10 +112,10 @@ watchEffect(() => {
     committedRange.set(Array.isArray(props.modelValue) ? props.modelValue.map(String).filter(Boolean).sort() : []);
     rangeStart.set(null);
     focusedIso.set(toIso(selected));
-    viewedDate.set(selected);
+    viewedDate.set(viewedSourceDate());
     yearPageStart.set(Math.floor(selected.getFullYear() / 12) * 12);
     queueMicrotask(() => {
-        if (!props.range) syncSelectedDom(selectedIso.peek());
+        if (!props.range && hasSelectedValue()) syncSelectedDom(selectedIso.peek());
     });
 });
 
@@ -166,7 +180,7 @@ const days = (): DayCell[] => {
             iso,
             label: date.getDate(),
             muted: date.getMonth() !== current.getMonth(),
-            current: !props.range && iso === selectedIso.value,
+            current: !props.range && hasSelectedValue() && iso === selectedIso.value,
             disabled: typeof props.disabledDate === "function" && Boolean(props.disabledDate(date)),
             rangeStart: Boolean(rangeStartValue) && iso === rangeStartValue,
             rangeEnd: Boolean(rangeEndValue) && iso === rangeEndValue,
@@ -174,6 +188,9 @@ const days = (): DayCell[] => {
         };
     });
 };
+
+const isDateDisabled = (date: Date): boolean =>
+    typeof props.disabledDate === "function" && Boolean(props.disabledDate(date));
 
 const select = (event: Event): void => {
     const iso = (event.currentTarget as HTMLElement).dataset.date;
@@ -223,10 +240,17 @@ const onDayKeydown = (event: KeyboardEvent): void => {
     const next = new Date(current);
     const firstDay = Math.max(0, Math.min(6, Number(props.firstDayOfWeek) || 0));
 
-    if (event.key === "ArrowLeft") next.setDate(current.getDate() - 1);
-    else if (event.key === "ArrowRight") next.setDate(current.getDate() + 1);
-    else if (event.key === "ArrowUp") next.setDate(current.getDate() - 7);
-    else if (event.key === "ArrowDown") next.setDate(current.getDate() + 7);
+    if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        select(event);
+        return;
+    }
+
+    let navigationStep = 0;
+    if (event.key === "ArrowLeft") navigationStep = -1;
+    else if (event.key === "ArrowRight") navigationStep = 1;
+    else if (event.key === "ArrowUp") navigationStep = -7;
+    else if (event.key === "ArrowDown") navigationStep = 7;
     else if (event.key === "Home") next.setDate(current.getDate() - ((current.getDay() - firstDay + 7) % 7));
     else if (event.key === "End") next.setDate(current.getDate() + ((firstDay + 6 - current.getDay() + 7) % 7));
     else if (event.key === "PageUp" || event.key === "PageDown") {
@@ -234,7 +258,23 @@ const onDayKeydown = (event: KeyboardEvent): void => {
         const targetMonth = new Date(current.getFullYear(), current.getMonth() + monthOffset, 1);
         const finalDay = new Date(targetMonth.getFullYear(), targetMonth.getMonth() + 1, 0).getDate();
         next.setFullYear(targetMonth.getFullYear(), targetMonth.getMonth(), Math.min(current.getDate(), finalDay));
-    } else return;
+    } else if (!navigationStep) return;
+
+    if (navigationStep) {
+        next.setDate(current.getDate() + navigationStep);
+        let attempts = 0;
+        while (isDateDisabled(next) && attempts < 366) {
+            next.setDate(next.getDate() + Math.sign(navigationStep));
+            attempts += 1;
+        }
+    } else if (isDateDisabled(next)) {
+        const direction = event.key === "PageUp" ? -1 : 1;
+        let attempts = 0;
+        while (isDateDisabled(next) && attempts < 31) {
+            next.setDate(next.getDate() + direction);
+            attempts += 1;
+        }
+    }
 
     event.preventDefault();
     focusDay(next);
@@ -242,7 +282,9 @@ const onDayKeydown = (event: KeyboardEvent): void => {
 
 const shiftMonth = (offset: number): void => {
     const date = viewedDate.value;
-    viewedDate.set(new Date(date.getFullYear(), date.getMonth() + offset, 1));
+    const next = new Date(date.getFullYear(), date.getMonth() + offset, 1);
+    viewedDate.set(next);
+    emit("panel-change", next);
 };
 
 const shiftPeriod = (offset: number): void => {
@@ -283,14 +325,37 @@ const selectYear = (event: Event): void => {
     view.set("months");
 };
 
+const isView = (candidate: CalendarView): boolean => view.value === candidate;
+const dateFromCell = (cell: DayCell): Date => parseDate(cell.iso);
+const renderDateCell = (cell: DayCell): CalendarRenderValue =>
+    typeof props.renderDateCell === "function" ? props.renderDateCell(cell, dateFromCell(cell)) : cell.label;
+const cellClass = (cell: DayCell): string =>
+    typeof props.cellClassName === "function" ? String(props.cellClassName(dateFromCell(cell)) || "") : "";
+const dayWeeks = (): DayCell[][] => {
+    const cells = days();
+    return Array.from({ length: 6 }, (_, index) => cells.slice(index * 7, index * 7 + 7));
+};
+const isoWeekNumber = (cell: DayCell): number => {
+    const date = dateFromCell(cell);
+    const utc = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    utc.setUTCDate(utc.getUTCDate() + 4 - (utc.getUTCDay() || 7));
+    const yearStart = new Date(Date.UTC(utc.getUTCFullYear(), 0, 1));
+    return Math.ceil((((utc.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+};
+const weekKey = (week: DayCell[]): string => week[0]?.iso || "week";
+const weekNumber = (week: DayCell[]): number => (week[0] ? isoWeekNumber(week[0]) : 0);
+
 defineStyle(styles);
 
-const Calendar = defineHtml<CalendarProps>(html`
+const Calendar = defineHtml<CalendarProps, Record<string, never>, CalendarSlots>(`
     <section class="calendar" part="calendar">
         <header class="header">
-            <button class="nav" type="button" :aria-label=${locale.t("calendar.previousPeriod")} @click=${() => shiftPeriod(-1)}>‹</button>
+            <button class="nav" type="button" :aria-label=${locale.t("calendar.previousPeriod")} @click=${() => shiftPeriod(-1)}>
+                <slot v-if=${isView("days")} name="prev-month">‹</slot>
+                <slot v-else name="prev-year">‹</slot>
+            </button>
             <div class="header-title">
-                <template v-if=${view === "years"}>
+                <template v-if=${isView("years")}>
                     <span class="period-label">${yearRangeTitle()}</span>
                 </template>
                 <template v-else>
@@ -298,32 +363,40 @@ const Calendar = defineHtml<CalendarProps>(html`
                     <button class="period-button" type="button" @click=${showMonths}>${monthLabel()}</button>
                 </template>
             </div>
-            <button class="nav" type="button" :aria-label=${locale.t("calendar.nextPeriod")} @click=${() => shiftPeriod(1)}>›</button>
+            <button class="nav" type="button" :aria-label=${locale.t("calendar.nextPeriod")} @click=${() => shiftPeriod(1)}>
+                <slot v-if=${isView("days")} name="next-month">›</slot>
+                <slot v-else name="next-year">›</slot>
+            </button>
         </header>
-        <div v-if=${view === "days"} class="calendar-body">
-            <div class="week">
+        <div v-if=${isView("days")} class="calendar-body">
+            <div :class=${["week", { "has-week-number": props.showWeekNumber }]}>
+                <span v-if=${props.showWeekNumber} aria-hidden="true">#</span>
                 <span v-for="name in weekDays()" :key="name">{{ name }}</span>
             </div>
             <div class="days" role="grid" :aria-label=${props.ariaLabel || "Calendar"}>
-                <button
-                    v-for="day in days()"
-                    :key="day.iso"
-                    type="button"
-                    :class="['day', { 'is-muted': day.muted, 'is-current': day.current, 'is-disabled': day.disabled, 'is-range-start': day.rangeStart, 'is-range-end': day.rangeEnd, 'is-in-range': day.inRange }]"
-                    :data-date="day.iso"
-                    :disabled="day.disabled"
-                    :aria-label="day.iso"
-                    :aria-selected="day.current || day.rangeStart || day.rangeEnd ? 'true' : 'false'"
-                    :tabindex="day.iso === focusedIso ? 0 : -1"
-                    @click=${select}
-                    @focus=${onDayFocus}
-                    @keydown=${onDayKeydown}
-                >
-                    {{ day.label }}
-                </button>
+                <div v-for="(week, weekIndex) in dayWeeks()" :key="weekKey(week)" :class=${["week-row", { "has-week-number": props.showWeekNumber }]} role="row">
+                    <span v-if=${props.showWeekNumber} class="week-number" :aria-label="'Week ' + weekNumber(week)">{{ weekNumber(week) }}</span>
+                    <button
+                        v-for="day in week"
+                        :key="day.iso"
+                        type="button"
+                        :class="['day', cellClass(day), { 'is-muted': day.muted, 'is-current': day.current, 'is-disabled': day.disabled, 'is-range-start': day.rangeStart, 'is-range-end': day.rangeEnd, 'is-in-range': day.inRange }]"
+                        :data-date="day.iso"
+                        :disabled="day.disabled"
+                        :aria-label="day.iso"
+                        :aria-selected="day.current || day.rangeStart || day.rangeEnd ? 'true' : 'false'"
+                        :tabindex="day.iso === focusedIso ? 0 : -1"
+                        @click=${select}
+                        @focus=${onDayFocus}
+                        @keydown=${onDayKeydown}
+                    >
+                        <span v-if=${props.renderDateCell} class="date-cell-content" v-elf-calendar-cell="renderDateCell(day)"></span>
+                        <slot v-else name="date-cell">{{ day.label }}</slot>
+                    </button>
+                </div>
             </div>
         </div>
-        <div v-if=${view === "months"} class="choice-grid month-grid" :aria-label=${locale.t("calendar.selectMonth")}>
+        <div v-if=${isView("months")} class="choice-grid month-grid" :aria-label=${locale.t("calendar.selectMonth")}>
             <button
                 v-for="option in monthItems()"
                 :key="option.id"
@@ -333,7 +406,7 @@ const Calendar = defineHtml<CalendarProps>(html`
                 @click=${selectMonth}
             >{{ option.label }}</button>
         </div>
-        <div v-if=${view === "years"} class="choice-grid year-grid" :aria-label=${locale.t("calendar.selectYear")}>
+        <div v-if=${isView("years")} class="choice-grid year-grid" :aria-label=${locale.t("calendar.selectYear")}>
             <button
                 v-for="option in yearItems()"
                 :key="option.id"

@@ -338,9 +338,9 @@
 
 ## 差距与任务
 
-- [ ] P0 剩余高级属性：`popper-options`、`fallback-placements`、`default-value`、`default-time`、`unlink-panels`、`single-panel`、自定义导航图标、`cell-class-name` 与 `show-week-number`；常用输入、格式、浮层、清空、表单和动作栏属性已完成。
+- [x] P0 高级属性：完成 `popper-options`、`fallback-placements`、`default-value`、`default-time`、`unlink-panels`、`single-panel`、自定义导航图标、`cell-class-name` 与 `show-week-number`。
 - [x] P0 补齐 `change`、`blur`、`focus`、`clear`、`calendar-change`、`panel-change`、`visible-change` 事件。
-- [ ] P1 剩余插槽：`range-separator` 与年月导航图标；`focusInput`、`blurInput`、`handleOpen`、`handleClose` 已完成。
+- [x] P1 插槽：完成 `range-separator` 与年月导航图标；`focusInput`、`blurInput`、`handleOpen`、`handleClose` 已完成。
 - [x] P1 对齐交互行为、键盘访问、禁用态、清空态、受控同步、表单联动和无障碍属性。
 - [x] P2 更新页面示例：Template / Script 双视图、动态绑定使用 `${...}`，覆盖格式、禁用、键盘与自定义浮层。
 - [x] P2 补齐组件单测、页面冒烟和类型导出，并完成视觉回归截图。

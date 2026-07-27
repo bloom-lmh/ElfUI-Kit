@@ -195,6 +195,25 @@
   animation: picker-panel-enter 160ms cubic-bezier(0.2, 0, 0, 1);
 }
 
+.calendar-panels {
+  display: grid;
+  gap: var(--elf-space-3);
+}
+
+.calendar-panels.is-dual {
+  grid-template-columns: repeat(2, minmax(292px, 1fr));
+}
+
+.panel:has(.calendar-panels.is-dual) {
+  width: min(720px, calc(100vw - 16px));
+}
+
+@media (max-width: 680px) {
+  .calendar-panels.is-dual {
+    grid-template-columns: 1fr;
+  }
+}
+
 .panel[popover] {
   inset: auto;
   max-width: calc(100vw - 16px);

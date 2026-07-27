@@ -5,6 +5,7 @@ import { PageTimePickerEx2 } from "./ex2";
 import { PageTimePickerEx3 } from "./ex3";
 import { PageTimePickerEx4 } from "./ex4";
 import { PageTimePickerEx5 } from "./ex5";
+import { PageTimePickerEx6 } from "./ex6";
 
 const propsRows = [
   { name: "variant / label", type: "filled | outlined / string", default: "filled / ''", desc: "输入表面与浮动标签" },
@@ -40,6 +41,7 @@ const propsRows = [
   },
   { name: "rangeSeparator", type: "string", default: "至", desc: "范围分隔符" },
   { name: "shortcuts", type: "TimeShortcut[]", default: "[]", desc: "快捷项" },
+  { name: "default-value", type: "string | [string,string]", default: "''", desc: "空值打开时钟面的初始编辑时刻" },
   { name: "clearable", type: "boolean", default: "true", desc: "可清空" },
   {
     name: "valueOnClear",
@@ -51,6 +53,7 @@ const propsRows = [
   { name: "arrow-control", type: "boolean", default: "false", desc: "保留方向键控制语义" },
   { name: "teleported / placement", type: "boolean / top-start | bottom-start", default: "true / bottom-start", desc: "Top Layer 与首选方位" },
   { name: "popper-class / popper-style", type: "string / CSSProperties", default: "'' / {}", desc: "浮层外观" },
+  { name: "popper-options / fallback-placements", type: "TimePickerPopperOptions / Placement[]", default: "{} / ['top-start']", desc: "浮层偏移、边距、翻转与候选方位" },
   { name: "aria-label / prefix-icon / clear-icon", type: "string", default: "''", desc: "无障碍名称与图标" },
   { name: "validate-event", type: "boolean", default: "true", desc: "是否触发 FormItem 校验" }
 ];
@@ -76,7 +79,8 @@ useComponents({
   "page-time-picker-ex2": PageTimePickerEx2,
   "page-time-picker-ex3": PageTimePickerEx3,
   "page-time-picker-ex4": PageTimePickerEx4,
-  "page-time-picker-ex5": PageTimePickerEx5
+  "page-time-picker-ex5": PageTimePickerEx5,
+  "page-time-picker-ex6": PageTimePickerEx6
 });
 
 const PageTimePicker = defineHtml(`
@@ -92,6 +96,7 @@ const PageTimePicker = defineHtml(`
     <page-time-picker-ex4 />
 
     <page-time-picker-ex5 />
+    <page-time-picker-ex6 />
 
     <h2>API</h2>
     <elf-props-table title="属性" :rows=${propsRows}></elf-props-table>

@@ -1,0 +1,56 @@
+@use "../../../styles/reset";
+
+:host {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+.table-v2 {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: var(--elf-radius-md);
+}
+
+.fixed-table {
+  position: relative;
+  z-index: 2;
+}
+
+.fixed-table::part(scroll) {
+  overflow-x: hidden;
+  scrollbar-width: none;
+}
+
+elf-table::part(empty) {
+  display: none;
+}
+
+.body-fill,
+.empty {
+  display: grid;
+  min-height: 120px;
+  place-items: center;
+  color: var(--elf-text-secondary);
+}
+
+.overlay {
+  position: absolute;
+  z-index: 4;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--elf-bg-paper) 78%, transparent);
+  backdrop-filter: blur(4px);
+}
+
+.footer {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  border-top: 1px solid var(--elf-border-color);
+  background: var(--elf-bg-paper);
+  padding-inline: 16px;
+}

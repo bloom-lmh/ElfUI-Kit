@@ -432,8 +432,8 @@ Table 与 TableV2 的渲染模型不同：前者使用原生表格语义，后�
 
 ### 阶段 C：独立 TableV2
 
-- [ ] 新建虚拟化 TableV2 组件与计划，覆盖固定行高、动态行高、固定数据、横纵滚动与窗口缓存。
-- [ ] 补齐 TableV2 的 cell/header/row/footer/empty/overlay 插槽与滚动公开方法。
+- [x] 新建虚拟化 TableV2 组件与计划，覆盖固定行高、动态行高、固定数据、横纵滚动与窗口缓存。
+- [x] 以类型化 cell/header renderer 覆盖重复行渲染，并补齐 footer/empty/overlay 插槽与滚动公开方法。
 - [ ] 补齐 column-sort、expanded-rows-change、end-reached、rows-rendered、row-expand 事件。
 - [ ] 使用大数据案例验证渲染窗口、滚动定位、键盘访问与性能边界。
 
@@ -443,6 +443,12 @@ Table 与 TableV2 的渲染模型不同：前者使用原生表格语义，后�
 - [x] 新增 `rows-rendered` / `end-reached` / `column-sort` 等事件及 `scrollToRow` 等滚动方法。
 - [x] 5,000 行 TableV2 与 10,000 行经典 Table 案例均补齐 Template / Script，并覆盖窄屏横向滚动。
 - [x] TableV2 3 项 + Table 页面 13 项测试、Vite 796 模块构建与真实浏览器截图通过。
+
+## 2026-07-27 TableV2 Stage C completion
+
+- [x] 动态行高使用累计偏移与二分窗口定位，不以平均行高近似滚动位置。
+- [x] `fixed-data` 使用独立固定表头区，并同步横向滚动；footer 高度从正文视口中扣除。
+- [x] 增加 empty / overlay / footer 状态插槽和完整高级案例。
 - [ ] 动态行高、固定数据区和完整 overlay/footer 插槽继续作为阶段 C 增强项，不阻塞本轮 P0 性能基线。
 
 ## 验收清单

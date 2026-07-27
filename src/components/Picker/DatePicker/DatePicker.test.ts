@@ -32,6 +32,14 @@ interface DatePickerEl extends HTMLElement {
   valueOnClear?: string | string[];
   popperClass?: string;
   popperStyle?: Record<string, string>;
+  defaultValue?: string;
+  defaultTime?: string | [string, string];
+  unlinkPanels?: boolean;
+  singlePanel?: boolean;
+  cellClassName?: (date: Date) => string;
+  showWeekNumber?: boolean;
+  fallbackPlacements?: string[];
+  popperOptions?: Record<string, unknown>;
 }
 
 const mount = async (patch: Partial<DatePickerEl> = {}): Promise<DatePickerEl> => {
@@ -285,5 +293,29 @@ describe("elf-date-picker", () => {
     expect(picker.getAttribute("size")).toBe("lg");
     expect(picker.hasAttribute("disabled")).toBe(true);
     expect(picker.shadowRoot!.querySelector<HTMLButtonElement>(".field-trigger")!.disabled).toBe(true);
+  });
+
+  it("supports dual range panels, week numbers, custom cell classes, and advanced placement options", async () => {
+    const el = await mount({
+      modelValue: "",
+      endValue: "",
+      range: true,
+      singlePanel: false,
+      unlinkPanels: true,
+      defaultValue: "2026-07-01",
+      showWeekNumber: true,
+      cellClassName: (date) => date.getDate() === 15 ? "is-release-day" : "",
+      fallbackPlacements: ["top-end"],
+      popperOptions: { offset: [4, 12], padding: 12 }
+    });
+    await openPanel(el);
+
+    const calendars = el.shadowRoot!.querySelectorAll<HTMLElement>("elf-calendar");
+    expect(calendars).toHaveLength(2);
+    await tick();
+    expect(calendars[0]!.shadowRoot!.querySelectorAll(".week-number")).toHaveLength(6);
+    expect(calendars[0]!.shadowRoot!.querySelector(".day.is-release-day")).toBeTruthy();
+    expect(calendars[0]!.shadowRoot!.querySelector(".header")?.textContent).toContain("7");
+    expect(calendars[1]!.shadowRoot!.querySelector(".header")?.textContent).toContain("8");
   });
 });

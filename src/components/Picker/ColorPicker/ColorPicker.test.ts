@@ -26,6 +26,9 @@ interface ColorPickerEl extends HTMLElement {
   popperClass?: string;
   popperStyle?: Record<string, string>;
   border?: boolean;
+  appendTo?: string | HTMLElement;
+  hueSliderClass?: string;
+  hueSliderStyle?: Record<string, string>;
 }
 
 describe("elf-color-picker", () => {
@@ -193,5 +196,30 @@ describe("elf-color-picker", () => {
     await tick();
     expect(el.shadowRoot!.querySelector(".panel")).not.toBeNull();
     el.hide();
+  });
+
+  it("mounts an advanced panel into an external target without losing its shadow styles", async () => {
+    const target = document.createElement("section");
+    target.id = "picker-overlays";
+    document.body.appendChild(target);
+    const el = document.createElement("elf-color-picker") as ColorPickerEl & { show(): void; hide(): void };
+    el.appendTo = "#picker-overlays";
+    el.hueSliderClass = "brand-hue";
+    el.hueSliderStyle = { inlineSize: "52px" };
+    document.body.appendChild(el);
+    await tick();
+    el.show();
+    await tick();
+    await tick();
+
+    const portal = target.querySelector<HTMLElement>("[data-elf-color-picker-portal]")!;
+    const native = portal.shadowRoot!.querySelector<HTMLInputElement>(".native")!;
+    expect(native.classList.contains("brand-hue")).toBe(true);
+    expect(native.style.inlineSize).toBe("52px");
+    expect(portal.shadowRoot!.querySelector("style")).toBeTruthy();
+
+    el.hide();
+    await tick();
+    expect(target.querySelector("[data-elf-color-picker-portal]")).toBeNull();
   });
 });

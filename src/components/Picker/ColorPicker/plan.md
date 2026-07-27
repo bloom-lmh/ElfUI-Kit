@@ -150,7 +150,7 @@
 
 ## 差距与任务
 
-- [ ] P0 剩余高级属性：跨 Shadow Root 的 `append-to`，以及替换原生色板后才有意义的 `hue-slider-class/style`；其余常用 Element 属性已完成。
+- [x] P0 高级属性：`append-to` 使用独立 portal Shadow Root 保留样式和事件；`hue-slider-class/style` 定制原生色板入口。
 - [x] P0 补齐 `active-change`、`focus`、`blur` 事件。
 - [x] P1 补齐 `footer`、`color` 插槽与 `show`、`hide`、`focusInput`、`blurInput`、`inputRef`、`update` 暴露方法。
 - [x] P1 对齐交互行为、键盘访问、禁用态、清空态、受控同步、表单联动和无障碍属性。
