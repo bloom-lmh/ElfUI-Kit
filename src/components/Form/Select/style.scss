@@ -245,15 +245,14 @@
   user-select: none;
   transition: background-color var(--elf-transition-fast);
 
-  &:hover {
-    background: var(--elf-bg-overlay);
+  &:hover:not(.disabled) {
+    background: var(--elf-bg-muted);
   }
 }
 
-.option.active {
-  background: var(--elf-bg-overlay);
-  outline: 1px solid color-mix(in srgb, var(--elf-primary) 34%, transparent);
-  outline-offset: -1px;
+.option.active:not(.disabled) {
+  background: var(--elf-bg-muted);
+  color: var(--elf-primary);
 }
 
 .option.selected {
