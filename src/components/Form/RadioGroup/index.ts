@@ -3,7 +3,6 @@ import {
   defineHtml,
   defineProps,
   defineStyle,
-  html,
   provide,
   useEventListener,
   useHost,
@@ -127,7 +126,7 @@ useEventListener(host, "elf-radio-navigate", (event) => {
 
 defineStyle(styles);
 
-const RadioGroup = defineHtml<RadioGroupProps>(html`
+const RadioGroup = defineHtml<RadioGroupProps>(`
   <div
     class="group"
     role="radiogroup"

@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 import type { UploadChunkRequestOptions } from "../../../components/Form";
 
@@ -46,7 +46,7 @@ const onChunkSuccess = (event: CustomEvent): void => {
   chunkLog.set(`${file.name} 分片完成，共 ${response.chunks ?? 0} 片`);
 };
 
-const PageUploadEx6 = defineHtml(html`
+const PageUploadEx6 = defineHtml(`
 <elf-playground title="分片上传" :code=${chunkCode} :script=${chunkScript}>
       <div style="display:grid;gap:12px;width:100%;max-width:720px;margin-inline:auto">
         <elf-upload

@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 const picked = useRef("a");
 
@@ -19,7 +19,7 @@ const code = `<elf-radio-group
 const script = `const picked = useRef("a");
 const onUpdate = (event) => picked.set(String(event.detail));`;
 
-const PageRadioEx1 = defineHtml(html`
+const PageRadioEx1 = defineHtml(`
   <elf-playground title="RadioGroup 组合" :code=${code} :script=${script}>
     <elf-radio-group
       :modelValue.prop=${picked.value}

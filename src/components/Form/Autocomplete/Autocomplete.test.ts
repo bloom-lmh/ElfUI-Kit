@@ -16,17 +16,38 @@ const frame = (): Promise<void> => new Promise((resolve) => requestAnimationFram
 
 interface AutocompleteEl extends HTMLElement {
   modelValue?: string;
+  clearable?: boolean;
   options?: unknown[];
   fetchSuggestions?: (query: string) => Promise<unknown[]>;
   debounce?: number;
   highlightFirstItem?: boolean;
+  allowCreate?: boolean;
+  createText?: string;
+  virtual?: boolean;
+  itemHeight?: number;
+  maxHeight?: number;
+  overscan?: number;
   teleported?: boolean;
   appendTo?: string | HTMLElement;
   fitInputWidth?: boolean;
   popperOptions?: Record<string, unknown>;
+  noDataText?: string;
+  errorText?: string;
 }
 
 describe("elf-autocomplete", () => {
+  it("keeps the clear action overlaid at the field end without changing field flow", async () => {
+    const el = document.createElement("elf-autocomplete") as AutocompleteEl;
+    el.modelValue = "Vue";
+    el.clearable = true;
+    document.body.appendChild(el);
+    await tick();
+
+    const clear = el.shadowRoot!.querySelector<HTMLButtonElement>(".clear")!;
+    expect(clear).toBeTruthy();
+    expect(clear.parentElement?.classList.contains("field")).toBe(true);
+  });
+
   it("filters and selects options", async () => {
     const el = document.createElement("elf-autocomplete") as AutocompleteEl;
     el.options = [{ value: "apple" }, { value: "banana" }];
@@ -111,6 +132,72 @@ describe("elf-autocomplete", () => {
     expect(onChange).toHaveBeenCalled();
   });
 
+  it("creates a non-existing value from the keyboard", async () => {
+    const el = document.createElement("elf-autocomplete") as AutocompleteEl;
+    el.options = [{ value: "Vue" }, { value: "React" }];
+    el.allowCreate = true;
+    el.createText = "创建";
+    el.highlightFirstItem = true;
+    const onCreate = vi.fn();
+    const onSelect = vi.fn();
+    const onDocumentKeydown = vi.fn();
+    el.addEventListener("create", onCreate as EventListener);
+    el.addEventListener("select", onSelect as EventListener);
+    document.addEventListener("keydown", onDocumentKeydown);
+    document.body.appendChild(el);
+    await tick();
+
+    const input = el.shadowRoot!.querySelector("input") as HTMLInputElement;
+    input.value = "Svelte";
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    await tick();
+
+    const createOption = el.shadowRoot!.querySelector<HTMLButtonElement>('[data-create="true"]');
+    expect(createOption?.textContent).toContain("创建");
+    expect(createOption?.textContent).toContain("Svelte");
+
+    input.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
+    await tick();
+    expect(onCreate).toHaveBeenCalledTimes(1);
+    expect((onCreate.mock.calls[0]![0] as CustomEvent).detail).toEqual({ label: "Svelte", value: "Svelte" });
+    expect(onSelect).toHaveBeenCalledTimes(1);
+    expect(onDocumentKeydown).not.toHaveBeenCalled();
+    document.removeEventListener("keydown", onDocumentKeydown);
+  });
+
+  it("virtualizes long suggestions and keeps keyboard navigation in view", async () => {
+    const el = document.createElement("elf-autocomplete") as AutocompleteEl;
+    el.options = Array.from({ length: 100 }, (_, index) => ({
+      label: `成员 ${String(index + 1).padStart(3, "0")}`,
+      value: `member-${index + 1}`
+    }));
+    el.virtual = true;
+    el.itemHeight = 32;
+    el.maxHeight = 160;
+    el.overscan = 2;
+    el.highlightFirstItem = true;
+    document.body.appendChild(el);
+    await tick();
+
+    const input = el.shadowRoot!.querySelector("input") as HTMLInputElement;
+    input.dispatchEvent(new FocusEvent("focus", { bubbles: true }));
+    await tick();
+
+    const viewport = el.shadowRoot!.querySelector<HTMLElement>(".options-viewport")!;
+    expect(viewport.dataset.virtualized).toBe("true");
+    expect(el.shadowRoot!.querySelectorAll(".option").length).toBeLessThan(20);
+    expect(el.shadowRoot!.querySelector<HTMLElement>(".options-track")!.style.height).toBe("3200px");
+
+    for (let index = 0; index < 15; index += 1) {
+      input.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }));
+    }
+    await tick();
+    await tick();
+
+    expect(viewport.scrollTop).toBeGreaterThan(0);
+    expect(input.getAttribute("aria-activedescendant")).toContain("option-15");
+  });
+
   it("debounces remote suggestions and ignores an older response", async () => {
     let resolveFirst: ((value: unknown[]) => void) | undefined;
     const fetchSuggestions = vi
@@ -136,6 +223,60 @@ describe("elf-autocomplete", () => {
     expect(fetchSuggestions).toHaveBeenCalledTimes(2);
     expect(el.shadowRoot!.textContent).toContain("new");
     expect(el.shadowRoot!.textContent).not.toContain("old");
+  });
+
+  it("renders an accessible empty state after a remote request resolves", async () => {
+    const el = document.createElement("elf-autocomplete") as AutocompleteEl;
+    el.fetchSuggestions = vi.fn().mockResolvedValue([]);
+    el.debounce = 0;
+    el.noDataText = "没有匹配建议";
+    document.body.appendChild(el);
+    await tick();
+
+    const input = el.shadowRoot!.querySelector("input") as HTMLInputElement;
+    input.value = "missing";
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    await tick();
+    await tick();
+
+    const panel = el.shadowRoot!.querySelector(".panel") as HTMLElement;
+    expect(panel.getAttribute("role")).toBe("status");
+    expect(panel.textContent).toContain("没有匹配建议");
+    expect(input.getAttribute("aria-expanded")).toBe("true");
+  });
+
+  it("turns a rejected remote request into an error state and can recover", async () => {
+    const error = new Error("network unavailable");
+    const fetchSuggestions = vi
+      .fn()
+      .mockRejectedValueOnce(error)
+      .mockResolvedValueOnce([{ value: "recovered" }]);
+    const el = document.createElement("elf-autocomplete") as AutocompleteEl;
+    el.fetchSuggestions = fetchSuggestions;
+    el.debounce = 0;
+    el.errorText = "建议加载失败，请重试";
+    const onError = vi.fn();
+    el.addEventListener("fetch-error", onError as EventListener);
+    document.body.appendChild(el);
+    await tick();
+
+    const input = el.shadowRoot!.querySelector("input") as HTMLInputElement;
+    input.value = "error";
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    await tick();
+    await tick();
+
+    expect(onError).toHaveBeenCalledTimes(1);
+    expect((onError.mock.calls[0]![0] as CustomEvent).detail).toBe(error);
+    expect(el.shadowRoot!.querySelector(".panel")?.textContent).toContain("建议加载失败，请重试");
+
+    input.value = "recovered";
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    await tick();
+    await tick();
+
+    expect(el.shadowRoot!.querySelector(".panel")?.getAttribute("role")).toBe("listbox");
+    expect(el.shadowRoot!.textContent).toContain("recovered");
   });
 
   it("keeps a non-teleported panel positioned inside the component", async () => {
@@ -243,6 +384,14 @@ describe("elf-autocomplete", () => {
     expect(el.getAttribute("variant")).toBe("outlined");
     expect(el.hasAttribute("data-has-label")).toBe(true);
     expect(el.shadowRoot!.querySelector(".field-label")?.textContent).toBe("Framework");
+    expect(el.shadowRoot!.querySelector(".field-outline legend")?.textContent).toBe("Framework");
+  });
+
+  it("uses the filled field surface by default", async () => {
+    const el = document.createElement("elf-autocomplete") as AutocompleteEl;
+    document.body.appendChild(el);
+    await tick();
+    expect(el.getAttribute("variant")).toBe("filled");
   });
 
   it.each(["default", "underlined", "solo", "solo-filled", "solo-inverted"])(

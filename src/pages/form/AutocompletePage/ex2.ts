@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 const remoteKeyword = useRef("");
 
@@ -29,13 +29,17 @@ const fetchSuggestions = async (query) => {
     { label: "北京 Chaoyang", value: "Beijing" }
   ];
   return source.filter((item) => item.label.toLowerCase().includes(query.toLowerCase()));
+};
+
+const onRemoteUpdate = (event) => {
+    remoteKeyword.set(String(event.detail || ""));
 };`;
 
 const onRemoteUpdate = (event: CustomEvent): void => {
   remoteKeyword.set(String(event.detail || ""));
 };
 
-const PageAutocompleteEx2 = defineHtml(html`
+const PageAutocompleteEx2 = defineHtml(`
 <elf-playground title="异步建议" :code=${code2} :script=${script2}>
       <elf-autocomplete
         :fetchSuggestions.prop=${fetchSuggestions}

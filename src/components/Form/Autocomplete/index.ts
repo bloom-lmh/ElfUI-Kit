@@ -1,17 +1,17 @@
 import {
-    defineEmits,
-    defineExpose,
-    defineHtml,
-    defineProps,
-    defineStyle,
-    html,
-    onMount,
-    onUnmount,
-    useEffect,
-    useHost,
-    useHostAttr,
-    useHostFlag,
-    useRef,
+  defineEmits,
+  defineExpose,
+  defineHtml,
+  defineProps,
+  defineStyle,
+  onBeforeUnmount,
+  onMounted,
+  useEffect,
+  useHost,
+  useHostAttr,
+  useHostCssVar,
+  useHostFlag,
+  useRef
 } from "@elfui/core";
 
 import { useDisabled, useFormControl, useFormItem } from "../../../composables";
@@ -45,6 +45,7 @@ interface ViewOption {
     disabled: boolean;
     index: number;
     raw: AutocompleteOption;
+    isCreate: boolean;
 }
 
 const props = defineProps<AutocompleteProps>({
@@ -54,13 +55,22 @@ const props = defineProps<AutocompleteProps>({
     placeholder: { type: String, default: "" },
     label: { type: String, default: "" },
     variant: { type: String, default: "filled" },
+    backgroundColor: { type: String, default: "" },
     disabled: { type: Boolean, default: false },
     clearable: { type: Boolean, default: false },
     triggerOnFocus: { type: Boolean, default: true },
     debounce: { type: Number, default: 300 },
     highlightFirstItem: { type: Boolean, default: false },
+    allowCreate: { type: Boolean, default: false },
+    createText: { type: String, default: "Create" },
+    virtual: { type: Boolean, default: false },
+    itemHeight: { type: Number, default: 40 },
+    maxHeight: { type: Number, default: 280 },
+    overscan: { type: Number, default: 3 },
     loading: { type: Boolean, default: false },
     loadingText: { type: String, default: "Loading..." },
+    noDataText: { type: String, default: "No suggestions" },
+    errorText: { type: String, default: "Unable to load suggestions" },
     placement: { type: String, default: "bottom-start" },
     popperClass: { type: String, default: "" },
     popperStyle: { type: Object, default: () => ({}) },
@@ -79,9 +89,11 @@ const emit = defineEmits<{
     input: [value: string];
     change: [value: string];
     select: [option: AutocompleteOption];
+    create: [option: AutocompleteOption];
     focus: [event: FocusEvent];
     blur: [event: FocusEvent];
     clear: [];
+    "fetch-error": [error: unknown];
 }>();
 
 const ctl = useFormControl<string>(props, emit, {
@@ -95,9 +107,15 @@ const host = useHost();
 const open = useRef(false);
 const suggestions = useRef<AutocompleteOption[] | null>(null);
 const activeIndex = useRef(-1);
+const activeDescendant = (): string | null =>
+    panelRole() === "listbox" && activeIndex.value >= 0
+        ? `${listboxId}-option-${activeIndex.value}`
+        : null;
 const pending = useRef(false);
+const loadError = useRef<unknown | null>(null);
 const overlayStyle = useRef<Record<string, string>>({});
 const resolvedPlacement = useRef<AutocompletePlacement>("bottom-start");
+const listScrollTop = useRef(0);
 let requestId = 0;
 let debounceTimer: ReturnType<typeof setTimeout> | undefined;
 let blurTimer: ReturnType<typeof setTimeout> | undefined;
@@ -128,6 +146,7 @@ const normalize = (items: AutocompleteOption[]): ViewOption[] =>
         disabled: Boolean(item.disabled),
         index,
         raw: item,
+        isCreate: false,
     }));
 
 const sourceOptions = (): AutocompleteOption[] => {
@@ -142,7 +161,69 @@ const sourceOptions = (): AutocompleteOption[] => {
         : source;
 };
 
-const options = (): ViewOption[] => normalize(sourceOptions());
+const options = (): ViewOption[] => {
+    const items = normalize(sourceOptions());
+    const query = String(ctl.model.value || "").trim();
+    if (!props.allowCreate || !query) return items;
+    const hasExactMatch = items.some((item) =>
+        item.label.localeCompare(query, undefined, { sensitivity: "accent" }) === 0
+        || item.text.localeCompare(query, undefined, { sensitivity: "accent" }) === 0
+    );
+    if (hasExactMatch) return items;
+    const raw = { label: query, value: query };
+    return [
+        { key: `create-${query}`, label: query, text: query, disabled: false, index: 0, raw, isCreate: true },
+        ...items.map((item, index) => ({ ...item, index: index + 1 }))
+    ];
+};
+
+const normalizedItemHeight = (): number => Math.max(28, Number(props.itemHeight) || 40);
+const normalizedMaxHeight = (): number => Math.max(normalizedItemHeight(), Number(props.maxHeight) || 280);
+const virtualEnabled = (): boolean => Boolean(props.virtual && options().length > 0);
+
+const virtualOptions = (): ViewOption[] => {
+    const items = options();
+    if (!virtualEnabled()) return items;
+    const itemHeight = normalizedItemHeight();
+    const overscan = Math.max(0, Math.floor(Number(props.overscan) || 0));
+    const start = Math.max(0, Math.floor(listScrollTop.value / itemHeight) - overscan);
+    const visibleCount = Math.ceil(normalizedMaxHeight() / itemHeight) + overscan * 2;
+    return items.slice(start, Math.min(items.length, start + visibleCount));
+};
+
+const optionsViewportStyle = (): Record<string, string> => ({
+    maxHeight: `${normalizedMaxHeight()}px`,
+    ...(virtualEnabled() ? { height: `${Math.min(options().length * normalizedItemHeight(), normalizedMaxHeight())}px` } : {})
+});
+
+const virtualTrackStyle = (): Record<string, string> => ({
+    height: `${options().length * normalizedItemHeight()}px`
+});
+
+const optionStyle = (item: ViewOption): Record<string, string> =>
+    virtualEnabled()
+        ? { position: "absolute", top: `${item.index * normalizedItemHeight()}px`, height: `${normalizedItemHeight()}px` }
+        : {};
+
+const onOptionsScroll = (event: Event): void => {
+    listScrollTop.set((event.currentTarget as HTMLElement).scrollTop);
+};
+
+const ensureActiveVisible = (): void => {
+    if (!virtualEnabled() || activeIndex.peek() < 0) return;
+    queueMicrotask(() => {
+        const viewport = getPanelEl()?.querySelector<HTMLElement>(".options-viewport");
+        if (!viewport) return;
+        const top = activeIndex.peek() * normalizedItemHeight();
+        const bottom = top + normalizedItemHeight();
+        let next = viewport.scrollTop;
+        if (top < next) next = top;
+        else if (bottom > next + normalizedMaxHeight()) next = bottom - normalizedMaxHeight();
+        if (next === viewport.scrollTop) return;
+        viewport.scrollTop = next;
+        listScrollTop.set(next);
+    });
+};
 
 const popperOptions = (): AutocompletePopperOptions =>
     props.popperOptions && typeof props.popperOptions === "object"
@@ -162,13 +243,24 @@ const flipEnabled = (): boolean => modifier("flip")?.enabled !== false;
 
 const isLoading = (): boolean => Boolean(props.loading || pending.value);
 
-const shouldShowPanel = (): boolean => open.value && (isLoading() || options().length > 0);
+const hasLoadError = (): boolean => loadError.value !== null;
+const isEmptyState = (): boolean =>
+    !isLoading() &&
+    !hasLoadError() &&
+    options().length === 0 &&
+    (props.fetchSuggestions ? suggestions.value !== null : Boolean(ctl.model.value));
+
+const shouldShowPanel = (): boolean =>
+    open.value && (isLoading() || hasLoadError() || isEmptyState() || options().length > 0);
+
+const panelRole = (): "status" | "listbox" =>
+    isLoading() || hasLoadError() || isEmptyState() ? "status" : "listbox";
 
 const panelClass = (): unknown[] => [
     "panel",
     props.popperClass,
     `placement-${resolvedPlacement.value}`,
-    { status: isLoading(), "is-teleported": props.teleported },
+    { status: panelRole() === "status", error: hasLoadError(), "is-teleported": props.teleported },
 ];
 
 const panelStyle = (): Record<string, string> => ({
@@ -182,17 +274,21 @@ const getInputEl = (): HTMLInputElement | null => host.shadowRoot?.querySelector
 const resetActive = (): void => {
     const firstEnabled = options().findIndex((option) => !option.disabled);
     activeIndex.set(props.highlightFirstItem ? firstEnabled : -1);
+    ensureActiveVisible();
 };
 
 const loadSuggestions = async (query: string): Promise<void> => {
     const fetcher = props.fetchSuggestions;
     if (!fetcher) {
+        pending.set(false);
+        loadError.set(null);
         suggestions.set(null);
         resetActive();
         return;
     }
     const currentRequest = ++requestId;
     pending.set(true);
+    loadError.set(null);
     suggestions.set([]);
     try {
         const result = await fetcher(query, (items) => {
@@ -204,6 +300,13 @@ const loadSuggestions = async (query: string): Promise<void> => {
             suggestions.set(result);
             resetActive();
         }
+    } catch (error) {
+        if (currentRequest === requestId) {
+            suggestions.set([]);
+            loadError.set(error);
+            activeIndex.set(-1);
+            emit("fetch-error", error);
+        }
     } finally {
         if (currentRequest === requestId) pending.set(false);
     }
@@ -211,11 +314,14 @@ const loadSuggestions = async (query: string): Promise<void> => {
 
 const scheduleSuggestions = (query: string): void => {
     if (debounceTimer) clearTimeout(debounceTimer);
+    loadError.set(null);
     const delay = Math.max(0, Number(props.debounce) || 0);
     if (!props.fetchSuggestions || delay === 0) {
         void loadSuggestions(query);
         return;
     }
+    pending.set(true);
+    suggestions.set([]);
     debounceTimer = setTimeout(() => {
         debounceTimer = undefined;
         void loadSuggestions(query);
@@ -236,6 +342,7 @@ const onInput = (event: Event): void => {
     // A remote result belongs to the previous query until the new request resolves.
     // Clearing it here prevents stale labels from being paired with the new query.
     if (props.fetchSuggestions) suggestions.set([]);
+    loadError.set(null);
     setValue(value, "input");
     scheduleSuggestions(value);
     open.set(true);
@@ -269,6 +376,7 @@ const selectAt = (index: number): void => {
     if (!option || option.disabled) return;
     setValue(option.text, "change");
     emit("select", option.raw);
+    if (option.isCreate) emit("create", option.raw);
     open.set(false);
     activeIndex.set(-1);
 };
@@ -286,6 +394,11 @@ const clear = (): void => {
 
 const showClear = (): boolean => Boolean(props.clearable && ctl.model.value && !isDisabled());
 
+const inputPlaceholder = (): string => {
+    if (props.label && props.placeholder.trim() === props.label.trim()) return "";
+    return props.placeholder;
+};
+
 const moveActive = (step: 1 | -1): void => {
     const items = options();
     if (!items.length) return;
@@ -295,6 +408,7 @@ const moveActive = (step: 1 | -1): void => {
         const item = items[index];
         if (item && !item.disabled) {
             activeIndex.set(index);
+            ensureActiveVisible();
             return;
         }
     }
@@ -304,6 +418,7 @@ const onKeydown = (event: KeyboardEvent): void => {
     if (isDisabled()) return;
     if (event.key === "ArrowDown" || event.key === "ArrowUp") {
         event.preventDefault();
+        event.stopPropagation();
         if (!open.value) {
             open.set(true);
             scheduleSuggestions(String(ctl.model.value || ""));
@@ -314,10 +429,14 @@ const onKeydown = (event: KeyboardEvent): void => {
     }
     if (event.key === "Enter" && open.value && activeIndex.value >= 0) {
         event.preventDefault();
+        event.stopPropagation();
         selectAt(activeIndex.value);
         return;
     }
     if (event.key === "Escape") {
+        if (!open.value) return;
+        event.preventDefault();
+        event.stopPropagation();
         open.set(false);
         activeIndex.set(-1);
     }
@@ -437,6 +556,7 @@ useHostFlag("disabled", isDisabled);
 useHostFlag("data-open", () => open.value);
 useHostFlag("data-dirty", () => Boolean(ctl.model.value));
 useHostFlag("data-has-label", () => Boolean(props.label));
+useHostCssVar("--elf-field-custom-bg", () => props.backgroundColor || "");
 
 useEffect(() => {
     void open.value;
@@ -452,12 +572,12 @@ useEffect(() => {
     });
 });
 
-onMount(() => {
+onMounted(() => {
     mounted = true;
     connectAnchoredOverlay();
 });
 
-onUnmount(() => {
+onBeforeUnmount(() => {
     mounted = false;
     requestId += 1;
     if (debounceTimer) clearTimeout(debounceTimer);
@@ -470,7 +590,7 @@ defineExpose({ close });
 
 defineStyle(styles);
 
-const Autocomplete = defineHtml<AutocompleteProps>(html`
+const Autocomplete = defineHtml<AutocompleteProps>(`
     <div
         class="autocomplete"
         part="autocomplete"
@@ -480,58 +600,85 @@ const Autocomplete = defineHtml<AutocompleteProps>(html`
         ]}
         :data-state=${fi.state || null}
     >
-        <span v-if=${props.label} class="field-label">${props.label}</span>
-        <input
-            ref="inputEl"
-            part="input"
-            :id=${props.id || null}
-            :name=${props.name || null}
-            :value.prop=${ctl.model.value}
-            :placeholder=${props.placeholder}
-            :disabled=${isDisabled()}
-            :aria-label=${props.ariaLabel || null}
-            role="combobox"
-            aria-autocomplete="list"
-            :aria-expanded=${open ? "true" : "false"}
-            :aria-controls=${listboxId}
-            :aria-activedescendant=${activeIndex >= 0 ? `${listboxId}-option-${activeIndex}` : null}
-            @input=${onInput}
-            @focus=${onFocus}
-            @blur=${onBlur}
-            @keydown=${onKeydown}
-        />
-        <button v-if=${showClear()} class="clear" type="button" aria-label="Clear" @click=${clear}>
-            <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4 4l8 8M12 4l-8 8"></path></svg>
-        </button>
+        <div class="field" part="field">
+            <fieldset class="field-outline" aria-hidden="true">
+                <legend><span v-if=${props.label}>${props.label}</span></legend>
+            </fieldset>
+            <span v-if=${props.label} class="field-label">${props.label}</span>
+            <input
+                ref="inputEl"
+                part="input"
+                :id=${props.id || null}
+                :name=${props.name || null}
+                :value.prop=${ctl.model.value}
+                :placeholder=${inputPlaceholder()}
+                :disabled=${isDisabled()}
+                :aria-label=${props.ariaLabel || props.label || props.placeholder || null}
+                role="combobox"
+                aria-autocomplete="list"
+                :aria-expanded=${shouldShowPanel() ? "true" : "false"}
+                :aria-controls=${shouldShowPanel() ? listboxId : null}
+                :aria-activedescendant=${activeDescendant()}
+                @input=${onInput}
+                @focus=${onFocus}
+                @blur=${onBlur}
+                @keydown=${onKeydown}
+            />
+            <button v-if=${showClear()} class="clear" type="button" aria-label="Clear" @click=${clear}>
+                <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4 4l8 8M12 4l-8 8"></path></svg>
+            </button>
+        </div>
         <div
             v-if=${shouldShowPanel()}
             ref="panelEl"
-            :id=${isLoading() ? null : listboxId}
+            :id=${listboxId}
             :class=${panelClass()}
             :style=${panelStyle()}
             part="panel"
             :popover=${props.teleported ? "manual" : undefined}
             :data-append-to=${typeof props.appendTo === "string" ? props.appendTo : "element"}
-            :role=${isLoading() ? "status" : "listbox"}
+            :role=${panelRole()}
+            aria-live="polite"
         >
-            <slot v-if=${isLoading()} name="loading">${props.loadingText}</slot>
+            <div v-if=${isLoading()} class="panel-state">
+                <slot name="loading">${props.loadingText}</slot>
+            </div>
+            <div v-else-if=${hasLoadError()} class="panel-state panel-state--error">
+                <slot name="error" :error=${loadError}>${props.errorText}</slot>
+            </div>
+            <div v-else-if=${isEmptyState()} class="panel-state">
+                <slot name="empty">${props.noDataText}</slot>
+            </div>
             <template v-else>
-                <button
-                    v-for="item in options()"
-                    :key="item.key"
-                    :id="\`${listboxId}-option-\${item.index}\`"
-                    class="option"
-                    type="button"
-                    :data-index="item.index"
-                    :disabled="item.disabled"
-                    role="option"
-                    :aria-selected="activeIndex === item.index ? 'true' : 'false'"
-                    :class="{ active: activeIndex === item.index }"
-                    @mousedown=${onOptionClick}
-                    @mouseenter=${onOptionMouseenter}
+                <div
+                    class="options-viewport"
+                    :class=${{ "is-virtual": virtualEnabled() }}
+                    :style=${optionsViewportStyle()}
+                    :data-virtualized=${virtualEnabled() ? "true" : "false"}
+                    @scroll=${onOptionsScroll}
                 >
-                    <slot :item="item">{{ item.label }}</slot>
-                </button>
+                    <div class="options-track" :style=${virtualEnabled() ? virtualTrackStyle() : {}}>
+                        <button
+                            v-for="item in virtualOptions()"
+                            :key="item.key"
+                            :id="\`${listboxId}-option-\${item.index}\`"
+                            class="option"
+                            type="button"
+                            :style="optionStyle(item)"
+                            :data-index="item.index"
+                            :data-create="item.isCreate ? 'true' : null"
+                            :disabled="item.disabled"
+                            role="option"
+                            :aria-selected="activeIndex === item.index ? 'true' : 'false'"
+                            :class="{ active: activeIndex === item.index, 'option--create': item.isCreate }"
+                            @mousedown=${onOptionClick}
+                            @mouseenter=${onOptionMouseenter}
+                        >
+                            <span v-if="item.isCreate" class="create-prefix">${props.createText}</span>
+                            <slot :item="item">{{ item.label }}</slot>
+                        </button>
+                    </div>
+                </div>
             </template>
         </div>
     </div>

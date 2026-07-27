@@ -4,12 +4,12 @@ import {
   defineHtml,
   defineProps,
   defineStyle,
-  html,
-  onMount,
-  onUnmount,
+  onMounted,
+  onUnmounted,
   useEffect,
   useHost,
   useHostAttr,
+  useHostCssVar,
   useHostFlag,
   useRef,
   useTemplateRef
@@ -47,6 +47,7 @@ const props = defineProps<TextareaProps>({
   modelModifiers: { type: Object, default: () => ({}) },
   size: { type: String, default: "" },
   variant: { type: String, default: "filled" },
+  backgroundColor: { type: String, default: "" },
   placeholder: { type: String, default: "" },
   disabled: { type: Boolean, default: false },
   readonly: { type: Boolean, default: false },
@@ -274,6 +275,7 @@ useHostFlag("disabled", isDisabled);
 useHostFlag("autosize", autosizeEnabled);
 useHostFlag("data-dirty", () => Boolean(modelText()));
 useHostFlag("data-has-label", () => Boolean(props.label));
+useHostCssVar("--elf-field-custom-bg", () => props.backgroundColor || "");
 
 useEffect(() => {
   void ctl.model.value;
@@ -284,14 +286,14 @@ useEffect(() => {
   });
 });
 
-onMount(() => {
+onMounted(() => {
   Object.defineProperties(host, {
     focus: { configurable: true, value: focus },
     blur: { configurable: true, value: blur }
   });
 });
 
-onUnmount(() => {
+onUnmounted(() => {
   delete (host as Partial<HTMLElement>).focus;
   delete (host as Partial<HTMLElement>).blur;
 });
@@ -309,7 +311,7 @@ defineExpose({
 
 defineStyle(styles);
 
-const Textarea = defineHtml(html`
+const Textarea = defineHtml(`
   <div
     :class=${["group", { "has-prepend": hasPrepend(), "has-append": hasAppend() }]}
     @mouseenter=${onMouseenter}
@@ -321,6 +323,9 @@ const Textarea = defineHtml(html`
 
     <div class="field">
       <div class="wrapper" part="wrapper">
+        <fieldset v-if=${props.label} class="field-outline" aria-hidden="true">
+          <legend><span>${props.label}</span></legend>
+        </fieldset>
         <span v-if=${props.label} class="field-label">${props.label}</span>
         <div v-if=${hasPrefix() || hasSuffix()} class="decorations" part="decorations">
           <span v-if=${hasPrefix()} class="prefix" part="prefix">

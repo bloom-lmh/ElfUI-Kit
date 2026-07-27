@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 import { createDocsTranslator } from "../../docsLocale";
 
 const count = useRef(2);
@@ -12,7 +12,7 @@ const script = `const count = useRef(2);
 const onCountUpdate = (event) => count.set(event.detail ?? 0);`;
 const onCountUpdate = (event: CustomEvent): void => count.set(Number(event.detail ?? 0));
 
-const PageInputNumberEx1 = defineHtml(html`
+const PageInputNumberEx1 = defineHtml(`
   <h2>${t("heading")}</h2>
   <elf-playground :title=${t("title")} :code=${code} :script=${script}>
     <elf-input-number variant="outlined" :label=${t("quantity")} :modelValue=${count.value} min="0" max="10" @update:modelValue=${onCountUpdate}></elf-input-number>

@@ -92,16 +92,23 @@
 
 ## 差距与任务
 
-- [ ] P2 补齐核心属性差距：`locale`、`size`、`zIndex`、`namespace`、`button`、`link`、`dialog ^`、`message`、`experimental-features`、`empty-values ^`、`value-on-clear ^`、`table ^`
-- [ ] P2 补齐事件差距：当前粗扫未发现明显缺口，进入实现时复核事件 payload 与触发时机。
-- [ ] P1 补齐插槽/暴露方法：当前粗扫未发现明显缺口，进入实现时复核默认插槽、命名插槽和 expose 方法。
-- [ ] P1 对齐交互行为、键盘访问、禁用态、清空态、受控/非受控同步、表单联动和无障碍属性。
-- [ ] P2 更新页面示例：Template / Script 双视图、所有动态绑定使用 `${...}`，补齐 Element Plus 关键场景示例。
-- [ ] P2 补齐组件单测、页面冒烟和类型导出；必要时补视觉回归截图。
+- [x] P2 核心属性复核：ElfUI 采用职责分离 Provider；locale 归 LocaleProvider、视觉 token 归 ThemeProvider，组件默认值由 `defaults/deep/strategy/disabled` 统一承载，不复制 Element Plus 单体 ConfigProvider 的组件专有字段。
+- [x] P2 事件复核：纯上下文 Provider 不产生值变化事件，动态 defaults 通过响应式属性更新后代。
+- [x] P1 插槽/暴露方法复核：Provider 只承载默认插槽，不建立额外焦点或命令式实例 API；`applyDefaults()` 通过注入上下文提供给需要的后代。
+- [x] P1 行为复核：覆盖嵌套合并、`reset`、`disabled`、动态子树、卸载恢复和显式 props 优先级；Provider 本身不参与键盘或表单值交互。
+- [x] P2 更新页面示例：覆盖嵌套合并、组件覆盖、reset、disabled 与动态子树。
+- [x] P2 补齐组件单测、页面冒烟、公开类型和真实浏览器视觉回归截图。
 
 ## 验收清单
 
-- [ ] API props/types 与页面 PropsTable 同步。
-- [ ] 关键交互和边界状态有单测覆盖。
-- [ ] 文档示例能在 Playground 中显示 Template / Script，且复制内容正确。
-- [ ] `npm --prefix ui-kit run build` 通过；涉及运行时能力时补跑目标测试。
+- [x] API props/types 与页面 PropsTable 同步。
+- [x] 关键交互和边界状态有单测覆盖。
+- [x] 文档示例能在 Playground 中显示 Template / Script，且复制内容正确。
+- [x] `pnpm build`、Providers 分类测试与宏类型检查通过。
+
+## 2026-07-22 P0 组合能力验收
+
+- [x] 支持父子 Provider 默认值合并、组件级覆盖与 `reset` 局部恢复。
+- [x] Provider 禁用、配置变化和卸载时恢复其写入的属性，不残留旧默认值。
+- [x] 通过 MutationObserver 覆盖动态插入子树，并隔离嵌套 Provider 的作用域。
+- [x] 组件 5 项及 Provider 页面回归通过，真实浏览器截图为 `defaults-provider-nested-reset.png`。

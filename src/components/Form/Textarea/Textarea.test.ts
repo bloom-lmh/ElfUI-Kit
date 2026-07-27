@@ -58,6 +58,7 @@ describe("elf-textarea", () => {
     expect(el.getAttribute("variant")).toBe("outlined");
     expect(el.hasAttribute("data-has-label")).toBe(true);
     expect(el.shadowRoot!.querySelector(".field-label")?.textContent).toBe("Description");
+    expect(el.shadowRoot!.querySelector(".field-outline legend")?.textContent).toBe("Description");
   });
 
   it.each(["default", "underlined", "solo", "solo-filled", "solo-inverted"])(

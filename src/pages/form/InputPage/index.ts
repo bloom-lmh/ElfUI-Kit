@@ -1,4 +1,4 @@
-import { defineHtml, html, useComponents } from "@elfui/core";
+import { defineHtml, useComponents } from "@elfui/core";
 import { createDocsTranslator } from "../../docsLocale";
 import { PageInputEx1 } from "./ex1";
 import { PageInputEx2 } from "./ex2";
@@ -17,7 +17,7 @@ const t = createDocsTranslator({
   description: { zh: "单行文本输入，支持 Material 外观、浮动标签、内外图标、格式化与表单校验。", en: "Single-line input with Material variants, floating labels, inner and outer icons, formatting, and form validation." }
 });
 
-const PageInput = defineHtml(html`
+const PageInput = defineHtml(`
   <elf-container>
     <h1>${t("title")}</h1>
     <p>${t("description")}</p>

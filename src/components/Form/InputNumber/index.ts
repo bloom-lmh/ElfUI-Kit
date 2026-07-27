@@ -4,21 +4,20 @@ import {
   defineHtml,
   defineProps,
   defineStyle,
-  html,
   useHost,
   useHostAttr,
   useHostCssVar,
   useHostFlag,
   useRef,
-  watchEffect
+  useEffect
 } from "@elfui/core";
 
 import styles from "./style.scss?inline";
 import { useFormControl } from "../../../composables";
 import { normalizeFieldVariant } from "../../../types/field";
-import type { InputNumberControlsPosition, InputNumberControlVariant, InputNumberProps, InputNumberSize } from "./types";
+import type { InputNumberControlsPosition, InputNumberControlVariant, InputNumberDensity, InputNumberProps, InputNumberSize } from "./types";
 
-export type { InputNumberControlsPosition, InputNumberControlVariant, InputNumberProps, InputNumberSize } from "./types";
+export type { InputNumberControlsPosition, InputNumberControlVariant, InputNumberDensity, InputNumberProps, InputNumberSize } from "./types";
 
 const props = defineProps<InputNumberProps>({
   modelValue: { type: Number, default: undefined },
@@ -36,6 +35,7 @@ const props = defineProps<InputNumberProps>({
   inset: { type: Boolean, default: false },
   hideInput: { type: Boolean, default: false },
   size: { type: String, default: "" },
+  density: { type: String, default: "default" },
   variant: { type: String, default: "filled" },
   label: { type: String, default: "" },
   backgroundColor: { type: String, default: "" },
@@ -102,7 +102,7 @@ const normalize = (value: number | null): number | null => {
   return applyPrecision(clamp(next));
 };
 
-watchEffect(() => {
+useEffect(() => {
   const raw = numberOrNull(props.modelValue);
   const key = raw === null ? "" : String(raw);
   if (lastModel.peek() === key) return;
@@ -181,15 +181,23 @@ const wrapperClass = (): Array<string | Record<string, boolean>> => [
 
 const showControls = (): boolean => normalizedControlVariant() !== "hidden";
 
+const normalizedDensity = (): InputNumberDensity => {
+  if (props.density === "comfortable" || props.density === "compact") return props.density;
+  return "default";
+};
+
+const inputPlaceholder = (): string =>
+  props.label.trim() && props.label.trim() === props.placeholder.trim() ? "" : props.placeholder;
+
 useHostAttr("size", normalizedSize);
+useHostAttr("density", normalizedDensity);
 useHostAttr("controls-position", normalizedControlsPosition);
 useHostAttr("variant", () => normalizeFieldVariant(props.variant));
 useHostAttr("control-variant", normalizedControlVariant);
 useHostFlag("disabled", () => Boolean(props.disabled));
 useHostFlag("data-dirty", () => current.value !== null);
 useHostFlag("data-has-label", () => Boolean(props.label));
-useHostCssVar("--elf-field-bg", () => props.backgroundColor || "");
-useHostCssVar("--elf-field-hover-bg", () => props.backgroundColor || "");
+useHostCssVar("--elf-field-custom-bg", () => props.backgroundColor || "");
 
 // HTMLElement already provides focus/blur. Exposing those names would replace
 // native host methods and produce a collision warning for every instance.
@@ -197,10 +205,10 @@ defineExpose({ decrease, increase });
 
 defineStyle(styles);
 
-const InputNumber = defineHtml<InputNumberProps>(html`
+const InputNumber = defineHtml<InputNumberProps>(`
   <div :class=${wrapperClass()} part="wrapper">
-    <fieldset v-if=${props.label} class="outline" aria-hidden="true"><legend><span>${props.label}</span></legend></fieldset>
-    <span v-if=${props.label} class="label" part="label">${props.label}</span>
+    <fieldset class="field-outline" aria-hidden="true"><legend><span v-if=${props.label}>${props.label}</span></legend></fieldset>
+    <span v-if=${props.label} class="field-label" part="label">${props.label}</span>
     <button
       v-if=${showControls()}
       class="control decrease"
@@ -216,7 +224,7 @@ const InputNumber = defineHtml<InputNumberProps>(html`
       part="input"
       type="number"
       :name=${props.name || null}
-      :placeholder=${props.placeholder}
+      :placeholder=${inputPlaceholder()}
       :aria-label=${props.label || props.placeholder || null}
       :disabled=${props.disabled}
       :readonly=${props.readonly}

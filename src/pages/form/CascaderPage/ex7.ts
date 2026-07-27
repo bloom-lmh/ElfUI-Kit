@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 const modelValue = useRef<unknown[]>([
   ["engineering", "frontend"],
@@ -27,7 +27,7 @@ const options = [
 
 const popperOptions = {
   modifiers: [
-    { name: "offset", options: { offset: [0, 10] } },
+    { name: "offset", options: { offset: [0, 0] } },
     { name: "flip", enabled: true },
     { name: "preventOverflow", options: { padding: 12 } }
   ]
@@ -47,9 +47,41 @@ const code = `<elf-cascader
   @update:modelValue=\${onUpdate}
 />`;
 
-const PageCascaderEx7 = defineHtml(html`
+const script = `const modelValue = useRef([
+    ["engineering", "frontend"],
+    ["engineering", "quality"]
+]);
+const options = [
+    {
+        label: "研发中心",
+        value: "engineering",
+        children: [
+            { label: "前端平台", value: "frontend" },
+            { label: "质量保障", value: "quality" },
+            { label: "基础架构", value: "infrastructure" }
+        ]
+    },
+    {
+        label: "产品中心",
+        value: "product",
+        children: [
+            { label: "设计系统", value: "design" },
+            { label: "增长产品", value: "growth" }
+        ]
+    }
+];
+const popperOptions = {
+    modifiers: [
+        { name: "offset", options: { offset: [0, 0] } },
+        { name: "flip", enabled: true },
+        { name: "preventOverflow", options: { padding: 12 } }
+    ]
+};
+const onUpdate = (event) => modelValue.set(event.detail);`;
+
+const PageCascaderEx7 = defineHtml(`
   <h2>多选标签与视口浮层</h2>
-  <elf-playground title="remove-tag / teleported / collision positioning" :code=${code}>
+  <elf-playground title="remove-tag / teleported / collision positioning" :code=${code} :script=${script}>
     <span slot="status" class="demo-state">↑↓ 同列移动 · → 进入子级 · ← 返回父级 · Enter 选择</span>
     <div
       style="width:min(100%,560px);height:126px;overflow:hidden;transform:translateZ(0);border:1px dashed var(--elf-border);border-radius:12px;padding:18px;box-sizing:border-box;display:flex;align-items:flex-end"

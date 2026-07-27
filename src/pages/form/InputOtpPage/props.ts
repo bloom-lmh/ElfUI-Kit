@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 
 const rows = [
   { name: "model-value / length", type: "string / number", default: "'' / 6" },
@@ -8,7 +8,7 @@ const rows = [
   { name: "mask / validate-event", type: "boolean", default: "false / true" }
 ];
 
-const PageInputOtpProps = defineHtml(html`
+const PageInputOtpProps = defineHtml(`
   <h2>API</h2>
   <elf-props-table title="Props" :rows=${rows} />
   <elf-props-table title="Slots" :rows=${[{ name: "separator", desc: "custom separator content" }]} />

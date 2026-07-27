@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 const delivery = useRef("standard");
 const deliveryOptions = [
@@ -27,7 +27,7 @@ const deliveryOptions = [
 const optionProps = { label: "text", value: "code", disabled: "locked" };
 const onUpdate = (event) => delivery.set(String(event.detail));`;
 
-const PageRadioEx4 = defineHtml(html`
+const PageRadioEx4 = defineHtml(`
   <elf-playground title="声明式 options 与字段映射" :code=${code} :script=${script}>
     <elf-radio-group
       :modelValue.prop=${delivery.value}

@@ -1,4 +1,4 @@
-import { defineHtml, defineStyle, html, useReactive } from "@elfui/core";
+import { defineHtml, defineStyle, useReactive } from "@elfui/core";
 
 import type { FormRule } from "../../../components/Form";
 import demoStyles from "./demo.scss?inline";
@@ -49,11 +49,22 @@ const code = `<div v-for="(domain, index) in model.domains" :key="domain.key">
 </div>`;
 
 const script = `const addDomain = () => model.domains.push({ key: nextKey++, value: "" });
-const removeDomain = (domain) => model.domains.splice(model.domains.findIndex((item) => item.key === domain.key), 1);`;
+const removeDomain = (domain) => model.domains.splice(model.domains.findIndex((item) => item.key === domain.key), 1);
+
+const domainRules = [
+    { required: true, message: "请输入域名", trigger: "blur" },
+    { pattern: /^(?:[a-z0-9-]+\\.)+[a-z]{2,}$/i, message: "域名格式不正确", trigger: "blur" }
+];
+const domainValue = (domain) => String(domain.value ?? "");
+const updateDomain = (domain, event) => {
+    const entry = model.domains.find((item) => item.key === domain.key);
+    if (entry)
+        entry.value = String(event.detail ?? "");
+};`;
 
 defineStyle(demoStyles);
 
-const PageFormEx6 = defineHtml(html`
+const PageFormEx6 = defineHtml(`
   <h2>动态字段</h2>
   <elf-playground title="动态增删与字段级规则" :code=${code} :script=${script}>
     <span slot="status" class="demo-state">共 {{ model.domains.length }} 个域名</span>

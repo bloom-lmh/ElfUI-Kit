@@ -1,31 +1,34 @@
 // elf-select — 下拉选择
 
 import {
-    defineExpose,
-    defineEmits,
-    defineHtml,
-    defineProps,
-    defineStyle,
-    html,
-    onMount,
-    onUnmount,
-    useClickOutside,
-    useEffect,
-    useEventListener,
-    useHost,
-    useHostAttr,
-    useHostCssVar,
-    useHostFlag,
-    useRef,
+  defineExpose,
+  defineEmits,
+  defineHtml,
+  defineProps,
+  defineStyle,
+  inject,
+  onMounted,
+  onUnmounted,
+  useClickOutside,
+  useEffect,
+  useEventListener,
+  useHost,
+  useHostAttr,
+  useHostCssVar,
+  useHostFlag,
+  useRef
 } from "@elfui/core";
 
 import { useDisabled, useFormItem } from "../../../composables";
+import { FORM_ITEM_KEY } from "../context";
 import { listenForExternalOverlayMotion } from "../../Common/anchored-overlay";
 import { useLocaleProvider } from "../../Providers/context";
 import styles from "./style.scss?inline";
 import { normalizeFieldVariant } from "../../../types/field";
 
 import type {
+    SelectEmits,
+    SelectExpose,
     SelectFieldNames,
     SelectOption,
     SelectProps,
@@ -33,6 +36,9 @@ import type {
 } from "./types";
 
 export type {
+    SelectElement,
+    SelectEmits,
+    SelectExpose,
     SelectFieldNames,
     SelectOption,
     SelectProps,
@@ -42,6 +48,7 @@ export type {
 } from "./types";
 
 const SELECT_OPEN_EVENT = "elf-select-open";
+let selectId = 0;
 
 const props = defineProps<SelectProps>({
     modelValue: { type: null, default: "" },
@@ -57,6 +64,7 @@ const props = defineProps<SelectProps>({
     },
     size: { type: String, default: "" },
     variant: { type: String, default: "filled" },
+    backgroundColor: { type: String, default: "" },
     label: { type: String, default: "" },
     placeholder: { type: String, default: "" },
     disabled: { type: Boolean, default: false },
@@ -66,11 +74,15 @@ const props = defineProps<SelectProps>({
     collapseTags: { type: Boolean, default: false },
     maxCollapseTags: { type: Number, default: 1 },
     collapseTagsTooltip: { type: Boolean, default: false },
+    tagTooltip: { type: Boolean, default: false },
+    tagType: { type: String, default: "info" },
+    tagEffect: { type: String, default: "light" },
     multipleLimit: { type: Number, default: 0 },
     filterable: { type: Boolean, default: false },
     allowCreate: { type: Boolean, default: false },
     filterMethod: { type: Function, default: undefined },
     remote: { type: Boolean, default: false },
+    remoteShowSuffix: { type: Boolean, default: false },
     remoteMethod: { type: Function, default: undefined },
     debounce: { type: Number, default: 300 },
     reserveKeyword: { type: Boolean, default: true },
@@ -84,30 +96,30 @@ const props = defineProps<SelectProps>({
     emptyValues: { type: Array, default: () => [undefined, null, ""] },
     height: { type: Number, default: 240 },
     fitInputWidth: { type: Boolean, default: false },
+    effect: { type: String, default: "light" },
+    autocomplete: { type: String, default: "off" },
+    popperClass: { type: String, default: "" },
+    popperStyle: { type: null, default: "" },
+    persistent: { type: Boolean, default: false },
+    clearIcon: { type: String, default: "×" },
+    suffixIcon: { type: String, default: "▼" },
+    validateEvent: { type: Boolean, default: true },
+    offset: { type: Number, default: 0 },
     tabindex: { type: null, default: 0 },
     id: { type: String, default: "" },
     name: { type: String, default: "" },
 });
 
-const emit = defineEmits<{
-    "update:modelValue": [value: SelectValue | SelectValue[]];
-    change: [value: SelectValue | SelectValue[]];
-    clear: [];
-    "visible-change": [visible: boolean];
-    blur: [event: FocusEvent];
-    focus: [event: FocusEvent];
-    "remove-tag": [value: SelectValue];
-    "popup-scroll": [data: { scrollTop: number; scrollLeft: number }];
-    "end-reached": [direction: "top" | "bottom"];
-    search: [query: string];
-}>();
+const emit = defineEmits<SelectEmits>();
 
 const fi = useFormItem(() => props.size as string);
+const formItem = inject(FORM_ITEM_KEY);
 
 const isDisabled = useDisabled(() => Boolean(props.disabled));
 
 const host = useHost();
 const locale = useLocaleProvider();
+const fallbackId = `elf-select-${++selectId}`;
 
 const open = useRef(false);
 
@@ -116,6 +128,7 @@ const filterText = useRef("");
 const rendered = useRef(false);
 
 const closing = useRef(false);
+const activeIndex = useRef(-1);
 
 const innerValue = useRef<unknown>(props.modelValue);
 
@@ -136,6 +149,7 @@ useEffect(() => {
         closing.set(false);
     } else if (rendered.peek()) {
         closing.set(true);
+        if (props.persistent) return;
         const timer = setTimeout(() => {
             rendered.set(false);
             closing.set(false);
@@ -153,11 +167,13 @@ useHostFlag("disabled", isDisabled);
 useHostAttr("size", () => fi.formSize);
 useHostAttr("variant", () => normalizeFieldVariant(props.variant));
 useHostFlag("data-has-label", () => Boolean(props.label));
+useHostCssVar("--elf-field-custom-bg", () => props.backgroundColor || "");
 
 useHostCssVar(
     "--_select-dropdown-height",
     () => `${Math.max(80, Number(props.height) || 240)}px`,
 );
+useHostCssVar("--_select-offset", () => `${Number(props.offset) || 0}px`);
 
 const closeDropdown = (emitChange = true): void => {
     if (!open.peek()) return;
@@ -175,6 +191,7 @@ const openDropdown = (): void => {
         new CustomEvent(SELECT_OPEN_EVENT, { detail: host }),
     );
     open.set(true);
+    activeIndex.set(firstEnabledIndex());
     emit("visible-change", true);
 };
 
@@ -183,13 +200,13 @@ useClickOutside(host, () => {
 });
 
 let cleanupOverlayMotion = (): void => {};
-onMount(() => {
+onMounted(() => {
     cleanupOverlayMotion = listenForExternalOverlayMotion(
         () => [getDropdownEl()],
         () => closeDropdown(),
     );
 });
-onUnmount(() => cleanupOverlayMotion());
+onUnmounted(() => cleanupOverlayMotion());
 
 useEventListener<CustomEvent<HTMLElement>>(document, SELECT_OPEN_EVENT, (e) => {
     if (e.detail !== host) closeDropdown();
@@ -315,6 +332,40 @@ const viewOptionEntries = (): Array<{
         key: `${index}-${String(valueIdentity(optionValue(option)))}`,
     }));
 
+const firstEnabledIndex = (): number =>
+    viewOptions().findIndex((option) => !isOptionDisabled(option));
+
+const lastEnabledIndex = (): number => {
+    const options = viewOptions();
+    for (let index = options.length - 1; index >= 0; index -= 1) {
+        const option = options[index];
+        if (option && !isOptionDisabled(option)) return index;
+    }
+    return -1;
+};
+
+const moveActive = (step: 1 | -1): void => {
+    const options = viewOptions();
+    if (options.length === 0) {
+        activeIndex.set(-1);
+        return;
+    }
+    let index = activeIndex.peek();
+    for (let attempts = 0; attempts < options.length; attempts += 1) {
+        index = (index + step + options.length) % options.length;
+        const option = options[index];
+        if (option && !isOptionDisabled(option)) {
+            activeIndex.set(index);
+            queueMicrotask(() => {
+                host.shadowRoot
+                    ?.querySelector<HTMLElement>(`[data-index="${index}"]`)
+                    ?.scrollIntoView({ block: "nearest" });
+            });
+            return;
+        }
+    }
+};
+
 const selectedOptions = (): SelectOption[] =>
     valueArr()
         .map((val) => flatOptions().find((o) => sameValue(optionValue(o), val)))
@@ -389,11 +440,13 @@ const selectOption = (opt: SelectOption, e?: Event): void => {
         innerValue.set(next); // 更新本地副本，防 mutate
         emit("update:modelValue", next);
         emit("change", next);
+        if (props.validateEvent) formItem?.validateTrigger("change");
         if (!props.reserveKeyword) filterText.set("");
     } else {
         innerValue.set(value);
         emit("update:modelValue", value);
         emit("change", value);
+        if (props.validateEvent) formItem?.validateTrigger("change");
         closeDropdown();
     }
 };
@@ -406,6 +459,7 @@ const removeTag = (opt: SelectOption): void => {
     emit("update:modelValue", arr);
     emit("change", arr);
     emit("remove-tag", removed);
+    if (props.validateEvent) formItem?.validateTrigger("change");
 };
 
 const clear = (): void => {
@@ -422,10 +476,12 @@ const clear = (): void => {
     emit("update:modelValue", next);
     emit("change", next);
     emit("clear");
+    if (props.validateEvent) formItem?.validateTrigger("change");
 };
 
 const onFilterInput = (e: Event): void => {
     filterText.set((e.target as HTMLInputElement).value);
+    activeIndex.set(firstEnabledIndex());
     if (!open.value) openDropdown();
     if (props.remote) {
         if (remoteTimer) clearTimeout(remoteTimer);
@@ -445,7 +501,10 @@ const onDropdownClick = (event: Event): void => {
     const optionEl = target?.closest?.(".option") as HTMLElement | null;
     const index = Number(optionEl?.dataset.index ?? -1);
     const option = viewOptions()[index];
-    if (option) selectOption(option, event);
+    if (option) {
+        activeIndex.set(index);
+        selectOption(option, event);
+    }
 };
 
 const onRemoveTagClick = (event: Event): void => {
@@ -474,6 +533,14 @@ const collapsedCount = (): number => {
         : 0;
 };
 
+const collapsedLabels = (): string => {
+    const count = Math.max(1, Number(props.maxCollapseTags) || 1);
+    return selectedOptions().slice(count).map(optionLabel).join("、");
+};
+
+const tagTitle = (option: SelectOption): string | null =>
+    props.tagTooltip ? optionLabel(option) : null;
+
 const showClear = (): boolean => {
     return Boolean(props.clearable && hasValue() && !isDisabled());
 };
@@ -491,19 +558,45 @@ const onTriggerFocus = (event: FocusEvent): void => {
 
 const onTriggerBlur = (event: FocusEvent): void => {
     emit("blur", event);
+    if (props.validateEvent) formItem?.validateTrigger("blur");
 };
 
+const showSuffix = (): boolean => !showFilter() || !props.remote || Boolean(props.remoteShowSuffix);
+
 const onTriggerKeydown = (event: KeyboardEvent): void => {
-    if (event.key === "Enter" && props.defaultFirstOption && showFilter()) {
-        const first = viewOptions().find((option) => !isOptionDisabled(option));
-        if (first) selectOption(first, event);
+    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+        event.preventDefault();
+        if (!open.peek()) openDropdown();
+        moveActive(event.key === "ArrowDown" ? 1 : -1);
+        return;
+    }
+    if (event.key === "Home" && open.peek()) {
+        event.preventDefault();
+        activeIndex.set(firstEnabledIndex());
+        return;
+    }
+    if (event.key === "End" && open.peek()) {
+        event.preventDefault();
+        activeIndex.set(lastEnabledIndex());
+        return;
+    }
+    if (event.key === "Enter") {
+        event.preventDefault();
+        if (!open.peek()) {
+            openDropdown();
+            return;
+        }
+        const index = activeIndex.peek() >= 0
+            ? activeIndex.peek()
+            : props.defaultFirstOption
+              ? firstEnabledIndex()
+              : -1;
+        const option = viewOptions()[index];
+        if (option) selectOption(option, event);
         return;
     }
     if (event.key === "Escape") closeDropdown();
-    if ((event.key === "Enter" || event.key === "ArrowDown") && !open.peek()) {
-        event.preventDefault();
-        openDropdown();
-    }
+    if (event.key === "Tab") closeDropdown();
 };
 
 const onDropdownScroll = (event: Event): void => {
@@ -521,27 +614,49 @@ const onDropdownScroll = (event: Event): void => {
 const selectedLabel = (): string | string[] =>
     isMulti() ? selectedOptions().map(optionLabel) : displayLabel();
 
-defineExpose({
+const focus = (): void =>
+    host.shadowRoot?.querySelector<HTMLElement>(".trigger")?.focus();
+
+const blur = (): void =>
+    host.shadowRoot?.querySelector<HTMLElement>(".trigger")?.blur();
+
+const controlId = (): string => props.id || fallbackId;
+const listboxId = (): string => `${controlId()}-listbox`;
+const optionId = (index: number): string => `${listboxId()}-option-${index}`;
+const activeOptionId = (): string | null =>
+    activeIndex.value >= 0 ? optionId(activeIndex.value) : null;
+
+defineExpose<SelectExpose>({
     open: openDropdown,
     close: closeDropdown,
     toggle: toggleDropdown,
+    focus,
+    blur,
     selectedLabel,
 });
 
 defineStyle(styles);
 
-const Select = defineHtml(html`
+const Select = defineHtml(`
     <div
         class="trigger"
         part="trigger"
+        :id=${controlId()}
         :tabindex=${props.tabindex}
         role="combobox"
+        aria-haspopup="listbox"
+        :aria-controls=${listboxId()}
+        :aria-disabled=${isDisabled() ? "true" : "false"}
         :aria-expanded=${open ? "true" : "false"}
+        :aria-activedescendant=${activeOptionId()}
         @click=${toggleOpen}
         @focus=${onTriggerFocus}
         @blur=${onTriggerBlur}
         @keydown=${onTriggerKeydown}
     >
+        <fieldset v-if=${props.label} class="field-outline" aria-hidden="true">
+            <legend><span>${props.label}</span></legend>
+        </fieldset>
         <span v-if=${props.label} class="field-label">${props.label}</span>
         <slot name="prefix"></slot>
         <span v-if=${!hasValue() && !showFilter()} class="placeholder"
@@ -553,18 +668,31 @@ const Select = defineHtml(html`
                 :key="entry.key"
                 class="tag"
                 part="tag"
+                :data-type=${props.tagType}
+                :data-effect=${props.tagEffect}
+                :title="tagTitle(entry.option)"
             >
-                {{ optionLabel(entry.option) }}
-                <button
-                    type="button"
-                    class="tag-remove"
-                    :data-index="String(entry.index)"
-                    @click=${onRemoveTagClick}
+                <slot
+                    name="tag"
+                    :option="entry.option"
+                    :index="entry.index"
+                    :value="optionValue(entry.option)"
+                    :label="optionLabel(entry.option)"
+                    :remove=${removeTag}
                 >
-                    ×
-                </button>
+                    {{ optionLabel(entry.option) }}
+                    <button
+                        type="button"
+                        class="tag-remove"
+                        :data-index="String(entry.index)"
+                        @click=${onRemoveTagClick}
+                    >×</button>
+                </slot>
             </span>
-            <span v-if=${collapsedCount() > 0} class="collapse-tag"
+            <span
+                v-if=${collapsedCount() > 0}
+                class="collapse-tag"
+                :title=${props.collapseTagsTooltip ? collapsedLabels() : null}
                 >+${collapsedCount()}</span
             >
         </template>
@@ -576,6 +704,8 @@ const Select = defineHtml(html`
             class="filter-input"
             :id=${props.id || null}
             :name=${props.name || null}
+            :autocomplete=${props.autocomplete || "off"}
+            role="searchbox"
             :value=${filterText}
             @input=${onFilterInput}
             @click=${stopClick}
@@ -587,25 +717,34 @@ const Select = defineHtml(html`
                 class="clear"
                 @click=${onClearClick}
             >
-                ×
+                <slot name="clear-icon">${props.clearIcon || "×"}</slot>
             </button>
-            <span v-else class="arrow">▼</span>
+            <span v-else-if=${showSuffix()} class="arrow">
+                <slot name="suffix-icon">${props.suffixIcon || "▼"}</slot>
+            </span>
         </span>
     </div>
     <div
         v-if=${rendered && !isDisabled()}
         :class=${[
             "dropdown",
+            props.popperClass,
+            "is-effect-" + props.effect,
             {
                 active: open && !closing,
                 closing: closing,
                 "fit-input-width": props.fitInputWidth,
             },
         ]}
+        :style=${props.popperStyle}
         part="dropdown"
+        :id=${listboxId()}
+        role="listbox"
+        :aria-multiselectable=${isMulti() ? "true" : null}
         @click=${onDropdownClick}
         @scroll=${onDropdownScroll}
     >
+        <slot name="header"></slot>
         <div v-if=${props.loading} class="status">
             <slot name="loading">${loadingText()}</slot>
         </div>
@@ -620,13 +759,27 @@ const Select = defineHtml(html`
             v-for="entry in viewOptionEntries()"
             :key="entry.key"
             :data-index="String(entry.index)"
+            :id="optionId(entry.index)"
+            role="option"
+            :aria-selected="isSelected(entry.option) ? 'true' : 'false'"
+            :aria-disabled="isOptionDisabled(entry.option) ? 'true' : 'false'"
             :class="[
           'option',
-          { selected: isSelected(entry.option), disabled: isOptionDisabled(entry.option) }
+          {
+            selected: isSelected(entry.option),
+            disabled: isOptionDisabled(entry.option),
+            active: activeIndex === entry.index
+          }
         ]"
         >
             <span>
-                <slot name="label">{{ optionLabel(entry.option) }}</slot>
+                <slot
+                    name="label"
+                    :option="entry.option"
+                    :index="entry.index"
+                    :value="optionValue(entry.option)"
+                    :label="optionLabel(entry.option)"
+                >{{ optionLabel(entry.option) }}</slot>
             </span>
             <span v-if="isSelected(entry.option)" class="check">✓</span>
         </div>

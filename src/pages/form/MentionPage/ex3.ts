@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 const keyboardContent = useRef("@");
 
@@ -32,7 +32,7 @@ const onKeyboardUpdate = (event: CustomEvent): void => {
   keyboardContent.set(String(event.detail || ""));
 };
 
-const PageMentionEx3 = defineHtml(html`
+const PageMentionEx3 = defineHtml(`
 <elf-playground title="键盘选择" :code=${code3} :script=${script3}>
       <div style="display:grid;gap:10px;max-width:480px">
         <elf-mention

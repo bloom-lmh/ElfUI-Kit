@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 const biography = useRef("ElfUI 让 Web Components 保持简洁。 ");
 
@@ -36,7 +36,7 @@ const onBiographyUpdate = (event) => {
   biography.set(String(event.detail ?? ""));
 };`;
 
-const PageTextareaEx3 = defineHtml(html`
+const PageTextareaEx3 = defineHtml(`
   <h2>格式化、清空与插槽</h2>
   <elf-playground title="受控高级文本域" :code=${code} :script=${script}>
     <div style="width:100%;max-width:560px">

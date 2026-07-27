@@ -121,12 +121,22 @@ describe("elf-mention", () => {
     expect(el.shadowRoot!.querySelector(".panel")).not.toBeNull();
   });
 
-  it("uses the shared outlined field surface by default", async () => {
+  it("uses the shared filled field surface by default", async () => {
     const el = document.createElement("elf-mention") as MentionEl;
     document.body.appendChild(el);
     await tick();
 
-    expect(el.getAttribute("variant")).toBe("outlined");
+    expect(el.getAttribute("variant")).toBe("filled");
     expect(el.shadowRoot!.querySelector("textarea")).toBeTruthy();
+  });
+
+  it("renders a real outlined label notch", async () => {
+    const el = document.createElement("elf-mention") as MentionEl;
+    el.setAttribute("variant", "outlined");
+    el.setAttribute("label", "Members");
+    document.body.appendChild(el);
+    await tick();
+    expect(el.shadowRoot!.querySelector(".field-outline legend")?.textContent).toBe("Members");
+    expect(el.hasAttribute("data-has-label")).toBe(true);
   });
 });

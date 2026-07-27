@@ -2,25 +2,48 @@
 @use "../../../styles/field-surface" as field;
 
 :host {
+  @include field.tokens;
   position: relative;
   display: inline-flex;
   width: 240px;
   color: var(--elf-text-primary);
 }
 
+:host([density="comfortable"]) {
+  --elf-field-control-height: 48px;
+}
+
+:host([density="compact"]) {
+  --elf-field-control-height: 40px;
+}
+
 .autocomplete {
   position: relative;
   width: 100%;
-  min-height: 52px;
 }
 
-@include field.surface(".autocomplete");
-@include field.floating-label(".autocomplete");
+.field {
+  min-height: var(--elf-field-control-height);
+}
+
+@include field.surface(".field");
+@include field.floating-label(".field");
+@include field.reduced-motion(".field");
+
+.field > input {
+  position: relative;
+  z-index: 1;
+}
+
+.field > .clear {
+  z-index: 2;
+}
 
 input {
   width: 100%;
-  height: 52px;
-  padding: 0 var(--elf-space-3);
+  box-sizing: border-box;
+  height: var(--elf-field-control-height);
+  padding: 0 var(--elf-field-padding-end) 0 var(--elf-field-padding-start);
   border: 0;
   outline: none;
   background: transparent;
@@ -29,17 +52,22 @@ input {
 }
 
 :host([data-has-label]) input {
-  padding-top: 14px;
+  padding-top: 16px;
 }
 
-:host([data-has-label]:not([data-dirty])) .autocomplete:not(:focus-within) input::placeholder {
+:host([variant="underlined"]) input {
+  padding-inline: 0;
+}
+
+:host([data-has-label]:not([data-dirty])) .field:not(:focus-within) input::placeholder {
   color: transparent;
 }
 
 .clear {
   position: absolute;
   top: 50%;
-  right: var(--elf-space-2);
+  z-index: 2;
+  right: var(--elf-space-3);
   width: 20px;
   height: 20px;
   padding: 0;
@@ -72,6 +100,11 @@ input {
   background: var(--elf-bg-paper, #fff);
   color: var(--elf-text-primary);
   box-shadow: var(--elf-shadow-3);
+}
+
+:host([disabled]) input {
+  color: var(--elf-text-disabled);
+  cursor: not-allowed;
 }
 
 .panel[popover] {
@@ -112,9 +145,17 @@ input {
 }
 
 .status {
-  padding: var(--elf-space-3);
   color: var(--elf-text-secondary);
   font-size: var(--elf-font-size-sm);
+}
+
+.panel-state {
+  padding: var(--elf-space-3) var(--elf-space-4);
+  line-height: 1.5;
+}
+
+.panel-state--error {
+  color: var(--elf-danger, #d93025);
 }
 
 .option {
@@ -127,6 +168,33 @@ input {
   cursor: pointer;
   font: inherit;
   text-align: left;
+  box-sizing: border-box;
+}
+
+.options-viewport {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--elf-text-secondary) 32%, transparent) transparent;
+}
+
+.options-track { position: relative; }
+
+.options-viewport.is-virtual .option {
+  right: 0;
+  left: 0;
+}
+
+.option--create {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--elf-primary);
+}
+
+.create-prefix {
+  color: var(--elf-text-secondary);
+  font-size: 12px;
 }
 
 .option:hover:not(:disabled) {

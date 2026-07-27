@@ -105,6 +105,15 @@
   font-size: var(--elf-font-size-xs);
 }
 
+.tip.empty {
+  display: none;
+}
+
+.directory-note {
+  color: var(--elf-text-secondary);
+  font-size: var(--elf-font-size-xs);
+}
+
 .notice {
   padding: var(--elf-space-2) var(--elf-space-3);
   border: 1px solid rgba(198, 40, 40, 0.22);
@@ -139,6 +148,13 @@
   border-radius: var(--elf-radius-sm);
   background: var(--elf-bg-overlay);
   color: var(--elf-text-secondary);
+}
+
+.thumb img {
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  object-fit: cover;
 }
 
 .meta {

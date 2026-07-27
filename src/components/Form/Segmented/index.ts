@@ -3,7 +3,6 @@ import {
   defineHtml,
   defineProps,
   defineStyle,
-  html,
   useHostAttr,
   useHostFlag
 } from "@elfui/core";
@@ -149,7 +148,7 @@ useHostFlag("disabled", () => Boolean(props.disabled));
 
 defineStyle(styles);
 
-const Segmented = defineHtml<SegmentedProps>(html`
+const Segmented = defineHtml<SegmentedProps>(`
   <div class="segmented" role="radiogroup" :id=${props.id || null} :aria-label=${props.ariaLabel || props.label || props.name || null} part="segmented" @click=${onContainerClick}>
     <button
       v-for="option in options()"
@@ -161,11 +160,9 @@ const Segmented = defineHtml<SegmentedProps>(html`
       role="radio"
       :aria-checked="isActive(option) ? 'true' : 'false'"
       :name=${props.name || null}
-      :tabindex=${tabIndex(option)}
+      :tabindex="tabIndex(option)"
       @keydown=${onOptionKeyDown}
-    >
-      {{ option.label }}
-    </button>
+    >{{ option.label }}</button>
   </div>
 `);
 

@@ -2,6 +2,7 @@
 @use "../../../styles/field-surface" as field;
 
 :host {
+  @include field.tokens;
   display: inline-block;
   position: relative;
   width: 100%;
@@ -12,7 +13,7 @@
   display: flex;
   align-items: center;
   width: 100%;
-  min-height: 52px;
+  min-height: var(--elf-field-control-height);
   padding: 4px var(--elf-space-3);
   font-size: var(--elf-font-size-sm);
   cursor: pointer;
@@ -23,13 +24,25 @@
 
 @include field.surface(".trigger");
 @include field.floating-label(".trigger");
+@include field.reduced-motion(".trigger");
+
+.trigger > :not(.field-outline):not(.field-label) {
+  position: relative;
+  z-index: 1;
+}
 
 :host([size="sm"]) .trigger {
-  min-height: 40px;
+  --elf-field-control-height: 40px;
   font-size: var(--elf-font-size-xs);
 }
+:host([density="comfortable"]) .trigger {
+  --elf-field-control-height: 48px;
+}
+:host([density="compact"]) .trigger {
+  --elf-field-control-height: 40px;
+}
 :host([size="lg"]) .trigger {
-  min-height: 60px;
+  --elf-field-control-height: 64px;
   font-size: var(--elf-font-size-md);
 }
 
@@ -73,6 +86,16 @@
   border-radius: var(--elf-radius-sm);
   font-size: var(--elf-font-size-xs);
   gap: 2px;
+}
+
+.tag[data-effect="dark"] {
+  background: var(--elf-primary);
+  color: var(--elf-text-on-primary);
+}
+
+.tag[data-effect="plain"] {
+  border: 1px solid var(--elf-border-strong);
+  background: transparent;
 }
 
 .tag-remove {
@@ -157,8 +180,11 @@
   position: absolute;
   top: calc(100% - 1px);
   left: 0;
-  right: 0;
-  margin-top: 0;
+  right: auto;
+  width: max-content;
+  min-width: 100%;
+  max-width: min(420px, calc(100vw - 24px));
+  margin-top: var(--_select-offset, 0);
   background: var(--elf-bg-paper);
   border: 1px solid var(--elf-border);
   border-radius: 0 0 var(--elf-radius-sm) var(--elf-radius-sm);
@@ -190,6 +216,24 @@
   }
 }
 
+.dropdown.fit-input-width {
+  right: 0;
+  width: auto;
+  min-width: 0;
+  max-width: none;
+}
+
+.dropdown.is-effect-dark {
+  border-color: color-mix(in srgb, var(--elf-text-primary) 28%, transparent);
+  background: var(--elf-text-primary);
+  color: var(--elf-bg-paper);
+}
+
+.dropdown.is-effect-dark .option,
+.dropdown.is-effect-dark .status {
+  color: inherit;
+}
+
 .option {
   display: flex;
   align-items: center;
@@ -204,6 +248,12 @@
   &:hover {
     background: var(--elf-bg-overlay);
   }
+}
+
+.option.active {
+  background: var(--elf-bg-overlay);
+  outline: 1px solid color-mix(in srgb, var(--elf-primary) 34%, transparent);
+  outline-offset: -1px;
 }
 
 .option.selected {
@@ -230,4 +280,24 @@
   text-align: center;
   color: var(--elf-text-disabled);
   font-size: var(--elf-font-size-sm);
+}
+
+::slotted([slot="header"]),
+::slotted([slot="footer"]) {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--elf-space-2);
+  padding: 8px var(--elf-space-3);
+  color: var(--elf-text-secondary);
+  font-size: var(--elf-font-size-xs);
+}
+
+::slotted([slot="header"]) {
+  border-bottom: 1px solid var(--elf-border);
+}
+
+::slotted([slot="footer"]) {
+  border-top: 1px solid var(--elf-border);
 }

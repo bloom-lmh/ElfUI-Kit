@@ -29,6 +29,12 @@ export interface UploadRequestOptions {
   onError(error: unknown): void;
 }
 
+export interface UploadRequestHandle {
+  abort(): void;
+}
+
+export type UploadRequestResult = void | UploadRequestHandle | Promise<void | UploadRequestHandle>;
+
 export interface UploadChunkRequestOptions {
   file: UploadFileItem;
   chunk: Blob;
@@ -48,6 +54,7 @@ export interface UploadInvalidPayload {
 
 export interface UploadProps {
   modelValue: UploadFileItem[];
+  fileList?: UploadFileItem[];
   action: string;
   method: string;
   headers: Headers | Record<string, unknown>;
@@ -62,6 +69,7 @@ export interface UploadProps {
   directory: boolean;
   drag: boolean;
   disabled: boolean;
+  validateEvent: boolean;
   autoUpload: boolean;
   limit: number;
   maxSize: number;
@@ -73,8 +81,8 @@ export interface UploadProps {
   tip: string;
   beforeUpload?: (file: File) => boolean | Promise<boolean>;
   beforeRemove?: (file: UploadFileItem) => boolean | Promise<boolean>;
-  customRequest?: (options: UploadRequestOptions) => void | Promise<void>;
-  httpRequest?: (options: UploadRequestOptions) => void | Promise<void>;
+  customRequest?: (options: UploadRequestOptions) => UploadRequestResult;
+  httpRequest?: (options: UploadRequestOptions) => UploadRequestResult;
   chunkRequest?: (options: UploadChunkRequestOptions) => void | Promise<void>;
   onPreview?: (file: UploadFileItem) => void;
   onRemove?: (file: UploadFileItem, files: UploadFileItem[]) => void;
@@ -84,3 +92,27 @@ export interface UploadProps {
   onChange?: (file: UploadFileItem | null, files: UploadFileItem[]) => void;
   onExceed?: (files: File[], uploadFiles: UploadFileItem[]) => void;
 }
+
+export interface UploadEmits {
+  "update:modelValue": [files: UploadFileItem[]];
+  "update:fileList": [files: UploadFileItem[]];
+  change: [files: UploadFileItem[]];
+  remove: [file: UploadFileItem, files: UploadFileItem[]];
+  preview: [file: UploadFileItem];
+  exceed: [files: File[], uploadFiles: UploadFileItem[]];
+  invalid: [payload: UploadInvalidPayload];
+  progress: [percentage: number, file: UploadFileItem, files: UploadFileItem[]];
+  success: [response: unknown, file: UploadFileItem, files: UploadFileItem[]];
+  error: [error: unknown, file: UploadFileItem, files: UploadFileItem[]];
+}
+
+export interface UploadExpose {
+  select(): void;
+  submit(): void;
+  abort(file?: UploadFileItem): void;
+  handleStart(rawFile: File): void;
+  handleRemove(file: UploadFileItem | File): void;
+  clearFiles(statuses?: UploadStatus[]): void;
+}
+
+export type UploadElement = HTMLElement & UploadExpose;

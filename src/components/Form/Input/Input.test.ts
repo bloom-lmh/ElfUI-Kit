@@ -209,6 +209,20 @@ describe("elf-input", () => {
     expect(el.getAttribute("size")).toBe("lg");
   });
 
+  it.each([
+    ["default", "default"],
+    ["comfortable", "comfortable"],
+    ["compact", "compact"],
+    ["unknown", "default"]
+  ])("normalizes density %s to %s", async (density, expected) => {
+    const el = mount((node) => {
+      node.density = density;
+    });
+    await flush();
+
+    expect(el.getAttribute("density")).toBe(expected);
+  });
+
   it("maxlength/minlength 与字数统计", async () => {
     const el = mount((node) => {
       node.modelValue = "abc";
@@ -236,6 +250,22 @@ describe("elf-input", () => {
     expect(el.shadowRoot!.querySelector(".suffix")?.textContent?.trim()).toBe("S");
     expect(el.shadowRoot!.querySelector(".prepend")).toBeTruthy();
     expect(el.shadowRoot!.querySelector(".append")).toBeTruthy();
+  });
+
+  it("detects a prefix slot inserted after the input has mounted", async () => {
+    const el = mount();
+    await flush();
+    expect(el.shadowRoot!.querySelector(".prefix")).toBeNull();
+
+    const icon = document.createElement("span");
+    icon.slot = "prefix";
+    icon.textContent = "search";
+    el.appendChild(icon);
+    await flush();
+
+    const prefix = el.shadowRoot!.querySelector(".prefix");
+    expect(prefix).toBeTruthy();
+    expect(prefix?.querySelector("slot")?.assignedElements()).toContain(icon);
   });
 
   it("formatter/parser 与 model-modifiers.number 生效", async () => {
@@ -380,13 +410,34 @@ describe("elf-input", () => {
     expect(onBlur).toHaveBeenCalledTimes(1);
   });
 
+  it("does not repeat an identical label as the native placeholder", async () => {
+    const el = mount((node) => {
+      node.label = "Label";
+      node.placeholder = "Label";
+    });
+    await flush();
+
+    expect(el.shadowRoot!.querySelector<HTMLInputElement>("input")?.placeholder).toBe("");
+  });
+
+  it("marks inner leading content so the resting label can avoid it", async () => {
+    const el = mount((node) => {
+      node.label = "Search";
+      node.prefixIcon = "S";
+      node.variant = "outlined";
+    });
+    await flush();
+
+    expect(el.shadowRoot!.querySelector(".group")?.classList.contains("has-prefix")).toBe(true);
+    expect(el.shadowRoot!.querySelector("fieldset legend span")?.textContent).toBe("Search");
+  });
+
   it("projects a custom background color to the shared field surface", async () => {
     const el = mount((node) => {
       node.backgroundColor = "#fff8e1";
     });
     await flush();
 
-    expect(el.style.getPropertyValue("--elf-field-bg")).toBe("#fff8e1");
-    expect(el.style.getPropertyValue("--elf-field-hover-bg")).toBe("#fff8e1");
+    expect(el.style.getPropertyValue("--elf-input-custom-bg")).toBe("#fff8e1");
   });
 });

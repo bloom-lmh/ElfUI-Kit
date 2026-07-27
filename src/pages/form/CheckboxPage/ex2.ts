@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 const cities = useRef<string[]>(["beijing", "shanghai"]);
 
@@ -16,7 +16,7 @@ const code = `<elf-checkbox-group
 const script = `const cities = useRef(["beijing", "shanghai"]);
 const onUpdate = (event) => cities.set([...event.detail]);`;
 
-const PageCheckboxEx2 = defineHtml(html`
+const PageCheckboxEx2 = defineHtml(`
   <elf-playground title="CheckboxGroup" :code=${code} :script=${script}>
     <elf-checkbox-group :modelValue.prop=${cities.value} @update:modelValue=${onUpdate}>
       <elf-checkbox value="beijing" label="北京"></elf-checkbox>

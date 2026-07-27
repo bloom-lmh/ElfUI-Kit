@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 const value = useRef<string[]>(["zhejiang", "hangzhou"]);
 
@@ -53,7 +53,34 @@ const onMultipleUpdate = (event) => {
 
 const onMultipleChange = (event) => {
   multipleStatus.set(event.detail.path.map((path) => path.join(" / ")).join("、") || "未选择");
-};`;
+};
+
+const options = [
+    {
+        label: "浙江",
+        value: "zhejiang",
+        children: [
+            { label: "杭州", value: "hangzhou" },
+            { label: "宁波", value: "ningbo" }
+        ]
+    },
+    {
+        label: "江苏",
+        value: "jiangsu",
+        children: [
+            { label: "南京", value: "nanjing" },
+            { label: "苏州", value: "suzhou" }
+        ]
+    },
+    {
+        label: "广东",
+        value: "guangdong",
+        children: [
+            { label: "广州", value: "guangzhou" },
+            { label: "深圳", value: "shenzhen", disabled: true }
+        ]
+    }
+];`;
 
 const joinPaths = (paths: unknown): string => {
   if (!Array.isArray(paths)) return "未选择";
@@ -73,7 +100,7 @@ const onMultipleChange = (event: CustomEvent): void => {
   multipleStatus.set(joinPaths(detail.path));
 };
 
-const PageCascaderEx3 = defineHtml(html`
+const PageCascaderEx3 = defineHtml(`
 <elf-playground title="多选" :code=${code3} :script=${script3}>
       <div style="display:grid;gap:12px;width:320px">
         <elf-cascader

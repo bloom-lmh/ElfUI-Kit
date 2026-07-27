@@ -5,6 +5,7 @@ export interface DefaultsProviderProps {
   disabled: boolean;
   deep: boolean;
   strategy: DefaultsStrategy;
+  reset: boolean;
 }
 
 export type { DefaultsStrategy, ProviderDefaults };

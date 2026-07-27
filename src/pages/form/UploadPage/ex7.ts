@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 import type { UploadFileItem } from "../../../components/Form";
 
 const fileList = useRef<UploadFileItem[]>([
@@ -51,9 +51,9 @@ const statusText = (): string => {
 
 const listCode = `<elf-upload
   multiple
-  :modelValue.prop="fileList"
+  :fileList.prop="fileList"
   button-text="继续添加"
-  @update:modelValue="updateFiles"
+  @update:fileList="updateFiles"
 />`;
 
 const listScript = `const fileList = useRef([
@@ -61,17 +61,21 @@ const listScript = `const fileList = useRef([
   { uid: "progress", name: "dashboard-preview.png", status: "uploading", percentage: 68 },
   { uid: "success", name: "release-notes.md", status: "success", percentage: 100 },
   { uid: "error", name: "metrics.csv", status: "error", percentage: 42, message: "网络中断，可点击重试" }
-]);`;
+]);
 
-const PageUploadEx7 = defineHtml(html`
+const updateFiles = (event) => {
+  fileList.set(Array.isArray(event.detail) ? event.detail : []);
+};`;
+
+const PageUploadEx7 = defineHtml(`
   <elf-playground title="多文件列表与失败重试" :code=${listCode} :script=${listScript}>
     <div style="display:grid;gap:12px;width:min(720px,100%);margin-inline:auto">
       <elf-upload
         multiple
-        :modelValue.prop="fileList"
+        :fileList.prop="fileList"
         button-text="继续添加"
         tip="失败文件提供重试操作；每一项均可预览或移除。"
-        @update:modelValue="updateFiles"
+        @update:fileList="updateFiles"
       ></elf-upload>
       <span slot="status" class="demo-state">{{ statusText() }}</span>
     </div>

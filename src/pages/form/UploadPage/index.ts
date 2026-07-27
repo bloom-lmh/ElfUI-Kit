@@ -1,4 +1,4 @@
-import { defineHtml, html, useComponents } from "@elfui/core";
+import { defineHtml, useComponents } from "@elfui/core";
 import type { UploadChunkRequestOptions, UploadRequestOptions } from "../../../components/Form";
 
 import { PageUploadEx1 } from "./ex1";
@@ -11,6 +11,7 @@ import { PageUploadEx7 } from "./ex7";
 
 const propsRows = [
   { name: "action", type: "string", default: "''", desc: "上传地址" },
+  { name: "modelValue / fileList", type: "UploadFileItem[]", default: "[]", desc: "受控文件列表；fileList 支持 v-model:file-list 语义" },
   { name: "method", type: "string", default: "post", desc: "请求方法" },
   { name: "headers", type: "Headers | object", default: "{}", desc: "请求头" },
   { name: "data", type: "object | Function", default: "{}", desc: "附加表单数据" },
@@ -60,6 +61,7 @@ const propsRows = [
 ];
 
 const eventsRows = [
+  { name: "update:modelValue / update:fileList", type: "(files) => void", desc: "两套受控文件列表更新事件" },
   { name: "change", type: "(files) => void", desc: "文件列表变化" },
   { name: "invalid", type: "({ reason, message, file }) => void", desc: "校验失败" },
   { name: "exceed", type: "(incoming, files) => void", desc: "超过数量限制" },
@@ -79,6 +81,12 @@ const methodsRows = [
   { name: "clearFiles(statuses?)", desc: "清空全部或指定状态文件列表" }
 ];
 
+const slotsRows = [
+  { name: "trigger", type: "HTMLElement", default: "内置上传按钮", desc: "自定义文件选择入口" },
+  { name: "tip", type: "HTMLElement", default: "tip 属性", desc: "上传限制与帮助说明" },
+  { name: "file", type: "{ file, remove, preview }", default: "文件名", desc: "自定义单个文件内容，提供文件与操作方法" }
+];
+
 useComponents({
   "page-upload-ex1": PageUploadEx1,
   "page-upload-ex2": PageUploadEx2,
@@ -89,7 +97,7 @@ useComponents({
   "page-upload-ex7": PageUploadEx7
 });
 
-const PageUpload = defineHtml(html`
+const PageUpload = defineHtml(`
   <elf-container>
     <h1>Upload 上传</h1>
     <p>文件选择与上传入口，支持多选、拖拽、图片卡片、校验、手动上传、自定义请求和分片上传。</p>
@@ -112,6 +120,7 @@ const PageUpload = defineHtml(html`
     <elf-props-table title="上传属性" :rows="propsRows"></elf-props-table>
     <elf-props-table title="上传事件" :rows="eventsRows"></elf-props-table>
     <elf-props-table title="上传方法" :rows="methodsRows"></elf-props-table>
+    <elf-props-table title="上传插槽" :rows="slotsRows"></elf-props-table>
   </elf-container>
 `);
 

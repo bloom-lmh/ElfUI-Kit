@@ -342,19 +342,27 @@
 
 ## 差距与任务
 
-- [ ] P0 补齐核心属性差距：`collapse-tags-tooltip ^`、`tag-tooltip ^`、`effect`、`autocomplete`、`remote-show-suffix`、`popper-class`、`popper-style ^`、`teleported`、`append-to ^`、`persistent`、`automatic-dropdown` 细节、`clear-icon`、`fit-input-width` 精确宽度、`suffix-icon`、`tag-type`、`tag-effect ^`、`validate-event`、`offset ^` 等未完成项。
+- [x] P0 核心属性收口：补齐标签提示与视觉语义、面板 effect/class/style/persistent/offset、autocomplete、远程后缀、图标、精确宽度、自动展开和表单校验。`teleported / append-to` 不伪造兼容属性，继续由 Shadow DOM 内锚定面板保证样式与焦点隔离，待统一 Overlay 平台提供跨根挂载。
 - [x] P0 补齐事件差距：`remove-tag`、`popup-scroll ^`、`end-reached ^`
-- [ ] P1 补齐插槽/暴露方法：`header ^`、`footer ^`、`prefix`、`empty`、`tag ^`、`loading ^`、`label ^` 的 scoped slot 数据，以及原生 `focus` / `blur` 方法包装。
-- [ ] P1 对齐交互行为、键盘访问、禁用态、清空态、受控/非受控同步、表单联动和无障碍属性。
-- [ ] P2 更新页面示例：Template / Script 双视图、所有动态绑定使用 `${...}`，补齐 Element Plus 关键场景示例。
-- [ ] P2 补齐组件单测、页面冒烟和类型导出；必要时补视觉回归截图。
+- [x] P1 插槽/暴露方法：补齐 header、footer、prefix、empty、tag、loading、label、clear-icon、suffix-icon；tag / label 提供 scoped 数据，并暴露 open/close/toggle/focus/blur/selectedLabel。
+- [x] P1 行为：完成方向键、Home/End、Enter、Escape、Tab、禁用项跳过、ARIA combobox/listbox、父 Form 禁用与校验联动、受控值同步和外部滚动关闭。
+- [x] P2 更新页面示例：Template / Script 双视图、所有动态绑定使用 `${...}`，覆盖基础、多选、创建、远程状态、字段映射与面板插槽。
+- [x] P2 补齐组件单测、页面冒烟和类型导出，并完成真实浏览器视觉回归截图。
 
 ## 验收清单
 
-- [ ] API props/types 与页面 PropsTable 同步。
-- [ ] 关键交互和边界状态有单测覆盖。
-- [ ] 文档示例能在 Playground 中显示 Template / Script，且复制内容正确。
-- [ ] `npm --prefix ui-kit run build` 通过；涉及运行时能力时补跑目标测试。
+- [x] API props/types 与页面 PropsTable 同步。
+- [x] 关键交互和边界状态有单测覆盖。
+- [x] 文档示例能在 Playground 中显示 Template / Script，且复制内容正确。
+- [x] `pnpm build`、Form/Providers 分类测试与宏类型检查通过。
+
+## 2026-07-22 远程状态与面板插槽
+
+- [x] 补齐 `header` 面板插槽，并统一 `header` / `footer` 的边界和暗色主题样式。
+- [x] 远程案例覆盖加载、空结果、请求失败和过期响应忽略，Script 展示完整状态组织。
+- [x] 增加 header/footer/loading/empty 投影单测和真实页面远程错误回归测试。
+- [x] 表单校验与完整键盘路径已于 2026-07-27 收口。
+- [ ] 独立架构路线：大数据选项虚拟化与统一 Overlay 平台（跨 ShadowRoot teleport、碰撞和焦点管理），不以伪兼容属性进入当前发布验收。
 
 ---
 
@@ -385,3 +393,8 @@
 ## 2026-07-19 行内筛选回归
 
 - [x] 为关键字、状态和开关建立明确的弹性宽度与最小宽度，避免 Select 在行内表单中被压缩。
+
+## 2026-07-22 共享字段主题
+
+- [x] 与 Input 共用六种表面、真实描边标签、背景变量和状态动效。
+- [x] 下拉浮层、过滤、多选标签和键盘交互保持独立且无裁切回归。

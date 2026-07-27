@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 const permissions = useRef<string[]>(["read"]);
 const permissionOptions = [
@@ -28,7 +28,7 @@ const permissionOptions = [
 const optionProps = { label: "text", value: "code", disabled: "locked" };
 const onUpdate = (event) => permissions.set([...event.detail]);`;
 
-const PageCheckboxEx4 = defineHtml(html`
+const PageCheckboxEx4 = defineHtml(`
   <elf-playground title="声明式 options 与按钮外观" :code=${code} :script=${script}>
     <elf-checkbox-group
       :modelValue.prop=${permissions.value}

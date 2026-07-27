@@ -1,4 +1,4 @@
-import { defineHtml, html, useComponents } from "@elfui/core";
+import { defineHtml, useComponents } from "@elfui/core";
 import { createDocsTranslator } from "../../docsLocale";
 import { PageInputNumberProps } from "./props";
 import { PageInputNumberEx1 } from "./ex1";
@@ -17,12 +17,12 @@ const t = createDocsTranslator({
   description: { zh: "统一的 Material 数字字段，支持精度、范围以及 default、stacked、split、hidden 四种控制器布局。", en: "A Material number field with precision, range constraints, and default, stacked, split, and hidden controls." }
 });
 
-const PageInputNumber = defineHtml(html`
+const PageInputNumber = defineHtml(`
   <elf-container>
     <h1>${t("title")}</h1>
     <p>${t("description")}</p>
-    <page-input-number-ex1 />
     <page-input-number-ex2 />
+    <page-input-number-ex1 />
     <page-input-number-ex3 />
     <page-input-number-props />
   </elf-container>

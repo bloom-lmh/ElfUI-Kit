@@ -1,10 +1,11 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 const tags = useRef(["设计", "开发"]);
 
 const code1 = `<elf-input-tag
   :modelValue.prop=\${tags}
   variant="outlined"
+  label="标签"
   clearable
   tag-type="primary"
   tag-effect="light"
@@ -39,11 +40,12 @@ const onRemoveTag = (): void => undefined;
 
 const tagSummary = (): string => tags.value.join(" / ");
 
-const PageInputTagEx1 = defineHtml(html`
+const PageInputTagEx1 = defineHtml(`
 <elf-playground title="受控数组与清空" :code=${code1} :script=${script1}>
       <elf-input-tag
         :modelValue.prop=${tags}
         variant="outlined"
+        label="标签"
         clearable
         tag-type="primary"
         tag-effect="light"

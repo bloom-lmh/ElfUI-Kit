@@ -3,12 +3,12 @@ import {
   defineHtml,
   defineProps,
   defineStyle,
-  html,
   registerComponents,
   useHostAttr,
+  useHostCssVar,
   useHostFlag,
   useRef,
-  watchEffect,
+  useEffect
 } from "@elfui/core";
 
 import { useFormControl } from "../../../composables";
@@ -38,6 +38,8 @@ const props = defineProps<InputTagProps>({
   maxCollapseTags: { type: Number, default: 1 },
   size: { type: String, default: "" },
   variant: { type: String, default: "outlined" },
+  label: { type: String, default: "" },
+  backgroundColor: { type: String, default: "" },
   trigger: { type: String, default: "enter" },
   tagType: { type: String, default: "" },
   tagEffect: { type: String, default: "light" },
@@ -48,6 +50,7 @@ const props = defineProps<InputTagProps>({
 const emit = defineEmits(["update:modelValue", "change", "input", "add-tag", "remove-tag", "clear"]);
 
 const value = useRef<string[]>([]);
+const hasTags = (): boolean => value.value.length > 0;
 const text = useRef("");
 const dragIndex = useRef<number | null>(null);
 const ctl = useFormControl<string[]>(props, emit, {
@@ -59,7 +62,7 @@ const ctl = useFormControl<string[]>(props, emit, {
 const normalize = (source: unknown): string[] =>
     Array.isArray(source) ? source.map((item) => String(item)).filter(Boolean) : [];
 
-watchEffect(() => {
+useEffect(() => {
     value.set(normalize(props.modelValue));
 });
 
@@ -159,11 +162,18 @@ const tagColor = (): string => String(props.tagType || "primary");
 useHostAttr("size", normalizedSize);
 useHostAttr("variant", () => normalizeFieldVariant(props.variant));
 useHostFlag("disabled", () => Boolean(props.disabled));
+useHostFlag("data-dirty", () => value.value.length > 0 || Boolean(text.value));
+useHostFlag("data-has-label", () => Boolean(props.label));
+useHostCssVar("--elf-field-custom-bg", () => props.backgroundColor || "");
 
 defineStyle(styles);
 
-const InputTag = defineHtml<InputTagProps>(html`
+const InputTag = defineHtml<InputTagProps>(`
     <div class="input-tag" part="wrapper">
+        <fieldset class="field-outline" aria-hidden="true">
+            <legend><span v-if=${props.label}>${props.label}</span></legend>
+        </fieldset>
+        <span v-if=${props.label} class="field-label" part="label">${props.label}</span>
         <slot name="prefix"></slot>
         <span class="tag-strip" part="tag-strip">
             <elf-tag
@@ -188,7 +198,7 @@ const InputTag = defineHtml<InputTagProps>(html`
             <input
                 part="input"
                 :value.prop=${text}
-                :placeholder=${value.length ? "" : props.placeholder}
+                :placeholder=${hasTags() ? "" : props.placeholder}
                 :disabled=${props.disabled || isLimitReached()}
                 :readonly=${props.readonly}
                 @input=${onInput}

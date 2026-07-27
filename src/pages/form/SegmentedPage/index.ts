@@ -1,4 +1,4 @@
-import { defineHtml, html, useComponents } from "@elfui/core";
+import { defineHtml, useComponents } from "@elfui/core";
 import { PageSegmentedProps } from "./props";
 import { PageSegmentedEx1 } from "./ex1";
 import { PageSegmentedEx2 } from "./ex2";
@@ -9,7 +9,7 @@ useComponents({
   "page-segmented-props": PageSegmentedProps
 });
 
-const PageSegmented = defineHtml(html`
+const PageSegmented = defineHtml(`
     <elf-container>
         <h1>Segmented 分段控制器</h1>
         <p>在少量互斥选项中切换状态，支持受控值、禁用项、尺寸、block 布局及键盘导航。</p>

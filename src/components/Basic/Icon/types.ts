@@ -1,6 +1,7 @@
 export interface IconProps {
   name: string;
   set: string;
+  fallback: string;
   size: number | string;
   color: string;
   ariaLabel: string;
@@ -32,6 +33,10 @@ export interface IconOptions {
   sets?: Record<string, IconSet>;
 }
 
+export interface IconProviderContext {
+  readonly options: Required<IconOptions>;
+}
+
 export interface ResolvedIcon {
   kind: IconSetKind;
   content: string;
@@ -42,4 +47,5 @@ export interface ResolvedIcon {
 
 export interface IconSlots {
   default?: unknown;
+  fallback?: unknown;
 }

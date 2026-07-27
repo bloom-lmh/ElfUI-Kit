@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 
 const value = useRef(30);
@@ -27,7 +27,7 @@ const onChange = (event: CustomEvent<number>): void => {
   value.set(Number(event.detail));
 };`;
 
-const PageSliderEx6 = defineHtml(html`
+const PageSliderEx6 = defineHtml(`
   <h2>非等距节点</h2>
   <elf-playground title="自定义温度节点 0 / 30 / 100 ℃" :code=${code} :script=${script}>
     <div style="display:grid;gap:14px;width:100%;max-width:720px">

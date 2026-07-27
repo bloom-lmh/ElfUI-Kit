@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 const enabled = useRef(false);
 const textValue = useRef(true);
@@ -27,12 +27,19 @@ const code3 = `<elf-switch
   @update:modelValue=\${updateStatus}
 />`;
 
+const code3Script = `const status = useRef("disabled");
+const updateStatus = (event) => {
+    status.set(String(event.detail));
+};`;
+
 const code1 = `<elf-switch v-model="enabled" label="接收系统通知" />`;
+
+const code1Script = `const enabled = useRef(false);`;
 const code2 = `<elf-switch active-text="开" inactive-text="关" />`;
 
-const PageSwitchEx1 = defineHtml(html`
+const PageSwitchEx1 = defineHtml(`
   <h2>基础</h2>
-  <elf-playground title="受控状态" :code=${code1}>
+  <elf-playground title="受控状态" :code=${code1} :script=${code1Script}>
     <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
       <elf-switch
         :modelValue.prop=${enabled.value}
@@ -56,7 +63,7 @@ const PageSwitchEx1 = defineHtml(html`
     </div>
   </elf-playground>
   <h2>自定义值与内嵌提示</h2>
-  <elf-playground title="自定义开关值与内嵌提示" :code=${code3}>
+  <elf-playground title="自定义开关值与内嵌提示" :code=${code3} :script=${code3Script}>
     <elf-switch
       :modelValue.prop=${status.value}
       active-value="enabled"

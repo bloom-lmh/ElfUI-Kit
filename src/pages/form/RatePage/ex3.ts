@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 
 const mood = useRef(4);
@@ -20,7 +20,7 @@ const onMood = (event: CustomEvent): void => {
   mood.set(Number(event.detail));
 };
 
-const PageRateEx3 = defineHtml(html`
+const PageRateEx3 = defineHtml(`
 <elf-playground title="自定义符号与只读" :code=${customCode} :script=${customScript}>
       <div style="display:grid;gap:12px">
         <elf-rate

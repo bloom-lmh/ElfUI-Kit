@@ -1,4 +1,4 @@
-import { defineHtml, html, useComponents } from "@elfui/core";
+import { defineHtml, useComponents } from "@elfui/core";
 import { PageCheckboxEx1 } from "./ex1";
 import { PageCheckboxEx2 } from "./ex2";
 import { PageCheckboxEx3 } from "./ex3";
@@ -13,7 +13,7 @@ useComponents({
   "page-checkbox-props": PageCheckboxProps
 });
 
-const PageCheckbox = defineHtml(html`
+const PageCheckbox = defineHtml(`
   <elf-container>
     <h1>Checkbox 复选框</h1>
     <page-checkbox-ex1 />

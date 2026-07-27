@@ -112,7 +112,27 @@ describe("elf-input-tag", () => {
   });
 
   it("uses the outlined shared field surface by default", async () => {
-    const el = await mount({ modelValue: [] });
+    const el = await mount({ modelValue: [], label: "Tags" });
     expect(el.getAttribute("variant")).toBe("outlined");
+    expect(el.hasAttribute("data-has-label")).toBe(true);
+    expect(el.shadowRoot!.querySelector(".field-outline legend")?.textContent).toBe("Tags");
+  });
+
+  it("keeps the outlined frame when label is omitted", async () => {
+    const el = await mount({ modelValue: [] });
+    expect(el.shadowRoot!.querySelector(".field-outline")).toBeTruthy();
+  });
+
+  it("keeps breathing room above and below wrapped tags", async () => {
+    const el = await mount({
+      label: "Tags",
+      modelValue: Array.from({ length: 16 }, (_, index) => `Tag ${index + 1}`)
+    });
+    const strip = el.shadowRoot!.querySelector<HTMLElement>(".tag-strip")!;
+
+    expect(el.getAttribute("variant")).toBe("outlined");
+    expect(el.hasAttribute("data-has-label")).toBe(true);
+    expect(strip).toBeTruthy();
+    expect(strip.querySelectorAll("elf-tag")).toHaveLength(16);
   });
 });

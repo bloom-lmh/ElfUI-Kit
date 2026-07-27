@@ -44,13 +44,28 @@ export interface AutocompleteProps {
   placeholder: string;
   label: string;
   variant: AutocompleteVariant;
+  backgroundColor: string;
   disabled: boolean;
   clearable: boolean;
   triggerOnFocus: boolean;
   debounce: number;
   highlightFirstItem: boolean;
+  /** 当输入值不存在于候选项时允许创建新项 */
+  allowCreate: boolean;
+  /** 创建项前缀文案 */
+  createText: string;
+  /** 长列表启用固定高度虚拟滚动 */
+  virtual: boolean;
+  /** 虚拟列表单项高度 */
+  itemHeight: number;
+  /** 建议列表最大高度 */
+  maxHeight: number;
+  /** 虚拟列表视口外预渲染条数 */
+  overscan: number;
   loading: boolean;
   loadingText: string;
+  noDataText: string;
+  errorText: string;
   placement: AutocompletePlacement;
   popperClass: string;
   popperStyle: Record<string, string | number>;

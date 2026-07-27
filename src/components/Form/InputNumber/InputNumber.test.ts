@@ -1,5 +1,12 @@
-import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
-import { registerComponents } from "@elfui/core";
+import {
+  afterEach,
+  beforeAll,
+  describe,
+  expect,
+  it,
+  vi } from "vitest";
+import { registerComponents
+} from "@elfui/core";
 
 import { InputNumber } from "./index";
 
@@ -124,7 +131,13 @@ describe("elf-input-number", () => {
     const el = await mount({ modelValue: 8, label: "Quantity", variant: "outlined" });
     expect(el.getAttribute("variant")).toBe("outlined");
     expect(el.hasAttribute("data-dirty")).toBe(true);
-    expect(el.shadowRoot!.querySelector(".outline legend")?.textContent).toBe("Quantity");
+    expect(el.shadowRoot!.querySelector(".field-outline legend")?.textContent).toBe("Quantity");
     expect(el.shadowRoot!.querySelector('[part="label"]')?.textContent).toBe("Quantity");
+  });
+
+  it("normalizes density and avoids rendering a duplicate placeholder", async () => {
+    const el = await mount({ label: "Quantity", placeholder: "Quantity", density: "compact" });
+    expect(el.getAttribute("density")).toBe("compact");
+    expect(el.shadowRoot!.querySelector("input")?.getAttribute("placeholder")).toBe("");
   });
 });

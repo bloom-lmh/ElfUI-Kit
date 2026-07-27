@@ -4,7 +4,6 @@ import {
   defineEmits,
   defineProps,
   defineStyle,
-  html,
   inject,
   provide,
   useEffect,
@@ -114,7 +113,7 @@ useHostCssVar("--_checkbox-text-color", () => props.textColor || "white");
 
 defineStyle(styles);
 
-const CheckboxGroup = defineHtml(html`
+const CheckboxGroup = defineHtml(`
   <div
     :class=${["group", `variant-${props.variant}`]}
     role="group"

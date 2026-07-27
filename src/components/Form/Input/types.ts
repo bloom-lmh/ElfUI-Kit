@@ -18,6 +18,8 @@ export type InputType =
 
 export type InputSize = "sm" | "md" | "lg" | "small" | "default" | "large";
 
+export type InputDensity = "default" | "comfortable" | "compact";
+
 export type InputWordLimitPosition = "inside" | "outside";
 
 export type InputVariant = FieldVariant;
@@ -41,6 +43,8 @@ export interface InputProps {
   modelModifiers: InputModelModifiers;
   type: InputType;
   size: InputSize;
+  /** Material field density. Non-default density overrides the legacy size height. */
+  density: InputDensity;
   variant: InputVariant;
   placeholder: string;
   disabled: boolean;

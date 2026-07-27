@@ -24,9 +24,15 @@ interface SelectEl extends HTMLElement {
   allowCreate?: boolean;
   defaultFirstOption?: boolean;
   remote?: boolean;
+  persistent?: boolean;
+  popperClass?: string;
+  popperStyle?: Record<string, string>;
+  loading?: boolean;
   debounce?: number;
   remoteMethod?: (query: string) => void;
   selectedLabel?: () => string | string[];
+  focus?: () => void;
+  blur?: () => void;
 }
 
 const opts = [
@@ -60,6 +66,7 @@ describe("elf-select", () => {
     expect(el.getAttribute("variant")).toBe("outlined");
     expect(el.hasAttribute("data-has-label")).toBe(true);
     expect(el.shadowRoot!.querySelector(".field-label")?.textContent).toBe("Framework");
+    expect(el.shadowRoot!.querySelector(".field-outline legend")?.textContent).toBe("Framework");
   });
 
   it.each(["default", "underlined", "solo", "solo-filled", "solo-inverted"])(
@@ -293,6 +300,62 @@ describe("elf-select", () => {
     expect((onUpdate.mock.calls[0][0] as CustomEvent).detail).toBe("Qwik");
   });
 
+  it("方向键跳过禁用项并由 Enter 选择当前活动项", async () => {
+    const el = mount();
+    el.options = opts2;
+    await tick();
+    await tick();
+
+    const onUpdate = vi.fn();
+    el.addEventListener("update:modelValue", onUpdate as unknown as EventListener);
+    const trigger = el.shadowRoot!.querySelector(".trigger") as HTMLElement;
+    trigger.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }));
+    trigger.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }));
+    await tick();
+
+    expect(el.shadowRoot!.querySelector(".option.active")?.textContent).toContain("可选 A");
+    trigger.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
+    await tick();
+    expect((onUpdate.mock.calls[0][0] as CustomEvent).detail).toBe("a");
+  });
+
+  it("expose focus / blur 控制组合框焦点并关联 listbox", async () => {
+    const el = mount();
+    el.options = opts;
+    await tick();
+    await tick();
+
+    el.focus?.();
+    const trigger = el.shadowRoot!.querySelector(".trigger") as HTMLElement;
+    expect(el.shadowRoot!.activeElement).toBe(trigger);
+    expect(trigger.getAttribute("aria-controls")).toBe(
+      el.shadowRoot!.querySelector("[role=listbox]")?.id || `${trigger.id}-listbox`
+    );
+    el.blur?.();
+    expect(el.shadowRoot!.activeElement).not.toBe(trigger);
+  });
+
+  it("persistent 保留下拉 DOM，并透传 popper class / style", async () => {
+    const el = mount();
+    el.options = opts;
+    el.persistent = true;
+    el.popperClass = "member-menu";
+    el.popperStyle = { width: "320px" };
+    await tick();
+    await tick();
+
+    const trigger = el.shadowRoot!.querySelector(".trigger") as HTMLElement;
+    trigger.click();
+    await tick();
+    trigger.click();
+    await tick();
+
+    const dropdown = el.shadowRoot!.querySelector(".dropdown") as HTMLElement;
+    expect(dropdown.classList.contains("member-menu")).toBe(true);
+    expect(dropdown.style.width).toBe("320px");
+    expect(dropdown.classList.contains("closing")).toBe(true);
+  });
+
   it("remote-method 按 debounce 触发", async () => {
     const el = mount();
     const remoteMethod = vi.fn();
@@ -312,6 +375,46 @@ describe("elf-select", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(remoteMethod).toHaveBeenCalledWith("vue");
+  });
+
+  it("header/footer 始终投影，loading/empty 根据远程状态切换", async () => {
+    const el = mount();
+    const header = document.createElement("div");
+    const footer = document.createElement("div");
+    const loading = document.createElement("div");
+    const empty = document.createElement("div");
+    header.slot = "header";
+    footer.slot = "footer";
+    loading.slot = "loading";
+    empty.slot = "empty";
+    header.textContent = "远程成员";
+    footer.textContent = "输入 error 模拟失败";
+    loading.textContent = "正在查询";
+    empty.textContent = "没有匹配成员";
+    el.append(header, footer, loading, empty);
+    el.options = [];
+    el.loading = true;
+    await tick();
+
+    (el.shadowRoot!.querySelector(".trigger") as HTMLElement).click();
+    await tick();
+
+    expect(
+      (el.shadowRoot!.querySelector('slot[name="header"]') as HTMLSlotElement).assignedElements()
+    ).toEqual([header]);
+    expect(
+      (el.shadowRoot!.querySelector('slot[name="loading"]') as HTMLSlotElement).assignedElements()
+    ).toEqual([loading]);
+    expect(
+      (el.shadowRoot!.querySelector('slot[name="footer"]') as HTMLSlotElement).assignedElements()
+    ).toEqual([footer]);
+
+    el.loading = false;
+    await tick();
+
+    expect(
+      (el.shadowRoot!.querySelector('slot[name="empty"]') as HTMLSlotElement).assignedElements()
+    ).toEqual([empty]);
   });
 
   it("placeholder 显示", async () => {

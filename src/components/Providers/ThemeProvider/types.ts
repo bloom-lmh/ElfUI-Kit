@@ -14,6 +14,7 @@ export interface ThemeProviderProps {
   surface: string;
   textColor: string;
   tokens: ThemeTokens;
+  inherit: boolean;
 }
 
 export type { ThemeTokens };

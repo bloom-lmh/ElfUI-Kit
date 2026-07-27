@@ -4,7 +4,6 @@ import {
   defineEmits,
   defineProps,
   defineStyle,
-  html,
   inject,
   useEventListener,
   useHost,
@@ -124,7 +123,7 @@ const onKeyDown = (e: KeyboardEvent): void => {
 
 defineStyle(styles);
 
-const Checkbox = defineHtml(html`
+const Checkbox = defineHtml(`
   <span
     class="box"
     part="box"

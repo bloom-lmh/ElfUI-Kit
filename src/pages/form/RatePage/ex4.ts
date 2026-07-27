@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 
 const palette = ["#ef4444", "#f59e0b", "#22c55e"];
 
@@ -17,7 +17,7 @@ const code = `<elf-rate
 const script = `const palette = ["#ef4444", "#f59e0b", "#22c55e"];
 const rateIcons = ["😞", "😐", "😊"];`;
 
-const PageRateEx4 = defineHtml(html`
+const PageRateEx4 = defineHtml(`
 <elf-playground title="分段颜色与图标" :code=${code} :script=${script}>
       <div style="display:grid;gap:12px">
         <elf-rate

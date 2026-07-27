@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 
 const validateLog = useRef("只允许 report-*.pdf，且单文件不超过 1MB");
@@ -33,7 +33,7 @@ const onInvalid = (event: CustomEvent): void => {
   validateLog.set(event.detail?.message || "文件未通过校验");
 };
 
-const PageUploadEx3 = defineHtml(html`
+const PageUploadEx3 = defineHtml(`
 <elf-playground title="类型、大小与文件名校验" :code=${validateCode} :script=${validateScript}>
       <div style="display:grid;gap:12px;width:100%;max-width:720px;margin-inline:auto">
         <elf-upload

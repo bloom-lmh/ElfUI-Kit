@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 
 const rows = [
   { name: "model-value / active-value / inactive-value", type: "string | number | boolean", default: "false / true / false" },
@@ -13,7 +13,7 @@ const rows = [
   { name: "before-change", type: "(nextValue) => boolean | Promise<boolean>", default: "undefined" }
 ];
 
-const PageSwitchProps = defineHtml(html`
+const PageSwitchProps = defineHtml(`
   <h2>API</h2>
   <elf-props-table title="属性" :rows=${rows} />
   <elf-props-table title="事件" :rows=${[{ name: "update:modelValue / change", type: "(value: SwitchValue) => void" }]} />

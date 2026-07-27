@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 
 const manualLog = useRef("等待手动上传");
@@ -38,7 +38,7 @@ const onManualSuccess = (event: CustomEvent): void => {
   manualLog.set(`${file.name} 上传完成`);
 };
 
-const PageUploadEx4 = defineHtml(html`
+const PageUploadEx4 = defineHtml(`
 <elf-playground title="手动上传" :code=${manualCode} :script=${manualScript}>
       <div style="display:grid;gap:12px;width:100%;max-width:720px;margin-inline:auto">
         <elf-upload

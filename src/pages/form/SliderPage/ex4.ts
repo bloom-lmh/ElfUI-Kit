@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 
 const volume = useRef(42);
@@ -20,7 +20,7 @@ const onVolume = (event: CustomEvent<number>): void => {
   volume.set(Number(event.detail));
 };`;
 
-const PageSliderEx4 = defineHtml(html`
+const PageSliderEx4 = defineHtml(`
   <h2>纵向滑块</h2>
   <elf-playground title="垂直滑块" :code=${code} :script=${script}>
     <div style="display:grid;gap:12px;justify-items:center;min-height:280px;width:120px">

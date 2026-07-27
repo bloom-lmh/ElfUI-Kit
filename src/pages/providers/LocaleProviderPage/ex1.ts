@@ -1,4 +1,4 @@
-import { defineHtml, html, useComponents, useRef } from "@elfui/core";
+import { defineHtml, useComponents, useRef } from "@elfui/core";
 
 import { PageLocaleProviderPreview } from "./preview";
 
@@ -19,9 +19,27 @@ const arMessages = {
   provider: { title: "معاينة موفر اللغة" }
 };
 
-const code = `<elf-locale-provider name="en-US" :messages.prop="messages">
+const code = `<elf-locale-provider
+  :name="currentLocaleName()"
+  :rtl="isRtl()"
+  :messages.prop="currentMessages()"
+>
   <my-child></my-child>
 </elf-locale-provider>`;
+
+const localeScript = `const localeMode = useRef("zh");
+
+const messages = {
+  zh: { common: { confirm: "确认", cancel: "取消" } },
+  en: { common: { confirm: "Confirm", cancel: "Cancel" } },
+  ar: { common: { confirm: "تأكيد", cancel: "إلغاء" } }
+};
+
+const currentLocaleName = () =>
+  localeMode.value === "zh" ? "zh-CN" : localeMode.value === "ar" ? "ar" : "en-US";
+const currentMessages = () => messages[localeMode.value];
+const isRtl = () => localeMode.value === "ar";
+const setLocale = (value) => localeMode.set(value);`;
 
 const currentLocaleName = (): string =>
   localeMode.value === "zh" ? "zh-CN" : localeMode.value === "ar" ? "ar" : "en-US";
@@ -37,8 +55,8 @@ const setLocale = (value: string): void => {
 
 useComponents({ "page-locale-provider-preview": PageLocaleProviderPreview });
 
-const PageLocaleProviderEx1 = defineHtml(html`
-<elf-playground title="切换语言与 RTL" :code="code">
+const PageLocaleProviderEx1 = defineHtml(`
+<elf-playground title="切换语言与 RTL" :code="code" :script=${localeScript}>
       <div style="display:grid;gap:12px;width:100%;max-width:680px">
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <elf-button

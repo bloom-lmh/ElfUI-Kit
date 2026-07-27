@@ -1,4 +1,4 @@
-import { defineHtml, defineStyle, html, useReactive } from "@elfui/core";
+import { defineHtml, defineStyle, useReactive } from "@elfui/core";
 
 import type { FormRules } from "../../../components/Form";
 import demoStyles from "./demo.scss?inline";
@@ -40,7 +40,7 @@ const rules: FormRules = { name: [{ required: true }], ... }`;
 
 defineStyle(demoStyles);
 
-const PageFormEx1 = defineHtml(html`
+const PageFormEx1 = defineHtml(`
   <h2>综合示例</h2>
   <elf-playground title="完整表单" :code="code1">
     <elf-card

@@ -1,4 +1,4 @@
-import { defineHtml, defineStyle, html, useReactive, useRef } from "@elfui/core";
+import { defineHtml, defineStyle, useReactive, useRef } from "@elfui/core";
 
 import demoStyles from "./demo.scss?inline";
 
@@ -29,11 +29,23 @@ const code = `<elf-form :model.prop="query" inline label-position="left">
   <elf-form-item label="状态"><elf-select v-model="query.status" :options.prop="statusOptions" /></elf-form-item>
 </elf-form>`;
 
+const script = `const query = useReactive({
+    keyword: "",
+    status: "",
+    onlyMine: true
+});
+const statusOptions = [
+    { label: "全部状态", value: "" },
+    { label: "运行中", value: "running" },
+    { label: "维护中", value: "maintenance" },
+    { label: "告警", value: "warning" }
+];`;
+
 defineStyle(demoStyles);
 
-const PageFormEx2 = defineHtml(html`
+const PageFormEx2 = defineHtml(`
   <h2>行内筛选</h2>
-  <elf-playground title="inline / select / switch" :code="code">
+  <elf-playground title="inline / select / switch" :code="code" :script=${script}>
     <p slot="status" class="demo-state">{{ result }}</p>
     <elf-card
       class="form-demo-card is-wide"

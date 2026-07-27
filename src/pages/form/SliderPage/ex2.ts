@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 
 const value = useRef<[number, number]>([20, 72]);
@@ -34,7 +34,7 @@ const onChange = (event: CustomEvent<[number, number]>): void => {
   value.set(event.detail);
 };`;
 
-const PageSliderEx2 = defineHtml(html`
+const PageSliderEx2 = defineHtml(`
   <h2>范围选择</h2>
   <elf-playground title="范围、步进、刻度与间断点" :code=${code} :script=${script}>
     <div style="display:grid;gap:14px;width:100%;max-width:720px">

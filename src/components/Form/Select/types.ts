@@ -28,6 +28,7 @@ export interface SelectProps {
   props: SelectFieldNames;
   size: SelectSize;
   variant: SelectVariant;
+  backgroundColor: string;
   label: string;
   placeholder: string;
   disabled: boolean;
@@ -37,11 +38,15 @@ export interface SelectProps {
   collapseTags: boolean;
   maxCollapseTags: number;
   collapseTagsTooltip: boolean;
+  tagTooltip: boolean;
+  tagType: string;
+  tagEffect: string;
   multipleLimit: number;
   filterable: boolean;
   allowCreate: boolean;
   filterMethod?: (query: string, option?: SelectOption) => boolean;
   remote: boolean;
+  remoteShowSuffix: boolean;
   remoteMethod?: (query: string) => void;
   debounce: number;
   reserveKeyword: boolean;
@@ -55,7 +60,40 @@ export interface SelectProps {
   emptyValues: unknown[];
   height: number;
   fitInputWidth: boolean;
+  effect: string;
+  autocomplete: string;
+  popperClass: string;
+  popperStyle: string | Record<string, string | number>;
+  persistent: boolean;
+  clearIcon: string;
+  suffixIcon: string;
+  validateEvent: boolean;
+  offset: number;
   tabindex: string | number;
   id: string;
   name: string;
 }
+
+export interface SelectEmits {
+  "update:modelValue": [value: SelectValue | SelectValue[]];
+  change: [value: SelectValue | SelectValue[]];
+  clear: [];
+  "visible-change": [visible: boolean];
+  blur: [event: FocusEvent];
+  focus: [event: FocusEvent];
+  "remove-tag": [value: SelectValue];
+  "popup-scroll": [data: { scrollTop: number; scrollLeft: number }];
+  "end-reached": [direction: "top" | "bottom"];
+  search: [query: string];
+}
+
+export interface SelectExpose {
+  open(): void;
+  close(emitChange?: boolean): void;
+  toggle(visible?: boolean): void;
+  focus(): void;
+  blur(): void;
+  selectedLabel(): string | string[];
+}
+
+export type SelectElement = HTMLElement & SelectExpose;

@@ -1,4 +1,4 @@
-import { defineHtml, defineStyle, html, useRef } from "@elfui/core";
+import { defineHtml, defineStyle, useRef } from "@elfui/core";
 import { createDocsTranslator } from "../../docsLocale";
 
 const amount = useRef(12.5);
@@ -47,7 +47,7 @@ defineStyle(`
   .number-controls label { display:grid; gap:6px; color:var(--elf-text-secondary); font-size:12px; }
 `);
 
-const PageInputNumberEx2 = defineHtml(html`
+const PageInputNumberEx2 = defineHtml(`
   <h2>${t("heading")}</h2>
   <elf-playground :title=${t("title")} :code=${code()} :script=${script}>
     <div class="number-preview">

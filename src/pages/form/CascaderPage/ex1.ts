@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 const value = useRef<string[]>(["zhejiang", "hangzhou"]);
 
@@ -83,7 +83,7 @@ const onChange = (event: CustomEvent): void => {
   status.set(joinPaths(detail.path));
 };
 
-const PageCascaderEx1 = defineHtml(html`
+const PageCascaderEx1 = defineHtml(`
 <elf-playground title="基础用法" :code=${code1} :script=${script1}>
       <div style="display:grid;gap:12px;width:260px">
         <elf-cascader

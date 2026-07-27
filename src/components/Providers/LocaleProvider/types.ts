@@ -5,6 +5,7 @@ export interface LocaleProviderProps {
   dir: LocaleDirection;
   rtl: boolean;
   messages: LocaleMessages;
+  timeZone: string;
 }
 
 export type { LocaleDirection, LocaleMessages };

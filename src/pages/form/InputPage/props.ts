@@ -1,10 +1,11 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 
 const propsRows = [
   { name: "modelValue", type: "string | number", desc: "v-model 绑定值" },
   { name: "model-modifiers", type: "{ trim?: boolean; number?: boolean; lazy?: boolean }" },
   { name: "type", type: "text | password | email | tel | url | search | number", default: "text" },
   { name: "size", type: "small | default | large | sm | md | lg", default: "md" },
+  { name: "density", type: "default | comfortable | compact", default: "default", desc: "Material 字段密度；非默认 density 覆盖兼容 size 高度" },
   { name: "variant", type: "default | filled | outlined | underlined | solo | solo-filled | solo-inverted", default: "filled", desc: "字段表面样式；filled 是 default 的兼容别名" },
   { name: "placeholder", type: "string" },
   { name: "disabled", type: "boolean" },
@@ -74,7 +75,7 @@ const exposesRows = [
   }
 ];
 
-const PageInputProps = defineHtml(html`
+const PageInputProps = defineHtml(`
   <h2>API</h2>
   <elf-props-table title="Props" :rows=${propsRows} />
   <elf-props-table title="Events" :rows=${eventsRows} />

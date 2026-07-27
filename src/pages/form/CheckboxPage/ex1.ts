@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 const agreed = useRef(false);
 
@@ -14,7 +14,7 @@ const code = `<elf-checkbox
 const script = `const agreed = useRef(false);
 const onUpdate = (event) => agreed.set(Boolean(event.detail));`;
 
-const PageCheckboxEx1 = defineHtml(html`
+const PageCheckboxEx1 = defineHtml(`
   <elf-playground title="单个 Checkbox" :code=${code} :script=${script}>
     <elf-checkbox
       :modelValue.prop=${agreed.value}

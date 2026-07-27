@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 
 const options = [
   { label: "Design", value: "design" },
@@ -11,8 +11,13 @@ const code = `<elf-locale-provider name="en-US">
   <elf-pagination total="96" show-total show-jumper></elf-pagination>
 </elf-locale-provider>`;
 
-const PageLocaleProviderEx2 = defineHtml(html`
-  <elf-playground title="组件级英文覆盖" :code="code">
+const script = `const options = [
+    { label: "Design", value: "design" },
+    { label: "Development", value: "development" }
+];`;
+
+const PageLocaleProviderEx2 = defineHtml(`
+  <elf-playground title="组件级英文覆盖" :code="code" :script=${script}>
     <elf-locale-provider name="en-US">
       <div
         style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;width:100%"

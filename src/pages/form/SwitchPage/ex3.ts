@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 
 const variantCode = `<elf-switch variant="default" label="Default" />
 <elf-switch variant="inset" color="success" label="Inset" />
@@ -14,7 +14,7 @@ const actionCode = `<elf-switch
   inactive-text="未同步"
 />`;
 
-const PageSwitchEx3 = defineHtml(html`
+const PageSwitchEx3 = defineHtml(`
   <h2>外观</h2>
   <elf-playground title="Default / Inset / Material / Square" :code=${variantCode}>
     <div style="display:grid;grid-template-columns:repeat(2,minmax(180px,1fr));gap:22px 40px;width:min(100%,560px)">

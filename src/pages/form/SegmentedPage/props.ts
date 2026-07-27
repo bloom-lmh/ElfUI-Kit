@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 const rows = [
   { name: "model-value", type: "string | number | boolean", default: "undefined", desc: "当前选中值" },
   { name: "options", type: "SegmentedOption[]", default: "[]", desc: "字符串或含 label/value/disabled 的对象" },
@@ -8,7 +8,7 @@ const rows = [
   { name: "aria-label / label", type: "string / string", default: "'' / ''", desc: "radiogroup 无障碍标签" },
   { name: "validate-event", type: "boolean", default: "true", desc: "变更时是否触发表单校验" }
 ];
-const PageSegmentedProps = defineHtml(html`
+const PageSegmentedProps = defineHtml(`
   <h2>API</h2>
   <elf-props-table title="Props" :rows=${rows} />
   <elf-props-table title="Events" :rows=${[{ name: "update:modelValue / change", type: "(value) => void", desc: "选中值变化" }]} />

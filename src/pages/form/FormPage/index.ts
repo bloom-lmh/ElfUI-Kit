@@ -1,4 +1,4 @@
-import { defineHtml, html, useComponents } from "@elfui/core";
+import { defineHtml, useComponents } from "@elfui/core";
 import { PageFormEx1 } from "./ex1";
 import { PageFormEx2 } from "./ex2";
 import { PageFormEx3 } from "./ex3";
@@ -17,7 +17,7 @@ useComponents({
   "page-form-props": PageFormProps
 });
 
-const PageForm = defineHtml(html`
+const PageForm = defineHtml(`
   <elf-container>
     <h1>Form 表单</h1>
     <p>对标 Element Plus，model + rules 校验联动。使用 :modelValue.prop + 函数 handler。</p>

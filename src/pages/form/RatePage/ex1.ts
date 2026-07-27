@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 
 const value = useRef(3);
@@ -16,7 +16,7 @@ const onValue = (event: CustomEvent): void => {
   value.set(Number(event.detail));
 };
 
-const PageRateEx1 = defineHtml(html`
+const PageRateEx1 = defineHtml(`
 <elf-playground title="基础评分与文本" :code=${basicCode} :script=${basicScript}>
       <div style="display:grid;gap:12px">
         <elf-rate :modelValue.prop=${value.value} show-text @update:modelValue=${onValue}></elf-rate>

@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 import type { UploadRequestOptions } from "../../../components/Form";
 
@@ -51,7 +51,7 @@ const onRequestSuccess = (event: CustomEvent): void => {
   requestLog.set(`${file.name} 已通过自定义请求上传`);
 };
 
-const PageUploadEx5 = defineHtml(html`
+const PageUploadEx5 = defineHtml(`
 <elf-playground
       title="自定义请求、目录与附加数据"
       :code=${requestCode}

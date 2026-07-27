@@ -1,4 +1,4 @@
-import { defineHtml, defineStyle, html, useReactive, useRef } from "@elfui/core";
+import { defineHtml, defineStyle, useReactive, useRef } from "@elfui/core";
 
 import demoStyles from "./demo.scss?inline";
 
@@ -25,11 +25,18 @@ const code = `<elf-form :model.prop="settings" label-position="right" label-widt
   <elf-form-item label="环境"><elf-select v-model="settings.env" /></elf-form-item>
 </elf-form>`;
 
+const script = `const disabled = useRef(false);
+const settings = useReactive({
+    env: "prod",
+    notify: true,
+    remark: "生产环境变更需要审批"
+});`;
+
 defineStyle(demoStyles);
 
-const PageFormEx4 = defineHtml(html`
+const PageFormEx4 = defineHtml(`
   <h2>布局与禁用态</h2>
-  <elf-playground title="label-position / label-width / disabled" :code="code">
+  <elf-playground title="label-position / label-width / disabled" :code="code" :script=${script}>
     <elf-button slot="status" size="small" @click=${toggle}
       >${disabled.value ? "启用表单" : "禁用表单"}</elf-button
     >

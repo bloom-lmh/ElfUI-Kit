@@ -18,6 +18,8 @@ export interface LocaleProviderContext {
   readonly dir: LocaleDirection;
   readonly messages: LocaleMessages;
   t(path: string, params?: Record<string, string | number>): string;
+  formatNumber(value: number, options?: Intl.NumberFormatOptions): string;
+  formatDate(value: Date | number | string, options?: Intl.DateTimeFormatOptions): string;
 }
 
 export type ThemeTokens = Partial<{
@@ -47,7 +49,38 @@ export interface ThemeProviderContext {
   readonly theme: string;
   readonly isDark: boolean;
   readonly tokens: ThemeTokens;
+  applyTo(target: HTMLElement): void;
 }
+
+export const THEME_TOKEN_VARS: Record<keyof ThemeTokens, string> = {
+  primary: "--elf-primary",
+  primaryHover: "--elf-primary-hover",
+  primaryActive: "--elf-primary-active",
+  secondary: "--elf-secondary",
+  success: "--elf-success",
+  warning: "--elf-warning",
+  danger: "--elf-danger",
+  info: "--elf-info",
+  textPrimary: "--elf-text-primary",
+  textSecondary: "--elf-text-secondary",
+  textDisabled: "--elf-text-disabled",
+  textOnPrimary: "--elf-text-on-primary",
+  bgDefault: "--elf-bg-default",
+  bgPaper: "--elf-bg-paper",
+  bgOverlay: "--elf-bg-overlay",
+  fieldBg: "--elf-field-bg",
+  fieldHoverBg: "--elf-field-hover-bg",
+  border: "--elf-border",
+  borderStrong: "--elf-border-strong",
+  divider: "--elf-divider"
+};
+
+export const applyThemeTokens = (target: HTMLElement, tokens: ThemeTokens): void => {
+  for (const [key, value] of Object.entries(tokens) as Array<[keyof ThemeTokens, string]>) {
+    const variable = THEME_TOKEN_VARS[key];
+    if (variable && value) target.style.setProperty(variable, value);
+  }
+};
 
 export const DEFAULTS_PROVIDER_KEY =
   createInjectionKey<DefaultsProviderContext>("elfui.defaults-provider");
@@ -117,7 +150,8 @@ export const DEFAULT_LOCALE_MESSAGES: LocaleMessages = {
     endPlaceholder: "结束时间",
     rangeSeparator: "至",
     selectHour: "选择小时",
-    selectMinute: "选择分钟"
+    selectMinute: "选择分钟",
+    selectSecond: "选择秒"
   },
   calendar: {
     year: "{year}年",
@@ -153,7 +187,8 @@ export const DEFAULT_LOCALE_MESSAGES: LocaleMessages = {
     rejected: "{name} 未通过上传前检查",
     failed: "上传失败",
     missingFile: "缺少原始文件，无法分片上传",
-    cancelled: "上传已取消"
+    cancelled: "上传已取消",
+    directoryHint: "目录上传依赖浏览器的文件夹选择能力；不支持时请改用多文件上传。"
   },
   tour: {
     close: "关闭引导"
@@ -191,6 +226,7 @@ export const DEFAULT_LOCALE_MESSAGES: LocaleMessages = {
     closeMessage: "关闭提示",
     closeNotification: "关闭通知",
     closeDrawer: "关闭抽屉",
+    resizeDrawer: "调整抽屉尺寸",
     closeDialog: "关闭对话框",
     breadcrumb: "面包屑",
     status: "状态提示",
@@ -198,6 +234,7 @@ export const DEFAULT_LOCALE_MESSAGES: LocaleMessages = {
     expandFirstPanel: "展开第一个面板",
     collapseFirstPanel: "折叠第一个面板",
     collapsed: "已折叠",
+    additionalAvatars: "{count} 个未显示头像",
     imagePending: "图片将在进入视口后加载",
     anchorNavigation: "锚点导航"
   },
@@ -280,7 +317,8 @@ export const EN_LOCALE_MESSAGES: LocaleMessages = {
     endPlaceholder: "End time",
     rangeSeparator: "to",
     selectHour: "Select hour",
-    selectMinute: "Select minute"
+    selectMinute: "Select minute",
+    selectSecond: "Select second"
   },
   calendar: {
     year: "{year}",
@@ -316,7 +354,8 @@ export const EN_LOCALE_MESSAGES: LocaleMessages = {
     rejected: "{name} did not pass the pre-upload check",
     failed: "Upload failed",
     missingFile: "The original file is unavailable for chunked upload",
-    cancelled: "Upload cancelled"
+    cancelled: "Upload cancelled",
+    directoryHint: "Folder upload depends on browser directory selection support; use multi-file upload as a fallback."
   },
   tour: {
     close: "Close tour"
@@ -354,6 +393,7 @@ export const EN_LOCALE_MESSAGES: LocaleMessages = {
     closeMessage: "Close message",
     closeNotification: "Close notification",
     closeDrawer: "Close drawer",
+    resizeDrawer: "Resize drawer",
     closeDialog: "Close dialog",
     breadcrumb: "Breadcrumb",
     status: "Status",
@@ -361,6 +401,7 @@ export const EN_LOCALE_MESSAGES: LocaleMessages = {
     expandFirstPanel: "Expand first panel",
     collapseFirstPanel: "Collapse first panel",
     collapsed: "Collapsed",
+    additionalAvatars: "{count} additional avatars",
     imagePending: "Image will load when it enters the viewport",
     anchorNavigation: "Anchor navigation"
   },
@@ -426,7 +467,11 @@ export const DEFAULT_LOCALE_CONTEXT: LocaleProviderContext = {
   name: "zh-CN",
   dir: "ltr",
   messages: DEFAULT_LOCALE_MESSAGES,
-  t: createTranslator(DEFAULT_LOCALE_MESSAGES)
+  t: createTranslator(DEFAULT_LOCALE_MESSAGES),
+  formatNumber: (value, options) => new Intl.NumberFormat("zh-CN", options).format(value),
+  formatDate: (value, options) => new Intl.DateTimeFormat("zh-CN", options).format(
+    new Date(typeof value === "string" ? Date.parse(value) : value instanceof Date ? value.getTime() : value)
+  )
 };
 
 export const useDefaultsProvider = (): DefaultsProviderContext | undefined =>

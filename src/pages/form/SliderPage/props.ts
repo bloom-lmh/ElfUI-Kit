@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 
 const propsRows = [
   { name: "modelValue", type: "number | [number, number]", default: "0", desc: "当前值" },
@@ -42,7 +42,7 @@ const methodsRows = [
   { name: "clear()", desc: "单值清空为最小值；范围清空为 [min, min]" }
 ];
 
-const PageSliderProps = defineHtml(html`
+const PageSliderProps = defineHtml(`
   <h2>API</h2>
   <elf-props-table title="属性" :rows.prop=${propsRows}></elf-props-table>
   <elf-props-table title="事件" :rows.prop=${eventsRows}></elf-props-table>

@@ -3,7 +3,6 @@ import {
   defineHtml,
   defineProps,
   defineStyle,
-  html,
   useHost,
   useHostAttr
 } from "@elfui/core";
@@ -117,7 +116,7 @@ const normalizedSize = (): InputOtpSize => {
 useHostAttr("size", normalizedSize);
 defineStyle(styles);
 
-const InputOtp = defineHtml<InputOtpProps>(html`
+const InputOtp = defineHtml<InputOtpProps>(`
   <div class="otp" part="otp" @paste=${onPaste}>
     <template v-for="cell in cells()" :key="cell.index">
       <input
@@ -127,7 +126,7 @@ const InputOtp = defineHtml<InputOtpProps>(html`
         :data-index="cell.index"
         :type=${inputType()}
         :inputmode=${inputMode()}
-        :value.prop=${displayChar(cell.char)}
+        :value.prop="displayChar(cell.char)"
         :placeholder=${props.placeholder}
         :disabled=${props.disabled}
         :readonly=${props.readonly}

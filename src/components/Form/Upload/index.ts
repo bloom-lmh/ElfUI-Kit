@@ -3,7 +3,8 @@ import {
   defineExpose,
   defineProps,
   defineStyle,
-  html,
+  inject,
+  onUnmounted,
   useEffect,
   useHost,
   useHostFlag,
@@ -13,30 +14,42 @@ import {
 } from "@elfui/core";
 
 import styles from "./style.scss?inline";
+import { useDisabled } from "../../../composables";
+import { FORM_ITEM_KEY } from "../context";
 import type {
   UploadChunkRequestOptions,
+  UploadEmits,
+  UploadExpose,
   UploadFileItem,
   UploadInvalidPayload,
   UploadInvalidReason,
   UploadListType,
+  UploadRequestHandle,
   UploadRequestOptions,
+  UploadRequestResult,
   UploadStatus
 } from "./types";
 import { useLocaleProvider } from "../../Providers/context";
 
 export type {
   UploadChunkRequestOptions,
+  UploadElement,
+  UploadEmits,
+  UploadExpose,
   UploadFileItem,
   UploadInvalidPayload,
   UploadInvalidReason,
   UploadListType,
   UploadProps,
   UploadRequestOptions,
+  UploadRequestHandle,
+  UploadRequestResult,
   UploadStatus
 } from "./types";
 
 const props = defineProps({
   modelValue: { type: Array, default: () => [] },
+  fileList: { type: Array, default: undefined },
   action: { type: String, default: "" },
   method: { type: String, default: "post" },
   headers: { type: Object, default: () => ({}) },
@@ -49,6 +62,7 @@ const props = defineProps({
   directory: { type: Boolean, default: false },
   drag: { type: Boolean, default: false },
   disabled: { type: Boolean, default: false },
+  validateEvent: { type: Boolean, default: true },
   autoUpload: { type: Boolean, default: true },
   limit: { type: Number, default: 0 },
   maxSize: { type: Number, default: 0 },
@@ -74,19 +88,10 @@ const props = defineProps({
 
 const locale = useLocaleProvider();
 
-const emit = defineEmits([
-  "update:modelValue",
-  "change",
-  "remove",
-  "preview",
-  "exceed",
-  "invalid",
-  "progress",
-  "success",
-  "error"
-]);
+const emit = defineEmits<UploadEmits>();
 
 const inputRef = useTemplateRef<HTMLInputElement>("inputEl");
+const tipSlotRef = useTemplateRef<HTMLSlotElement>("tipSlotEl");
 
 const host = useHost();
 
@@ -95,17 +100,27 @@ const files = useRef<UploadFileItem[]>([]);
 const uid = useRef(0);
 
 const notice = useRef("");
+const hasTipSlot = useRef(false);
 
 const activeTimers = new Map<string, number>();
+const activeRequests = new Map<string, UploadRequestHandle>();
+const objectUrls = new Map<string, string>();
 
-const isDisabled = (): boolean => Boolean(props.disabled);
+const formItem = inject(FORM_ITEM_KEY);
+const isDisabled = useDisabled(() => Boolean(props.disabled));
 
 useHostFlag("disabled", isDisabled);
 
 const emitModel = (): void => {
   const next = [...files.value];
   emit("update:modelValue", next);
+  emit("update:fileList", next);
   emit("change", next);
+  if (props.validateEvent) formItem?.validateTrigger("change");
+};
+
+const syncTipSlot = (): void => {
+  hasTipSlot.set(Boolean(tipSlotRef.value?.assignedNodes({ flatten: true }).length));
 };
 
 const notifyChange = (file: UploadFileItem | null): void => {
@@ -115,19 +130,27 @@ const notifyChange = (file: UploadFileItem | null): void => {
 };
 
 useEffect(() => {
-  if (Array.isArray(props.modelValue)) files.set([...(props.modelValue as UploadFileItem[])]);
+  const controlled = Array.isArray(props.fileList) ? props.fileList : props.modelValue;
+  if (Array.isArray(controlled)) files.set([...(controlled as UploadFileItem[])]);
 });
 
 const createItem = (file: File): UploadFileItem => {
   uid.set(uid.value + 1);
+  const itemUid = `${Date.now()}-${uid.value}`;
+  let url: string | undefined;
+  if (file.type.startsWith("image/") && typeof URL.createObjectURL === "function") {
+    url = URL.createObjectURL(file);
+    objectUrls.set(itemUid, url);
+  }
   return {
-    uid: `${Date.now()}-${uid.value}`,
+    uid: itemUid,
     name: file.name,
     size: file.size,
     type: file.type,
     status: "ready",
     percentage: 0,
-    raw: file
+    raw: file,
+    ...(url ? { url } : {})
   };
 };
 
@@ -245,6 +268,12 @@ const onDragOver = (event: DragEvent): void => {
   event.preventDefault();
 };
 
+const onDropzoneKeydown = (event: KeyboardEvent): void => {
+  if (event.key !== "Enter" && event.key !== " ") return;
+  event.preventDefault();
+  select();
+};
+
 const updateFile = (uidValue: string, patch: Partial<UploadFileItem>): void => {
   const next = files.value.map((file) => {
     if (file.uid !== uidValue) return file;
@@ -271,7 +300,7 @@ const uploadFile = async (file: UploadFileItem): Promise<void> => {
   const onProgress = (percentage: number): void => {
     const value = Math.max(0, Math.min(100, Math.round(percentage)));
     updateFile(file.uid, { percentage: value, status: "uploading" });
-    emit("progress", value, file);
+    emit("progress", value, file, [...files.value]);
     (
       props.onProgress as
         | ((percentage: number, file: UploadFileItem, files: UploadFileItem[]) => void)
@@ -279,6 +308,7 @@ const uploadFile = async (file: UploadFileItem): Promise<void> => {
     )?.(value, file, [...files.value]);
   };
   const onSuccess = (response?: unknown): void => {
+    activeRequests.delete(file.uid);
     updateFile(file.uid, { status: "success", percentage: 100, response });
     emit("success", response, file, [...files.value]);
     (
@@ -289,6 +319,7 @@ const uploadFile = async (file: UploadFileItem): Promise<void> => {
     notifyChange(file);
   };
   const onError = (error: unknown): void => {
+    activeRequests.delete(file.uid);
     const message = error instanceof Error ? error.message : String(error || locale.t("upload.failed"));
     updateFile(file.uid, { status: "error", error, message });
     notice.set(message);
@@ -301,23 +332,26 @@ const uploadFile = async (file: UploadFileItem): Promise<void> => {
     notifyChange(file);
   };
 
+  const requestOptions: UploadRequestOptions = {
+    action: String(props.action || ""),
+    method: String(props.method || "post"),
+    filename: String(props.name || "file"),
+    file,
+    data: await resolveData(),
+    headers: (props.headers || {}) as Headers | Record<string, unknown>,
+    withCredentials: Boolean(props.withCredentials),
+    onProgress,
+    onSuccess,
+    onError
+  };
+
   const customRequest = (props.httpRequest || props.customRequest) as
-    | ((options: UploadRequestOptions) => void | Promise<void>)
+    | ((options: UploadRequestOptions) => UploadRequestResult)
     | undefined;
   if (customRequest) {
     try {
-      await customRequest({
-        action: props.action || "#",
-        method: String(props.method || "post"),
-        filename: String(props.name || "file"),
-        file,
-        data: await resolveData(),
-        headers: (props.headers || {}) as Headers | Record<string, unknown>,
-        withCredentials: Boolean(props.withCredentials),
-        onProgress,
-        onSuccess,
-        onError
-      });
+      const result = await customRequest(requestOptions);
+      if (result && typeof result.abort === "function") activeRequests.set(file.uid, result);
     } catch (error) {
       onError(error);
     }
@@ -329,12 +363,81 @@ const uploadFile = async (file: UploadFileItem): Promise<void> => {
     return;
   }
 
+  if (props.action && file.raw) {
+    runXhrRequest(requestOptions);
+    return;
+  }
+
   const timer = window.setTimeout(() => {
     activeTimers.delete(file.uid);
     onProgress(100);
     onSuccess({ action: props.action || "mock" });
   }, 120);
   activeTimers.set(file.uid, timer);
+};
+
+const appendFormValue = (formData: FormData, key: string, value: unknown): void => {
+  if (Array.isArray(value)) {
+    for (const item of value) appendFormValue(formData, key, item);
+    return;
+  }
+  if (value instanceof Blob) {
+    formData.append(key, value);
+    return;
+  }
+  if (value !== undefined && value !== null) formData.append(key, String(value));
+};
+
+const parseXhrResponse = (xhr: XMLHttpRequest): unknown => {
+  if (xhr.responseType === "json") return xhr.response;
+  const text = xhr.responseText;
+  const contentType = xhr.getResponseHeader("content-type") || "";
+  if (contentType.includes("application/json") && text) {
+    try {
+      return JSON.parse(text) as unknown;
+    } catch {
+      return text;
+    }
+  }
+  return text;
+};
+
+const runXhrRequest = (options: UploadRequestOptions): void => {
+  const raw = options.file.raw;
+  if (!raw) {
+    options.onError(new Error(locale.t("upload.missingFile")));
+    return;
+  }
+
+  const xhr = new XMLHttpRequest();
+  activeRequests.set(options.file.uid, xhr);
+  xhr.open(options.method.toUpperCase(), options.action, true);
+  xhr.withCredentials = options.withCredentials;
+
+  if (options.headers instanceof Headers) {
+    options.headers.forEach((value, key) => xhr.setRequestHeader(key, value));
+  } else {
+    for (const [key, value] of Object.entries(options.headers)) {
+      if (value !== undefined && value !== null) xhr.setRequestHeader(key, String(value));
+    }
+  }
+
+  xhr.upload.addEventListener("progress", (event) => {
+    if (event.lengthComputable && event.total > 0) {
+      options.onProgress((event.loaded / event.total) * 100);
+    }
+  });
+  xhr.addEventListener("load", () => {
+    if (xhr.status >= 200 && xhr.status < 300) options.onSuccess(parseXhrResponse(xhr));
+    else options.onError(new Error(`Upload request failed with status ${xhr.status}`));
+  });
+  xhr.addEventListener("error", () => options.onError(new Error(locale.t("upload.failed"))));
+  xhr.addEventListener("abort", () => options.onError(new Error(locale.t("upload.cancelled"))));
+
+  const formData = new FormData();
+  for (const [key, value] of Object.entries(options.data)) appendFormValue(formData, key, value);
+  formData.append(options.filename, raw, raw.name);
+  xhr.send(formData);
 };
 
 const uploadChunks = async (
@@ -392,6 +495,8 @@ const removeFile = async (file: UploadFileItem): Promise<void> => {
     | ((file: UploadFileItem) => boolean | Promise<boolean>)
     | undefined;
   if (guard && (await guard(file)) === false) return;
+  cancelTransfer(file.uid, false);
+  releaseObjectUrl(file.uid);
   files.set(files.value.filter((item) => item.uid !== file.uid));
   emit("remove", file, [...files.value]);
   (props.onRemove as ((file: UploadFileItem, files: UploadFileItem[]) => void) | undefined)?.(
@@ -408,6 +513,13 @@ const previewFile = (file: UploadFileItem): void => {
 };
 
 const clearFiles = (statuses?: UploadStatus[]): void => {
+  const removed = !Array.isArray(statuses) || statuses.length === 0
+    ? [...files.value]
+    : files.value.filter((file) => statuses.includes(file.status));
+  for (const file of removed) {
+    cancelTransfer(file.uid, false);
+    releaseObjectUrl(file.uid);
+  }
   if (!Array.isArray(statuses) || statuses.length === 0) {
     files.set([]);
   } else {
@@ -431,17 +543,32 @@ const handleRemove = (file: UploadFileItem | File): void => {
 const abort = (file?: UploadFileItem): void => {
   const targets = file ? files.value.filter((item) => item.uid === file.uid) : files.value;
   for (const item of targets) {
-    const timer = activeTimers.get(item.uid);
-    if (timer !== undefined) {
-      window.clearTimeout(timer);
-      activeTimers.delete(item.uid);
-    }
+    cancelTransfer(item.uid, true);
     updateFile(item.uid, {
       status: "error",
       error: new Error(locale.t("upload.cancelled")),
       message: locale.t("upload.cancelled")
     });
   }
+};
+
+const cancelTransfer = (uidValue: string, abortRequest: boolean): void => {
+  const timer = activeTimers.get(uidValue);
+  if (timer !== undefined) {
+    window.clearTimeout(timer);
+    activeTimers.delete(uidValue);
+  }
+  const request = activeRequests.get(uidValue);
+  if (!request) return;
+  activeRequests.delete(uidValue);
+  if (abortRequest) request.abort();
+};
+
+const releaseObjectUrl = (uidValue: string): void => {
+  const url = objectUrls.get(uidValue);
+  if (!url) return;
+  URL.revokeObjectURL(url);
+  objectUrls.delete(uidValue);
 };
 
 const formatSize = (size: number): string => {
@@ -475,11 +602,18 @@ const onFileActionClick = (event: Event): void => {
   if (action === "retry") void uploadFile(file);
 };
 
-defineExpose({ select, submit, clearFiles, abort, handleStart, handleRemove });
+onUnmounted(() => {
+  for (const uidValue of new Set([...activeTimers.keys(), ...activeRequests.keys()])) {
+    cancelTransfer(uidValue, true);
+  }
+  for (const uidValue of [...objectUrls.keys()]) releaseObjectUrl(uidValue);
+});
+
+defineExpose<UploadExpose>({ select, submit, clearFiles, abort, handleStart, handleRemove });
 
 defineStyle(styles);
 
-const Upload = defineHtml(html`
+const Upload = defineHtml(`
   <div class="upload">
     <input
       ref="inputEl"
@@ -501,7 +635,11 @@ const Upload = defineHtml(html`
       v-if=${props.drag}
       class="dropzone"
       part="dropzone"
+      role="button"
+      :tabindex=${isDisabled() ? -1 : 0}
+      :aria-disabled=${isDisabled() ? "true" : "false"}
       @click=${select}
+      @keydown=${onDropzoneKeydown}
       @drop=${onDrop}
       @dragover=${onDragOver}
     >
@@ -512,15 +650,20 @@ const Upload = defineHtml(html`
       </span>
       <span>${locale.t("upload.drop")}</span>
     </div>
+    <div v-if=${props.directory} class="directory-note" role="note">
+      ${locale.t("upload.directoryHint")}
+    </div>
     <div v-else class="trigger" part="trigger">
-      <slot name="trigger">
+      <slot name="trigger" :select=${select} :disabled=${isDisabled()}>
         <button class="button" type="button" @click=${select}>${props.buttonText || locale.t("upload.choose")}</button>
       </slot>
       <button v-if=${!props.autoUpload} class="manual" type="button" @click=${submit}>
         ${locale.t("upload.start")}
       </button>
     </div>
-    <div v-if=${props.tip} class="tip"><slot name="tip">${props.tip}</slot></div>
+    <div :class=${["tip", { empty: !props.tip && !hasTipSlot }]}>
+      <slot ref="tipSlotEl" name="tip" @slotchange=${syncTipSlot}>${props.tip}</slot>
+    </div>
     <div v-if=${notice} class="notice" role="alert">${notice}</div>
 
     <div v-if=${props.showFileList} :class=${["list", "is-" + listType()]} part="list">
@@ -530,9 +673,21 @@ const Upload = defineHtml(html`
         :class="['file', 'is-' + file.status]"
         part="file"
       >
-        <span class="thumb">{{ fileIcon(file) }}</span>
+        <span class="thumb">
+          <img
+            v-if="file.type && file.type.startsWith('image/') && file.url"
+            :src="file.url"
+            :alt="file.name"
+            :crossorigin=${props.crossorigin || null}
+          />
+          <span v-else>{{ fileIcon(file) }}</span>
+        </span>
         <div class="meta">
-          <div class="name"><slot name="file">{{ file.name }}</slot></div>
+          <div class="name">
+            <slot name="file" :file="file" :remove=${removeFile} :preview=${previewFile}>
+              {{ file.name }}
+            </slot>
+          </div>
           <div class="desc">{{ formatSize(file.size) }} · {{ file.message || file.status }}</div>
           <div
             v-if="file.status === 'uploading' || file.status === 'success'"

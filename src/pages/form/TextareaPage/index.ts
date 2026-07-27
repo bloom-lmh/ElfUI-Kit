@@ -1,4 +1,4 @@
-import { defineHtml, html, useComponents } from "@elfui/core";
+import { defineHtml, useComponents } from "@elfui/core";
 import { PageTextareaEx1 } from "./ex1";
 import { PageTextareaEx2 } from "./ex2";
 import { PageTextareaEx3 } from "./ex3";
@@ -11,7 +11,7 @@ useComponents({
   "page-textarea-props": PageTextareaProps
 });
 
-const PageTextarea = defineHtml(html`
+const PageTextarea = defineHtml(`
   <elf-container>
     <h1>Textarea 多行文本</h1>
     <page-textarea-ex1 />

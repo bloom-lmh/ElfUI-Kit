@@ -1,4 +1,4 @@
-import { defineHtml, defineStyle, html, useReactive, useRef, useTemplateRef } from "@elfui/core";
+import { defineHtml, defineStyle, useReactive, useRef, useTemplateRef } from "@elfui/core";
 
 import type { FormRules } from "../../../components/Form";
 import demoStyles from "./demo.scss?inline";
@@ -43,11 +43,22 @@ const code = `<elf-form ref="loginForm" :model.prop=\${account} :rules.prop=\${r
 </elf-form>`;
 
 const script = `const account = useReactive({ email: "", password: "", remember: true });
-const valid = await loginForm.value?.validate();`;
+const valid = await loginForm.value?.validate();
+
+const rules = {
+    email: [
+        { required: true, message: "请输入邮箱", trigger: "blur" },
+        { type: "email", message: "邮箱格式不正确", trigger: "blur" }
+    ],
+    password: [
+        { required: true, message: "请输入密码", trigger: "blur" },
+        { min: 6, message: "密码至少 6 位", trigger: "change" }
+    ]
+};`;
 
 defineStyle(demoStyles);
 
-const PageFormEx5 = defineHtml(html`
+const PageFormEx5 = defineHtml(`
   <h2>登录表单</h2>
   <elf-playground title="紧凑登录与即时校验" :code=${code} :script=${script}>
     <span slot="status" class="demo-state">${message.value}</span>

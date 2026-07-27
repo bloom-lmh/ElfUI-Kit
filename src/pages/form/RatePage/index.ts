@@ -1,4 +1,4 @@
-import { defineHtml, html, useComponents } from "@elfui/core";
+import { defineHtml, useComponents } from "@elfui/core";
 
 import { PageRateEx1 } from "./ex1";
 import { PageRateEx2 } from "./ex2";
@@ -26,7 +26,7 @@ useComponents({
   "page-rate-ex4": PageRateEx4
 });
 
-const PageRate = defineHtml(html`
+const PageRate = defineHtml(`
   <elf-container>
     <h1>Rate 评分</h1>
     <p>用于主观评分与满意度输入，支持半星、清空、只读、文本、分数、自定义符号和键盘调整。</p>

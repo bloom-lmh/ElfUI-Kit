@@ -29,6 +29,7 @@ export interface TextareaProps {
   modelModifiers: TextareaModelModifiers;
   size: TextareaSize;
   variant: TextareaVariant;
+  backgroundColor: string;
   placeholder: string;
   disabled: boolean;
   readonly: boolean;

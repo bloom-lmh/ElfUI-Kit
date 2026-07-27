@@ -3,7 +3,6 @@ import {
   defineExpose,
   defineProps,
   defineStyle,
-  html,
   useComputed,
   useEffect,
   useHostAttr,
@@ -92,6 +91,8 @@ useHostAttr("size", () => fi.formSize);
 const max = (): number => Math.max(1, Number(props.max || 5));
 
 const displayValue = (): number => props.previewOnHover ? (hoverValue.value || innerValue.value) : innerValue.value;
+const canClearRating = (): boolean =>
+  props.clearable && innerValue.value > 0 && !isDisabled() && !props.readonly;
 
 const thresholdIndex = (value: number): number =>
   value <= Number(props.lowThreshold) ? 0 : value < Number(props.highThreshold) ? 1 : 2;
@@ -208,7 +209,7 @@ defineExpose({ setCurrentValue, resetCurrentValue });
 
 defineStyle(styles);
 
-const Rate = defineHtml(html`
+const Rate = defineHtml(`
   <div
     class="rate"
     :style=${rootStyle}
@@ -228,18 +229,18 @@ const Rate = defineHtml(html`
         :key="item.score"
         type="button"
         :class="['star', 'is-' + stateOf(item)]"
-        :style=${{ "--rate-item-color": colorOf(item) }}
+        :style='{ "--rate-item-color": colorOf(item) }'
         :disabled=${isDisabled() || props.readonly}
         @click="onClick(item, $event)"
         @mousemove="onMouseMove(item, $event)"
-        :aria-label=${locale.t("rate.score", { score: item.score })}
+        :aria-label='locale.t("rate.score", { score: item.score })'
       >
         <span class="symbol">{{ iconOf(item) }}</span>
       </button>
     </div>
     <span v-if=${props.showText || props.showScore} class="text">${text()}</span>
     <button
-      v-if=${props.clearable && innerValue > 0 && !isDisabled() && !props.readonly}
+      v-if=${canClearRating()}
       class="clear"
       type="button"
       @click=${clear}

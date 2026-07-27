@@ -1,9 +1,12 @@
-import { PageSwitchEx1 } from "./ex1";
+import {
+  PageSwitchEx1 } from "./ex1";
 import { PageSwitchEx2 } from "./ex2";
 import { PageSwitchEx3 } from "./ex3";
 import { PageSwitchProps } from "./props";
 
-import { defineHtml, html, useComponents } from "@elfui/core";
+import { defineHtml,
+  useComponents
+} from "@elfui/core";
 
 useComponents({
   "page-switch-ex1": PageSwitchEx1,
@@ -12,7 +15,7 @@ useComponents({
   "page-switch-props": PageSwitchProps
 });
 
-const PageSwitch = defineHtml(html`
+const PageSwitch = defineHtml(`
   <elf-container>
     <h1>Switch 开关</h1>
     <page-switch-ex1></page-switch-ex1>

@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 
 const half = useRef(3.5);
@@ -18,7 +18,7 @@ const onHalf = (event: CustomEvent): void => {
   half.set(Number(event.detail));
 };
 
-const PageRateEx2 = defineHtml(html`
+const PageRateEx2 = defineHtml(`
 <elf-playground title="半星与分数" :code=${halfCode} :script=${halfScript}>
       <div style="display:grid;gap:12px">
         <elf-rate

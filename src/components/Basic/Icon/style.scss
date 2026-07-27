@@ -24,7 +24,8 @@
     ::slotted(svg),
     .svg-icon,
     .class-icon,
-    .text-icon {
+    .text-icon,
+    .fallback-icon {
         width: 100%;
         height: 100%;
     }
@@ -35,13 +36,21 @@
     }
 
     .class-icon,
-    .text-icon {
+    .text-icon,
+    .fallback-icon {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       color: inherit;
       font-size: inherit;
       line-height: 1;
+    }
+
+    .fallback-icon {
+      border: 1px dashed currentColor;
+      border-radius: 50%;
+      font-size: 0.72em;
+      opacity: 0.72;
     }
 }
 

@@ -1,4 +1,4 @@
-import { defineHtml, html, useComponents } from "@elfui/core";
+import { defineHtml, useComponents } from "@elfui/core";
 
 import { PageCascaderEx1 } from "./ex1";
 import { PageCascaderEx2 } from "./ex2";
@@ -7,8 +7,10 @@ import { PageCascaderEx4 } from "./ex4";
 import { PageCascaderEx5 } from "./ex5";
 import { PageCascaderEx6 } from "./ex6";
 import { PageCascaderEx7 } from "./ex7";
+import { PageCascaderEx8 } from "./ex8";
 
 const propsRows = [
+  { name: "background-color", type: "string", default: "''", desc: "自定义字段表面背景" },
   { name: "variant / label", type: "FieldVariant / string", default: "filled / ''", desc: "六种统一字段表面与浮动标签" },
   {
     name: "modelValue",
@@ -29,6 +31,12 @@ const propsRows = [
   { name: "effect / tagType / tagEffect", type: "string", default: "light / info / light", desc: "面板和多选标签外观" },
   { name: "multiple", type: "boolean", default: "false", desc: "是否允许选择多个叶子节点" },
   { name: "checkable", type: "boolean", default: "false", desc: "是否显示选项框并支持父子勾选" },
+  {
+    name: "panelMode / treeThreshold",
+    type: "auto | columns | tree / number",
+    default: "auto / 3",
+    desc: "面板布局；auto 在路径深度超过阈值时切换为紧凑树状结构"
+  },
   { name: "checkStrictly", type: "boolean", default: "false", desc: "父子节点选择互不关联" },
   { name: "emitPath", type: "boolean", default: "true", desc: "是否返回完整路径" },
   { name: "showAllLevels", type: "boolean", default: "true", desc: "是否展示完整路径" },
@@ -57,7 +65,8 @@ const propsRows = [
   { name: "beforeFilter", type: "(keyword) => boolean | Promise<boolean>", default: "-", desc: "Cancels or asynchronously gates a search" },
   { name: "separator", type: "string", default: "' / '", desc: "回显路径分隔符" },
   { name: "props", type: "CascaderFieldNames", default: "-", desc: "自定义字段名、lazy/lazyLoad 与勾选行为" },
-  { name: "validateEvent", type: "boolean", default: "true", desc: "是否触发表单 change/blur 校验" }
+  { name: "validateEvent", type: "boolean", default: "true", desc: "是否触发表单 change/blur 校验" },
+  { name: "virtualScroll / itemSize / height", type: "boolean / number / number", default: "false / 34 / 204", desc: "长列表虚拟滚动、行高与视口高度" }
 ];
 
 const eventsRows = [
@@ -71,6 +80,8 @@ const eventsRows = [
 ];
 
 const methodsRows = [
+  { name: "clearSelection()", desc: "清空当前选择" },
+  { name: "openPanel() / closePanel()", desc: "打开或关闭级联面板" },
   { name: "getCheckedNodes(leafOnly?)", desc: "获取当前选中节点快照" },
   { name: "clearCheckedNodes()", desc: "清空面板已选节点" },
   { name: "togglePopperVisible(visible?)", desc: "手动展开或收起下拉面板" },
@@ -111,10 +122,11 @@ useComponents({
   "page-cascader-ex4": PageCascaderEx4,
   "page-cascader-ex5": PageCascaderEx5,
   "page-cascader-ex6": PageCascaderEx6,
-  "page-cascader-ex7": PageCascaderEx7
+  "page-cascader-ex7": PageCascaderEx7,
+  "page-cascader-ex8": PageCascaderEx8
 });
 
-const PageCascader = defineHtml(html`
+const PageCascader = defineHtml(`
   <elf-container>
     <h1>Cascader 级联选择器</h1>
     <p>从多级数据中逐级选择，适合地区、组织、分类等树状选项。</p>
@@ -132,6 +144,8 @@ const PageCascader = defineHtml(html`
     <page-cascader-ex6 />
 
     <page-cascader-ex7 />
+
+    <page-cascader-ex8 />
 
     <h2>API</h2>
     <elf-props-table title="级联选择器属性" :rows=${propsRows}></elf-props-table>

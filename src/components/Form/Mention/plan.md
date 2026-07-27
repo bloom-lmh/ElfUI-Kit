@@ -18,3 +18,8 @@
 ## Compatibility note
 
 - [x] Provide `prefixes` for multiple trigger strings. Native `Node.prefix` is read-only, so a `prefix` array cannot be safely assigned as a Custom Element property.
+
+## 2026-07-22 shared field regression
+
+- [x] Default to the filled surface and share label, background, outline, disabled and placeholder behavior with Input.
+- [x] Keep the suggestion panel outside the textarea clipping boundary and add a first-position integrated controls example.

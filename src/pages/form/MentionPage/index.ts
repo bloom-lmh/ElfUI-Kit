@@ -1,4 +1,4 @@
-import { defineHtml, html, useComponents } from "@elfui/core";
+import { defineHtml, useComponents } from "@elfui/core";
 import { PageMentionProps } from "./props";
 import { PageMentionEx1 } from "./ex1";
 import { PageMentionEx2 } from "./ex2";
@@ -11,7 +11,7 @@ useComponents({
   "page-mention-props": PageMentionProps
 });
 
-const PageMention = defineHtml(html`
+const PageMention = defineHtml(`
   <elf-container>
     <h1>Mention 提及</h1>
     <p>在文本输入中通过前缀触发候选面板，适合选择成员、话题或实体。</p>

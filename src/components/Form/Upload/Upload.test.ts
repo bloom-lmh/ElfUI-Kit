@@ -7,6 +7,7 @@ beforeAll(async () => {
 afterEach(() => {
   document.body.innerHTML = "";
   vi.useRealTimers();
+  vi.unstubAllGlobals();
 });
 
 const tick = (): Promise<void> => new Promise((resolve) => queueMicrotask(resolve));
@@ -21,6 +22,7 @@ interface UploadEl extends HTMLElement {
     percentage: number;
     message?: string;
   }>;
+  fileList?: UploadEl["modelValue"];
   autoUpload?: boolean;
   multiple?: boolean;
   limit?: number;
@@ -250,6 +252,65 @@ describe("elf-upload", () => {
       })
     );
     expect(el.shadowRoot!.querySelector(".file.is-success")).toBeTruthy();
+  });
+
+  it("fileList 别名参与受控同步并发出 update:fileList", async () => {
+    const el = document.createElement("elf-upload") as UploadEl;
+    el.autoUpload = false;
+    el.fileList = [{
+      uid: "controlled-1",
+      name: "controlled.txt",
+      size: 10,
+      type: "text/plain",
+      status: "ready",
+      percentage: 0
+    }];
+    const onUpdate = vi.fn();
+    el.addEventListener("update:fileList", onUpdate as unknown as EventListener);
+    document.body.appendChild(el);
+    await flushTicks();
+
+    expect(el.shadowRoot!.textContent).toContain("controlled.txt");
+    await selectFiles(el, [new File(["b"], "next.txt")]);
+    expect((onUpdate.mock.calls.at(-1)![0] as CustomEvent).detail).toHaveLength(2);
+  });
+
+  it("action 使用真实 XHR，并可通过 abort 取消请求", async () => {
+    let request: MockXhr | undefined;
+    class MockXhr extends EventTarget {
+      upload = new EventTarget();
+      status = 0;
+      responseType: XMLHttpRequestResponseType = "";
+      responseText = "";
+      withCredentials = false;
+      open = vi.fn();
+      setRequestHeader = vi.fn();
+      send = vi.fn();
+      constructor() {
+        super();
+        request = this;
+      }
+      getResponseHeader(): string | null {
+        return null;
+      }
+      abort(): void {
+        this.dispatchEvent(new Event("abort"));
+      }
+    }
+    vi.stubGlobal("XMLHttpRequest", MockXhr);
+
+    const el = document.createElement("elf-upload") as UploadEl;
+    el.action = "/api/upload";
+    document.body.appendChild(el);
+    await tick();
+    await selectFiles(el, [new File(["a"], "xhr.txt", { type: "text/plain" })]);
+    await flushTicks();
+
+    expect(request?.open).toHaveBeenCalledWith("POST", "/api/upload", true);
+    expect(request?.send).toHaveBeenCalledWith(expect.any(FormData));
+    el.abort?.();
+    await tick();
+    expect(el.shadowRoot!.querySelector(".file.is-error")).toBeTruthy();
   });
 
   it("directory 会透传目录选择属性", async () => {

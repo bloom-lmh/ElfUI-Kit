@@ -4,7 +4,6 @@ import {
   defineExpose,
   defineProps,
   defineStyle,
-  html,
   useComputed,
   useEventListener,
   useEffect,
@@ -439,7 +438,7 @@ defineExpose({ clear, setValue });
 
 defineStyle(styles);
 
-const Slider = defineHtml(html`
+const Slider = defineHtml(`
   <div
     :class=${[
       "slider",

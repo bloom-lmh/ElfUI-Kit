@@ -2,6 +2,7 @@
 @use "../../../styles/field-surface" as field;
 
 :host {
+  @include field.tokens;
   position: relative;
   display: inline-flex;
   width: min(320px, 100%);
@@ -14,24 +15,57 @@
   width: 100%;
 }
 
+.field {
+  min-height: 112px;
+}
+
+@include field.surface(".field");
+@include field.floating-label(".field");
+@include field.reduced-motion(".field");
+
 textarea {
+  position: relative;
+  z-index: 1;
   display: block;
   box-sizing: border-box;
   width: 100%;
-  min-height: 72px;
-  padding: var(--elf-space-3);
+  min-height: 112px;
+  padding: 18px var(--elf-field-padding-end) 12px var(--elf-field-padding-start);
+  border: 0;
+  outline: 0;
+  background: transparent;
   color: inherit;
   font: inherit;
   resize: vertical;
 }
 
-@include field.surface("textarea");
+:host([data-has-label]) textarea {
+  padding-top: 28px;
+}
+
+:host([variant="underlined"]) textarea {
+  padding-inline: 0;
+}
+
+:host([data-has-label]:not([data-dirty])) .field:not(:focus-within) textarea::placeholder {
+  opacity: 0;
+}
+
+textarea::placeholder {
+  color: var(--elf-text-disabled);
+  transition: opacity var(--elf-field-motion);
+}
+
+:host([disabled]) textarea {
+  color: var(--elf-text-disabled);
+  cursor: not-allowed;
+}
 
 .panel {
   position: absolute;
   z-index: 20;
   right: 0;
-  bottom: calc(100% + 6px);
+  bottom: calc(100% - 1px);
   left: 0;
   overflow: hidden;
   border: 1px solid var(--elf-border);
@@ -43,12 +77,14 @@ textarea {
 
 .placement-top .panel {
   top: auto;
-  bottom: calc(100% + 6px);
+  bottom: calc(100% - 1px);
+  border-radius: var(--elf-radius-md) var(--elf-radius-md) 0 0;
 }
 
 .placement-bottom .panel {
-  top: calc(100% + 6px);
+  top: calc(100% - 1px);
   bottom: auto;
+  border-radius: 0 0 var(--elf-radius-md) var(--elf-radius-md);
 }
 
 .status {

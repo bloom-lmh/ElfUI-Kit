@@ -2,6 +2,7 @@
 @use "../../../styles/field-surface" as field;
 
 :host {
+  @include field.tokens;
   display: block;
   width: 100%;
 }
@@ -26,6 +27,7 @@
 
 @include field.surface(".wrapper");
 @include field.floating-label(".wrapper");
+@include field.reduced-motion(".wrapper");
 
 .decorations {
   display: flex;
@@ -80,6 +82,8 @@
 }
 
 textarea {
+  position: relative;
+  z-index: 1;
   display: block;
   width: 100%;
   border: none;

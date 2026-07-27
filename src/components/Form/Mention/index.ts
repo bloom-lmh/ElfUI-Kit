@@ -3,8 +3,8 @@ import {
   defineHtml,
   defineProps,
   defineStyle,
-  html,
   useHostAttr,
+  useHostCssVar,
   useHostFlag,
   useRef,
   useTemplateRef
@@ -45,7 +45,9 @@ const props = defineProps<MentionProps>({
   prefix: { type: [String, Array], default: "@" },
   prefixes: { type: Array, default: () => [] },
   placeholder: { type: String, default: "" },
-  variant: { type: String, default: "outlined" },
+  label: { type: String, default: "" },
+  variant: { type: String, default: "filled" },
+  backgroundColor: { type: String, default: "" },
   disabled: { type: Boolean, default: false },
   rows: { type: Number, default: 3 },
   split: { type: String, default: " " },
@@ -80,6 +82,8 @@ const textareaRef = useTemplateRef<HTMLTextAreaElement>("textareaEl");
 const open = useRef(false);
 const query = useRef("");
 const activeIndex = useRef(-1);
+const activeDescendant = (): string | null =>
+  activeIndex.value >= 0 ? `${listboxId}-option-${activeIndex.value}` : null;
 const range = useRef<TriggerRange | null>(null);
 const listboxId = `elf-mention-${Math.random().toString(36).slice(2)}`;
 
@@ -210,34 +214,49 @@ const onOptionMouseenter = (event: Event): void => {
   if (Number.isInteger(index) && !options()[index]?.disabled) activeIndex.set(index);
 };
 
+const inputPlaceholder = (): string => {
+  if (props.label && props.placeholder.trim() === props.label.trim()) return "";
+  return props.placeholder;
+};
+
 useHostAttr("variant", () => normalizeFieldVariant(props.variant));
 useHostAttr("data-state", () => fi.state || "");
 useHostFlag("disabled", isDisabled);
+useHostFlag("data-open", () => open.value);
+useHostFlag("data-dirty", () => Boolean(ctl.model.value));
+useHostFlag("data-has-label", () => Boolean(props.label));
+useHostCssVar("--elf-field-custom-bg", () => props.backgroundColor || "");
 
 defineStyle(styles);
 
-const Mention = defineHtml<MentionProps>(html`
+const Mention = defineHtml<MentionProps>(`
   <div class="mention" part="mention" :class=${[`placement-${props.placement}`, { loading: Boolean(props.loading) }]} :data-state=${fi.state || null}>
-    <textarea
-      ref="textareaEl"
-      part="textarea"
-      :id=${props.id || null}
-      :name=${props.name || null}
-      :value.prop=${ctl.model.value}
-      :rows.prop=${props.rows}
-      :placeholder=${props.placeholder}
-      :disabled=${isDisabled()}
-      :aria-label=${props.ariaLabel || null}
-      role="combobox"
-      aria-autocomplete="list"
-      :aria-expanded=${open ? "true" : "false"}
-      :aria-controls=${listboxId}
-      :aria-activedescendant=${activeIndex >= 0 ? `${listboxId}-option-${activeIndex}` : null}
-      @input=${onInput}
-      @keydown=${onKeydown}
-      @focus=${(event: FocusEvent) => ctl.dispatchFocus(event)}
-      @blur=${(event: FocusEvent) => { ctl.dispatchBlur(event); setTimeout(() => open.set(false), 120); }}
-    ></textarea>
+    <div class="field" part="field">
+      <fieldset class="field-outline" aria-hidden="true">
+        <legend><span v-if=${props.label}>${props.label}</span></legend>
+      </fieldset>
+      <span v-if=${props.label} class="field-label" part="label">${props.label}</span>
+      <textarea
+        ref="textareaEl"
+        part="textarea"
+        :id=${props.id || null}
+        :name=${props.name || null}
+        :value.prop=${ctl.model.value}
+        :rows.prop=${props.rows}
+        :placeholder=${inputPlaceholder()}
+        :disabled=${isDisabled()}
+        :aria-label=${props.ariaLabel || props.label || props.placeholder || null}
+        role="combobox"
+        aria-autocomplete="list"
+        :aria-expanded=${open ? "true" : "false"}
+        :aria-controls=${listboxId}
+        :aria-activedescendant=${activeDescendant()}
+        @input=${onInput}
+        @keydown=${onKeydown}
+        @focus=${(event: FocusEvent) => ctl.dispatchFocus(event)}
+        @blur=${(event: FocusEvent) => { ctl.dispatchBlur(event); setTimeout(() => open.set(false), 120); }}
+      ></textarea>
+    </div>
     <div v-if=${open && props.loading} class="panel status" role="status"><slot name="loading">${props.loadingText}</slot></div>
     <div v-else-if=${open && options().length} :id=${listboxId} class="panel" role="listbox">
       <button

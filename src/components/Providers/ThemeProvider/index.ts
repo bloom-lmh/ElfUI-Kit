@@ -1,34 +1,19 @@
 // elf-theme-provider — 通过 CSS variables 为一段子树提供局部主题
 
-import { defineProps, defineStyle, html, provide, useEffect, useHost, defineHtml } from "@elfui/core";
+import { defineProps, defineStyle, provide, useEffect, useHost, defineHtml } from "@elfui/core";
 
-import { THEME_PROVIDER_KEY, type ThemeProviderContext, type ThemeTokens } from "../context";
+import {
+    THEME_PROVIDER_KEY,
+    THEME_TOKEN_VARS,
+    applyThemeTokens,
+    type ThemeProviderContext,
+    type ThemeTokens,
+    useThemeProvider,
+} from "../context";
 import styles from "./style.scss?inline";
+import type { ThemeProviderProps } from "./types";
 
 export type { ThemeProviderProps, ThemeProviderTheme, ThemeTokens } from "./types";
-
-const TOKEN_VARS: Record<keyof ThemeTokens, string> = {
-    primary: "--elf-primary",
-    primaryHover: "--elf-primary-hover",
-    primaryActive: "--elf-primary-active",
-    secondary: "--elf-secondary",
-    success: "--elf-success",
-    warning: "--elf-warning",
-    danger: "--elf-danger",
-    info: "--elf-info",
-    textPrimary: "--elf-text-primary",
-    textSecondary: "--elf-text-secondary",
-    textDisabled: "--elf-text-disabled",
-    textOnPrimary: "--elf-text-on-primary",
-    bgDefault: "--elf-bg-default",
-    bgPaper: "--elf-bg-paper",
-    bgOverlay: "--elf-bg-overlay",
-    fieldBg: "--elf-field-bg",
-    fieldHoverBg: "--elf-field-hover-bg",
-    border: "--elf-border",
-    borderStrong: "--elf-border-strong",
-    divider: "--elf-divider",
-};
 
 const LIGHT_TOKENS: ThemeTokens = {
     primary: "#1976d2",
@@ -76,7 +61,7 @@ const DARK_TOKENS: ThemeTokens = {
     divider: "rgba(255, 255, 255, 0.08)",
 };
 
-const props = defineProps({
+const props = defineProps<ThemeProviderProps>({
     theme: { type: String, default: "light" },
     primary: { type: String, default: "" },
     secondary: { type: String, default: "" },
@@ -88,15 +73,21 @@ const props = defineProps({
     surface: { type: String, default: "" },
     textColor: { type: String, default: "" },
     tokens: { type: Object, default: () => ({}) },
+    inherit: { type: Boolean, default: true },
 });
 
 const host = useHost();
+const parentTheme = useThemeProvider();
 
-const isDark = (): boolean => String(props.theme || "").toLowerCase() === "dark";
+const isDark = (): boolean => {
+    const themeName = String(props.theme || "").toLowerCase();
+    return themeName === "dark" || (themeName === "custom" && Boolean(props.inherit && parentTheme?.isDark));
+};
 
 const readTokens = (): ThemeTokens => {
     const themeName = String(props.theme || "light").toLowerCase();
-    const base = themeName === "dark" ? DARK_TOKENS : themeName === "light" ? LIGHT_TOKENS : {};
+    const inherited = props.inherit && parentTheme ? parentTheme.tokens : {};
+    const base = themeName === "dark" ? DARK_TOKENS : themeName === "light" ? LIGHT_TOKENS : inherited;
     return {
         ...base,
         ...((props.tokens || {}) as ThemeTokens),
@@ -122,24 +113,25 @@ const context: ThemeProviderContext = {
     get tokens() {
         return readTokens();
     },
+    applyTo(target) {
+        applyThemeTokens(target, readTokens());
+        target.setAttribute("data-theme", context.theme);
+    },
 };
 
 provide(THEME_PROVIDER_KEY, context);
 
 useEffect(() => {
     const tokens = readTokens();
-    for (const varName of Object.values(TOKEN_VARS)) {
+    for (const varName of Object.values(THEME_TOKEN_VARS)) {
         host.style.removeProperty(varName);
     }
-    for (const [key, value] of Object.entries(tokens) as Array<[keyof ThemeTokens, string]>) {
-        const varName = TOKEN_VARS[key];
-        if (varName && value) host.style.setProperty(varName, value);
-    }
+    applyThemeTokens(host, tokens);
     host.setAttribute("data-theme", context.theme);
 });
 
 defineStyle(styles);
 
-const ThemeProvider = defineHtml(html`<slot></slot>`);
+const ThemeProvider = defineHtml(`<slot></slot>`);
 
 export { ThemeProvider };

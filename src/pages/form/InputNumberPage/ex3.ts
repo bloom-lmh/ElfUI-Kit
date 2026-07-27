@@ -1,4 +1,4 @@
-import { defineHtml, defineStyle, html } from "@elfui/core";
+import { defineHtml, defineStyle } from "@elfui/core";
 import { createDocsTranslator } from "../../docsLocale";
 
 const t = createDocsTranslator({
@@ -13,7 +13,7 @@ const code = `<elf-input-number disabled label="Disabled" :modelValue.prop=${3} 
 <elf-input-number control-variant="hidden" label="No controls" :modelValue.prop=${8} />`;
 defineStyle(`.state-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:20px; width:min(860px,100%); } @media(max-width:720px){.state-grid{grid-template-columns:1fr;}}`);
 
-const PageInputNumberEx3 = defineHtml(html`
+const PageInputNumberEx3 = defineHtml(`
   <h2>${t("heading")}</h2>
   <elf-playground :title=${t("title")} :code=${code}>
     <div class="state-grid">

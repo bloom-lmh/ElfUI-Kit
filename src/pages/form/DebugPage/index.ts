@@ -1,4 +1,4 @@
-import { defineHtml, html, useReactive } from "@elfui/core";
+import { defineHtml, useReactive } from "@elfui/core";
 
 
 const myId = (() => {
@@ -10,7 +10,7 @@ const myId = (() => {
 
 const data = useReactive({ val1: false, val2: false });
 
-const PageDebug = defineHtml(html`
+const PageDebug = defineHtml(`
     <div style="padding:16px">
         <h1>Debug v9 (page id={{ myId }})</h1>
         <!-- A: v-model 绑定到 val1，但模板不展示 val1 -->

@@ -1,11 +1,11 @@
 import { registerComponents } from "@elfui/core";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
 
-import { LocaleProviderProbe } from "./probe.test-component";
+import { LocaleProviderFormatProbe, LocaleProviderProbe } from "./probe.test-component";
 
 beforeAll(async () => {
   await import("../../index");
-  registerComponents(LocaleProviderProbe);
+  registerComponents(LocaleProviderProbe, LocaleProviderFormatProbe);
 });
 
 afterEach(() => {
@@ -18,6 +18,7 @@ interface LocaleProviderEl extends HTMLElement {
   name?: string;
   rtl?: boolean;
   messages?: Record<string, unknown>;
+  timeZone?: string;
 }
 
 describe("elf-locale-provider", () => {
@@ -92,5 +93,36 @@ describe("elf-locale-provider", () => {
 
     const select = provider.querySelector("elf-select")!;
     expect(select.shadowRoot?.textContent).toContain("Custom choice");
+  });
+
+  it("嵌套 provider 只覆盖自己的子树", async () => {
+    const outer = document.createElement("elf-locale-provider") as LocaleProviderEl;
+    outer.name = "en-US";
+    outer.innerHTML = `
+      <elf-locale-provider-probe id="outer"></elf-locale-provider-probe>
+      <elf-locale-provider id="inner" name="zh-CN">
+        <elf-locale-provider-probe id="inner-probe"></elf-locale-provider-probe>
+      </elf-locale-provider>
+    `;
+    document.body.appendChild(outer);
+    await tick();
+    await tick();
+
+    expect(outer.querySelector("#outer")!.shadowRoot?.textContent).toContain("en-US|ltr|Confirm");
+    expect(outer.querySelector("#inner-probe")!.shadowRoot?.textContent).toContain("zh-CN|ltr|确认");
+  });
+
+  it("格式化数字和日期时使用当前 locale 与时区", async () => {
+    const provider = document.createElement("elf-locale-provider") as LocaleProviderEl;
+    provider.name = "en-US";
+    provider.timeZone = "UTC";
+    provider.innerHTML = `<elf-locale-provider-format-probe></elf-locale-provider-format-probe>`;
+    document.body.appendChild(provider);
+    await tick();
+    await tick();
+
+    const text = provider.querySelector("elf-locale-provider-format-probe")!.shadowRoot?.textContent || "";
+    expect(text).toContain("$1,234.50");
+    expect(text).toContain("Jul 22, 2026");
   });
 });

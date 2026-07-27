@@ -183,6 +183,12 @@
 
 ## 后续待细化
 
+- [x] 2026-07-22 按 Vuetify `VField` 状态模型重写 Input：六种 variant、真实 outlined notch、0.75 浮动标签、150ms Material 缓动、内图标斜向轨迹、三档 density、暗色主题与浏览器截图全部验收；全量 1008 项测试通过。
+
+- [x] 2026-07-22 outlined 浮动标签下移至描边开口的垂直中心，并完成聚焦截图回归。
+
+- [x] 2026-07-21 beta6 视觉回归：去重相同 `label/placeholder`，内前置图标避让静止标签，outlined 聚焦使用 `fieldset/legend` 真实开口；明暗主题截图与 43 项相关测试通过。
+
 - `rows`、`autosize`、`resize`、`textarea/textareaStyle/resizeTextarea` 与现有独立 `Textarea` 组件存在职责重叠，后续需要决定是让 `elf-input type="textarea"` 代理到 Textarea，还是在文档中明确拆分边界。
 - `validate-event` 当前按 setup 初始值接入表单触发开关，后续若需要运行时动态切换需升级 `useFormControl` 触发器读取方式。
 
@@ -211,3 +217,10 @@
   - [x] `showClear`: 一键清除功能，当非禁用且存在字符时显示 `×` 清空键，并触发 `@clear` 事件。
   - [x] `showPassword`: 支持密码模式，通过内置 `pwdVisible` 逻辑实现密文 `👁` 和明文 `🙈` 转换。
 - [x] **2.4 自定义 Part CSS Scoping**: 采用 shadow root `part="wrapper"` 等定义，允许用户在全局或组件外部进行微调样式。
+
+## 2026-07-22 动态插槽回归
+
+- [x] 监听宿主 slot 子节点变化，确保条件渲染的内部前置图标即时显示。
+- [x] 将原生插入光标与内部前置图标的间距增加到 16px，并通过浏览器截图复核。
+- [x] 增加前置图标与输入光标间距，并补充动态插槽单测和真实浏览器截图。
+- [x] 带浮动标签时将内部图标与编辑行统一到同一视觉中心；真实浏览器测得中心误差为 0px，输入文字使用 16px/24px 可读行高。

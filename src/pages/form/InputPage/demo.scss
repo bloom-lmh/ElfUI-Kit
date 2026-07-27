@@ -1,25 +1,32 @@
 .input-lab-preview {
   display: grid;
+  width: min(460px, 100%);
   min-width: 0;
-  width: min(420px, 100%);
   place-items: center;
 }
 
 .input-lab-preview elf-input {
-  width: min(420px, 100%);
+  width: 100%;
 }
 
+.input-variant-grid,
 .input-icon-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 24px;
-  width: min(860px, 100%);
+  gap: 32px 24px;
+  width: min(900px, 100%);
+}
+
+.input-density-stack {
+  display: grid;
+  gap: 20px;
+  width: min(460px, 100%);
 }
 
 .input-lab-preview svg[slot],
 elf-input svg[slot] {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   fill: none;
   stroke: currentColor;
   stroke-width: 1.8;
@@ -30,14 +37,15 @@ elf-input svg[slot] {
 .input-lab-config {
   display: grid;
   align-content: start;
-  gap: 14px;
+  gap: 16px;
+  width: 100%;
   min-width: 0;
   height: 100%;
 }
 
-.input-lab-config > label:not(.input-lab-toggle) {
+.input-lab-config > label {
   display: grid;
-  gap: 6px;
+  gap: 4px;
 }
 
 .input-lab-config label > span {
@@ -45,18 +53,13 @@ elf-input svg[slot] {
   font-size: var(--elf-font-size-xs);
 }
 
-.input-lab-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-}
-
 @media (max-width: 760px) {
-  .input-lab-preview {
+  .input-lab-preview,
+  .input-density-stack {
     width: 100%;
   }
 
+  .input-variant-grid,
   .input-icon-grid {
     grid-template-columns: minmax(0, 1fr);
   }

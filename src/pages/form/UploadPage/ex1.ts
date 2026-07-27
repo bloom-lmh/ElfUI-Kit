@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 
 const basicLog = useRef("等待选择文件");
@@ -26,7 +26,7 @@ const onBasicChange = (event: CustomEvent): void => {
   basicLog.set(files.length ? `已选择 ${files.length} 个文件：${fileNames(files)}` : "列表为空");
 };
 
-const PageUploadEx1 = defineHtml(html`
+const PageUploadEx1 = defineHtml(`
 <elf-playground title="基础上传" :code=${basicCode} :script=${basicScript}>
       <div style="display:grid;gap:12px;width:100%;max-width:720px;margin-inline:auto">
         <elf-upload

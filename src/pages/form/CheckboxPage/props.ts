@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 const mappedState = useRef("disabled");
 
@@ -48,7 +48,7 @@ const onMappedState = (event) => {
   mappedState.set(event.detail);
 };`;
 
-const PageCheckboxProps = defineHtml(html`
+const PageCheckboxProps = defineHtml(`
   <h2>State mappings and accessibility</h2>
   <elf-playground title="Use true-value / false-value for non-boolean state" :code=${stateCode} :script=${stateScript}>
     <span slot="status" class="demo-state">当前值：{{ mappedState }}</span>

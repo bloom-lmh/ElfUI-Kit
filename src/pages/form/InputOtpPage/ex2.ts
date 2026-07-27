@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 const otp = useRef("4821");
 
@@ -22,7 +22,7 @@ const onPayCodeUpdate = (event: CustomEvent): void => {
   payCode.set(String(event.detail || ""));
 };
 
-const PageInputOtpEx2 = defineHtml(html`
+const PageInputOtpEx2 = defineHtml(`
 <elf-playground title="数字模式 / 大尺寸" :code=${code2} :script=${script2}>
       <elf-input-otp
         :modelValue=${payCode}

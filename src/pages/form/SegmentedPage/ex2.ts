@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 const density = useRef("默认");
 
@@ -15,7 +15,7 @@ const densityOptions = ["紧凑", "默认", "宽松"];
 
 const onDensityUpdate = (event: CustomEvent): void => density.set(String(event.detail || ""));
 
-const PageSegmentedEx2 = defineHtml(html`
+const PageSegmentedEx2 = defineHtml(`
 <elf-playground title="small / default / large / block" :code=${code2} :script=${script2}>
             <div style="display:grid;gap:12px;width:min(420px,100%)">
                 <elf-segmented

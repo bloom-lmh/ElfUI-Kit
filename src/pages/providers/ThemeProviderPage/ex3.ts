@@ -1,16 +1,16 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 
 import { APP_SKINS } from "../../../app/skins";
 
-const PageThemeProviderEx3 = defineHtml(html`
+const PageThemeProviderEx3 = defineHtml(`
   <elf-playground title="多套主题皮肤">
     <span slot="status" class="demo-state">同一组件 · 四套 Provider token</span>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;width:100%">
       <elf-theme-provider
         v-for="skin in APP_SKINS"
         :key="skin.id"
-        :theme=${skin.providerTheme}
-        :tokens.prop=${skin.tokens}
+        :theme="skin.providerTheme"
+        :tokens.prop="skin.tokens"
       >
         <section style="display:grid;gap:16px;min-height:210px;padding:20px;border:1px solid var(--elf-border);border-radius:18px;background:var(--elf-bg-paper);color:var(--elf-text-primary);box-shadow:0 12px 28px rgba(0,0,0,.08)">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">

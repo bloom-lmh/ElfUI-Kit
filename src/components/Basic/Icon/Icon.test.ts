@@ -24,6 +24,7 @@ const tick = (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 1
 interface IconEl extends HTMLElement {
     name?: string;
     set?: string;
+    fallback?: string;
     size?: number | string;
     color?: string;
     ariaLabel?: string;
@@ -196,5 +197,48 @@ describe("elf-icon", () => {
 
     it("未知集合安全回退为文本图标", () => {
         expect(resolveIcon("missing:star")).toMatchObject({ kind: "text", content: "star" });
+    });
+
+    it("已知 SVG 集合中的未知名称显示默认回退", async () => {
+        configureIcons({
+            defaultSet: "mdi",
+            sets: { mdi: createSvgIconSet({ account: "known-path" }) },
+        });
+        const el = document.createElement("elf-icon") as IconEl;
+        el.name = "unknown";
+        document.body.appendChild(el);
+        await tick();
+
+        expect(el.shadowRoot!.querySelector("svg")).toBeNull();
+        expect(el.shadowRoot!.querySelector(".fallback-icon")?.textContent).toBe("?");
+    });
+
+    it("fallback 属性可替换未知图标占位内容", async () => {
+        configureIcons({
+            defaultSet: "mdi",
+            sets: { mdi: createSvgIconSet({ account: "known-path" }) },
+        });
+        const el = document.createElement("elf-icon") as IconEl;
+        el.name = "unknown";
+        el.fallback = "×";
+        document.body.appendChild(el);
+        await tick();
+
+        expect(el.shadowRoot!.querySelector(".fallback-icon")?.textContent).toBe("×");
+    });
+
+    it("fallback 插槽可替换未知图标占位", async () => {
+        configureIcons({
+            defaultSet: "mdi",
+            sets: { mdi: createSvgIconSet({ account: "known-path" }) },
+        });
+        const el = document.createElement("elf-icon") as IconEl;
+        el.name = "unknown";
+        el.innerHTML = `<span slot="fallback">custom fallback</span>`;
+        document.body.appendChild(el);
+        await tick();
+
+        const slot = el.shadowRoot!.querySelector<HTMLSlotElement>('slot[name="fallback"]')!;
+        expect(slot.assignedNodes().map((node) => node.textContent).join("")).toContain("custom fallback");
     });
 });

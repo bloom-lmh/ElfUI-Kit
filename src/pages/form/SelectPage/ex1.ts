@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 import { opts } from "./shared";
 
 const single = useRef("");
@@ -32,7 +32,7 @@ const onSingleUpdate = (event: CustomEvent): void => {
   single.set(String(event.detail || ""));
 };
 
-const PageSelectEx1 = defineHtml(html`
+const PageSelectEx1 = defineHtml(`
   <elf-playground title="基础单选" :code=${code1} :script=${script1}>
     <div style="width:240px">
       <elf-select

@@ -99,22 +99,29 @@
 
 ## 差距与任务
 
-- [ ] P2 补齐核心属性差距：`locale`、`size`、`zIndex`、`namespace`、`button`、`link`、`dialog ^`、`message`、`experimental-features`、`empty-values ^`、`value-on-clear ^`、`table ^`
-- [ ] P2 补齐事件差距：当前粗扫未发现明显缺口，进入实现时复核事件 payload 与触发时机。
-- [ ] P1 补齐插槽/暴露方法：当前粗扫未发现明显缺口，进入实现时复核默认插槽、命名插槽和 expose 方法。
-- [ ] P1 对齐交互行为、键盘访问、禁用态、清空态、受控/非受控同步、表单联动和无障碍属性。
-- [ ] P2 更新页面示例：Template / Script 双视图、所有动态绑定使用 `${...}`，补齐 Element Plus 关键场景示例。
-- [ ] P2 补齐组件单测、页面冒烟和类型导出；必要时补视觉回归截图。
+- [x] P2 核心属性复核：ThemeProvider 聚焦 theme/dark/inherit/tokens 与语义色；语言归 LocaleProvider，组件缺省值归 DefaultsProvider，服务层通过 `applyTo()` 继承主题而非复制组件专有配置。
+- [x] P2 事件复核：纯上下文 Provider 不产生交互事件，主题和 token 更新直接响应式传播。
+- [x] P1 插槽/暴露方法复核：Provider 只承载默认插槽；`theme`、`tokens`、`isDark` 与 `applyTo()` 由注入上下文提供给组件及服务浮层。
+- [x] P1 行为复核：覆盖嵌套继承、`inherit=false` 隔离、动态 token、暗色语义和文档层服务浮层；Provider 本身不建立焦点或表单值状态。
+- [x] P2 更新页面示例：覆盖皮肤切换、局部暗色、嵌套继承/隔离、自定义 token 与服务浮层。
+- [x] P2 补齐组件单测、页面冒烟、公开类型和真实浏览器视觉回归截图。
 
 ## 验收清单
 
-- [ ] API props/types 与页面 PropsTable 同步。
-- [ ] 关键交互和边界状态有单测覆盖。
-- [ ] 文档示例能在 Playground 中显示 Template / Script，且复制内容正确。
-- [ ] `npm --prefix ui-kit run build` 通过；涉及运行时能力时补跑目标测试。
+- [x] API props/types 与页面 PropsTable 同步。
+- [x] 关键交互和边界状态有单测覆盖。
+- [x] 文档示例能在 Playground 中显示 Template / Script，且复制内容正确。
+- [x] `pnpm build`、Providers 分类测试与宏类型检查通过。
 
 ## 2026-07-17 Provider 皮肤增强
 
 - [x] 补齐输入表面 `fieldBg`、`fieldHoverBg` 语义 token。
 - [x] 提供 Material、Midnight、Forest、Sunset 四套皮肤案例。
 - [x] 文档应用 Header 使用 ThemeProvider 动态切换皮肤。
+
+## 2026-07-22 P0 组合能力验收
+
+- [x] 支持嵌套主题继承与局部 token 覆盖，`inherit=false` 可隔离父级 token。
+- [x] 上下文提供 `applyTo(target)`，供 Message 等挂载到文档层的服务浮层继承主题。
+- [x] 补齐嵌套暗色、服务浮层与自定义 token 案例，并完成组件、Message 和页面回归。
+- [x] 真实浏览器截图为 `theme-provider-nested-overlay.png`；主题持久化明确由应用层负责。

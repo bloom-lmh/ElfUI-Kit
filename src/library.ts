@@ -3,7 +3,26 @@ import type {} from "./elements.generated";
 import "./components";
 import "./styles/utilities.scss";
 
-export { configureIcons, createClassIconSet, createSvgIconSet, resetIcons, resolveIcon } from "./components/Basic/Icon";
+export {
+  configureIcons,
+  createClassIconSet,
+  createSvgIconSet,
+  getIconOptions,
+  ICON_PROVIDER_KEY,
+  mergeIconOptions,
+  resetIcons,
+  resolveIcon
+} from "./components/Basic/Icon";
+export type {
+  ClassIconValue,
+  IconOptions,
+  IconProviderContext,
+  IconSet,
+  IconSetKind,
+  IconValue,
+  ResolvedIcon,
+  SvgIconValue
+} from "./components/Basic/Icon";
 export * from "./components/Data";
 export * from "./components/Feedback";
 export * from "./components/Form";

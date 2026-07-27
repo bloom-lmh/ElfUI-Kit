@@ -172,16 +172,16 @@
 
 ## 差距与任务
 
-- [ ] P0 补齐核心属性差距：`file-list / v-model:file-list` 命名别名、真实 XHR 默认请求、directory 浏览器兼容提示和更完整的图片缩略图。
-- [ ] P0 补齐事件差距：当前粗扫未发现明显缺口，进入实现时复核事件 payload 与触发时机。
-- [ ] P1 补齐插槽/暴露方法：`trigger`、`tip`、`file` 的 scoped slot 数据结构，继续核对 `abort` 对真实请求的取消能力。
-- [ ] P1 对齐交互行为、键盘访问、禁用态、清空态、受控/非受控同步、表单联动和无障碍属性。
-- [ ] P2 更新页面示例：Template / Script 双视图、所有动态绑定使用 `${...}`，补齐 Element Plus 关键场景示例。
-- [ ] P2 补齐组件单测、页面冒烟和类型导出；必要时补视觉回归截图。
+- [x] P0 核心属性：补齐 `file-list / v-model:file-list` 别名、带 action 的真实 XHR 默认请求、目录兼容提示、图片对象 URL 缩略图及资源回收。
+- [x] P0 事件：统一 modelValue/fileList、change、invalid、exceed、progress、success、error、remove、preview 的 payload 和触发时机。
+- [x] P1 插槽/暴露方法：trigger 提供 select/disabled，file 提供 file/remove/preview，tip 支持纯插槽；abort 可取消定时器、XHR 和返回 abort handle 的自定义请求。
+- [x] P1 行为：完成拖拽区键盘语义、父 Form 禁用与校验联动、受控列表同步、清空/移除请求取消以及卸载资源清理。
+- [x] P2 更新页面示例：Template / Script 双视图、所有动态绑定使用 `${...}`，覆盖文件列表、拖拽、手动提交、校验和目录上传。
+- [x] P2 补齐组件单测、页面冒烟和类型导出，并完成真实浏览器视觉回归截图。
 
 ## 验收清单
 
-- [ ] API props/types 与页面 PropsTable 同步。
-- [ ] 关键交互和边界状态有单测覆盖。
-- [ ] 文档示例能在 Playground 中显示 Template / Script，且复制内容正确。
-- [ ] `npm --prefix ui-kit run build` 通过；涉及运行时能力时补跑目标测试。
+- [x] API props/types 与页面 PropsTable 同步。
+- [x] 关键交互和边界状态有单测覆盖。
+- [x] 文档示例能在 Playground 中显示 Template / Script，且复制内容正确。
+- [x] `pnpm build`、Form/Providers 分类测试与宏类型检查通过。

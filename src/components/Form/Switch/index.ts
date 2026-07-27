@@ -2,9 +2,8 @@ import {
   defineEmits,
   defineProps,
   defineStyle,
-  html,
-  onMount,
-  onUnmount,
+  onMounted,
+  onUnmounted,
   useHost,
   useHostAttr,
   useHostCssVar,
@@ -142,17 +141,17 @@ const focus = (): void =>
   (trackRef.value ?? host.shadowRoot?.querySelector<HTMLElement>(".track"))?.focus();
 const ariaLabel = (): string => String(props.ariaLabel || props.label || props.activeText || "Switch");
 
-onMount(() => {
+onMounted(() => {
   Object.defineProperty(host, "focus", { configurable: true, value: focus });
 });
 
-onUnmount(() => {
+onUnmounted(() => {
   delete (host as Partial<HTMLElement>).focus;
 });
 
 defineStyle(styles);
 
-const Switch = defineHtml<SwitchProps>(html`
+const Switch = defineHtml<SwitchProps>(`
   <span v-if=${props.inactiveText && !props.inlinePrompt} class="state-label" :class=${{ active: !checked() }} @click=${onClick}>${props.inactiveText}</span>
   <span class="body">
     <span

@@ -1,14 +1,24 @@
-import { defineHtml, defineProps, defineStyle, html, useHostCssVar } from "@elfui/core";
+import { defineHtml, defineProps, defineStyle, inject, useHostCssVar } from "@elfui/core";
 
 import styles from "./style.scss?inline";
 import type { IconProps, IconSlots } from "./types";
 
-import { resolveIcon } from "./registry";
+import { ICON_PROVIDER_KEY, resolveIcon } from "./registry";
 
-export { configureIcons, createClassIconSet, createSvgIconSet, resetIcons, resolveIcon } from "./registry";
+export {
+  configureIcons,
+  createClassIconSet,
+  createSvgIconSet,
+  getIconOptions,
+  ICON_PROVIDER_KEY,
+  mergeIconOptions,
+  resetIcons,
+  resolveIcon
+} from "./registry";
 export type {
   ClassIconValue,
   IconOptions,
+  IconProviderContext,
   IconProps,
   IconSet,
   IconSetKind,
@@ -21,11 +31,14 @@ export type {
 const props = defineProps<IconProps>({
   name: { type: String, default: "" },
   set: { type: String, default: "" },
+  fallback: { type: String, default: "?" },
   size: { type: [Number, String], default: "1em" },
   color: { type: String, default: "" },
   ariaLabel: { type: String, default: "" },
   loading: { type: Boolean, default: false },
 });
+
+const iconProvider = inject(ICON_PROVIDER_KEY);
 
 const size = (): string => {
   const value = props.size;
@@ -36,11 +49,13 @@ const size = (): string => {
   return s || "1em";
 };
 
-const resolved = () => resolveIcon(props.name, props.set);
+const resolved = () => resolveIcon(props.name, props.set, iconProvider?.options);
 
 const isSvg = (): boolean => resolved().kind === "svg" && resolved().paths.length > 0;
 
 const isClass = (): boolean => resolved().kind === "class" && resolved().classes.length > 0;
+
+const isText = (): boolean => resolved().kind === "text" && Boolean(resolved().content);
 
 const pathEntries = (): Array<{ path: string; key: string }> =>
   resolved().paths.map((path, index) => ({ path, key: `${index}-${path}` }));
@@ -50,7 +65,7 @@ useHostCssVar("--_icon-color", () => props.color || "currentColor");
 
 defineStyle(styles);
 
-const Icon = defineHtml<IconProps, Record<string, never>, IconSlots>(html`
+const Icon = defineHtml<IconProps, Record<string, never>, IconSlots>(`
   <span
     :class=${{ icon: true, "is-loading": props.loading }}
     part="icon"
@@ -63,7 +78,10 @@ const Icon = defineHtml<IconProps, Record<string, never>, IconSlots>(html`
         <path v-for="entry in pathEntries()" :key="entry.key" :d="entry.path"></path>
       </svg>
       <i v-else-if=${isClass()} :class=${["class-icon", ...resolved().classes]} aria-hidden="true"></i>
-      <span v-else class="text-icon">${resolved().content}</span>
+      <span v-else-if=${isText()} class="text-icon">${resolved().content}</span>
+      <slot v-else name="fallback">
+        <span class="fallback-icon" aria-hidden="true">${props.fallback}</span>
+      </slot>
     </slot>
   </span>
 `);

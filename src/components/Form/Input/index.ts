@@ -6,9 +6,8 @@ import {
   defineHtml,
   defineProps,
   defineStyle,
-  html,
-  onMount,
-  onUnmount,
+  onMounted,
+  onUnmounted,
   useHost,
   useHostAttr,
   useHostCssVar,
@@ -21,11 +20,12 @@ import { useDisabled, useFormControl, useFormItem } from "../../../composables";
 import { normalizeFieldVariant } from "../../../types/field";
 import styles from "./style.scss?inline";
 
-import type { InputNativeValue, InputProps, InputSize } from "./types";
+import type { InputDensity, InputNativeValue, InputProps, InputSize } from "./types";
 
 export type {
   InputFormatter,
   InputGraphemeCounter,
+  InputDensity,
   InputModelModifiers,
   InputNativeValue,
   InputParser,
@@ -44,11 +44,17 @@ const normalizeSize = (size: string | undefined): "" | "sm" | "md" | "lg" => {
   return size === "sm" || size === "md" || size === "lg" ? size : "";
 };
 
+const normalizeDensity = (density: string | undefined): InputDensity => {
+  if (density === "comfortable" || density === "compact") return density;
+  return "default";
+};
+
 const props = defineProps<InputProps>({
   modelValue: { type: null, default: "" },
   modelModifiers: { type: Object, default: () => ({}) },
   type: { type: String, default: "text" },
   size: { type: String, default: "" },
+  density: { type: String, default: "default" },
   variant: { type: String, default: "filled" },
   placeholder: { type: String, default: "" },
   disabled: { type: Boolean, default: false },
@@ -112,9 +118,11 @@ const host = useHost();
 const pwdVisible = useRef(false);
 const isComposing = useRef(false);
 const slotVersion = useRef(0);
+let slotObserver: MutationObserver | undefined;
 
 useHostAttr("data-state", () => fi.state);
 useHostAttr("size", () => fi.formSize);
+useHostAttr("density", () => normalizeDensity(props.density));
 useHostAttr("variant", () => normalizeFieldVariant(props.variant));
 useHostFlag("disabled", isDisabled);
 useHostFlag("data-dirty", () => {
@@ -122,8 +130,9 @@ useHostFlag("data-dirty", () => {
   return value !== undefined && value !== null && String(value).length > 0;
 });
 useHostFlag("data-has-label", () => Boolean(props.label));
-useHostCssVar("--elf-field-bg", () => props.backgroundColor || "");
-useHostCssVar("--elf-field-hover-bg", () => props.backgroundColor || "");
+// Keep the Input override isolated from the shared field defaults. Solo
+// variants must remain paper surfaces even when a theme defines --elf-field-bg.
+useHostCssVar("--elf-input-custom-bg", () => props.backgroundColor || "");
 
 const touchSlots = (): void => {
   slotVersion.set(slotVersion.value + 1);
@@ -252,14 +261,23 @@ const textarea = (): null => null;
 
 const textareaStyle = (): Record<string, never> => ({});
 
-onMount(() => {
+onMounted(() => {
+  slotObserver = new MutationObserver(touchSlots);
+  slotObserver.observe(host, {
+    childList: true,
+    attributes: true,
+    attributeFilter: ["slot"]
+  });
+  touchSlots();
   Object.defineProperties(host, {
     focus: { configurable: true, value: focus },
     blur: { configurable: true, value: blur }
   });
 });
 
-onUnmount(() => {
+onUnmounted(() => {
+  slotObserver?.disconnect();
+  slotObserver = undefined;
   delete (host as Partial<HTMLElement>).focus;
   delete (host as Partial<HTMLElement>).blur;
 });
@@ -311,6 +329,8 @@ const showOutsideWordLimit = (): boolean =>
 const wordLimitText = (): string => `${countValue()} / ${Number(props.maxlength) || 0}`;
 
 const ariaText = (): string | null => props.ariaLabel || props.label || props.placeholder || null;
+const inputPlaceholder = (): string =>
+  props.label.trim() && props.label.trim() === props.placeholder.trim() ? "" : props.placeholder;
 
 const passwordToggleText = (): string => (pwdVisible.value ? "Hide" : "Show");
 
@@ -328,13 +348,15 @@ defineExpose({
 
 defineStyle(styles);
 
-const Input = defineHtml(html`
+const Input = defineHtml(`
   <div
     :class=${[
       "group",
       {
         "has-prepend": hasPrepend(),
         "has-append": hasAppend(),
+        "has-prefix": hasPrefix(),
+        "has-suffix": hasSuffix(),
         "has-outside-count": showOutsideWordLimit()
       }
     ]}
@@ -361,7 +383,7 @@ const Input = defineHtml(html`
         :id=${nullable(props.id)}
         :name=${nullable(props.name)}
         :type=${inputType()}
-        :placeholder=${props.placeholder}
+        :placeholder=${inputPlaceholder()}
         :disabled=${isDisabled()}
         :readonly=${props.readonly}
         :maxlength=${nullable(props.maxlength)}

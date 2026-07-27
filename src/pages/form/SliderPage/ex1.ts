@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 
 const value = useRef(36);
@@ -18,7 +18,7 @@ const onChange = (event: CustomEvent<number>): void => {
   value.set(Number(event.detail));
 };`;
 
-const PageSliderEx1 = defineHtml(html`
+const PageSliderEx1 = defineHtml(`
   <h2>基础滑块</h2>
   <elf-playground title="单值、提示与受控值" :code=${code} :script=${script}>
     <div style="display:grid;gap:14px;width:100%;max-width:680px">

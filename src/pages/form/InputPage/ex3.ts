@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef, useTemplateRef } from "@elfui/core";
+import { defineHtml, useRef, useTemplateRef } from "@elfui/core";
 
 const amount = useRef("1200");
 const nickname = useRef("ElfUI");
@@ -110,7 +110,7 @@ const focusInput = (): void => commandInput.value?.focus();
 
 const blurInput = (): void => commandInput.value?.blur();
 
-const PageInputEx3 = defineHtml(html`
+const PageInputEx3 = defineHtml(`
   <h2>格式化与插槽</h2>
   <elf-playground title="formatter / parser / prepend / append" :code=${code1} :script=${script1}>
     <div style="width:320px;margin-bottom:8px">

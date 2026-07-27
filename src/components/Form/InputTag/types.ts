@@ -15,6 +15,8 @@ export interface InputTagProps {
   maxCollapseTags: number;
   size: InputTagSize;
   variant: FieldVariant;
+  label: string;
+  backgroundColor: string;
   trigger: "enter" | "blur";
   tagType: string;
   tagEffect: string;

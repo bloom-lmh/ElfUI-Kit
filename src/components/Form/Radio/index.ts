@@ -4,7 +4,6 @@ import {
   defineEmits,
   defineProps,
   defineStyle,
-  html,
   inject,
   useHost,
   useHostAttr,
@@ -102,7 +101,7 @@ const onKeyDown = (e: KeyboardEvent): void => {
 
 defineStyle(styles);
 
-const Radio = defineHtml(html`
+const Radio = defineHtml(`
   <button
     class="control"
     part="control"

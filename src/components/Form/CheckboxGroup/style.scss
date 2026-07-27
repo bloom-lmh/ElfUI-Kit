@@ -11,6 +11,23 @@
   align-items: center;
 }
 
+:host([data-playground-control]) {
+  max-width: 100%;
+}
+
+:host([data-playground-control]) .group {
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  overflow: visible;
+}
+
+:host([data-playground-control]) .group > elf-checkbox,
+:host([data-playground-control]) ::slotted(elf-checkbox) {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
 .variant-button {
   gap: 0;
 

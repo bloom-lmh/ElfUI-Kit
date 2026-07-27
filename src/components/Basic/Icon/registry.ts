@@ -1,6 +1,9 @@
+import { createInjectionKey } from "@elfui/core";
+
 import type {
   ClassIconValue,
   IconOptions,
+  IconProviderContext,
   IconSet,
   IconValue,
   ResolvedIcon,
@@ -20,18 +23,25 @@ const defaultOptions = (): Required<IconOptions> => ({
 
 let options = defaultOptions();
 
+export const ICON_PROVIDER_KEY =
+  createInjectionKey<IconProviderContext>("elfui.icon-provider");
+
 const words = (value: string | string[] | undefined): string[] => {
   const list = Array.isArray(value) ? value : String(value || "").split(/\s+/);
   return list.map((item) => item.trim()).filter(Boolean);
 };
 
-const parseReference = (reference: string, requestedSet = ""): [string, string] => {
+const parseReference = (
+  reference: string,
+  requestedSet: string,
+  source: Required<IconOptions>
+): [string, string] => {
   const aliased = reference.startsWith("$")
-    ? options.aliases[reference.slice(1)] || reference.slice(1)
+    ? source.aliases[reference.slice(1)] || reference.slice(1)
     : reference;
   const separator = aliased.indexOf(":");
   if (separator > 0) return [aliased.slice(0, separator), aliased.slice(separator + 1)];
-  return [requestedSet || options.defaultSet, aliased];
+  return [requestedSet || source.defaultSet, aliased];
 };
 
 const readValue = (set: IconSet, name: string): IconValue | undefined =>
@@ -75,12 +85,19 @@ export const createClassIconSet = (
   })
 });
 
+export const mergeIconOptions = (
+  base: IconOptions = defaultOptions(),
+  next: IconOptions = {}
+): Required<IconOptions> => ({
+  defaultSet: next.defaultSet || base.defaultSet || "elf",
+  aliases: { ...(base.aliases || {}), ...(next.aliases || {}) },
+  sets: { elf: textSet, ...(base.sets || {}), ...(next.sets || {}) }
+});
+
+export const getIconOptions = (): Required<IconOptions> => options;
+
 export const configureIcons = (next: IconOptions = {}): Required<IconOptions> => {
-  options = {
-    defaultSet: next.defaultSet || "elf",
-    aliases: { ...(next.aliases || {}) },
-    sets: { elf: textSet, ...(next.sets || {}) }
-  };
+  options = mergeIconOptions(defaultOptions(), next);
   return options;
 };
 
@@ -88,8 +105,12 @@ export const resetIcons = (): void => {
   options = defaultOptions();
 };
 
-export const resolveIcon = (reference: string, requestedSet = ""): ResolvedIcon => {
-  const [setName, iconName] = parseReference(String(reference || ""), requestedSet);
-  const set = options.sets[setName] || options.sets.elf || textSet;
+export const resolveIcon = (
+  reference: string,
+  requestedSet = "",
+  source: Required<IconOptions> = options
+): ResolvedIcon => {
+  const [setName, iconName] = parseReference(String(reference || ""), requestedSet, source);
+  const set = source.sets[setName] || source.sets.elf || textSet;
   return normalize(set, readValue(set, iconName), iconName);
 };

@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 const otp = useRef("4821");
 
@@ -21,7 +21,7 @@ const onOtpUpdate = (event: CustomEvent): void => {
   otp.set(String(event.detail || ""));
 };
 
-const PageInputOtpEx1 = defineHtml(html`
+const PageInputOtpEx1 = defineHtml(`
 <elf-playground title="受控值 / 分隔符" :code=${code1} :script=${script1}>
       <elf-input-otp
         :modelValue=${otp}

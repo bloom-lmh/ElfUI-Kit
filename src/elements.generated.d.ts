@@ -319,6 +319,22 @@ declare global {
     "elf-header": HTMLElement & {
       height: string;
     };
+    "elf-icon": HTMLElement & {
+      name: string;
+      set: string;
+      fallback: string;
+      size: number | string;
+      color: string;
+      ariaLabel: string;
+      loading: boolean;
+    };
+    "elf-icon-provider": HTMLElement & {
+      options: Record<string, unknown>;
+      defaultSet: string;
+      aliases: Record<string, string>;
+      sets: Record<string, unknown>;
+      inherit: boolean;
+    };
     "elf-image": HTMLElement & {
       src: string;
       alt: string;

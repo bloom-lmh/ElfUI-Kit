@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 const fruits = useRef<string[]>(["apple"]);
 
@@ -18,7 +18,7 @@ const code = `<elf-checkbox-group
 const script = `const fruits = useRef(["apple"]);
 const onUpdate = (event) => fruits.set([...event.detail]);`;
 
-const PageCheckboxEx3 = defineHtml(html`
+const PageCheckboxEx3 = defineHtml(`
   <elf-playground title="min=1 max=2" :code=${code} :script=${script}>
     <elf-checkbox-group
       :modelValue.prop=${fruits.value}

@@ -1,8 +1,8 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 
 const dragCode = `<elf-upload drag accept="image/*" list-type="picture-card" />`;
 
-const PageUploadEx2 = defineHtml(html`
+const PageUploadEx2 = defineHtml(`
 <elf-playground title="拖拽与图片卡片" :code=${dragCode}>
       <div style="width:100%;max-width:720px;margin-inline:auto">
         <elf-upload

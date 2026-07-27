@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 const value = useRef<string[]>(["zhejiang", "hangzhou"]);
 
@@ -48,9 +48,36 @@ const script6 = `const searchValue = useRef([]);
 
 const onSearchUpdate = (event) => {
   searchValue.set(event.detail);
-};`;
+};
 
-const PageCascaderEx6 = defineHtml(html`
+const options = [
+    {
+        label: "浙江",
+        value: "zhejiang",
+        children: [
+            { label: "杭州", value: "hangzhou" },
+            { label: "宁波", value: "ningbo" }
+        ]
+    },
+    {
+        label: "江苏",
+        value: "jiangsu",
+        children: [
+            { label: "南京", value: "nanjing" },
+            { label: "苏州", value: "suzhou" }
+        ]
+    },
+    {
+        label: "广东",
+        value: "guangdong",
+        children: [
+            { label: "广州", value: "guangzhou" },
+            { label: "深圳", value: "shenzhen", disabled: true }
+        ]
+    }
+];`;
+
+const PageCascaderEx6 = defineHtml(`
 <elf-playground title="搜索级联路径" :code=${code6} :script=${script6}>
       <div style="display:grid;gap:12px;width:320px">
         <elf-cascader

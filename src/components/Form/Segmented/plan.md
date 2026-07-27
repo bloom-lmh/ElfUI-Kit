@@ -12,7 +12,8 @@
 
 ## 后续项
 
-- [ ] P2 作用域 `option` slot：需要先在宏模板中定义并验证跨重复项的 slot scope 约定后提供。
+- [ ] P2 作用域 `option` slot：等待宏编译器完整支持 scoped slot 局部变量后再公开，避免交付不可用 API。
+  - 2026-07-27 复核：`@elfui/compiler 0.1.0-beta.11` 已生成 `setScopedSlot`，但插槽体内动态属性与文本绑定仍从组件 state 求值，实际抛出 `option/index/active/disabled is not defined`，重复项首项渲染为空。
   - 2026-07-15 验证：`@elfui/compiler 0.1.0-beta.1` 会将宏组件中的
     `<template #option="{ option, index }">` 编译成普通原生 slot；生成代码未调用
     `setScopedSlot`，且 `option/index` 无作用域绑定。组件层无法可靠补齐，需先升级宏编译器。

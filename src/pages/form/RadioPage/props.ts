@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 
 const radioRows = [
   { name: "model-value / value", type: "string | number | boolean", default: "'' / ''" },
@@ -16,7 +16,7 @@ const groupRows = [
   { name: "props", type: "{ label?, value?, disabled? }", default: "{}" }
 ];
 
-const PageRadioProps = defineHtml(html`
+const PageRadioProps = defineHtml(`
   <h2>API</h2>
   <elf-props-table title="elf-radio Props" :rows=${radioRows} />
   <elf-props-table title="elf-radio-group Props" :rows=${groupRows} />

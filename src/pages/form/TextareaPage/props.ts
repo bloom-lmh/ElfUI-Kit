@@ -1,6 +1,7 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 
 const propsRows = [
+  { name: "background-color", type: "string", default: "''", desc: "自定义字段表面背景" },
   { name: "variant", type: "default | filled | outlined | underlined | solo | solo-filled | solo-inverted", default: "filled", desc: "统一字段表面样式" },
   { name: "modelValue", type: "string" },
   { name: "model-modifiers", type: "{ trim?: boolean; lazy?: boolean }" },
@@ -55,7 +56,7 @@ const exposesRows = [
   { name: "isComposing", type: "Ref<boolean>" }
 ];
 
-const PageTextareaProps = defineHtml(html`
+const PageTextareaProps = defineHtml(`
   <h2>API</h2>
   <elf-props-table title="属性" :rows=${propsRows} />
   <elf-props-table title="事件" :rows=${eventsRows} />

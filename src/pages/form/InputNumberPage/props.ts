@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 
 const propsRows = [
   { name: "model-value", type: "number | null", default: "undefined" },
@@ -9,6 +9,7 @@ const propsRows = [
   { name: "control-variant", type: "default | stacked | split | hidden", default: "default" },
   { name: "reverse / inset / hide-input", type: "boolean", default: "false" },
   { name: "variant", type: "FieldVariant", default: "filled" },
+  { name: "density", type: "default | comfortable | compact", default: "default" },
   { name: "label / background-color", type: "string", default: "''" },
   { name: "disabled / readonly", type: "boolean", default: "false" },
   { name: "validate-event", type: "boolean", default: "true" }
@@ -20,7 +21,7 @@ const eventsRows = [
   { name: "focus / blur", type: "(event: FocusEvent) => void" }
 ];
 
-const PageInputNumberProps = defineHtml(html`
+const PageInputNumberProps = defineHtml(`
   <h2>API</h2>
   <elf-props-table title="属性" :rows=${propsRows} />
   <elf-props-table title="事件" :rows=${eventsRows} />
