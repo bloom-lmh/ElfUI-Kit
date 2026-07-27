@@ -309,62 +309,49 @@
 
 ### Props
 
-- `accordion`
-- `checkOnClickNode`
-- `checkStrictly`
-- `checkedKeys`
-- `currentNodeKey`
-- `data`
-- `defaultCheckedKeys`
-- `defaultExpandAll`
-- `defaultExpandedKeys`
-- `defaultSelectedKey`
-- `emptyText`
-- `expandOnClickNode`
-- `expandedKeys`
-- `filterPlaceholder`
-- `filterable`
-- `highlightCurrent`
-- `indent`
-- `modelValue`
-- `nodeKey`
-- `props`
-- `showCheckbox`
+- 数据与字段：`data`、`node-key`、`props`（含 `class` / `icon` / `isLeaf`）。
+- 受控状态：`model-value`、`current-node-key`、`expanded-keys`、`checked-keys`。
+- 展开与勾选：`default-expand-all`、`auto-expand-parent`、`accordion`、`check-strictly`、`check-on-click-node`、`check-on-click-leaf`。
+- 数据能力：`lazy` / `load`、`filter-node-method` / `filter-method`、`render-content`。
+- 大数据与拖拽：`virtual`、`height`、`item-size`、`overscan`、`draggable`、`allow-drag`、`allow-drop`。
+- 外观与无障碍：`bordered`、`icon`、`scrollbar-always-on`、`aria-label`。
 
 ### Events
 
-- `check`
-- `check-change`
-- `node-click`
-- `node-collapse`
-- `node-expand`
-- `update:checkedKeys`
-- `update:expandedKeys`
-- `update:modelValue`
+- 状态事件：`update:modelValue`、`update:expandedKeys`、`update:checkedKeys`、`current-change`、`check`、`check-change`。
+- 节点事件：`node-click`、`node-contextmenu`、`node-expand`、`node-collapse`、`node-load`。
+- 拖拽事件：`node-drag-start`、`node-drag-enter`、`node-drag-over`、`node-drag-leave`、`node-drag-end`、`node-drop`。
 
 ### Slots
 
-- 暂无记录
+- `empty`。
+- 节点定制通过可类型化的 `render-content(node, context)` 完成，避免宏模板重复节点中的 scoped-slot 不确定性。
 
 ### Exposes
 
-- 暂无记录
+- 勾选、展开、当前节点、过滤、数据替换、节点增删插入和滚动方法均已公开。
+- 节点维护使用 `appendNode/removeNode/insertBeforeNode/insertAfterNode`，避免覆盖 HTMLElement 的同名原生方法。
 
 ## 差距与任务
 
-- [ ] P1 补齐核心属性差距：`render-after-expand`、`load`、`render-content`、`check-on-click-leaf ^`、`auto-expand-parent`、`filter-node-method`、`icon`、`lazy`、`draggable`、`allow-drag`、`allow-drop`、`label`、`children`、`disabled`、`isLeaf`、`class`、`filter-method`、`item-size ^`、`scrollbar-always-on ^`、`height`、`value`、`class ^`、`Attributes`、`tree`、`select`、`cache-data ^`
-- [ ] P1 补齐事件差距：`node-contextmenu`、`current-change`、`node-drag-start`、`node-drag-enter`、`node-drag-leave`、`node-drag-over`、`node-drag-end`、`node-drop`、`node-drop ^`
-- [ ] P1 补齐插槽/暴露方法：`empty ^`、`filter`、`updateKeyChildren`、`getCheckedNodes`、`setCheckedNodes`、`getCheckedKeys`、`setCheckedKeys`、`setChecked`、`getHalfCheckedNodes`、`getHalfCheckedKeys`、`getCurrentKey`、`getCurrentNode`、`setCurrentKey`、`setCurrentNode`、`getNode`、`remove`、`append`、`insertBefore`、`insertAfter`、`setExpandedKeys`、`expandNode`、`collapseNode`、`setData`、`scrollTo ^` 等 48 项
-- [ ] P1 对齐交互行为、键盘访问、禁用态、清空态、受控/非受控同步、表单联动和无障碍属性。
-- [ ] P2 更新页面示例：Template / Script 双视图、所有动态绑定使用 `${...}`，补齐 Element Plus 关键场景示例。
-- [ ] P2 补齐组件单测、页面冒烟和类型导出；必要时补视觉回归截图。
+- [x] P1 补齐懒加载、过滤别名、自动展开父级、叶子点击勾选、节点类名/图标、渲染函数、虚拟窗口与常驻滚动条。
+- [x] P1 补齐上下文菜单、当前节点与完整拖拽生命周期事件。
+- [x] P1 补齐空状态插槽，以及勾选、展开、过滤、节点维护、数据替换和滚动公开方法。
+- [x] P1 对齐键盘树导航、禁用态、空状态、受控/非受控同步、ARIA tree/treeitem 状态和 roving tabindex。
+- [x] P2 将“大数据虚拟树”和“小型目录拖拽”拆成独立案例，补齐 Template / Script 和类型导出。
+- [x] P2 补齐组件单测、页面冒烟与视觉验证。
+- [ ] P1 拖拽目前采用稳定的 `inner` 投放；若产品需要同级排序，再扩展 `before/after` 命中区域与键盘拖拽。
+- [ ] P2 `render-after-expand=false` 与 scoped default slot 依赖重复宏模板的稳定作用域插槽能力，当前以 `render-content` 覆盖主要定制场景。
+- [ ] P2 TreeSelect 保持独立组合组件规划，不把 Select 的弹层、搜索和表单职责塞进 Tree。
+
+> Web Components 约束：不暴露 `append/remove/insertBefore/scrollTo` 同名方法，因为它们会覆盖 HTMLElement 原生 API。对应能力使用带语义前缀的方法提供。
 
 ## 验收清单
 
-- [ ] API props/types 与页面 PropsTable 同步。
-- [ ] 关键交互和边界状态有单测覆盖。
-- [ ] 文档示例能在 Playground 中显示 Template / Script，且复制内容正确。
-- [ ] `npm --prefix ui-kit run build` 通过；涉及运行时能力时补跑目标测试。
+- [x] API props/types 与页面 PropsTable 同步。
+- [x] 关键交互和边界状态有单测覆盖。
+- [x] 文档示例能在 Playground 中显示 Template / Script，且复制内容正确。
+- [x] `pnpm typecheck`、目标测试、全量测试与生产构建通过。
 
 ## 2026-07-14 体验修复
 

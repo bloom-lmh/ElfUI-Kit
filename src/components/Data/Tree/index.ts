@@ -25,7 +25,14 @@ import {
   type DraggableOptions
 } from "../../../directives/draggable";
 import { computeVirtualWindow } from "../virtual-window";
-import type { TreeNode, TreeProps } from "./types";
+import { listContentDirective } from "../list-content";
+import type {
+  TreeKey,
+  TreeNode,
+  TreeProps,
+  TreeRenderContext,
+  TreeRenderValue
+} from "./types";
 
 export type { TreeExpose, TreeFieldNames, TreeNode, TreeProps } from "./types";
 
@@ -33,6 +40,7 @@ const SIGNATURE_SEP = "::elf-tree::";
 let treeDragSequence = 0;
 
 const draggable = defineDirective(draggableDirective);
+const treeContent = defineDirective(listContentDirective);
 
 const props = defineProps<TreeProps>({
   data: { type: Array, default: () => [] },
@@ -50,8 +58,10 @@ const props = defineProps<TreeProps>({
   highlightCurrent: { type: Boolean, default: true },
   accordion: { type: Boolean, default: false },
   defaultExpandAll: { type: Boolean, default: false },
+  autoExpandParent: { type: Boolean, default: true },
   expandOnClickNode: { type: Boolean, default: true },
   checkOnClickNode: { type: Boolean, default: false },
+  checkOnClickLeaf: { type: Boolean, default: true },
   filterable: { type: Boolean, default: false },
   filterPlaceholder: { type: String, default: "" },
   emptyText: { type: String, default: "" },
@@ -60,6 +70,9 @@ const props = defineProps<TreeProps>({
   lazy: { type: Boolean, default: false },
   load: { type: Function, default: undefined },
   filterNodeMethod: { type: Function, default: undefined },
+  filterMethod: { type: Function, default: undefined },
+  renderContent: { type: Function, default: undefined },
+  icon: { type: String, default: "" },
   draggable: { type: Boolean, default: false },
   allowDrag: { type: Function, default: undefined },
   allowDrop: { type: Function, default: undefined },
@@ -67,6 +80,8 @@ const props = defineProps<TreeProps>({
   height: { type: [String, Number], default: 420 },
   itemSize: { type: Number, default: 40 },
   overscan: { type: Number, default: 6 },
+  scrollbarAlwaysOn: { type: Boolean, default: false },
+  ariaLabel: { type: String, default: "" },
 });
 
 const locale = useLocaleProvider();
@@ -84,6 +99,9 @@ const emit = defineEmits([
   "node-contextmenu",
   "current-change",
   "node-drag-start",
+  "node-drag-enter",
+  "node-drag-leave",
+  "node-drag-over",
   "node-drag-end",
   "node-drop",
   "node-load",
@@ -98,6 +116,8 @@ const expandedState = useRef<string[]>([]);
 const checkedState = useRef<string[]>([]);
 
 const selectedKey = useRef("");
+
+const focusedKey = useRef("");
 
 const filterText = useRef("");
 
@@ -138,6 +158,7 @@ const fields = (): TreeFieldConfig => {
     disabled: custom.disabled || "disabled",
     isLeaf: custom.isLeaf || "isLeaf",
     icon: custom.icon || "icon",
+    class: custom.class || "class",
   };
 };
 
@@ -170,6 +191,19 @@ const pruneKeys = (keys: string[]): string[] => {
   return keys.filter((key) => !!map[key]);
 };
 
+const withAncestorKeys = (keys: string[]): string[] => {
+  if (!props.autoExpandParent) return keys;
+  const expanded = new Set(keys);
+  for (const key of keys) {
+    const row = findNode(key);
+    for (const ancestor of row?.path.slice(0, -1) ?? []) expanded.add(ancestor);
+  }
+  return Array.from(expanded);
+};
+
+const resolvedFilterMethod = (): TreeProps["filterNodeMethod"] =>
+  props.filterNodeMethod || props.filterMethod;
+
 const rebuildVisible = (): void => {
   const rows = allNodes.peek();
   const expanded = new Set(expandedState.peek());
@@ -181,9 +215,10 @@ const rebuildVisible = (): void => {
   }
 
   const matched = new Set<string>();
+  const filterMethod = resolvedFilterMethod();
   for (const row of rows) {
-    const matches = typeof props.filterNodeMethod === "function"
-      ? Boolean(props.filterNodeMethod(filterText.peek(), row.raw as TreeNode))
+    const matches = typeof filterMethod === "function"
+      ? Boolean(filterMethod(filterText.peek(), row.raw as TreeNode))
       : row.label.toLowerCase().includes(keyword);
     if (!matches) continue;
     for (const key of row.path) matched.add(key);
@@ -227,8 +262,8 @@ const normalizeCheckedInput = (keys: string[], leafOnly = false): string[] => {
   return Array.from(set);
 };
 
-const setExpandedKeys = (keys: string[], shouldEmit = true): void => {
-  const next = Array.from(new Set(pruneKeys(keys)));
+const setExpandedKeys = (keys: TreeKey[], shouldEmit = true): void => {
+  const next = withAncestorKeys(Array.from(new Set(pruneKeys(normalizeKeys(keys)))));
   expandedState.set(next);
   lastExpandedSig.set(signature(next));
   rebuildVisible();
@@ -242,8 +277,8 @@ const commitCheckedKeys = (keys: string[], shouldEmit = true, leafOnly = false):
   if (shouldEmit) emit("update:checkedKeys", next);
 };
 
-const setCheckedKeys = (keys: string[], leafOnly = false): void => {
-  commitCheckedKeys(keys, true, leafOnly);
+const setCheckedKeys = (keys: TreeKey[], leafOnly = false): void => {
+  commitCheckedKeys(normalizeKeys(keys), true, leafOnly);
 };
 
 const setCheckedNodes = (nodes: Record<string, unknown>[], leafOnly = false): void => {
@@ -274,6 +309,7 @@ const buildNodes = (): void => {
         key,
         label: String(raw[field.label] ?? key),
         icon: String(raw[field.icon] ?? ""),
+        className: String(raw[field.class] ?? ""),
         level,
         disabled: Boolean(raw[field.disabled]),
         isLeaf: Boolean(raw[field.isLeaf]) || (!props.lazy && children.length === 0),
@@ -397,6 +433,24 @@ const nodeClass = (row: TreeViewNode): Record<string, boolean> => ({
   "is-drop-target": dropTargetKey.value === row.key,
 });
 
+const tabIndexFor = (row: TreeViewNode): number => {
+  const preferredKey = focusedKey.value || selectedKey.value || visibleNodes.value[0]?.key || "";
+  return row.key === preferredKey ? 0 : -1;
+};
+
+const renderNode = (row: TreeViewNode): TreeRenderValue => {
+  if (typeof props.renderContent !== "function") return row.label;
+  const context: TreeRenderContext = {
+    key: row.key,
+    level: row.level,
+    expanded: isExpanded(row.key),
+    checked: isChecked(row),
+    selected: isSelected(row.key),
+    disabled: row.disabled,
+  };
+  return props.renderContent(row.raw as TreeNode, context);
+};
+
 const rowStyle = (row: TreeViewNode): Record<string, string> => ({
   paddingLeft: `${row.level * (Number(props.indent) || 20)}px`,
   minHeight: props.virtual ? `${itemSize()}px` : "",
@@ -459,17 +513,17 @@ const toggleExpand = async (row: TreeViewNode): Promise<void> => {
   commitExpand(row, !isExpanded(row.key));
 };
 
-const expand = (key: string): void => {
+const expand = (key: TreeKey): void => {
   const row = findNode(String(key));
   if (row && row.hasChildren && !isExpanded(row.key)) commitExpand(row, true);
 };
 
-const collapse = (key: string): void => {
+const collapse = (key: TreeKey): void => {
   const row = findNode(String(key));
   if (row && row.hasChildren && isExpanded(row.key)) commitExpand(row, false);
 };
 
-const toggle = (key: string): void => {
+const toggle = (key: TreeKey): void => {
   const row = findNode(String(key));
   if (row) toggleExpand(row);
 };
@@ -520,11 +574,11 @@ const setChecked = (target: unknown, checked: boolean, deep = true): void => {
   emit("check-change", row.raw, checked, next);
 };
 
-const check = (key: string): void => {
+const check = (key: TreeKey): void => {
   setChecked(key, true, true);
 };
 
-const uncheck = (key: string): void => {
+const uncheck = (key: TreeKey): void => {
   setChecked(key, false, true);
 };
 
@@ -628,12 +682,27 @@ const insertRelative = (data: TreeNode, reference: TreeNode | string | number, o
 const insertBeforeNode = (data: TreeNode, reference: TreeNode | string | number): void => insertRelative(data, reference, 0);
 const insertAfterNode = (data: TreeNode, reference: TreeNode | string | number): void => insertRelative(data, reference, 1);
 
+const updateKeyChildren = (key: TreeKey, children: TreeNode[]): void => {
+  const location = findRawLocation(key);
+  if (!location) return;
+  location.node[fields().children] = Array.isArray(children) ? children : [];
+  loadedKeys.set(Array.from(new Set([...loadedKeys.peek(), String(key)])));
+  buildNodes();
+};
+
+const setData = (data: TreeNode[]): void => {
+  const source = props.data as TreeNode[];
+  source.splice(0, source.length, ...(Array.isArray(data) ? data : []));
+  initialized = false;
+  buildNodes();
+};
+
 const getNode = (target: unknown): Record<string, unknown> | undefined => {
   const row = findNode(keyOf(target));
   return row?.raw;
 };
 
-const select = (key: string): void => {
+const select = (key: TreeKey): void => {
   const row = findNode(String(key));
   if (!row || row.disabled) return;
   setSelectedKey(row.key, true);
@@ -644,8 +713,14 @@ const select = (key: string): void => {
 const onNodeClick = (row: TreeViewNode): void => {
   if (row.disabled) return;
   select(row.key);
-  if (props.checkOnClickNode && props.showCheckbox) toggleCheck(row);
+  const shouldCheck = props.showCheckbox
+    && (props.checkOnClickNode || (props.checkOnClickLeaf && row.isLeaf));
+  if (shouldCheck) toggleCheck(row);
   if (props.expandOnClickNode && row.hasChildren) toggleExpand(row);
+};
+
+const onNodeFocus = (row: TreeViewNode): void => {
+  focusedKey.set(row.key);
 };
 
 const onNodeKeydown = (row: TreeViewNode, event: KeyboardEvent): void => {
@@ -709,11 +784,20 @@ const onDragStart = (row: TreeViewNode, event: Event): void => {
   emit("node-drag-start", row.raw, dragEvent);
 };
 
+const onDragEnter = (row: TreeViewNode, event: Event): void => {
+  const dragging = findNode(draggingKey.peek());
+  if (!dragging || !canDropOnRow(dragging, row)) return;
+  event.preventDefault();
+  dropTargetKey.set(row.key);
+  emit("node-drag-enter", dragging.raw, row.raw, event as DragEvent);
+};
+
 const onDragOver = (row: TreeViewNode, event: Event): void => {
   const dragging = findNode(draggingKey.peek());
   if (!dragging || !canDropOnRow(dragging, row)) return;
   event.preventDefault();
   dropTargetKey.set(row.key);
+  emit("node-drag-over", dragging.raw, row.raw, event as DragEvent);
 };
 
 const onDragLeave = (row: TreeViewNode, event: Event): void => {
@@ -721,6 +805,8 @@ const onDragLeave = (row: TreeViewNode, event: Event): void => {
   const currentTarget = dragEvent.currentTarget as HTMLElement;
   if (dragEvent.relatedTarget instanceof Node && currentTarget.contains(dragEvent.relatedTarget)) return;
   if (dropTargetKey.peek() === row.key) dropTargetKey.set("");
+  const dragging = findNode(draggingKey.peek());
+  if (dragging) emit("node-drag-leave", dragging.raw, row.raw, dragEvent);
 };
 
 const onDrop = (row: TreeViewNode, event: Event): void => {
@@ -765,6 +851,17 @@ const scrollToNode = (target: string | number): void => {
   scrollTop.set(body.scrollTop);
 };
 
+const scrollTreeTo = (options: number | ScrollToOptions): void => {
+  const body = host.shadowRoot?.querySelector<HTMLElement>(".tree-body");
+  if (!body) return;
+  if (typeof options === "number") body.scrollTop = Math.max(0, options);
+  else {
+    if (typeof options.top === "number") body.scrollTop = Math.max(0, options.top);
+    if (typeof options.left === "number") body.scrollLeft = Math.max(0, options.left);
+  }
+  scrollTop.set(body.scrollTop);
+};
+
 const onFilterInput = (event: Event): void => {
   filterText.set((event.target as HTMLInputElement).value);
   rebuildVisible();
@@ -774,6 +871,9 @@ const filter = (keyword: string): void => {
   filterText.set(keyword);
   rebuildVisible();
 };
+
+const expandNode = (target: TreeNode | TreeKey): void => expand(keyOf(target));
+const collapseNode = (target: TreeNode | TreeKey): void => collapse(keyOf(target));
 
 defineExpose({
   expand,
@@ -797,10 +897,15 @@ defineExpose({
   getCurrentNode,
   getNode,
   filter,
+  updateKeyChildren,
   appendNode,
   removeNode,
   insertBeforeNode,
   insertAfterNode,
+  expandNode,
+  collapseNode,
+  setData,
+  scrollTreeTo,
   scrollToNode,
 });
 
@@ -808,21 +913,33 @@ defineStyle(styles);
 
 const hasVisibleNodes = (): boolean => visibleNodes.value.length > 0;
 
-const rootClass = useComputed(() => (props.bordered ? "tree is-bordered" : "tree"));
+const rootClass = useComputed(() => ({
+  tree: true,
+  "is-bordered": props.bordered,
+  "is-scrollbar-always-on": props.scrollbarAlwaysOn,
+}));
 
 const Tree = defineHtml(`
-  <div :class=${rootClass} role="tree" :aria-multiselectable=${props.showCheckbox ? "true" : "false"}>
+  <div
+    :class=${rootClass}
+    role="tree"
+    :aria-label=${props.ariaLabel || undefined}
+    :aria-multiselectable=${props.showCheckbox ? "true" : "false"}
+  >
     <div class="tree-filter" v-if=${props.filterable}>
       <input
         type="search"
         :value=${filterText}
         :placeholder=${props.filterPlaceholder || locale.t("tree.search")}
+        :aria-label=${props.filterPlaceholder || locale.t("tree.search")}
         @input="onFilterInput($event)"
       />
     </div>
 
     <div class="tree-body" :style=${bodyStyle()} @scroll=${onTreeScroll}>
-      <div v-if=${!hasVisibleNodes()} class="tree-empty">${props.emptyText || locale.t("table.empty")}</div>
+      <div v-if=${!hasVisibleNodes()} class="tree-empty" role="status">
+        <slot name="empty">${props.emptyText || locale.t("table.empty")}</slot>
+      </div>
 
       <div class="tree-window" :style=${windowStyle()}>
 
@@ -830,14 +947,17 @@ const Tree = defineHtml(`
         v-for="row in getVisibleNodes()"
         :key="row.key"
         class="tree-node"
-        :class="nodeClass(row)"
+        :class="[nodeClass(row), row.className]"
         :style="rowStyle(row)"
         role="treeitem"
         :aria-level="row.level + 1"
         :aria-expanded="row.hasChildren ? (isExpanded(row.key) ? 'true' : 'false') : null"
         :aria-selected="isSelected(row.key) ? 'true' : 'false'"
+        :aria-disabled="row.disabled ? 'true' : 'false'"
+        :aria-checked="props.showCheckbox ? (isIndeterminate(row) ? 'mixed' : isChecked(row) ? 'true' : 'false') : null"
         v-draggable="treeDragOptions(row)"
         @dragstart="onDragStart(row, $event)"
+        @dragenter="onDragEnter(row, $event)"
         @dragover="onDragOver(row, $event)"
         @dragleave="onDragLeave(row, $event)"
         @drop="onDrop(row, $event)"
@@ -852,7 +972,10 @@ const Tree = defineHtml(`
           :title='locale.t(isExpanded(row.key) ? "common.collapse" : "common.expand")'
           @click.stop="toggleExpand(row)"
         >
-          <span v-if="row.hasChildren" :class='["switch-icon", { "is-loading": loadingKeys.includes(row.key) }]'></span>
+          <span
+            v-if="row.hasChildren"
+            :class='["switch-icon", { "is-custom": props.icon, "is-loading": loadingKeys.includes(row.key) }]'
+          >${props.icon}</span>
         </button>
 
         <button
@@ -869,13 +992,14 @@ const Tree = defineHtml(`
 
         <div
           class="tree-content"
-          tabindex="0"
+          :tabindex="tabIndexFor(row)"
           :data-tree-key="row.key"
+          @focus="onNodeFocus(row)"
           @click="onNodeClick(row)"
           @keydown="onNodeKeydown(row, $event)"
         >
           <span v-if="row.icon" class="tree-icon">{{ row.icon }}</span>
-          <span class="tree-label">{{ row.label }}</span>
+          <span class="tree-label" v-tree-content="renderNode(row)"></span>
         </div>
       </div>
       </div>
@@ -887,6 +1011,7 @@ interface TreeViewNode {
   key: string;
   label: string;
   icon: string;
+  className: string;
   level: number;
   disabled: boolean;
   isLeaf: boolean;
@@ -903,6 +1028,7 @@ type TreeFieldConfig = {
   disabled: string;
   isLeaf: string;
   icon: string;
+  class: string;
 };
 
 export { Tree };

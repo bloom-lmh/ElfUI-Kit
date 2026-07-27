@@ -29,7 +29,7 @@ const propsRows = [
     name: "props",
     type: "TreeFieldNames",
     default: "{}",
-    desc: "字段别名，支持 key/label/children/disabled/isLeaf/icon"
+    desc: "字段别名，支持 key/label/children/disabled/isLeaf/icon/class"
   },
   { name: "show-checkbox", type: "boolean", default: "false", desc: "显示复选框" },
   { name: "check-strictly", type: "boolean", default: "false", desc: "父子节点勾选互不关联" },
@@ -40,6 +40,12 @@ const propsRows = [
     type: "boolean",
     default: "false",
     desc: "初始展开全部可展开节点"
+  },
+  {
+    name: "auto-expand-parent",
+    type: "boolean",
+    default: "true",
+    desc: "展开深层节点时同步展开其祖先"
   },
   {
     name: "expand-on-click-node",
@@ -53,6 +59,12 @@ const propsRows = [
     default: "false",
     desc: "点击节点内容时同步勾选"
   },
+  {
+    name: "check-on-click-leaf",
+    type: "boolean",
+    default: "true",
+    desc: "显示复选框时点击叶子内容同步勾选"
+  },
   { name: "filterable", type: "boolean", default: "false", desc: "显示过滤输入框" },
   {
     name: "filter-placeholder",
@@ -63,10 +75,14 @@ const propsRows = [
   { name: "empty-text", type: "string", default: "'暂无数据'", desc: "空状态文本" },
   { name: "indent", type: "number", default: "20", desc: "层级缩进像素" },
   { name: "lazy / load", type: "boolean / Function", default: "false / -", desc: "异步加载子节点" },
-  { name: "filter-node-method", type: "Function", default: "-", desc: "自定义过滤规则" },
+  { name: "filter-node-method / filter-method", type: "Function", default: "-", desc: "普通树与虚拟树共用的过滤规则" },
+  { name: "render-content", type: "(node, context) => Node | string", default: "-", desc: "自定义节点内容渲染" },
+  { name: "icon", type: "string", default: "''", desc: "自定义展开指示图标" },
   { name: "draggable / allow-drag / allow-drop", type: "boolean / Function", default: "false / -", desc: "节点拖拽约束" },
   { name: "virtual", type: "boolean", default: "false", desc: "启用固定高度窗口化" },
-  { name: "height / item-size / overscan", type: "number", default: "420 / 40 / 6", desc: "虚拟树视口和缓存" }
+  { name: "height / item-size / overscan", type: "number", default: "420 / 40 / 6", desc: "虚拟树视口和缓存" },
+  { name: "scrollbar-always-on", type: "boolean", default: "false", desc: "始终预留纵向滚动条" },
+  { name: "aria-label", type: "string", default: "''", desc: "树区域的无障碍名称" }
 ];
 
 const eventsRows = [
@@ -84,6 +100,8 @@ const eventsRows = [
   },
   { name: "node-load", type: "(node, children) => void", desc: "懒加载完成" },
   { name: "node-drop", type: "(dragging, target, type, event) => void", desc: "拖拽放置完成" },
+  { name: "node-drag-start / node-drag-end", type: "(node, event) => void", desc: "拖拽生命周期起止" },
+  { name: "node-drag-enter / node-drag-over / node-drag-leave", type: "(dragging, target, event) => void", desc: "拖拽经过目标节点" },
   { name: "current-change", type: "(node, key) => void", desc: "当前节点变化" },
   { name: "node-contextmenu", type: "(event, node, key) => void", desc: "节点上下文菜单" }
 ];
@@ -136,16 +154,25 @@ const methodsRows = [
     desc: "按 key 或节点数据获取节点数据"
   },
   { name: "filter(keyword)", type: "(keyword: string) => void", desc: "主动过滤节点" },
+  { name: "updateKeyChildren(key, children)", type: "(key, TreeNode[]) => void", desc: "替换指定节点的子节点" },
+  { name: "setData(data)", type: "(TreeNode[]) => void", desc: "命令式替换当前数据" },
+  { name: "expandNode / collapseNode", type: "(key | TreeNode) => void", desc: "按 key 或节点展开、收起" },
   { name: "appendNode(data, parent)", type: "(TreeNode, key?) => void", desc: "追加根节点或子节点" },
   { name: "removeNode(target)", type: "(key | TreeNode) => TreeNode", desc: "移除节点" },
   { name: "insertBeforeNode / insertAfterNode", type: "(data, reference) => void", desc: "相对插入节点" },
+  { name: "scrollTreeTo(offset)", type: "(number | ScrollToOptions) => void", desc: "控制树体滚动位置" },
   { name: "scrollToNode(key)", type: "(key) => void", desc: "虚拟树滚动到节点" }
+];
+
+const slotsRows = [
+  { name: "empty", type: "slot", desc: "没有可见节点时替换默认空状态" }
 ];
 
 const PageTreeProps = defineHtml(`
   <h2>API</h2>
   <elf-props-table title="Props" :rows="propsRows" />
   <elf-props-table title="Events" :rows="eventsRows" />
+  <elf-props-table title="Slots" :rows="slotsRows" />
   <elf-props-table title="Methods" :rows="methodsRows" />
 `);
 

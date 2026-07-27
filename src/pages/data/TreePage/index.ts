@@ -4,6 +4,7 @@ import { PageTreeEx2 } from "./ex2";
 import { PageTreeEx3 } from "./ex3";
 import { PageTreeEx4 } from "./ex4";
 import { PageTreeEx5 } from "./ex5";
+import { PageTreeEx6 } from "./ex6";
 import { PageTreeProps } from "./props";
 
 useComponents({
@@ -12,6 +13,7 @@ useComponents({
   "page-tree-ex3": PageTreeEx3,
   "page-tree-ex4": PageTreeEx4,
   "page-tree-ex5": PageTreeEx5,
+  "page-tree-ex6": PageTreeEx6,
   "page-tree-props": PageTreeProps
 });
 
@@ -24,6 +26,7 @@ const PageTree = defineHtml(`
     <page-tree-ex3></page-tree-ex3>
     <page-tree-ex4></page-tree-ex4>
     <page-tree-ex5></page-tree-ex5>
+    <page-tree-ex6></page-tree-ex6>
     <page-tree-props></page-tree-props>
   </elf-container>
 `);

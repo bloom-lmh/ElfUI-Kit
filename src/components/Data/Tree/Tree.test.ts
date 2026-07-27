@@ -20,6 +20,12 @@ interface TreeEl extends HTMLElement {
   checkStrictly?: boolean;
   accordion?: boolean;
   filterable?: boolean;
+  filterMethod?: (keyword: string, node: Record<string, unknown>) => boolean;
+  renderContent?: (node: Record<string, unknown>, context: Record<string, unknown>) => unknown;
+  checkOnClickLeaf?: boolean;
+  autoExpandParent?: boolean;
+  scrollbarAlwaysOn?: boolean;
+  ariaLabel?: string;
   lazy?: boolean;
   load?: (node: Record<string, unknown>, resolve: (children: Record<string, unknown>[]) => void) => void | Record<string, unknown>[] | Promise<Record<string, unknown>[]>;
   virtual?: boolean;
@@ -34,6 +40,8 @@ interface TreeEl extends HTMLElement {
   insertBeforeNode?: (data: Record<string, unknown>, reference: string | number) => void;
   insertAfterNode?: (data: Record<string, unknown>, reference: string | number) => void;
   scrollToNode?: (key: string | number) => void;
+  updateKeyChildren?: (key: string | number, children: Record<string, unknown>[]) => void;
+  setData?: (data: Record<string, unknown>[]) => void;
   bordered?: boolean;
   props?: Record<string, string>;
 }
@@ -395,6 +403,81 @@ describe("elf-tree", () => {
     expect(api.getCurrentKey()).toBe("components");
   });
 
+  it("auto expands ancestors and checks a leaf when its content is clicked", async () => {
+    const el = document.createElement("elf-tree") as TreeEl;
+    el.data = [{
+      key: "root",
+      label: "Root",
+      children: [{
+        key: "branch",
+        label: "Branch",
+        children: [{ key: "leaf", label: "Leaf" }]
+      }]
+    }];
+    el.defaultExpandedKeys = ["branch"];
+    el.showCheckbox = true;
+    document.body.appendChild(el);
+    await tick();
+    await tick();
+
+    expect(labels(el)).toEqual(["Root", "Branch", "Leaf"]);
+
+    const onChecked = vi.fn();
+    el.addEventListener("update:checkedKeys", onChecked as EventListener);
+    const leaf = Array.from(el.shadowRoot!.querySelectorAll<HTMLElement>(".tree-content"))
+      .find((node) => node.textContent?.includes("Leaf"))!;
+    leaf.click();
+    await tick();
+
+    expect((onChecked.mock.calls[0]![0] as CustomEvent<string[]>).detail)
+      .toEqual(expect.arrayContaining(["root", "branch", "leaf"]));
+  });
+
+  it("supports renderContent, field classes, the empty slot, and accessibility options", async () => {
+    const el = document.createElement("elf-tree") as TreeEl;
+    el.data = [{ key: "release", label: "Release", tone: "is-release" }];
+    el.props = { class: "tone" };
+    el.renderContent = (node, context) => {
+      const content = document.createElement("strong");
+      content.textContent = `${String(node.label)} · level ${Number(context.level) + 1}`;
+      return content;
+    };
+    el.scrollbarAlwaysOn = true;
+    el.ariaLabel = "Release tree";
+    document.body.appendChild(el);
+    await tick();
+
+    expect(el.shadowRoot!.querySelector(".tree-node")!.classList.contains("is-release")).toBe(true);
+    expect(el.shadowRoot!.querySelector(".tree-label strong")?.textContent).toBe("Release · level 1");
+    expect(el.shadowRoot!.querySelector(".tree")!.getAttribute("aria-label")).toBe("Release tree");
+    expect(el.shadowRoot!.querySelector(".tree")!.classList.contains("is-scrollbar-always-on")).toBe(true);
+
+    const empty = document.createElement("elf-tree") as TreeEl;
+    empty.innerHTML = '<span slot="empty">Nothing assigned</span>';
+    document.body.appendChild(empty);
+    await tick();
+    const slot = empty.shadowRoot!.querySelector<HTMLSlotElement>('slot[name="empty"]')!;
+    expect(slot.assignedElements()[0]?.textContent).toBe("Nothing assigned");
+  });
+
+  it("exposes mutation methods without overriding native HTMLElement methods", async () => {
+    const el = document.createElement("elf-tree") as TreeEl;
+    el.data = [{ key: "root", label: "Root", children: [] }];
+    el.defaultExpandedKeys = ["root"];
+    document.body.appendChild(el);
+    await tick();
+
+    el.updateKeyChildren?.("root", [{ key: "a", label: "A" }]);
+    el.appendNode?.({ key: "b", label: "B" }, "root");
+    await tick();
+    expect(labels(el)).toEqual(["Root", "A", "B"]);
+
+    expect(el.removeNode?.("a")?.label).toBe("A");
+    el.setData?.([{ key: "next", label: "Next" }]);
+    await tick();
+    expect(labels(el)).toEqual(["Next"]);
+  });
+
   it("拖拽节点时高亮有效目录并在投放后移动节点", async () => {
     const el = await mount((tree) => {
       tree.data = [
@@ -406,7 +489,15 @@ describe("elf-tree", () => {
       tree.allowDrag = (node) => node.isLeaf === true;
       tree.allowDrop = (_dragging, target) => target.isLeaf !== true;
     });
+    const onStart = vi.fn();
+    const onEnter = vi.fn();
+    const onOver = vi.fn();
+    const onEnd = vi.fn();
     const onDrop = vi.fn();
+    el.addEventListener("node-drag-start", onStart as EventListener);
+    el.addEventListener("node-drag-enter", onEnter as EventListener);
+    el.addEventListener("node-drag-over", onOver as EventListener);
+    el.addEventListener("node-drag-end", onEnd as EventListener);
     el.addEventListener("node-drop", onDrop as EventListener);
 
     const rows = Array.from(el.shadowRoot!.querySelectorAll<HTMLElement>(".tree-node"));
@@ -424,6 +515,10 @@ describe("elf-tree", () => {
     Object.defineProperty(dragStart, "dataTransfer", { value: dataTransfer });
     source.dispatchEvent(dragStart);
 
+    const dragEnter = new Event("dragenter", { bubbles: true, cancelable: true }) as DragEvent;
+    Object.defineProperty(dragEnter, "dataTransfer", { value: dataTransfer });
+    target.dispatchEvent(dragEnter);
+
     const dragOver = new Event("dragover", { bubbles: true, cancelable: true }) as DragEvent;
     Object.defineProperty(dragOver, "dataTransfer", { value: dataTransfer });
     target.dispatchEvent(dragOver);
@@ -433,9 +528,14 @@ describe("elf-tree", () => {
     const drop = new Event("drop", { bubbles: true, cancelable: true }) as DragEvent;
     Object.defineProperty(drop, "dataTransfer", { value: dataTransfer });
     target.dispatchEvent(drop);
+    source.dispatchEvent(new Event("dragend", { bubbles: true }));
     await tick();
 
+    expect(onStart).toHaveBeenCalledOnce();
+    expect(onEnter).toHaveBeenCalledOnce();
+    expect(onOver).toHaveBeenCalled();
     expect(onDrop).toHaveBeenCalled();
+    expect(onEnd).toHaveBeenCalledOnce();
     expect(target.classList.contains("is-drop-target")).toBe(false);
     expect(labels(el)).toEqual(["源目录", "目标目录", "占位资源", "设计资源"]);
   });
