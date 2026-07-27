@@ -1,21 +1,8 @@
-import {
-  defineEmits,
-  defineHtml,
-  defineProps,
-  defineStyle,
-  useHostAttr,
-  useHostFlag
-} from "@elfui/core";
+import { defineEmits, defineHtml, defineProps, defineStyle, useHostAttr, useHostFlag } from "@elfui/core";
 
 import styles from "./style.scss?inline";
 import { useFormControl } from "../../../composables";
-import type {
-  SegmentedFieldNames,
-  SegmentedOption,
-  SegmentedProps,
-  SegmentedSize,
-  SegmentedValue
-} from "./types";
+import type { SegmentedFieldNames, SegmentedOption, SegmentedProps, SegmentedSize, SegmentedValue } from "./types";
 
 export type {
   SegmentedFieldNames,
@@ -23,7 +10,7 @@ export type {
   SegmentedOptionObject,
   SegmentedProps,
   SegmentedSize,
-  SegmentedValue
+  SegmentedValue,
 } from "./types";
 
 interface ViewOption {
@@ -46,13 +33,14 @@ const props = defineProps<SegmentedProps>({
   validateEvent: { type: Boolean, default: true },
   props: {
     type: Object,
-    default: () => ({ label: "label", value: "value", disabled: "disabled" })
-  }
+    default: () => ({ label: "label", value: "value", disabled: "disabled" }),
+  },
 });
 
 const emit = defineEmits(["update:modelValue", "change"]);
 const ctl = useFormControl<SegmentedValue>(props, emit, {
-  triggers: props.validateEvent === false ? { change: false, input: false, blur: false } : { input: false, blur: false }
+  triggers:
+    props.validateEvent === false ? { change: false, input: false, blur: false } : { input: false, blur: false },
 });
 
 const fields = (): Required<SegmentedFieldNames> => {
@@ -60,7 +48,7 @@ const fields = (): Required<SegmentedFieldNames> => {
   return {
     label: value.label || "label",
     value: value.value || "value",
-    disabled: value.disabled || "disabled"
+    disabled: value.disabled || "disabled",
   };
 };
 
@@ -73,7 +61,7 @@ const options = (): ViewOption[] => {
         key: String(index),
         label: String(entry),
         value: entry as SegmentedValue,
-        disabled: false
+        disabled: false,
       };
     }
     const record = entry as Record<string, unknown>;
@@ -82,7 +70,7 @@ const options = (): ViewOption[] => {
       key: String(index),
       label: String(record[names.label] ?? value),
       value,
-      disabled: Boolean(record[names.disabled])
+      disabled: Boolean(record[names.disabled]),
     };
   });
 };
@@ -108,23 +96,24 @@ const optionIndexFromEvent = (event: Event): number => {
 };
 
 const onOptionKeyDown = (event: KeyboardEvent): void => {
-  if (!['ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowUp', 'Home', 'End'].includes(event.key)) return;
+  if (!["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp", "Home", "End"].includes(event.key)) return;
   const source = options();
   const enabled = source.filter((option) => !props.disabled && !option.disabled);
   if (!enabled.length) return;
   event.preventDefault();
   const current = source[optionIndexFromEvent(event)];
   const currentIndex = current ? enabled.findIndex((option) => option.key === current.key) : -1;
-  const backwards = event.key === 'ArrowLeft' || event.key === 'ArrowUp';
-  const next = event.key === 'Home'
-    ? enabled[0]
-    : event.key === 'End'
-      ? enabled[enabled.length - 1]
-      : enabled[(currentIndex + (backwards ? -1 : 1) + enabled.length) % enabled.length];
+  const backwards = event.key === "ArrowLeft" || event.key === "ArrowUp";
+  const next =
+    event.key === "Home"
+      ? enabled[0]
+      : event.key === "End"
+        ? enabled[enabled.length - 1]
+        : enabled[(currentIndex + (backwards ? -1 : 1) + enabled.length) % enabled.length];
   if (!next) return;
   select(next);
   const target = (event.currentTarget as HTMLElement | null)?.parentElement?.querySelector<HTMLElement>(
-    `.option[data-index="${next.key}"]`
+    `.option[data-index="${next.key}"]`,
   );
   target?.focus();
 };
@@ -149,20 +138,12 @@ useHostFlag("disabled", () => Boolean(props.disabled));
 defineStyle(styles);
 
 const Segmented = defineHtml<SegmentedProps>(`
-  <div class="segmented" role="radiogroup" :id=${props.id || null} :aria-label=${props.ariaLabel || props.label || props.name || null} part="segmented" @click=${onContainerClick}>
-    <button
-      v-for="option in options()"
-      :key="option.key"
-      type="button"
-      :class="['option', { 'is-active': isActive(option) }]"
-      :data-index="option.key"
-      :disabled="props.disabled || option.disabled"
-      role="radio"
-      :aria-checked="isActive(option) ? 'true' : 'false'"
-      :name=${props.name || null}
-      :tabindex="tabIndex(option)"
-      @keydown=${onOptionKeyDown}
-    >{{ option.label }}</button>
+  <div class="segmented" role="radiogroup" :id=${props.id || null}
+    :aria-label=${props.ariaLabel || props.label || props.name || null} part="segmented" @click=${onContainerClick}>
+    <button v-for="option in options()" :key="option.key" type="button"
+      :class="['option', { 'is-active': isActive(option) }]" :data-index="option.key"
+      :disabled="props.disabled || option.disabled" role="radio" :aria-checked="isActive(option) ? 'true' : 'false'"
+      :name=${props.name || null} :tabindex="tabIndex(option)" @keydown=${onOptionKeyDown}>{{ option.label }}</button>
   </div>
 `);
 

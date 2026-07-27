@@ -309,10 +309,11 @@ const optionLabel = (option: RawOption): string => {
   return String(option[fields.label] ?? option[fields.value] ?? "");
 };
 
-const hasDefaultOptionSlot = (): boolean => Array.from(host.childNodes).some((node) => {
-  if (node.nodeType === 3) return Boolean(node.textContent?.trim());
-  return node instanceof Element && !node.hasAttribute("slot");
-});
+const hasDefaultOptionSlot = (): boolean =>
+  Array.from(host.childNodes).some((node) => {
+    if (node.nodeType === 3) return Boolean(node.textContent?.trim());
+    return node instanceof Element && !node.hasAttribute("slot");
+  });
 
 const optionValue = (option: RawOption): CascaderValue => {
   const fields = fieldNames();
@@ -800,9 +801,10 @@ const onTreeClick = (event: Event): void => {
   const option = path[path.length - 1];
   const hasChildren = Boolean(option && optionChildren(option).length > 0);
   const previousActivePath = activePath.peek();
-  const preserveExpandedDescendants = previousActivePath.length > path.length
-    && isRawPathPrefix(path, previousActivePath)
-    && !target?.closest?.(".tree-toggle");
+  const preserveExpandedDescendants =
+    previousActivePath.length > path.length &&
+    isRawPathPrefix(path, previousActivePath) &&
+    !target?.closest?.(".tree-toggle");
   if (target?.closest?.(".tree-toggle")) {
     event.preventDefault();
     event.stopPropagation();
@@ -1403,8 +1405,8 @@ const Cascader = defineHtml<CascaderProps, CascaderEmits, CascaderSlots>(`
   <div v-if=${shouldRenderDropdown() && !isDisabled()} :class=${dropdownClass()} :style=${dropdownStyle()} part="dropdown"
     :popover=${props.teleported ? "manual" : undefined}
     :data-append-to=${typeof props.appendTo === "string" ? props.appendTo : "element"} role="menu"
-    :aria-hidden=${open ? "false" : "true"} :inert=${open ? undefined : ""}
-    @click=${stopClick} @keydown=${onDropdownKeydown}>
+    :aria-hidden=${open ? "false" : "true"} :inert=${open ? undefined : ""} @click=${stopClick}
+    @keydown=${onDropdownKeydown}>
     <slot name="header"></slot>
     <div v-if=${isSearchMode()} class="filter-results" role="listbox" @click=${onFilterResultsClick}>
       <div v-if=${filtering} class="empty" aria-live="polite">${locale.t("table.loading")}</div>
