@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 
 const triggerSelected = useRef("未选择");
@@ -50,7 +50,7 @@ const onTriggerCommand = (event: CustomEvent): void => {
   triggerSelected.set(commandText(event));
 };
 
-const PageDropdownEx3 = defineHtml(html`
+const PageDropdownEx3 = defineHtml(`
 <elf-playground title="触发方式与位置" :code=${triggerCode} :script=${triggerScript}>
       <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
         <elf-dropdown

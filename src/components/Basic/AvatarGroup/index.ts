@@ -1,19 +1,19 @@
 import {
-    defineHtml,
-    defineProps,
-    defineStyle,
-    html,
-    onMount,
-    onUnmount,
-    useClickOutside,
-    useComputed,
-    useEscapeKey,
-    useHost,
-    useRef,
-    watchEffect,
+  defineHtml,
+  defineProps,
+  defineStyle,
+  onMounted,
+  onUnmounted,
+  useClickOutside,
+  useComputed,
+  useEscapeKey,
+  useHost,
+  useRef,
+  useEffect
 } from "@elfui/core";
 
 import styles from "./style.scss?inline";
+import { useLocaleProvider } from "../../Providers/context";
 import type { AvatarGroupEffect, AvatarGroupPlacement, AvatarGroupProps, AvatarGroupSlots } from "./types";
 
 export type { AvatarGroupEffect, AvatarGroupPlacement, AvatarGroupProps, AvatarGroupSlots } from "./types";
@@ -41,6 +41,7 @@ const props = defineProps<AvatarGroupProps>({
     collapseStyle: { type: Object, default: () => ({}) },
 });
 
+const locale = useLocaleProvider();
 const host = useHost();
 const collapsedCount = useRef(0);
 const hiddenLabels = useRef<string[]>([]);
@@ -136,7 +137,7 @@ const hidePopover = (): void => expanded.set(false);
 
 const collapseLabel = useComputed(() => {
     const count = collapsedCount.value;
-    return count ? `${count} additional avatar${count === 1 ? "" : "s"}` : "";
+    return count ? locale.t("a11y.additionalAvatars", { count }) : "";
 });
 
 const showCollapse = useComputed(() => collapsedCount.value > 0);
@@ -153,7 +154,7 @@ const popoverClass = useComputed(() => [
 useClickOutside(host, hidePopover);
 useEscapeKey(hidePopover);
 
-watchEffect(() => {
+useEffect(() => {
     props.collapseAvatars;
     props.maxCollapseAvatars;
     props.size;
@@ -161,20 +162,20 @@ watchEffect(() => {
     sync();
 });
 
-onMount(() => {
+onMounted(() => {
     sync();
     observer = new MutationObserver(sync);
     observer.observe(host, { childList: true, subtree: false });
 });
 
-onUnmount(() => {
+onUnmounted(() => {
     observer?.disconnect();
     avatars().forEach((avatar) => restore(avatar));
 });
 
 defineStyle(styles);
 
-const AvatarGroup = defineHtml<AvatarGroupProps, Record<string, never>, AvatarGroupSlots>(html`
+const AvatarGroup = defineHtml<AvatarGroupProps, Record<string, never>, AvatarGroupSlots>(`
     <div class="avatar-group" part="group">
         <slot @slotchange=${onSlotChange}></slot>
         <button

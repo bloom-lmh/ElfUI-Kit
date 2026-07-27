@@ -3,10 +3,11 @@ import {
   defineHtml,
   defineProps,
   defineStyle,
-  html,
+  useEffect,
   useHostAttr,
   useHostCssVar,
-  useScrollLock
+  useScrollLock,
+  useTemplateRef
 } from "@elfui/core";
 
 import styles from "./style.scss?inline";
@@ -38,6 +39,7 @@ const props = defineProps<LoadingProps>({
 
 const emit = defineEmits<LoadingEmits>();
 const locale = useLocaleProvider();
+const overlayRef = useTemplateRef<HTMLElement>("overlayEl");
 
 const normalizedVariant = (): LoadingVariant => {
   const variant = String(props.variant || "spinner") as LoadingVariant;
@@ -55,15 +57,28 @@ useHostAttr("fullscreen", () => (props.fullscreen ? "" : null));
 useHostCssVar("--_loading-bg", () => props.background || "rgba(255,255,255,0.72)");
 useScrollLock(() => props.loading && props.fullscreen && props.lock);
 
+useEffect(() => {
+  void props.loading;
+  void props.fullscreen;
+  if (!props.loading || !props.fullscreen) return;
+  queueMicrotask(() => {
+    const overlay = overlayRef.value;
+    if (!overlay || overlay.matches(":popover-open")) return;
+    overlay.showPopover?.();
+  });
+});
+
 defineStyle(styles);
 
-const Loading = defineHtml<LoadingProps, LoadingEmits, LoadingSlots>(html`
+const Loading = defineHtml<LoadingProps, LoadingEmits, LoadingSlots>(`
   <div class="loading" part="loading">
     <slot></slot>
     <div
       v-if=${props.loading}
+      ref="overlayEl"
       class="overlay"
       part="overlay"
+      :popover=${props.fullscreen ? "manual" : undefined}
       :role=${overlayRole()}
       :aria-modal=${isInteractiveFullscreen() ? "true" : null}
       :aria-label=${props.text || locale.t("loading.active")}
@@ -96,7 +111,10 @@ const Loading = defineHtml<LoadingProps, LoadingEmits, LoadingSlots>(html`
         :aria-label=${locale.t("loading.exitFullscreen")}
         @click=${close}
       >
-        ${locale.t("loading.exitFullscreen")}
+        <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+          <path d="M5 5l10 10M15 5L5 15"></path>
+        </svg>
+        <span>${locale.t("loading.exitFullscreen")}</span>
       </button>
     </div>
   </div>

@@ -98,6 +98,21 @@ describe("elf-avatar", () => {
     expect(error).toBeInstanceOf(Event);
     expect(el.shadowRoot!.querySelector("img")).toBeNull();
     expect(el.shadowRoot!.querySelector(".initials")?.textContent).toBe("JD");
+    expect(el.shadowRoot!.querySelector(".avatar")?.getAttribute("role")).toBe("img");
+    expect(el.shadowRoot!.querySelector(".avatar")?.getAttribute("aria-label")).toBe("Jane Doe");
+  });
+
+  it("uses native image semantics while the source is available", async () => {
+    const el = document.createElement("elf-avatar");
+    el.setAttribute("src", "https://example.com/avatar.png");
+    el.setAttribute("alt", "Ada Lovelace");
+    document.body.appendChild(el);
+    await tick();
+
+    const avatar = el.shadowRoot!.querySelector(".avatar")!;
+    expect(avatar.hasAttribute("role")).toBe(false);
+    expect(avatar.hasAttribute("aria-label")).toBe(false);
+    expect(el.shadowRoot!.querySelector("img")?.getAttribute("alt")).toBe("Ada Lovelace");
   });
 
   it("renders an icon slot even without the icon prop", async () => {

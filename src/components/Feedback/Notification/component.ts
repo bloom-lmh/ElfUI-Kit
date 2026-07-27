@@ -4,7 +4,6 @@ import {
   defineHtml,
   defineProps,
   defineStyle,
-  html,
   useHostAttr,
   useHostFlag,
   useRef
@@ -51,7 +50,7 @@ const hasCloseLabel = (): boolean => String(props.closeIcon).length > 1;
 defineExpose({ close, closing });
 defineStyle(styles);
 
-const Notification = defineHtml(html`
+const Notification = defineHtml(`
   <div class="notification" part="notification" role="status" aria-live="polite">
     <div v-if=${hasIcon()} :class=${["icon-box", props.type]}>
       <span class="icon">${icon()}</span>

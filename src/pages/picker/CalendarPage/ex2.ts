@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 const day = useRef("2026-07-07");
 
@@ -18,9 +18,11 @@ const localeCode = `<elf-calendar
 />`;
 
 const localeScript = `const workday = useRef("2026-07-07");
-const weekendDisabled = (date: Date): boolean => date.getDay() === 0 || date.getDay() === 6;`;
+const weekendDisabled = (date: Date): boolean => date.getDay() === 0 || date.getDay() === 6;
 
-const PageCalendarEx2 = defineHtml(html`
+const onWorkdayUpdate = (event) => workday.set(String(event.detail || ""));`;
+
+const PageCalendarEx2 = defineHtml(`
 <elf-playground title="本地化、翻月与禁用日期" :code=${localeCode} :script=${localeScript}>
       <elf-calendar
         :modelValue.prop="workday"

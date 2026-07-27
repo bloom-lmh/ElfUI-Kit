@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 
 type Row = Record<string, unknown>;
@@ -132,9 +132,53 @@ const code = `<elf-table
 // action.onClick(row, index, action) 可以直接拿到当前行
 // 批量删除通过 selection 列 + selectedKeys 完成`;
 
-const PageTableEx11 = defineHtml(html`
+const script = `const rows = useRef([
+    { id: "api-1", name: "订单服务", owner: "林舟", status: "运行中" },
+    { id: "api-2", name: "结算任务", owner: "周然", status: "排队中" },
+    { id: "api-3", name: "库存同步", owner: "许宁", status: "告警" },
+    { id: "api-4", name: "消息投递", owner: "陈安", status: "运行中" }
+]);
+const selectedKeys = useRef([]);
+const editOpen = useRef(false);
+const deleteOpen = useRef(false);
+const editRow = useRef(null);
+const deleteRows = useRef([]);
+const editName = useRef("");
+const rowsData = () => rows.value.slice();
+const selectedData = () => selectedKeys.value.slice();
+const onSelectedKeys = (event) => {
+    const detail = event.detail;
+    if (Array.isArray(detail))
+        selectedKeys.set(detail);
+};
+const edit = (row) => {
+    editRow.set(row);
+    editName.set(String(row.name ?? ""));
+    editOpen.set(true);
+};
+const askDelete = (row) => {
+    deleteRows.set([row]);
+    deleteOpen.set(true);
+};
+const columns = [
+    { type: "selection", width: 48 },
+    { prop: "name", label: "服务", minWidth: 160 },
+    { prop: "owner", label: "负责人", width: 110 },
+    { prop: "status", label: "状态", width: 110 },
+    {
+        type: "actions",
+        label: "后端操作",
+        width: 160,
+        actions: [
+            { label: "编辑", type: "primary", onClick: edit },
+            { label: "删除", type: "danger", onClick: askDelete }
+        ]
+    }
+];`;
+
+const PageTableEx11 = defineHtml(`
   <h2>模拟后端编辑与批量删除</h2>
-  <elf-playground title="action 回调拿当前行，selection 支持批量删除" :code="code">
+  <elf-playground title="action 回调拿当前行，selection 支持批量删除" :code="code" :script=${script}>
     <div style="width:100%;display:grid;gap:12px">
       <div
         style="display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap"

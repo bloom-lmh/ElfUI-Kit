@@ -4,6 +4,13 @@
   display: block;
 }
 
+:host([fullscreen]) {
+  position: fixed;
+  z-index: 10000;
+  inset: 0;
+  pointer-events: none;
+}
+
 .loading {
   position: relative;
   min-height: inherit;
@@ -22,6 +29,20 @@
 
 :host([fullscreen]) .overlay {
   position: fixed;
+  z-index: 1;
+  pointer-events: auto;
+}
+
+.overlay[popover] {
+  width: auto;
+  height: auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.overlay[popover]::backdrop {
+  background: transparent;
 }
 
 .box {
@@ -55,8 +76,12 @@
 
 .close {
   position: fixed;
-  top: 20px;
-  right: 20px;
+  top: max(20px, env(safe-area-inset-top));
+  right: max(20px, env(safe-area-inset-right));
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   min-height: 36px;
   padding: 0 14px;
   border: 1px solid color-mix(in srgb, var(--elf-primary) 42%, transparent);
@@ -81,6 +106,15 @@
     outline: 2px solid color-mix(in srgb, var(--elf-primary) 55%, transparent);
     outline-offset: 2px;
   }
+}
+
+.close svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-width: 1.8;
 }
 
 .spinner {

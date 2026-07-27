@@ -50,10 +50,10 @@ describe("CascaderPage", () => {
     expect(cascader.shadowRoot!.querySelector(".tree-panel")).toBeTruthy();
     const root = cascader.shadowRoot!.querySelector<HTMLButtonElement>('.tree-option[aria-level="1"]')!;
     expect(root.querySelector(".option-checkbox")).toBeTruthy();
-    root.click();
+    root.querySelector<HTMLElement>(".option-checkbox")!.click();
     await wait();
 
-    expect(root.querySelector(".option-checkbox.is-checked")).toBeTruthy();
+    expect(cascader.shadowRoot!.querySelector('.tree-option[aria-level="1"] .option-checkbox.is-checked')).toBeTruthy();
     expect(page.shadowRoot!.textContent).toContain("已选择 2 条路径");
   });
 });

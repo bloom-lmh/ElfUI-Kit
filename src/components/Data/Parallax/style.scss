@@ -1,0 +1,52 @@
+@use "../../../styles/reset";
+
+:host {
+  display: block;
+  overflow: hidden;
+  border-radius: var(--elf-radius-md);
+  background: var(--elf-bg-muted);
+  color: var(--elf-text-primary);
+}
+
+.parallax {
+  position: relative;
+  height: var(--_parallax-height);
+  min-height: 160px;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.media {
+  position: absolute;
+  inset: calc((1 - var(--_parallax-scale)) * 50%);
+  z-index: -1;
+  width: calc(100% * var(--_parallax-scale));
+  height: calc(100% * var(--_parallax-scale));
+  object-fit: cover;
+  object-position: var(--_parallax-position);
+  transform: translate3d(0, var(--_parallax-offset, 0px), 0);
+  will-change: transform;
+}
+
+.content {
+  display: grid;
+  min-height: 100%;
+  align-content: center;
+  padding: clamp(24px, 6vw, 72px);
+  background: linear-gradient(90deg, rgb(0 0 0 / 54%), rgb(0 0 0 / 10%));
+  color: white;
+}
+
+::slotted(*) {
+  max-width: min(520px, 100%);
+}
+
+:host([data-disabled]) .media {
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .media {
+    transform: none !important;
+  }
+}

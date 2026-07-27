@@ -1,4 +1,4 @@
-import { defineHtml, html, useComponents } from "@elfui/core";
+import { defineHtml, useComponents } from "@elfui/core";
 
 import { PagePageHeaderEx1 } from "./ex1";
 import { PagePageHeaderEx2 } from "./ex2";
@@ -24,7 +24,7 @@ useComponents({
   "page-page-header-ex2": PagePageHeaderEx2
 });
 
-const PagePageHeader = defineHtml(html`
+const PagePageHeader = defineHtml(`
   <elf-container>
     <h1>PageHeader 页头</h1>
     <p>用于详情页顶部返回区域，支持 back 事件和 breadcrumb/icon/title/content/extra 插槽。</p>

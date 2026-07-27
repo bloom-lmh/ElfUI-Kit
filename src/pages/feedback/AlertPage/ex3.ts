@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 
 const code4 = `<elf-alert type="info" closable title="点 × 关闭我"></elf-alert>`;
 
@@ -8,7 +8,7 @@ const code6 = `<elf-alert type="warning" density="compact" title="紧凑模式">
 
 const code7 = `<elf-alert type="info" prominent title="prominent — 粗色条"></elf-alert>`;
 
-const PageAlertEx3 = defineHtml(html`
+const PageAlertEx3 = defineHtml(`
     <h2>可关闭</h2>
     <elf-playground title="closable" :code=${code4}>
         <div style="width:50%">

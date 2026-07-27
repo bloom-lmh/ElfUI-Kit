@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 
 const propsRows = [
   { name: "offset", type: "string | number", default: "0", desc: "吸附偏移距离" },
@@ -29,7 +29,7 @@ const exposesRows = [
 
 const slotsRows = [{ name: "default", desc: "需要吸附的内容" }];
 
-const PageStickyProps = defineHtml(html`
+const PageStickyProps = defineHtml(`
   <h2>API</h2>
   <elf-props-table title="Props" :rows=${propsRows}></elf-props-table>
   <elf-props-table title="Events" :rows=${eventsRows}></elf-props-table>

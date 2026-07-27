@@ -1,4 +1,4 @@
-import { defineHtml, html, useComponents } from "@elfui/core";
+import { defineHtml, useComponents } from "@elfui/core";
 import { PageContainerEx1 } from "./ex1";
 import { PageContainerEx2 } from "./ex2";
 import { PageContainerProps } from "./props";
@@ -9,7 +9,7 @@ useComponents({
   "page-container-props": PageContainerProps
 });
 
-const PageContainer = defineHtml(html`
+const PageContainer = defineHtml(`
   <elf-container
     ><h1>Container 容器</h1>
     <p>限宽居中容器，常用作页面骨架。</p>

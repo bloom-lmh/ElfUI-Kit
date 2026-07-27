@@ -4,7 +4,6 @@ import {
   defineHtml,
   defineProps,
   defineStyle,
-  html,
   useHostAttr,
   useHostCssVar
 } from "@elfui/core";
@@ -108,7 +107,7 @@ useHostAttr("pull", () => toMetric(props.pull));
 
 defineStyle(itemStyles);
 
-const GridItem = defineHtml<GridItemProps, Record<string, never>, GridItemSlots>(html`
+const GridItem = defineHtml<GridItemProps, Record<string, never>, GridItemSlots>(`
   <div class="grid-item" part="item"><slot></slot></div>
 `);
 

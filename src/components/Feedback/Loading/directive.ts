@@ -1,4 +1,4 @@
-import { directive, type DirectiveDefinition } from "@elfui/core";
+import type { DirectiveDefinition, ElfUIApp } from "@elfui/core";
 
 import { ElfLoading } from "./service";
 import type { LoadingDirectiveValue, LoadingInstance, LoadingOptions } from "./types";
@@ -36,10 +36,6 @@ export const loadingDirective: DirectiveDefinition<LoadingDirectiveValue, HTMLEl
   beforeUnmount: closeInstance
 };
 
-let registered = false;
-
-export const registerLoadingDirective = (): void => {
-  if (registered) return;
-  directive("loading", loadingDirective);
-  registered = true;
+export const registerLoadingDirective = (app: Pick<ElfUIApp, "directive">): void => {
+  app.directive("loading", loadingDirective as DirectiveDefinition);
 };

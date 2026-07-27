@@ -1,4 +1,4 @@
-import { defineProps, defineStyle, html, useHostAttr, useHostCssVar, useHostFlag, defineHtml } from "@elfui/core";
+import { defineProps, defineStyle, useHostAttr, useHostCssVar, useHostFlag, defineHtml } from "@elfui/core";
 
 import styles from "./style.scss?inline";
 import type { ProgressProps, ProgressStatus, ProgressType, ProgressVariant } from "./types";
@@ -119,7 +119,7 @@ useHostCssVar("--_progress-linecap", normalizedLinecap);
 
 defineStyle(styles);
 
-const Progress = defineHtml(html`
+const Progress = defineHtml(`
     <div
         class="progress"
         role="progressbar"

@@ -1,4 +1,4 @@
-import { defineHtml, html, useComponents } from "@elfui/core";
+import { defineHtml, useComponents } from "@elfui/core";
 import { PageResultProps } from "./props";
 import { PageResultEx1 } from "./ex1";
 import { PageResultEx2 } from "./ex2";
@@ -11,7 +11,7 @@ useComponents({
   "page-result-props": PageResultProps
 });
 
-const PageResult = defineHtml(html`
+const PageResult = defineHtml(`
   <elf-container>
     <h1>Result 结果</h1>
     <p>用于流程结束页或局部操作结果，支持 success、warning、error 与 info 状态。</p>

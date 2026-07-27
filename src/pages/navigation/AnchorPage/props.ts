@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 
 const propsRows = [
   { name: "items", type: "AnchorItem[]", default: "[]", desc: "anchor item tree" },
@@ -50,7 +50,7 @@ const linkSlotsRows = [
   { name: "sub-link", type: "AnchorLink[]", desc: "nested anchor links" }
 ];
 
-const PageAnchorProps = defineHtml(html`
+const PageAnchorProps = defineHtml(`
   <h2>API</h2>
   <elf-props-table title="Props" :rows=${propsRows}></elf-props-table>
   <elf-props-table title="Events" :rows=${eventsRows}></elf-props-table>

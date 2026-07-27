@@ -5,7 +5,7 @@
 //   <elf-alert type="success" title="操作成功" closable />
 //   <elf-alert type="danger" title="错误" description="详情..." />
 
-import { defineEmits, defineHtml, defineProps, defineStyle, html, useHostAttr, useHostFlag, useRef } from "@elfui/core";
+import { defineEmits, defineHtml, defineProps, defineStyle, useHostAttr, useHostFlag, useRef } from "@elfui/core";
 
 import styles from "./style.scss?inline";
 import type { AlertEmits, AlertProps, AlertSlots } from "./types";
@@ -53,7 +53,7 @@ const onClose = (): void => {
 
 defineStyle(styles);
 
-const Alert = defineHtml(html`
+const Alert = defineHtml(`
   <div v-if=${!closed} class="alert" part="alert" role="alert">
     <span v-if=${props.showIcon} class="icon" aria-hidden="true">
       <slot name="icon">

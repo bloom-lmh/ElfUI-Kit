@@ -1,4 +1,4 @@
-import { defineHtml, defineProps, defineStyle, html } from "@elfui/core";
+import { defineHtml, defineProps, defineStyle } from "@elfui/core";
 
 import styles from "./style.scss?inline";
 import type { DropdownMenuProps, DropdownMenuSlots } from "../Dropdown/types";
@@ -11,7 +11,7 @@ const props = defineProps<DropdownMenuProps>({
 
 defineStyle(styles);
 
-const DropdownMenu = defineHtml<DropdownMenuProps, Record<string, never>, DropdownMenuSlots>(html`
+const DropdownMenu = defineHtml<DropdownMenuProps, Record<string, never>, DropdownMenuSlots>(`
   <div class="dropdown-menu" part="menu" :role=${props.role || "menu"}><slot></slot></div>
 `);
 

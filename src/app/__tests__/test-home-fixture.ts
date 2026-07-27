@@ -1,5 +1,5 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 
-const TestHome = defineHtml(html`<div>HOME</div>`);
+const TestHome = defineHtml(`<div>HOME</div>`);
 
 export { TestHome };

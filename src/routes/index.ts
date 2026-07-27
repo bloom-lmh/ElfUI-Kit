@@ -12,7 +12,7 @@ export const routes: RouteRecord[] = [
   // Layout
   {
     path: "/layout/container",
-    component: () => import("../pages/layout/ContainerPage/index")
+    component: () => import("../pages/layout/GridPage/index")
   },
   {
     path: "/layout/flex",
@@ -20,7 +20,7 @@ export const routes: RouteRecord[] = [
   },
   {
     path: "/layout/space",
-    component: () => import("../pages/layout/SpacePage/index")
+    component: () => import("../pages/layout/FlexPage/index")
   },
   {
     path: "/layout/grid",
@@ -227,6 +227,10 @@ export const routes: RouteRecord[] = [
     component: () => import("../pages/data/ImagePage/index")
   },
   {
+    path: "/data/parallax",
+    component: () => import("../pages/data/ParallaxPage/index")
+  },
+  {
     path: "/data/transfer",
     component: () => import("../pages/data/TransferPage/index")
   },
@@ -358,12 +362,10 @@ export interface NavItem {
 }
 
 export const navItems: NavItem[] = [
-  { to: "/utilities", text: "工具类", group: "样式和动画" },
+  { to: "/utilities", text: "Utilities 工具类", group: "Styles and animations 样式与动画" },
 
-  { to: "/layout/container", text: "Container 容器", group: "Layout 布局" },
-  { to: "/layout/flex", text: "Flex 弹性", group: "Layout 布局" },
-  { to: "/layout/space", text: "Space 间距", group: "Layout 布局" },
   { to: "/layout/grid", text: "Grid 栅格", group: "Layout 布局" },
+  { to: "/layout/flex", text: "Flex 弹性布局", group: "Layout 布局" },
   { to: "/layout/shell", text: "Layout 应用骨架", group: "Layout 布局" },
   { to: "/layout/sticky", text: "Sticky 吸附", group: "Layout 布局" },
   { to: "/layout/splitter", text: "Splitter 分割面板", group: "Layout 布局" },
@@ -415,6 +417,7 @@ export const navItems: NavItem[] = [
   { to: "/data/watermark", text: "Watermark 水印", group: "Data 数据展示" },
   { to: "/data/infinite-scroll", text: "InfiniteScroll 无限滚动", group: "Data 数据展示" },
   { to: "/data/image", text: "Image 图片", group: "Data 数据展示" },
+  { to: "/data/parallax", text: "Parallax 视差滚动", group: "Data 数据展示" },
   { to: "/data/transfer", text: "Transfer 穿梭框", group: "Data 数据展示" },
   { to: "/data/card", text: "Card 卡片", group: "Data 数据展示" },
   { to: "/data/pagination", text: "Pagination 分页", group: "Data 数据展示" },

@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 import { ElfNotification } from "../../../components/Feedback";
 
 const showNormal = () => {
@@ -54,7 +54,7 @@ const script2 = `const showTopLeft = () => {
   });
 };`;
 
-const PageNotificationEx2 = defineHtml(html`
+const PageNotificationEx2 = defineHtml(`
   <h2>不同弹出位置</h2>
   <elf-playground
     title="position: top-right | top-left | bottom-right | bottom-left"

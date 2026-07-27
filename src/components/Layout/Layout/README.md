@@ -31,6 +31,17 @@
 - 全部基于 flex；`elf-main` 用 `flex: 1` 自动撑满
 - `elf-header` / `elf-footer` `flex-shrink: 0` 不被压缩
 - 嵌套 `<elf-layout direction="horizontal">` 实现"顶栏全宽 + 下方左右分栏"
+
+## 区域主题变量
+
+浅色主题默认用轻微色阶和分隔线区分 Header、Aside、Main、Footer。业务应用可覆盖以下变量，包含将它们统一为同一背景：
+
+- `--elf-layout-bg`
+- `--elf-layout-header-bg`
+- `--elf-layout-aside-bg`
+- `--elf-layout-main-bg`
+- `--elf-layout-footer-bg`
+- `--elf-layout-divider`
 - 所有尺寸 / 颜色走 CSS 变量（`--elf-*`），主题切换自动响应
 - 高度 100vh 等外层撑高交给消费方（顶层 `:host` 自身 `flex: 1`，便于嵌套）
 

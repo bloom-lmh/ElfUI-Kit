@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 
 const scrollbarRows = [
   { name: "height", type: "number | string", desc: "容器固定高度" },
@@ -21,12 +21,10 @@ const exposeRows = [
   { name: "wrapRef", type: "HTMLElement | null", desc: "包裹层 DOM 引用" }
 ];
 
-const PageScrollbarProps = defineHtml(html`
-  <h2>Props</h2>
+const PageScrollbarProps = defineHtml(`
+  <h2>API</h2>
   <elf-props-table title="elf-scrollbar Props" :rows="scrollbarRows" />
-  <h2>Events</h2>
   <elf-props-table title="elf-scrollbar Events" :rows="eventRows" />
-  <h2>Expose</h2>
   <elf-props-table title="elf-scrollbar 暴露方法" :rows="exposeRows" />
 `);
 

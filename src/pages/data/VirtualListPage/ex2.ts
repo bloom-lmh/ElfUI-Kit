@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 import { createDocsTranslator } from "../../docsLocale";
 
 const t = createDocsTranslator({
@@ -36,9 +36,12 @@ const code = `<elf-virtual-list
   item-height="44"
 />`;
 const script = `const listItemStyle = { paddingInline: "20px", background: "var(--elf-bg-paper)" };
-const renderItem = (item) => createTaskRow(item);`;
+const renderItem = (item) => createTaskRow(item);
 
-const PageVirtualListEx2 = defineHtml(html`
+const total = 10000;
+const items = Array.from({ length: total }, (_, index) => ({ id: index, status: index % 3 }));`;
+
+const PageVirtualListEx2 = defineHtml(`
   <h2>${t("section")}</h2>
   <elf-playground :title=${t("title")} :code=${code} :script=${script}>
     <span slot="status" class="demo-state">${total.toLocaleString()} ${t("status")}</span>

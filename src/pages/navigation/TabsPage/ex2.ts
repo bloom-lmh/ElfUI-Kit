@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 import { createDocsTranslator } from "../../docsLocale";
 
@@ -29,7 +29,7 @@ const items = [
   { label: "Settings", value: "settings", content: "System settings" }
 ];`;
 
-const PageTabsEx2 = defineHtml(html`
+const PageTabsEx2 = defineHtml(`
   <h2>${t("section")}</h2>
   <elf-playground :title=${t("title")} :code=${code} :script=${script}>
     <div style="display:grid;gap:20px;width:100%;max-width:860px">

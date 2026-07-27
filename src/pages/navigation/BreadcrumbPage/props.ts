@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 
 const propsRows = [
   { name: "items", type: "BreadcrumbItem[]", default: "[]", desc: "面包屑数据" },
@@ -17,7 +17,7 @@ const itemRows = [
 ];
 const slotsRows = [{ name: "default", desc: "组合式 elf-breadcrumb-item 内容" }];
 
-const PageBreadcrumbProps = defineHtml(html`
+const PageBreadcrumbProps = defineHtml(`
   <h2>API</h2>
   <elf-props-table title="Props" :rows=${propsRows}></elf-props-table>
   <elf-props-table title="Events" :rows=${eventsRows}></elf-props-table>

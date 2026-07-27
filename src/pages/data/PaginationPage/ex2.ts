@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 const compactPage = useRef(3);
 const simplePage = useRef(1);
@@ -28,7 +28,7 @@ const onCompactChange = (event) => {
   compactPage.set(Number(event.detail));
 };`;
 
-const PagePaginationEx2 = defineHtml(html`
+const PagePaginationEx2 = defineHtml(`
   <h2>布局、默认值与尺寸</h2>
   <elf-playground title="已知页数、非受控默认值与紧凑布局" :code=${code} :script=${script}>
     <div style="width: 100%; display: grid; gap: 18px">

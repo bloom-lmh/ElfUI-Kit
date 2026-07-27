@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 const loading = useRef(false);
 
@@ -17,7 +17,7 @@ const toggle = (): void => {
   loading.set(!loading.value);
 };
 
-const PageLoadingEx1 = defineHtml(html`
+const PageLoadingEx1 = defineHtml(`
 <elf-playground title="局部加载 / 受控" :code=${code1} :script=${script1}>
       <div style="display:grid;gap:12px;max-width:520px">
         <elf-loading :loading=${loading} text="加载组件数据中">

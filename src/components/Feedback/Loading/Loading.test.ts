@@ -95,6 +95,7 @@ describe("elf-loading", () => {
 
     const button = el.shadowRoot!.querySelector<HTMLButtonElement>(".close")!;
     expect(button.textContent).toContain("退出全屏加载");
+    expect(button.querySelector("svg")).toBeTruthy();
     button.click();
 
     expect(nextLoading).toBe(false);
@@ -158,6 +159,7 @@ describe("elf-loading", () => {
     const fullscreenEl = document.body.querySelector<LoadingEl>("elf-loading[data-loading-service]")!;
     expect(fullscreenEl.fullscreen).toBe(true);
     expect(fullscreenEl.style.position).toBe("fixed");
+    expect(fullscreenEl.style.zIndex).toBe("10000");
     fullscreen.close();
 
     const target = document.createElement("section");

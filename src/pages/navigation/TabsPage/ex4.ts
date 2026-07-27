@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 import { createDocsTranslator } from "../../docsLocale";
 
@@ -25,7 +25,7 @@ const items = [
   { label: "Publish", value: "publish", content: "Publish content" }
 ];`;
 
-const PageTabsEx4 = defineHtml(html`
+const PageTabsEx4 = defineHtml(`
   <h2>${t("section")}</h2>
   <elf-playground :title=${t("title")} :code=${code} :script=${script}>
     <div style="width:100%;max-width:760px">

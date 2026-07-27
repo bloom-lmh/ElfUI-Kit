@@ -120,7 +120,7 @@ export const ElfLoading = (options: LoadingOptions = {}): LoadingInstance => {
   // The service owns its shared lock counter; avoid locking twice in the component.
   el.lock = false;
   el.setAttribute("data-loading-service", "");
-  el.style.zIndex = "2000";
+  el.style.zIndex = "10000";
 
   for (const className of options.customClass?.split(/\s+/) ?? []) {
     if (className) el.classList.add(className);

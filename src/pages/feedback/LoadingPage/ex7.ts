@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 
 import { ElfLoading } from "../../../components/Feedback/Loading/service";
 
@@ -24,7 +24,7 @@ const openFullscreen = (): void => {
   });
 };
 
-const PageLoadingEx7 = defineHtml(html`
+const PageLoadingEx7 = defineHtml(`
   <h2>Loading service</h2>
   <elf-playground title="命令式全屏加载支持主动退出并恢复焦点" :code=${code} :script=${script}>
     <elf-button @click=${openFullscreen}>启动全屏 Loading service</elf-button>

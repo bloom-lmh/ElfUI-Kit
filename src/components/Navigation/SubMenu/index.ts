@@ -1,4 +1,4 @@
-import { defineHtml, defineProps, defineStyle, html, useHostAttr, useHostFlag } from "@elfui/core";
+import { defineHtml, defineProps, defineStyle, useHostAttr, useHostFlag } from "@elfui/core";
 
 import styles from "./style.scss?inline";
 import type { SubMenuProps, SubMenuSlots } from "../Menu/types";
@@ -28,7 +28,7 @@ useHostFlag("data-disabled", () => Boolean(props.disabled));
 
 defineStyle(styles);
 
-const SubMenu = defineHtml<SubMenuProps, Record<string, never>, SubMenuSlots>(html`
+const SubMenu = defineHtml<SubMenuProps, Record<string, never>, SubMenuSlots>(`
   <slot name="title"></slot>
   <slot></slot>
 `);

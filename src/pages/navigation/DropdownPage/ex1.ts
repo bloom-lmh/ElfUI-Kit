@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 
 const basicSelected = useRef("未选择");
@@ -36,7 +36,16 @@ const triggerScript = `const items = [
       { label: "导出记录", command: "export" }
     ]
   }
-];`;
+];
+
+const basicSelected = useRef("未选择");
+const commandText = (event) => {
+    const detail = event.detail;
+    return \`\${String(detail.command || "")} / \${String(detail.item?.label || "")}\`;
+};
+const onBasicCommand = (event) => {
+    basicSelected.set(commandText(event));
+};`;
 
 const commandText = (event: CustomEvent): string => {
   const detail = event.detail as { command?: string; item?: { label?: string } };
@@ -47,7 +56,7 @@ const onBasicCommand = (event: CustomEvent): void => {
   basicSelected.set(commandText(event));
 };
 
-const PageDropdownEx1 = defineHtml(html`
+const PageDropdownEx1 = defineHtml(`
 <elf-playground title="基础命令菜单" :code=${basicCode} :script=${triggerScript}>
       <div style="display:grid;gap:12px;align-items:start">
         <elf-dropdown

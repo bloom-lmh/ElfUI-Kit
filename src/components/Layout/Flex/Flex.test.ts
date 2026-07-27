@@ -47,7 +47,7 @@ describe("elf-flex", () => {
     const el = document.createElement("elf-flex") as HTMLElement & {
       direction: string;
       justify: string;
-      wrap: boolean;
+      wrap: boolean | string;
       inline: boolean;
     };
     document.body.appendChild(el);
@@ -59,8 +59,62 @@ describe("elf-flex", () => {
 
     expect(el.getAttribute("direction")).toBe("column-reverse");
     expect(el.getAttribute("justify")).toBe("space-evenly");
-    expect(el.hasAttribute("wrap")).toBe(true);
+    expect(el.style.getPropertyValue("--_justify")).toBe("space-evenly");
+    expect(el.getAttribute("wrap")).toBe("wrap");
     expect(el.hasAttribute("inline")).toBe(true);
+  });
+
+  it("将 space-between 与 space-around 直接同步为主轴 CSS 变量", async () => {
+    const el = document.createElement("elf-flex") as HTMLElement & { justify: string };
+    document.body.appendChild(el);
+
+    el.justify = "space-between";
+    await tick();
+    expect(el.style.getPropertyValue("--_justify")).toBe("space-between");
+
+    el.justify = "space-around";
+    await tick();
+    expect(el.style.getPropertyValue("--_justify")).toBe("space-around");
+  });
+
+  it("支持 align-content 与完整换行策略", async () => {
+    const el = document.createElement("elf-flex") as HTMLElement & {
+      alignContent: string;
+      wrap: boolean | string;
+    };
+    document.body.appendChild(el);
+
+    el.alignContent = "space-between";
+    el.wrap = "wrap-reverse";
+    await tick();
+    expect(el.getAttribute("align-content")).toBe("space-between");
+    expect(el.getAttribute("wrap")).toBe("wrap-reverse");
+    expect(el.style.getPropertyValue("--_align-content")).toBe("space-between");
+    expect(el.style.getPropertyValue("--_wrap")).toBe("wrap-reverse");
+
+    el.wrap = false;
+    await tick();
+    expect(el.getAttribute("wrap")).toBe("nowrap");
+    expect(el.style.getPropertyValue("--_wrap")).toBe("nowrap");
+
+    el.alignContent = "space-around";
+    await tick();
+    expect(el.style.getPropertyValue("--_align-content")).toBe("space-around");
+
+    el.alignContent = "space-evenly";
+    await tick();
+    expect(el.style.getPropertyValue("--_align-content")).toBe("space-evenly");
+  });
+
+  it("将裸 wrap 属性按布尔 true 归一为换行", async () => {
+    const el = document.createElement("elf-flex");
+    el.setAttribute("wrap", "");
+    document.body.appendChild(el);
+    await tick();
+    await tick();
+
+    expect(el.getAttribute("wrap")).toBe("wrap");
+    expect(el.style.getPropertyValue("--_wrap")).toBe("wrap");
   });
 
   it("alignment alias 优先于 align", async () => {

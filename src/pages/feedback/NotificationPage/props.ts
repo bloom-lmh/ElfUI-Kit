@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 
 const apiRows = [
   { name: "ElfNotification(options | string)", type: "Function", desc: "Create a notification and return a close handle" },
@@ -22,7 +22,7 @@ const optsRows = [
   { name: "onClick / onClose", type: "() => void", default: "undefined", desc: "Lifecycle callbacks" }
 ];
 
-const PageNotificationProps = defineHtml(html`
+const PageNotificationProps = defineHtml(`
   <h2>API</h2>
   <elf-props-table title="Function API" :rows="apiRows"></elf-props-table>
   <elf-props-table title="NotificationOptions" :rows="optsRows"></elf-props-table>

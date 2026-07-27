@@ -1,4 +1,4 @@
-import { defineHtml, defineStyle, html, useRef } from "@elfui/core";
+import { defineHtml, defineStyle, useRef } from "@elfui/core";
 import { createDocsTranslator } from "../../docsLocale";
 import styles from "./demo.scss?inline";
 
@@ -43,7 +43,7 @@ const onChange = (event) => active.set(event.detail);`;
 
 defineStyle(styles);
 
-const PageTabsEx9 = defineHtml(html`
+const PageTabsEx9 = defineHtml(`
   <h2>{{ t("heading") }}</h2>
   <elf-playground :title=${t("title")} :code=${code} :script=${script}>
     <span slot="status" class="demo-state">{{ t("current") }}：{{ active }}</span>

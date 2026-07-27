@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 import { createDocsTranslator } from "../../docsLocale";
 
 const t = createDocsTranslator({
@@ -21,5 +21,5 @@ const rows = () => [
   { name: "striped-flow", type: "boolean", default: "false", desc: t("flow") }, { name: "indeterminate", type: "boolean", default: "false", desc: t("indeterminate") },
   { name: "format", type: "(percent: number, value: number) => string", default: "-", desc: t("format") }
 ];
-const PageProgressProps = defineHtml(html`<h2>API</h2><elf-props-table title="Props" :rows.prop=${rows()}></elf-props-table>`);
+const PageProgressProps = defineHtml(`<h2>API</h2><elf-props-table title="Props" :rows.prop=${rows()}></elf-props-table>`);
 export { PageProgressProps };

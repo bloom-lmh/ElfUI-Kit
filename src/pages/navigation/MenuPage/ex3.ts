@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 import { createDocsTranslator } from "../../docsLocale";
 
 const t = createDocsTranslator({
@@ -65,9 +65,11 @@ const customProps = { index: "id", label: "title", icon: "mark", disabled: "lock
 const customItems = [
   { id: "overview", title: "Overview", mark: "O" },
   { id: "team", title: "Team", mark: "T", nodes: [{ id: "team-members", title: "Members" }] }
-];`;
+];
 
-const PageMenuEx3 = defineHtml(html`
+const openeds = ["team"];`;
+
+const PageMenuEx3 = defineHtml(`
   <h2>${t("section")}</h2>
   <elf-playground :title=${t("title")} :code=${code1} :script=${script}>
     <span slot="status" class="demo-state">${t("expanded")}: {{ active }} · ${t("collapsed")}: {{ collapsedActive }}</span>

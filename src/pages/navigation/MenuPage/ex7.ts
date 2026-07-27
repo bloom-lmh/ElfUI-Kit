@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 import { createDocsTranslator } from "../../docsLocale";
 
 const t = createDocsTranslator({
@@ -68,9 +68,21 @@ const items = [
     { index: "analytics/cohort", label: "Cohort" }
   ] }
 ];
-const onSelect = (event) => active.set(event.detail);`;
+const onSelect = (event) => active.set(event.detail);
 
-const PageMenuEx7 = defineHtml(html`
+const t = createDocsTranslator({
+    section: { zh: "唯一展开", en: "Unique opened group" },
+    title: { zh: "展开当前分组时关闭其他分组", en: "Opening one group closes the others" },
+    current: { zh: "当前选中", en: "Selected" },
+    defaultOpened: { zh: "默认展开", en: "Initially opened" },
+    opened: { zh: "当前展开", en: "Opened" }
+});
+const openedText = useRef("");
+const onOpen = (event) => {
+    openedText.set(\`\${t("opened")}: \${String(event.detail[0])}\`);
+};`;
+
+const PageMenuEx7 = defineHtml(`
     <h2>${t("section")}</h2>
     <elf-playground :title=${t("title")} :code=${code} :script=${script}>
         <span slot="status" class="demo-state">${openedStatus()} · ${t("current")}: {{ active }}</span>

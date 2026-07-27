@@ -15,6 +15,7 @@ import { Masonry } from "./Masonry/index";
 import { Scrollbar } from "./Scrollbar/index";
 import { Splitter, SplitterPanel } from "./Splitter/index";
 import { Space } from "./Space/index";
+import { Spacer } from "./Spacer/index";
 import { Sticky } from "./Sticky/index";
 
 registerComponents(
@@ -28,6 +29,7 @@ registerComponents(
   Main,
   Footer,
   Space,
+  Spacer,
   Masonry,
   Sticky,
   Scrollbar,
@@ -39,3 +41,5 @@ export { Masonry } from "./Masonry/index";
 export type { MasonryGap, MasonryProps, MasonrySlots } from "./Masonry/types";
 export { Space } from "./Space/index";
 export type { SpaceAlignment, SpaceDirection, SpacePresetSize, SpaceProps, SpaceSize, SpaceSlots } from "./Space/types";
+export { Spacer } from "./Spacer/index";
+export type { SpacerProps } from "./Spacer/types";

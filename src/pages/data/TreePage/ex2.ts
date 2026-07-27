@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 
 const checked = useRef<string[]>(["readme"]);
@@ -53,6 +53,32 @@ const code1 = `<elf-tree
   default-expand-all
 />`;
 
+const code1Script = `const data = [
+    {
+        id: "docs",
+        name: "docs",
+        nodes: [
+            { id: "readme", name: "README.md" },
+            { id: "plan", name: "PLAN.md" },
+            { id: "api", name: "API.md", disabled: true }
+        ]
+    },
+    {
+        id: "src",
+        name: "src",
+        nodes: [
+            {
+                id: "components",
+                name: "components",
+                nodes: [
+                    { id: "tree", name: "Tree" },
+                    { id: "menu", name: "Menu" }
+                ]
+            }
+        ]
+    }
+];`;
+
 const code2 = `<elf-tree
   :data.prop="data"
   :props.prop="{ key: 'id', label: 'name', children: 'nodes' }"
@@ -60,9 +86,35 @@ const code2 = `<elf-tree
   check-strictly
 />`;
 
-const PageTreeEx2 = defineHtml(html`
+const code2Script = `const data = [
+    {
+        id: "docs",
+        name: "docs",
+        nodes: [
+            { id: "readme", name: "README.md" },
+            { id: "plan", name: "PLAN.md" },
+            { id: "api", name: "API.md", disabled: true }
+        ]
+    },
+    {
+        id: "src",
+        name: "src",
+        nodes: [
+            {
+                id: "components",
+                name: "components",
+                nodes: [
+                    { id: "tree", name: "Tree" },
+                    { id: "menu", name: "Menu" }
+                ]
+            }
+        ]
+    }
+];`;
+
+const PageTreeEx2 = defineHtml(`
   <h2>复选框与过滤</h2>
-  <elf-playground title="父子级联勾选，输入关键字过滤节点" :code="code1">
+  <elf-playground title="父子级联勾选，输入关键字过滤节点" :code="code1" :script=${code1Script}>
     <elf-card variant="outlined" density="compact" style="width:100%;max-width:560px">
       <elf-tree
       :data.prop="data"
@@ -79,7 +131,7 @@ const PageTreeEx2 = defineHtml(html`
   </elf-playground>
 
   <h2>严格勾选</h2>
-  <elf-playground title="check-strictly 开启后父子节点互不影响" :code="code2">
+  <elf-playground title="check-strictly 开启后父子节点互不影响" :code="code2" :script=${code2Script}>
     <elf-card variant="outlined" density="compact" style="width:100%;max-width:560px">
       <elf-tree
       :data.prop="data"

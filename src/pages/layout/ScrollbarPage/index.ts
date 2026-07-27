@@ -1,4 +1,4 @@
-import { defineHtml, html, useComponents } from "@elfui/core";
+import { defineHtml, useComponents } from "@elfui/core";
 import { PageScrollbarEx1 } from "./ex1";
 import { PageScrollbarEx2 } from "./ex2";
 import { PageScrollbarEx3 } from "./ex3";
@@ -11,7 +11,7 @@ useComponents({
   "page-scrollbar-props": PageScrollbarProps
 });
 
-const PageScrollbar = defineHtml(html`
+const PageScrollbar = defineHtml(`
   <elf-container>
     <h1>Scrollbar 滚动条</h1>
     <p>包裹滚动内容并抛出 scroll 事件，支持固定高度、最大高度、always 预留滚动条空间，以及 setScrollTop / setScrollLeft 命令控制。</p>

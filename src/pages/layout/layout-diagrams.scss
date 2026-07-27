@@ -1,0 +1,285 @@
+@use "../../styles/reset";
+
+:host {
+  display: block;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+h2 {
+  margin: 32px 0 12px;
+  font-size: 20px;
+  letter-spacing: -.01em;
+}
+
+.diagram-stack {
+  display: grid;
+  width: 100%;
+  gap: 14px;
+}
+
+.diagram-line {
+  display: grid;
+  grid-template-columns: minmax(96px, 140px) minmax(0, 1fr);
+  align-items: center;
+  gap: 16px;
+}
+
+.diagram-label {
+  color: var(--elf-text-secondary);
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.4;
+}
+
+.diagram-stage {
+  width: 100%;
+  min-width: 0;
+  min-height: 104px;
+  padding: 18px;
+  border: 1px solid var(--elf-divider);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--elf-primary) 2.5%, var(--elf-bg-paper));
+  overflow: hidden;
+}
+
+.diagram-stage.tall {
+  min-height: 184px;
+}
+
+.diagram-item {
+  display: grid;
+  min-width: 0;
+  min-height: 54px;
+  place-items: center;
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, var(--elf-primary) 34%, var(--elf-divider));
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--elf-primary) 11%, var(--elf-bg-paper));
+  color: var(--elf-primary);
+  font-size: 14px;
+  font-weight: 750;
+  text-align: center;
+}
+
+.diagram-item.alt {
+  border-color: color-mix(in srgb, var(--elf-info) 34%, var(--elf-divider));
+  background: color-mix(in srgb, var(--elf-info) 10%, var(--elf-bg-paper));
+  color: var(--elf-info);
+}
+
+.diagram-item.neutral {
+  border-color: color-mix(in srgb, var(--elf-text-secondary) 24%, var(--elf-divider));
+  background: color-mix(in srgb, var(--elf-text-secondary) 8%, var(--elf-bg-paper));
+  color: var(--elf-text-primary);
+}
+
+.diagram-item small {
+  display: block;
+  margin-top: 2px;
+  color: var(--elf-text-secondary);
+  font-size: 10px;
+  font-weight: 550;
+}
+
+.flex-demo {
+  width: 100%;
+}
+
+.flex-demo.vertical {
+  align-items: flex-start;
+  width: min(280px, 100%);
+}
+
+.flex-demo.vertical .diagram-item {
+  width: 72px;
+}
+
+.flex-demo .diagram-item {
+  flex: 0 0 72px;
+}
+
+.align-content-demo {
+  width: 100%;
+  height: 148px;
+  padding: 8px;
+  border: 1px dashed color-mix(in srgb, var(--elf-primary) 35%, var(--elf-divider));
+  border-radius: 6px;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0 39px,
+    color-mix(in srgb, var(--elf-primary) 7%, transparent) 39px 40px
+  );
+}
+
+.align-content-demo .diagram-item {
+  flex: 0 0 calc(50% - 6px);
+  min-height: 44px;
+  height: 44px;
+  padding: 6px 10px;
+}
+
+.align-content-demo .diagram-item small {
+  margin: 0;
+  font-size: 8px;
+}
+
+.flex-demo.align-demo .diagram-item:nth-child(1) { min-height: 44px; }
+.flex-demo.align-demo .diagram-item:nth-child(2) { min-height: 68px; }
+.flex-demo.align-demo .diagram-item:nth-child(3) { min-height: 92px; }
+
+.container-demo {
+  display: grid;
+  gap: 10px;
+  width: 100%;
+}
+
+.container-bar {
+  display: grid;
+  min-height: 44px;
+  place-items: center;
+  margin-inline: auto;
+  border: 1px solid color-mix(in srgb, var(--elf-primary) 28%, var(--elf-divider));
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--elf-primary) 9%, var(--elf-bg-paper));
+  color: var(--elf-primary);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.layout-shell {
+  width: min(920px, 100%);
+  height: 286px;
+  overflow: hidden;
+  border: 1px solid var(--elf-divider);
+  border-radius: 8px;
+  background: var(--elf-bg-paper);
+}
+
+.layout-shell.compact {
+  height: 244px;
+}
+
+.layout-shell elf-layout {
+  min-width: 0;
+  height: 100%;
+}
+
+.layout-shell elf-header,
+.layout-shell elf-footer,
+.layout-shell elf-aside,
+.layout-shell elf-main {
+  min-width: 0;
+  padding: 12px;
+  color: var(--elf-text-primary);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.layout-shell elf-header {
+  border-bottom: 1px solid color-mix(in srgb, var(--elf-primary) 24%, var(--elf-divider));
+  background: color-mix(in srgb, var(--elf-primary) 11%, var(--elf-bg-paper));
+}
+
+.layout-shell elf-header.system-region {
+  border-bottom-color: color-mix(in srgb, var(--elf-info) 24%, var(--elf-divider));
+  background: color-mix(in srgb, var(--elf-info) 11%, var(--elf-bg-paper));
+}
+
+.layout-shell elf-aside {
+  border-right: 1px solid color-mix(in srgb, var(--elf-danger) 20%, var(--elf-divider));
+  background: color-mix(in srgb, var(--elf-danger) 8%, var(--elf-bg-paper));
+}
+
+.layout-shell elf-aside.secondary-region {
+  border-right-color: color-mix(in srgb, var(--elf-info) 20%, var(--elf-divider));
+  background: color-mix(in srgb, var(--elf-info) 8%, var(--elf-bg-paper));
+}
+
+.layout-shell elf-aside.right-region {
+  border-right: 0;
+  border-left: 1px solid color-mix(in srgb, var(--elf-warning) 24%, var(--elf-divider));
+  background: color-mix(in srgb, var(--elf-warning) 9%, var(--elf-bg-paper));
+}
+
+.layout-shell elf-main {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  background: color-mix(in srgb, var(--elf-success) 4%, var(--elf-bg-paper));
+}
+
+.layout-shell elf-footer {
+  border-top: 1px solid color-mix(in srgb, var(--elf-success) 22%, var(--elf-divider));
+  background: color-mix(in srgb, var(--elf-success) 9%, var(--elf-bg-paper));
+}
+
+.region-label {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.shell-skeleton {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  width: 100%;
+}
+
+.shell-skeleton span {
+  min-height: 46px;
+  border: 1px solid color-mix(in srgb, var(--elf-primary) 22%, var(--elf-divider));
+  border-radius: 5px;
+  background: color-mix(in srgb, var(--elf-primary) 7%, var(--elf-bg-paper));
+}
+
+.shell-skeleton span:first-child {
+  grid-column: span 2;
+}
+
+.shell-skeleton span:last-child {
+  grid-column: span 2;
+}
+
+@media (max-width: 640px) {
+  .diagram-line {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .diagram-stage {
+    padding: 12px;
+  }
+
+  .flex-demo .diagram-item {
+    flex-basis: 58px;
+  }
+
+  .align-content-comparison {
+    grid-template-columns: 1fr;
+  }
+
+  .layout-shell {
+    height: 230px;
+  }
+
+  .layout-shell elf-aside {
+    width: 64px !important;
+  }
+
+  .layout-shell elf-aside.secondary-region,
+  .layout-shell elf-aside.right-region {
+    display: none;
+  }
+
+  .shell-skeleton {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .shell-skeleton span {
+    min-height: 34px;
+  }
+}

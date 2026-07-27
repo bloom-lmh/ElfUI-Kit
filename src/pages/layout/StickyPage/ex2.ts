@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 
 const rows = Array.from({ length: 10 }, (_, index) => `审批记录 ${index + 1}`);
 
@@ -8,7 +8,7 @@ const code = `<elf-sticky position="bottom" offset="0" z-index="20">
 
 const script = `// position="bottom" 与 offset 对齐 Element Plus Affix API。`;
 
-const PageStickyEx2 = defineHtml(html`
+const PageStickyEx2 = defineHtml(`
   <h2>底部吸附</h2>
   <elf-playground title="bottom action bar" :code=${code} :script=${script}>
     <div

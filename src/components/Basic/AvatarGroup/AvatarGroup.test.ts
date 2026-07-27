@@ -75,7 +75,7 @@ describe("elf-avatar-group", () => {
     await tick();
 
     const button = group.shadowRoot!.querySelector(".collapse") as HTMLButtonElement;
-    expect(button.getAttribute("title")).toBe("2 additional avatars");
+    expect(button.getAttribute("title")).toBe("2 个未显示头像");
     expect(button.classList.contains("custom-collapse")).toBe(true);
     expect(button.style.color).toBe("rgb(1, 2, 3)");
     button.click();

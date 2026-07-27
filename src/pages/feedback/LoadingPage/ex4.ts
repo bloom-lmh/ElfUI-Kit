@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 
 import type { LoadingVariant } from "../../../components/Feedback/Loading/types";
 
@@ -24,7 +24,7 @@ const variantKey = (item: VariantExample): LoadingVariant => item.value;
 const variantLabel = (item: VariantExample): string => item.label;
 const variantText = (item: VariantExample): string => item.text;
 
-const PageLoadingEx4 = defineHtml(html`
+const PageLoadingEx4 = defineHtml(`
   <elf-playground title="四种加载动效" :code=${code}>
     <div
       style="display:grid;grid-template-columns:repeat(2,minmax(180px,1fr));gap:14px;width:100%;max-width:760px"

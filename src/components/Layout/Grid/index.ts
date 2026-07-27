@@ -1,6 +1,6 @@
 // elf-grid - 12 列栅格容器
 
-import { defineHtml, defineProps, defineStyle, html, useHostAttr, useHostCssVar, useHostFlag } from "@elfui/core";
+import { defineHtml, defineProps, defineStyle, useHostAttr, useHostCssVar, useHostFlag } from "@elfui/core";
 
 import styles from "./style.scss?inline";
 import type { GridProps, GridSlots, GridSpacing } from "./types";
@@ -55,6 +55,6 @@ useHostFlag("auto-fit", () => props.autoFit);
 
 defineStyle(styles);
 
-const Grid = defineHtml<GridProps, Record<string, never>, GridSlots>(html`<slot></slot>`);
+const Grid = defineHtml<GridProps, Record<string, never>, GridSlots>(`<slot></slot>`);
 
 export { Grid };

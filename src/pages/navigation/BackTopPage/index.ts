@@ -1,4 +1,4 @@
-import { defineHtml, html, useComponents } from "@elfui/core";
+import { defineHtml, useComponents } from "@elfui/core";
 import { createDocsTranslator } from "../../docsLocale";
 import { PageBacktopEx1 } from "./ex1";
 import { PageBacktopEx2 } from "./ex2";
@@ -18,7 +18,7 @@ const t = createDocsTranslator({
   }
 });
 
-const PageBacktop = defineHtml(html`
+const PageBacktop = defineHtml(`
   <elf-container>
     <h1>${t("title")}</h1>
     <p>${t("description")}</p>

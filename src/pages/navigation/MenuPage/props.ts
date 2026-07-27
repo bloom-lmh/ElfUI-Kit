@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 
 const propsRows = [
   {
@@ -97,7 +97,7 @@ const slotsRows = [
   { name: "toggle", desc: "自定义折叠按钮" }
 ];
 
-const PageMenuProps = defineHtml(html`
+const PageMenuProps = defineHtml(`
   <h2>API</h2>
   <elf-props-table title="Props" :rows=${propsRows}></elf-props-table>
   <elf-props-table title="Events" :rows=${eventsRows}></elf-props-table>

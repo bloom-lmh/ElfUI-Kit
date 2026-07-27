@@ -1,4 +1,4 @@
-import { defineHtml, html, useComponents } from "@elfui/core";
+import { defineHtml, useComponents } from "@elfui/core";
 
 import { createDocsTranslator } from "../../docsLocale";
 import { PageGridEx1 } from "./ex1";
@@ -10,8 +10,8 @@ import { PageGridProps } from "./props";
 const t = createDocsTranslator({
   title: { zh: "Grid 栅格布局", en: "Grid layout" },
   description: {
-    zh: "基于原生 CSS Grid 的 12 列栅格系统，以纯虚线框展示列宽、偏移与响应式关系。",
-    en: "A 12-column CSS Grid system shown with plain dashed guides for spans, offsets, and responsive behavior."
+    zh: "一个页面覆盖 Container、Grid 与 GridItem，以统一编号结构图展示列宽、偏移和响应式关系。",
+    en: "One page covers Container, Grid, and GridItem with consistent numbered diagrams for spans, offsets, and responsive behavior."
   }
 });
 
@@ -23,7 +23,7 @@ useComponents({
   "page-grid-props": PageGridProps
 });
 
-const PageGrid = defineHtml(html`
+const PageGrid = defineHtml(`
   <elf-container>
     <h1>${t("title")}</h1>
     <p>${t("description")}</p>

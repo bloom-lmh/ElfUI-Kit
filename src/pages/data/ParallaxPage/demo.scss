@@ -1,0 +1,44 @@
+.parallax-copy {
+  display: grid;
+  gap: 10px;
+}
+
+.parallax-copy h3 {
+  margin: 0;
+  font-size: clamp(28px, 5vw, 48px);
+  line-height: 1.1;
+}
+
+.parallax-copy p {
+  max-width: 480px;
+  margin: 0;
+  color: rgb(255 255 255 / 82%);
+  line-height: 1.7;
+}
+
+.parallax-gallery {
+  display: grid;
+  width: min(900px, 100%);
+  gap: 18px;
+}
+
+.parallax-gallery elf-parallax {
+  border-radius: 8px;
+}
+
+.parallax-panel {
+  padding: 14px 16px;
+  border-radius: 8px;
+  background: rgb(0 0 0 / 36%);
+  backdrop-filter: blur(10px);
+}
+
+.parallax-panel strong,
+.parallax-panel small {
+  display: block;
+}
+
+.parallax-panel small {
+  margin-top: 4px;
+  color: rgb(255 255 255 / 72%);
+}

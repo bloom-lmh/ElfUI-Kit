@@ -1,5 +1,11 @@
 # Layout Element Plus API 对标计划
 
+## 2026-07-22 浅色区域层级
+
+- [x] 为 Header、Aside、Main、Footer 提供默认分区背景和分隔线，避免浅色主题下所有区域融为同一白色平面。
+- [x] 通过 `--elf-layout-*-bg` 与 `--elf-layout-divider` 保留业务侧自定义和无分隔设计能力。
+- [x] Main 默认层级改用 5% 主题色底，避免与 Playground 中性灰代码区混淆。
+
 生成时间：2026-07-05
 
 ## 2026-07-15 架构与验收记录
@@ -175,3 +181,11 @@
 - [x] 全部示意统一为低圆角虚线结构，不混用实线卡片、渐变或阴影。
 - [x] 增加 Baseline、Extended Toolbar、System Bar、Inbox、Constrained、Side Navigation、Three Columns、Community Workspace 与 Store Layout 九种产品布局。
 - [x] 1200px 与 360px 真实浏览器验证通过，图库响应为三列/两列/单列且页面无横向溢出。
+
+## 2026-07-22 案例结构去重
+
+- [x] 生命周期迁移为 `onMounted`。
+- [x] 将相同应用骨架合并，保留八种不重复结构能力。
+- [x] 目录改为八个 Playground 一级条目，不再使用产品类型分组。
+- [x] 全部预览采用统一语义区域色、实线边框、8px 圆角和结构占位块。
+- [x] 页面聚焦测试、应用构建和 1280px / 390px 真实浏览器视觉验收通过。

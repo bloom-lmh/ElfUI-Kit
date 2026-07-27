@@ -4,7 +4,9 @@ export type AnchoredPlacement =
   | "bottom-end"
   | "top"
   | "top-start"
-  | "top-end";
+  | "top-end"
+  | "left"
+  | "right";
 
 export interface OverlayRect {
   left: number;
@@ -22,24 +24,28 @@ export interface OverlayViewport {
   offsetTop?: number;
 }
 
-export interface AnchoredPositionOptions {
-  placement: AnchoredPlacement;
+export interface AnchoredPositionOptions<TPlacement extends AnchoredPlacement = AnchoredPlacement> {
+  placement: TPlacement;
   offset?: readonly [crossAxis: number, mainAxis: number];
   padding?: number;
   flip?: boolean;
-  fallbackPlacements?: readonly AnchoredPlacement[];
+  fallbackPlacements?: readonly TPlacement[];
 }
 
-export interface AnchoredPosition {
+export interface AnchoredPosition<TPlacement extends AnchoredPlacement = AnchoredPlacement> {
   left: number;
   top: number;
-  placement: AnchoredPlacement;
+  placement: TPlacement;
 }
 
 const oppositePlacement = (placement: AnchoredPlacement): AnchoredPlacement =>
-  placement.startsWith("top")
-    ? placement.replace("top", "bottom") as AnchoredPlacement
-    : placement.replace("bottom", "top") as AnchoredPlacement;
+  placement === "left"
+    ? "right"
+    : placement === "right"
+      ? "left"
+      : placement.startsWith("top")
+        ? placement.replace("top", "bottom") as AnchoredPlacement
+        : placement.replace("bottom", "top") as AnchoredPlacement;
 
 const rawPosition = (
   anchor: OverlayRect,
@@ -48,6 +54,14 @@ const rawPosition = (
   offset: readonly [number, number]
 ): Pick<AnchoredPosition, "left" | "top"> => {
   const [crossAxis, mainAxis] = offset;
+  if (placement === "left" || placement === "right") {
+    return {
+      left: placement === "left"
+        ? anchor.left - overlay.width - mainAxis
+        : anchor.right + mainAxis,
+      top: anchor.top + (anchor.height - overlay.height) / 2 + crossAxis
+    };
+  }
   const isTop = placement.startsWith("top");
   const isEnd = placement.endsWith("end");
   const isCenter = placement === "top" || placement === "bottom";
@@ -83,21 +97,21 @@ const overflowScore = (
 const clamp = (value: number, min: number, max: number): number =>
   Math.max(min, Math.min(value, Math.max(min, max)));
 
-export const computeAnchoredPosition = (
+export const computeAnchoredPosition = <TPlacement extends AnchoredPlacement>(
   anchor: OverlayRect,
   overlay: Pick<OverlayRect, "width" | "height">,
   viewport: OverlayViewport,
-  options: AnchoredPositionOptions
-): AnchoredPosition => {
+  options: AnchoredPositionOptions<TPlacement>
+): AnchoredPosition<TPlacement> => {
   const padding = Math.max(0, Number(options.padding) || 0);
   const offset = options.offset || [0, 6];
-  const placements = options.flip === false
+  const placements = (options.flip === false
     ? [options.placement]
     : Array.from(new Set([
         options.placement,
         ...(options.fallbackPlacements || []),
         oppositePlacement(options.placement)
-      ]));
+      ]))) as TPlacement[];
   const candidates = placements.map((placement) => ({
     placement,
     position: rawPosition(anchor, overlay, placement, offset)

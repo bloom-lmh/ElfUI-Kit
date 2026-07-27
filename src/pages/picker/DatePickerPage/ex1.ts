@@ -1,4 +1,5 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, defineStyle, useRef } from "@elfui/core";
+import styles from "./demo.scss?inline";
 
 const date = useRef("2026-06-17");
 
@@ -14,17 +15,21 @@ const basicCode = `<elf-date-picker
   clearable
 />`;
 
-const PageDatePickerEx1 = defineHtml(html`
+const basicScript = `const date = useRef("2026-06-17");`;
+
+defineStyle(styles);
+
+const PageDatePickerEx1 = defineHtml(`
 <h2>基础</h2>
-<elf-playground title="基础日期" :code="basicCode">
+<elf-playground title="基础日期" :code=${basicCode} :script=${basicScript}>
       <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
         <elf-date-picker
-          :modelValue.prop="date"
+          :modelValue.prop=${date}
           label="发布日期"
           clearable
-          @update:modelValue="updateDate"
+          @update:modelValue=${updateDate}
         ></elf-date-picker>
-        <span slot="status" class="demo-state">{{ date }}</span>
+        <span slot="status" class="demo-state">${date}</span>
       </div>
     </elf-playground>
 `);

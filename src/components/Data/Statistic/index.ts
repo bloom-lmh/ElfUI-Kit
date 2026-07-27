@@ -2,7 +2,6 @@ import {
   defineHtml,
   defineProps,
   defineStyle,
-  html,
   onBeforeUnmount,
   useComputed,
   useEffect,
@@ -128,7 +127,7 @@ onBeforeUnmount(stopAnimation);
 
 defineStyle(styles);
 
-const Statistic = defineHtml<StatisticProps, Record<string, never>, StatisticSlots>(html`
+const Statistic = defineHtml<StatisticProps, Record<string, never>, StatisticSlots>(`
   <div class="statistic" part="statistic">
     <div v-show=${showTitle} class="title" part="title">
       <slot name="title" @slotchange=${onSlotChange("title")}>${props.title}</slot>

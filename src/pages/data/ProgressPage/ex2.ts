@@ -1,4 +1,4 @@
-import { defineHtml, html, onUnmount, useRef } from "@elfui/core";
+import { defineHtml, onUnmounted, useRef } from "@elfui/core";
 import { createDocsTranslator } from "../../docsLocale";
 
 const t = createDocsTranslator({
@@ -46,12 +46,13 @@ const increase = (): void => { stopAuto(); clamp(circleProgress.value + 10); };
 const toggleAuto = (): void => autoRunning.value ? stopAuto() : startAuto();
 const onSpeedChange = (event: CustomEvent): void => {
   const running = autoRunning.value;
-  autoDelay.set(Number(event.detail) || 400);
+  const detail = Array.isArray(event.detail) ? event.detail[0] : event.detail;
+  autoDelay.set(Number(detail) || 400);
   if (running) startAuto();
 };
 const transition = (): number =>
   typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ? 0 : 0.45;
-onUnmount(stopAuto);
+onUnmounted(stopAuto);
 
 const code = `<elf-progress type="circle" :percentage="circleProgress" :transition-duration="transition()" />
 <elf-progress type="circle" percentage="100" status="success" />
@@ -59,12 +60,14 @@ const code = `<elf-progress type="circle" :percentage="circleProgress" :transiti
 const script = `const circleProgress = useRef(36);
 const increase = () => circleProgress.set(Math.min(100, circleProgress.value + 10));
 const decrease = () => circleProgress.set(Math.max(0, circleProgress.value - 10));
-// Clear the auto-increment timer during component cleanup.`;
+// Clear the auto-increment timer during component cleanup.
+
+const transition = () => typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ? 0 : 0.45;`;
 const statusCode = `<elf-progress percentage="28" status="warning" striped-flow />
 <elf-progress percentage="64" status="exception" />
 <elf-progress indeterminate duration="1" />`;
 
-const PageProgressEx2 = defineHtml(html`
+const PageProgressEx2 = defineHtml(`
   <h2>${t("circle")}</h2>
   <elf-playground :title=${t("circleTitle")} :code=${code} :script=${script}>
     <span slot="status" class="demo-state">${circleProgress.value}%</span>
@@ -78,10 +81,10 @@ const PageProgressEx2 = defineHtml(html`
       <strong style="font-size:var(--elf-font-size-sm)">${t("speed")}</strong>
       <elf-select size="sm" :aria-label=${t("speed")} :options.prop=${speedOptions()} :modelValue.prop=${autoDelay.value} @update:modelValue=${onSpeedChange}></elf-select>
     </div>
-    <div style="display:flex;gap:24px;align-items:center;justify-content:center;flex-wrap:wrap;width:100%">
-      <elf-progress type="circle" :percentage=${circleProgress.value} :transitionDuration=${transition()}></elf-progress>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(126px,1fr));gap:24px;align-items:center;justify-items:center;width:100%;max-width:560px;margin-inline:auto">
+      <elf-progress type="circle" :percentage.prop=${circleProgress.value} :transitionDuration.prop=${transition()}></elf-progress>
       <elf-progress type="circle" percentage="100" status="success"></elf-progress>
-      <elf-progress type="dashboard" :percentage=${circleProgress.value} color="#7c3aed"></elf-progress>
+      <elf-progress type="dashboard" :percentage.prop=${circleProgress.value} color="#7c3aed"></elf-progress>
     </div>
   </elf-playground>
   <h2>${t("status")}</h2>

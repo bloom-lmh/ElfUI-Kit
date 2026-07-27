@@ -1,4 +1,4 @@
-import { defineHtml, defineStyle, html, useRef } from "@elfui/core";
+import { defineHtml, defineStyle, useRef } from "@elfui/core";
 import { createDocsTranslator } from "../../docsLocale";
 import styles from "./demo.scss?inline";
 
@@ -75,7 +75,7 @@ const onActive = (event) => active.set(event.detail);`;
 
 defineStyle(styles);
 
-const PageStepsEx4 = defineHtml(html`
+const PageStepsEx4 = defineHtml(`
   <h2>{{ t("heading") }}</h2>
   <elf-playground :title=${t("title")} :code=${code} :script=${script}>
     <span slot="status" class="demo-state">{{ t("status") }}：{{ active + 1 }} / 3</span>
@@ -98,9 +98,9 @@ const PageStepsEx4 = defineHtml(html`
       <strong>{{ t("controls") }}</strong>
       <label><span>{{ t("previous") }}</span><elf-input variant="outlined" :modelValue.prop=${previousText.value} @update:modelValue=${onPreviousText}></elf-input></label>
       <label><span>{{ t("next") }}</span><elf-input variant="outlined" :modelValue.prop=${nextText.value} @update:modelValue=${onNextText}></elf-input></label>
-      <label class="steps-lab-toggle"><span>{{ t("hide") }}</span><elf-switch :modelValue.prop=${hideActions.value} @update:modelValue=${onHideActions}></elf-switch></label>
-      <label class="steps-lab-toggle"><span>{{ t("editable") }}</span><elf-switch :modelValue.prop=${editable.value} @update:modelValue=${onEditable}></elf-switch></label>
-      <label class="steps-lab-toggle"><span>{{ t("alt") }}</span><elf-switch :modelValue.prop=${altLabels.value} @update:modelValue=${onAltLabels}></elf-switch></label>
+      <elf-checkbox :modelValue.prop=${hideActions.value} :label=${t("hide")} @update:modelValue=${onHideActions}></elf-checkbox>
+      <elf-checkbox :modelValue.prop=${editable.value} :label=${t("editable")} @update:modelValue=${onEditable}></elf-checkbox>
+      <elf-checkbox :modelValue.prop=${altLabels.value} :label=${t("alt")} @update:modelValue=${onAltLabels}></elf-checkbox>
     </aside>
   </elf-playground>
 `);

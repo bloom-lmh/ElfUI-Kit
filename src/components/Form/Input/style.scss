@@ -365,15 +365,6 @@ input:disabled {
   transition: color var(--input-motion), opacity var(--input-motion);
 }
 
-// Keep icons centred beside an idle label. Only follow the editable text row
-// after the label floats, otherwise an empty labelled field looks misaligned.
-:host([data-has-label][data-dirty]) .prefix,
-:host([data-has-label][data-dirty]) .suffix,
-:host([data-has-label]) .wrapper:focus-within .prefix,
-:host([data-has-label]) .wrapper:focus-within .suffix {
-  transform: translateY(8px);
-}
-
 .prefix {
   margin-left: var(--input-padding-start);
 }
@@ -384,13 +375,6 @@ input:disabled {
 
 :host([variant="underlined"]) .prefix {
   margin-left: 0;
-}
-
-:host([variant="underlined"][data-has-label][data-dirty]) .prefix,
-:host([variant="underlined"][data-has-label][data-dirty]) .suffix,
-:host([variant="underlined"][data-has-label]) .wrapper:focus-within .prefix,
-:host([variant="underlined"][data-has-label]) .wrapper:focus-within .suffix {
-  transform: translateY(8px);
 }
 
 .prefix ::slotted(svg),

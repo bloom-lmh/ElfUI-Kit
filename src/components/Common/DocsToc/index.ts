@@ -4,9 +4,8 @@ import {
   defineHtml,
   defineProps,
   defineStyle,
-  html,
-  onMount,
-  onUnmount,
+  onMounted,
+  onUnmounted,
   useEffect,
   useHost,
   useRef
@@ -58,11 +57,27 @@ const ariaCurrent = (item: TocItem): "location" | undefined =>
   activeId.value === item.id ? "location" : undefined;
 
 const normalizeLevel = (tagName: string): number => Number(tagName.slice(1)) || 2;
-const itemLevel = (element: HTMLElement): number =>
-  element.tagName === "ELF-PLAYGROUND" ? 3 : normalizeLevel(element.tagName);
+const API_SECTION_PATTERN = /^(?:component\s+)?(?:api|props?|events?|exposes?|methods?|slots?|属性|事件|方法|插槽)$/i;
+const normalizeItemLabel = (label: string): string =>
+  API_SECTION_PATTERN.test(label) ? "API" : label;
+const itemLevel = (element: HTMLElement): number => {
+  const explicitLevel = Number(element.dataset.docsTocLevel);
+  if (explicitLevel >= 1 && explicitLevel <= 6) return explicitLevel;
+  return element.tagName === "ELF-PLAYGROUND" ? 2 : normalizeLevel(element.tagName);
+};
 const itemLabel = (element: HTMLElement): string =>
-  (element.tagName === "ELF-PLAYGROUND" ? element.getAttribute("title") : element.textContent || "")
-    ?.replace(/\s+/g, " ").trim() || "";
+  normalizeItemLabel(
+    (element.tagName === "ELF-PLAYGROUND" ? element.getAttribute("title") : element.textContent || "")
+      ?.replace(/\s+/g, " ").trim() || ""
+  );
+
+const navigationElement = (heading: HTMLElement): HTMLElement => {
+  if (!heading.hasAttribute("data-promoted-to-playground")) return heading;
+  const playground = heading.nextElementSibling;
+  return playground instanceof HTMLElement && playground.tagName === "ELF-PLAYGROUND"
+    ? playground
+    : heading;
+};
 
 const slugify = (label: string, index: number): string => {
   const slug = label
@@ -133,8 +148,11 @@ const collectRootsAndHeadings = (root: Document | ShadowRoot | HTMLElement): HTM
     const insidePlayground = Boolean(element.parentElement?.closest("elf-playground"));
     if (/^H[1-6]$/.test(element.tagName)) {
       const level = normalizeLevel(element.tagName);
+      const promotedByAdjacentPlayground = level === 2
+        && element.nextElementSibling?.tagName === "ELF-PLAYGROUND";
       if (
         !insidePlayground &&
+        !promotedByAdjacentPlayground &&
         level >= props.minLevel &&
         level <= props.maxLevel &&
         !element.closest("[data-docs-toc-ignore]")
@@ -168,13 +186,22 @@ const refresh = (): void => {
   const headings = collectRootsAndHeadings(target);
   const nextItems: TocItem[] = [];
   const nextElements = new Map<string, HTMLElement>();
+  const navigationHeadings: HTMLElement[] = [];
+  let hasApiItem = false;
   headings.forEach((heading, index) => {
     const label = itemLabel(heading);
     if (!label) return;
-    const id = heading.dataset.docsTocId || slugify(label, index);
-    heading.dataset.docsTocId = id;
+    if (label === "API") {
+      if (hasApiItem) return;
+      hasApiItem = true;
+    }
+    const targetElement = navigationElement(heading);
+    const id = targetElement.dataset.docsTocId || heading.dataset.docsTocId || slugify(label, index);
+    if (targetElement !== heading) delete heading.dataset.docsTocId;
+    targetElement.dataset.docsTocId = id;
     nextItems.push({ id, label, level: itemLevel(heading) });
-    nextElements.set(id, heading);
+    nextElements.set(id, targetElement);
+    navigationHeadings.push(targetElement);
   });
 
   items.set(nextItems);
@@ -182,7 +209,7 @@ const refresh = (): void => {
   activeId.set(nextItems[0]?.id || "");
   host.toggleAttribute("hidden", nextItems.length === 0);
 
-  scrollContainer = findScrollContainer(headings[0] || target);
+  scrollContainer = findScrollContainer(navigationHeadings[0] || target);
   scrollContainer?.addEventListener("scroll", scheduleActive, { passive: true });
 
   if (typeof IntersectionObserver !== "undefined") {
@@ -191,7 +218,7 @@ const refresh = (): void => {
       rootMargin: "-96px 0px -70% 0px",
       threshold: [0, 1]
     });
-    headings.forEach((heading) => intersectionObserver?.observe(heading));
+    navigationHeadings.forEach((heading) => intersectionObserver?.observe(heading));
   }
 
   observedRoots.forEach((root) => {
@@ -256,14 +283,14 @@ useEffect(() => {
   scheduleRefresh(60);
 });
 
-onMount(() => {
+onMounted(() => {
   host.shadowRoot?.addEventListener("click", onRootClick);
   removeRootClickListener = () => host.shadowRoot?.removeEventListener("click", onRootClick);
   scheduleRefresh();
   scheduleRefresh(100);
 });
 
-onUnmount(() => {
+onUnmounted(() => {
   removeRootClickListener();
   removeRootClickListener = () => {};
   disconnect();
@@ -276,7 +303,7 @@ onUnmount(() => {
 defineExpose({ refresh });
 defineStyle(styles);
 
-const DocsToc = defineHtml<DocsTocProps, DocsTocEmits>(html`
+const DocsToc = defineHtml<DocsTocProps, DocsTocEmits>(`
   <nav class="toc" :aria-label=${tocLabel()} v-if="hasItems()">
     <strong class="label">${tocLabel()}</strong>
     <div class="items">

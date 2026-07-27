@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 const rangeValue = useRef<[string, string]>(["09:00", "18:00"]);
 
@@ -37,10 +37,10 @@ const updateRange = (event) => {
   rangeValue.set(event.detail);
 };`;
 
-const PageTimePickerEx2 = defineHtml(html`
+const PageTimePickerEx2 = defineHtml(`
 <elf-playground title="范围值、快捷时间与清空" :code=${rangeCode} :script=${rangeScript}>
-      <div style="display:grid;gap:16px;width:100%;max-width:820px">
-        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+      <div style="display:grid;gap:16px;width:100%;max-width:820px;place-items:center">
+        <div style="display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap;width:100%">
           <elf-time-picker
             :modelValue.prop="rangeValue"
             is-range

@@ -309,6 +309,11 @@ const optionLabel = (option: RawOption): string => {
   return String(option[fields.label] ?? option[fields.value] ?? "");
 };
 
+const hasDefaultOptionSlot = (): boolean => Array.from(host.childNodes).some((node) => {
+  if (node.nodeType === 3) return Boolean(node.textContent?.trim());
+  return node instanceof Element && !node.hasAttribute("slot");
+});
+
 const optionValue = (option: RawOption): CascaderValue => {
   const fields = fieldNames();
   return (option[fields.value] ?? option[fields.label] ?? "") as CascaderValue;
@@ -792,14 +797,31 @@ const onTreeClick = (event: Event): void => {
   if (!key) return;
   const path = findPathByKey(key);
   if (path.length === 0) return;
-  if (target?.closest?.(".tree-toggle") && isTreePathExpanded(path)) {
+  const option = path[path.length - 1];
+  const hasChildren = Boolean(option && optionChildren(option).length > 0);
+  const previousActivePath = activePath.peek();
+  const preserveExpandedDescendants = previousActivePath.length > path.length
+    && isRawPathPrefix(path, previousActivePath)
+    && !target?.closest?.(".tree-toggle");
+  if (target?.closest?.(".tree-toggle")) {
     event.preventDefault();
     event.stopPropagation();
-    activePath.set(path.slice(0, -1));
+    if (isTreePathExpanded(path)) activePath.set(path.slice(0, -1));
+    else activePath.set(path);
+    emitExpand(path);
+    focusPathOption(path);
+    return;
+  }
+  if (hasChildren && !target?.closest?.(".option-checkbox")) {
+    event.preventDefault();
+    event.stopPropagation();
+    if (!isTreePathExpanded(path)) activePath.set(path);
+    emitExpand(path);
     focusPathOption(path);
     return;
   }
   onOptionPathClick(path, event);
+  if (preserveExpandedDescendants) activePath.set(previousActivePath);
 };
 
 const stopClick = (event: Event): void => {
@@ -1417,7 +1439,8 @@ const Cascader = defineHtml<CascaderProps, CascaderEmits, CascaderSlots>(`
           <span class="checkbox-mark"></span>
         </span>
         <span class="option-label">
-          <slot :node="nodeSnapshot(entry.path)" :data="entry.option"> {{ optionLabel(entry.option) }} </slot>
+          <slot v-if=${hasDefaultOptionSlot()} :node="nodeSnapshot(entry.path)" :data="entry.option"></slot>
+          <template v-else>{{ optionLabel(entry.option) }}</template>
         </span>
         <span v-if="optionLeaf(entry.option) && isSelected(entry.option, entry.column) && !props.checkable"
           class="check">✓</span>
@@ -1433,7 +1456,8 @@ const Cascader = defineHtml<CascaderProps, CascaderEmits, CascaderSlots>(`
             <span class="checkbox-mark"></span>
           </span>
           <span class="option-label">
-            <slot :node="nodeSnapshot(optionPath(option, column))" :data="option"> {{ optionLabel(option) }} </slot>
+            <slot v-if=${hasDefaultOptionSlot()} :node="nodeSnapshot(optionPath(option, column))" :data="option"></slot>
+            <template v-else>{{ optionLabel(option) }}</template>
           </span>
           <span v-if="!optionLeaf(option)" class="option-arrow">{{ isLazyLoading(option) ? '…' : '›' }}</span>
           <span v-else-if="isSelected(option, column) && !props.checkable" class="check">✓</span>

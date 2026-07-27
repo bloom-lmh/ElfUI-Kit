@@ -1,7 +1,9 @@
 import { defineHtml, useRef } from "@elfui/core";
 
-const range = useRef<string[]>(["2026-07-08", "2026-08-18"]);
-const updateRange = (event: CustomEvent<string[]>): void => range.set(event.detail || []);
+const start = useRef("2026-07-08");
+const end = useRef("2026-08-18");
+const updateStart = (event: CustomEvent<string>): void => start.set(event.detail || "");
+const updateEnd = (event: CustomEvent<string>): void => end.set(event.detail || "");
 const releaseCell = (date: Date): string => [8, 18, 26].includes(date.getDate()) ? "is-release-day" : "";
 
 const code = `<elf-date-picker
@@ -13,17 +15,21 @@ const code = `<elf-date-picker
   :cellClassName.prop="releaseCell"
   :fallbackPlacements.prop="['top-start', 'bottom-end']"
   :popperOptions.prop="{ offset: [0, 10], padding: 12 }"
-  :modelValue.prop="range"
-  @update:modelValue="updateRange"
+  :modelValue.prop="start"
+  :endValue.prop="end"
+  @update:modelValue="updateStart"
+  @update:endValue="updateEnd"
 >
   <span slot="range-separator">至</span>
   <span slot="prev-month">←</span>
   <span slot="next-month">→</span>
 </elf-date-picker>`;
 
-const script = `const range = useRef(["2026-07-08", "2026-08-18"]);
+const script = `const start = useRef("2026-07-08");
+const end = useRef("2026-08-18");
 const releaseCell = (date) => [8, 18, 26].includes(date.getDate()) ? "is-release-day" : "";
-const updateRange = (event) => range.set(event.detail);`;
+const updateStart = (event) => start.set(event.detail);
+const updateEnd = (event) => end.set(event.detail);`;
 
 const PageDatePickerEx7 = defineHtml(`
   <elf-playground title="双面板与高级定位" :code=${code} :script=${script}>
@@ -38,8 +44,10 @@ const PageDatePickerEx7 = defineHtml(`
         :cellClassName.prop=${releaseCell}
         :fallbackPlacements.prop=${["top-start", "bottom-end"]}
         :popperOptions.prop=${{ offset: [0, 10], padding: 12 }}
-        :modelValue.prop=${range}
-        @update:modelValue=${updateRange}
+        :modelValue.prop=${start}
+        :endValue.prop=${end}
+        @update:modelValue=${updateStart}
+        @update:endValue=${updateEnd}
       >
         <span slot="range-separator">至</span>
         <span slot="prev-month">←</span>

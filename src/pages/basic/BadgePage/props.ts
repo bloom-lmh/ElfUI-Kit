@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 
 const propsRows = [
   { name: "value", type: "string | number", default: "''" },
@@ -19,7 +19,7 @@ const slotsRows = [
   { name: "content", desc: "custom badge content" }
 ];
 
-const PageBadgeProps = defineHtml(html`
+const PageBadgeProps = defineHtml(`
   <h2>API</h2>
   <elf-props-table title="Props" :rows=${propsRows} />
   <elf-props-table title="Slots" :rows=${slotsRows} />

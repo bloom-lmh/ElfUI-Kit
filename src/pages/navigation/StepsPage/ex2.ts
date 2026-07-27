@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 import { createDocsTranslator } from "../../docsLocale";
 
 const t = createDocsTranslator({
@@ -29,7 +29,7 @@ const script = `const items = [
   { title: "归档", description: "审批后自动归档" }
 ];`;
 
-const PageStepsEx2 = defineHtml(html`
+const PageStepsEx2 = defineHtml(`
   <h2>{{ t("heading") }}</h2>
   <elf-playground :title=${t("vertical")} :code=${code} :script=${script}>
     <div style="width:min(540px,100%)"><elf-steps direction="vertical" :active.prop=${1} :items.prop=${items()}></elf-steps></div>

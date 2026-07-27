@@ -1,4 +1,4 @@
-import { defineHtml, defineProps, defineStyle, html, useHost, useHostFlag } from "@elfui/core";
+import { defineHtml, defineProps, defineStyle, useHost, useHostFlag } from "@elfui/core";
 
 import styles from "./style.scss?inline";
 import { normalizeBreadcrumbSeparatorIcon } from "../Breadcrumb/separator";
@@ -41,7 +41,7 @@ useHostFlag("data-last", () => props.last);
 
 defineStyle(styles);
 
-const BreadcrumbItem = defineHtml<BreadcrumbItemProps, Record<string, never>, BreadcrumbItemSlots>(html`
+const BreadcrumbItem = defineHtml<BreadcrumbItemProps, Record<string, never>, BreadcrumbItemSlots>(`
   <span class="breadcrumb-item" part="item" role="listitem">
     <button v-if=${!props.current && hasTarget()} class="breadcrumb-link" type="button" @click=${onClick}>
       <slot></slot>

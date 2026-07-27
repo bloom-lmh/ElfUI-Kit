@@ -1,0 +1,118 @@
+.avatar-demo-status {
+  color: var(--elf-text-secondary);
+  font-size: var(--elf-font-size-sm);
+}
+
+.avatar-demo-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  width: min(820px, 100%);
+  margin-inline: auto;
+}
+
+.avatar-demo-card {
+  display: grid;
+  align-content: start;
+  gap: 18px;
+  min-height: 142px;
+  padding: 20px;
+  border: 1px solid var(--elf-divider);
+  border-radius: var(--elf-radius-md);
+  background: color-mix(in srgb, var(--elf-bg-paper) 90%, var(--elf-primary) 10%);
+}
+
+.avatar-demo-card-wide {
+  grid-column: 1 / -1;
+}
+
+.avatar-demo-card strong {
+  color: var(--elf-text-primary);
+  font-size: var(--elf-font-size-sm);
+}
+
+.avatar-demo-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.avatar-demo-scale {
+  justify-content: space-around;
+}
+
+.avatar-demo-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+  color: var(--elf-text-secondary);
+  font-size: var(--elf-font-size-sm);
+}
+
+.avatar-fallback-demo {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 22px;
+  width: min(620px, 100%);
+  margin-inline: auto;
+  padding: 24px;
+  border: 1px solid var(--elf-divider);
+  border-radius: var(--elf-radius-md);
+  background: var(--elf-bg-paper);
+}
+
+.avatar-fallback-demo strong {
+  color: var(--elf-text-primary);
+  font-size: var(--elf-font-size-lg);
+}
+
+.avatar-fallback-demo p,
+.avatar-group-demo p {
+  margin: 6px 0 0;
+  color: var(--elf-text-secondary);
+  font-size: var(--elf-font-size-sm);
+  line-height: 1.6;
+}
+
+.avatar-group-demo {
+  display: grid;
+  justify-items: center;
+  gap: 18px;
+  width: min(680px, 100%);
+  margin-inline: auto;
+  padding: 28px 22px;
+  border: 1px solid var(--elf-divider);
+  border-radius: var(--elf-radius-md);
+  background: color-mix(in srgb, var(--elf-bg-paper) 94%, var(--elf-primary) 6%);
+  text-align: center;
+}
+
+.avatar-group-demo elf-avatar-group {
+  margin-block: 8px 30px;
+}
+
+@media (max-width: 720px) {
+  .avatar-demo-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .avatar-demo-card-wide {
+    grid-column: auto;
+  }
+
+  .avatar-demo-scale {
+    justify-content: flex-start;
+    overflow-x: auto;
+    padding-block: 4px;
+  }
+
+  .avatar-fallback-demo {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+  }
+}

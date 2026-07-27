@@ -79,7 +79,11 @@ describe("路由跳转", () => {
     ).find((node) => node.textContent?.includes("Layout 布局"));
     layout?.click();
     await tick();
-    expect(menu?.shadowRoot?.textContent).toContain("Container 容器");
+    expect(menu?.shadowRoot?.textContent).toContain("Grid 栅格");
+    expect(menu?.shadowRoot?.textContent).toContain("Flex 弹性布局");
+    expect(menu?.shadowRoot?.textContent).toContain("Layout 应用骨架");
+    expect(menu?.shadowRoot?.textContent).not.toContain("Container 容器");
+    expect(menu?.shadowRoot?.textContent).not.toContain("Space 间距");
   });
 
   it("AppShell setup 早于 router 创建时，菜单点击仍能跳转", async () => {
@@ -205,7 +209,7 @@ describe("路由跳转", () => {
     window.matchMedia = originalMatchMedia;
   });
 
-  it("样式和动画以 S 图标父菜单承载工具类子菜单", async () => {
+  it("样式与动画以双语 S 图标父菜单承载工具类子菜单", async () => {
     await enterComponentDocs();
     localStorage.setItem("elfui-ui-locale", "zh-CN");
     const app = document.createElement("elf-app");
@@ -218,10 +222,10 @@ describe("路由跳转", () => {
       items?: Array<{ label: string; icon: string; children?: Array<{ index: string; label: string }> }>;
     }>("elf-menu");
     expect(menu?.items?.[0]).toEqual({
-      index: "group:样式和动画",
-      label: "样式和动画",
+      index: "group:Styles and animations 样式与动画",
+      label: "Styles and animations 样式与动画",
       icon: "S",
-      children: [{ index: "/utilities", label: "工具类", icon: "" }]
+      children: [{ index: "/utilities", label: "Utilities 工具类", icon: "U" }]
     });
   });
 

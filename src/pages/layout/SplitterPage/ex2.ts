@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 const verticalSize = useRef(48);
 
@@ -15,9 +15,13 @@ const code = `<elf-splitter
   <div slot="second">下方面板</div>
 </elf-splitter>`;
 
-const script = `const verticalSize = useRef(48);`;
+const script = `const verticalSize = useRef(48);
 
-const PageSplitterEx2 = defineHtml(html`
+const onVerticalUpdate = (event) => {
+    verticalSize.set(Number(event.detail) || 48);
+};`;
+
+const PageSplitterEx2 = defineHtml(`
   <h2>垂直分割</h2>
   <elf-playground title="vertical" :code=${code} :script=${script}>
     <div style="width:100%;max-width:720px;height:260px">

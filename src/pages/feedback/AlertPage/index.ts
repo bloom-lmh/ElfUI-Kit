@@ -1,4 +1,4 @@
-import { defineHtml, html, useComponents } from "@elfui/core";
+import { defineHtml, useComponents } from "@elfui/core";
 import { PageAlertEx1 } from "./ex1";
 import { PageAlertEx2 } from "./ex2";
 import { PageAlertEx3 } from "./ex3";
@@ -11,7 +11,7 @@ useComponents({
   "page-alert-props": PageAlertProps
 });
 
-const PageAlert = defineHtml(html`
+const PageAlert = defineHtml(`
   <elf-container
     ><h1>Alert 警告提示</h1>
     <page-alert-ex1 /><page-alert-ex2 /><page-alert-ex3 /><page-alert-props

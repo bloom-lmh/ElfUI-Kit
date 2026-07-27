@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 
 import { ElfNotification } from "../../../components/Feedback";
 
@@ -43,7 +43,7 @@ const showRichContent = (): void => {
   });
 };
 
-const PageNotificationEx4 = defineHtml(html`
+const PageNotificationEx4 = defineHtml(`
   <h2>安全富内容</h2>
   <elf-playground
     title="只接受已创建的 DOM Node，不解析 HTML 字符串"

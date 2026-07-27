@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 
 const selected = useRef("install");
@@ -52,9 +52,43 @@ const expanded = useRef(["guide"])
   @update:expandedKeys="onExpanded"
 />`;
 
-const PageTreeEx1 = defineHtml(html`
+const script = `const selected = useRef("install");
+const expanded = useRef(["guide"]);
+const data = [
+    {
+        key: "guide",
+        label: "指南",
+        icon: "📘",
+        children: [
+            { key: "install", label: "安装" },
+            { key: "quick-start", label: "快速开始" }
+        ]
+    },
+    {
+        key: "components",
+        label: "组件",
+        icon: "🧩",
+        children: [
+            { key: "button", label: "Button 按钮" },
+            { key: "tree", label: "Tree 树" },
+            { key: "menu", label: "Menu 菜单" }
+        ]
+    }
+];
+const onSelect = (event) => {
+    const detail = event.detail;
+    if (detail)
+        selected.set(detail);
+};
+const onExpanded = (event) => {
+    const detail = event.detail;
+    if (Array.isArray(detail))
+        expanded.set(detail);
+};`;
+
+const PageTreeEx1 = defineHtml(`
   <h2>基础用法</h2>
-  <elf-playground title="点击节点选择，点击箭头展开或收起" :code="code">
+  <elf-playground title="点击节点选择，点击箭头展开或收起" :code="code" :script=${script}>
     <elf-card variant="outlined" density="compact" style="width:100%;max-width:560px">
       <elf-tree
       :data.prop="data"

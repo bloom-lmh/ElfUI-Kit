@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 const pageSize = useRef(20);
 
@@ -28,7 +28,7 @@ const onSizeChange = (event) => {
   pageSize.set(Number(event.detail));
 };`;
 
-const PagePaginationEx4 = defineHtml(html`
+const PagePaginationEx4 = defineHtml(`
   <h2>尺寸浮层与导航图标</h2>
   <elf-playground title="浮层可越过裁剪容器，导航图标通过 SVG 插槽按需传入" :code=${code} :script=${script}>
     <span slot="status">${stateText()}</span>

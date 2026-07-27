@@ -1,4 +1,4 @@
-import { defineHtml, html, useComponents } from "@elfui/core";
+import { defineHtml, useComponents } from "@elfui/core";
 import { PageNotificationEx1 } from "./ex1";
 import { PageNotificationEx2 } from "./ex2";
 import { PageNotificationEx3 } from "./ex3";
@@ -13,7 +13,7 @@ useComponents({
   "page-notification-props": PageNotificationProps
 });
 
-const PageNotification = defineHtml(html`
+const PageNotification = defineHtml(`
   <elf-container
     ><h1>Notification 通知</h1>
     <p>在系统四角以卡片形式滑出，用于相对重要、需长时间展示或有结构化内容的全局通知。</p>

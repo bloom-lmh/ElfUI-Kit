@@ -3,9 +3,8 @@ import {
   defineExpose,
   defineProps,
   defineStyle,
-  html,
-  onMount,
-  onUnmount,
+  onMounted,
+  onUnmounted,
   useEffect,
   useHost,
   useHostAttr,
@@ -161,12 +160,12 @@ useEffect(() => {
   if (mounted) updateVisible();
 });
 
-onMount(() => {
+onMounted(() => {
   mounted = true;
   connect();
 });
 
-onUnmount(() => {
+onUnmounted(() => {
   mounted = false;
   cleanup();
 });
@@ -183,7 +182,7 @@ defineExpose({ scrollToTop });
 
 defineStyle(styles);
 
-const BackTop = defineHtml<BackTopProps, Record<string, never>, BackTopSlots>(html`
+const BackTop = defineHtml<BackTopProps, Record<string, never>, BackTopSlots>(`
   <button
     v-if=${visible && !props.disabled}
     class="backtop"

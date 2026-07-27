@@ -1,4 +1,4 @@
-import { defineHtml, html, useComponents } from "@elfui/core";
+import { defineHtml, useComponents } from "@elfui/core";
 
 import { PageLoadingEx1 } from "./ex1";
 import { PageLoadingEx2 } from "./ex2";
@@ -22,7 +22,7 @@ useComponents({
   "page-loading-props": PageLoadingProps
 });
 
-const PageLoading = defineHtml(html`
+const PageLoading = defineHtml(`
   <elf-container>
     <h1>Loading 加载</h1>
     <p>给局部内容或全屏状态添加加载遮罩，支持声明式组件、v-loading 指令和命令式 service。</p>

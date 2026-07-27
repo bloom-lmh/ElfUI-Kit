@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 import { createDocsTranslator } from "../../docsLocale";
 
 const t = createDocsTranslator({
@@ -57,7 +57,7 @@ const items = [
 ];
 const onChange = (event) => active.set(event.detail);`;
 
-const PageMenuEx1 = defineHtml(html`
+const PageMenuEx1 = defineHtml(`
   <h2>${t("section")}</h2>
   <elf-playground :title=${t("title")} :code=${code} :script=${script}>
     <span slot="status" class="demo-state">${t("current")}: {{ active }}</span>

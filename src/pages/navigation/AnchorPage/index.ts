@@ -1,9 +1,12 @@
-import { PageAnchorEx1 } from "./ex1";
+import {
+  PageAnchorEx1 } from "./ex1";
 import { PageAnchorEx2 } from "./ex2";
 import { PageAnchorEx3 } from "./ex3";
 import { PageAnchorProps } from "./props";
 
-import { defineHtml, html, useComponents } from "@elfui/core";
+import { defineHtml,
+  useComponents
+} from "@elfui/core";
 import { createDocsTranslator } from "../../docsLocale";
 
 useComponents({
@@ -21,7 +24,7 @@ const t = createDocsTranslator({
   }
 });
 
-const PageAnchor = defineHtml(html`
+const PageAnchor = defineHtml(`
   <elf-container>
     <h1>${t("title")}</h1>
     <p>${t("description")}</p>

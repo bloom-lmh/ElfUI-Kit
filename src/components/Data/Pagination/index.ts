@@ -4,12 +4,11 @@ import {
   defineHtml,
   defineProps,
   defineStyle,
-  html,
-  onMount,
-  onUnmount,
+  onMounted,
+  onUnmounted,
   useHost,
   useRef,
-  watchEffect
+  useEffect
 } from "@elfui/core";
 
 import styles from "./style.scss?inline";
@@ -128,12 +127,15 @@ const componentClass = (): Record<string, boolean> => ({
   "is-disabled": props.disabled
 });
 
+let pagerWindow: { count: number; pagerCount: number; start: number; end: number } | null = null;
+
 const pageItems = (): PagerItem[] => {
   const count = pageCount();
   const current = page.value;
   const rawPagerCount = Math.max(5, Number(props.pagerCount) || 7);
   const pagerCount = rawPagerCount % 2 === 0 ? rawPagerCount + 1 : rawPagerCount;
   if (count <= pagerCount) {
+    pagerWindow = null;
     return Array.from({ length: count }, (_, index) => ({
       key: String(index + 1),
       label: String(index + 1),
@@ -144,12 +146,25 @@ const pageItems = (): PagerItem[] => {
 
   // Keep a constant pager slot count while the window changes. The active
   // page remains in the same visual column at both transition boundaries.
-  const side = Math.floor((pagerCount - 3) / 2);
-  const nearStart = current <= side + 2;
-  const nearEndStart = count - (pagerCount - side - 1);
-  const nearEnd = current >= nearEndStart;
-  const start = nearStart ? 2 : nearEnd ? count - pagerCount + 1 : current - side;
-  const end = nearStart ? pagerCount : nearEnd ? count - 1 : current + side;
+  let start: number;
+  let end: number;
+  const cached =
+    pagerWindow &&
+    pagerWindow.count === count &&
+    pagerWindow.pagerCount === pagerCount &&
+    current >= pagerWindow.start &&
+    current <= pagerWindow.end;
+  if (cached) {
+    ({ start, end } = pagerWindow!);
+  } else {
+    const side = Math.floor((pagerCount - 3) / 2);
+    const nearStart = current <= side + 2;
+    const nearEndStart = count - (pagerCount - side - 1);
+    const nearEnd = current >= nearEndStart;
+    start = nearStart ? 2 : nearEnd ? count - pagerCount + 1 : current - side;
+    end = nearStart ? pagerCount : nearEnd ? count - 1 : current + side;
+    pagerWindow = { count, pagerCount, start, end };
+  }
 
   const items: PagerItem[] = [{ key: "1", label: "1", page: 1, ellipsis: false }];
   if (start > 2) items.push({ key: "prev-more", label: "...", page: Math.max(1, start - 1), ellipsis: true });
@@ -420,22 +435,22 @@ const onJumpKeydown = (event: KeyboardEvent): void => {
 };
 
 // Defaults establish initial uncontrolled state. A supplied v-model prop takes over afterwards.
-watchEffect(() => {
+useEffect(() => {
   if (props.pageSize != null) {
     const nextSize = Math.max(1, Math.trunc(Number(props.pageSize) || initialSize));
     if (nextSize !== size.peek()) size.set(nextSize);
   }
 });
 
-watchEffect(() => {
+useEffect(() => {
   if (props.currentPage != null) syncPage(Number(props.currentPage));
 });
 
-watchEffect(() => {
+useEffect(() => {
   syncPage(page.value);
 });
 
-watchEffect(() => {
+useEffect(() => {
   void props.teleported;
   void props.popperClass;
   void props.popperStyle;
@@ -448,7 +463,7 @@ watchEffect(() => {
 
 // Custom-element properties assigned before connection are finalized by mount time.
 // Sample defaults once here without turning them into reactive controlled values.
-onMount(() => {
+onMounted(() => {
   if (props.pageSize == null) {
     size.set(defaultPageSize());
   }
@@ -458,7 +473,7 @@ onMount(() => {
   document.addEventListener("pointerdown", onDocumentPointerDown);
 });
 
-onUnmount(() => {
+onUnmounted(() => {
   document.removeEventListener("pointerdown", onDocumentPointerDown);
   cleanupAnchoredOverlay();
   if (overlayFrame) cancelAnimationFrame(overlayFrame);
@@ -468,7 +483,10 @@ defineExpose({ openSizeMenu, closeSizeMenu });
 
 defineStyle(styles);
 
-const Pagination = defineHtml<PaginationProps, PaginationEmits, PaginationSlots>(html`
+const sizeActiveDescendant = (): string | null =>
+  sizeOpen.value && sizeActiveIndex.value >= 0 ? sizeOptionId(sizeActiveIndex.value) : null;
+
+const Pagination = defineHtml<PaginationProps, PaginationEmits, PaginationSlots>(`
   <nav
     v-if=${!isHidden()}
     class="pagination"
@@ -485,7 +503,7 @@ const Pagination = defineHtml<PaginationProps, PaginationEmits, PaginationSlots>
         type="button"
         aria-haspopup="listbox"
         :aria-expanded=${String(sizeOpen)}
-        :aria-activedescendant=${sizeOpen && sizeActiveIndex >= 0 ? sizeOptionId(sizeActiveIndex) : null}
+        :aria-activedescendant=${sizeActiveDescendant()}
         :disabled=${props.disabled}
         @click=${toggleSizeMenu}
         @keydown=${onSizeTriggerKeydown}
@@ -515,7 +533,7 @@ const Pagination = defineHtml<PaginationProps, PaginationEmits, PaginationSlots>
           @mouseenter="setSizeActive(index)"
           @click="selectPageSize(item)"
         >
-          ${locale.t("pagination.perPage", { size: item })}
+          {{locale.t("pagination.perPage", { size: item })}}
         </button>
       </div>
     </div>

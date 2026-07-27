@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 
 const code1 = `<elf-container max-width="xs">xs (480px)</elf-container>
 <elf-container max-width="sm">sm (600px)</elf-container>
@@ -6,7 +6,7 @@ const code1 = `<elf-container max-width="xs">xs (480px)</elf-container>
 <elf-container max-width="lg">lg (1200px)</elf-container>
 <elf-container max-width="xl">xl (1536px)</elf-container>`;
 
-const PageContainerEx1 = defineHtml(html`
+const PageContainerEx1 = defineHtml(`
   <h2>不同 max-width</h2>
   <elf-playground title="xs ~ xl" :code=${code1}>
     <elf-container max-width="xs" style="border:1px dashed var(--elf-border-strong);border-radius:4px;background:transparent;margin:4px 0"

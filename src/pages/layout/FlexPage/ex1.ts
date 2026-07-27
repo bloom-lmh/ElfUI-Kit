@@ -1,69 +1,42 @@
-import { defineHtml, defineStyle, html } from "@elfui/core";
+import { defineHtml, defineStyle } from "@elfui/core";
 
 import { createDocsTranslator } from "../../docsLocale";
-import demoStyles from "../demo-cards.scss?inline";
+import diagramStyles from "../layout-diagrams.scss?inline";
 
 const t = createDocsTranslator({
-  direction: { zh: "方向", en: "Direction" },
-  directionTitle: { zh: "横向卡片与纵向任务流", en: "Horizontal cards and a vertical task flow" },
-  project: { zh: "设计系统", en: "Design system" },
-  projectMeta: { zh: "12 个组件待验收", en: "12 components awaiting review" },
-  research: { zh: "用户研究", en: "User research" },
-  researchMeta: { zh: "访谈计划已就绪", en: "Interview plan is ready" },
-  release: { zh: "版本发布", en: "Release" },
-  releaseMeta: { zh: "预计周五完成", en: "Expected Friday" },
-  spacing: { zh: "间距", en: "Spacing" },
-  spacingTitle: { zh: "卡片间距比例", en: "Card spacing scale" },
-  spacingMeta: { zh: "统一节奏", en: "Consistent rhythm" },
-  script: { zh: "direction 与 gap 使用静态布局属性。", en: "direction and gap are declarative layout attributes." }
+  direction: { zh: "排列方向", en: "Flex direction" },
+  gap: { zh: "元素间距", en: "Item gaps" }
 });
 
-const directionCode = (): string => `<elf-flex direction="row" gap="md">
-  <article>${t("project")}</article>
-  <article>${t("research")}</article>
-</elf-flex>
-<elf-flex direction="column" gap="sm">
-  <article>${t("project")}</article>
-  <article>${t("release")}</article>
-</elf-flex>`;
+const directionCode = `<elf-flex direction="row" gap="sm">1 2 3</elf-flex>
+<elf-flex direction="row-reverse" gap="sm">1 2 3</elf-flex>
+<elf-flex direction="column" gap="sm">1 2 3</elf-flex>
+<elf-flex direction="column-reverse" gap="sm">1 2 3</elf-flex>`;
 
-const spacingCode = (): string => `<elf-flex gap="xs"><article>xs</article><article>xs</article></elf-flex>
-<elf-flex gap="md"><article>md</article><article>md</article></elf-flex>
-<elf-flex gap="xl"><article>xl</article><article>xl</article></elf-flex>`;
+const gapCode = `<elf-flex gap="xs">1 2 3</elf-flex>
+<elf-flex gap="md">1 2 3</elf-flex>
+<elf-flex gap="xl">1 2 3</elf-flex>`;
 
-const script = (): string => `// ${t("script")}`;
+const numberedItems = [1, 2, 3] as const;
+const itemClass = (item: number): string => item === 2 ? "diagram-item alt" : item === 3 ? "diagram-item neutral" : "diagram-item";
 
-defineStyle(demoStyles);
+defineStyle(diagramStyles);
 
-const PageFlexEx1 = defineHtml(html`
-  <h2>${t("direction")}</h2>
-  <elf-playground :title=${t("directionTitle")} :code=${directionCode()} :script=${script()}>
-    <div class="demo-stack">
-      <div class="demo-stage">
-        <elf-flex gap="md" wrap>
-          <article class="demo-card compact" style="flex:1 1 190px">
-            <div class="card-row"><span class="avatar">DS</span><span class="card-copy"><strong>${t("project")}</strong><small>${t("projectMeta")}</small></span></div>
-          </article>
-          <article class="demo-card compact" style="flex:1 1 190px">
-            <div class="card-row"><span class="avatar success">UR</span><span class="card-copy"><strong>${t("research")}</strong><small>${t("researchMeta")}</small></span></div>
-          </article>
-        </elf-flex>
-      </div>
-      <div class="demo-stage">
-        <elf-flex direction="column" gap="sm">
-          <article class="demo-card compact"><span class="card-copy"><strong>01 · ${t("project")}</strong><small>${t("projectMeta")}</small></span></article>
-          <article class="demo-card compact"><span class="card-copy"><strong>02 · ${t("release")}</strong><small>${t("releaseMeta")}</small></span></article>
-        </elf-flex>
-      </div>
+const PageFlexEx1 = defineHtml(`
+  <elf-playground :title=${t("direction")} :code=${directionCode}>
+    <div class="diagram-stack">
+      <div class="diagram-line"><span class="diagram-label">row</span><div class="diagram-stage"><elf-flex class="flex-demo" direction="row" gap="sm"><div v-for="item in numberedItems" :key="item" :class="itemClass(item)">{{ item }}</div></elf-flex></div></div>
+      <div class="diagram-line"><span class="diagram-label">row-reverse</span><div class="diagram-stage"><elf-flex class="flex-demo" direction="row-reverse" gap="sm"><div v-for="item in numberedItems" :key="item" :class="itemClass(item)">{{ item }}</div></elf-flex></div></div>
+      <div class="diagram-line"><span class="diagram-label">column</span><div class="diagram-stage"><elf-flex class="flex-demo vertical" direction="column" gap="sm"><div v-for="item in numberedItems" :key="item" :class="itemClass(item)">{{ item }}</div></elf-flex></div></div>
+      <div class="diagram-line"><span class="diagram-label">column-reverse</span><div class="diagram-stage"><elf-flex class="flex-demo vertical" direction="column-reverse" gap="sm"><div v-for="item in numberedItems" :key="item" :class="itemClass(item)">{{ item }}</div></elf-flex></div></div>
     </div>
   </elf-playground>
 
-  <h2>${t("spacing")}</h2>
-  <elf-playground :title=${t("spacingTitle")} :code=${spacingCode()} :script=${script()}>
-    <div class="demo-stack">
-      <elf-flex gap="xs"><article class="demo-card compact" style="flex:1"><strong>xs</strong><small>${t("spacingMeta")}</small></article><article class="demo-card compact" style="flex:1"><strong>4px</strong></article></elf-flex>
-      <elf-flex gap="md"><article class="demo-card compact tone-primary" style="flex:1"><strong>md</strong><small>${t("spacingMeta")}</small></article><article class="demo-card compact tone-primary" style="flex:1"><strong>16px</strong></article></elf-flex>
-      <elf-flex gap="xl"><article class="demo-card compact tone-success" style="flex:1"><strong>xl</strong><small>${t("spacingMeta")}</small></article><article class="demo-card compact tone-success" style="flex:1"><strong>32px</strong></article></elf-flex>
+  <elf-playground :title=${t("gap")} :code=${gapCode}>
+    <div class="diagram-stack">
+      <div class="diagram-line"><span class="diagram-label">gap="xs"</span><div class="diagram-stage"><elf-flex class="flex-demo" gap="xs"><div v-for="item in numberedItems" :key="item" :class="itemClass(item)">{{ item }}</div></elf-flex></div></div>
+      <div class="diagram-line"><span class="diagram-label">gap="md"</span><div class="diagram-stage"><elf-flex class="flex-demo" gap="md"><div v-for="item in numberedItems" :key="item" :class="itemClass(item)">{{ item }}</div></elf-flex></div></div>
+      <div class="diagram-line"><span class="diagram-label">gap="xl"</span><div class="diagram-stage"><elf-flex class="flex-demo" gap="xl"><div v-for="item in numberedItems" :key="item" :class="itemClass(item)">{{ item }}</div></elf-flex></div></div>
     </div>
   </elf-playground>
 `);

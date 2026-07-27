@@ -14,9 +14,20 @@ export interface VirtualListProps<T = unknown> {
   listItemClass: string;
   /** Inline style applied to every recycled row. */
   listItemStyle: string | Record<string, string | number>;
+  /** Measure rendered rows and virtualize variable-height content. */
+  dynamic: boolean;
+  /** Initial row-height estimate used before a dynamic row is measured. */
+  estimatedItemHeight: number;
+  /** Display a non-blocking loading layer while data is appended. */
+  loading: boolean;
+  loadingText: string;
 }
 
+export type VirtualListAlign = "start" | "center" | "end" | "auto";
+
 export interface VirtualListExpose {
-  scrollToIndex(index: number, behavior?: ScrollBehavior): void;
+  scrollToIndex(index: number, behavior?: ScrollBehavior, align?: VirtualListAlign): void;
   scrollToOffset(offset: number, behavior?: ScrollBehavior): void;
+  scrollToKey(key: string | number, behavior?: ScrollBehavior, align?: VirtualListAlign): void;
+  getVisibleRange(): { start: number; end: number };
 }

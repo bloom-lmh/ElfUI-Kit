@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 
 const commute = [
   {
@@ -41,7 +41,7 @@ const script = `const commute = [
   { timestamp: "10:00", title: "抵达", content: "滨海新区办公室", color: "success", icon: "📍" }
 ];`;
 
-const PageTimelineEx3 = defineHtml(html`
+const PageTimelineEx3 = defineHtml(`
   <h2>出行时间线（双侧 + 单侧混用）</h2>
   <elf-playground title="side='both' 混用单侧信息" :code=${code} :script=${script}>
     <elf-timeline :items.prop=${commute} mode="alternate"></elf-timeline>

@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 
 const propsRows = [
     { name: "type", type: "info | success | warning | danger", default: "info", desc: "类型" },
@@ -23,7 +23,7 @@ const slotsRows = [
     { name: "icon", desc: "自定义图标" },
 ];
 
-const PageAlertProps = defineHtml(html`
+const PageAlertProps = defineHtml(`
     <h2>API</h2>
     <elf-props-table title="Props" :rows=${propsRows}></elf-props-table>
     <elf-props-table title="Events" :rows=${eventsRows}></elf-props-table>

@@ -1,4 +1,4 @@
-import { defineHtml, html, useComponents } from "@elfui/core";
+import { defineHtml, useComponents } from "@elfui/core";
 import { PageTimelineEx1 } from "./ex1";
 import { PageTimelineEx2 } from "./ex2";
 import { PageTimelineEx3 } from "./ex3";
@@ -13,7 +13,7 @@ useComponents({
   "page-timeline-props": PageTimelineProps
 });
 
-const PageTimeline = defineHtml(html`
+const PageTimeline = defineHtml(`
   <elf-container>
     <h1>Timeline 时间轴</h1>
     <p>按时间顺序展示事件，支持语义色、交替布局、横向布局以及每项独立的卡片和节点插槽。</p>

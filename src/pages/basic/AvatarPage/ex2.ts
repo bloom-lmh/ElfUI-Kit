@@ -1,56 +1,79 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml, defineStyle, useRef } from "@elfui/core";
 
-const imageCode = `<elf-avatar src="https://i.pravatar.cc/80?img=1" alt="Jane Doe"></elf-avatar>
-<elf-avatar src="https://i.pravatar.cc/80?img=2" alt="John Smith"></elf-avatar>
-<elf-avatar src="" alt="Error Fallback"></elf-avatar>`;
+import { createDocsTranslator } from "../../docsLocale";
+import styles from "./demo.scss?inline";
 
-const fitCode = `<elf-avatar src="https://i.pravatar.cc/120?img=3" fit="cover"></elf-avatar>
-<elf-avatar src="https://i.pravatar.cc/120?img=3" fit="contain"></elf-avatar>
-<elf-avatar src-set="https://i.pravatar.cc/80?img=4 1x, https://i.pravatar.cc/160?img=4 2x" src="https://i.pravatar.cc/80?img=4"></elf-avatar>`;
+const FAILED_SOURCE = "/__elfui_avatar_demo_missing__.png";
+const RECOVERY_SOURCE = "https://i.pravatar.cc/160?img=32";
 
-const iconCode = `<elf-avatar icon="★" color="primary"></elf-avatar>
-<elf-avatar icon="♥" color="danger"></elf-avatar>
-<elf-avatar color="success"><span>VIP</span></elf-avatar>`;
+const source = useRef(FAILED_SOURCE);
+const state = useRef<"loading" | "fallback" | "recovered">("loading");
+const retryCount = useRef(0);
 
-const colorCode = `<elf-avatar alt="Admin" color="#7b1fa2"></elf-avatar>
-<elf-avatar alt="User" color="#00838f"></elf-avatar>
-<elf-avatar shape="square" alt="VIP" color="#ff6f00"></elf-avatar>`;
+const t = createDocsTranslator({
+  title: { zh: "图片失败与重试", en: "Image failure and retry" },
+  loading: { zh: "正在加载图片", en: "Loading image" },
+  fallback: { zh: "加载失败，已显示文字回退", en: "Load failed; text fallback is visible" },
+  recovered: { zh: "已切换备用图片源", en: "Switched to the fallback image source" },
+  retry: { zh: "重试", en: "Retry" },
+  reset: { zh: "模拟失败", en: "Simulate failure" },
+  name: { zh: "Ada Lovelace 的个人头像", en: "Profile avatar for Ada Lovelace" },
+  explanation: {
+    zh: "图片错误时仍保留完整姓名作为无障碍名称；更换 src 后会重新尝试加载。",
+    en: "The fallback keeps the full name as its accessible label; changing src retries loading."
+  }
+});
 
-const PageAvatarEx2 = defineHtml(html`
-  <h2>图片头像</h2>
-  <elf-playground title="src / error fallback" :code=${imageCode}>
-    <div style="display:flex;align-items:center;gap:12px">
-      <elf-avatar src="https://i.pravatar.cc/80?img=1" alt="Jane Doe"></elf-avatar>
-      <elf-avatar src="https://i.pravatar.cc/80?img=2" alt="John Smith"></elf-avatar>
-      <elf-avatar src="" alt="Error Fallback"></elf-avatar>
-    </div>
-  </elf-playground>
-  <elf-playground title="fit / src-set" :code=${fitCode}>
-    <div style="display:flex;align-items:center;gap:12px">
-      <elf-avatar src="https://i.pravatar.cc/120?img=3" fit="cover"></elf-avatar>
-      <elf-avatar src="https://i.pravatar.cc/120?img=3" fit="contain"></elf-avatar>
+const onImageError = (): void => state.set("fallback");
+const retry = (): void => {
+  retryCount.set(retryCount.value + 1);
+  state.set("recovered");
+  source.set(`${RECOVERY_SOURCE}&retry=${retryCount.value}`);
+};
+const reset = (): void => {
+  state.set("loading");
+  source.set(`${FAILED_SOURCE}?retry=${retryCount.value}`);
+};
+const stateText = (): string => t(state.value);
+
+const fallbackCode = `<elf-avatar
+  size="xl"
+  :src.prop=\${source.value}
+  alt="Ada Lovelace"
+  @error=\${onImageError}
+></elf-avatar>
+<elf-button @click=\${retry}>Retry</elf-button>`;
+
+const fallbackScript = `const source = useRef("/avatars/missing.png");
+const state = useRef("loading");
+
+const onImageError = () => state.set("fallback");
+const retry = () => {
+  state.set("recovered");
+  source.set("/avatars/ada-fallback.jpg");
+};`;
+
+defineStyle(styles);
+
+const PageAvatarEx2 = defineHtml(`
+  <elf-playground :title=${t("title")} :code=${fallbackCode} :script=${fallbackScript}>
+    <span slot="status" class="avatar-demo-actions">
+      <span>${stateText()}</span>
+      <elf-button size="sm" variant="outlined" @click=${retry}>${t("retry")}</elf-button>
+      <elf-button size="sm" variant="text" @click=${reset}>${t("reset")}</elf-button>
+    </span>
+    <div class="avatar-fallback-demo">
       <elf-avatar
-        src-set="https://i.pravatar.cc/80?img=4 1x, https://i.pravatar.cc/160?img=4 2x"
-        src="https://i.pravatar.cc/80?img=4"
+        size="xl"
+        :src.prop=${source.value}
+        alt="Ada Lovelace"
+        :aria-label=${t("name")}
+        @error=${onImageError}
       ></elf-avatar>
-    </div>
-  </elf-playground>
-
-  <h2>图标头像</h2>
-  <elf-playground title="icon prop / slots" :code=${iconCode}>
-    <div style="display:flex;align-items:center;gap:12px">
-      <elf-avatar icon="★" color="primary"></elf-avatar>
-      <elf-avatar icon="♥" color="danger"></elf-avatar>
-      <elf-avatar color="success"><span>VIP</span></elf-avatar>
-    </div>
-  </elf-playground>
-
-  <h2>自定义颜色</h2>
-  <elf-playground title="color" :code=${colorCode}>
-    <div style="display:flex;align-items:center;gap:12px">
-      <elf-avatar alt="Admin" color="#7b1fa2"></elf-avatar>
-      <elf-avatar alt="User" color="#00838f"></elf-avatar>
-      <elf-avatar shape="square" alt="VIP" color="#ff6f00"></elf-avatar>
+      <div>
+        <strong>Ada Lovelace</strong>
+        <p>${t("explanation")}</p>
+      </div>
     </div>
   </elf-playground>
 `);

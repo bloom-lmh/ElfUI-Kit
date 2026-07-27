@@ -1,4 +1,4 @@
-import { defineHtml, defineStyle, html } from "@elfui/core";
+import { defineHtml, defineStyle } from "@elfui/core";
 
 import { createDocsTranslator } from "../../docsLocale";
 
@@ -51,7 +51,7 @@ const propsRows = () => [
   { name: "fill-ratio", type: "number", default: "100" }
 ];
 
-const PageSpace = defineHtml(html`
+const PageSpace = defineHtml(`
   <elf-container>
     <h1>${t("title")}</h1>
     <p>${t("description")}</p>

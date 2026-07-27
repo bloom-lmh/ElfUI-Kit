@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 
 const items = [
   { timestamp: "2026-07-02 09:30", color: "primary", cardClass: "release-card" },
@@ -25,7 +25,7 @@ const script = `const items = [
 // item-N replaces the Nth card body; dot-N replaces its decorative node icon.
 // Slotted cards remain in the light DOM, so ordinary page classes can style them.`;
 
-const PageTimelineEx4 = defineHtml(html`
+const PageTimelineEx4 = defineHtml(`
   <h2>自定义卡片与节点图标</h2>
   <elf-playground title="item-N / dot-N 命名插槽与卡片类名" :code=${code} :script=${script}>
     <elf-timeline :items.prop=${items}>

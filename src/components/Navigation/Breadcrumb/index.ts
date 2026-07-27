@@ -3,13 +3,12 @@ import {
   defineHtml,
   defineProps,
   defineStyle,
-  html,
   onBeforeUnmount,
-  onMount,
+  onMounted,
   useEventListener,
   useHost,
   useRef,
-  watchEffect,
+  useEffect
 } from "@elfui/core";
 
 import styles from "./style.scss?inline";
@@ -86,6 +85,8 @@ const readHash = (): string => {
   return window.location.hash ? window.location.hash.slice(1) || "/" : "";
 };
 
+const routerEnabled = (): boolean => props.router || host.hasAttribute("router");
+
 const fieldNames = (): Required<BreadcrumbFieldNames> => {
   const value = props.props || {};
   return {
@@ -96,7 +97,7 @@ const fieldNames = (): Required<BreadcrumbFieldNames> => {
   };
 };
 
-const activePath = (): string => String(props.currentPath || (props.router ? hashPath.value : innerPath.value));
+const activePath = (): string => String(props.currentPath || (routerEnabled() ? hashPath.value : innerPath.value));
 
 const normalizeTo = (value: unknown): string => {
   if (value == null) return "";
@@ -176,7 +177,7 @@ const navigate = (raw: BreadcrumbRawItem, to: string, replace: boolean): void =>
   innerPath.set(to);
   emit("click", raw, to);
   emit("update:currentPath", to);
-  if (props.router && typeof window !== "undefined") {
+  if (routerEnabled() && typeof window !== "undefined") {
     hashPath.set(to);
     if (replace && window.history?.replaceState) window.history.replaceState(null, "", `#${to}`);
     else window.location.hash = to;
@@ -184,10 +185,14 @@ const navigate = (raw: BreadcrumbRawItem, to: string, replace: boolean): void =>
 };
 
 const onItemClick = (item: BreadcrumbViewItem, event: Event): void => {
-  event.preventDefault();
+  // Router items keep a real hash href as a resilient navigation fallback.
+  // Non-router items are command buttons and must not trigger navigation.
+  if (!(event.currentTarget instanceof HTMLAnchorElement)) event.preventDefault();
   event.stopPropagation();
   if (!item.disabled && !item.current && !item.ellipsis) navigate(item.raw, item.to, item.replace);
 };
+
+const routerHref = (item: BreadcrumbViewItem): string => `#${item.to}`;
 
 const onItemsSlotChange = (): void => syncItemChildren();
 
@@ -198,7 +203,7 @@ useEventListener(host, "elf-breadcrumb-item-click", (event) => {
   navigate({ to: child.to, replace: child.replace }, normalizeTo(customEvent.detail.to), customEvent.detail.replace);
 });
 
-watchEffect(() => {
+useEffect(() => {
   void props.separator;
   void props.separatorIcon;
   void props.currentPath;
@@ -207,7 +212,7 @@ watchEffect(() => {
   syncItemChildren();
 });
 
-onMount(() => {
+onMounted(() => {
   hashPath.set(readHash());
   syncItemChildren();
   const onHashChange = (): void => hashPath.set(readHash());
@@ -222,7 +227,7 @@ onBeforeUnmount(() => {
 
 defineStyle(styles);
 
-const Breadcrumb = defineHtml<BreadcrumbProps, Record<string, never>, BreadcrumbSlots>(html`
+const Breadcrumb = defineHtml<BreadcrumbProps, Record<string, never>, BreadcrumbSlots>(`
   <nav class="breadcrumb" :aria-label=${locale.t("a11y.breadcrumb")}>
     <ol class="breadcrumb-list">
       <slot v-if=${hasItemChildren} @slotchange=${onItemsSlotChange}></slot>
@@ -232,8 +237,17 @@ const Breadcrumb = defineHtml<BreadcrumbProps, Record<string, never>, Breadcrumb
           :key="item.key + ':' + (item.current ? 'active' : 'idle') + ':' + (item.last ? 'last' : 'mid')"
           :class="['breadcrumb-item', { 'is-current': item.current, 'is-disabled': item.disabled, 'is-ellipsis': item.ellipsis }]"
         >
+          <a
+            v-if="!item.current && !item.ellipsis && router"
+            :href="routerHref(item)"
+            class="breadcrumb-link"
+            :aria-disabled="item.disabled ? 'true' : null"
+            @click="onItemClick(item, $event)"
+          >
+            {{ item.label }}
+          </a>
           <button
-            v-if="!item.current && !item.ellipsis"
+            v-else-if="!item.current && !item.ellipsis"
             type="button"
             class="breadcrumb-link"
             :disabled="item.disabled"

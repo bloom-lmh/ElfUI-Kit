@@ -1,4 +1,5 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, defineStyle, useRef } from "@elfui/core";
+import styles from "./demo.scss?inline";
 
 const dates = useRef<string[]>(["2026-06-10", "2026-06-14"]);
 
@@ -16,18 +17,22 @@ const multipleCode = `<elf-date-picker
   :modelValue.prop="dates"
 />`;
 
+const multipleScript = `const dates = useRef(["2026-06-10", "2026-06-14"]);`;
+
 const selectedDates = (): string => dates.value.join("，") || "暂无";
 
-const PageDatePickerEx4 = defineHtml(html`
-<elf-playground title="多日期" :code="multipleCode">
+defineStyle(styles);
+
+const PageDatePickerEx4 = defineHtml(`
+<elf-playground title="多日期" :code=${multipleCode} :script=${multipleScript}>
       <div style="display:grid;gap:12px;width:min(360px,100%)">
         <elf-date-picker
           multiple
           clearable
-          :modelValue.prop="dates"
-          @update:modelValue="updateDates"
+          :modelValue.prop=${dates}
+          @update:modelValue=${updateDates}
         ></elf-date-picker>
-        <span slot="status" class="demo-state">已选：{{ selectedDates() }}</span>
+        <span slot="status" class="demo-state">已选：${selectedDates()}</span>
       </div>
     </elf-playground>
 `);

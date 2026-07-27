@@ -7,12 +7,30 @@
 //
 // 样式见 ./style.scss；运行时通过 Vite 的 ?inline 加载为字符串注入 Shadow DOM。
 
-import { defineHtml, defineProps, defineStyle, html, useHostAttr, useHostCssVar, useHostFlag } from "@elfui/core";
+import { defineHtml, defineProps, defineStyle, useHostAttr, useHostCssVar, useHostFlag } from "@elfui/core";
 
 import styles from "./style.scss?inline";
-import type { FlexAlign, FlexProps, FlexSize, FlexSlots } from "./types";
+import type {
+  FlexAlign,
+  FlexAlignContent,
+  FlexJustify,
+  FlexProps,
+  FlexSize,
+  FlexSlots,
+  FlexWrap
+} from "./types";
 
-export type { FlexAlign, FlexDirection, FlexGap, FlexJustify, FlexProps, FlexSize, FlexSlots } from "./types";
+export type {
+  FlexAlign,
+  FlexAlignContent,
+  FlexDirection,
+  FlexGap,
+  FlexJustify,
+  FlexProps,
+  FlexSize,
+  FlexSlots,
+  FlexWrap
+} from "./types";
 
 const gapTokens: Record<string, string> = {
   "0": "0",
@@ -23,20 +41,58 @@ const gapTokens: Record<string, string> = {
   xl: "var(--elf-space-8)"
 };
 
+const justifyValues = new Set<FlexJustify>([
+  "flex-start",
+  "flex-end",
+  "center",
+  "space-between",
+  "space-around",
+  "space-evenly"
+]);
+
+const alignValues = new Set<FlexAlign>(["stretch", "flex-start", "flex-end", "center", "baseline"]);
+
+const alignContentValues = new Set<FlexAlignContent>([
+  "stretch",
+  "flex-start",
+  "flex-end",
+  "center",
+  "space-between",
+  "space-around",
+  "space-evenly"
+]);
+
 const props = defineProps<FlexProps>({
   direction: { type: String, default: "row" },
   justify: { type: String, default: "flex-start" },
   align: { type: String, default: "stretch" },
+  alignContent: { type: String, default: "stretch" },
   alignment: { type: String, default: "" },
   gap: { type: [String, Number, Array], default: "0" },
   size: { type: [String, Number, Array], default: "" },
-  wrap: { type: Boolean, default: false },
+  wrap: { type: [Boolean, String], default: false },
   inline: { type: Boolean, default: false },
   fill: { type: Boolean, default: false },
   fillRatio: { type: Number, default: 100 }
 });
 
-const normalizedAlign = (): FlexAlign => props.alignment || props.align;
+const normalizedJustify = (): FlexJustify =>
+  justifyValues.has(props.justify) ? props.justify : "flex-start";
+
+const normalizedAlign = (): FlexAlign => {
+  const value = props.alignment || props.align;
+  return alignValues.has(value) ? value : "stretch";
+};
+
+const normalizedAlignContent = (): FlexAlignContent =>
+  alignContentValues.has(props.alignContent) ? props.alignContent : "stretch";
+
+const normalizedWrap = (): Exclude<FlexWrap, boolean> => {
+  const value = props.wrap as FlexWrap | "";
+  if (value === true || value === "") return "wrap";
+  if (value === false) return "nowrap";
+  return value === "wrap" || value === "wrap-reverse" ? value : "nowrap";
+};
 
 const toCssLength = (value: number | string): string => {
   if (typeof value === "number") return `${Math.max(0, value)}px`;
@@ -57,16 +113,21 @@ const normalizedGap = (): string => {
 const normalizedFillRatio = (): string => `${Math.min(100, Math.max(0, Number(props.fillRatio) || 0))}%`;
 
 useHostAttr("direction", () => props.direction);
-useHostAttr("justify", () => props.justify);
+useHostAttr("justify", normalizedJustify);
 useHostAttr("align", normalizedAlign);
-useHostFlag("wrap", () => props.wrap);
+useHostAttr("align-content", normalizedAlignContent);
+useHostAttr("wrap", normalizedWrap);
 useHostFlag("inline", () => props.inline);
 useHostFlag("fill", () => props.fill);
+useHostCssVar("--_justify", normalizedJustify);
+useHostCssVar("--_align", normalizedAlign);
+useHostCssVar("--_align-content", normalizedAlignContent);
+useHostCssVar("--_wrap", normalizedWrap);
 useHostCssVar("--_gap", normalizedGap);
 useHostCssVar("--_fill-ratio", normalizedFillRatio);
 
 defineStyle(styles);
 
-const Flex = defineHtml<FlexProps, Record<string, never>, FlexSlots>(html`<slot></slot>`);
+const Flex = defineHtml<FlexProps, Record<string, never>, FlexSlots>(`<slot></slot>`);
 
 export { Flex };

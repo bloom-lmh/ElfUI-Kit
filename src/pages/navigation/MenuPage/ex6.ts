@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 import { createDocsTranslator } from "../../docsLocale";
 
 const t = createDocsTranslator({
@@ -83,9 +83,12 @@ const items = [
     { index: "analytics-realtime", label: "Realtime" }
   ] },
   { index: "settings", label: "Settings" }
-];`;
+];
 
-const PageMenuEx6 = defineHtml(html`
+const activeDark = useRef("home");
+const activeCustom = useRef("profile");`;
+
+const PageMenuEx6 = defineHtml(`
   <h2>${t("hover")}</h2>
   <elf-playground :title=${t("hoverTitle")} :code=${code1} :script=${script}>
     <elf-menu

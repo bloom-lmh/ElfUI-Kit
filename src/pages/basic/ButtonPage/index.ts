@@ -1,4 +1,6 @@
-import { defineHtml, html, useComponents } from "@elfui/core";
+import { defineHtml, useComponents } from "@elfui/core";
+
+import { createDocsTranslator } from "../../docsLocale";
 import { PageButtonEx1 } from "./ex1";
 import { PageButtonEx2 } from "./ex2";
 import { PageButtonEx3 } from "./ex3";
@@ -11,10 +13,18 @@ useComponents({
   "page-button-props": PageButtonProps
 });
 
-const PageButton = defineHtml(html`
+const t = createDocsTranslator({
+  title: { zh: "Button 按钮", en: "Button" },
+  description: {
+    zh: "触发即时或异步操作，支持语义层级、图标、加载状态、键盘和原生表单提交。",
+    en: "Triggers immediate or async actions with semantic hierarchy, icons, loading states, keyboard access, and native form submission."
+  }
+});
+
+const PageButton = defineHtml(`
   <elf-container
-    ><h1>Button 按钮</h1>
-    <p>Material Design 风格按钮。3 variant × 6 color × 3 size × 4 shape。</p>
+    ><h1>${t("title")}</h1>
+    <p>${t("description")}</p>
     <page-button-ex1 /><page-button-ex2 /><page-button-ex3 /><page-button-props
   /></elf-container>
 `);

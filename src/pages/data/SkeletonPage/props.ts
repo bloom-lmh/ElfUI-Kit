@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 
 const propsRows = [
   { name: "variant", type: "text | circle | rect", default: "text", desc: "形状变体" },
@@ -17,7 +17,7 @@ const slotsRows = [
   { name: "template", desc: "加载中显示的自定义骨架模板" }
 ];
 
-const PageSkeletonProps = defineHtml(html`
+const PageSkeletonProps = defineHtml(`
   <h2>API</h2>
   <elf-props-table title="Props" :rows="propsRows" />
   <elf-props-table title="Slots" :rows="slotsRows" />

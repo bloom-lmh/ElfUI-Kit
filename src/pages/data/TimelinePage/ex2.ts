@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 
 const steps = [
   { title: "需求分析", timestamp: "Week 1", color: "primary", icon: "📋" },
@@ -18,7 +18,7 @@ const script = `const steps = [
   { title: "发布上线", timestamp: "Week 6", color: "success", icon: "🚀" }
 ];`;
 
-const PageTimelineEx2 = defineHtml(html`
+const PageTimelineEx2 = defineHtml(`
   <h2>横向时间轴</h2>
   <elf-playground title="mode='horizontal'：水平流向，上下交替" :code=${code1} :script=${script}>
     <elf-timeline :items.prop=${steps} mode="horizontal"></elf-timeline>

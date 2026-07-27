@@ -1,4 +1,4 @@
-import { defineProps, defineStyle, html, onUnmount, useComputed, useEffect, useHostFlag, useRef, defineHtml } from "@elfui/core";
+import { defineProps, defineStyle, onUnmounted, useComputed, useEffect, useHostFlag, useRef, defineHtml } from "@elfui/core";
 
 import styles from "./style.scss?inline";
 import type { SkeletonProps, SkeletonThrottle } from "./types";
@@ -73,11 +73,11 @@ useEffect(() => {
   }, delay);
 });
 
-onUnmount(clearTimer);
+onUnmounted(clearTimer);
 useHostFlag("animated", () => Boolean(props.animated));
 defineStyle(styles);
 
-const Skeleton = defineHtml(html`
+const Skeleton = defineHtml(`
   <div class="root" :aria-busy=${ariaBusy}>
     <div v-if=${visible} class="placeholder" role="status" aria-label="Loading">
       <slot name="template">

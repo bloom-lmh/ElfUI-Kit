@@ -13,15 +13,14 @@
 // - 否则 → 显示 alt 首字母缩写
 
 import {
-    defineEmits,
-    defineProps,
-    defineStyle,
-    html,
-    useComputed,
-    useEffect,
-    useHostAttr,
-    useRef,
-    defineHtml,
+  defineEmits,
+  defineProps,
+  defineStyle,
+  useComputed,
+  useEffect,
+  useHostAttr,
+  useRef,
+  defineHtml
 } from "@elfui/core";
 
 import styles from "./style.scss?inline";
@@ -72,6 +71,9 @@ useEffect(() => {
 });
 
 const showImage = useComputed(() => !!toText(props.src) && !imgError.value);
+const fallbackRole = (): "img" | null => showImage.value ? null : "img";
+const fallbackAriaLabel = (): string | null =>
+    !showImage.value && toText(props.alt) ? toText(props.alt) : null;
 
 const initials = useComputed(() => {
     const name = toText(props.alt);
@@ -98,8 +100,14 @@ useHostAttr("fit", normalizedFit);
 
 defineStyle(styles);
 
-const Avatar = defineHtml(html`
-    <div class="avatar" part="avatar" :style=${{ backgroundColor: bgColor }}>
+const Avatar = defineHtml(`
+    <div
+        class="avatar"
+        part="avatar"
+        :style=${{ backgroundColor: bgColor }}
+        :role=${fallbackRole()}
+        :aria-label=${fallbackAriaLabel()}
+    >
         <img
             v-if=${showImage}
             :src=${props.src}

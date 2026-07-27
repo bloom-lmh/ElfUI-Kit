@@ -1,5 +1,12 @@
-import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
-import { registerComponents } from "@elfui/core";
+import {
+  afterEach,
+  beforeAll,
+  describe,
+  expect,
+  it,
+  vi } from "vitest";
+import { registerComponents
+} from "@elfui/core";
 
 import { Alert } from "./index";
 import type { AlertDensity, AlertType, AlertVariant } from "./types";

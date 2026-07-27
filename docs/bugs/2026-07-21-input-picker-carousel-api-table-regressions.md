@@ -21,8 +21,8 @@
 ## 质量门槛
 
 - [x] 组件契约、类型、样式、测试、案例和组件 plan 同步。
-- [ ] 关键交互使用真实浏览器验证。
-- [ ] 相关专项测试通过。
-- [ ] 全量测试通过。
-- [ ] 应用构建与组件库构建通过。
-- [ ] `git diff --check` 通过。
+- [x] 关键交互使用真实浏览器验证（Input、DatePicker、Calendar、Carousel、Tabs、Table、VirtualList）。
+- [x] 相关专项测试通过（14 个测试文件、181 项测试）。
+- [x] 全量测试通过（110 个测试文件、1004 项测试，beta6）。
+- [x] 应用构建与组件库构建通过，macro-aware typecheck 为 0 error。
+- [x] `git diff --check` 通过。

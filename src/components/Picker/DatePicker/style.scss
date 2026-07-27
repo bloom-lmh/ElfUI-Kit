@@ -99,6 +99,10 @@
   cursor: pointer;
 }
 
+.date-picker.is-range .field-trigger {
+  grid-template-columns: 20px minmax(0, 1fr) auto minmax(0, 1fr) 16px;
+}
+
 @include field.surface(".field-trigger");
 @include field.floating-label(".field-trigger");
 @include field.reduced-motion(".field-trigger");
@@ -122,20 +126,10 @@
   padding-top: 16px;
 }
 
-:host([data-has-label]:not([data-dirty]):not([data-open])) .field-label {
-  left: 41px;
-}
-
-:host([data-has-label]:not([data-dirty]):not([data-open])) .field-value.is-placeholder {
-  opacity: 0;
-}
-
-:host(:not([data-dirty]):not([data-open])) .field-trigger:has(.field-label) .field-label {
-  left: 41px;
-}
-
-:host(:not([data-dirty]):not([data-open])) .field-trigger:has(.field-label) .field-value.is-placeholder {
-  opacity: 0;
+:host([data-has-label]) .field-label {
+  top: 7px;
+  left: var(--elf-field-padding-start);
+  transform: translateY(0) scale(var(--elf-field-label-scale));
 }
 
 .calendar-icon {

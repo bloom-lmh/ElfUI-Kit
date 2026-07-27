@@ -1,4 +1,4 @@
-import { defineHtml, defineStyle, html } from "@elfui/core";
+import { defineHtml, defineStyle } from "@elfui/core";
 
 const cards = [
   { title: "Mist over Dolomites", meta: "意大利 · 山地", image: "https://picsum.photos/seed/elf-mountain/640/440", imageHeight: 220 },
@@ -35,7 +35,7 @@ defineStyle(`
   .masonry-copy p { margin:0; color:var(--elf-text-secondary); font-size:13px; }
 `);
 
-const PageMasonry = defineHtml(html`
+const PageMasonry = defineHtml(`
   <elf-container>
     <h1>Masonry 瀑布流</h1>
     <p>适合图片墙、灵感卡片和内容高度不一致的编辑型页面；宽度不足时会自动减少列数。</p>

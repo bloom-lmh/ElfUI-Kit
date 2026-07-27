@@ -1,42 +1,50 @@
-import { defineHtml, defineStyle, html } from "@elfui/core";
+import { defineHtml, defineStyle } from "@elfui/core";
 
 import { createDocsTranslator } from "../../docsLocale";
-import demoStyles from "../demo-cards.scss?inline";
+import diagramStyles from "../layout-diagrams.scss?inline";
 
 const t = createDocsTranslator({
-  heading: { zh: "复杂组合", en: "Complex composition" },
-  title: { zh: "非对称响应式网格", en: "Asymmetric responsive grid" },
-  users: { zh: "月度活跃用户", en: "Monthly active users" },
-  channels: { zh: "渠道构成", en: "Channel mix" },
-  organic: { zh: "自然流量 46%", en: "Organic traffic 46%" },
-  conversion: { zh: "转化率", en: "Conversion rate" },
-  duration: { zh: "平均停留", en: "Average session" },
-  health: { zh: "系统健康度", en: "System health" }
+  container: { zh: "页面容器", en: "Page container" },
+  composition: { zh: "组合式响应布局", en: "Composed responsive layout" }
 });
 
-const code = (): string => `<elf-grid columns="12" gutter="18">
-  <elf-grid-item span="8" :sm=\${12}><article>${t("users")}</article></elf-grid-item>
-  <elf-grid-item span="4" :sm=\${12}><article>${t("channels")}</article></elf-grid-item>
-  <elf-grid-item span="3"><article>${t("conversion")}</article></elf-grid-item>
-  <elf-grid-item span="3"><article>${t("duration")}</article></elf-grid-item>
-</elf-grid>`;
+const containerCode = `<elf-container max-width="sm">sm · 600px</elf-container>
+<elf-container max-width="md">md · 900px</elf-container>
+<elf-container max-width="lg">lg · 1200px</elf-container>`;
 
-defineStyle(demoStyles);
+const compositionCode = `<elf-container max-width="lg">
+  <elf-grid columns="12" gap="md">
+    <elf-grid-item span="8">1</elf-grid-item>
+    <elf-grid-item span="4">2</elf-grid-item>
+    <elf-grid-item span="3">3</elf-grid-item>
+    <elf-grid-item span="9">4</elf-grid-item>
+  </elf-grid>
+</elf-container>`;
 
-const PageGridEx4 = defineHtml(html`
-  <h2>${t("heading")}</h2>
-  <elf-playground :title=${t("title")} :code=${code()}>
-    <elf-grid columns="12" gutter="18" style="width:100%">
-      <elf-grid-item span="8" :md=${{ span: 8 }} :sm=${12}>
-        <article class="demo-card dashboard-card tone-primary" style="min-height:120px">8 / 12 · ${t("users")}</article>
-      </elf-grid-item>
-      <elf-grid-item span="4" :sm=${12}>
-        <article class="demo-card dashboard-card" style="min-height:120px">4 / 12 · ${t("channels")}</article>
-      </elf-grid-item>
-      <elf-grid-item span="3" :sm=${6} :xs=${12}><article class="demo-card">3 / 12 · ${t("conversion")}</article></elf-grid-item>
-      <elf-grid-item span="3" :sm=${6} :xs=${12}><article class="demo-card">3 / 12 · ${t("duration")}</article></elf-grid-item>
-      <elf-grid-item span="6" :sm=${12}><article class="demo-card tone-success">6 / 12 · ${t("health")}</article></elf-grid-item>
-    </elf-grid>
+defineStyle(diagramStyles);
+
+const PageGridEx4 = defineHtml(`
+  <elf-playground :title=${t("container")} :code=${containerCode}>
+    <div class="diagram-stage">
+      <div class="container-demo">
+        <div class="container-bar" style="width:48%">sm · 600px</div>
+        <div class="container-bar" style="width:72%">md · 900px</div>
+        <div class="container-bar" style="width:100%">lg · 1200px</div>
+      </div>
+    </div>
+  </elf-playground>
+
+  <elf-playground :title=${t("composition")} :code=${compositionCode}>
+    <elf-container max-width="lg" padding="0" style="width:100%">
+      <div class="diagram-stage">
+        <elf-grid columns="12" gap="md">
+          <elf-grid-item span="8"><div class="diagram-item">1<small>span 8</small></div></elf-grid-item>
+          <elf-grid-item span="4"><div class="diagram-item">2<small>span 4</small></div></elf-grid-item>
+          <elf-grid-item span="3"><div class="diagram-item">3<small>span 3</small></div></elf-grid-item>
+          <elf-grid-item span="9"><div class="diagram-item">4<small>span 9</small></div></elf-grid-item>
+        </elf-grid>
+      </div>
+    </elf-container>
   </elf-playground>
 `);
 

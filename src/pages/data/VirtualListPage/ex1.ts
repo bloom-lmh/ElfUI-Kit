@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 import { createDocsTranslator } from "../../docsLocale";
 
 const t = createDocsTranslator({
@@ -37,7 +37,7 @@ const renderItem = (item) => {
   row.textContent = item.title;
   return row;
 };`;
-const PageVirtualListEx1 = defineHtml(html`
+const PageVirtualListEx1 = defineHtml(`
   <h2>${t("section")}</h2>
   <elf-playground :title=${t("title")} :code=${code} :script=${script}>
     <elf-list :key=${t("section")} style="width:100%;max-width:620px" :items.prop=${items} :renderItem.prop=${renderItem} bordered></elf-list>

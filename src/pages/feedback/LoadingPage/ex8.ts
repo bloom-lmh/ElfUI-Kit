@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 
 const svgPath = "M25 5 A20 20 0 0 1 45 25";
 
@@ -13,7 +13,7 @@ const code = `<elf-loading
 
 const script = `const svgPath = "M25 5 A20 20 0 0 1 45 25";`;
 
-const PageLoadingEx8 = defineHtml(html`
+const PageLoadingEx8 = defineHtml(`
   <h2>自定义 SVG</h2>
   <elf-playground title="使用 SVG path 与 viewBox 定制加载标识" :code=${code} :script=${script}>
     <elf-loading

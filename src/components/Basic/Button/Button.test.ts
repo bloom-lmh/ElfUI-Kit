@@ -137,6 +137,16 @@ describe("elf-button", () => {
         expect(btn.getAttribute("part")).toBe("button");
     });
 
+    it("forwards aria-label to the native button", async () => {
+        const el = document.createElement("elf-button") as ButtonEl;
+        el.setAttribute("aria-label", "Refresh data");
+        document.body.appendChild(el);
+        await tick();
+
+        const button = el.shadowRoot!.querySelector("button")!;
+        expect(button.getAttribute("aria-label")).toBe("Refresh data");
+    });
+
     it("circle shape 反射到 host flag", async () => {
         const el = document.createElement("elf-button") as ButtonEl;
         el.setAttribute("circle", "");
@@ -312,5 +322,84 @@ describe("elf-button", () => {
         await tick();
 
         expect(el.getAttribute("size")).toBe(expected);
+    });
+
+    it("submits the closest light-DOM form exactly once", async () => {
+        const form = document.createElement("form");
+        const el = document.createElement("elf-button") as ButtonEl;
+        el.setAttribute("type", "submit");
+        form.appendChild(el);
+        document.body.appendChild(form);
+        await tick();
+
+        let submitCount = 0;
+        form.addEventListener("submit", (event) => {
+            event.preventDefault();
+            submitCount += 1;
+        });
+
+        el.shadowRoot!.querySelector<HTMLButtonElement>("button")!.click();
+        await tick();
+
+        expect(submitCount).toBe(1);
+    });
+
+    it("honors the explicit form attribute across the shadow boundary", async () => {
+        const form = document.createElement("form");
+        form.id = "profile-form";
+        const el = document.createElement("elf-button") as ButtonEl;
+        el.setAttribute("type", "submit");
+        el.setAttribute("form", form.id);
+        document.body.append(form, el);
+        await tick();
+
+        let submitted = false;
+        form.addEventListener("submit", (event) => {
+            event.preventDefault();
+            submitted = true;
+        });
+
+        el.shadowRoot!.querySelector<HTMLButtonElement>("button")!.click();
+        await tick();
+
+        expect(submitted).toBe(true);
+    });
+
+    it("resets the closest light-DOM form", async () => {
+        const form = document.createElement("form");
+        const input = document.createElement("input");
+        input.defaultValue = "initial";
+        input.value = "changed";
+        const el = document.createElement("elf-button") as ButtonEl;
+        el.setAttribute("type", "reset");
+        form.append(input, el);
+        document.body.appendChild(form);
+        await tick();
+
+        el.shadowRoot!.querySelector<HTMLButtonElement>("button")!.click();
+        await tick();
+
+        expect(input.value).toBe("initial");
+    });
+
+    it("does not submit when a click listener prevents the default action", async () => {
+        const form = document.createElement("form");
+        const el = document.createElement("elf-button") as ButtonEl;
+        el.setAttribute("type", "submit");
+        el.addEventListener("click", (event) => event.preventDefault());
+        form.appendChild(el);
+        document.body.appendChild(form);
+        await tick();
+
+        let submitted = false;
+        form.addEventListener("submit", (event) => {
+            event.preventDefault();
+            submitted = true;
+        });
+
+        el.shadowRoot!.querySelector<HTMLButtonElement>("button")!.click();
+        await tick();
+
+        expect(submitted).toBe(false);
     });
 });

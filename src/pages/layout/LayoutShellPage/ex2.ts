@@ -1,44 +1,50 @@
-import { defineHtml, defineStyle, html } from "@elfui/core";
+import { defineHtml, defineStyle } from "@elfui/core";
 
-const code1 = `<elf-layout>
-  <elf-header height="48px">顶栏</elf-header>
-  <elf-main>主内容</elf-main>
+import { createDocsTranslator } from "../../docsLocale";
+import diagramStyles from "../layout-diagrams.scss?inline";
+
+const t = createDocsTranslator({
+  classic: { zh: "经典后台", en: "Classic administration" },
+  system: { zh: "双层顶栏", en: "Two-level header" }
+});
+
+const classicCode = `<elf-layout>
+  <elf-header height="52px">Header</elf-header>
+  <elf-layout direction="horizontal">
+    <elf-aside width="144px">Aside</elf-aside>
+    <elf-main>Main</elf-main>
+  </elf-layout>
+  <elf-footer height="36px">Footer</elf-footer>
 </elf-layout>`;
 
-const code2 = `<elf-layout>
-  <elf-aside width="160px">侧栏导航</elf-aside>
-  <elf-main>主内容</elf-main>
+const systemCode = `<elf-layout>
+  <elf-header height="28px">System bar</elf-header>
+  <elf-header height="52px">Header</elf-header>
+  <elf-main>Main</elf-main>
 </elf-layout>`;
 
-const script = `// direction 决定主轴方向，尺寸由 Header / Aside 自己声明。`;
+defineStyle(diagramStyles);
 
-defineStyle(`
-  :host { display:block; }
-  * { box-sizing:border-box; }
-  .layout-frame { width:100%; height:200px; overflow:hidden; border:1px dashed var(--elf-border-strong); border-radius:4px; background:transparent; }
-  .layout-part { background:transparent !important; }
-  .layout-header { border-bottom:1px dashed var(--elf-border-strong); }
-  .layout-aside { padding:12px; border-right:1px dashed var(--elf-border-strong); }
-  .layout-main { padding:16px; }
-`);
-
-const PageLayoutShellEx2 = defineHtml(html`
-  <h2>仅顶栏 + 内容</h2>
-  <elf-playground title="header + main" :code=${code1} :script=${script}>
-    <div class="layout-frame">
-      <elf-layout style="height: 100%">
-        <elf-header class="layout-part layout-header" height="48px">顶栏</elf-header>
-        <elf-main class="layout-part layout-main">主内容</elf-main>
+const PageLayoutShellEx2 = defineHtml(`
+  <elf-playground data-docs-toc-level="2" :title=${t("classic")} :code=${classicCode}>
+    <div class="layout-shell">
+      <elf-layout>
+        <elf-header height="52px">Header</elf-header>
+        <elf-layout direction="horizontal">
+          <elf-aside width="144px">Aside</elf-aside>
+          <elf-main><span class="region-label">Main</span><div class="shell-skeleton"><span></span><span></span><span></span><span></span></div></elf-main>
+        </elf-layout>
+        <elf-footer height="36px">Footer</elf-footer>
       </elf-layout>
     </div>
   </elf-playground>
 
-  <h2>左右分栏（无顶栏）</h2>
-  <elf-playground title="aside + main（自动横向）" :code=${code2} :script=${script}>
-    <div class="layout-frame">
-      <elf-layout style="height: 100%">
-        <elf-aside class="layout-part layout-aside" width="160px">侧栏导航</elf-aside>
-        <elf-main class="layout-part layout-main">主内容</elf-main>
+  <elf-playground data-docs-toc-level="2" :title=${t("system")} :code=${systemCode}>
+    <div class="layout-shell">
+      <elf-layout>
+        <elf-header class="system-region" height="28px">System bar</elf-header>
+        <elf-header height="52px">Header</elf-header>
+        <elf-main><span class="region-label">Main</span><div class="shell-skeleton"><span></span><span></span><span></span><span></span></div></elf-main>
       </elf-layout>
     </div>
   </elf-playground>

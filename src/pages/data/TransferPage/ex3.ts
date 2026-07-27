@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 const data = [
   { key: "design", label: "设计系统与跨产品主题规范维护负责人" },
@@ -23,7 +23,7 @@ const data = [
   // ...
 ];`;
 
-const PageTransferEx3 = defineHtml(html`
+const PageTransferEx3 = defineHtml(`
   <h2>长标签、Panel Footer 与窄容器</h2>
   <elf-playground title="窄容器自动切换为纵向布局" :code=${code} :script=${script}>
     <div style="width:100%;max-width:520px">

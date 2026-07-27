@@ -1,4 +1,8 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineDirective, defineHtml, useRef } from "@elfui/core";
+import {
+  loadingDirective } from "../../../components/Feedback/Loading/directive";
+
+const loading = defineDirective(loadingDirective);
 
 const directiveLoading = useRef(true);
 
@@ -10,7 +14,14 @@ const code = `<div
 </div>
 <elf-button @click=\${toggle}>切换指令状态</elf-button>`;
 
-const script = `const directiveLoading = useRef(true);
+const script = `import { defineDirective,
+  useRef
+} from "@elfui/core";
+import { loadingDirective } from "@elfui/kit";
+
+const loading = defineDirective(loadingDirective);
+
+const directiveLoading = useRef(true);
 
 const toggle = () => {
   directiveLoading.set(!directiveLoading.value);
@@ -20,7 +31,7 @@ const toggle = (): void => {
   directiveLoading.set(!directiveLoading.value);
 };
 
-const PageLoadingEx6 = defineHtml(html`
+const PageLoadingEx6 = defineHtml(`
   <h2>v-loading 指令</h2>
   <elf-playground title="用指令给任意容器增加局部加载状态" :code=${code} :script=${script}>
     <div style="display:grid;gap:12px;max-width:560px">

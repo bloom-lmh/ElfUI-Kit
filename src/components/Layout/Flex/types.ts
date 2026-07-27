@@ -15,6 +15,19 @@ export type FlexJustify =
 /** Flex 交叉轴对齐 */
 export type FlexAlign = "stretch" | "flex-start" | "flex-end" | "center" | "baseline";
 
+/** 多行内容在交叉轴上的分布方式 */
+export type FlexAlignContent =
+  | "stretch"
+  | "flex-start"
+  | "flex-end"
+  | "center"
+  | "space-between"
+  | "space-around"
+  | "space-evenly";
+
+/** 换行策略；boolean 形式用于兼容原有 API。 */
+export type FlexWrap = boolean | "nowrap" | "wrap" | "wrap-reverse";
+
 /** Flex 间距尺寸 */
 export type FlexGap = "0" | "xs" | "sm" | "md" | "lg" | "xl";
 
@@ -25,12 +38,13 @@ export interface FlexProps {
   direction: FlexDirection;
   justify: FlexJustify;
   align: FlexAlign;
+  alignContent: FlexAlignContent;
   /** Element Plus Space compatibility alias for align. */
   alignment: FlexAlign | "";
   gap: FlexSize;
   /** Element Plus Space compatibility alias for gap. */
   size: FlexSize | "";
-  wrap: boolean;
+  wrap: FlexWrap;
   inline: boolean;
   fill: boolean;
   fillRatio: number;

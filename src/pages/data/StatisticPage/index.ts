@@ -1,4 +1,4 @@
-import { defineHtml, html, useComponents } from "@elfui/core";
+import { defineHtml, useComponents } from "@elfui/core";
 import { PageStatisticProps } from "./props";
 import { PageStatisticEx1 } from "./ex1";
 import { PageStatisticEx2 } from "./ex2";
@@ -15,7 +15,7 @@ useComponents({
   "page-statistic-props": PageStatisticProps
 });
 
-const PageStatistic = defineHtml(html`
+const PageStatistic = defineHtml(`
   <elf-container>
     <h1>Statistic 统计数值</h1>
     <p>突出展示关键数字，并提供独立倒计时组件处理目标时间、格式化和结束通知。</p>

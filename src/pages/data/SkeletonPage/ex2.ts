@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 
 const code1 = `<elf-card style="max-width:480px;width:100%">
   <elf-skeleton loading variant="image" width="100%" height="180px" />
@@ -99,7 +99,7 @@ const code3 = `<div style="display:grid;grid-template-columns:repeat(2,minmax(0,
   </elf-card>
 </div>`;
 
-const PageSkeletonEx2 = defineHtml(html`
+const PageSkeletonEx2 = defineHtml(`
   <h2>卡片骨架</h2>
   <elf-playground title="图片 + 标题 + 正文 + 按钮占位" :code="code1">
     <elf-card style="max-width:480px;width:100%;pointer-events:none">

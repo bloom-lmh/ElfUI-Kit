@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 const scrollState = useRef("scrollTop: 0 / fixed: false");
 const rows = Array.from({ length: 14 }, (_, index) => `目标容器内容 ${index + 1}`);
@@ -27,7 +27,7 @@ const script = `const onScroll = (event) => {
 
 // 实例同时暴露 update() 与 updateRoot()。`;
 
-const PageStickyEx4 = defineHtml(html`
+const PageStickyEx4 = defineHtml(`
   <h2>目标容器与 Teleport</h2>
   <elf-playground title="target / teleported / append-to / scroll" :code=${code} :script=${script}>
     <div style="position:relative;width:100%;max-width:720px">

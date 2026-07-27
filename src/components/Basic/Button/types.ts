@@ -27,13 +27,16 @@ export interface ButtonProps {
     plain: boolean;
     dashed: boolean;
     autofocus: boolean;
+    ariaLabel: string;
     form: string;
     nativeType: ButtonType;
     icon: string;
     loadingIcon: string;
+    /** Reserved for source compatibility; ElfUI does not alter author-provided label spacing. */
     autoInsertSpace: boolean;
     dark: boolean;
     noHover: boolean;
+    /** Reserved for source compatibility; use Link for navigation semantics. */
     tag: string;
     direction: "horizontal" | "vertical";
 }

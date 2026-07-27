@@ -11,6 +11,12 @@
 <elf-button loading>加载中</elf-button>
 <elf-button disabled>禁用</elf-button>
 <elf-button block>占满整行</elf-button>
+<elf-button circle icon="↻" aria-label="刷新数据"></elf-button>
+
+<form>
+  <elf-button type="submit">提交</elf-button>
+  <elf-button type="reset" variant="outlined">重置</elf-button>
+</form>
 ```
 
 ## Props
@@ -23,7 +29,10 @@
 | `disabled` | `boolean`                                                      | `false`     | 禁用             |
 | `loading`  | `boolean`                                                      | `false`     | 显示 spinner     |
 | `block`    | `boolean`                                                      | `false`     | 占满父容器宽度   |
-| `type`     | `button \| submit \| reset`                                    | `button`    | 原生 button type |
+| `type`     | `ButtonColor \| button \| submit \| reset`                      | `""`        | 语义色别名或原生 button type |
+| `native-type` | `button \| submit \| reset`                                 | `button`    | 原生 button type |
+| `aria-label` | `string`                                                     | `""`        | 纯图标按钮的无障碍名称 |
+| `form`     | `string`                                                       | `""`        | 显式关联外层表单 ID |
 
 ## Events
 
@@ -41,4 +50,6 @@
 
 - 颜色 / 尺寸 / 变体走 attribute selector + CSS 变量驱动；JS 层只处理 disabled/loading 拦截
 - click 不在内部 emit，让浏览器原生冒泡到 host，避免重复
+- submit/reset 在内部按钮没有原生 form owner 时桥接到最近的外层表单；`preventDefault()` 仍可取消提交
+- `aria-label` 会转发到真正可聚焦的内部按钮
 - focus-visible 样式跟随当前 color，符合 a11y

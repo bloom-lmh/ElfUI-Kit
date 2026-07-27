@@ -1,46 +1,54 @@
-import { defineHtml, defineStyle, html } from "@elfui/core";
+import { defineHtml, defineStyle } from "@elfui/core";
 
 import { createDocsTranslator } from "../../docsLocale";
-import demoStyles from "../demo-cards.scss?inline";
+import diagramStyles from "../layout-diagrams.scss?inline";
 
 const t = createDocsTranslator({
-  heading: { zh: "组合布局", en: "Composed layout" },
-  title: { zh: "工具栏与弹性内容", en: "Toolbar and flexible content" },
-  workspace: { zh: "标题区", en: "Title area" },
-  export: { zh: "次操作", en: "Secondary action" },
-  create: { zh: "主操作", en: "Primary action" },
-  active: { zh: "进行中", en: "In progress" },
-  releases: { zh: "本周发布", en: "Released this week" },
-  delivery: { zh: "交付率", en: "Delivery rate" }
+  spacer: { zh: "剩余空间与 Spacer", en: "Remaining space and Spacer" },
+  items: { zh: "子项伸缩与顺序", en: "Item growth and order" },
+  responsive: { zh: "响应式工具类", en: "Responsive utilities" }
 });
 
-const code = (): string => `<elf-flex direction="column" gap="lg">
-  <elf-flex align="center" justify="space-between" wrap>
-    <h2>${t("workspace")}</h2>
-  </elf-flex>
-  <elf-flex gap="md" wrap fill>
-    <article>${t("active")}: 24</article>
-    <article>${t("releases")}: 8</article>
-    <article>${t("delivery")}: 96.4%</article>
-  </elf-flex>
+const spacerCode = `<elf-flex align="center" gap="sm">
+  <div>1</div><elf-spacer></elf-spacer><div>2</div><div>3</div>
 </elf-flex>`;
 
-defineStyle(demoStyles);
+const itemsCode = `<elf-flex gap="sm">
+  <div class="flex-grow-1">1</div><div>2</div><div>3</div>
+</elf-flex>
+<elf-flex gap="sm">
+  <div class="order-3">1</div><div class="order-1">2</div><div class="order-2">3</div>
+</elf-flex>`;
 
-const PageFlexEx4 = defineHtml(html`
-  <h2>${t("heading")}</h2>
-  <elf-playground :title=${t("title")} :code=${code()}>
-    <elf-flex direction="column" gap="lg" class="demo-stage" style="width:100%">
-      <elf-flex align="center" justify="space-between" gap="md" wrap>
-        <div class="demo-card compact" style="flex:1 1 180px">${t("workspace")}</div>
-        <elf-flex gap="sm" style="flex:0 1 280px"><span class="demo-card compact" style="flex:1">${t("export")}</span><span class="demo-card compact" style="flex:1">${t("create")}</span></elf-flex>
+const responsiveCode = `<div class="d-flex flex-column flex-md-row ga-3">
+  <div>1</div><div>2</div><div>3</div>
+</div>`;
+
+defineStyle(diagramStyles);
+
+const PageFlexEx4 = defineHtml(`
+  <elf-playground :title=${t("spacer")} :code=${spacerCode}>
+    <div class="diagram-stage">
+      <elf-flex class="flex-demo" align="center" gap="sm">
+        <div class="diagram-item">1</div><elf-spacer></elf-spacer><div class="diagram-item alt">2</div><div class="diagram-item neutral">3</div>
       </elf-flex>
-      <elf-flex gap="md" wrap fill>
-        <article class="demo-card tone-primary" style="flex:1 1 180px">${t("active")}</article>
-        <article class="demo-card tone-success" style="flex:1 1 180px">${t("releases")}</article>
-        <article class="demo-card" style="flex:1 1 180px">${t("delivery")}</article>
+    </div>
+  </elf-playground>
+
+  <elf-playground :title=${t("items")} :code=${itemsCode}>
+    <div class="diagram-stack">
+      <div class="diagram-line"><span class="diagram-label">flex-grow: 1</span><div class="diagram-stage"><elf-flex class="flex-demo" gap="sm"><div class="diagram-item" style="flex:1 1 auto">1</div><div class="diagram-item alt">2</div><div class="diagram-item neutral">3</div></elf-flex></div></div>
+      <div class="diagram-line"><span class="diagram-label">order: 3 / 1 / 2</span><div class="diagram-stage"><elf-flex class="flex-demo" gap="sm"><div class="diagram-item" style="order:3">1</div><div class="diagram-item alt" style="order:1">2</div><div class="diagram-item neutral" style="order:2">3</div></elf-flex></div></div>
+      <div class="diagram-line"><span class="diagram-label">align-self: end</span><div class="diagram-stage tall"><elf-flex class="flex-demo" align="flex-start" gap="sm" style="height:148px"><div class="diagram-item">1</div><div class="diagram-item alt" style="align-self:center">2</div><div class="diagram-item neutral" style="align-self:flex-end">3</div></elf-flex></div></div>
+    </div>
+  </elf-playground>
+
+  <elf-playground :title=${t("responsive")} :code=${responsiveCode}>
+    <div class="diagram-stage">
+      <elf-flex class="flex-demo" direction="column" gap="sm">
+        <div class="diagram-item">1<small>flex-column</small></div><div class="diagram-item alt">2<small>flex-md-row</small></div><div class="diagram-item neutral">3<small>ga-3</small></div>
       </elf-flex>
-    </elf-flex>
+    </div>
   </elf-playground>
 `);
 

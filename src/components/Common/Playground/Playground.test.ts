@@ -8,6 +8,7 @@ beforeAll(async () => {
 
 afterEach(() => {
   document.body.innerHTML = "";
+  vi.useRealTimers();
   vi.restoreAllMocks();
 });
 
@@ -30,6 +31,29 @@ describe("elf-playground", () => {
     const header = el.shadowRoot!.querySelector(".header") as HTMLElement;
     // 验证 header 元素存在且 title 正确
     expect(header.textContent).toContain("Test");
+  });
+
+  it("保留页面大标题并精简案例标题", async () => {
+    const page = document.createElement("section");
+    const heading = document.createElement("h1");
+    heading.textContent = "Button 按钮";
+    const sectionHeading = document.createElement("h2");
+    sectionHeading.textContent = "颜色";
+    const first = document.createElement("elf-playground");
+    first.setAttribute("title", "基础用法");
+    const second = document.createElement("elf-playground");
+    second.setAttribute("title", "禁用状态案例");
+    page.append(heading, sectionHeading, first, second);
+    document.body.appendChild(page);
+    await tick();
+    await tick();
+
+    expect(heading.hidden).toBe(false);
+    expect(heading.hasAttribute("data-promoted-to-playground")).toBe(false);
+    expect(sectionHeading.hidden).toBe(true);
+    expect(sectionHeading.hasAttribute("data-promoted-to-playground")).toBe(true);
+    expect(first.shadowRoot!.querySelector(".title")?.textContent).toBe("颜色");
+    expect(second.shadowRoot!.querySelector(".title")?.textContent).toBe("禁用状态");
   });
 
   it("status slot 与标题在同一头部且不进入 demo", async () => {
@@ -64,10 +88,8 @@ describe("elf-playground", () => {
     expect(demo).toBeTruthy();
   });
 
-  it("controls slot 按需启用右侧控制台并支持折叠", async () => {
-    const el = document.createElement("elf-playground") as HTMLElement & {
-      toggleControls?: () => void;
-    };
+  it("controls slot 按需启用永久可见的右侧控制台", async () => {
+    const el = document.createElement("elf-playground");
     el.setAttribute("title", "可配置案例");
     const controls = document.createElement("div");
     controls.slot = "controls";
@@ -80,13 +102,8 @@ describe("elf-playground", () => {
     expect(el.shadowRoot!.querySelector(".workspace.has-controls")).toBeTruthy();
     const controlsSlot = el.shadowRoot!.querySelector<HTMLSlotElement>('slot[name="controls"]');
     expect(controlsSlot?.assignedElements()).toEqual([controls]);
-    expect(el.shadowRoot!.querySelector(".controls-toggle")?.getAttribute("aria-expanded")).toBe("true");
-
-    el.shadowRoot!.querySelector<HTMLButtonElement>(".controls-toggle")!.click();
-    await tick();
-    expect(el.shadowRoot!.querySelector(".workspace.controls-collapsed")).toBeTruthy();
-    expect(el.shadowRoot!.querySelector(".controls-toggle")?.getAttribute("aria-expanded")).toBe("false");
-    expect(el.shadowRoot!.querySelector(".controls")?.getAttribute("aria-hidden")).toBe("true");
+    expect(el.shadowRoot!.querySelector(".controls-toggle")).toBeNull();
+    expect(el.shadowRoot!.querySelector(".controls")?.getAttribute("aria-hidden")).toBeNull();
   });
 
   it("normalizes control fields and choice groups", async () => {
@@ -103,10 +120,12 @@ describe("elf-playground", () => {
     await tick();
     await tick();
 
-    expect(select.getAttribute("variant")).toBe("underlined");
-    expect(input.getAttribute("variant")).toBe("underlined");
-    expect(radios.getAttribute("variant")).toBe("button");
-    expect(checks.getAttribute("variant")).toBe("button");
+    expect(select.getAttribute("variant")).toBe("filled");
+    expect(select.getAttribute("density")).toBe("comfortable");
+    expect(input.getAttribute("variant")).toBe("filled");
+    expect(input.getAttribute("density")).toBe("comfortable");
+    expect(radios.getAttribute("variant")).toBe("default");
+    expect(checks.getAttribute("variant")).toBe("default");
   });
 
   it("没有 controls slot 时保持单栏且不显示折叠按钮", async () => {
@@ -145,6 +164,31 @@ describe("elf-playground", () => {
 
     expect(code()).toContain("const opts = [");
     expect(code()).not.toMatch(/^\s{6}/);
+  });
+
+  it("removes macro continuation indentation without flattening nested source", async () => {
+    const el = document.createElement("elf-playground") as HTMLElement & {
+      code?: string;
+      script?: string;
+      showScript?: () => void;
+    };
+    el.code = `<elf-sticky top="0">
+    <div class="toolbar">Toolbar</div>
+  </elf-sticky>`;
+    el.script = `const stuck = useRef("未吸附");
+  const onChange = (event) => stuck.set(Boolean(event.detail));`;
+    document.body.appendChild(el);
+    await tick();
+
+    const source = (): string => el.shadowRoot!.querySelector("code")?.textContent ?? "";
+    expect(source()).toBe(`<elf-sticky top="0">
+  <div class="toolbar">Toolbar</div>
+</elf-sticky>`);
+
+    el.showScript?.();
+    await tick();
+    expect(source()).toBe(`const stuck = useRef("未吸附");
+const onChange = (event) => stuck.set(Boolean(event.detail));`);
   });
 
   it("Script 高亮不会把生成的 token 标签泄漏到源码文本", async () => {
@@ -256,5 +300,19 @@ describe("elf-playground", () => {
     expect(await el.copy?.()).toBe(false);
     expect((onError.mock.calls[0]![0] as CustomEvent<Error>).detail.message).toBe("denied");
     expect(el.shadowRoot!.querySelector(".copy")?.textContent).toContain("复制");
+  });
+
+  it("renders an optional downward ruler directly below the header", async () => {
+    const el = document.createElement("elf-playground") as HTMLElement & { ruler?: boolean };
+    el.setAttribute("title", "Grid");
+    el.ruler = true;
+    document.body.appendChild(el);
+    await tick();
+
+    const header = el.shadowRoot!.querySelector(".header");
+    const ruler = el.shadowRoot!.querySelector(".ruler");
+    expect(ruler).toBeTruthy();
+    expect(header?.nextElementSibling).toBe(ruler);
+    expect(ruler?.querySelectorAll(".ruler-label")).toHaveLength(5);
   });
 });

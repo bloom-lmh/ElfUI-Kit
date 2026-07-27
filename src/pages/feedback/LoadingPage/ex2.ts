@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 const loading = useRef(false);
 
@@ -10,7 +10,7 @@ const code2 = `<elf-loading
   <div class="demo-panel">自定义遮罩背景</div>
 </elf-loading>`;
 
-const PageLoadingEx2 = defineHtml(html`
+const PageLoadingEx2 = defineHtml(`
 <elf-playground title="自定义遮罩背景" :code=${code2}>
       <elf-loading loading text="处理中" background="rgba(24, 144, 255, 0.12)">
         <div

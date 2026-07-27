@@ -3,7 +3,7 @@
 // 用法：
 //   <elf-container max-width="md">...</elf-container>
 
-import { defineHtml, defineProps, defineStyle, html, useHostAttr, useHostFlag } from "@elfui/core";
+import { defineHtml, defineProps, defineStyle, useHostAttr, useHostFlag } from "@elfui/core";
 
 import styles from "./style.scss?inline";
 import type { ContainerProps, ContainerSlots } from "./types";
@@ -22,6 +22,6 @@ useHostFlag("fluid", () => props.fluid);
 
 defineStyle(styles);
 
-const Container = defineHtml<ContainerProps, Record<string, never>, ContainerSlots>(html`<slot></slot>`);
+const Container = defineHtml<ContainerProps, Record<string, never>, ContainerSlots>(`<slot></slot>`);
 
 export { Container };

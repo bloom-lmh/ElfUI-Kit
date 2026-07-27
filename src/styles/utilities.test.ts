@@ -57,8 +57,8 @@ describe("ElfUI utility classes", () => {
     const utilityNav = navItems.filter((item) => item.to === "/utilities");
     const routePaths = new Set(routes.map((route) => route.path));
 
-    expect(navItems[0]).toEqual({ to: "/utilities", text: "工具类", group: "样式和动画" });
-    expect(utilityNav).toEqual([{ to: "/utilities", text: "工具类", group: "样式和动画" }]);
+    expect(navItems[0]).toEqual({ to: "/utilities", text: "Utilities 工具类", group: "Styles and animations 样式与动画" });
+    expect(utilityNav).toEqual([{ to: "/utilities", text: "Utilities 工具类", group: "Styles and animations 样式与动画" }]);
     expect(utilityNav.every((item) => routePaths.has(item.to))).toBe(true);
     expect(catalogEntries.every(([key]) => routePaths.has(`/utilities/${key}`))).toBe(true);
   });

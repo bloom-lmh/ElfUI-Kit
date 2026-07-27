@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 
 const extraCode = `<elf-result icon="success" title="发布成功" sub-title="页面已经上线">
   <div slot="extra" style="display:flex;gap:8px;justify-content:center">
@@ -7,7 +7,7 @@ const extraCode = `<elf-result icon="success" title="发布成功" sub-title="�
   </div>
 </elf-result>`;
 
-const PageResultEx2 = defineHtml(html`
+const PageResultEx2 = defineHtml(`
 <elf-playground title="扩展操作区" :code=${extraCode}>
       <elf-result icon="success" title="发布成功" sub-title="页面已经上线">
         <div slot="extra" style="display:flex;gap:8px;justify-content:center">

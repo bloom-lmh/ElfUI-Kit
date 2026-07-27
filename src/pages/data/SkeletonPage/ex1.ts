@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 const loading = useRef(true);
 const toggleLoading = (): void => loading.set(!loading.value);
@@ -27,7 +27,10 @@ const code4 = `<elf-button @click=\${toggleLoading}>Toggle loading</elf-button>
   </template>
 </elf-skeleton>`;
 
-const PageSkeletonEx1 = defineHtml(html`
+const code4Script = `const loading = useRef(true);
+const toggleLoading = () => loading.set(!loading.value);`;
+
+const PageSkeletonEx1 = defineHtml(`
   <h2>文字骨架</h2>
   <elf-playground title="单行 + 多行段落" :code="code1">
     <div style="width:360px">
@@ -61,7 +64,7 @@ const PageSkeletonEx1 = defineHtml(html`
   </elf-playground>
 
   <h2>加载状态与自定义模板</h2>
-  <elf-playground title="loading / throttle / template" :code=${code4}>
+  <elf-playground title="loading / throttle / template" :code=${code4} :script=${code4Script}>
     <div style="display:grid;gap:12px;width:360px">
       <elf-button size="sm" @click=${toggleLoading}>{{ loading ? "显示内容" : "重新加载" }}</elf-button>
       <elf-skeleton :loading=${loading} :throttle=${200} animated>

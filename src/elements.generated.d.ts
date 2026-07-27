@@ -1,8 +1,8 @@
-// ÓÉ scripts/generate-tag-types.mjs ×Ô¶¯Éú³É ¡ª ²»ÒªÊÖ¸Ä
+// ç”± scripts/generate-tag-types.mjs è‡ªåŠ¨ç”Ÿæˆ â€” ä¸è¦æ‰‹æ”¹
 //
-// ÒıÈë±¾ÎÄ¼ş£¨»òÔÚÓÃ»§ÏîÄ¿ tsconfig ÖĞ include£©¼´¿ÉÈÃ
+// å¼•å…¥æœ¬æ–‡ä»¶ï¼ˆæˆ–åœ¨ç”¨æˆ·é¡¹ç›® tsconfig ä¸­ includeï¼‰å³å¯è®©
 //   document.createElement("elf-button")
-// ÄÃµ½ÍêÕû prop ÀàĞÍ¡£
+// æ‹¿åˆ°å®Œæ•´ prop ç±»å‹ã€‚
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -277,8 +277,14 @@ declare global {
       direction: string;
       justify: string;
       align: string;
+      alignContent: string;
+      alignment: string;
       gap: string;
-      wrap: boolean;
+      size: string;
+      wrap: boolean | string;
+      inline: boolean;
+      fill: boolean;
+      fillRatio: number;
     };
     "elf-footer": HTMLElement & {
       height: string;
@@ -530,6 +536,7 @@ declare global {
       title: string;
       code: string;
       script: string;
+      ruler: boolean;
     };
     "elf-pop-confirm": HTMLElement & {
       title: string;
@@ -699,6 +706,7 @@ declare global {
       zIndex: unknown;
       disabled: boolean;
     };
+    "elf-spacer": HTMLElement;
     "elf-switch": HTMLElement & {
       modelValue: boolean;
       disabled: boolean;
@@ -727,7 +735,7 @@ declare global {
       maxHeight: string;
       virtual: boolean;
       virtualThreshold: number;
-      rowHeight: number | ((context: { row: Record<string, unknown>; rowIndex: number }) => number);
+      rowHeight: number;
       overscan: number;
       emptyText: string;
       loading: boolean;
@@ -750,28 +758,6 @@ declare global {
       sort: (...args: unknown[]) => void;
       clearSort: (...args: unknown[]) => void;
       clearFilter: (...args: unknown[]) => void;
-    };
-    "elf-table-v2": HTMLElement & {
-      data: unknown[];
-      fixedData: unknown[];
-      columns: unknown[];
-      rowKey: string | ((row: Record<string, unknown>) => string | number);
-      width: string | number;
-      height: string | number;
-      rowHeight: number | ((row: Record<string, unknown>, rowIndex: number) => number);
-      headerHeight: number;
-      footerHeight: number;
-      overscan: number;
-      sortBy: Record<string, unknown>;
-      fixed: boolean;
-      stripe: boolean;
-      border: boolean;
-      loading: boolean;
-      emptyText: string;
-      scrollTableTo: (...args: unknown[]) => void;
-      scrollToRow: (...args: unknown[]) => void;
-      setScrollTop: (...args: unknown[]) => void;
-      setScrollLeft: (...args: unknown[]) => void;
     };
     "elf-tabs": HTMLElement & {
       items: unknown[];

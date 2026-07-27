@@ -1,4 +1,4 @@
-import { defineHtml, defineStyle, html, useRef } from "@elfui/core";
+import { defineHtml, defineStyle, useRef } from "@elfui/core";
 import styles from "./style.scss?inline";
 const messages = [
   {
@@ -60,7 +60,7 @@ const code =
 const script =
   "const scrollTop = useRef(0);\n" + "const onScroll = (event) => scrollTop.set(Math.round(event.detail.scrollTop));";
 
-const PageScrollbarEx1 = defineHtml(html`
+const PageScrollbarEx1 = defineHtml(`
   <h2>固定高度</h2>
   <elf-playground title="消息列表 / 滚动事件" :code=${code} :script=${script}>
     <elf-scrollbar class="mail-scrollbar" :height=${225 + "px"} always @scroll=${onScroll}>

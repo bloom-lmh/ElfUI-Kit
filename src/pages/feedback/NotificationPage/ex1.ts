@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 import { ElfNotification } from "../../../components/Feedback";
 
 const showNormal = () => {
@@ -42,7 +42,7 @@ ElfNotification.success({ title: "成功", message: "..." })
 ElfNotification.warning({ title: "安全警告", message: "..." })
 ElfNotification.error({ title: "同步失败", message: "..." })`;
 
-const PageNotificationEx1 = defineHtml(html`
+const PageNotificationEx1 = defineHtml(`
   <h2>基础用法</h2>
   <elf-playground title="基本和四种状态类型" :code="code1">
     <div style="display: flex; gap: 12px; flex-wrap: wrap;">

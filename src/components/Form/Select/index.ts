@@ -191,7 +191,7 @@ const openDropdown = (): void => {
         new CustomEvent(SELECT_OPEN_EVENT, { detail: host }),
     );
     open.set(true);
-    activeIndex.set(firstEnabledIndex());
+    activeIndex.set(preferredActiveIndex());
     emit("visible-change", true);
 };
 
@@ -334,6 +334,14 @@ const viewOptionEntries = (): Array<{
 
 const firstEnabledIndex = (): number =>
     viewOptions().findIndex((option) => !isOptionDisabled(option));
+
+const preferredActiveIndex = (): number => {
+    const options = viewOptions();
+    const selectedIndex = options.findIndex((option) =>
+        !isOptionDisabled(option) && isSelected(option),
+    );
+    return selectedIndex >= 0 ? selectedIndex : firstEnabledIndex();
+};
 
 const lastEnabledIndex = (): number => {
     const options = viewOptions();

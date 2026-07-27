@@ -223,7 +223,7 @@ describe("elf-cascader", () => {
 
     el.shadowRoot!.querySelector<HTMLElement>(".trigger")!.click();
     await tick();
-    el.shadowRoot!.querySelector<HTMLButtonElement>('.tree-option[aria-level="1"]')!.click();
+    el.shadowRoot!.querySelector<HTMLElement>('.tree-option[aria-level="1"] .option-checkbox')!.click();
     await tick();
 
     expect((onUpdate.mock.calls.at(-1)![0] as CustomEvent).detail).toEqual([
@@ -232,14 +232,17 @@ describe("elf-cascader", () => {
     ]);
     expect(el.shadowRoot!.querySelector('.tree-option[aria-level="1"] .option-checkbox.is-checked')).toBeTruthy();
 
-    el.shadowRoot!.querySelector<HTMLButtonElement>('.tree-option[aria-level="2"]')!.click();
+    el.shadowRoot!.querySelector<HTMLElement>('.tree-option[aria-level="2"] .option-checkbox')!.click();
     await tick();
-    el.shadowRoot!.querySelector<HTMLButtonElement>('.tree-option[aria-level="3"]')!.click();
+    el.shadowRoot!.querySelector<HTMLElement>('.tree-option[aria-level="3"] .option-checkbox')!.click();
     await tick();
-    el.shadowRoot!.querySelector<HTMLButtonElement>('.tree-option[aria-level="4"]')!.click();
+    el.shadowRoot!.querySelector<HTMLElement>('.tree-option[aria-level="4"] .option-checkbox')!.click();
     await tick();
 
     expect(el.shadowRoot!.querySelector('.tree-option[aria-level="1"] .option-checkbox.is-indeterminate')).toBeTruthy();
+    el.shadowRoot!.querySelector<HTMLButtonElement>('.tree-option[aria-level="1"]')!.click();
+    await tick();
+    expect(el.shadowRoot!.querySelector('.tree-option[aria-level="4"]')).toBeTruthy();
   });
 
   it("keeps an active indeterminate parent label in the rendered option row", async () => {

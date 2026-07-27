@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 
 const code = `<elf-splitter storage-key="workspace-splitter">
   <elf-splitter-panel
@@ -17,7 +17,7 @@ const code = `<elf-splitter storage-key="workspace-splitter">
 const script = `// 双击分隔条或点击折叠按钮可收起第一个面板。
 // storage-key 会在 localStorage 中保存最近一次尺寸。`;
 
-const PageSplitterEx4 = defineHtml(html`
+const PageSplitterEx4 = defineHtml(`
   <h2>Panel 子组件、折叠与持久化</h2>
   <elf-playground
     title="collapsible / lazy / storage-key"

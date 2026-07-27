@@ -1,4 +1,4 @@
-import { defineHtml, defineStyle, html } from "@elfui/core";
+import { defineHtml, defineStyle } from "@elfui/core";
 import styles from "./style.scss?inline";
 const inbox = Array.from({ length: 12 }, (_, index) => {
   const names = ["Ali Connors", "Sandra Adams", "Trevor Hansen", "Britta Holt"];
@@ -25,7 +25,7 @@ const code =
   "  </ul>\n" +
   "</elf-scrollbar>";
 
-const PageScrollbarEx2 = defineHtml(html`
+const PageScrollbarEx2 = defineHtml(`
   <h2>最大高度</h2>
   <elf-playground title="max-height" :code=${code}>
     <elf-scrollbar class="mail-scrollbar" max-height="260px">

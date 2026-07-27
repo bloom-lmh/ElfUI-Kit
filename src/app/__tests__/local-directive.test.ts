@@ -1,14 +1,13 @@
 // 组件级（局部）自定义指令验证
 
-import { directive, type DirectiveDefinition } from "@elfui/core";
+import { createApp, type DirectiveDefinition } from "@elfui/core";
 import { resolveDirective } from "@elfui/core/internal";
-import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 
 import { localDualCalls, TestDualDirective } from "./dual-directive-fixture";
 import { localOnlyCalls, TestLocalDirective } from "./local-only-directive-fixture";
 
 const globalDualCalls: string[] = [];
-let removeGlobalDual = (): void => {};
 
 const localDirectives = (component: unknown): Record<string, DirectiveDefinition> =>
   (component as { __elfDefinition: { directives: Record<string, DirectiveDefinition> } })
@@ -19,12 +18,6 @@ const invokeMounted = (definition: DirectiveDefinition, element: HTMLElement): v
   if (typeof definition === "function") definition(element, binding);
   else definition.mounted?.(element, binding);
 };
-
-beforeAll(() => {
-  removeGlobalDual = directive("dual", { mounted: () => globalDualCalls.push("global") });
-});
-
-afterAll(() => removeGlobalDual());
 
 afterEach(() => {
   document.body.innerHTML = "";
@@ -43,14 +36,16 @@ describe("组件级自定义指令（builder.directive）", () => {
     expect(localOnlyCalls).toEqual(["button"]);
   });
 
-  it("局部指令优先于同名全局指令", () => {
-    const global = resolveDirective("dual");
-    const local = resolveDirective("dual", localDirectives(TestDualDirective));
-    expect(local).toBeTruthy();
-    expect(local).not.toBe(global);
-    invokeMounted(local!, document.createElement("button"));
+  it("局部指令优先于应用级同名指令", async () => {
+    const target = document.createElement("div");
+    document.body.appendChild(target);
+    const app = createApp(TestDualDirective);
+    app.directive("dual", { mounted: () => globalDualCalls.push("global") });
+    app.mount(target);
+    await Promise.resolve();
 
     expect(localDualCalls).toEqual(["local"]);
     expect(globalDualCalls).toEqual([]);
+    app.unmount();
   });
 });

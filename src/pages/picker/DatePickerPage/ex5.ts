@@ -1,4 +1,5 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, defineStyle, useRef } from "@elfui/core";
+import styles from "./demo.scss?inline";
 
 const actionValue = useRef("2026-06-12");
 
@@ -17,18 +18,22 @@ const actionsCode = `<elf-date-picker
   header="带确认的日期选择"
 />`;
 
-const PageDatePickerEx5 = defineHtml(html`
-<elf-playground title="动作栏确认" :code="actionsCode">
+const actionsScript = `const actionValue = useRef("2026-06-12");`;
+
+defineStyle(styles);
+
+const PageDatePickerEx5 = defineHtml(`
+<elf-playground title="动作栏确认" :code=${actionsCode} :script=${actionsScript}>
       <div style="display:grid;gap:12px;max-width:620px">
         <elf-date-picker
-          :modelValue.prop="actionValue"
+          :modelValue.prop=${actionValue}
           actions
           clearable
           show-header
           header="带确认的日期选择"
-          @update:modelValue="updateAction"
+          @update:modelValue=${updateAction}
         ></elf-date-picker>
-        <span slot="status" class="demo-state">提交值：{{ actionValue }}</span>
+        <span slot="status" class="demo-state">提交值：${actionValue}</span>
       </div>
     </elf-playground>
 `);

@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 
 const splitterRows = [
   { name: "modelValue", type: "number", default: "50", desc: "第一个面板所占百分比" },
@@ -30,13 +30,11 @@ const eventRows = [
   { name: "collapse", type: "CustomEvent<boolean>", desc: "折叠状态变化" }
 ];
 
-const PageSplitterProps = defineHtml(html`
-  <h2>Props</h2>
+const PageSplitterProps = defineHtml(`
+  <h2>API</h2>
   <elf-props-table title="elf-splitter Props" :rows="splitterRows" />
   <elf-props-table title="elf-splitter-panel Props" :rows="panelRows" />
-  <h2>Slots</h2>
   <elf-props-table title="elf-splitter Slots" :rows="slotRows" />
-  <h2>Events</h2>
   <elf-props-table title="elf-splitter Events" :rows="eventRows" />
 `);
 

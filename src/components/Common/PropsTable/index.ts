@@ -1,4 +1,4 @@
-import { defineHtml, defineProps, defineStyle, html, useComponents } from "@elfui/core";
+import { defineHtml, defineProps, defineStyle, useComponents } from "@elfui/core";
 import { Table } from "../../Data/Table";
 import type { TableColumn } from "../../Data/Table/types";
 import { useLocaleProvider } from "../../Providers/context";
@@ -26,7 +26,7 @@ const columns = (): TableColumn[] => [
 
 defineStyle(styles);
 
-const PropsTable = defineHtml<PropsTableProps, Record<string, never>, PropsTableSlots>(html`
+const PropsTable = defineHtml<PropsTableProps, Record<string, never>, PropsTableSlots>(`
   <props-table-data
     :title=${props.title}
     title-variant="muted"

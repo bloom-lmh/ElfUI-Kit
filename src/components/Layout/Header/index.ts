@@ -2,7 +2,7 @@
 //
 //   <elf-header height="56px">brand + nav</elf-header>
 
-import { defineHtml, defineProps, defineStyle, html, useHostCssVar } from "@elfui/core";
+import { defineHtml, defineProps, defineStyle, useHostCssVar } from "@elfui/core";
 
 import styles from "./style.scss?inline";
 import type { HeaderProps, HeaderSlots } from "./types";
@@ -17,6 +17,6 @@ useHostCssVar("--_height", () => props.height);
 
 defineStyle(styles);
 
-const Header = defineHtml<HeaderProps, Record<string, never>, HeaderSlots>(html`<slot></slot>`);
+const Header = defineHtml<HeaderProps, Record<string, never>, HeaderSlots>(`<slot></slot>`);
 
 export { Header };

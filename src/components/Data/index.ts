@@ -1,4 +1,4 @@
-// Data 展示组件
+// Data 灞曠ず缁勪欢
 import { registerComponents } from "@elfui/core";
 
 import { Card } from "./Card/index";
@@ -15,6 +15,7 @@ import { Image } from "./Image/index";
 import { InfiniteScroll } from "./InfiniteScroll/index";
 import { List } from "./List/index";
 import { ListItem } from "./ListItem/index";
+import { Parallax } from "./Parallax/index";
 import { Pagination } from "./Pagination/index";
 import { Progress } from "./Progress/index";
 import { Result } from "./Result/index";
@@ -43,6 +44,7 @@ registerComponents(
   InfiniteScroll,
   List,
   ListItem,
+  Parallax,
   Pagination,
   Progress,
   Result,
@@ -86,6 +88,8 @@ export type {
 } from "./ListItem/types";
 export { VirtualList } from "./VirtualList/index";
 export type { VirtualListExpose, VirtualListProps } from "./VirtualList/types";
+export { Parallax } from "./Parallax/index";
+export type { ParallaxExpose, ParallaxProps } from "./Parallax/types";
 export { computeVariableVirtualWindow, computeVirtualWindow } from "./virtual-window";
 export type { VariableVirtualWindowOptions, VirtualWindow, VirtualWindowOptions } from "./virtual-window";
 export { Table } from "./Table/index";

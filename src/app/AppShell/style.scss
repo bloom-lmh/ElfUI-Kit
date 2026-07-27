@@ -18,7 +18,7 @@ elf-layout {
   min-height: 100vh;
   overflow-x: hidden;
   overflow-y: auto;
-  background: var(--elf-bg-page);
+  background: var(--elf-bg-page, var(--elf-bg-paper));
 }
 
 .app-aside {

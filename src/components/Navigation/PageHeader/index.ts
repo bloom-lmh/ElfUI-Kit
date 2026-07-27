@@ -1,4 +1,4 @@
-import { defineEmits, defineHtml, defineProps, defineStyle, html } from "@elfui/core";
+import { defineEmits, defineHtml, defineProps, defineStyle } from "@elfui/core";
 
 import styles from "./style.scss?inline";
 import type { PageHeaderEmits, PageHeaderProps, PageHeaderSlots } from "./types";
@@ -19,7 +19,7 @@ const onBack = (): void => {
 
 defineStyle(styles);
 
-const PageHeader = defineHtml<PageHeaderProps, PageHeaderEmits, PageHeaderSlots>(html`
+const PageHeader = defineHtml<PageHeaderProps, PageHeaderEmits, PageHeaderSlots>(`
   <header class="page-header" part="page-header">
     <div class="breadcrumb" part="breadcrumb">
       <slot name="breadcrumb"></slot>

@@ -6,6 +6,10 @@
   flex-shrink: 0;
 }
 
+:host([hidden]) {
+  display: none !important;
+}
+
 .avatar {
   display: inline-flex;
   align-items: center;

@@ -1,4 +1,4 @@
-import { defineHtml, defineProps, defineStyle, html, useHost, useHostFlag } from "@elfui/core";
+import { defineHtml, defineProps, defineStyle, useHost, useHostFlag } from "@elfui/core";
 
 import styles from "./style.scss?inline";
 import type { DropdownCommand, DropdownItem, DropdownItemProps, DropdownItemSlots } from "../Dropdown/types";
@@ -50,7 +50,7 @@ useHostFlag("data-selected", () => Boolean(props.selected));
 
 defineStyle(styles);
 
-const DropdownItem = defineHtml<DropdownItemProps, Record<string, never>, DropdownItemSlots>(html`
+const DropdownItem = defineHtml<DropdownItemProps, Record<string, never>, DropdownItemSlots>(`
   <button
     class="dropdown-item"
     part="item"

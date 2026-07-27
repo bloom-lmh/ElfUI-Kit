@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 import { createDocsTranslator } from "../../docsLocale";
 
@@ -81,9 +81,13 @@ const onAdd = () => {
   const value = \`custom-\${tabItems.value.length + 1}\`;
   tabItems.set([...tabItems.value, { label: "新标签", value, content: "新内容" }]);
   active.set(value);
+};
+
+const onChange = (event) => {
+    active.set(String(event.detail));
 };`;
 
-const PageTabsEx6 = defineHtml(html`
+const PageTabsEx6 = defineHtml(`
   <h2>${t("section")}</h2>
   <elf-playground :title=${t("title")} :code=${code} :script=${script}>
     <div style="width:100%;max-width:860px;min-height:260px">

@@ -50,20 +50,10 @@
   padding-top: 16px;
 }
 
-:host([data-has-label]:not([data-dirty]):not([data-open])) .field-label {
-  left: 58px;
-}
-
-:host([data-has-label]:not([data-dirty]):not([data-open])) .value {
-  opacity: 0;
-}
-
-:host(:not([data-dirty]):not([data-open])) .trigger:has(.field-label) .field-label {
-  left: 58px;
-}
-
-:host(:not([data-dirty]):not([data-open])) .trigger:has(.field-label) .value {
-  opacity: 0;
+:host([data-has-label]) .field-label {
+  top: 7px;
+  left: var(--elf-field-padding-start);
+  transform: translateY(0) scale(var(--elf-field-label-scale));
 }
 
 .swatch {

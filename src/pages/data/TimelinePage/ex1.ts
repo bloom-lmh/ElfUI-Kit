@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 
 const items = [
   {
@@ -91,7 +91,7 @@ const script3 = `const elementPlusItems = [
   { timestamp: "2026-07-14", title: "隐藏时间", hideTimestamp: true, type: "warning", hollow: true, icon: "!" }
 ];`;
 
-const PageTimelineEx1 = defineHtml(html`
+const PageTimelineEx1 = defineHtml(`
   <h2>双边交替</h2>
   <elf-playground title="mode='alternate'：中轴 + 左右交替" :code=${code1} :script=${script1}>
     <elf-timeline :items.prop=${items} mode="alternate"></elf-timeline>

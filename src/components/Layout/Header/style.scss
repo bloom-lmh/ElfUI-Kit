@@ -7,7 +7,8 @@
   width: 100%;
   height: var(--_height, 60px);
   padding: 0 var(--elf-space-6);
-  background: var(--elf-bg-paper);
+  border-bottom: 1px solid var(--elf-layout-divider, var(--elf-divider));
+  background: var(--elf-layout-header-bg, var(--elf-bg-paper));
   box-sizing: border-box;
   z-index: 10;
 }

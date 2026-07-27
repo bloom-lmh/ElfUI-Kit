@@ -64,9 +64,27 @@ describe("elf-pagination", () => {
     pageSeven.click();
     await tick();
 
-    expect(labels()).toEqual(["1", "...", "3", "4", "5", "6", "7", "8", "9"]);
+    expect(labels()).toEqual(["1", "2", "3", "4", "5", "6", "7", "...", "9"]);
     expect(el.shadowRoot!.querySelectorAll(".page")).toHaveLength(9);
     expect(el.shadowRoot!.querySelector(".page.is-active")).toBe(pageSeven);
+  });
+
+  it("does not move a clicked page while it is already visible", async () => {
+    const el = await mount((pagination) => {
+      pagination.total = 70;
+      pagination.pagerCount = 7;
+    });
+    const buttons = (): HTMLButtonElement[] =>
+      Array.from(el.shadowRoot!.querySelectorAll<HTMLButtonElement>(".page"));
+    const pageFive = buttons().find((button) => button.textContent?.trim() === "5")!;
+    const index = buttons().indexOf(pageFive);
+
+    pageFive.click();
+    await tick();
+
+    expect(buttons().map((button) => button.textContent?.trim() || "")).toEqual(["1", "2", "3", "4", "5", "6", "7"]);
+    expect(buttons()[index]).toBe(pageFive);
+    expect(pageFive.classList.contains("is-active")).toBe(true);
   });
 
   it("渲染总数和页码", async () => {

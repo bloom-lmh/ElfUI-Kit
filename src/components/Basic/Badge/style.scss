@@ -15,15 +15,17 @@
 .badge-wrapper {
   display: inline-flex;
   position: relative;
-  width: 100%;
+  width: fit-content;
+  max-width: 100%;
 }
 
 // ───── badge 基础 ───────────────────────────────────────
 .badge {
   position: absolute;
   top: 0;
-  right: 0;
+  inset-inline-end: 0;
   z-index: 1;
+  --_badge-translate-x: calc(50% + var(--_badge-offset-x, 0px));
 
   display: flex;
   align-items: center;
@@ -33,9 +35,12 @@
   font-weight: 600;
   line-height: 1;
   white-space: nowrap;
+  max-width: min(160px, 70vw);
+  overflow: hidden;
+  text-overflow: ellipsis;
 
   border-radius: var(--elf-radius-pill);
-  transform: translate(calc(50% + var(--_badge-offset-x, 0px)), calc(-50% + var(--_badge-offset-y, 0px)));
+  transform: translate(var(--_badge-translate-x), calc(-50% + var(--_badge-offset-y, 0px)));
   transform-origin: 100% 0%;
 
   transition:
@@ -44,6 +49,17 @@
 
   // 入场动画
   animation: badge-enter var(--elf-transition-base);
+}
+
+:host-context([dir="rtl"]) .badge {
+  --_badge-translate-x: calc(-50% - var(--_badge-offset-x, 0px));
+  transform-origin: 0% 0%;
+}
+
+.badge > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 // ───── 尺寸：圆点 ────────────────────────────────────────
@@ -109,11 +125,11 @@
 // ───── 动画 ──────────────────────────────────────────────
 @keyframes badge-enter {
   from {
-    transform: translate(50%, -50%) scale(0);
+    transform: translate(var(--_badge-translate-x), calc(-50% + var(--_badge-offset-y, 0px))) scale(0);
     opacity: 0;
   }
   to {
-    transform: translate(50%, -50%) scale(1);
+    transform: translate(var(--_badge-translate-x), calc(-50% + var(--_badge-offset-y, 0px))) scale(1);
     opacity: 1;
   }
 }

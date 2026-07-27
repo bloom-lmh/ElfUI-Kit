@@ -11,6 +11,7 @@ beforeAll(async () => {
 
 afterEach(() => {
   document.body.innerHTML = "";
+  window.history.replaceState(null, "", "#/navigation/breadcrumb");
 });
 
 const tick = (): Promise<void> => new Promise((resolve) => queueMicrotask(resolve));
@@ -44,5 +45,27 @@ describe("BreadcrumbPage", () => {
     expect(text).toContain("...");
     expect(text).toContain("API");
     expect(text).not.toContain("Navigation");
+  });
+
+  it("路由案例只使用已注册页面并把状态放入标题栏", async () => {
+    const el = document.createElement(breadcrumbExampleTag);
+    document.body.appendChild(el);
+    await tick();
+    await tick();
+
+    const playground = el.shadowRoot!.querySelector<HTMLElement>("elf-playground")!;
+    const breadcrumb = el.shadowRoot!.querySelector<HTMLElement>("elf-breadcrumb")!;
+    const status = playground.querySelector<HTMLElement>('[slot="status"]')!;
+    const componentLink = Array.from(
+      breadcrumb.shadowRoot!.querySelectorAll<HTMLElement>(".breadcrumb-link")
+    ).find((link) => link.textContent?.includes("组件"));
+
+    expect(status.textContent).toContain("当前 hash");
+    expect(playground.shadowRoot!.querySelector('.header slot[name="status"]')).toBeTruthy();
+    expect(componentLink?.tagName).toBe("A");
+    expect(componentLink?.getAttribute("href")).toBe("#/basic/button");
+    componentLink?.click();
+    await tick();
+    expect(window.location.hash).toBe("#/basic/button");
   });
 });

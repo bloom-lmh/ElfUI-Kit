@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 const active = useRef("#anchor-links-overview");
 
@@ -23,7 +23,7 @@ const onChange = (event) => {
   active.set(event.detail.href);
 };`;
 
-const PageAnchorEx3 = defineHtml(html`
+const PageAnchorEx3 = defineHtml(`
   <h2>Compositional links</h2>
   <elf-playground title="AnchorLink and nested sub-link" :code=${code} :script=${script}>
     <div

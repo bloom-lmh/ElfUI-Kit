@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 import { ElfNotification } from "../../../components/Feedback";
 
 const showLong = (): void => {
@@ -38,7 +38,7 @@ ElfNotification({
 })
 ElfNotification.closeAll()`;
 
-const PageNotificationEx3 = defineHtml(html`
+const PageNotificationEx3 = defineHtml(`
   <h2>Duration and service options</h2>
   <elf-playground title="Duration, stacking offset, z-index, and close lifecycle" :code=${code3}>
     <div style="display: flex; gap: 12px; flex-wrap: wrap;">

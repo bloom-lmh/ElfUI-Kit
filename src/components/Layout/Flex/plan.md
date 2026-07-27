@@ -1,5 +1,16 @@
 # Flex Element Plus API 对标计划
 
+## 2026-07-22 主轴对齐回归
+
+- [x] 将规范化后的 `justify` 直接投射到 `--_justify`，避免主轴对齐仅依赖宿主属性选择器。
+- [x] 覆盖 `space-between`、`space-around` 与 `space-evenly` 回归测试，并在统一案例中逐项展示。
+
+## 2026-07-22 多行内容对齐案例回归
+
+- [x] 将案例改为六个固定高度子项形成三行，并提供充足纵向剩余空间，使三种 `align-content` 分布可直接比较。
+- [x] 补齐 `space-evenly` 案例及 `space-around / space-evenly` CSS 变量回归断言。
+- [x] 修复 Custom Element 裸 `wrap` 属性被错误归一为 `nowrap` 的兼容问题。
+
 生成时间：2026-07-05
 
 ## 2026-07-15 架构与验收记录
@@ -148,3 +159,10 @@
 
 - [x] Flex 全部案例统一为低圆角虚线容器，移除渐变、卡片阴影和过大的圆角。
 - [x] 真实浏览器检查案例在明暗主题下保持清晰的边界与层级。
+
+## 2026-07-22 Grid / Flex / Layout 统一
+
+- [x] 新增 `align-content` 容器能力。
+- [x] `wrap` 扩展为 `boolean | nowrap | wrap | wrap-reverse`，并保持 boolean 兼容。
+- [x] 新增 Spacer、统一编号案例并补齐响应式与子项工具类说明。
+- [x] 聚焦测试、全量测试、应用构建与浏览器视觉验收通过；库构建等待并行维护中的非 Flex 类型错误修复。

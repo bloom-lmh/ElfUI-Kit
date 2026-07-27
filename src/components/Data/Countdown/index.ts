@@ -3,11 +3,10 @@ import {
   defineHtml,
   defineProps,
   defineStyle,
-  html,
-  onMount,
-  onUnmount,
+  onMounted,
+  onUnmounted,
   useRef,
-  watchEffect
+  useEffect
 } from "@elfui/core";
 
 import styles from "./style.scss?inline";
@@ -85,23 +84,23 @@ const refresh = (notify = false): void => {
   }
 };
 
-watchEffect(() => {
+useEffect(() => {
   props.value;
   refresh();
 });
 
-onMount(() => {
+onMounted(() => {
   refresh();
   timer = setInterval(() => refresh(true), 250);
 });
 
-onUnmount(() => {
+onUnmounted(() => {
   if (timer) clearInterval(timer);
 });
 
 defineStyle(styles);
 
-const Countdown = defineHtml<CountdownProps, Record<string, never>, CountdownSlots>(html`
+const Countdown = defineHtml<CountdownProps, Record<string, never>, CountdownSlots>(`
   <div class="countdown" part="countdown" role="timer" :aria-label=${props.ariaLabel || props.title || "Countdown"}>
     <div v-if=${props.title} class="title" part="title"><slot name="title">${props.title}</slot></div>
     <div class="value" part="value" :style=${props.valueStyle} aria-live="off">

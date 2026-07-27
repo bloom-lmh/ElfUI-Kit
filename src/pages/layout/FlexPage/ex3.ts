@@ -1,57 +1,66 @@
-import { defineHtml, defineStyle, html } from "@elfui/core";
+import { defineHtml, defineStyle } from "@elfui/core";
 
 import { createDocsTranslator } from "../../docsLocale";
-import demoStyles from "../demo-cards.scss?inline";
-
-const asymmetricGap: [number, number] = [20, 8];
-const uniformGap = 12;
-const fillRatio = 45;
+import diagramStyles from "../layout-diagrams.scss?inline";
 
 const t = createDocsTranslator({
-  heading: { zh: "Space 兼容属性", en: "Space-compatible props" },
-  title: { zh: "对齐、间距元组与填充比例", en: "Alignment, spacing tuples, and fill ratio" },
-  unified: { zh: "统一间距", en: "Uniform spacing" },
-  centered: { zh: "居中对齐", en: "Centered" },
-  horizontal: { zh: "水平 20px", en: "20px horizontal" },
-  vertical: { zh: "垂直 8px", en: "8px vertical" },
-  tuple: { zh: "支持元组", en: "Tuple supported" },
-  cardA: { zh: "计划进度", en: "Plan progress" },
-  cardB: { zh: "交付质量", en: "Delivery quality" }
+  wrap: { zh: "换行策略", en: "Wrapping strategies" },
+  alignContent: { zh: "多行内容对齐", en: "Wrapped-line alignment" },
+  compatibility: { zh: "Space 兼容输入", en: "Space-compatible inputs" }
 });
 
-const code = (): string => `<elf-flex alignment="center" :size=\${uniformGap}>
-  <article>${t("unified")}</article><article>${t("centered")}</article>
-</elf-flex>
-<elf-flex :size=\${asymmetricGap}>
-  <article>${t("horizontal")}</article><article>${t("vertical")}</article>
-</elf-flex>
-<elf-flex fill :fill-ratio=\${fillRatio} gap="md">
-  <article>${t("cardA")}</article><article>${t("cardB")}</article>
-</elf-flex>`;
+const wrapCode = `<elf-flex wrap="wrap" gap="md">1 2 3</elf-flex>
+<elf-flex wrap="wrap-reverse" gap="md">1 2 3</elf-flex>`;
 
-const script = `const uniformGap = 12;
-const asymmetricGap = [20, 8];
-const fillRatio = 45;`;
+const alignContentCode = `<elf-flex wrap align-content="space-between" gap="sm">1 2 3</elf-flex>
+<elf-flex wrap align-content="space-around" gap="sm">1 2 3</elf-flex>
+<elf-flex wrap align-content="space-evenly" gap="sm">1 2 3</elf-flex>`;
 
-defineStyle(demoStyles);
+const compatibilityCode = `<elf-flex alignment="center" size="default">1 2 3</elf-flex>
+<elf-flex fill fill-ratio="30" size="default">1 2 3</elf-flex>`;
 
-const PageFlexEx3 = defineHtml(html`
-  <h2>${t("heading")}</h2>
-  <elf-playground :title=${t("title")} :code=${code()} :script=${script}>
-    <div class="demo-stack">
-      <elf-flex alignment="center" :size=${uniformGap}>
-        <article class="demo-card compact"><span class="chip">12px</span></article>
-        <article class="demo-card compact"><span class="card-copy"><strong>${t("unified")}</strong><small>${t("centered")}</small></span></article>
-      </elf-flex>
-      <elf-flex wrap :size=${asymmetricGap}>
-        <article class="demo-card compact tone-primary"><strong>${t("horizontal")}</strong></article>
-        <article class="demo-card compact tone-success"><strong>${t("vertical")}</strong></article>
-        <article class="demo-card compact"><span class="chip">${t("tuple")}</span></article>
-      </elf-flex>
-      <elf-flex fill :fill-ratio=${fillRatio} gap="md" style="min-height:0">
-        <article class="demo-card tone-primary"><small>${t("cardA")}</small><strong class="metric-value">45%</strong><div class="mini-progress" style="--progress:45%"></div></article>
-        <article class="demo-card tone-success"><small>${t("cardB")}</small><strong class="metric-value">45%</strong><div class="mini-progress" style="--progress:88%"></div></article>
-      </elf-flex>
+const alignedItems = [
+  { id: 1, line: "line 1" },
+  { id: 2, line: "line 1" },
+  { id: 3, line: "line 2" }
+] as const;
+
+const alignContentModes = [
+  "space-between",
+  "space-around",
+  "space-evenly"
+] as const;
+
+const alignedItemClass = (item: number): string =>
+  item === 2 ? "diagram-item alt" : item === 3 ? "diagram-item neutral" : "diagram-item";
+
+defineStyle(diagramStyles);
+
+const PageFlexEx3 = defineHtml(`
+  <elf-playground :title=${t("wrap")} :code=${wrapCode}>
+    <div class="diagram-stack">
+      <div class="diagram-line"><span class="diagram-label">wrap</span><div class="diagram-stage"><elf-flex class="flex-demo" wrap="wrap" gap="md" style="max-width:260px"><div class="diagram-item" style="flex-basis:112px">1</div><div class="diagram-item alt" style="flex-basis:112px">2</div><div class="diagram-item neutral" style="flex-basis:112px">3</div></elf-flex></div></div>
+      <div class="diagram-line"><span class="diagram-label">wrap-reverse</span><div class="diagram-stage"><elf-flex class="flex-demo" wrap="wrap-reverse" gap="md" style="max-width:260px"><div class="diagram-item" style="flex-basis:112px">1</div><div class="diagram-item alt" style="flex-basis:112px">2</div><div class="diagram-item neutral" style="flex-basis:112px">3</div></elf-flex></div></div>
+    </div>
+  </elf-playground>
+
+  <elf-playground :title=${t("alignContent")} :code=${alignContentCode}>
+    <div class="diagram-stack">
+      <div v-for="mode in alignContentModes" :key="mode" class="diagram-line">
+        <span class="diagram-label">{{ mode }}</span>
+        <div class="diagram-stage tall">
+          <elf-flex class="align-content-demo" wrap :align-content="mode" gap="sm">
+            <div v-for="item in alignedItems" :key="item.id" :class="alignedItemClass(item.id)">{{ item.id }}<small>{{ item.line }}</small></div>
+          </elf-flex>
+        </div>
+      </div>
+    </div>
+  </elf-playground>
+
+  <elf-playground :title=${t("compatibility")} :code=${compatibilityCode}>
+    <div class="diagram-stack">
+      <div class="diagram-stage"><elf-flex alignment="center" size="default"><div class="diagram-item">1</div><div class="diagram-item alt">2</div><div class="diagram-item neutral">3</div></elf-flex></div>
+      <div class="diagram-stage"><elf-flex fill fill-ratio="30" size="default"><div class="diagram-item">1</div><div class="diagram-item alt">2</div><div class="diagram-item neutral">3</div></elf-flex></div>
     </div>
   </elf-playground>
 `);

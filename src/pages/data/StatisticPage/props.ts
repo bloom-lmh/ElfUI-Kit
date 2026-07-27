@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 
 const statisticRows = [
   { name: "value", type: "number", default: "0", desc: "统计值" },
@@ -24,7 +24,7 @@ const countdownEvents = [
   { name: "finish", type: "() => void", desc: "到达目标时间时触发一次" }
 ];
 
-const PageStatisticProps = defineHtml(html`
+const PageStatisticProps = defineHtml(`
   <h2>API</h2>
   <elf-props-table title="Statistic Props" :rows=${statisticRows} />
   <elf-props-table title="Countdown Props" :rows=${countdownRows} />

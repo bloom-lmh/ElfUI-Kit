@@ -16,9 +16,8 @@ import {
   defineHtml,
   defineProps,
   defineStyle,
-  html,
-  onMount,
-  onUnmount,
+  onMounted,
+  onUnmounted,
   useHost,
   useRef
 } from "@elfui/core";
@@ -39,8 +38,7 @@ const props = defineProps<PlaygroundProps>({
   title: { type: String, default: "" },
   code: { type: String, default: "" },
   script: { type: String, default: "" },
-  controlsCollapsible: { type: Boolean, default: true },
-  controlsCollapsed: { type: Boolean, default: false }
+  ruler: { type: Boolean, default: false }
 });
 
 const emit = defineEmits<PlaygroundEmits>();
@@ -48,24 +46,38 @@ const emit = defineEmits<PlaygroundEmits>();
 const copied = useRef(false);
 const activeTab = useRef<"template" | "script">("template");
 const hasControls = useRef(false);
-const controlsCollapsed = useRef(Boolean(props.controlsCollapsed));
+const sectionTitle = useRef("");
 const host = useHost();
 let statusObserver: MutationObserver | undefined;
+let sectionTitleObserver: MutationObserver | undefined;
+let sectionHeading: HTMLHeadingElement | undefined;
 let copiedTimer: ReturnType<typeof setTimeout> | undefined;
 
 const normalizeCode = (value: string): string => {
-    const text = String(value || "").replace(/\r\n/g, "\n");
-    const lines = text.split("\n");
-    while (lines.length > 0 && !lines[0]!.trim()) lines.shift();
-    while (lines.length > 0 && !lines[lines.length - 1]!.trim()) lines.pop();
-    if (lines.length === 0) return "";
-    const contentIndents = lines
-        .filter((l) => l.trim())
-        .map((l) => l.match(/^\s*/)?.[0].length ?? 0);
-    const globalMin = Math.min(...contentIndents);
-    // 首行从第 0 列开始时，后续缩进属于源码结构，不能再单独裁剪。
-    if (globalMin === 0) return lines.join("\n");
-    return lines.map((line) => (line ? line.slice(globalMin) : line)).join("\n");
+  const text = String(value || "").replace(/\r\n?/g, "\n");
+  let lines = text.split("\n").map((line) => line.replace(/[\t ]+$/g, ""));
+  while (lines.length > 0 && !lines[0]!.trim()) lines.shift();
+  while (lines.length > 0 && !lines[lines.length - 1]!.trim()) lines.pop();
+  if (lines.length === 0) return "";
+
+  const indentOf = (line: string): number => line.match(/^\s*/)?.[0].length ?? 0;
+  const contentIndents = lines.filter((line) => line.trim()).map(indentOf);
+  const globalMin = Math.min(...contentIndents);
+  if (globalMin > 0) {
+    lines = lines.map((line) => (line ? line.slice(globalMin) : line));
+  }
+
+  // Macro interpolation adds one two-space continuation offset after the first
+  // line. Remove that transport-level offset while preserving source nesting.
+  const continuationIndents = lines.slice(1)
+    .filter((line) => line.trim())
+    .map(indentOf);
+  if (indentOf(lines[0]!) === 0 && continuationIndents.length > 0
+    && Math.min(...continuationIndents) >= 2) {
+    lines = [lines[0]!, ...lines.slice(1).map((line) => line.trim() ? line.slice(2) : line)];
+  }
+
+  return lines.join("\n");
 };
 
 const templateCode = (): string => normalizeCode(props.code);
@@ -133,7 +145,7 @@ const SCRIPT_KEYWORDS = new Set([
 
 const SCRIPT_APIS = new Set([
   "css", "defineEmits", "defineExpose", "defineHtml", "defineModel", "defineProps", "html",
-  "onMount", "onUnmount", "useComputed", "useEffect", "useReactive", "useRef", "watchEffect"
+  "onMounted", "onUnmounted", "useComputed", "useEffect", "useReactive", "useRef", "useEffect"
 ]);
 
 const highlightScriptCode = (value: string): string => {
@@ -214,14 +226,30 @@ const copyText = (): string =>
 
 const controlsLabel = (): string => locale.t("playground.controls");
 
-const toggleControlsLabel = (): string => locale.t(
-  controlsCollapsed.value ? "playground.expandControls" : "playground.collapseControls"
-);
+const conciseTitle = (value: string): string => String(value || "")
+  .trim()
+  .replace(/基础用法|基本用法/g, "基础")
+  .replace(/\s*(?:\/|\+|＆)\s*/g, " · ")
+  .replace(/案例$/g, "")
+  .replace(/\s{2,}/g, " ");
 
-const toggleControls = (): void => {
-  if (!hasControls.value || !props.controlsCollapsible) return;
-  controlsCollapsed.set(!controlsCollapsed.value);
-  emit("controlsToggle", controlsCollapsed.value);
+const displayTitle = (): string => {
+  return conciseTitle(sectionTitle.value || props.title);
+};
+
+const syncSectionTitle = (): void => {
+  sectionTitle.set(sectionHeading?.textContent?.trim() || "");
+};
+
+const promoteAdjacentSectionHeading = (): void => {
+  const previous = host.previousElementSibling;
+  if (!(previous instanceof HTMLHeadingElement) || previous.localName !== "h2") return;
+  sectionHeading = previous;
+  sectionHeading.hidden = true;
+  sectionHeading.setAttribute("data-promoted-to-playground", "");
+  syncSectionTitle();
+  sectionTitleObserver = new MutationObserver(syncSectionTitle);
+  sectionTitleObserver.observe(sectionHeading, { childList: true, subtree: true, characterData: true });
 };
 
 const syncStatusSlots = (): void => {
@@ -244,10 +272,17 @@ const syncStatusSlots = (): void => {
       ))
     ];
     fields.forEach((field) => {
-      if (!field.hasAttribute("data-playground-variant")) field.setAttribute("variant", "underlined");
+      if (!field.hasAttribute("data-playground-variant")) field.setAttribute("variant", "filled");
+      if (!field.hasAttribute("data-playground-density")) field.setAttribute("density", "comfortable");
+      field.setAttribute("data-playground-control", "");
     });
-    control.querySelectorAll<HTMLElement>("elf-radio-group, elf-checkbox-group").forEach((group) => {
-      if (!group.hasAttribute("data-playground-variant")) group.setAttribute("variant", "button");
+    const choiceGroups = [
+      ...(control.matches("elf-radio-group, elf-checkbox-group") ? [control] : []),
+      ...Array.from(control.querySelectorAll<HTMLElement>("elf-radio-group, elf-checkbox-group"))
+    ];
+    choiceGroups.forEach((group) => {
+      group.setAttribute("variant", "default");
+      group.setAttribute("data-playground-control", "");
     });
   });
   hasControls.set(controls.length > 0);
@@ -293,50 +328,56 @@ const onCopy = (): void => {
   void copy();
 };
 
-onMount(() => {
+onMounted(() => {
   syncStatusSlots();
   statusObserver = new MutationObserver(syncStatusSlots);
   statusObserver.observe(host, { childList: true, subtree: true });
+  queueMicrotask(promoteAdjacentSectionHeading);
 });
 
-onUnmount(() => {
+onUnmounted(() => {
   statusObserver?.disconnect();
   statusObserver = undefined;
+  sectionTitleObserver?.disconnect();
+  sectionTitleObserver = undefined;
+  if (sectionHeading) {
+    sectionHeading.hidden = false;
+    sectionHeading.removeAttribute("data-promoted-to-playground");
+  }
+  sectionHeading = undefined;
   if (copiedTimer) clearTimeout(copiedTimer);
   copiedTimer = undefined;
 });
 
-defineExpose({ showTemplate: setTemplateTab, showScript: setScriptTab, copy, toggleControls });
+defineExpose({ showTemplate: setTemplateTab, showScript: setScriptTab, copy });
 defineStyle(styles);
 
-const Playground = defineHtml<PlaygroundProps, PlaygroundEmits, PlaygroundSlots>(html`
+const Playground = defineHtml<PlaygroundProps, PlaygroundEmits, PlaygroundSlots>(`
   <div class="wrap">
-    <div class="header" v-if=${props.title}>
-      <span class="title">${props.title}</span>
+    <div class="header" v-if=${displayTitle()}>
+      <span class="title">${displayTitle()}</span>
       <span class="header-end">
         <slot name="status"></slot>
-        <button
-          v-if=${hasControls && props.controlsCollapsible}
-              :class=${["controls-toggle", { "is-collapsed": controlsCollapsed }]}
-          type="button"
-          :aria-label=${toggleControlsLabel()}
-          :title=${toggleControlsLabel()}
-          :aria-expanded=${String(!controlsCollapsed)}
-          @click=${toggleControls}
-        >
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M8 9.5 12 13.5 16 9.5" />
-          </svg>
-        </button>
       </span>
     </div>
-    <div :class=${{ workspace: true, "has-controls": hasControls, "controls-collapsed": controlsCollapsed }}>
+    <div v-if=${props.ruler} class="ruler" aria-hidden="true">
+      <span class="ruler-label ruler-label-start">0</span>
+      <span class="ruler-label ruler-label-quarter">25</span>
+      <span class="ruler-label ruler-label-half">50</span>
+      <span class="ruler-label ruler-label-three-quarter">75</span>
+      <span class="ruler-label ruler-label-end">100</span>
+    </div>
+    <div
+      :class=${{
+        workspace: true,
+        "has-controls": hasControls
+      }}
+    >
       <div class="demo"><slot></slot></div>
       <aside
         v-if=${hasControls}
         class="controls"
         :aria-label=${controlsLabel()}
-        :aria-hidden=${String(controlsCollapsed)}
       >
         <slot name="controls"></slot>
       </aside>

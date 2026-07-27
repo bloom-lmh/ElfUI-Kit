@@ -1,4 +1,4 @@
-import { defineHtml, html, onMount, useHost, useRef } from "@elfui/core";
+import { defineHtml, onMounted, useHost, useRef } from "@elfui/core";
 
 interface VirtualDropdownElement extends HTMLElement {
   virtualRef?: HTMLElement | null;
@@ -23,6 +23,13 @@ const compositionalCode = `<elf-dropdown trigger="click" @command=\${onCommand}>
   </elf-dropdown-menu>
 </elf-dropdown>`;
 
+const compositionalScript = `const selectedLabel = useRef("未选择");
+const selectedCommand = useRef("-");
+const onCommand = (event) => {
+    selectedCommand.set(String(event.detail?.command ?? "-"));
+    selectedLabel.set(String(event.detail?.item?.label ?? event.detail?.command ?? "未选择"));
+};`;
+
 const virtualCode = `<button id="dropdown-virtual-trigger">右键此区域</button>
 <elf-dropdown
   data-virtual-dropdown
@@ -33,14 +40,20 @@ const virtualCode = `<button id="dropdown-virtual-trigger">右键此区域</butt
 
 const virtualScript = `const host = useHost();
 
-onMount(() => {
+onMounted(() => {
   window.setTimeout(() => {
     const root = host.shadowRoot ?? host;
     const trigger = root.querySelector("#dropdown-virtual-trigger");
     const dropdown = root.querySelector("[data-virtual-dropdown]");
     dropdown.virtualRef = trigger;
   }, 0);
-});`;
+});
+
+const virtualItems = [
+    { label: "刷新画布", command: "refresh" },
+    { label: "复制坐标", command: "copy-position" },
+    { label: "删除节点", command: "delete", divided: true }
+];`;
 
 const virtualItems = [
   { label: "刷新画布", command: "refresh" },
@@ -48,7 +61,7 @@ const virtualItems = [
   { label: "删除节点", command: "delete", divided: true }
 ];
 
-onMount(() => {
+onMounted(() => {
   window.setTimeout(() => {
     const root = host.shadowRoot ?? host;
     const trigger = root.querySelector<HTMLElement>("#dropdown-virtual-trigger");
@@ -57,8 +70,8 @@ onMount(() => {
   }, 0);
 });
 
-const PageDropdownEx5 = defineHtml(html`
-  <elf-playground title="组合式菜单与选中反馈" :code=${compositionalCode}>
+const PageDropdownEx5 = defineHtml(`
+  <elf-playground title="组合式菜单与选中反馈" :code=${compositionalCode} :script=${compositionalScript}>
     <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
       <elf-dropdown trigger="click" @command=${onCommand}>
         <span>账户操作：{{ selectedLabel }}</span>

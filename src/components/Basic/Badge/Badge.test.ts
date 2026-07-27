@@ -220,4 +220,15 @@ describe("elf-badge", () => {
     expect(badge.getAttribute("role")).toBe("status");
     expect(badge.getAttribute("aria-label")).toBe("状态提示");
   });
+
+  it("keeps the full accessible label for long visual content", async () => {
+    const el = document.createElement("elf-badge");
+    el.setAttribute("value", "需要人工复核的高优先级通知");
+    document.body.appendChild(el);
+    await tick();
+
+    const badge = el.shadowRoot!.querySelector<HTMLElement>(".badge")!;
+    expect(badge.textContent?.trim()).toBe("需要人工复核的高优先级通知");
+    expect(badge.getAttribute("aria-label")).toBe("需要人工复核的高优先级通知");
+  });
 });

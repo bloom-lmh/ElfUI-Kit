@@ -1,36 +1,40 @@
-import { defineHtml, defineStyle, html } from "@elfui/core";
+import { defineHtml, defineStyle } from "@elfui/core";
 
-const code1 = `<elf-layout>
-  <elf-header height="40px">顶栏</elf-header>
-  <elf-layout direction="horizontal">
-    <elf-aside width="120px">侧栏</elf-aside>
-    <elf-main>主内容</elf-main>
-  </elf-layout>
-  <elf-footer height="32px">底栏</elf-footer>
+import { createDocsTranslator } from "../../docsLocale";
+import diagramStyles from "../layout-diagrams.scss?inline";
+
+const t = createDocsTranslator({
+  headerMain: { zh: "顶栏与内容", en: "Header and content" },
+  asideMain: { zh: "侧栏与内容", en: "Sidebar and content" }
+});
+
+const headerMainCode = `<elf-layout>
+  <elf-header height="52px">Header</elf-header>
+  <elf-main>Main</elf-main>
 </elf-layout>`;
 
-defineStyle(`
-  :host { display:block; }
-  * { box-sizing:border-box; }
-  .layout-frame { width:100%; height:280px; overflow:hidden; border:1px dashed var(--elf-border-strong); border-radius:4px; background:transparent; }
-  .layout-part { border-color:var(--elf-border-strong); background:transparent !important; }
-  .layout-header { justify-content:space-between; border-bottom:1px dashed var(--elf-border-strong); }
-  .layout-aside { padding:12px; border-right:1px dashed var(--elf-border-strong); }
-  .layout-main { padding:16px; }
-  .layout-footer { border-top:1px dashed var(--elf-border-strong); font-size:12px; }
-`);
+const asideMainCode = `<elf-layout direction="horizontal">
+  <elf-aside width="144px">Aside</elf-aside>
+  <elf-main>Main</elf-main>
+</elf-layout>`;
 
-const PageLayoutShellEx1 = defineHtml(html`
-  <h2>经典后台布局</h2>
-  <elf-playground title="顶栏 + 侧栏 + 主内容 + 底栏" :code=${code1}>
-    <div class="layout-frame">
-      <elf-layout style="height: 100%">
-        <elf-header class="layout-part layout-header" height="40px"><span>顶栏</span><span>Header</span></elf-header>
-        <elf-layout direction="horizontal">
-          <elf-aside class="layout-part layout-aside" width="120px">Aside</elf-aside>
-          <elf-main class="layout-part layout-main">Main 内容区</elf-main>
-        </elf-layout>
-        <elf-footer class="layout-part layout-footer" height="32px">Footer</elf-footer>
+defineStyle(diagramStyles);
+
+const PageLayoutShellEx1 = defineHtml(`
+  <elf-playground data-docs-toc-level="2" :title=${t("headerMain")} :code=${headerMainCode}>
+    <div class="layout-shell compact">
+      <elf-layout>
+        <elf-header height="52px">Header</elf-header>
+        <elf-main><span class="region-label">Main</span><div class="shell-skeleton"><span></span><span></span><span></span><span></span></div></elf-main>
+      </elf-layout>
+    </div>
+  </elf-playground>
+
+  <elf-playground data-docs-toc-level="2" :title=${t("asideMain")} :code=${asideMainCode}>
+    <div class="layout-shell compact">
+      <elf-layout direction="horizontal">
+        <elf-aside width="144px">Aside</elf-aside>
+        <elf-main><span class="region-label">Main</span><div class="shell-skeleton"><span></span><span></span><span></span><span></span></div></elf-main>
       </elf-layout>
     </div>
   </elf-playground>

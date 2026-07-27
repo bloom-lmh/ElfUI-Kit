@@ -1,4 +1,4 @@
-import { defineHtml, html, useComponents } from "@elfui/core";
+import { defineHtml, useComponents } from "@elfui/core";
 import { createDocsTranslator } from "../../docsLocale";
 import { PageStepsEx1 } from "./ex1";
 import { PageStepsEx2 } from "./ex2";
@@ -22,12 +22,12 @@ const t = createDocsTranslator({
   }
 });
 
-const PageSteps = defineHtml(html`
+const PageSteps = defineHtml(`
   <elf-container>
     <h1>{{ t("title") }}</h1>
     <p>{{ t("description") }}</p>
-    <page-steps-ex1></page-steps-ex1>
     <page-steps-ex4></page-steps-ex4>
+    <page-steps-ex1></page-steps-ex1>
     <page-steps-ex2></page-steps-ex2>
     <page-steps-ex3></page-steps-ex3>
     <page-steps-props></page-steps-props>

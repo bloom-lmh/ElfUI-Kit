@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 import { createDocsTranslator } from "../../docsLocale";
 
 const active = useRef(0);
@@ -27,7 +27,7 @@ const code = `<elf-steps :active.prop=\${active.value} @update:active=\${onActiv
 const script = `const active = useRef(0);
 const onActive = (event) => active.set(event.detail);`;
 
-const PageStepsEx3 = defineHtml(html`
+const PageStepsEx3 = defineHtml(`
   <h2>{{ t("heading") }}</h2>
   <elf-playground :title=${t("title")} :code=${code} :script=${script}>
     <span slot="status" class="demo-state">{{ t("status") }}：{{ active + 1 }}</span>

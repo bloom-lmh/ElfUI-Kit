@@ -168,8 +168,7 @@ const reset = (): void => {
 };
 
 const PageCascaderEx8 = defineHtml(`
-  <h2>异步与深层数据</h2>
-  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),520px));gap:16px;align-items:start;justify-content:start">
+  <h2>异步数据</h2>
     <elf-playground title="异步加载" :code=${lazyCode} :script=${lazyScript}>
       <span slot="status" class="demo-state">{{ lazyStatus }}</span>
       <div style="width:min(100%,320px)">
@@ -185,6 +184,7 @@ const PageCascaderEx8 = defineHtml(`
       </div>
     </elf-playground>
 
+    <h2>深层数据</h2>
     <elf-playground title="深层路径自动树化" :code=${treeCode} :script=${treeScript}>
       <span slot="status" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
         <span class="demo-state">{{ formStatus }}</span>
@@ -213,7 +213,6 @@ const PageCascaderEx8 = defineHtml(`
         </elf-form>
       </div>
     </elf-playground>
-  </div>
 `);
 
 export { PageCascaderEx8 };

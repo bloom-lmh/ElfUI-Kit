@@ -2,6 +2,8 @@
 
 ## 本轮记录
 - [x] 第二阶段：补 `src-set`、`fit`、`error` 事件、默认 slot / icon slot fallback 和页面示例。
+- [x] 2026-07-26 P1 文档审计：补图片失败重试、fallback 完整无障碍名称、AvatarGroup 本地化溢出标签；9 个分散案例收敛为 3 个场景化 Playground，并新增页面测试与双语 Script。
+- [x] 浏览器截图发现并修复 `:host` display 覆盖原生 `[hidden]`，确保 AvatarGroup 的折叠头像在视觉上真正隐藏。
 
 生成时间：2026-07-05
 

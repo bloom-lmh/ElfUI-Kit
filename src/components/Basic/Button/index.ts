@@ -1,6 +1,6 @@
 // elf-button — Material Design + Element Plus 风格按钮
 
-import { defineEmits, defineHtml, defineProps, defineStyle, html, useHostAttr, useHostFlag } from "@elfui/core";
+import { defineEmits, defineHtml, defineProps, defineStyle, useHost, useHostAttr, useHostFlag } from "@elfui/core";
 
 import styles from "./style.scss?inline";
 import type { ButtonEmits, ButtonProps, ButtonSlots, ButtonType, ButtonVariant } from "./types";
@@ -15,6 +15,9 @@ export type {
     ButtonType,
     ButtonVariant,
 } from "./types";
+
+const colorTypes: readonly string[] = ["primary", "secondary", "success", "warning", "danger", "info"];
+const nativeTypes: readonly string[] = ["button", "submit", "reset"];
 
 const props = defineProps<ButtonProps>({
     type: { type: String, default: "" },
@@ -33,6 +36,7 @@ const props = defineProps<ButtonProps>({
     plain: { type: Boolean, default: false },
     dashed: { type: Boolean, default: false },
     autofocus: { type: Boolean, default: false },
+    ariaLabel: { type: String, default: "" },
     form: { type: String, default: "" },
     nativeType: { type: String, default: "button" },
     icon: { type: String, default: "" },
@@ -45,17 +49,7 @@ const props = defineProps<ButtonProps>({
 });
 
 defineEmits<ButtonEmits>();
-defineStyle(styles);
-
-const handleClick = (event: Event): void => {
-    if (props.disabled || props.loading) {
-        event.preventDefault();
-        event.stopPropagation();
-    }
-};
-
-const colorTypes = ["primary", "secondary", "success", "warning", "danger", "info"];
-const nativeTypes = ["button", "submit", "reset"];
+const host = useHost();
 
 const normalizedColor = (): string => {
     const type = String(props.type || "");
@@ -81,9 +75,46 @@ const normalizedNativeType = (): ButtonType => {
     return nativeTypes.includes(String(props.nativeType)) ? (props.nativeType as ButtonType) : "button";
 };
 
+const resolveFormOwner = (button: HTMLButtonElement): HTMLFormElement | null => {
+    if (button.form) return null;
+
+    if (props.form) {
+        const explicitForm = host.ownerDocument.getElementById(props.form);
+        if (explicitForm instanceof HTMLFormElement) return explicitForm;
+    }
+
+    const closestForm = host.closest("form");
+    return closestForm instanceof HTMLFormElement ? closestForm : null;
+};
+
+const handleClick = (event: MouseEvent): void => {
+    if (props.disabled || props.loading) {
+        event.preventDefault();
+        event.stopPropagation();
+        return;
+    }
+
+    const nativeType = normalizedNativeType();
+    if (nativeType === "button") return;
+
+    const form = resolveFormOwner(event.currentTarget as HTMLButtonElement);
+    if (!form) return;
+
+    queueMicrotask(() => {
+        if (event.defaultPrevented) return;
+        if (nativeType === "reset") {
+            form.reset();
+            return;
+        }
+        form.requestSubmit();
+    });
+};
+
 useHostAttr("color", normalizedColor);
 useHostAttr("variant", normalizedVariant);
 useHostAttr("size", normalizedSize);
+useHostFlag("disabled", () => Boolean(props.disabled));
+useHostFlag("loading", () => Boolean(props.loading));
 useHostFlag("round", () => Boolean(props.round || props.shape === "round"));
 useHostFlag("circle", () => Boolean(props.circle || props.shape === "circle"));
 useHostFlag("text", () => Boolean(props.text));
@@ -96,12 +127,15 @@ useHostFlag("dashed", () => Boolean(props.dashed));
 useHostFlag("no-hover", () => Boolean(props.noHover));
 useHostAttr("direction", () => (props.direction === "vertical" ? "vertical" : "horizontal"));
 
-const Button = defineHtml<ButtonProps, ButtonEmits, ButtonSlots>(html`
+defineStyle(styles);
+
+const Button = defineHtml<ButtonProps, ButtonEmits, ButtonSlots>(`
     <button
         part="button"
         :type=${normalizedNativeType()}
         :disabled=${props.disabled || props.loading}
         :aria-busy=${props.loading}
+        :aria-label=${props.ariaLabel || null}
         :autofocus=${props.autofocus}
         :form=${props.form || null}
         @click=${handleClick}

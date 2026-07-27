@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 
 const propsRows = [
   { name: "loading", type: "boolean", default: "false", desc: "是否显示加载遮罩" },
@@ -33,7 +33,7 @@ const directiveRows = [
   { name: "v-loading", type: "boolean | LoadingDirectiveValue", desc: "为绑定元素创建并自动销毁局部 Loading service" }
 ];
 
-const PageLoadingProps = defineHtml(html`
+const PageLoadingProps = defineHtml(`
   <h2>API</h2>
   <elf-props-table title="Props" :rows=${propsRows}></elf-props-table>
   <elf-props-table title="Events" :rows=${eventsRows}></elf-props-table>

@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 
 const propsRows = [
   { name: "items", type: "TimelineItem[]", default: "[]", desc: "时间轴数据" },
@@ -34,7 +34,7 @@ const partRows = [
   { name: "node-N", desc: "第 N 项时间轴节点" }
 ];
 
-const PageTimelineProps = defineHtml(html`
+const PageTimelineProps = defineHtml(`
   <h2>API</h2>
   <elf-props-table title="Props" :rows.prop=${propsRows} />
   <elf-props-table title="TimelineItem" :rows.prop=${itemRows} />

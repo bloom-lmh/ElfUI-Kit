@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 const revenue = useRef(18_640);
 const orders = useRef(486);
@@ -27,7 +27,7 @@ const grow = (): void => {
   satisfaction.set(Math.min(99.9, satisfaction.peek() + 0.4));
 };
 
-const PageStatisticEx5 = defineHtml(html`
+const PageStatisticEx5 = defineHtml(`
   <h2>动态增长</h2>
   <elf-playground title="起始值、时长与缓动" :code=${code} :script=${script}>
     <div

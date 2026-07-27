@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 
 const items = [
   { label: "编辑资料", command: "edit", icon: "✎", shortcut: "E" },
@@ -41,7 +41,7 @@ const triggerScript = `const items = [
   }
 ];`;
 
-const PageDropdownEx4 = defineHtml(html`
+const PageDropdownEx4 = defineHtml(`
 <elf-playground title="兼容配置" :code=${compatCode} :script=${triggerScript}>
       <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
         <elf-dropdown

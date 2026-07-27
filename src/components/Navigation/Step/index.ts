@@ -3,7 +3,6 @@ import {
   defineHtml,
   defineProps,
   defineStyle,
-  html,
   useHost,
   useHostAttr,
   useHostFlag
@@ -106,7 +105,7 @@ useHostAttr("data-status", status);
 defineExpose({ focusButton });
 defineStyle(styles);
 
-const Step = defineHtml<StepRuntimeProps, Record<string, never>, StepSlots>(html`
+const Step = defineHtml<StepRuntimeProps, Record<string, never>, StepSlots>(`
   <div :class=${rootClass} part="item">
     <button
       class="step-button"
@@ -121,7 +120,7 @@ const Step = defineHtml<StepRuntimeProps, Record<string, never>, StepSlots>(html
     >
       <span class="step-head" part="head">
         <span class="step-icon" part="icon" aria-hidden="true">
-          <slot name="icon">{{ fallbackIcon() }}</slot>
+          <slot name="icon">${fallbackIcon()}</slot>
         </span>
       </span>
       <span class="step-main" part="main">

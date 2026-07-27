@@ -1,4 +1,4 @@
-import { defineHtml, defineProps, defineStyle, html, useHostAttr, useHostFlag } from "@elfui/core";
+import { defineHtml, defineProps, defineStyle, useHostAttr, useHostFlag } from "@elfui/core";
 
 import styles from "./style.scss?inline";
 import type { BadgeProps, BadgeSlots } from "./types";
@@ -83,7 +83,7 @@ useHostFlag("hidden", () => props.hidden);
 
 defineStyle(styles);
 
-const Badge = defineHtml<BadgeProps, Record<string, never>, BadgeSlots>(html`
+const Badge = defineHtml<BadgeProps, Record<string, never>, BadgeSlots>(`
   <div class="badge-wrapper" part="wrapper">
     <slot></slot>
     <sup

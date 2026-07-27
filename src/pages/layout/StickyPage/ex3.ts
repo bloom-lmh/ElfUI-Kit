@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 
 const code = `<elf-sticky top="16" disabled>
   <div>普通内容块</div>
@@ -6,7 +6,7 @@ const code = `<elf-sticky top="16" disabled>
 
 const script = `// disabled 是 ElfUI 扩展能力，组件回到普通文档流。`;
 
-const PageStickyEx3 = defineHtml(html`
+const PageStickyEx3 = defineHtml(`
   <h2>禁用吸附</h2>
   <elf-playground title="disabled" :code=${code} :script=${script}>
     <div

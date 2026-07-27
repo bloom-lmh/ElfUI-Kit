@@ -1,4 +1,4 @@
-import { defineHtml, defineStyle, html } from "@elfui/core";
+import { defineHtml, defineStyle } from "@elfui/core";
 
 import { useLocaleProvider } from "../../components/Providers/context";
 import styles from "./style.scss?inline";
@@ -11,7 +11,7 @@ const t = (key: string): string => locale.t(`home.${key}`);
 
 defineStyle(styles);
 
-const PageHome = defineHtml(html`
+const PageHome = defineHtml(`
   <main class="home">
     <section class="hero" aria-labelledby="home-title">
       <div class="hero-copy">

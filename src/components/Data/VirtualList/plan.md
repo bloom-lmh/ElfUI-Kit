@@ -25,9 +25,16 @@
 - [x] 窗口计算抽为 `computeVirtualWindow`，与 Table 大数据模式复用。
 - [x] 覆盖 10,000 项案例、边界计算、DOM 数量和滚动换窗测试。
 
-动态行高需要 ResizeObserver、前缀和缓存及滚动锚定，后续作为独立能力扩展，不混入本次固定行高契约。
+动态行高现已作为显式 `dynamic` 契约接入；固定行高仍使用独立的同步快速换窗路径，避免降低既有 10,000 项滚动性能。
 # 2026-07-21 快速滚动绘制回归
 
 - [x] 滚动期间同步复用可视行节点，停止滚动后再提交声明式窗口，避免 keyed 重排造成空帧。
 - [x] 可视窗口至少预渲染一屏并使用合成层位移，覆盖滚动条拖拽时的浏览器合成延迟。
 - [x] 连续大跨度滚动保持 DOM 数量有界且始终存在非空行。
+
+## 2026-07-22 P0 dynamic-height and interaction completion
+
+- [x] Added estimated offsets, ResizeObserver measurement cache, binary-search windows, and scroll anchoring for variable-height rows.
+- [x] Added key/index positioning with alignment, Arrow/Home/End focus navigation, visible-range introspection, append loading, and empty state.
+- [x] Added a 240-row variable-height activity feed; browser measurement observed an 11-row DOM window and 73px / 93px row heights.
+- [x] Passed 11 component/page tests and the 800-module production build.

@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 const refreshing = useRef(false);
 
@@ -12,8 +12,10 @@ const code = `<elf-loading :loading="refreshing" variant="dots" text="刷新动�
   <elf-card title="团队动态">...</elf-card>
 </elf-loading>`;
 
-const PageLoadingEx5 = defineHtml(html`
-  <elf-playground title="卡片内容刷新" :code=${code}>
+const script = `const refreshing = useRef(false);`;
+
+const PageLoadingEx5 = defineHtml(`
+  <elf-playground title="卡片内容刷新" :code=${code} :script=${script}>
     <div style="display:grid;gap:12px;width:100%;max-width:620px">
       <elf-loading :loading=${refreshing} variant="dots" text="刷新动态中">
         <elf-card variant="outlined" title="团队动态" subtitle="局部刷新不会阻塞页面其他操作">

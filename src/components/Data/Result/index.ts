@@ -1,4 +1,4 @@
-import { defineHtml, defineProps, defineStyle, html, useHostAttr } from "@elfui/core";
+import { defineHtml, defineProps, defineStyle, useHostAttr } from "@elfui/core";
 
 import styles from "./style.scss?inline";
 import type { ResultIcon, ResultProps, ResultSlots } from "./types";
@@ -20,7 +20,7 @@ useHostAttr("icon", normalizedIcon);
 
 defineStyle(styles);
 
-const Result = defineHtml<ResultProps, Record<string, never>, ResultSlots>(html`
+const Result = defineHtml<ResultProps, Record<string, never>, ResultSlots>(`
   <div class="result" part="result" role="status" aria-live="polite">
     <div class="icon" part="icon">
       <slot name="icon">

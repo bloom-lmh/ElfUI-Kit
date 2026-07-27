@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 import { createDocsTranslator } from "../../docsLocale";
 
 const t = createDocsTranslator({
@@ -47,9 +47,13 @@ const lastAction = useRef("等待操作");
 const onSelect = (event) => {
   active.set(event.detail);
   lastAction.set(\`已选择 \${event.detail}\`);
+};
+
+const onItemClick = (event) => {
+    lastAction.set(\`MenuItem click：\${event.detail.index}\`);
 };`;
 
-const PageMenuEx8 = defineHtml(html`
+const PageMenuEx8 = defineHtml(`
   <h2>${t("section")}</h2>
   <elf-playground title="SubMenu / MenuItem / MenuItemGroup" :code=${code} :script=${script}>
     <span slot="status" class="demo-state">${actionText()} · ${t("current")}: {{ active }}</span>

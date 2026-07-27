@@ -1,4 +1,4 @@
-import { defineHtml, defineProps, defineStyle, html, useHostAttr, useHostCssVar, useHostFlag } from "@elfui/core";
+import { defineHtml, defineProps, defineStyle, useHostAttr, useHostCssVar, useHostFlag } from "@elfui/core";
 
 import styles from "./style.scss?inline";
 import type { SpaceAlignment, SpaceProps, SpaceSize, SpaceSlots } from "./types";
@@ -56,6 +56,6 @@ useHostCssVar("--_spacer-content", () => JSON.stringify(normalizedSpacer()));
 
 defineStyle(styles);
 
-const Space = defineHtml<SpaceProps, Record<string, never>, SpaceSlots>(html`<slot></slot>`);
+const Space = defineHtml<SpaceProps, Record<string, never>, SpaceSlots>(`<slot></slot>`);
 
 export { Space };

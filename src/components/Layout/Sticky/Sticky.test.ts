@@ -240,4 +240,36 @@ describe("elf-sticky", () => {
     await tick();
     expect(removeListener).toHaveBeenCalledWith("scroll", expect.any(Function));
   });
+
+  it("clamps stale projected geometry back inside the target container", async () => {
+    const target = document.createElement("section");
+    target.id = "sticky-clamp-target";
+    target.style.overflow = "auto";
+    target.getBoundingClientRect = () =>
+      ({ top: 100, right: 320, bottom: 300, left: 20, width: 300, height: 200, x: 20, y: 100, toJSON: () => ({}) }) as DOMRect;
+    document.body.appendChild(target);
+
+    const el = document.createElement("elf-sticky") as StickyEl;
+    el.target = "#sticky-clamp-target";
+    el.teleported = true;
+    el.innerHTML = "<strong>Toolbar</strong>";
+    target.appendChild(el);
+    await tick();
+    await tick();
+    await tick();
+
+    el.getBoundingClientRect = () =>
+      ({ top: 330, right: 1480, bottom: 370, left: 600, width: 880, height: 40, x: 600, y: 330, toJSON: () => ({}) }) as DOMRect;
+    const portal = document.querySelector<HTMLElement>(".elf-sticky-portal")!;
+    portal.getBoundingClientRect = () =>
+      ({ top: 330, right: 1480, bottom: 370, left: 600, width: 880, height: 40, x: 600, y: 330, toJSON: () => ({}) }) as DOMRect;
+
+    target.dispatchEvent(new Event("scroll"));
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+    await tick();
+
+    expect(portal.style.left).toBe("20px");
+    expect(portal.style.top).toBe("260px");
+    expect(portal.style.width).toBe("300px");
+  });
 });

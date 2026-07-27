@@ -7,15 +7,14 @@
 // 命令式能力通过 defineExpose 暴露：setScrollTop / setScrollLeft / update / wrapRef。
 
 import {
-    defineEmits,
-    defineExpose,
-    defineHtml,
-    defineProps,
-    defineStyle,
-    html,
-    useHost,
-    useHostFlag,
-    useTemplateRef,
+  defineEmits,
+  defineExpose,
+  defineHtml,
+  defineProps,
+  defineStyle,
+  useHost,
+  useHostFlag,
+  useTemplateRef
 } from "@elfui/core";
 
 import styles from "./style.scss?inline";
@@ -94,7 +93,7 @@ useHostFlag("always", () => props.always);
 
 defineStyle(styles);
 
-const Scrollbar = defineHtml<ScrollbarProps>(html`
+const Scrollbar = defineHtml<ScrollbarProps>(`
     <div ref="wrap" :class=${["wrap", () => props.wrapClass]} part="wrap" :style=${wrapStyle()} @scroll=${onScroll}>
         <div :class=${["view", () => props.viewClass]} part="view"><slot></slot></div>
     </div>

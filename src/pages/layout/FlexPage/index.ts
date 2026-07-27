@@ -1,4 +1,4 @@
-import { defineHtml, html, useComponents } from "@elfui/core";
+import { defineHtml, useComponents } from "@elfui/core";
 
 import { createDocsTranslator } from "../../docsLocale";
 import { PageFlexEx1 } from "./ex1";
@@ -10,8 +10,8 @@ import { PageFlexProps } from "./props";
 const t = createDocsTranslator({
   title: { zh: "Flex 弹性布局", en: "Flex layout" },
   description: {
-    zh: "用于一维方向、对齐、换行和自适应空间分配；虚线框只表达布局关系，不混入装饰内容。",
-    en: "Control direction, alignment, wrapping, and adaptive space distribution through plain dashed layout guides."
+    zh: "一个页面覆盖 Flex、Spacer 与 Space 兼容输入，以统一编号结构图展示方向、对齐、换行和空间分配。",
+    en: "One page covers Flex, Spacer, and Space-compatible inputs with consistent numbered diagrams for direction, alignment, wrapping, and space distribution."
   }
 });
 
@@ -23,7 +23,7 @@ useComponents({
   "page-flex-props": PageFlexProps
 });
 
-const PageFlex = defineHtml(html`
+const PageFlex = defineHtml(`
   <elf-container>
     <h1>${t("title")}</h1>
     <p>${t("description")}</p>

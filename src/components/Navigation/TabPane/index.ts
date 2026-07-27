@@ -2,7 +2,6 @@ import {
   defineHtml,
   defineProps,
   defineStyle,
-  html,
   useHostAttr,
   useHostFlag
 } from "@elfui/core";
@@ -43,7 +42,7 @@ useHostFlag("data-lazy", () => Boolean(props.lazy));
 
 defineStyle(styles);
 
-const TabPane = defineHtml<TabPaneRuntimeProps, Record<string, never>, TabPaneSlots>(html`
+const TabPane = defineHtml<TabPaneRuntimeProps, Record<string, never>, TabPaneSlots>(`
   <section v-if=${shouldRender()} class="tab-pane" part="panel">
     <slot></slot>
   </section>

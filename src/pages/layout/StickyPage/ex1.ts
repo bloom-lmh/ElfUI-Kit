@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 
 const stuck = useRef("未吸附");
@@ -16,7 +16,7 @@ const code = `<elf-sticky top="0" @change="onChange">
 const script = `const stuck = useRef("未吸附");
 const onChange = (event) => stuck.set(event.detail ? "已吸附" : "未吸附");`;
 
-const PageStickyEx1 = defineHtml(html`
+const PageStickyEx1 = defineHtml(`
   <h2>顶部吸附</h2>
   <elf-playground title="顶部吸附与状态变化" :code=${code} :script=${script}>
     <div

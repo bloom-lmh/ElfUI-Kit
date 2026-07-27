@@ -21,6 +21,7 @@
 
 - [x] 九种响应式应用骨架拆分为九个独立案例，并用颜色区分导航、工具栏、内容和辅助区。
 - [x] Input 的 outlined notch、filled、underlined、solo 系列表面以及内外前后图标完成统一。
+- [x] beta6 回归：相同 `label/placeholder` 自动去重，内前置图标避让静止标签，outlined 聚焦以真实 legend 开口形成“— 标签 —”。
 - [x] Autocomplete、Cascader、Select 复用共享字段表面与浮动标签规则。
 - [x] InputNumber 支持 default、stacked、split、hidden 控制器外观以及 reverse、inset 语义。
 - [x] 清除 InputNumber 对宿主原生 `focus`、`blur` 的重复 expose，浏览器控制台保持零警告。
@@ -46,12 +47,12 @@
 ## 验证矩阵
 
 - [x] 相关组件定向测试：14 个测试文件、181 项测试全部通过。
-- [ ] 全量测试通过。
+- [x] 全量测试通过：110 个测试文件、1004 项测试。
 - [x] 应用构建通过。
-- [ ] 组件库构建通过。
-- [ ] `git diff --check` 通过。
+- [x] 组件库构建通过，macro-aware typecheck 为 0 error。
+- [x] `git diff --check` 通过。
 - [x] Material 明亮主题桌面截图通过。
-- [ ] Midnight 暗色主题桌面截图通过。
+- [x] Midnight 暗色主题桌面截图通过。
 - [x] 移动端窄屏截图通过。
 - [x] Input、InputNumber、DatePicker、Calendar、Progress、Anchor、BackTop、Table 完成真实交互回归。
 
@@ -59,6 +60,8 @@
 
 - [x] `layout-nine-skeletons.png`
 - [x] `input-playground.png`、`input-mobile.png`
+- [x] `input-beta6-focus-notch.png`、`input-beta6-midnight-focus.png`
+- [x] `input-beta6-empty-icons.png`
 - [x] `input-number-fixed.png`
 - [x] `progress.png`
 - [x] `list.png`、`virtual-list-fast-scroll.png`

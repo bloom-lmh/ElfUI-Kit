@@ -1,4 +1,4 @@
-import { defineHtml, defineProps, defineStyle, html, useHostCssVar } from "@elfui/core";
+import { defineHtml, defineProps, defineStyle, useHostCssVar } from "@elfui/core";
 
 import styles from "./style.scss?inline";
 import type { MasonryGap, MasonryProps, MasonrySlots } from "./types";
@@ -33,6 +33,6 @@ useHostCssVar("--_gap", () => cssSize(props.gap));
 
 defineStyle(styles);
 
-const Masonry = defineHtml<MasonryProps, Record<string, never>, MasonrySlots>(html`<slot></slot>`);
+const Masonry = defineHtml<MasonryProps, Record<string, never>, MasonrySlots>(`<slot></slot>`);
 
 export { Masonry };

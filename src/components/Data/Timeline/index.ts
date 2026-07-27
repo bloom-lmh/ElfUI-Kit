@@ -1,6 +1,6 @@
 // elf-timeline — Material Design 时间轴
 
-import { defineProps, defineStyle, html, useComputed, useHostAttr, defineHtml } from "@elfui/core";
+import { defineProps, defineStyle, useComputed, useHostAttr, defineHtml } from "@elfui/core";
 
 import styles from "./style.scss?inline";
 import type { TimelineItem, TimelineMode, TimelineProps } from "./types";
@@ -65,7 +65,7 @@ useHostAttr("data-mode", normalizedMode);
 
 defineStyle(styles);
 
-const Timeline = defineHtml(html`
+const Timeline = defineHtml(`
   <ol class="timeline" role="list">
     <li
       v-for="item in list"

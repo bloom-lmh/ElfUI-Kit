@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 
 import { createDocsTranslator } from "../../docsLocale";
 
@@ -127,9 +127,37 @@ const onRemove = (event) => {
   const removed = event.detail[0];
   panes.set(panes.value.filter((pane) => pane.name !== removed));
   // 当前项被关闭时，优先激活右侧可用项，否则回退到左侧。
+};
+
+const t = createDocsTranslator({
+    section: { zh: "组合式标签面板", en: "Compositional tab panels" },
+    title: { zh: "TabPane、动态新建与关闭回退", en: "TabPane, dynamic add, and close fallback" },
+    current: { zh: "当前标签", en: "Current tab" },
+    added: { zh: "已新增并激活", en: "Added and activated" },
+    closed: { zh: "已关闭", en: "Closed" },
+    add: { zh: "＋ 新建", en: "+ New" },
+    overview: { zh: "概览", en: "Overview" },
+    overviewContent: { zh: "集中查看项目状态、成员和最近活动。", en: "Review project status, members, and recent activity." },
+    tasks: { zh: "任务", en: "Tasks" },
+    tasksContent: { zh: "该面板延迟创建，仅在首次激活后渲染。", en: "This lazy panel renders after its first activation." },
+    audit: { zh: "审计", en: "Audit" },
+    auditContent: { zh: "审计标签已禁用，不参与关闭后的激活回退。", en: "The disabled audit tab is skipped during close fallback." },
+    newTab: { zh: "新标签", en: "New tab" },
+    newContent: { zh: "动态面板", en: "Dynamic panel" }
+});
+const status = useRef("");
+const eventValue = (event) => {
+    const detail = Array.isArray(event.detail) ? event.detail[0] : event.detail;
+    return String(detail ?? "");
+};
+const onUpdate = (event) => {
+    active.set(event.detail);
+};
+const onChange = (event) => {
+    status.set(\`\${t("current")}: \${eventValue(event)}\`);
 };`;
 
-const PageTabsEx7 = defineHtml(html`
+const PageTabsEx7 = defineHtml(`
   <h2>${t("section")}</h2>
   <elf-playground :title=${t("title")} :code=${code} :script=${script}>
     <elf-tabs

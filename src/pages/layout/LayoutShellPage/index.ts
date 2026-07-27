@@ -1,9 +1,18 @@
-import { defineHtml, html, useComponents } from "@elfui/core";
+import { defineHtml, useComponents } from "@elfui/core";
+import { createDocsTranslator } from "../../docsLocale";
 import { PageLayoutShellEx1 } from "./ex1";
 import { PageLayoutShellEx2 } from "./ex2";
 import { PageLayoutShellEx3 } from "./ex3";
 import { PageLayoutShellEx4 } from "./ex4";
 import { PageLayoutShellProps } from "./props";
+
+const t = createDocsTranslator({
+  title: { zh: "Layout 应用骨架", en: "Application layout" },
+  description: {
+    zh: "八种不重复的应用结构使用统一语义区域图展示，目录保持单层平铺。",
+    en: "Eight distinct application structures use one semantic diagram style and a flat table of contents."
+  }
+});
 
 useComponents({
   "page-layout-shell-ex1": PageLayoutShellEx1,
@@ -13,12 +22,16 @@ useComponents({
   "page-layout-shell-props": PageLayoutShellProps
 });
 
-const PageLayoutShell = defineHtml(html`
-  <elf-container
-    ><h1>Layout 应用骨架</h1>
-    <p>Layout / Header / Aside / Main / Footer 可以组合后台、收件箱、社区、商店和内容型产品布局。</p>
-    <page-layout-shell-ex1 /><page-layout-shell-ex2 /><page-layout-shell-ex3 /><page-layout-shell-ex4 /><page-layout-shell-props
-  /></elf-container>
+const PageLayoutShell = defineHtml(`
+  <elf-container>
+    <h1>${t("title")}</h1>
+    <p>${t("description")}</p>
+    <page-layout-shell-ex1 />
+    <page-layout-shell-ex2 />
+    <page-layout-shell-ex3 />
+    <page-layout-shell-ex4 />
+    <page-layout-shell-props />
+  </elf-container>
 `);
 
 export { PageLayoutShell };

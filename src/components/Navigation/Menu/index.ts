@@ -1,21 +1,20 @@
 // elf-menu — Material Design 3 导航菜单
 
 import {
-    defineEmits,
-    defineExpose,
-    defineProps,
-    defineStyle,
-    html,
-    onMount,
-    onUnmount,
-    useComputed,
-    useEventListener,
-    useHost,
-    useHostAttr,
-    useRef,
-    useShadowRoot,
-    watchEffect,
-    defineHtml,
+  defineEmits,
+  defineExpose,
+  defineProps,
+  defineStyle,
+  onMounted,
+  onUnmounted,
+  useComputed,
+  useEventListener,
+  useHost,
+  useHostAttr,
+  useRef,
+  useShadowRoot,
+  useEffect,
+  defineHtml
 } from "@elfui/core";
 
 import baseStyles from "./style-base.scss?inline";
@@ -256,7 +255,7 @@ const menuTrigger = (): "click" | "hover" => {
     return value === "hover" ? "hover" : "click";
 };
 
-watchEffect(() => {
+useEffect(() => {
     const next = Boolean(props.collapse);
     if (next !== collapsed.peek()) collapsed.set(next);
 });
@@ -312,7 +311,7 @@ const clearSearch = (): void => {
 useEventListener(host, "click", onCustomToggleClick);
 useEventListener(host, "input", onCustomSearchInput);
 
-onMount(() => {
+onMounted(() => {
     documentClickHandler = (e: Event) => {
         if (!isHorizontal.value) return;
         if (!props.closeOnClickOutside) return;
@@ -329,7 +328,7 @@ onMount(() => {
     }
 });
 
-onUnmount(() => {
+onUnmounted(() => {
     if (documentClickHandler) document.removeEventListener("click", documentClickHandler, true);
     compositionObserver?.disconnect();
     resizeObserver?.disconnect();
@@ -357,14 +356,14 @@ const hostStyle = useComputed(() => {
     return s;
 });
 
-watchEffect(() => {
+useEffect(() => {
     const sig = [props.modelValue ?? "", props.defaultActive ?? ""].map(String).join(SIGNATURE_SEP);
     if (activeSyncKey.peek() === sig) return;
     activeSyncKey.set(sig);
     activeKey.set(String(props.modelValue || props.defaultActive || ""));
 });
 
-watchEffect(() => {
+useEffect(() => {
     const defaults = !isHorizontal.value && Array.isArray(props.defaultOpeneds) ? props.defaultOpeneds : [];
     const next = defaults.map((k) => String(k));
     const sig = `${isHorizontal.value ? "horizontal" : "vertical"}${SIGNATURE_SEP}${next.join(SIGNATURE_SEP)}`;
@@ -1003,7 +1002,7 @@ defineStyle(modeStyles);
 
 defineStyle(themeStyles);
 
-const Menu = defineHtml<MenuRuntimeProps, Record<string, never>, MenuSlots>(html`
+const Menu = defineHtml<MenuRuntimeProps, Record<string, never>, MenuSlots>(`
     <nav
         :class=${[
             "menu",
@@ -1050,11 +1049,11 @@ const Menu = defineHtml<MenuRuntimeProps, Record<string, never>, MenuSlots>(html
                         :disabled="item.disabled || item.divider || item.group"
                         :title="item.label"
                         role="menuitem"
-                        :tabindex=${itemTabIndex(item)}
-                        :aria-current=${itemAriaCurrent(item)}
-                        :aria-disabled=${item.disabled ? "true" : undefined}
-                        :aria-haspopup=${item.hasChildren ? "menu" : undefined}
-                        :aria-expanded=${item.hasChildren ? String(isOpen(item.index)) : undefined}
+                        :tabindex="itemTabIndex(item)"
+                        :aria-current="itemAriaCurrent(item)"
+                        :aria-disabled='item.disabled ? "true" : undefined'
+                        :aria-haspopup='item.hasChildren ? "menu" : undefined'
+                        :aria-expanded="item.hasChildren ? String(isOpen(item.index)) : undefined"
                         @click="onItemClick(item, $event)"
                         @mouseenter="onItemEnter(item)"
                         @mouseleave="onItemLeave(item)"
@@ -1089,11 +1088,11 @@ const Menu = defineHtml<MenuRuntimeProps, Record<string, never>, MenuSlots>(html
                             :disabled="item.disabled"
                             :title="item.label"
                             role="menuitem"
-                            :tabindex=${itemTabIndex(item)}
-                            :aria-current=${itemAriaCurrent(item)}
-                            :aria-disabled=${item.disabled ? "true" : undefined}
-                            :aria-haspopup=${item.hasChildren ? "menu" : undefined}
-                            :aria-expanded=${item.hasChildren ? String(isOpen(item.index)) : undefined}
+                            :tabindex="itemTabIndex(item)"
+                            :aria-current="itemAriaCurrent(item)"
+                            :aria-disabled='item.disabled ? "true" : undefined'
+                            :aria-haspopup='item.hasChildren ? "menu" : undefined'
+                            :aria-expanded="item.hasChildren ? String(isOpen(item.index)) : undefined"
                             @click="onItemClick(item, $event)"
                         >
                             <span v-if="item.icon" class="menu-icon">{{ item.icon }}</span>
@@ -1121,11 +1120,11 @@ const Menu = defineHtml<MenuRuntimeProps, Record<string, never>, MenuSlots>(html
                         :disabled="item.disabled"
                         :title="isCollapsed ? item.label : ''"
                         role="menuitem"
-                        :tabindex=${itemTabIndex(item)}
-                        :aria-current=${itemAriaCurrent(item)}
-                        :aria-disabled=${item.disabled ? "true" : undefined}
-                        :aria-haspopup=${item.hasChildren ? "menu" : undefined}
-                        :aria-expanded=${item.hasChildren ? String(isOpen(item.index)) : undefined}
+                        :tabindex="itemTabIndex(item)"
+                        :aria-current="itemAriaCurrent(item)"
+                        :aria-disabled='item.disabled ? "true" : undefined'
+                        :aria-haspopup='item.hasChildren ? "menu" : undefined'
+                        :aria-expanded="item.hasChildren ? String(isOpen(item.index)) : undefined"
                         @click="onItemClick(item, $event)"
                         @mouseenter="onItemEnter(item)"
                         @mouseleave="onItemLeave(item)"
@@ -1159,10 +1158,10 @@ const Menu = defineHtml<MenuRuntimeProps, Record<string, never>, MenuSlots>(html
                         :disabled="item.disabled"
                         :title="item.label"
                         role="menuitem"
-                        :tabindex=${itemTabIndex(item)}
-                        :aria-current=${itemAriaCurrent(item)}
-                        :aria-disabled=${item.disabled ? "true" : undefined}
-                        :aria-haspopup=${item.hasChildren ? "menu" : undefined}
+                        :tabindex="itemTabIndex(item)"
+                        :aria-current="itemAriaCurrent(item)"
+                        :aria-disabled='item.disabled ? "true" : undefined'
+                        :aria-haspopup='item.hasChildren ? "menu" : undefined'
                         @click="onItemClick(item, $event)"
                         @mouseenter="onSubItemEnter(item)"
                         @mouseleave=${onSubItemLeave}
@@ -1187,9 +1186,9 @@ const Menu = defineHtml<MenuRuntimeProps, Record<string, never>, MenuSlots>(html
                             :disabled="item.disabled"
                             :title="item.label"
                             role="menuitem"
-                            :tabindex=${itemTabIndex(item)}
-                            :aria-current=${itemAriaCurrent(item)}
-                            :aria-disabled=${item.disabled ? "true" : undefined}
+                            :tabindex="itemTabIndex(item)"
+                            :aria-current="itemAriaCurrent(item)"
+                            :aria-disabled='item.disabled ? "true" : undefined'
                             @click="onItemClick(item, $event)"
                         >
                             <span v-if="item.icon" class="menu-icon">{{ item.icon }}</span>

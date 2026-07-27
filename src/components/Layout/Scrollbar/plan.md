@@ -35,3 +35,7 @@
   避免 host 在 flex 容器里或 CSS 变量时序未跟上时塌缩成内容高度导致无滚动条。
 - `useHostFlag("native")` / `useHostFlag("always")` 反射到 host attribute，
   由 `:host([native])` / `:host([always])` 控制样式分支。
+
+## 2026-07-22 纵向案例约束
+
+- [x] 消息列表案例显式隐藏横向溢出，视图宽度跟随滚动容器，确保只出现纵向滚动条。

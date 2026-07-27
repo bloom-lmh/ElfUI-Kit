@@ -1,4 +1,5 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useHost, useRef } from "@elfui/core";
+import type { ScrollbarExpose } from "../../../components/Layout/Scrollbar/types";
 import { createDocsTranslator } from "../../docsLocale";
 
 const t = createDocsTranslator({
@@ -14,22 +15,28 @@ const t = createDocsTranslator({
 });
 
 const times = useRef(0);
+const host = useHost();
+const getCustomScrollTarget = (): HTMLElement | null =>
+  host.shadowRoot?.querySelector<HTMLElement & ScrollbarExpose>("#backtop-custom-scroll")?.wrapRef ?? null;
 const onClick = (): void => times.set(times.value + 1);
-const code = `<elf-back-top target="#backtop-custom-scroll" shape="square" size="48px" bottom="136px" right="72px">Top</elf-back-top>`;
-const script = `const times = useRef(0);
+const code = `<elf-back-top :target.prop="getCustomScrollTarget" shape="square" size="48px" bottom="136px" right="72px">Top</elf-back-top>`;
+const script = `const host = useHost();
+const times = useRef(0);
+const getCustomScrollTarget = () =>
+  host.shadowRoot?.querySelector("#backtop-custom-scroll")?.wrapRef ?? null;
 const onClick = () => times.set(times.value + 1);`;
 
-const PageBacktopEx2 = defineHtml(html`
+const PageBacktopEx2 = defineHtml(`
   <h2>${t("section")}</h2>
   <elf-playground :title=${t("title")} :code=${code} :script=${script}>
     <span slot="status" class="demo-state">${t("clicks")}: ${times.value}</span>
     <div style="display:grid;gap:12px;width:100%;max-width:760px">
-      <div id="backtop-custom-scroll" style="height:260px;overflow:auto;border:1px solid var(--elf-divider);background:var(--elf-bg-paper)">
+      <elf-scrollbar id="backtop-custom-scroll" height="260px" always style="border:1px solid var(--elf-divider);background:var(--elf-bg-paper)">
         <section style="min-height:220px;padding:24px;background:color-mix(in srgb,var(--elf-info) 8%,var(--elf-bg-paper))"><h3>${t("intro")}</h3><p>${t("introBody")}</p></section>
         <section style="min-height:220px;padding:24px;background:color-mix(in srgb,var(--elf-success) 8%,var(--elf-bg-paper))"><h3>${t("more")}</h3><p>${t("moreBody")}</p></section>
         <section style="min-height:220px;padding:24px;background:color-mix(in srgb,var(--elf-warning) 9%,var(--elf-bg-paper))"><h3>${t("end")}</h3><p>${t("endBody")}</p></section>
-      </div>
-      <elf-back-top target="#backtop-custom-scroll" shape="square" size="48px" bottom="136px" right="72px" @click=${onClick}>Top</elf-back-top>
+      </elf-scrollbar>
+      <elf-back-top :target.prop=${getCustomScrollTarget} shape="square" size="48px" bottom="136px" right="72px" @click=${onClick}>Top</elf-back-top>
     </div>
   </elf-playground>
 `);

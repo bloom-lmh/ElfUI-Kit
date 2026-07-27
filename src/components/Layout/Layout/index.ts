@@ -12,7 +12,7 @@
 //
 // 未显式设置方向时，直接包含 elf-aside 会自动切换为 horizontal。
 
-import { defineHtml, defineProps, defineStyle, html, onMount, useHost, useHostAttr, useRef } from "@elfui/core";
+import { defineHtml, defineProps, defineStyle, onMounted, useHost, useHostAttr, useRef } from "@elfui/core";
 
 import styles from "./style.scss?inline";
 import type { LayoutDirection, LayoutProps, LayoutSlots } from "./types";
@@ -38,11 +38,11 @@ const resolvedDirection = (): Exclude<LayoutDirection, ""> => {
 
 const onSlotChange = (): void => syncChildren();
 
-onMount(syncChildren);
+onMounted(syncChildren);
 useHostAttr("data-direction", resolvedDirection);
 
 defineStyle(styles);
 
-const Layout = defineHtml<LayoutProps, Record<string, never>, LayoutSlots>(html`<slot @slotchange=${onSlotChange}></slot>`);
+const Layout = defineHtml<LayoutProps, Record<string, never>, LayoutSlots>(`<slot @slotchange=${onSlotChange}></slot>`);
 
 export { Layout };

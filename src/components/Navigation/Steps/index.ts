@@ -1,21 +1,20 @@
 // elf-steps — 步骤条
 
 import {
-    defineEmits,
-    defineExpose,
-    defineHtml,
-    defineProps,
-    defineStyle,
-    html,
-    onMount,
-    useComputed,
-    useEventListener,
-    useHost,
-    useHostAttr,
-    useHostFlag,
-    useEffect,
-    useRef,
-    useResizeObserver,
+  defineEmits,
+  defineExpose,
+  defineHtml,
+  defineProps,
+  defineStyle,
+  onMounted,
+  useComputed,
+  useEventListener,
+  useHost,
+  useHostAttr,
+  useHostFlag,
+  useEffect,
+  useRef,
+  useResizeObserver
 } from "@elfui/core";
 
 import styles from "./style.scss?inline";
@@ -340,7 +339,7 @@ useEventListener(host, "elf-step-navigate", (event) => {
     event.stopPropagation();
     navigateStep((event as CustomEvent<StepNavigateDetail>).detail);
 });
-onMount(syncStepChildren);
+onMounted(syncStepChildren);
 useHostAttr("direction", direction);
 useHostAttr("size", size);
 useHostFlag("data-compact", () => compact.value);
@@ -355,7 +354,7 @@ defineExpose({
 });
 defineStyle(styles);
 
-const Steps = defineHtml<StepsProps, Record<string, never>, StepsSlots>(html`
+const Steps = defineHtml<StepsProps, Record<string, never>, StepsSlots>(`
   <div :class=${["stepper", { "has-panels": props.showPanels }]}>
     <div :class=${rootClass} :style=${rootStyle} role="list" :aria-orientation=${direction()}>
         <slot v-if=${hasStepChildren} @slotchange=${onStepsSlotChange}></slot>
@@ -397,17 +396,17 @@ const Steps = defineHtml<StepsProps, Record<string, never>, StepsSlots>(html`
     </div>
     <section v-if=${props.showPanels} class="stepper-panel" role="region" aria-live="polite">
       <slot name="panel">
-        <h3>{{ activeItem()?.title || '' }}</h3>
-        <p>{{ activeItem()?.content || activeItem()?.description || '' }}</p>
+        <h3>${activeItem()?.title || ''}</h3>
+        <p>${activeItem()?.content || activeItem()?.description || ''}</p>
       </slot>
     </section>
     <footer v-if=${props.showPanels && !props.hideActions} class="stepper-actions">
       <button type="button" class="stepper-action is-previous" :disabled=${clampedActive() <= 0} @click=${prev}>
         <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m10 3.5-4.5 4.5 4.5 4.5"></path></svg>
-        <span>{{ previousText() }}</span>
+        <span>${previousText()}</span>
       </button>
       <button type="button" class="stepper-action is-next" :disabled=${clampedActive() >= count() - 1} @click=${next}>
-        <span>{{ nextText() }}</span>
+        <span>${nextText()}</span>
         <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m6 3.5 4.5 4.5L6 12.5"></path></svg>
       </button>
     </footer>

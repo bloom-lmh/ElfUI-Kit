@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 
 const code2 = `<elf-page-header content="自定义插槽">
   <span slot="breadcrumb">Home / Product / Detail</span>
@@ -13,7 +13,7 @@ const code2 = `<elf-page-header content="自定义插槽">
 
 const script2 = `// 纯插槽组合案例，无需额外状态。`;
 
-const PagePageHeaderEx2 = defineHtml(html`
+const PagePageHeaderEx2 = defineHtml(`
 <elf-playground title="breadcrumb / icon / title / content / extra" :code=${code2} :script=${script2}>
       <elf-page-header content="自定义插槽">
         <span slot="breadcrumb">Home / Product / Detail</span>

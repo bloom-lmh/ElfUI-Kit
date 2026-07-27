@@ -1,4 +1,4 @@
-import { defineHtml, html, useComponents } from "@elfui/core";
+import { defineHtml, useComponents } from "@elfui/core";
 import { PageStickyEx1 } from "./ex1";
 import { PageStickyEx2 } from "./ex2";
 import { PageStickyEx3 } from "./ex3";
@@ -13,7 +13,7 @@ useComponents({
   "page-sticky-props": PageStickyProps
 });
 
-const PageSticky = defineHtml(html`
+const PageSticky = defineHtml(`
   <elf-container>
     <h1>Sticky 吸附</h1>
     <p>让工具栏、操作栏或分组标题在滚动容器内保持可见，支持目标边界、Teleport 与滚动状态。</p>

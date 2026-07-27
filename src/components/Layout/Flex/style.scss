@@ -6,6 +6,7 @@
   flex-direction: var(--_dir, row);
   justify-content: var(--_justify, flex-start);
   align-items: var(--_align, stretch);
+  align-content: var(--_align-content, stretch);
   flex-wrap: var(--_wrap, nowrap);
   gap: var(--_gap, 0);
   box-sizing: border-box;
@@ -72,11 +73,4 @@
 }
 :host([align="baseline"]) {
   --_align: baseline;
-}
-
-:host([wrap]) {
-  --_wrap: wrap;
-}
-:host([wrap="nowrap"]) {
-  --_wrap: nowrap;
 }

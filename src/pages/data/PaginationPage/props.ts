@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 
 const propsRows = [
   { name: "total", type: "number", default: "0", desc: "Total item count" },
@@ -49,7 +49,7 @@ const partsRows = [
   { name: "size-dropdown", desc: "Page-size listbox overlay" }
 ];
 
-const PagePaginationProps = defineHtml(html`
+const PagePaginationProps = defineHtml(`
   <h2>API</h2>
   <elf-props-table title="Props" :rows.prop=${propsRows}></elf-props-table>
   <elf-props-table title="Events" :rows.prop=${eventsRows}></elf-props-table>

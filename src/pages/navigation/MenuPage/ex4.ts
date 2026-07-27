@@ -1,4 +1,4 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useRef } from "@elfui/core";
 import { createDocsTranslator } from "../../docsLocale";
 
 const t = createDocsTranslator({
@@ -94,7 +94,7 @@ const items = [
   { group: "Labels", children: [{ index: "work", label: "Work", badge: 5 }] }
 ];`;
 
-const PageMenuEx4 = defineHtml(html`
+const PageMenuEx4 = defineHtml(`
   <h2>${t("sectionFull")}</h2>
   <elf-playground :title=${t("titleFull")} :code=${code} :script=${script}>
     <elf-menu :key=${t("sectionFull")} :items.prop=${localizeItems(items)} :modelValue.prop=${active.value} bordered rounded elevation style="height:540px">

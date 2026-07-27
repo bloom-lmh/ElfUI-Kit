@@ -4,7 +4,11 @@
   display: block;
   flex-shrink: 0;
   width: var(--_width, 300px);
-  background: var(--elf-bg-paper);
+  border-inline-end: 1px solid var(--elf-layout-divider, var(--elf-divider));
+  background: var(
+    --elf-layout-aside-bg,
+    color-mix(in srgb, var(--elf-text-primary) 2%, var(--elf-bg-paper))
+  );
   overflow-y: auto;
   box-sizing: border-box;
   transition: width var(--elf-transition-base);

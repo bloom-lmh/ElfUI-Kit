@@ -1,10 +1,10 @@
-import { getActiveRouter } from "@elfui/router";
+import {
+  getActiveRouter } from "@elfui/router";
 import {
   defineHtml,
   defineStyle,
-  html,
-  onMount,
-  onUnmount,
+  onMounted,
+  onUnmounted,
   useComputed,
   useEffect,
   useRef
@@ -27,7 +27,7 @@ interface AppMenuItem {
 }
 
 const ICONS: Record<string, string> = {
-  样式和动画: "S",
+  "Styles and animations 样式与动画": "S",
   "Layout 布局": "L",
   "Basic 基础": "B",
   "Form 表单": "F",
@@ -109,8 +109,8 @@ const normalizeSkin = (value: string): string => {
 
 const englishLabel = (label: string): string => {
   if (label === "首页") return "Home";
-  if (label === "样式和动画") return "Styles and animations";
-  if (label === "工具类") return "Utilities";
+  if (label === "样式和动画" || label === "Styles and animations 样式与动画") return "Styles and animations";
+  if (label === "工具类" || label === "Utilities 工具类") return "Utilities";
   const stripped = label.replace(/[\u3400-\u9fff\u3000-\u303f]+/g, "").replace(/\s+/g, " ").trim();
   return stripped || label;
 };
@@ -210,7 +210,7 @@ useEffect(() => {
   if (router) active.set(router.current.value.path);
 });
 
-onMount(() => {
+onMounted(() => {
   applyDocumentSkin();
   active.set(readCurrentPath());
   if (typeof window === "undefined") return;
@@ -229,14 +229,14 @@ onMount(() => {
   removeViewportListener = () => media.removeEventListener?.("change", syncViewport);
 });
 
-onUnmount(() => {
+onUnmounted(() => {
   removeHashListener();
   removeViewportListener();
 });
 
 defineStyle(styles);
 
-const App = defineHtml(html`
+const App = defineHtml(`
   <elf-locale-provider :name=${localeName.value} :messages.prop=${currentMessages()}>
     <elf-theme-provider :theme=${currentSkin().providerTheme} :tokens.prop=${currentSkin().tokens}>
       <elf-layout v-if=${isHome()} class="home-shell">

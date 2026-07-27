@@ -45,6 +45,15 @@
   box-sizing: border-box;
 }
 
+.elf-sticky-portal[popover] {
+  inset: auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: visible;
+  background: transparent;
+}
+
 .elf-sticky-portal[data-fixed="true"] {
   box-shadow: var(--sticky-shadow, none);
 }

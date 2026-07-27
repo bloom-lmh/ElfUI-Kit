@@ -1,4 +1,4 @@
-import { defineHtml, html, useComponents } from "@elfui/core";
+import { defineHtml, useComponents } from "@elfui/core";
 
 import { PageDropdownEx1 } from "./ex1";
 import { PageDropdownEx2 } from "./ex2";
@@ -56,9 +56,9 @@ const eventsRows = [
 ];
 
 const exposeRows = [
-  { name: "handleOpen / show", type: "() => void", desc: "打开下拉菜单" },
-  { name: "handleClose / hide", type: "() => void", desc: "关闭下拉菜单" },
-  { name: "toggle", type: "() => void", desc: "切换展开状态" }
+  { name: "openMenu()", type: "() => void", desc: "打开下拉菜单" },
+  { name: "closeMenu()", type: "() => void", desc: "关闭下拉菜单" },
+  { name: "toggleMenu()", type: "() => void", desc: "切换展开状态" }
 ];
 
 useComponents({
@@ -70,7 +70,7 @@ useComponents({
   "page-dropdown-ex6": PageDropdownEx6
 });
 
-const PageDropdown = defineHtml(html`
+const PageDropdown = defineHtml(`
   <elf-container>
     <h1>Dropdown 下拉菜单</h1>
     <p>用于承载一组轻量命令，支持点击、悬停、右键、分裂按钮、禁用项、分割线和子菜单。</p>

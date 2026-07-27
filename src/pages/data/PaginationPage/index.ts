@@ -1,4 +1,4 @@
-import { defineHtml, html, useComponents } from "@elfui/core";
+import { defineHtml, useComponents } from "@elfui/core";
 import { PagePaginationEx1 } from "./ex1";
 import { PagePaginationEx2 } from "./ex2";
 import { PagePaginationEx3 } from "./ex3";
@@ -13,7 +13,7 @@ useComponents({
   "page-pagination-props": PagePaginationProps
 });
 
-const PagePagination = defineHtml(html`
+const PagePagination = defineHtml(`
   <elf-container>
     <h1>Pagination 分页</h1>
     <p>用于大数据列表的分页导航，支持页码、每页条数、跳转和布局组合。</p>

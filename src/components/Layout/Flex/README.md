@@ -18,8 +18,9 @@
 | `direction` | `row \| row-reverse \| column \| column-reverse`                                    | `row`        | 主轴方向   |
 | `justify`   | `flex-start \| flex-end \| center \| space-between \| space-around \| space-evenly` | `flex-start` | 主轴对齐   |
 | `align`     | `stretch \| flex-start \| flex-end \| center \| baseline`                           | `stretch`    | 交叉轴对齐 |
+| `align-content` | `stretch \| flex-start \| flex-end \| center \| space-between \| space-around \| space-evenly` | `stretch` | 多行内容对齐 |
 | `gap`       | `0 \| xs \| sm \| md \| lg \| xl`                                                   | `0`          | 元素间距   |
-| `wrap`      | `boolean`                                                                           | `false`      | 是否换行   |
+| `wrap`      | `boolean \| nowrap \| wrap \| wrap-reverse`                                         | `false`      | 换行策略   |
 
 ## Slots
 
@@ -29,6 +30,7 @@
 
 - 用 attribute selector 派发样式，不在 JS 里做条件渲染，保持组件零运行时开销
 - gap 取自全局 token `--elf-space-*`，主题切换时自动响应
+- 响应式方向、子项顺序、伸缩和自对齐由布局工具类承担，避免扩大组件 props
 
 ## 文件结构
 

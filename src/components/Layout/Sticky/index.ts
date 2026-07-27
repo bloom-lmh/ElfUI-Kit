@@ -7,9 +7,8 @@ import {
   defineProps,
   defineStyle,
   globalStyle,
-  html,
   onBeforeUnmount,
-  onMount,
+  onMounted,
   projectLightDom,
   useEffect,
   useHost,
@@ -83,6 +82,8 @@ const nextId = (): string => {
 
 const id = nextId();
 const portalSelector = `[data-elf-sticky="${id}"]`;
+const supportsPopover = (): boolean =>
+  typeof HTMLElement !== "undefined" && typeof HTMLElement.prototype.showPopover === "function";
 
 const cssSize = (value: unknown, fallback = "0px"): string => {
   if (value == null || value === "") return fallback;
@@ -127,6 +128,27 @@ const resolveAppendTarget = (): HTMLElement => {
 const portalElement = (): HTMLElement | null => {
   const appendTarget = resolveAppendTarget();
   return appendTarget.querySelector<HTMLElement>(portalSelector) ?? queryScoped<HTMLElement>(portalSelector);
+};
+
+const showPortal = (): void => {
+  if (!props.teleported || !supportsPopover()) return;
+  const portal = portalElement() as HTMLElement & { showPopover?: () => void } | null;
+  if (!portal) return;
+  try {
+    portal.showPopover?.();
+  } catch {
+    // The portal can already be open or briefly disconnected during projection.
+  }
+};
+
+const hidePortal = (): void => {
+  if (!supportsPopover()) return;
+  const portal = portalElement() as HTMLElement & { hidePopover?: () => void } | null;
+  try {
+    portal?.hidePopover?.();
+  } catch {
+    // Ignore teardown races while the Teleport target is being removed.
+  }
 };
 
 const portalStyle = (): Record<string, string> => portalStyleState.value;
@@ -203,6 +225,8 @@ const updatePortalStyle = (geometry: StickyGeometry, nextFixed: boolean): void =
   const offset = offsetNumber();
   const targetRect = targetElement?.getBoundingClientRect();
   let top = geometry.top;
+  let left = geometry.left;
+  let width = geometry.width;
 
   if (normalizedPosition() === "top" && nextFixed) {
     top = bounds.top + offset;
@@ -210,6 +234,24 @@ const updatePortalStyle = (geometry: StickyGeometry, nextFixed: boolean): void =
   } else if (normalizedPosition() === "bottom" && nextFixed) {
     top = bounds.bottom - offset - geometry.height;
     if (targetRect) top = Math.max(top, targetRect.top);
+  }
+
+  if (targetRect) {
+    const targetTop = targetRect.top;
+    const targetBottom = targetRect.bottom;
+    const targetLeft = targetRect.left;
+    const targetRight = targetRect.right;
+    const overlapLeft = Math.max(left, targetLeft);
+    const overlapRight = Math.min(left + width, targetRight);
+
+    top = Math.max(targetTop, Math.min(top, targetBottom - geometry.height));
+    if (overlapRight > overlapLeft) {
+      left = overlapLeft;
+      width = overlapRight - overlapLeft;
+    } else {
+      left = targetLeft;
+      width = Math.max(0, targetRight - targetLeft);
+    }
   }
 
   const nextHidden = Boolean(
@@ -222,9 +264,16 @@ const updatePortalStyle = (geometry: StickyGeometry, nextFixed: boolean): void =
   placeholderHeight.set(`${Math.max(0, geometry.height)}px`);
   portalStyleState.set({
     position: "fixed",
-    left: `${geometry.left}px`,
+    inset: "auto",
+    left: `${left}px`,
     top: `${top}px`,
-    width: `${geometry.width}px`,
+    width: `${width}px`,
+    margin: "0",
+    padding: "0",
+    border: "0",
+    boxSizing: "border-box",
+    background: "transparent",
+    overflow: "visible",
     zIndex: String(props.zIndex || 100),
     visibility: nextHidden ? "hidden" : "visible"
   });
@@ -262,7 +311,9 @@ const syncProjection = (): void => {
   queueMicrotask(() => {
     if (props.teleported) {
       if (!projection.project()) queueMicrotask(() => projection.project());
+      queueMicrotask(showPortal);
     } else {
+      hidePortal();
       projection.restore();
     }
     requestUpdate();
@@ -304,7 +355,7 @@ useEffect(() => {
   syncProjection();
 });
 
-onMount(() => {
+onMounted(() => {
   if (typeof window === "undefined") return;
   mounted = true;
   updateRoot();
@@ -319,6 +370,7 @@ onBeforeUnmount(() => {
   animationFrame = 0;
   ticking = false;
   projection.restore();
+  hidePortal();
   portalElement()?.remove();
 });
 
@@ -326,7 +378,7 @@ defineExpose<StickyExpose>({ update, updateRoot });
 defineStyle(styles);
 globalStyle(styles);
 
-const Sticky = defineHtml<StickyProps, Record<string, never>, StickySlots>(html`
+const Sticky = defineHtml<StickyProps, Record<string, never>, StickySlots>(`
   <div v-if=${!props.teleported} class="sticky" part="root"><slot></slot></div>
   <div v-if=${props.teleported} class="placeholder" part="placeholder"></div>
   <Teleport :to=${resolveAppendTarget()}>
@@ -335,6 +387,7 @@ const Sticky = defineHtml<StickyProps, Record<string, never>, StickySlots>(html`
       class="elf-sticky-portal"
       :data-elf-sticky=${id}
       :data-fixed=${portalFixed()}
+      :popover=${supportsPopover() ? "manual" : undefined}
       :style=${portalStyle()}
     ></div>
   </Teleport>

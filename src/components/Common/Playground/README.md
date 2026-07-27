@@ -17,8 +17,6 @@
 | `title` | `string` | `""`   | 标题（不传则不渲染头部）   |
 | `code`  | `string` | `""`   | 源码字符串（不传则不渲染） |
 | `script` | `string` | `""` | Script 标签源码（不传时禁用 Script 标签） |
-| `controlsCollapsible` | `boolean` | `true` | 右侧控制台存在时允许从标题栏折叠 |
-| `controlsCollapsed` | `boolean` | `false` | 右侧控制台的初始折叠状态 |
 
 ## Events
 
@@ -26,7 +24,6 @@
 | ------ | ---------------- | -------------- |
 | `copy` | `(code: string)` | 复制成功后触发 |
 | `copyError` | `(error: unknown)` | Clipboard API 拒绝或不可用时触发 |
-| `controlsToggle` | `(collapsed: boolean)` | 控制台折叠状态变化后触发 |
 
 ## Slots
 
@@ -34,14 +31,13 @@
 
 `status` slot：与案例标题平齐的状态文本，适合展示当前值、命令或交互结果。状态节点应使用 `slot="status"`，避免状态变化影响组件演示区的位置。
 
-`controls` slot：可选的右侧配置控制台。存在时预览区自动水平、垂直居中；窄屏下控制台堆叠到预览区下方。
+`controls` slot：可选的右侧配置控制台。存在时保持可见，预览区自动水平、垂直居中；Playground 自身变窄时控制台堆叠到预览区下方。字段统一使用填充外观和舒适密度，复选组使用普通控件外观并垂直排列。
 
 ## Exposes
 
 - `showTemplate()`：切换到 Template。
 - `showScript()`：存在 Script 源码时切换到 Script。
 - `copy()`：复制当前标签源码，返回 `Promise<boolean>`。
-- `toggleControls()`：切换右侧控制台的展开状态。
 
 ## CSS 变量
 

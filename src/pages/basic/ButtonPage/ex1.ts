@@ -1,46 +1,81 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml, defineStyle } from "@elfui/core";
 
-const code1 = `<elf-button>默认</elf-button>
-<elf-button color="success">成功</elf-button>
-<elf-button color="warning">警告</elf-button>
-<elf-button color="danger">危险</elf-button>
-<elf-button color="info">信息</elf-button>
-<elf-button color="secondary">次要</elf-button>`;
+import { createDocsTranslator } from "../../docsLocale";
+import styles from "./demo.scss?inline";
 
-const code2 = `<elf-button variant="contained">contained</elf-button>
-<elf-button variant="outlined">outlined</elf-button>
-<elf-button variant="text">text</elf-button>`;
+const t = createDocsTranslator({
+  title: { zh: "语义色与外观矩阵", en: "Semantic color and appearance matrix" },
+  status: {
+    zh: "同一操作在三种层级中的视觉对比",
+    en: "Compare the same action across three visual levels"
+  },
+  contained: { zh: "强调操作", en: "Emphasized actions" },
+  outlined: { zh: "次要操作", en: "Secondary actions" },
+  text: { zh: "轻量操作", en: "Low-emphasis actions" },
+  primary: { zh: "主要", en: "Primary" },
+  success: { zh: "成功", en: "Success" },
+  warning: { zh: "警告", en: "Warning" },
+  danger: { zh: "危险", en: "Danger" },
+  plain: { zh: "淡色", en: "Plain" },
+  dashed: { zh: "虚线", en: "Dashed" }
+});
 
-const code3 = `<elf-button variant="contained" plain color="primary">primary</elf-button>
-<elf-button variant="contained" plain color="success">success</elf-button>
-<elf-button variant="contained" plain color="warning">warning</elf-button>
-<elf-button variant="contained" plain color="danger">danger</elf-button>`;
+const appearanceCode = `<elf-button color="primary">Primary</elf-button>
+<elf-button color="success">Success</elf-button>
+<elf-button color="warning">Warning</elf-button>
+<elf-button color="danger">Danger</elf-button>
 
-const code4 = `<elf-button variant="outlined" dashed>dashed</elf-button>
-<elf-button variant="outlined" dashed color="success">dashed success</elf-button>`;
+<elf-button variant="outlined">Primary</elf-button>
+<elf-button variant="outlined" color="success">Success</elf-button>
+<elf-button variant="outlined" dashed color="danger">Dashed</elf-button>
 
-const PageButtonEx1 = defineHtml(html`
-  <h2>颜色</h2>
-  <elf-playground title="6 种语义颜色" :code=${code1}>
-    <elf-button>默认</elf-button><elf-button color="success">成功</elf-button
-    ><elf-button color="warning">警告</elf-button><elf-button color="danger">危险</elf-button
-    ><elf-button color="info">信息</elf-button><elf-button color="secondary">次要</elf-button>
-  </elf-playground>
-  <h2>变体</h2>
-  <elf-playground title="contained / outlined / text" :code=${code2}>
-    <elf-button variant="contained">contained</elf-button
-    ><elf-button variant="outlined">outlined</elf-button
-    ><elf-button variant="text">text</elf-button>
-  </elf-playground>
-  <elf-playground title="plain（淡色背景）" :code=${code3}>
-    <elf-button variant="contained" plain color="primary">primary</elf-button
-    ><elf-button variant="contained" plain color="success">success</elf-button
-    ><elf-button variant="contained" plain color="warning">warning</elf-button
-    ><elf-button variant="contained" plain color="danger">danger</elf-button>
-  </elf-playground>
-  <elf-playground title="虚线边框" :code=${code4}>
-    <elf-button variant="outlined" dashed>dashed</elf-button
-    ><elf-button variant="outlined" dashed color="success">dashed success</elf-button>
+<elf-button variant="text">Text</elf-button>
+<elf-button text bg color="info">Text with background</elf-button>
+<elf-button plain color="success">Plain</elf-button>`;
+
+const appearanceScript = `// color 表达操作语义，variant 表达视觉强调层级。
+// 同一组操作优先保持 variant 一致，仅用 color 区分状态。`;
+
+defineStyle(styles);
+
+const PageButtonEx1 = defineHtml(`
+  <elf-playground
+    :title=${t("title")}
+    :code=${appearanceCode}
+    :script=${appearanceScript}
+  >
+    <span slot="status" class="button-demo-status">${t("status")}</span>
+    <div class="button-appearance-grid">
+      <article class="button-demo-card">
+        <strong>${t("contained")}</strong>
+        <div class="button-demo-row">
+          <elf-button>${t("primary")}</elf-button>
+          <elf-button color="success">${t("success")}</elf-button>
+          <elf-button color="warning">${t("warning")}</elf-button>
+          <elf-button color="danger">${t("danger")}</elf-button>
+        </div>
+      </article>
+
+      <article class="button-demo-card">
+        <strong>${t("outlined")}</strong>
+        <div class="button-demo-row">
+          <elf-button variant="outlined">${t("primary")}</elf-button>
+          <elf-button variant="outlined" color="success">${t("success")}</elf-button>
+          <elf-button variant="outlined" color="warning">${t("warning")}</elf-button>
+          <elf-button variant="outlined" dashed color="danger">${t("dashed")}</elf-button>
+        </div>
+      </article>
+
+      <article class="button-demo-card button-demo-card-wide">
+        <strong>${t("text")}</strong>
+        <div class="button-demo-row">
+          <elf-button variant="text">${t("primary")}</elf-button>
+          <elf-button text bg color="info">${t("text")}</elf-button>
+          <elf-button plain color="success">${t("plain")}</elf-button>
+          <elf-button link color="danger">${t("danger")}</elf-button>
+        </div>
+      </article>
+    </div>
   </elf-playground>
 `);
 

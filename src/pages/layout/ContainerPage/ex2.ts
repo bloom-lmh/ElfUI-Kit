@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 
 const code1 = `<elf-container padding="0" max-width="md">padding=0</elf-container>
 <elf-container padding="sm" max-width="md">padding=sm</elf-container>
@@ -12,7 +12,7 @@ const code2 = `<elf-container fluid padding="lg">
 
 const script = `// fluid 取消最大宽度限制，可在内部嵌套限宽容器。`;
 
-const PageContainerEx2 = defineHtml(html`
+const PageContainerEx2 = defineHtml(`
   <h2>不同 padding</h2>
   <elf-playground title="0 / sm / md / lg" :code=${code1} :script=${script}>
     <elf-container

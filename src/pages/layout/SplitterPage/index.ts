@@ -1,4 +1,4 @@
-import { defineHtml, html, useComponents } from "@elfui/core";
+import { defineHtml, useComponents } from "@elfui/core";
 import { PageSplitterEx1 } from "./ex1";
 import { PageSplitterEx2 } from "./ex2";
 import { PageSplitterEx3 } from "./ex3";
@@ -15,7 +15,7 @@ useComponents({
   "page-splitter-props": PageSplitterProps
 });
 
-const PageSplitter = defineHtml(html`
+const PageSplitter = defineHtml(`
   <elf-container>
     <h1>Splitter 分割面板</h1>
     <p>通过拖拽分隔条调整两个区域比例，支持 Panel 子组件、折叠、延迟激活和尺寸持久化。</p>

@@ -1,4 +1,4 @@
-import { defineHtml, html } from "@elfui/core";
+import { defineHtml } from "@elfui/core";
 import { createDocsTranslator } from "../../docsLocale";
 
 const t = createDocsTranslator({
@@ -81,7 +81,7 @@ const methodsRows = () => [
   { name: "setActive(index)", type: "(index: number) => void", desc: t("methodSet") }
 ];
 
-const PageStepsProps = defineHtml(html`
+const PageStepsProps = defineHtml(`
   <h2>API</h2>
   <elf-props-table title="Props" :rows=${propsRows()}></elf-props-table>
   <elf-props-table title="StepItem / Step Props" :rows=${itemRows()}></elf-props-table>

@@ -1,4 +1,5 @@
-import { defineHtml, html, useRef } from "@elfui/core";
+import { defineHtml, useHost, useRef } from "@elfui/core";
+import type { ScrollbarExpose } from "../../../components/Layout/Scrollbar/types";
 import { createDocsTranslator } from "../../docsLocale";
 
 const t = createDocsTranslator({
@@ -18,34 +19,42 @@ const t = createDocsTranslator({
 
 const visible = useRef(false);
 const clickCount = useRef(0);
+const host = useHost();
+
+const getBasicScrollTarget = (): HTMLElement | null =>
+  host.shadowRoot?.querySelector<HTMLElement & ScrollbarExpose>("#backtop-basic-scroll")?.wrapRef ?? null;
+
 const onVisible = (event: CustomEvent): void => visible.set(Boolean(event.detail));
 const onClick = (event: CustomEvent): void => {
   if (event.detail instanceof MouseEvent) clickCount.set(clickCount.value + 1);
 };
 
 const code = `<elf-back-top
-  target="#backtop-basic-scroll"
+  :target.prop="getBasicScrollTarget"
   :visibility-height="120"
   bottom="72px"
   right="72px"
   @visible-change="onVisible"
   @click="onClick"
 />`;
-const script = `const visible = useRef(false);
+const script = `const host = useHost();
+const visible = useRef(false);
+const getBasicScrollTarget = () =>
+  host.shadowRoot?.querySelector("#backtop-basic-scroll")?.wrapRef ?? null;
 const onVisible = (event) => visible.set(Boolean(event.detail));
 const onClick = (event) => console.log(event.detail);`;
 
-const PageBacktopEx1 = defineHtml(html`
+const PageBacktopEx1 = defineHtml(`
   <h2>${t("section")}</h2>
   <elf-playground :title=${t("title")} :code=${code} :script=${script}>
     <span slot="status" class="demo-state">${t("visible")}: ${visible.value ? t("shown") : t("hidden")} · ${t("clicks")}: ${clickCount.value}</span>
     <div style="display:grid;gap:12px;width:100%;max-width:760px">
-      <div id="backtop-basic-scroll" style="height:280px;overflow:auto;border:1px solid var(--elf-divider);background:var(--elf-bg-paper)">
+      <elf-scrollbar id="backtop-basic-scroll" height="280px" always style="border:1px solid var(--elf-divider);background:var(--elf-bg-paper)">
         <section style="min-height:260px;padding:24px;background:color-mix(in srgb,var(--elf-primary) 8%,var(--elf-bg-paper))"><h3>${t("top")}</h3><p>${t("topBody")}</p></section>
         <section style="min-height:260px;padding:24px;background:color-mix(in srgb,var(--elf-success) 8%,var(--elf-bg-paper))"><h3>${t("content")}</h3><p>${t("contentBody")}</p></section>
         <section style="min-height:260px;padding:24px;background:color-mix(in srgb,var(--elf-warning) 9%,var(--elf-bg-paper))"><h3>${t("bottom")}</h3><p>${t("bottomBody")}</p></section>
-      </div>
-      <elf-back-top target="#backtop-basic-scroll" :visibility-height=${120} bottom="72px" right="72px" @visible-change=${onVisible} @click=${onClick}></elf-back-top>
+      </elf-scrollbar>
+      <elf-back-top :target.prop=${getBasicScrollTarget} :visibility-height=${120} bottom="72px" right="72px" @visible-change=${onVisible} @click=${onClick}></elf-back-top>
     </div>
   </elf-playground>
 `);
