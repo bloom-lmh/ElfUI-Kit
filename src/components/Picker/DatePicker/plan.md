@@ -338,19 +338,25 @@
 
 ## 差距与任务
 
-- [ ] P0 补齐核心属性差距：`readonly`、`size`、`editable`、`start-placeholder`、`format`、`popper-class`、`popper-style`、`popper-options`、`range-separator`、`default-value`、`default-time`、`value-format`、`id`、`unlink-panels`、`single-panel ^`、`prefix-icon`、`clear-icon`、`validate-event`、`disabled-date`、`cell-class-name`、`teleported`、`empty-values ^`、`value-on-clear ^`、`fallback-placements ^`、`placement ^`、`show-footer ^`、`show-confirm ^`、`show-week-number ^` 等 43 项
-- [ ] P0 补齐事件差距：`change`、`blur`、`focus`、`clear ^`、`calendar-change`、`panel-change`、`visible-change`
-- [ ] P1 补齐插槽/暴露方法：`range-separator`、`prev-month ^`、`next-month ^`、`prev-year ^`、`next-year ^`、`prev-month`、`next-month`、`prev-year`、`next-year`、`focus`、`blur ^`、`handleOpen ^`、`handleClose ^`
-- [ ] P1 对齐交互行为、键盘访问、禁用态、清空态、受控/非受控同步、表单联动和无障碍属性。
-- [ ] P2 更新页面示例：Template / Script 双视图、所有动态绑定使用 `${...}`，补齐 Element Plus 关键场景示例。
-- [ ] P2 补齐组件单测、页面冒烟和类型导出；必要时补视觉回归截图。
+- [ ] P0 剩余高级属性：`popper-options`、`fallback-placements`、`default-value`、`default-time`、`unlink-panels`、`single-panel`、自定义导航图标、`cell-class-name` 与 `show-week-number`；常用输入、格式、浮层、清空、表单和动作栏属性已完成。
+- [x] P0 补齐 `change`、`blur`、`focus`、`clear`、`calendar-change`、`panel-change`、`visible-change` 事件。
+- [ ] P1 剩余插槽：`range-separator` 与年月导航图标；`focusInput`、`blurInput`、`handleOpen`、`handleClose` 已完成。
+- [x] P1 对齐交互行为、键盘访问、禁用态、清空态、受控同步、表单联动和无障碍属性。
+- [x] P2 更新页面示例：Template / Script 双视图、动态绑定使用 `${...}`，覆盖格式、禁用、键盘与自定义浮层。
+- [x] P2 补齐组件单测、页面冒烟和类型导出，并完成视觉回归截图。
+
+## 2026-07-27 Picker 契约收尾
+
+- [x] 接入 `useFormControl`、`useDisabled`、`useSize`，统一 Form 校验、禁用与尺寸继承。
+- [x] 补齐只读、可编辑、范围文案、原生表单属性、空值回退、浮层 class/style 和动作栏兼容属性。
+- [x] `calendar-change` 与 `panel-change` 提供类型化事件，API 表同步 Exposes。
 
 ## 验收清单
 
-- [ ] API props/types 与页面 PropsTable 同步。
-- [ ] 关键交互和边界状态有单测覆盖。
-- [ ] 文档示例能在 Playground 中显示 Template / Script，且复制内容正确。
-- [ ] `npm --prefix ui-kit run build` 通过；涉及运行时能力时补跑目标测试。
+- [x] API props/types 与页面 PropsTable 同步。
+- [x] 关键交互和边界状态有单测覆盖。
+- [x] 文档示例能在 Playground 中显示 Template / Script，且复制内容正确。
+- [x] `pnpm typecheck`、全量测试与生产构建通过。
 
 ## 2026-07-14 交互升级
 
@@ -360,3 +366,11 @@
 ## 2026-07-16 Field Surface 与关闭语义
 
 - [x] 接入共享 `filled / outlined` 和浮动标签；点击外部或外部滚动关闭面板，面板内部交互保持打开。
+
+## 2026-07-22 格式、键盘与 Top Layer
+
+- [x] 补齐 `format` / `valueFormat`，区分日历内部 ISO 值、展示值和对外绑定值。
+- [x] 补齐 `disabledDate`，并与 `min` / `max` 组合限制日期单元格。
+- [x] 补齐触发器键盘打开/关闭、焦点事件、`visible-change` 和无冲突公开方法。
+- [x] 使用原生 Popover Top Layer、视口碰撞计算和 resize 重定位解决层级遮挡。
+- [x] 新增格式与边界案例，完成组件 15 项、页面 1 项测试和真实浏览器截图。

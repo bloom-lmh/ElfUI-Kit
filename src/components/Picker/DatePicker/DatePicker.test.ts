@@ -23,6 +23,15 @@ interface DatePickerEl extends HTMLElement {
   shortcuts?: unknown[];
   variant?: string;
   label?: string;
+  format?: string;
+  valueFormat?: string;
+  disabledDate?: (date: Date) => boolean;
+  teleported?: boolean;
+  placement?: string;
+  size?: string;
+  valueOnClear?: string | string[];
+  popperClass?: string;
+  popperStyle?: Record<string, string>;
 }
 
 const mount = async (patch: Partial<DatePickerEl> = {}): Promise<DatePickerEl> => {
@@ -50,6 +59,15 @@ const selectCalendarDay = async (el: DatePickerEl, value: string): Promise<void>
 };
 
 describe("elf-date-picker", () => {
+  it("uses the shared Input outline and floating-label focus surface", async () => {
+    const el = await mount({ variant: "outlined", label: "发布日期" });
+    const trigger = el.shadowRoot!.querySelector<HTMLButtonElement>(".field-trigger")!;
+
+    expect(el.shadowRoot!.querySelector(".field-outline legend")?.textContent).toBe("发布日期");
+    trigger.focus();
+    expect(el.shadowRoot!.activeElement).toBe(trigger);
+  });
+
   it("range 快捷项同时更新开始和结束日期", async () => {
     const el = await mount({
       range: true,
@@ -133,7 +151,6 @@ describe("elf-date-picker", () => {
     expect(el.shadowRoot!.querySelector(".panel")).toBeNull();
     expect(el.getAttribute("variant")).toBe("outlined");
     expect(el.shadowRoot!.querySelector(".field-label")?.textContent).toBe("Publish date");
-    expect(el.shadowRoot!.querySelector(".field-outline legend")?.textContent).toBe("Publish date");
   });
 
   it.each(["default", "underlined", "solo", "solo-filled", "solo-inverted"])(
@@ -156,5 +173,117 @@ describe("elf-date-picker", () => {
     expect(calendar.shadowRoot!.querySelector('[data-date="2026-06-12"]')?.classList.contains("is-range-end")).toBe(false);
     expect(calendar.shadowRoot!.querySelectorAll(".is-in-range")).toHaveLength(0);
     expect(el.shadowRoot!.querySelector(".panel")).not.toBeNull();
+  });
+
+  it("separates display format from emitted value format", async () => {
+    const el = await mount({
+      modelValue: "2026/06/17",
+      valueFormat: "YYYY/MM/DD",
+      format: "DD.MM.YYYY"
+    });
+    const onUpdate = vi.fn();
+    el.addEventListener("update:modelValue", onUpdate as EventListener);
+
+    expect(el.shadowRoot!.querySelector(".field-value")?.textContent).toContain("17.06.2026");
+    await selectCalendarDay(el, "2026-06-19");
+    expect((onUpdate.mock.calls[0]![0] as CustomEvent).detail).toBe("2026/06/19");
+    expect(el.shadowRoot!.querySelector(".field-value")?.textContent).toContain("19.06.2026");
+  });
+
+  it("combines min/max with disabledDate for calendar cells", async () => {
+    const el = await mount({
+      modelValue: "2026-06-17",
+      min: "2026-06-10",
+      max: "2026-06-25",
+      disabledDate: (date) => date.getDay() === 0 || date.getDay() === 6
+    } as Partial<DatePickerEl> & { min: string; max: string });
+    await openPanel(el);
+
+    const calendar = el.shadowRoot!.querySelector("elf-calendar") as HTMLElement;
+    expect((calendar.shadowRoot!.querySelector('[data-date="2026-06-07"]') as HTMLButtonElement).disabled).toBe(true);
+    expect((calendar.shadowRoot!.querySelector('[data-date="2026-06-27"]') as HTMLButtonElement).disabled).toBe(true);
+    expect((calendar.shadowRoot!.querySelector('[data-date="2026-06-17"]') as HTMLButtonElement).disabled).toBe(false);
+  });
+
+  it("opens from ArrowDown, focuses the calendar, and exposes a Top Layer panel", async () => {
+    const el = await mount({ modelValue: "2026-06-17", teleported: true });
+    const visibleChanges: boolean[] = [];
+    el.addEventListener("visible-change", (event) => {
+      visibleChanges.push(Boolean((event as CustomEvent).detail));
+    });
+    const trigger = el.shadowRoot!.querySelector<HTMLButtonElement>(".field-trigger")!;
+
+    trigger.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }));
+    await tick();
+    await tick();
+
+    const panel = el.shadowRoot!.querySelector<HTMLElement>('.panel[popover="manual"]');
+    const calendar = el.shadowRoot!.querySelector("elf-calendar") as HTMLElement;
+    expect(panel).toBeTruthy();
+    expect(panel?.getAttribute("role")).toBe("dialog");
+    expect(calendar.shadowRoot!.activeElement?.getAttribute("data-date")).toBe("2026-06-17");
+    expect(visibleChanges).toEqual([true]);
+
+    trigger.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    await tick();
+    expect(el.shadowRoot!.querySelector(".panel")).toBeNull();
+    expect(visibleChanges).toEqual([true, false]);
+  });
+
+  it("supports clear fallbacks and custom overlay surfaces", async () => {
+    const el = await mount({
+      modelValue: "2026-06-17",
+      clearable: true,
+      valueOnClear: "2026-01-01",
+      popperClass: "release-calendar",
+      popperStyle: { width: "360px" }
+    });
+    await openPanel(el);
+
+    const panel = el.shadowRoot!.querySelector<HTMLElement>(".panel")!;
+    expect(panel.classList.contains("release-calendar")).toBe(true);
+    expect(panel.style.width).toBe("360px");
+
+    const update = vi.fn();
+    el.addEventListener("update:modelValue", update as EventListener);
+    el.shadowRoot!.querySelector<HTMLButtonElement>(".clear")!.click();
+    await tick();
+    expect((update.mock.calls[0]![0] as CustomEvent).detail).toBe("2026-01-01");
+  });
+
+  it("emits calendar and panel navigation changes", async () => {
+    const el = await mount({ type: "month" });
+    const panelChange = vi.fn();
+    el.addEventListener("panel-change", panelChange as EventListener);
+    await openPanel(el);
+    el.shadowRoot!.querySelector<HTMLButtonElement>(".month-nav button")!.click();
+    await tick();
+    expect((panelChange.mock.calls[0]![0] as CustomEvent).detail[1]).toBe("year");
+
+    el.type = "date";
+    await tick();
+    const calendarChange = vi.fn();
+    el.addEventListener("calendar-change", calendarChange as EventListener);
+    const calendar = el.shadowRoot!.querySelector("elf-calendar") as HTMLElement;
+    calendar.shadowRoot!.querySelector<HTMLButtonElement>("button.day:not(:disabled)")!.click();
+    await tick();
+    expect(calendarChange).toHaveBeenCalledOnce();
+  });
+
+  it("inherits Form size and disabled state", async () => {
+    const form = document.createElement("elf-form") as HTMLElement & { disabled?: boolean; size?: string };
+    form.disabled = true;
+    form.size = "lg";
+    const item = document.createElement("elf-form-item");
+    const picker = document.createElement("elf-date-picker") as DatePickerEl;
+    item.appendChild(picker);
+    form.appendChild(item);
+    document.body.appendChild(form);
+    await tick();
+    await tick();
+
+    expect(picker.getAttribute("size")).toBe("lg");
+    expect(picker.hasAttribute("disabled")).toBe(true);
+    expect(picker.shadowRoot!.querySelector<HTMLButtonElement>(".field-trigger")!.disabled).toBe(true);
   });
 });

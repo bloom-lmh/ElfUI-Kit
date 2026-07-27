@@ -33,6 +33,14 @@
 @include field.floating-label(".trigger");
 @include field.reduced-motion(".trigger");
 
+:host(:not([data-border])) .trigger {
+  border-bottom-color: transparent;
+}
+
+:host(:not([data-border])[variant="outlined"]) .field-outline {
+  border-color: transparent;
+}
+
 .trigger > :not(.field-outline):not(.field-label) {
   position: relative;
   z-index: 1;

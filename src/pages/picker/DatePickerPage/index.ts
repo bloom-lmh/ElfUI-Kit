@@ -1,13 +1,16 @@
-import { defineHtml, html, useComponents } from "@elfui/core";
+import { defineHtml, useComponents } from "@elfui/core";
 
 import { PageDatePickerEx1 } from "./ex1";
 import { PageDatePickerEx2 } from "./ex2";
 import { PageDatePickerEx3 } from "./ex3";
 import { PageDatePickerEx4 } from "./ex4";
 import { PageDatePickerEx5 } from "./ex5";
+import { PageDatePickerEx6 } from "./ex6";
 
 const propsRows = [
   { name: "variant / label", type: "default | outlined | underlined | solo | solo-filled | solo-inverted / string", default: "filled / ''", desc: "输入表面与浮动标签" },
+  { name: "size", type: "sm | md | lg", default: "继承 Form", desc: "尺寸，支持 Form / FormItem 继承" },
+  { name: "format / value-format", type: "string / string", default: "'' / ''", desc: "分别控制展示字符串与绑定值格式" },
   { name: "modelValue", type: "string | string[]", default: "''", desc: "当前值，多选时为数组" },
   { name: "endValue", type: "string", default: "''", desc: "范围选择的结束值" },
   {
@@ -22,6 +25,15 @@ const propsRows = [
   { name: "show-header", type: "boolean", default: "false", desc: "显示顶部摘要" },
   { name: "header", type: "string", default: "''", desc: "自定义顶部标题" },
   { name: "min / max", type: "string", default: "''", desc: "可选范围" },
+  { name: "disabled-date", type: "(date: Date) => boolean", default: "undefined", desc: "返回 true 时禁用日期" },
+  { name: "readonly / editable", type: "boolean", default: "false / true", desc: "只读或禁止原生字段编辑" },
+  { name: "start-placeholder / end-placeholder / range-separator", type: "string", default: "本地化文本", desc: "范围字段文案" },
+  { name: "id / name / tabindex / aria-label", type: "string | number", default: "-", desc: "原生表单与无障碍属性" },
+  { name: "value-on-clear / empty-values", type: "DatePickerValue | Function / unknown[]", default: "'' / [undefined, null, '']", desc: "空值契约" },
+  { name: "validate-event", type: "boolean", default: "true", desc: "是否触发 FormItem 校验" },
+  { name: "teleported / placement", type: "boolean / top-start | bottom-start", default: "true / bottom-start", desc: "Top Layer 与首选方位" },
+  { name: "popper-class / popper-style", type: "string / CSSProperties", default: "'' / {}", desc: "浮层外观" },
+  { name: "show-footer / show-confirm", type: "boolean", default: "false", desc: "显示动作栏" },
   { name: "shortcuts", type: "DateShortcut[]", default: "[]", desc: "快捷项" },
   { name: "clearable", type: "boolean", default: "false", desc: "允许清空" }
 ];
@@ -32,7 +44,16 @@ const eventRows = [
   { name: "change", type: "string | string[]", desc: "选择变化" },
   { name: "confirm", type: "string | string[]", desc: "动作栏确认" },
   { name: "cancel", type: "void", desc: "动作栏取消" },
-  { name: "clear", type: "void", desc: "清空" }
+  { name: "clear", type: "void", desc: "清空" },
+  { name: "focus / blur", type: "FocusEvent" },
+  { name: "calendar-change", type: "DatePickerValue", desc: "面板内临时选择变化" },
+  { name: "panel-change", type: "Date, month | year", desc: "年月面板变化" },
+  { name: "visible-change", type: "boolean" }
+];
+
+const methodRows = [
+  { name: "focusInput() / blurInput()", desc: "控制触发器焦点" },
+  { name: "handleOpen() / handleClose()", desc: "命令式打开或关闭面板" }
 ];
 
 useComponents({
@@ -40,10 +61,11 @@ useComponents({
   "page-date-picker-ex2": PageDatePickerEx2,
   "page-date-picker-ex3": PageDatePickerEx3,
   "page-date-picker-ex4": PageDatePickerEx4,
-  "page-date-picker-ex5": PageDatePickerEx5
+  "page-date-picker-ex5": PageDatePickerEx5,
+  "page-date-picker-ex6": PageDatePickerEx6
 });
 
-const PageDatePicker = defineHtml(html`
+const PageDatePicker = defineHtml(`
   <elf-container>
     <h1>DatePicker 日期选择器</h1>
     <p>用于单日期、日期范围、月份和多日期选择；需要明确提交的场景可以开启动作栏。</p>
@@ -58,9 +80,12 @@ const PageDatePicker = defineHtml(html`
 
     <page-date-picker-ex5 />
 
+    <page-date-picker-ex6 />
+
     <h2>API</h2>
-    <elf-props-table title="Props" :rows="propsRows"></elf-props-table>
-    <elf-props-table title="Events" :rows="eventRows"></elf-props-table>
+    <elf-props-table title="Props" :rows=${propsRows}></elf-props-table>
+    <elf-props-table title="Events" :rows=${eventRows}></elf-props-table>
+    <elf-props-table title="Exposes" :rows=${methodRows}></elf-props-table>
   </elf-container>
 `);
 

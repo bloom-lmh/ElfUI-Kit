@@ -1,34 +1,39 @@
 import {
   defineEmits,
+  defineExpose,
   defineHtml,
   defineProps,
   defineStyle,
-  html,
-  onMount,
-  onUnmount,
+  onBeforeUnmount,
+  onMounted,
   useComponents,
+  useComputed,
   useHost,
   useHostAttr,
   useHostFlag,
   useRef,
-  watchEffect
+  useEffect
 } from "@elfui/core";
 
 import { Calendar } from "../Calendar";
-import { isEventInside, listenForExternalOverlayMotion } from "../../Common/anchored-overlay";
+import { computeAnchoredPosition, isEventInside, listenForExternalOverlayMotion } from "../../Common/anchored-overlay";
 import { useLocaleProvider } from "../../Providers/context";
 import styles from "./style.scss?inline";
 import { normalizeFieldVariant } from "../../../types/field";
-import type { DatePickerType, DatePickerValue, DateShortcut } from "./types";
+import { useDisabled, useFormControl, useSize } from "../../../composables";
+import type { DatePickerEmits, DatePickerProps, DatePickerType, DatePickerValue, DateShortcut } from "./types";
 
-export type { DatePickerProps, DatePickerType, DatePickerValue, DatePickerVariant, DateShortcut } from "./types";
+export type { DatePickerElement, DatePickerEmits, DatePickerExpose, DatePickerProps, DatePickerSize, DatePickerType, DatePickerValue, DatePickerVariant, DateShortcut } from "./types";
 
-const props = defineProps({
+const props = defineProps<DatePickerProps>({
   modelValue: { type: null, default: "" },
   endValue: { type: String, default: "" },
   type: { type: String, default: "date" },
   variant: { type: String, default: "filled" },
+  size: { type: String, default: "" },
   label: { type: String, default: "" },
+  format: { type: String, default: "" },
+  valueFormat: { type: String, default: "" },
   range: { type: Boolean, default: false },
   multiple: { type: Boolean, default: false },
   actions: { type: Boolean, default: false },
@@ -36,24 +41,41 @@ const props = defineProps({
   header: { type: String, default: "" },
   min: { type: String, default: "" },
   max: { type: String, default: "" },
+  disabledDate: { type: Function, default: undefined },
   placeholder: { type: String, default: "" },
+  startPlaceholder: { type: String, default: "" },
   endPlaceholder: { type: String, default: "" },
+  rangeSeparator: { type: String, default: "" },
   disabled: { type: Boolean, default: false },
+  readonly: { type: Boolean, default: false },
+  editable: { type: Boolean, default: true },
   clearable: { type: Boolean, default: false },
+  id: { type: String, default: "" },
+  name: { type: String, default: "" },
+  tabindex: { type: null, default: 0 },
+  ariaLabel: { type: String, default: "" },
+  valueOnClear: { type: null, default: undefined },
+  emptyValues: { type: Array, default: () => [undefined, null, ""] },
+  validateEvent: { type: Boolean, default: true },
   shortcuts: { type: Array, default: () => [] },
   confirmText: { type: String, default: "" },
   cancelText: { type: String, default: "" },
-  clearText: { type: String, default: "" }
+  clearText: { type: String, default: "" },
+  teleported: { type: Boolean, default: true },
+  placement: { type: String, default: "bottom-start" },
+  popperClass: { type: String, default: "" },
+  popperStyle: { type: Object, default: () => ({}) },
+  showFooter: { type: Boolean, default: false },
+  showConfirm: { type: Boolean, default: false }
 });
 
-const emit = defineEmits<{
-  "update:modelValue": [DatePickerValue];
-  "update:endValue": [string];
-  change: [DatePickerValue];
-  clear: [];
-  confirm: [DatePickerValue];
-  cancel: [];
-}>();
+const emit = defineEmits<DatePickerEmits>();
+
+const ctl = useFormControl<DatePickerValue>(props, emit, {
+  ...(props.validateEvent === false ? { triggers: { change: false, blur: false } } : {})
+});
+const isDisabled = useDisabled(() => Boolean(props.disabled));
+const resolvedSize = useSize(() => props.size);
 
 useComponents({ "date-picker-calendar": Calendar });
 const locale = useLocaleProvider();
@@ -63,15 +85,54 @@ const end = useRef("");
 const selected = useRef<string[]>([]);
 const open = useRef(false);
 const monthYear = useRef(new Date().getFullYear());
+const overlayStyle = useRef<Record<string, string>>({});
 const host = useHost();
+let overlayFrame = 0;
 
-const placeholderText = (): string => props.placeholder || locale.t("datePicker.placeholder");
+const escapePattern = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+const parseFormattedValue = (value: unknown): string => {
+  const source = String(value || "");
+  const pattern = String(props.valueFormat || "");
+  if (!source || !pattern || pattern === "YYYY-MM-DD" || String(props.type || "date") !== "date") return source;
+  const expression = escapePattern(pattern)
+    .replace("YYYY", "(?<year>\\d{4})")
+    .replace("MM", "(?<month>\\d{2})")
+    .replace("DD", "(?<day>\\d{2})");
+  const match = new RegExp(`^${expression}$`).exec(source);
+  const groups = match?.groups;
+  return groups?.year && groups.month && groups.day
+    ? `${groups.year}-${groups.month}-${groups.day}`
+    : source;
+};
+
+const formatValue = (value: string, pattern: string): string => {
+  if (!value || !pattern || String(props.type || "date") !== "date") return value;
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (!match) return value;
+  return pattern.replace("YYYY", match[1]!).replace("MM", match[2]!).replace("DD", match[3]!);
+};
+
+const externalValue = (value: string): string => formatValue(value, String(props.valueFormat || ""));
+const displayDate = (value: string): string =>
+  formatValue(value, String(props.format || props.valueFormat || ""));
+
+const placeholderText = (): string => props.startPlaceholder || props.placeholder || locale.t("datePicker.placeholder");
 const endPlaceholderText = (): string => props.endPlaceholder || locale.t("datePicker.endPlaceholder");
+const rangeSeparatorText = (): string => props.rangeSeparator || locale.t("datePicker.rangeSeparator");
 const confirmText = (): string => props.confirmText || locale.t("common.confirm");
 const cancelText = (): string => props.cancelText || locale.t("common.cancel");
 const clearText = (): string => props.clearText || locale.t("common.clear");
+const showActions = (): boolean => Boolean(props.actions || props.showFooter || props.showConfirm);
+const resolvedPanelStyle = useComputed((): Record<string, string> => ({
+  ...(props.popperStyle || {}),
+  ...overlayStyle.value
+}));
 
-const readModelValue = (): DatePickerValue => props.modelValue as DatePickerValue;
+const isEmptyValue = (value: unknown): boolean =>
+  (props.emptyValues || []).some((candidate) => Object.is(candidate, value));
+const readModelValue = (): DatePickerValue =>
+  isEmptyValue(props.modelValue) ? (props.multiple ? [] : "") : props.modelValue as DatePickerValue;
 
 const toValues = (value: DatePickerValue): string[] => {
   if (Array.isArray(value)) return value.map(String).filter(Boolean);
@@ -100,19 +161,19 @@ const resetDraft = (force = false): void => {
   externalDraftSignature = signature;
   const value = readModelValue();
   if (props.multiple) {
-    const values = toValues(value);
+    const values = toValues(value).map(parseFormattedValue);
     selected.set(values);
     start.set(values[0] ?? "");
   } else {
-    start.set(String(value || ""));
+    start.set(parseFormattedValue(value));
     selected.set([]);
   }
-  end.set(String(props.endValue || ""));
+  end.set(parseFormattedValue(props.endValue));
   const year = Number(String(start.peek() || "").slice(0, 4));
   if (Number.isFinite(year) && year > 0) monthYear.set(year);
 };
 
-watchEffect(() => resetDraft());
+useEffect(() => resetDraft());
 
 const inputType = (): DatePickerType => {
   const type = props.type as DatePickerType;
@@ -131,6 +192,11 @@ const inRange = (value: string): boolean => {
   if (!value) return false;
   if (props.min && value < String(props.min)) return false;
   if (props.max && value > String(props.max)) return false;
+  if (typeof props.disabledDate === "function") {
+    const [year, month, day] = value.split("-").map(Number);
+    const date = new Date(year!, month! - 1, day!);
+    if (!Number.isNaN(date.getTime()) && props.disabledDate(date)) return false;
+  }
   return true;
 };
 
@@ -142,9 +208,12 @@ const currentValue = (): DatePickerValue => {
 
 const emitCurrent = (): DatePickerValue => {
   const value = currentValue();
+  const emittedValue: DatePickerValue = Array.isArray(value)
+    ? value.map(externalValue)
+    : externalValue(value);
   expectedDraftSignature = JSON.stringify([
-    props.multiple ? value : start.value,
-    props.range ? end.value : props.endValue,
+    props.multiple ? emittedValue : externalValue(start.value),
+    props.range ? externalValue(end.value) : props.endValue,
     Boolean(props.multiple),
     Boolean(props.range)
   ]);
@@ -152,30 +221,30 @@ const emitCurrent = (): DatePickerValue => {
   window.setTimeout(() => {
     if (token === expectedDraftToken) expectedDraftSignature = "";
   }, 80);
-  emit("update:modelValue", props.multiple ? value : start.value);
-  if (props.range) emit("update:endValue", end.value);
-  emit("change", value);
-  return value;
+  ctl.setValue(props.multiple ? emittedValue : externalValue(start.value));
+  if (props.range) emit("update:endValue", externalValue(end.value));
+  ctl.dispatchChange(emittedValue);
+  return emittedValue;
 };
 
 const commitIfNeeded = (): void => {
-  if (!props.actions) emitCurrent();
+  if (!showActions()) emitCurrent();
 };
 
 const setStart = (value: string): void => {
-  if (props.disabled || !inRange(value)) return;
+  if (isDisabled() || props.readonly || !inRange(value)) return;
   start.set(value);
   commitIfNeeded();
 };
 
 const setEnd = (value: string): void => {
-  if (props.disabled || !inRange(value)) return;
+  if (isDisabled() || props.readonly || !inRange(value)) return;
   end.set(value);
   commitIfNeeded();
 };
 
 const toggleMultiple = (value: string): void => {
-  if (props.disabled || !inRange(value)) return;
+  if (isDisabled() || props.readonly || !inRange(value)) return;
   selected.set(
     selected.value.includes(value)
       ? selected.value.filter((item) => item !== value)
@@ -185,15 +254,104 @@ const toggleMultiple = (value: string): void => {
   commitIfNeeded();
 };
 
-const toggleOpen = (): void => {
-  if (props.disabled || usesNativeField()) return;
-  open.set(!open.peek());
+const setOpen = (visible: boolean): void => {
+  if (open.peek() === visible) return;
+  open.set(visible);
+  emit("visible-change", visible);
 };
 
-const closePanel = (): void => open.set(false);
+const toggleOpen = (): void => {
+  if (isDisabled() || props.readonly || usesNativeField()) return;
+  setOpen(!open.peek());
+};
+
+const closePanel = (): void => setOpen(false);
 
 const getPanelEl = (): HTMLElement | null =>
   host.shadowRoot?.querySelector<HTMLElement>(".panel") ?? null;
+const getTriggerEl = (): HTMLButtonElement | null =>
+  host.shadowRoot?.querySelector<HTMLButtonElement>(".field-trigger") ?? null;
+
+const updateOverlayPosition = (): void => {
+  if (!props.teleported || !open.peek()) {
+    overlayStyle.set({});
+    return;
+  }
+  const trigger = getTriggerEl();
+  const panel = getPanelEl();
+  if (!trigger || !panel) return;
+  const anchor = trigger.getBoundingClientRect();
+  if (anchor.width === 0 && anchor.height === 0) return;
+  const rect = panel.getBoundingClientRect();
+  const viewport = window.visualViewport;
+  const next = computeAnchoredPosition(
+    anchor,
+    { width: rect.width || Math.min(420, window.innerWidth - 32), height: rect.height || 360 },
+    {
+      width: viewport?.width || window.innerWidth,
+      height: viewport?.height || window.innerHeight,
+      offsetLeft: viewport?.offsetLeft || 0,
+      offsetTop: viewport?.offsetTop || 0
+    },
+    { placement: props.placement === "top-start" ? "top-start" : "bottom-start", offset: [0, 8], padding: 8, flip: true }
+  );
+  overlayStyle.set({
+    position: "fixed",
+    top: `${Math.round(next.top)}px`,
+    left: `${Math.round(next.left)}px`,
+    right: "auto",
+    bottom: "auto",
+    margin: "0"
+  });
+};
+
+const syncTopLayer = (): void => {
+  const panel = getPanelEl() as (HTMLElement & { showPopover?: () => void; hidePopover?: () => void }) | null;
+  if (!panel) return;
+  try {
+    if (props.teleported && open.peek()) panel.showPopover?.();
+    else panel.hidePopover?.();
+  } catch {
+    // Rapid conditional replacement can update the native popover state first.
+  }
+  if (open.peek()) updateOverlayPosition();
+};
+
+const requestOverlayUpdate = (): void => {
+  if (overlayFrame) cancelAnimationFrame(overlayFrame);
+  overlayFrame = requestAnimationFrame(() => {
+    overlayFrame = 0;
+    updateOverlayPosition();
+  });
+};
+
+const focusCalendar = (): void => {
+  queueMicrotask(() => queueMicrotask(() => {
+    const calendar = host.shadowRoot?.querySelector<HTMLElement>("elf-calendar");
+    calendar?.shadowRoot?.querySelector<HTMLElement>('[tabindex="0"]')?.focus({ preventScroll: true });
+  }));
+};
+
+const onTriggerKeydown = (event: KeyboardEvent): void => {
+  if (event.key === "Escape" && open.peek()) {
+    event.preventDefault();
+    event.stopPropagation();
+    closePanel();
+    return;
+  }
+  if (!["ArrowDown", "Enter", " "].includes(event.key) || isDisabled() || props.readonly) return;
+  event.preventDefault();
+  event.stopPropagation();
+  setOpen(true);
+  focusCalendar();
+};
+
+const onTriggerFocus = (event: FocusEvent): void => {
+  ctl.dispatchFocus(event);
+};
+const onTriggerBlur = (event: FocusEvent): void => {
+  ctl.dispatchBlur(event);
+};
 
 const onDocumentPointerDown = (event: Event): void => {
   if (!open.peek() || isEventInside(event, [host, getPanelEl()])) return;
@@ -224,6 +382,7 @@ const calendarDisabled = (date: Date): boolean => {
 
 const onCalendarUpdate = (event: CustomEvent): void => {
   const detail = event.detail;
+  emit("calendar-change", detail as DatePickerValue);
   if (props.multiple) {
     toggleMultiple(String(detail || ""));
     return;
@@ -232,11 +391,11 @@ const onCalendarUpdate = (event: CustomEvent): void => {
     start.set(String(detail[0] || ""));
     end.set(String(detail[1] || ""));
     commitIfNeeded();
-    if (!props.actions) closePanel();
+    if (!showActions()) closePanel();
     return;
   }
   setStart(String(detail || ""));
-  if (!props.actions) closePanel();
+  if (!showActions()) closePanel();
 };
 
 const monthItems = (): Array<{ id: string; label: string; active: boolean }> =>
@@ -254,13 +413,17 @@ const monthItems = (): Array<{ id: string; label: string; active: boolean }> =>
 const selectMonth = (event: Event): void => {
   const value = (event.currentTarget as HTMLElement).dataset.month || "";
   setStart(value);
-  if (!props.actions) closePanel();
+  if (!showActions()) closePanel();
 };
 
-const shiftMonthYear = (offset: number): void => monthYear.set(monthYear.value + offset);
+const shiftMonthYear = (offset: number): void => {
+  monthYear.set(monthYear.value + offset);
+  emit("panel-change", new Date(monthYear.value, 0, 1), "year");
+};
+const currentMonthYear = (): number => monthYear.value;
 
 const applyShortcut = (shortcut: DateShortcut): void => {
-  if (props.disabled) return;
+  if (isDisabled() || props.readonly) return;
   const nextStart = shortcutValue(shortcut.value);
   const nextEnd = shortcut.endValue ? shortcutValue(shortcut.endValue) : nextStart;
   if (!inRange(nextStart) || (props.range && !inRange(nextEnd))) return;
@@ -273,32 +436,41 @@ const applyShortcut = (shortcut: DateShortcut): void => {
 };
 
 const clear = (): void => {
-  if (props.disabled) return;
-  start.set("");
-  end.set("");
-  selected.set([]);
-  emit("update:modelValue", props.multiple ? [] : "");
-  emit("update:endValue", "");
-  emit("change", props.multiple ? [] : props.range ? ["", ""] : "");
+  if (isDisabled() || props.readonly) return;
+  const configured = props.valueOnClear;
+  const next = typeof configured === "function"
+    ? configured()
+    : configured !== undefined
+      ? configured
+      : props.multiple || props.range
+        ? []
+        : "";
+  const values = Array.isArray(next) ? next.map(String) : [String(next || "")];
+  start.set(values[0] || "");
+  end.set(props.range ? values[1] || "" : "");
+  selected.set(props.multiple ? values.filter(Boolean) : []);
+  ctl.setValue(next);
+  emit("update:endValue", props.range ? end.value : "");
+  ctl.dispatchChange(next);
   emit("clear");
 };
 
 const confirm = (): void => {
-  if (props.disabled) return;
+  if (isDisabled() || props.readonly) return;
   const value = emitCurrent();
   emit("confirm", value);
   closePanel();
 };
 
 const cancel = (): void => {
-  if (props.disabled) return;
+  if (isDisabled() || props.readonly) return;
   resetDraft(true);
   emit("cancel");
   closePanel();
 };
 
 const removeValue = (value: string): void => {
-  if (props.disabled) return;
+  if (isDisabled() || props.readonly) return;
   selected.set(selected.value.filter((item) => item !== value));
   commitIfNeeded();
 };
@@ -312,9 +484,9 @@ const displayValue = (): string => {
       : placeholderText();
   if (props.range)
     return start.value || end.value
-      ? `${start.value || placeholderText()} — ${end.value || endPlaceholderText()}`
+      ? `${displayDate(start.value) || placeholderText()} — ${displayDate(end.value) || endPlaceholderText()}`
       : `${placeholderText()} — ${endPlaceholderText()}`;
-  return start.value || placeholderText();
+  return displayDate(start.value) || placeholderText();
 };
 
 const headerText = (): string => {
@@ -324,32 +496,51 @@ const headerText = (): string => {
   return inputType() === "month" ? locale.t("datePicker.month") : locale.t("datePicker.placeholder");
 };
 
-onMount(() => {
+useEffect(() => {
+  void open.value;
+  void props.teleported;
+  void props.placement;
+  queueMicrotask(syncTopLayer);
+});
+
+onMounted(() => {
   document.addEventListener("pointerdown", onDocumentPointerDown, true);
   cleanupOverlayMotion = listenForExternalOverlayMotion(() => [getPanelEl()], closePanel);
+  window.addEventListener("resize", requestOverlayUpdate, { passive: true });
+  window.visualViewport?.addEventListener("resize", requestOverlayUpdate, { passive: true });
 });
-onUnmount(() => {
+onBeforeUnmount(() => {
   document.removeEventListener("pointerdown", onDocumentPointerDown, true);
   cleanupOverlayMotion();
+  window.removeEventListener("resize", requestOverlayUpdate);
+  window.visualViewport?.removeEventListener("resize", requestOverlayUpdate);
+  if (overlayFrame) cancelAnimationFrame(overlayFrame);
 });
 useHostAttr("variant", () => normalizeFieldVariant(props.variant));
-useHostFlag("disabled", () => Boolean(props.disabled));
+useHostAttr("size", resolvedSize);
+useHostFlag("disabled", isDisabled);
 useHostFlag("data-open", () => open.value);
 useHostFlag("data-dirty", hasValue);
 useHostFlag("data-has-label", () => Boolean(props.label));
 
 defineStyle(styles);
+defineExpose({
+  focusInput: () => getTriggerEl()?.focus(),
+  blurInput: () => getTriggerEl()?.blur(),
+  handleOpen: () => setOpen(true),
+  handleClose: closePanel
+});
 
-const DatePicker = defineHtml(html`
+const DatePicker = defineHtml(`
   <div
     :class=${[
       "date-picker",
       {
-        "is-disabled": props.disabled,
+        "is-disabled": isDisabled(),
         "is-open": open,
         "is-range": props.range && !props.multiple,
         "is-multiple": props.multiple,
-        "has-actions": props.actions
+        "has-actions": showActions()
       }
     ]}
   >
@@ -367,10 +558,15 @@ const DatePicker = defineHtml(html`
           :min=${props.min}
           :max=${props.max}
           :placeholder=${placeholderText()}
-          :disabled=${props.disabled}
+          :disabled=${isDisabled()}
+          :readonly=${props.readonly || !props.editable}
+          :id=${props.id}
+          :name=${props.name}
+          :tabindex=${props.tabindex}
+          :aria-label=${props.ariaLabel || placeholderText()}
           @change=${onNativeStart}
         />
-        <span v-if=${props.range && !props.multiple} class="separator">${locale.t("datePicker.rangeSeparator")}</span>
+        <span v-if=${props.range && !props.multiple} class="separator">${rangeSeparatorText()}</span>
         <input
           v-if=${props.range && !props.multiple}
           class="field"
@@ -379,7 +575,8 @@ const DatePicker = defineHtml(html`
           :min=${props.min}
           :max=${props.max}
           :placeholder=${endPlaceholderText()}
-          :disabled=${props.disabled}
+          :disabled=${isDisabled()}
+          :readonly=${props.readonly || !props.editable}
           @change=${onNativeEnd}
         />
       </template>
@@ -389,8 +586,14 @@ const DatePicker = defineHtml(html`
         class="field-trigger"
         role="combobox"
         :aria-expanded=${open ? "true" : "false"}
-        :disabled=${props.disabled}
+        aria-haspopup="dialog"
+        :disabled=${isDisabled()}
+        :tabindex=${props.tabindex}
+        :aria-label=${props.ariaLabel || props.label || placeholderText()}
         @click=${toggleOpen}
+        @keydown=${onTriggerKeydown}
+        @focus=${onTriggerFocus}
+        @blur=${onTriggerBlur}
       >
         <fieldset v-if=${props.label} class="field-outline" aria-hidden="true">
           <legend><span>${props.label}</span></legend>
@@ -417,11 +620,17 @@ const DatePicker = defineHtml(html`
       </button>
     </div>
 
-    <div v-if=${open} class="panel">
+    <div
+      v-if=${open}
+      :class=${["panel", props.popperClass, { "is-teleported": props.teleported }]}
+      :style=${resolvedPanelStyle}
+      :popover=${props.teleported ? "manual" : undefined}
+      role="dialog"
+    >
       <div v-if=${inputType() === "month"} class="month-panel">
         <div class="month-nav">
           <button type="button" @click=${() => shiftMonthYear(-1)}>‹</button>
-          <strong>${locale.t("datePicker.yearSuffix", { year: monthYear })}</strong>
+          <strong>${locale.t("datePicker.yearSuffix", { year: currentMonthYear() })}</strong>
           <button type="button" @click=${() => shiftMonthYear(1)}>›</button>
         </div>
         <div class="month-grid">
@@ -429,7 +638,7 @@ const DatePicker = defineHtml(html`
             v-for="month in monthItems()"
             :key="month.id"
             type="button"
-            :class=${["month-option", { "is-active": month.active }]}
+            :class='["month-option", { "is-active": month.active }]'
             :data-month="month.id"
             @click=${selectMonth}
           >{{ month.label }}</button>
@@ -453,7 +662,7 @@ const DatePicker = defineHtml(html`
         >{{ item.label }}</button>
       </div>
 
-      <div v-if=${props.actions} class="actions">
+      <div v-if=${showActions()} class="actions">
         <button v-if=${props.clearable} type="button" class="text-action" @click=${clear}>
           ${clearText()}
         </button>

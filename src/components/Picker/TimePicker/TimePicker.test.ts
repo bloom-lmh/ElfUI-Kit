@@ -17,6 +17,12 @@ interface TimePickerEl extends HTMLElement {
   shortcuts?: Array<{ label: string; value: string; endValue?: string }>;
   variant?: string;
   label?: string;
+  step?: number;
+  format?: string;
+  valueFormat?: string;
+  disabledHours?: (role: "start" | "end") => number[];
+  disabledMinutes?: (hour: number, role: "start" | "end") => number[];
+  disabledSeconds?: (hour: number, minute: number, role: "start" | "end") => number[];
 }
 
 describe("elf-time-picker", () => {
@@ -96,9 +102,10 @@ describe("elf-time-picker", () => {
     expect(el.shadowRoot!.querySelector(".field-value")?.classList.contains("is-placeholder")).toBe(true);
   });
 
-  it("supports keyboard five-minute adjustment without opening the panel", async () => {
+  it("uses the configured second step for keyboard adjustment without opening the panel", async () => {
     const el = document.createElement("elf-time-picker") as TimePickerEl;
     el.modelValue = "09:30";
+    el.step = 300;
     const onUpdate = vi.fn();
     el.addEventListener("update:modelValue", onUpdate as EventListener);
     document.body.appendChild(el);
@@ -107,6 +114,74 @@ describe("elf-time-picker", () => {
     const trigger = el.shadowRoot!.querySelector(".field-trigger") as HTMLButtonElement;
     trigger.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowUp", bubbles: true }));
     expect((onUpdate.mock.calls.at(-1)![0] as CustomEvent).detail).toBe("09:35");
+    expect(el.shadowRoot!.querySelector(".panel")).toBeNull();
+  });
+
+  it("formats the display and emitted value independently", async () => {
+    const el = document.createElement("elf-time-picker") as TimePickerEl;
+    el.modelValue = "09-30-15";
+    el.format = "HH:mm:ss";
+    el.valueFormat = "HH-mm-ss";
+    el.step = 15;
+    const onUpdate = vi.fn();
+    el.addEventListener("update:modelValue", onUpdate as EventListener);
+    document.body.appendChild(el);
+    await tick();
+
+    expect(el.shadowRoot!.querySelector(".field-value")?.textContent).toContain("09:30:15");
+    const trigger = el.shadowRoot!.querySelector(".field-trigger") as HTMLButtonElement;
+    trigger.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowUp", bubbles: true }));
+    expect((onUpdate.mock.calls.at(-1)![0] as CustomEvent).detail).toBe("09-30-30");
+  });
+
+  it("disables configured hour, minute, and second choices", async () => {
+    const el = document.createElement("elf-time-picker") as TimePickerEl;
+    el.modelValue = "09:30:15";
+    el.format = "HH:mm:ss";
+    el.valueFormat = "HH:mm:ss";
+    el.step = 15;
+    el.disabledHours = () => [10];
+    el.disabledMinutes = (hour) => (hour === 9 ? [45] : []);
+    el.disabledSeconds = (_hour, minute) => (minute === 30 ? [30] : []);
+    document.body.appendChild(el);
+    await tick();
+
+    (el.shadowRoot!.querySelector(".field-trigger") as HTMLButtonElement).click();
+    await tick();
+    expect((el.shadowRoot!.querySelector('[data-clock-value="10"]') as HTMLButtonElement).disabled).toBe(true);
+    (el.shadowRoot!.querySelectorAll(".digital-part")[1] as HTMLButtonElement).click();
+    await tick();
+    expect((el.shadowRoot!.querySelector('[data-clock-value="45"]') as HTMLButtonElement).disabled).toBe(true);
+    (el.shadowRoot!.querySelectorAll(".digital-part")[2] as HTMLButtonElement).click();
+    await tick();
+    expect((el.shadowRoot!.querySelector('[data-clock-value="30"]') as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  it("keeps a cross-day range in the selected order", async () => {
+    const el = document.createElement("elf-time-picker") as TimePickerEl;
+    el.isRange = true;
+    el.modelValue = ["22:30", "02:15"];
+    document.body.appendChild(el);
+    await tick();
+
+    expect(Array.from(el.shadowRoot!.querySelectorAll(".field-value"), (node) => node.textContent?.trim())).toEqual([
+      "22:30",
+      "02:15",
+    ]);
+  });
+
+  it("opens with the keyboard and closes from the panel with Escape", async () => {
+    const el = document.createElement("elf-time-picker") as TimePickerEl;
+    document.body.appendChild(el);
+    await tick();
+
+    const trigger = el.shadowRoot!.querySelector(".field-trigger") as HTMLButtonElement;
+    trigger.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
+    await tick();
+    const panel = el.shadowRoot!.querySelector(".panel") as HTMLElement;
+    expect(panel).not.toBeNull();
+    panel.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    await tick();
     expect(el.shadowRoot!.querySelector(".panel")).toBeNull();
   });
 
@@ -237,6 +312,36 @@ describe("elf-time-picker", () => {
     expect(el.shadowRoot!.querySelector(".field-label")?.textContent).toBe("Start time");
   });
 
+  it("promotes the clock panel to the top layer so later examples cannot cover it", async () => {
+    const originalShow = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "showPopover");
+    const originalHide = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "hidePopover");
+    const showPopover = vi.fn();
+    const hidePopover = vi.fn();
+    Object.defineProperty(HTMLElement.prototype, "showPopover", { configurable: true, value: showPopover });
+    Object.defineProperty(HTMLElement.prototype, "hidePopover", { configurable: true, value: hidePopover });
+
+    try {
+      const el = document.createElement("elf-time-picker") as TimePickerEl;
+      document.body.appendChild(el);
+      await tick();
+      (el.shadowRoot!.querySelector(".field-trigger") as HTMLButtonElement).click();
+      await tick();
+      await tick();
+
+      const panel = el.shadowRoot!.querySelector(".panel") as HTMLElement;
+      expect(panel.getAttribute("popover")).toBe("manual");
+      expect(showPopover).toHaveBeenCalledOnce();
+
+      (panel.querySelector(".panel-actions button") as HTMLButtonElement).click();
+      expect(hidePopover).toHaveBeenCalledOnce();
+    } finally {
+      if (originalShow) Object.defineProperty(HTMLElement.prototype, "showPopover", originalShow);
+      else delete (HTMLElement.prototype as HTMLElement & { showPopover?: () => void }).showPopover;
+      if (originalHide) Object.defineProperty(HTMLElement.prototype, "hidePopover", originalHide);
+      else delete (HTMLElement.prototype as HTMLElement & { hidePopover?: () => void }).hidePopover;
+    }
+  });
+
   it.each(["default", "underlined", "solo", "solo-filled", "solo-inverted"])(
     "reflects the shared %s field variant",
     async (variant) => {
@@ -247,4 +352,42 @@ describe("elf-time-picker", () => {
       expect(el.getAttribute("variant")).toBe(variant);
     }
   );
+
+  it("inherits Form state and applies overlay compatibility options", async () => {
+    const form = document.createElement("elf-form") as HTMLElement & { disabled?: boolean; size?: string };
+    form.disabled = true;
+    form.size = "lg";
+    const item = document.createElement("elf-form-item");
+    const picker = document.createElement("elf-time-picker") as HTMLElement & {
+      teleported?: boolean;
+      popperClass?: string;
+      popperStyle?: Record<string, string>;
+    };
+    picker.teleported = false;
+    picker.popperClass = "shift-clock";
+    picker.popperStyle = { width: "288px" };
+    item.appendChild(picker);
+    form.appendChild(item);
+    document.body.appendChild(form);
+    await tick();
+    await tick();
+
+    expect(picker.getAttribute("size")).toBe("lg");
+    expect(picker.hasAttribute("disabled")).toBe(true);
+    expect(picker.shadowRoot!.querySelector<HTMLButtonElement>(".field-trigger")!.disabled).toBe(true);
+
+    const overlayPicker = document.createElement("elf-time-picker") as typeof picker;
+    overlayPicker.teleported = false;
+    overlayPicker.popperClass = "shift-clock";
+    overlayPicker.popperStyle = { width: "288px" };
+    document.body.appendChild(overlayPicker);
+    await tick();
+    overlayPicker.shadowRoot!.querySelector<HTMLButtonElement>(".field-trigger")!.click();
+    await tick();
+    await tick();
+    const panel = overlayPicker.shadowRoot!.querySelector<HTMLElement>(".panel")!;
+    expect(panel.classList.contains("shift-clock")).toBe(true);
+    expect(panel.hasAttribute("popover")).toBe(false);
+    expect(panel.style.width).toBe("288px");
+  });
 });

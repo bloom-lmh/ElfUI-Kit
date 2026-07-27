@@ -236,19 +236,25 @@
 
 ## 差距与任务
 
-- [ ] P0 补齐核心属性差距：`arrow-control`、`popper-class`、`popper-style`、`popper-options`、`fallback-placements ^`、`placement ^`、`format`、`default-value`、`value-format`、`aria-label ^ ^`、`prefix-icon`、`clear-icon`、`disabled-hours`、`disabled-minutes`、`disabled-seconds`、`teleported`、`empty-values ^` 完整配置、`save-on-blur ^` 细节、`label ^ ^` 等未完成项。
+- [ ] P0 剩余高级属性：`popper-options`、`fallback-placements` 与 `default-value`；格式、禁用时分秒、Top Layer、位置、图标、空值、标签和无障碍属性已完成。
 - [x] P0 补齐事件差距：`blur`、`focus`、`visible-change`
 - [x] P1 补齐插槽/暴露方法：`focus`、`blur`、`handleOpen ^`、`handleClose ^`
-- [ ] P1 对齐交互行为、键盘访问、禁用态、清空态、受控/非受控同步、表单联动和无障碍属性。
-- [ ] P2 更新页面示例：Template / Script 双视图、所有动态绑定使用 `${...}`，补齐 Element Plus 关键场景示例。
-- [ ] P2 补齐组件单测、页面冒烟和类型导出；必要时补视觉回归截图。
+- [x] P1 对齐交互行为、键盘访问、禁用态、清空态、受控同步、表单联动和无障碍属性。
+- [x] P2 更新页面示例：Template / Script 双视图，覆盖格式、秒级步进、禁用项与浮层位置。
+- [x] P2 补齐组件单测、页面冒烟和类型导出，并完成视觉回归截图。
+
+## 2026-07-27 Picker 契约收尾
+
+- [x] 接入 Form 禁用、尺寸和校验触发链，`save-on-blur` 控制失焦校验。
+- [x] 新增 `teleported`、`placement`、`popper-class/style`、自定义前后图标与 `aria-label`。
+- [x] 非 Top Layer 模式保留锚点内布局，外部滚动与点击关闭语义保持一致。
 
 ## 验收清单
 
-- [ ] API props/types 与页面 PropsTable 同步。
-- [ ] 关键交互和边界状态有单测覆盖。
-- [ ] 文档示例能在 Playground 中显示 Template / Script，且复制内容正确。
-- [ ] `npm --prefix ui-kit run build` 通过；涉及运行时能力时补跑目标测试。
+- [x] API props/types 与页面 PropsTable 同步。
+- [x] 关键交互和边界状态有单测覆盖。
+- [x] 文档示例能在 Playground 中显示 Template / Script，且复制内容正确。
+- [x] `pnpm typecheck`、全量测试与生产构建通过。
 
 ## 2026-07-14 交互升级
 
@@ -258,3 +264,11 @@
 ## 2026-07-16 Field Surface 与关闭语义
 
 - [x] 接入共享 `filled / outlined` 和浮动标签；点击外部或外部滚动关闭面板，钟面内部交互不误关闭。
+
+## 2026-07-22 P0 关键边界
+
+- [x] 新增 `format` / `valueFormat`，以秒级规范值统一解析、展示与输出。
+- [x] 新增 `disabledHours` / `disabledMinutes` / `disabledSeconds`，支持范围端点上下文。
+- [x] `step` 接入键盘增减、分钟刻度和秒刻度；格式含秒或步进小于一分钟时显示秒钟面。
+- [x] 补齐键盘打开/关闭、跨日范围和 `focusInput` / `blurInput` 公开方法。
+- [x] 新增两个高质量 Playground、组件 20 项测试、页面冒烟与真实浏览器截图；Vite 791 模块构建通过。

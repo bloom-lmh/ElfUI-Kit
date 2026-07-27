@@ -1,8 +1,10 @@
-import { defineHtml, html, useComponents } from "@elfui/core";
+import { defineHtml, useComponents } from "@elfui/core";
 
 import { PageTimePickerEx1 } from "./ex1";
 import { PageTimePickerEx2 } from "./ex2";
 import { PageTimePickerEx3 } from "./ex3";
+import { PageTimePickerEx4 } from "./ex4";
+import { PageTimePickerEx5 } from "./ex5";
 
 const propsRows = [
   { name: "variant / label", type: "filled | outlined / string", default: "filled / ''", desc: "输入表面与浮动标签" },
@@ -16,6 +18,13 @@ const propsRows = [
   { name: "range / isRange", type: "boolean", default: "false", desc: "范围选择" },
   { name: "min / max", type: "string", default: "''", desc: "可选时间范围" },
   { name: "step", type: "number", default: "60", desc: "秒级步进" },
+  { name: "format / valueFormat", type: "string", default: "HH:mm", desc: "展示格式与输出格式" },
+  {
+    name: "disabledHours / disabledMinutes / disabledSeconds",
+    type: "Function",
+    default: "-",
+    desc: "按当前范围端点禁用时、分、秒"
+  },
   {
     name: "readonly / editable",
     type: "boolean",
@@ -38,7 +47,12 @@ const propsRows = [
     default: "-",
     desc: "清空后的值"
   },
-  { name: "id / name / tabindex", type: "string | number", default: "-", desc: "原生表单属性" }
+  { name: "id / name / tabindex", type: "string | number", default: "-", desc: "原生表单属性" },
+  { name: "arrow-control", type: "boolean", default: "false", desc: "保留方向键控制语义" },
+  { name: "teleported / placement", type: "boolean / top-start | bottom-start", default: "true / bottom-start", desc: "Top Layer 与首选方位" },
+  { name: "popper-class / popper-style", type: "string / CSSProperties", default: "'' / {}", desc: "浮层外观" },
+  { name: "aria-label / prefix-icon / clear-icon", type: "string", default: "''", desc: "无障碍名称与图标" },
+  { name: "validate-event", type: "boolean", default: "true", desc: "是否触发 FormItem 校验" }
 ];
 
 const eventsRows = [
@@ -51,8 +65,8 @@ const eventsRows = [
 ];
 
 const methodsRows = [
-  { name: "focus()", desc: "聚焦开始输入框" },
-  { name: "blur()", desc: "移除焦点" },
+  { name: "focusInput(target?)", desc: "聚焦开始或结束触发器" },
+  { name: "blurInput()", desc: "移除触发器焦点" },
   { name: "handleOpen()", desc: "手动标记打开状态" },
   { name: "handleClose()", desc: "手动标记关闭状态" }
 ];
@@ -60,10 +74,12 @@ const methodsRows = [
 useComponents({
   "page-time-picker-ex1": PageTimePickerEx1,
   "page-time-picker-ex2": PageTimePickerEx2,
-  "page-time-picker-ex3": PageTimePickerEx3
+  "page-time-picker-ex3": PageTimePickerEx3,
+  "page-time-picker-ex4": PageTimePickerEx4,
+  "page-time-picker-ex5": PageTimePickerEx5
 });
 
-const PageTimePicker = defineHtml(html`
+const PageTimePicker = defineHtml(`
   <elf-container>
     <h1>TimePicker 时间选择器</h1>
     <p>支持单时间、时间范围、步进、最小最大值、快捷项和清空。</p>
@@ -72,6 +88,10 @@ const PageTimePicker = defineHtml(html`
     <page-time-picker-ex2 />
 
     <page-time-picker-ex3 />
+
+    <page-time-picker-ex4 />
+
+    <page-time-picker-ex5 />
 
     <h2>API</h2>
     <elf-props-table title="属性" :rows=${propsRows}></elf-props-table>
