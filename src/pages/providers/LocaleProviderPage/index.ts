@@ -25,8 +25,8 @@ useComponents({
 
 const PageLocaleProvider = defineHtml(`
   <elf-container>
-    <h1>LocaleProvider 本地化提供器</h1>
-    <p>通过 provide/inject 为子树提供语言名称、方向和翻译函数，适合组件库级文案统一。</p>
+    <h1>Internationalization 国际化</h1>
+    <p>LocaleProvider 通过 provide/inject 为子树提供语言名称、方向和翻译函数，统一组件文案与 RTL 行为。</p>
 
     <page-locale-provider-ex1 />
     <page-locale-provider-ex2 />

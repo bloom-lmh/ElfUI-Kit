@@ -24,10 +24,10 @@ defineStyle(pageStyles);
 
 const PageConfigProvider = defineHtml(`
   <elf-container>
-    <h1>ConfigProvider 全局配置</h1>
+    <h1>Global configuration 全局配置</h1>
     <p>
-      用一个可嵌套 Provider 统一下发默认 props、主题 token、语言、图标、响应式断点和动效偏好；
-      需要更细粒度控制时，DefaultsProvider、ThemeProvider、LocaleProvider 和 IconProvider 仍可单独使用。
+      ConfigProvider 是应用级统一入口，用于下发默认 props、主题 token、语言、图标、响应式断点和动效偏好；
+      DefaultsProvider 等细粒度 Provider 作为进阶实现保留，不再重复占用侧栏入口。
     </p>
 
     <page-config-provider-ex1 />

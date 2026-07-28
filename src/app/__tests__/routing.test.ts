@@ -175,7 +175,7 @@ describe("路由跳转", () => {
     const menu = app.shadowRoot?.querySelector<HTMLElement & { items?: Array<{ label: string }> }>(
       "elf-menu"
     );
-    expect(menu?.items?.[0]?.label).toBe("Styles and animations");
+    expect(menu?.items?.[0]?.label).toBe("Guide");
     expect(menu?.shadowRoot?.textContent).not.toContain("Home");
     expect(menu?.shadowRoot?.textContent).not.toContain("Layout 布局");
     const { getActiveRouter } = await import("@elfui/router");
@@ -210,7 +210,7 @@ describe("路由跳转", () => {
     window.matchMedia = originalMatchMedia;
   });
 
-  it("样式与动画以双语 S 图标父菜单承载工具类子菜单", async () => {
+  it("指南与工具类各自保持唯一的一级入口", async () => {
     await enterComponentDocs();
     localStorage.setItem("elfui-ui-locale", "zh-CN");
     const app = document.createElement("elf-app");
@@ -223,9 +223,18 @@ describe("路由跳转", () => {
       items?: Array<{ label: string; icon: string; children?: Array<{ index: string; label: string }> }>;
     }>("elf-menu");
     expect(menu?.items?.[0]).toEqual({
-      index: "group:Styles and animations 样式与动画",
-      label: "Styles and animations 样式与动画",
-      icon: "S",
+      index: "group:Guide 指南",
+      label: "Guide 指南",
+      icon: "G",
+      children: expect.arrayContaining([
+        expect.objectContaining({ index: "/providers/config", label: "Global configuration 全局配置" }),
+        expect.objectContaining({ index: "/guide/accessibility", label: "Accessibility 无障碍" })
+      ])
+    });
+    expect(menu?.items?.at(-1)).toEqual({
+      index: "group:Utilities 工具类",
+      label: "Utilities 工具类",
+      icon: "U",
       children: [{ index: "/utilities", label: "Utilities 工具类", icon: "U" }]
     });
   });

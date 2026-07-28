@@ -28,7 +28,7 @@ interface AppMenuItem {
 }
 
 const ICONS: Record<string, string> = {
-  "Styles and animations 样式与动画": "S",
+  "Guide 指南": "G",
   "Layout 布局": "L",
   "Basic 基础": "B",
   "Form 表单": "F",
@@ -36,7 +36,6 @@ const ICONS: Record<string, string> = {
   "Data 数据展示": "D",
   "Navigation 导航": "N",
   "Picker 选择器": "P",
-  "Providers 提供者": "C",
   "Utilities 工具类": "U"
 };
 
@@ -110,7 +109,7 @@ const normalizeSkin = (value: string): string => {
 
 const englishLabel = (label: string): string => {
   if (label === "首页") return "Home";
-  if (label === "样式和动画" || label === "Styles and animations 样式与动画") return "Styles and animations";
+  if (label === "Guide 指南") return "Guide";
   if (label === "工具类" || label === "Utilities 工具类") return "Utilities";
   const stripped = label.replace(/[\u3400-\u9fff\u3000-\u303f]+/g, "").replace(/\s+/g, " ").trim();
   return stripped || label;

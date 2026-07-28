@@ -36,8 +36,8 @@ useComponents({
 
 const PageThemeProvider = defineHtml(`
   <elf-container>
-    <h1>ThemeProvider 主题提供器</h1>
-    <p>通过局部 CSS variables 覆盖一段子树的 Material Design token，不会修改全站主题。</p>
+    <h1>Theme & customization 主题与个性化</h1>
+    <p>ThemeProvider 通过局部 CSS variables 覆盖一段子树的设计 token，不会意外修改全站主题。</p>
 
     <page-theme-provider-ex1 />
 

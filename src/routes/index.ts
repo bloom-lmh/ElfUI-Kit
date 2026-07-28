@@ -9,6 +9,16 @@ export const routes: RouteRecord[] = [
     component: () => import("../pages/HomePage/index")
   },
 
+  // Guide
+  {
+    path: "/guide/accessibility",
+    component: () => import("../pages/guide/AccessibilityPage/index")
+  },
+  {
+    path: "/guide/build",
+    component: () => import("../pages/guide/BuildStylesPage/index")
+  },
+
   // Layout
   {
     path: "/layout/container",
@@ -366,7 +376,12 @@ export interface NavItem {
 }
 
 export const navItems: NavItem[] = [
-  { to: "/utilities", text: "Utilities 工具类", group: "Styles and animations 样式与动画" },
+  { to: "/providers/config", text: "Global configuration 全局配置", group: "Guide 指南" },
+  { to: "/providers/theme", text: "Theme & customization 主题与个性化", group: "Guide 指南" },
+  { to: "/basic/icon", text: "Icons 图标配置", group: "Guide 指南" },
+  { to: "/providers/locale", text: "Internationalization 国际化", group: "Guide 指南" },
+  { to: "/guide/accessibility", text: "Accessibility 无障碍", group: "Guide 指南" },
+  { to: "/guide/build", text: "Build & styles 构建与样式", group: "Guide 指南" },
 
   { to: "/layout/grid", text: "Grid 栅格", group: "Layout 布局" },
   { to: "/layout/flex", text: "Flex 弹性布局", group: "Layout 布局" },
@@ -378,7 +393,6 @@ export const navItems: NavItem[] = [
 
   { to: "/basic/button", text: "Button 按钮", group: "Basic 基础" },
   { to: "/basic/link", text: "Link 链接", group: "Basic 基础" },
-  { to: "/basic/icon", text: "Icon 图标", group: "Basic 基础" },
   { to: "/basic/text", text: "Text 文本", group: "Basic 基础" },
   { to: "/basic/tag", text: "Tag 标签", group: "Basic 基础" },
   { to: "/basic/badge", text: "Badge 徽章", group: "Basic 基础" },
@@ -448,8 +462,5 @@ export const navItems: NavItem[] = [
   { to: "/picker/time", text: "TimePicker 时间", group: "Picker 选择器" },
   { to: "/picker/calendar", text: "Calendar 日历", group: "Picker 选择器" },
 
-  { to: "/providers/config", text: "ConfigProvider 全局配置", group: "Providers 提供者" },
-  { to: "/providers/defaults", text: "DefaultsProvider 默认值", group: "Providers 提供者" },
-  { to: "/providers/locale", text: "Locale providers", group: "Providers 提供者" },
-  { to: "/providers/theme", text: "Theme providers", group: "Providers 提供者" }
+  { to: "/utilities", text: "Utilities 工具类", group: "Utilities 工具类" }
 ];

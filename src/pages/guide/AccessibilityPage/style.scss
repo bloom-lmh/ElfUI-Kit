@@ -1,0 +1,68 @@
+.accessibility-page {
+  --guide-accent: var(--elf-primary, #2563eb);
+}
+
+.page-lead {
+  max-width: 820px;
+  color: var(--elf-text-secondary);
+  line-height: 1.75;
+}
+
+.a11y-focus-demo {
+  display: grid;
+  gap: 12px;
+  width: min(100%, 620px);
+}
+
+.skip-link-demo {
+  width: fit-content;
+  padding: 6px 10px;
+  border-radius: var(--elf-radius-sm, 6px);
+  color: var(--guide-accent);
+}
+
+.skip-link-demo:focus-visible,
+.focus-demo:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--guide-accent) 48%, transparent);
+  outline-offset: 3px;
+}
+
+.focus-surface {
+  display: grid;
+  gap: 8px;
+  padding: 20px;
+  border: 1px solid var(--elf-border);
+  border-radius: var(--elf-radius-md, 8px);
+  background: var(--elf-bg-paper);
+}
+
+.focus-surface span,
+.hotkey-demo output {
+  color: var(--elf-text-secondary);
+}
+
+.focus-demo {
+  width: fit-content;
+  margin-top: 8px;
+  padding: 8px 12px;
+  border: 1px solid var(--elf-border);
+  border-radius: var(--elf-radius-sm, 6px);
+  background: var(--elf-bg-surface);
+  color: var(--elf-text-primary);
+}
+
+.hotkey-demo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.hotkey-demo kbd {
+  padding: 4px 8px;
+  border: 1px solid var(--elf-border);
+  border-bottom-width: 2px;
+  border-radius: 6px;
+  background: var(--elf-bg-surface);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+}
