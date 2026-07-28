@@ -154,3 +154,11 @@
 - [x] Tab / Shift+Tab 在最上层对话框内循环，支持穿透组件 ShadowRoot 收集真实焦点元素。
 - [x] Escape 只关闭最上层嵌套对话框，关闭动画完成后恢复触发元素焦点。
 - [x] 补 `open-auto-focus` / `close-auto-focus` 事件、页面案例与组件/页面回归测试。
+
+## 2026-07-28 模态 Overlay 架构收敛
+
+- [x] Dialog 不再自行扫描 DOM 判断层级，改用共享 modal overlay stack。
+- [x] 焦点捕获、初始聚焦、Tab 圈定与关闭后恢复收敛到 focus scope / controller。
+- [x] Escape、滚动锁与文档级键盘监听由 `useModalOverlay` 生命周期适配器统一管理。
+- [x] 增加 Dialog 内打开 Drawer 的跨组件嵌套案例；Escape 依次关闭最上层浮层。
+- [x] Chrome 验证两次 Escape 的关闭顺序、焦点恢复与 0 console warning；截图：`output/playwright/dialog-drawer-overlay-stack.png`。

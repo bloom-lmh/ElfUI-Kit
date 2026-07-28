@@ -269,6 +269,27 @@ describe("elf-dialog", () => {
     expect(childUpdate.value).toBe(false);
   });
 
+  it("关闭动画完成前重新打开会恢复到模态栈并继续响应 Escape", async () => {
+    const el = document.createElement("elf-dialog") as DialogEl;
+    el.open = true;
+    document.body.appendChild(el);
+    await tick();
+
+    el.open = false;
+    await tick();
+    el.open = true;
+    await tick();
+
+    let lastOpen: unknown = true;
+    el.addEventListener("update:open", (event) => {
+      lastOpen = (event as CustomEvent).detail;
+    });
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    await tick();
+
+    expect(lastOpen).toBe(false);
+  });
+
   it("footer light DOM 使用真实节点投射，事件不丢失", async () => {
     const el = document.createElement("elf-dialog") as DialogEl;
     const button = document.createElement("button");

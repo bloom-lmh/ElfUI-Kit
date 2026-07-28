@@ -157,3 +157,10 @@
 - [x] 补齐 `resize-start` / `resize` / `resize-end`、`resetSize()`、分隔条无障碍语义及中英文标签。
 - [x] 新增可调整尺寸案例，完成组件 17 项、页面 2 项测试和真实页面键盘调宽截图。
 - [x] P1 补嵌套抽屉可视案例和四方向/移动端关键截图。
+
+## 2026-07-28 模态 Overlay 架构收敛
+
+- [x] Drawer 与 Dialog 共用 modal overlay stack，消除按组件类型查询 DOM 的层级判断。
+- [x] 焦点策略、Escape、滚动锁和监听清理由共享 controller / composable 管理。
+- [x] mask 关闭只对当前最上层浮层生效，跨组件嵌套不会误关父层。
+- [x] 复用 Dialog 混合嵌套案例和跨组件契约测试验证关闭顺序。

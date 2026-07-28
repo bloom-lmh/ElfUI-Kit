@@ -8,20 +8,17 @@ import {
   defineStyle,
   globalStyle,
   onBeforeUnmount,
-  onMounted,
   projectLightDom,
   useEffect,
-  useEscapeKey,
   useHost,
   useHostAttr,
   useRef,
-  useScrollLock,
   defineHtml
 } from "@elfui/core";
 
 import styles from "./style.scss?inline";
-import { collectFocusable, deepActiveElement } from "../../Common/focus-scope";
 import { useLocaleProvider } from "../../Providers/context";
+import { useModalOverlay } from "../../../composables/useModalOverlay";
 import type { DrawerDirection, DrawerEmits, DrawerExpose, DrawerProps, DrawerResizeDetail, DrawerSlots } from "./types";
 
 export type { DrawerDirection, DrawerElement, DrawerEmits, DrawerExpose, DrawerProps, DrawerResizeDetail, DrawerSlots } from "./types";
@@ -63,7 +60,6 @@ const closing = useRef(false);
 const maskClosing = useRef(false);
 const resizedSize = useRef<number | null>(null);
 let panelTimer: number | null = null;
-let previousActiveElement: HTMLElement | null = null;
 let resizeStartCoordinate = 0;
 let resizeStartSize = 0;
 let previousBodyCursor = "";
@@ -242,54 +238,6 @@ const rootElement = (): HTMLElement | null => document.querySelector(rootSelecto
 
 const panelElement = (): HTMLElement | null => rootElement()?.querySelector(".elf-drawer-panel") ?? null;
 
-const isTopmostDrawer = (): boolean => {
-    const drawers = Array.from(document.querySelectorAll<HTMLElement>(".elf-drawer-mask:not(.closing)"));
-    return drawers.at(-1) === rootElement();
-};
-
-const focusInitial = (): void => {
-    const panel = panelElement();
-    if (!panel || !model.value || !isTopmostDrawer()) return;
-    const focusable = collectFocusable(panel);
-    const autofocus = focusable.find((element) => element.hasAttribute("autofocus"));
-    (autofocus ?? focusable[0] ?? panel).focus({ preventScroll: true });
-    emit("open-auto-focus");
-};
-
-const scheduleInitialFocus = (): void => {
-    queueMicrotask(() => queueMicrotask(focusInitial));
-};
-
-const restoreFocus = (): void => {
-    const target = previousActiveElement;
-    previousActiveElement = null;
-    if (target?.isConnected) target.focus({ preventScroll: true });
-    emit("close-auto-focus");
-};
-
-const onDocumentKeydown = (event: KeyboardEvent): void => {
-    if (event.key !== "Tab" || !rendered.value || closing.value || !isTopmostDrawer()) return;
-    const panel = panelElement();
-    if (!panel) return;
-    const focusable = collectFocusable(panel);
-    if (focusable.length === 0) {
-        event.preventDefault();
-        panel.focus({ preventScroll: true });
-        return;
-    }
-    const active = deepActiveElement();
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
-    if (!first || !last) return;
-    if (event.shiftKey && (active === first || !panel.contains(document.activeElement))) {
-        event.preventDefault();
-        last.focus({ preventScroll: true });
-    } else if (!event.shiftKey && (active === last || !panel.contains(document.activeElement))) {
-        event.preventDefault();
-        first.focus({ preventScroll: true });
-    }
-};
-
 const requestClose = async (): Promise<void> => {
     if (closing.peek()) return;
     const before = props.beforeClose as unknown as (() => boolean | Promise<boolean>) | null;
@@ -304,6 +252,18 @@ const requestClose = async (): Promise<void> => {
     emit("close");
 };
 
+const overlay = useModalOverlay({
+    kind: "drawer",
+    panel: panelElement,
+    rendered: () => rendered.value,
+    closing: () => closing.value,
+    closeOnEscape: () => Boolean(props.closeOnEscape),
+    lockScroll: () => Boolean(props.lockScroll),
+    onRequestClose: () => void requestClose(),
+    onInitialFocus: () => emit("open-auto-focus"),
+    onRestoreFocus: () => emit("close-auto-focus")
+});
+
 const onCloseClick = (event: Event): void => {
     event.preventDefault();
     event.stopPropagation();
@@ -316,24 +276,18 @@ const onMaskClick = (event: MouseEvent): void => {
         event.stopPropagation();
         return;
     }
-    if (event.target === event.currentTarget && props.closeOnMask) {
+    if (event.target === event.currentTarget && props.closeOnMask && overlay.isTopmost()) {
         void requestClose();
     }
 };
 
 useHostAttr("direction", () => props.direction || "rtl");
-useScrollLock(() => Boolean(props.lockScroll) && rendered.value);
-useEscapeKey(() => {
-    if (rendered.value && props.closeOnEscape && isTopmostDrawer()) {
-        void requestClose();
-    }
-});
 
 useEffect(() => {
     if (model.value) {
         cleanupTimer();
+        if (!overlay.isActive()) overlay.activate();
         if (!rendered.peek()) {
-            previousActiveElement = deepActiveElement();
             rendered.set(true);
             emit("open");
             emit("opened");
@@ -341,11 +295,12 @@ useEffect(() => {
         closing.set(false);
         maskClosing.set(false);
         scheduleProject();
-        scheduleInitialFocus();
+        overlay.scheduleInitialFocus();
         return;
     }
 
     if (!rendered.peek() || closing.peek()) return;
+    overlay.beginClose();
     closing.set(true);
     maskClosing.set(true);
     panelTimer = window.setTimeout(() => {
@@ -355,14 +310,11 @@ useEffect(() => {
         maskClosing.set(false);
         panelTimer = null;
         emit("closed");
-        restoreFocus();
+        overlay.completeClose();
     }, PANEL_LEAVE_MS);
 });
 
-onMounted(() => document.addEventListener("keydown", onDocumentKeydown));
-
 onBeforeUnmount(() => {
-    document.removeEventListener("keydown", onDocumentKeydown);
     cleanupTimer();
     document.removeEventListener("pointermove", onResizeMove);
     document.removeEventListener("pointerup", stopResize);
@@ -375,7 +327,6 @@ onBeforeUnmount(() => {
     resizing = false;
     restoreContent();
     removeTeleportedRoot();
-    if (model.value) restoreFocus();
 });
 
 const handleClose = (): void => void requestClose();

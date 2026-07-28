@@ -8,19 +8,16 @@ import {
   defineStyle,
   globalStyle,
   onBeforeUnmount,
-  onMounted,
   projectLightDom,
   useEffect,
-  useEscapeKey,
   useHost,
   useRef,
-  useScrollLock,
   defineHtml
 } from "@elfui/core";
 
 import styles from "./style.scss?inline";
-import { collectFocusable, deepActiveElement } from "../../Common/focus-scope";
 import { useLocaleProvider } from "../../Providers/context";
+import { useModalOverlay } from "../../../composables/useModalOverlay";
 import type { DialogEmits, DialogExpose, DialogProps, DialogSlots } from "./types";
 
 export type { DialogElement, DialogEmits, DialogExpose, DialogProps, DialogSize, DialogSlots } from "./types";
@@ -53,7 +50,6 @@ const titleId = `${id}-title`;
 const rendered = useRef(false);
 const closing = useRef(false);
 let closeTimer: number | null = null;
-let previousActiveElement: HTMLElement | null = null;
 
 const rootSelector = `[data-elf-dialog="${id}"]`;
 const projection = projectLightDom(host, {
@@ -102,54 +98,6 @@ const rootElement = (): HTMLElement | null => document.querySelector(rootSelecto
 
 const panelElement = (): HTMLElement | null => rootElement()?.querySelector(".elf-dialog-panel") ?? null;
 
-const isTopmostDialog = (): boolean => {
-    const dialogs = Array.from(document.querySelectorAll<HTMLElement>(".elf-dialog-mask:not(.elf-dialog-closing)"));
-    return dialogs.at(-1) === rootElement();
-};
-
-const focusInitial = (): void => {
-    const panel = panelElement();
-    if (!panel || !model.value || !isTopmostDialog()) return;
-    const focusable = collectFocusable(panel);
-    const autofocus = focusable.find((element) => element.hasAttribute("autofocus"));
-    (autofocus ?? focusable[0] ?? panel).focus({ preventScroll: true });
-    emit("open-auto-focus");
-};
-
-const scheduleInitialFocus = (): void => {
-    queueMicrotask(() => queueMicrotask(focusInitial));
-};
-
-const restoreFocus = (): void => {
-    const target = previousActiveElement;
-    previousActiveElement = null;
-    if (target?.isConnected) target.focus({ preventScroll: true });
-    emit("close-auto-focus");
-};
-
-const onDocumentKeydown = (event: KeyboardEvent): void => {
-    if (event.key !== "Tab" || !rendered.value || closing.value || !isTopmostDialog()) return;
-    const panel = panelElement();
-    if (!panel) return;
-    const focusable = collectFocusable(panel);
-    if (focusable.length === 0) {
-        event.preventDefault();
-        panel.focus({ preventScroll: true });
-        return;
-    }
-    const active = deepActiveElement();
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
-    if (!first || !last) return;
-    if (event.shiftKey && (active === first || !panel.contains(document.activeElement))) {
-        event.preventDefault();
-        last.focus({ preventScroll: true });
-    } else if (!event.shiftKey && (active === last || !panel.contains(document.activeElement))) {
-        event.preventDefault();
-        first.focus({ preventScroll: true });
-    }
-};
-
 const requestClose = async (): Promise<void> => {
     if (closing.peek()) return;
     const before = props.beforeClose as unknown as (() => boolean | Promise<boolean>) | null;
@@ -164,6 +112,18 @@ const requestClose = async (): Promise<void> => {
     emit("close");
 };
 
+const overlay = useModalOverlay({
+    kind: "dialog",
+    panel: panelElement,
+    rendered: () => rendered.value,
+    closing: () => closing.value,
+    closeOnEscape: () => Boolean(props.closeOnEscape),
+    lockScroll: () => Boolean(props.lockScroll),
+    onRequestClose: () => void requestClose(),
+    onInitialFocus: () => emit("open-auto-focus"),
+    onRestoreFocus: () => emit("close-auto-focus")
+});
+
 const onCloseClick = (event: Event): void => {
     event.preventDefault();
     event.stopPropagation();
@@ -171,34 +131,28 @@ const onCloseClick = (event: Event): void => {
 };
 
 const onMaskClick = (event: MouseEvent): void => {
-    if (event.target === event.currentTarget && props.closeOnMask) {
+    if (event.target === event.currentTarget && props.closeOnMask && overlay.isTopmost()) {
         void requestClose();
     }
 };
 
-useScrollLock(() => Boolean(props.lockScroll) && rendered.value);
-useEscapeKey(() => {
-    if (rendered.value && props.closeOnEscape && isTopmostDialog()) {
-        void requestClose();
-    }
-});
-
 useEffect(() => {
     if (model.value) {
         cleanupTimer();
+        if (!overlay.isActive()) overlay.activate();
         if (!rendered.peek()) {
-            previousActiveElement = deepActiveElement();
             rendered.set(true);
             emit("open");
             emit("opened");
         }
         closing.set(false);
         scheduleProject();
-        scheduleInitialFocus();
+        overlay.scheduleInitialFocus();
         return;
     }
 
     if (!rendered.peek() || closing.peek()) return;
+    overlay.beginClose();
     closing.set(true);
     closeTimer = window.setTimeout(() => {
         restoreContent();
@@ -206,18 +160,14 @@ useEffect(() => {
         closing.set(false);
         closeTimer = null;
         emit("closed");
-        restoreFocus();
+        overlay.completeClose();
     }, 220);
 });
 
-onMounted(() => document.addEventListener("keydown", onDocumentKeydown));
-
 onBeforeUnmount(() => {
-    document.removeEventListener("keydown", onDocumentKeydown);
     cleanupTimer();
     restoreContent();
     removeTeleportedRoot();
-    if (model.value) restoreFocus();
 });
 
 const handleClose = (): void => void requestClose();
