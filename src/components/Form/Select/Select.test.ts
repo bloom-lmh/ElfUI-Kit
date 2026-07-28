@@ -359,6 +359,37 @@ describe("elf-select", () => {
     expect(dropdown.classList.contains("member-menu")).toBe(true);
     expect(dropdown.style.width).toBe("320px");
     expect(dropdown.classList.contains("closing")).toBe(true);
+    expect(dropdown.getAttribute("aria-hidden")).toBe("true");
+    expect(dropdown.hasAttribute("inert")).toBe(true);
+  });
+
+  it("coordinates Escape and outside click across Select and Cascader overlays", async () => {
+    const select = mount();
+    select.options = opts;
+    const cascader = document.createElement("elf-cascader") as HTMLElement & {
+      options?: unknown[];
+      teleported?: boolean;
+    };
+    cascader.options = [{ label: "Region", value: "region" }];
+    cascader.teleported = false;
+    document.body.appendChild(cascader);
+    await tick();
+    await tick();
+
+    select.shadowRoot!.querySelector<HTMLElement>(".trigger")!.click();
+    cascader.shadowRoot!.querySelector<HTMLElement>(".trigger")!.click();
+    await tick();
+    expect(select.hasAttribute("data-open")).toBe(true);
+    expect(cascader.hasAttribute("data-open")).toBe(true);
+
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    await tick();
+    expect(cascader.hasAttribute("data-open")).toBe(false);
+    expect(select.hasAttribute("data-open")).toBe(true);
+
+    document.body.dispatchEvent(new MouseEvent("click", { bubbles: true, composed: true }));
+    await tick();
+    expect(select.hasAttribute("data-open")).toBe(false);
   });
 
   it("remote-method 按 debounce 触发", async () => {

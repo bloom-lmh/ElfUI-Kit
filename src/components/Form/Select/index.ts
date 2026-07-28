@@ -9,7 +9,6 @@ import {
   inject,
   onMounted,
   onUnmounted,
-  useClickOutside,
   useEffect,
   useEventListener,
   useHost,
@@ -23,6 +22,7 @@ import { useDisabled, useFormItem } from "../../../composables";
 import { computeVirtualWindow } from "../../../utils/virtual-window";
 import { FORM_ITEM_KEY } from "../context";
 import { listenForExternalOverlayMotion } from "../../Common/anchored-overlay";
+import { useDismissibleOverlay } from "../../../composables/useDismissibleOverlay";
 import { useLocaleProvider } from "../../Providers/context";
 import styles from "./style.scss?inline";
 import { normalizeFieldVariant } from "../../../types/field";
@@ -173,6 +173,12 @@ useHostCssVar("--_select-offset", () => `${Number(props.offset) || 0}px`);
 
 const closeDropdown = (emitChange = true): void => {
   if (!open.peek()) return;
+  const dropdown = getDropdownEl();
+  const activeElement = host.shadowRoot?.activeElement;
+  if (dropdown && activeElement instanceof HTMLElement && dropdown.contains(activeElement)) {
+    host.shadowRoot?.querySelector<HTMLElement>(".trigger")?.focus({ preventScroll: true });
+  }
+  dismissibleOverlay.deactivate();
   open.set(false);
   filterText.set("");
   if (emitChange) emit("visible-change", false);
@@ -183,6 +189,7 @@ const getDropdownEl = (): HTMLElement | null => host.shadowRoot?.querySelector<H
 const openDropdown = (): void => {
   if (isDisabled() || open.peek()) return;
   document.dispatchEvent(new CustomEvent(SELECT_OPEN_EVENT, { detail: host }));
+  dismissibleOverlay.activate();
   open.set(true);
   const nextActiveIndex = preferredActiveIndex();
   activeIndex.set(nextActiveIndex);
@@ -190,8 +197,12 @@ const openDropdown = (): void => {
   emit("visible-change", true);
 };
 
-useClickOutside(host, () => {
-  closeDropdown();
+const dismissibleOverlay = useDismissibleOverlay({
+  kind: "select",
+  containers: () => [host, getDropdownEl()],
+  closeOnEscape: () => true,
+  closeOnOutside: () => true,
+  onRequestClose: () => closeDropdown(),
 });
 
 let cleanupOverlayMotion = (): void => {};
@@ -624,7 +635,11 @@ const onTriggerKeydown = (event: KeyboardEvent): void => {
     if (option) selectOption(option, event);
     return;
   }
-  if (event.key === "Escape") closeDropdown();
+  if (event.key === "Escape") {
+    event.preventDefault();
+    event.stopPropagation();
+    if (dismissibleOverlay.claim(event)) closeDropdown();
+  }
   if (event.key === "Tab") closeDropdown();
 };
 
@@ -736,6 +751,7 @@ const Select = defineHtml(`
           },
         ]}
         :style=${props.popperStyle} part="dropdown" :id=${listboxId()} role="listbox"
+        :aria-hidden=${open ? "false" : "true"} :inert=${open ? undefined : ""}
         :aria-multiselectable=${isMulti() ? "true" : null} @click=${onDropdownClick} @scroll=${onDropdownScroll}>
         <slot name="header"></slot>
         <div v-if=${props.loading} class="status">

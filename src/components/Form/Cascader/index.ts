@@ -9,7 +9,6 @@ import {
   inject,
   onMounted,
   onUnmounted,
-  useClickOutside,
   useComputed,
   useEffect,
   useEventListener,
@@ -22,6 +21,7 @@ import {
 
 import { useDisabled, useFormItem } from "../../../composables";
 import { computeAnchoredPosition, listenForExternalOverlayMotion } from "../../Common/anchored-overlay";
+import { useDismissibleOverlay } from "../../../composables/useDismissibleOverlay";
 import { useLocaleProvider } from "../../Providers/context";
 import { FORM_ITEM_KEY } from "../context";
 import styles from "./style.scss?inline";
@@ -609,6 +609,7 @@ const restoreFocusBeforeClose = (): void => {
 const closeDropdown = (): void => {
   if (!open.peek()) return;
   restoreFocusBeforeClose();
+  dismissibleOverlay.deactivate();
   open.set(false);
   clearFilter();
   emit("visible-change", false);
@@ -617,6 +618,7 @@ const closeDropdown = (): void => {
 const openDropdown = (): void => {
   if (isDisabled() || open.peek()) return;
   document.dispatchEvent(new CustomEvent(CASCADER_OPEN_EVENT, { detail: host }));
+  dismissibleOverlay.activate();
   activePath.set(selectedPath());
   open.set(true);
   emit("visible-change", true);
@@ -957,7 +959,8 @@ const onTreeKeydown = (event: KeyboardEvent, option: HTMLButtonElement, path: Ra
 const onFilterKeydown = (event: KeyboardEvent): void => {
   if (event.key === "Escape") {
     event.preventDefault();
-    closeDropdown();
+    event.stopPropagation();
+    if (dismissibleOverlay.claim(event)) closeDropdown();
     return;
   }
   if (event.key === "ArrowDown") {
@@ -970,7 +973,8 @@ const onFilterKeydown = (event: KeyboardEvent): void => {
 const onTriggerKeydown = (event: KeyboardEvent): void => {
   if (event.key === "Escape") {
     event.preventDefault();
-    closeDropdown();
+    event.stopPropagation();
+    if (dismissibleOverlay.claim(event)) closeDropdown();
     return;
   }
   if (event.key !== "Enter" && event.key !== " " && event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
@@ -982,8 +986,8 @@ const onTriggerKeydown = (event: KeyboardEvent): void => {
 const onDropdownKeydown = (event: KeyboardEvent): void => {
   if (event.key === "Escape") {
     event.preventDefault();
-    closeDropdown();
-    getTriggerEl()?.focus();
+    event.stopPropagation();
+    if (dismissibleOverlay.claim(event)) closeDropdown();
     return;
   }
   const option = optionFromKeyEvent(event);
@@ -1195,6 +1199,14 @@ const shouldRenderDropdown = (): boolean => Boolean(props.persistent) || open.va
 const getTriggerEl = (): HTMLElement | null => host.shadowRoot?.querySelector<HTMLElement>(".trigger") || null;
 const getDropdownEl = (): HTMLElement | null => host.shadowRoot?.querySelector<HTMLElement>(".dropdown") || null;
 
+const dismissibleOverlay = useDismissibleOverlay({
+  kind: "cascader",
+  containers: () => [host, getDropdownEl()],
+  closeOnEscape: () => true,
+  closeOnOutside: () => true,
+  onRequestClose: () => closeDropdown(),
+});
+
 const dropdownClass = (): unknown[] => [
   "dropdown",
   props.popperClass,
@@ -1328,7 +1340,6 @@ useEffect(() => {
     });
 });
 
-useClickOutside(host, closeDropdown);
 onMounted(() => {
   mounted = true;
   connectAnchoredOverlay();

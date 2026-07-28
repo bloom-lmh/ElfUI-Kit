@@ -1,5 +1,11 @@
 # Select Element Plus API 对标计划
 
+## 2026-07-28 统一浮层交互
+
+- [x] 接入共享 overlay interaction stack，Escape 与外部点击只关闭最上层浮层。
+- [x] 关闭前恢复浮层内部焦点，并为持久化隐藏面板同步 `aria-hidden` 与 `inert`。
+- [x] 增加 Select → Cascader 混合浮层的 Escape / outside click 回归测试。
+
 ## 2026-07-28 虚拟化与双语文档收敛
 
 - [x] `virtual`、`virtualThreshold`、`itemHeight`、`overscan` 接入共享虚拟窗口算法。

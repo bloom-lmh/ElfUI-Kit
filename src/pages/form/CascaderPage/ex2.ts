@@ -1,98 +1,32 @@
 import { defineHtml, useRef } from "@elfui/core";
 
-const value = useRef<string[]>(["zhejiang", "hangzhou"]);
+import { createDocsPicker, createDocsTranslator } from "../../docsLocale";
+import { createRegionOptions, regionOptionsScript } from "./shared";
 
+const pick = createDocsPicker();
+const t = createDocsTranslator({
+  title: { zh: "清空与禁用", en: "Clearable and disabled" },
+  clearable: { zh: "请选择地区", en: "Choose a region" },
+  disabled: { zh: "禁用状态", en: "Disabled" },
+});
 const clearableValue = useRef<string[]>([]);
-
-const options = [
-  {
-    label: "浙江",
-    value: "zhejiang",
-    children: [
-      { label: "杭州", value: "hangzhou" },
-      { label: "宁波", value: "ningbo" }
-    ]
-  },
-  {
-    label: "江苏",
-    value: "jiangsu",
-    children: [
-      { label: "南京", value: "nanjing" },
-      { label: "苏州", value: "suzhou" }
-    ]
-  },
-  {
-    label: "广东",
-    value: "guangdong",
-    children: [
-      { label: "广州", value: "guangzhou" },
-      { label: "深圳", value: "shenzhen", disabled: true }
-    ]
-  }
-];
-
-const code2 = `<elf-cascader
-  :options.prop=\${options}
-  :modelValue=\${clearableValue}
-  clearable
-  placeholder="请选择地区"
-  @update:modelValue=\${onClearableUpdate}
-/>`;
-
-const script2 = `const clearableValue = useRef([]);
-
-const onClearableUpdate = (event) => {
-  clearableValue.set(event.detail);
-};
-
-const options = [
-    {
-        label: "浙江",
-        value: "zhejiang",
-        children: [
-            { label: "杭州", value: "hangzhou" },
-            { label: "宁波", value: "ningbo" }
-        ]
-    },
-    {
-        label: "江苏",
-        value: "jiangsu",
-        children: [
-            { label: "南京", value: "nanjing" },
-            { label: "苏州", value: "suzhou" }
-        ]
-    },
-    {
-        label: "广东",
-        value: "guangdong",
-        children: [
-            { label: "广州", value: "guangzhou" },
-            { label: "深圳", value: "shenzhen", disabled: true }
-        ]
-    }
-];`;
-
-const onClearableUpdate = (event: CustomEvent): void => {
-  clearableValue.set(event.detail as string[]);
-};
+const options = createRegionOptions(pick);
+const code = `<elf-cascader :options.prop="options" :modelValue="value" clearable placeholder="Choose a region"
+  @update:modelValue="onUpdate" />`;
+const script = `const value = useRef([]);
+${regionOptionsScript}
+const onUpdate = (event) => value.set(event.detail);`;
+const onUpdate = (event: CustomEvent): void => clearableValue.set(event.detail as string[]);
 
 const PageCascaderEx2 = defineHtml(`
-<elf-playground title="可清空 / 禁用项" :code=${code2} :script=${script2}>
-      <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
-        <div style="width:260px">
-          <elf-cascader
-            :options.prop=${options}
-            :modelValue=${clearableValue}
-            clearable
-            placeholder="请选择地区"
-            @update:modelValue=${onClearableUpdate}
-          ></elf-cascader>
-        </div>
-        <div style="width:260px">
-          <elf-cascader :options.prop=${options} disabled placeholder="禁用状态"></elf-cascader>
-        </div>
-      </div>
-    </elf-playground>
+  <elf-playground :title=${t("title")} :code=${code} :script=${script}>
+    <div style="display:flex;gap:16px;align-items:center;justify-content:center;flex-wrap:wrap;width:100%">
+      <div style="width:260px"><elf-cascader :options.prop=${options} :modelValue=${clearableValue} clearable
+        :placeholder=${t("clearable")} @update:modelValue=${onUpdate}></elf-cascader></div>
+      <div style="width:260px"><elf-cascader :options.prop=${options} disabled
+        :placeholder=${t("disabled")}></elf-cascader></div>
+    </div>
+  </elf-playground>
 `);
 
 export { PageCascaderEx2 };

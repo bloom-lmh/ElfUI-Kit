@@ -1,119 +1,33 @@
 import { defineHtml, useRef } from "@elfui/core";
 
-const value = useRef<string[]>(["zhejiang", "hangzhou"]);
+import { createDocsPicker, createDocsTranslator } from "../../docsLocale";
+import { createRegionOptions, formatPaths, regionOptionsScript } from "./shared";
 
-const checkableValue = useRef<string[][]>([["jiangsu", "nanjing"]]);
-
-const status = useRef("浙江 / 杭州");
-
-const checkableStatus = useRef("江苏 / 南京");
-
-const options = [
-  {
-    label: "浙江",
-    value: "zhejiang",
-    children: [
-      { label: "杭州", value: "hangzhou" },
-      { label: "宁波", value: "ningbo" }
-    ]
-  },
-  {
-    label: "江苏",
-    value: "jiangsu",
-    children: [
-      { label: "南京", value: "nanjing" },
-      { label: "苏州", value: "suzhou" }
-    ]
-  },
-  {
-    label: "广东",
-    value: "guangdong",
-    children: [
-      { label: "广州", value: "guangzhou" },
-      { label: "深圳", value: "shenzhen", disabled: true }
-    ]
-  }
-];
-
-const code4 = `<elf-cascader
-  checkable
-  clearable
-  :options.prop=\${options}
-  :modelValue=\${checkableValue}
-  @update:modelValue=\${onCheckableUpdate}
-  @change=\${onCheckableChange}
-/>`;
-
-const script4 = `const checkableValue = useRef([["jiangsu", "nanjing"]]);
-const checkableStatus = useRef("江苏 / 南京");
-
-const onCheckableUpdate = (event) => {
-  checkableValue.set(event.detail);
-};
-
-const onCheckableChange = (event) => {
-  checkableStatus.set(event.detail.path.map((path) => path.join(" / ")).join("、") || "未选择");
-};
-
-const options = [
-    {
-        label: "浙江",
-        value: "zhejiang",
-        children: [
-            { label: "杭州", value: "hangzhou" },
-            { label: "宁波", value: "ningbo" }
-        ]
-    },
-    {
-        label: "江苏",
-        value: "jiangsu",
-        children: [
-            { label: "南京", value: "nanjing" },
-            { label: "苏州", value: "suzhou" }
-        ]
-    },
-    {
-        label: "广东",
-        value: "guangdong",
-        children: [
-            { label: "广州", value: "guangzhou" },
-            { label: "深圳", value: "shenzhen", disabled: true }
-        ]
-    }
-];`;
-
-const joinPaths = (paths: unknown): string => {
-  if (!Array.isArray(paths)) return "未选择";
-  if (paths.length === 0) return "未选择";
-  if (Array.isArray(paths[0])) {
-    return (paths as string[][]).map((path) => path.join(" / ")).join("、") || "未选择";
-  }
-  return (paths as string[]).join(" / ") || "未选择";
-};
-
-const onCheckableUpdate = (event: CustomEvent): void => {
-  checkableValue.set(event.detail as string[][]);
-};
-
-const onCheckableChange = (event: CustomEvent): void => {
-  const detail = event.detail as { path?: string[][] };
-  checkableStatus.set(joinPaths(detail.path));
+const pick = createDocsPicker();
+const t = createDocsTranslator({
+  title: { zh: "联动选项框", en: "Linked checkboxes" },
+  current: { zh: "当前路径", en: "Current paths" },
+  empty: { zh: "未选择", en: "Not selected" },
+});
+const value = useRef<string[][]>([["jiangsu", "nanjing"]]);
+const status = useRef(pick("江苏 / 南京", "Jiangsu / Nanjing"));
+const options = createRegionOptions(pick);
+const code = `<elf-cascader checkable clearable :options.prop="options" :modelValue="value"
+  @update:modelValue="onUpdate" @change="onChange" />`;
+const script = `const value = useRef([["jiangsu", "nanjing"]]);
+${regionOptionsScript}
+const onUpdate = (event) => value.set(event.detail);`;
+const onUpdate = (event: CustomEvent): void => value.set(event.detail as string[][]);
+const onChange = (event: CustomEvent): void => {
+  status.set(formatPaths((event.detail as { path?: string[][] }).path, t("empty")));
 };
 
 const PageCascaderEx4 = defineHtml(`
-<elf-playground title="选项框" :code=${code4} :script=${script4}>
-      <div style="display:grid;gap:12px;width:320px">
-        <elf-cascader
-          checkable
-          clearable
-          :options.prop=${options}
-          :modelValue=${checkableValue}
-          @update:modelValue=${onCheckableUpdate}
-          @change=${onCheckableChange}
-        ></elf-cascader>
-        <span slot="status" class="demo-state">当前路径：{{ checkableStatus }}</span>
-      </div>
-    </elf-playground>
+  <elf-playground :title=${t("title")} :code=${code} :script=${script}>
+    <div style="width:min(320px,100%)"><elf-cascader checkable clearable :options.prop=${options}
+      :modelValue=${value} @update:modelValue=${onUpdate} @change=${onChange}></elf-cascader></div>
+    <span slot="status" class="demo-state">${t("current")} · ${status}</span>
+  </elf-playground>
 `);
 
 export { PageCascaderEx4 };

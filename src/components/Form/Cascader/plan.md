@@ -1,5 +1,12 @@
 # Cascader Element Plus API 对标计划
 
+## 2026-07-28 统一浮层交互
+
+- [x] 接入共享 overlay interaction stack，复用统一 Escape / outside click 事件认领协议。
+- [x] 保留关闭前焦点恢复、Top Layer、外部滚动和持久化面板语义。
+- [x] 增加 Select → Cascader 混合浮层关闭顺序回归测试。
+- [x] 8 个示例模块、9 个 Playground、运行数据、页面标题和 API 表完整支持中英文。
+
 ## 本轮记录
 
 - [x] 2026-07-16 修复多选浮层键盘状态机：上下键限制在当前列，左右键进入/返回层级，Enter/Space 选择；展开路径与焦点视觉解耦，并补回归测试和操作案例。
