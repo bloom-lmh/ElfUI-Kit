@@ -8,7 +8,7 @@ import {
   defineStyle,
   useHostCssVar,
   useRef,
-  useEffect
+  useEffect,
 } from "@elfui/core";
 
 import styles from "./style.scss?inline";
@@ -21,7 +21,7 @@ import type {
   CascaderOption,
   CascaderPanelProps,
   CascaderPathValue,
-  CascaderValue
+  CascaderValue,
 } from "./types";
 
 type RawOption = Record<string, unknown>;
@@ -72,9 +72,9 @@ const props = defineProps<CascaderPanelProps>({
       emitPath: true,
       checkOnClickNode: false,
       checkOnClickLeaf: true,
-      showPrefix: true
-    })
-  }
+      showPrefix: true,
+    }),
+  },
 });
 
 const locale = useLocaleProvider();
@@ -102,15 +102,13 @@ const config = (): PanelConfig => {
     emitPath: props.emitPath !== false && o.emitPath !== false,
     checkOnClickNode: Boolean(o.checkOnClickNode),
     checkOnClickLeaf: o.checkOnClickLeaf !== false,
-    showPrefix: props.showPrefix !== false && o.showPrefix !== false
+    showPrefix: props.showPrefix !== false && o.showPrefix !== false,
   };
 };
 
-const rawOptions = (): RawOption[] =>
-  Array.isArray(props.options) ? (props.options as RawOption[]) : [];
+const rawOptions = (): RawOption[] => (Array.isArray(props.options) ? (props.options as RawOption[]) : []);
 
-const optionLabel = (option: RawOption): string =>
-  String(option[config().label] ?? option[config().value] ?? "");
+const optionLabel = (option: RawOption): string => String(option[config().label] ?? option[config().value] ?? "");
 
 const optionValue = (option: RawOption): CascaderValue =>
   (option[config().value] ?? option[config().label] ?? "") as CascaderValue;
@@ -146,7 +144,7 @@ const findPathByValues = (
   values: CascaderPathValue,
   options = rawOptions(),
   level = 0,
-  path: RawOption[] = []
+  path: RawOption[] = [],
 ): RawOption[] => {
   if (level >= values.length) return path;
   for (const option of options) {
@@ -158,11 +156,7 @@ const findPathByValues = (
   return [];
 };
 
-const findPathByValue = (
-  value: CascaderValue,
-  options = rawOptions(),
-  path: RawOption[] = []
-): RawOption[] => {
+const findPathByValue = (value: CascaderValue, options = rawOptions(), path: RawOption[] = []): RawOption[] => {
   for (const option of options) {
     const nextPath = [...path, option];
     if (sameValue(optionValue(option), value)) return nextPath;
@@ -174,9 +168,7 @@ const findPathByValue = (
 
 const normalizePathValue = (value: unknown): CascaderPathValue => {
   if (!Array.isArray(value)) return value == null || value === "" ? [] : [value as CascaderValue];
-  return (value as unknown[])
-    .filter((item) => item != null && item !== "")
-    .map((item) => item as CascaderValue);
+  return (value as unknown[]).filter((item) => item != null && item !== "").map((item) => item as CascaderValue);
 };
 
 const toValuePaths = (value: unknown): CascaderPathValue[] => {
@@ -219,7 +211,7 @@ const detailFromPaths = (paths: CascaderPathValue[]): CascaderChangeDetail => {
       value: modelValueFromPaths(paths),
       path: optionPaths.map(pathLabels),
       selected: optionPaths as CascaderOption[][],
-      multiple: true
+      multiple: true,
     };
   }
   const first = optionPaths[0] ?? [];
@@ -227,7 +219,7 @@ const detailFromPaths = (paths: CascaderPathValue[]): CascaderChangeDetail => {
     value: modelValueFromPaths(paths),
     path: pathLabels(first),
     selected: first as CascaderOption[],
-    multiple: false
+    multiple: false,
   };
 };
 
@@ -236,21 +228,14 @@ const emitChange = (paths: CascaderPathValue[]): void => {
   emit("change", detailFromPaths(paths));
 };
 
-const optionPath = (option: RawOption, column: PanelColumn): RawOption[] => [
-  ...column.parentPath,
-  option
-];
+const optionPath = (option: RawOption, column: PanelColumn): RawOption[] => [...column.parentPath, option];
 
 const valuePathKey = (path: CascaderPathValue): string => JSON.stringify(path);
 
 const optionPathKey = (option: RawOption, column: PanelColumn): string =>
   valuePathKey(pathValues(optionPath(option, column)));
 
-const findPathByKey = (
-  key: string,
-  options = rawOptions(),
-  path: RawOption[] = []
-): RawOption[] => {
+const findPathByKey = (key: string, options = rawOptions(), path: RawOption[] = []): RawOption[] => {
   for (const option of options) {
     const nextPath = [...path, option];
     if (valuePathKey(pathValues(nextPath)) === key) return nextPath;
@@ -264,8 +249,7 @@ const collectLeafValuePaths = (path: RawOption[]): CascaderPathValue[] => {
   const current = path[path.length - 1];
   if (!current || optionDisabled(current)) return [];
   const children = optionChildren(current).filter((item) => !optionDisabled(item));
-  if (children.length === 0 || optionLeaf(current) || config().checkStrictly)
-    return [pathValues(path)];
+  if (children.length === 0 || optionLeaf(current) || config().checkStrictly) return [pathValues(path)];
   return children.flatMap((child) => collectLeafValuePaths([...path, child]));
 };
 
@@ -297,9 +281,7 @@ const toggleStrictPath = (path: RawOption[]): void => {
   const value = pathValues(path);
   const current = selectedValues.peek();
   const selected = current.some((item) => samePathValue(item, value));
-  const next = selected
-    ? current.filter((item) => !samePathValue(item, value))
-    : [...current, value];
+  const next = selected ? current.filter((item) => !samePathValue(item, value)) : [...current, value];
   selectedValues.set(next);
   activePath.set(path);
   emitChange(next);
@@ -358,7 +340,7 @@ const isIndeterminate = (option: RawOption, column: PanelColumn): boolean =>
 
 const checkboxClass = (option: RawOption, column: PanelColumn): Record<string, boolean> => ({
   "is-checked": isSelected(option, column),
-  "is-indeterminate": isIndeterminate(option, column)
+  "is-indeterminate": isIndeterminate(option, column),
 });
 
 const ariaChecked = (option: RawOption, column: PanelColumn): string | null => {
@@ -380,21 +362,20 @@ const columns = (): PanelColumn[] => {
       key: String(optionValue(path[level]!)),
       level: level + 1,
       parentPath,
-      options: children
+      options: children,
     });
   }
   return result;
 };
 
-const optionKey = (option: RawOption, level: number): string =>
-  `${level}-${String(optionValue(option))}`;
+const optionKey = (option: RawOption, level: number): string => `${level}-${String(optionValue(option))}`;
 
 const optionClass = (option: RawOption, column: PanelColumn): Record<string, boolean> => ({
   "is-active": isActive(option, column),
   "is-selected": isSelected(option, column),
   "is-indeterminate": isIndeterminate(option, column),
   "is-disabled": optionDisabled(option),
-  "has-children": optionChildren(option).length > 0
+  "has-children": optionChildren(option).length > 0,
 });
 
 const nodeSnapshot = (path: RawOption[]): CascaderNodeSnapshot | null => {
@@ -409,7 +390,7 @@ const nodeSnapshot = (path: RawOption[]): CascaderNodeSnapshot | null => {
     pathValues: values,
     pathLabels: pathLabels(path),
     checked: isPathSelected(values),
-    isLeaf: optionLeaf(option)
+    isLeaf: optionLeaf(option),
   };
 };
 
@@ -440,34 +421,26 @@ defineStyle(styles);
 
 const CascaderPanel = defineHtml<CascaderPanelProps>(`
   <div class="panel" part="panel">
-    <div v-if=${rawOptions().length === 0} class="empty"><slot name="empty">${locale.t("table.empty")}</slot></div>
+    <div v-if=${rawOptions().length === 0} class="empty">
+      <slot name="empty">${locale.t("table.empty")}</slot>
+    </div>
     <div v-else class="columns">
       <div v-for="column in columns()" :key="column.key" class="column">
-        <button
-          v-for="option in column.options"
-          :key="optionKey(option, column.level)"
-          :data-path-key="optionPathKey(option, column)"
-          type="button"
-          :class="['option', optionClass(option, column)]"
+        <button v-for="option in column.options" :key="optionKey(option, column.level)"
+          :data-path-key="optionPathKey(option, column)" type="button" :class="['option', optionClass(option, column)]"
           :disabled="optionDisabled(option)"
           :role=${config().multiple && config().showPrefix ? "menuitemcheckbox" : "menuitem"}
-          :aria-checked="ariaChecked(option, column)"
-          @click="onOptionPathClick(optionPath(option, column), $event)"
-        >
-          <span
-            v-if=${config().multiple && config().showPrefix}
-            class="option-checkbox"
-            :class="checkboxClass(option, column)"
-          >
+          :aria-checked="ariaChecked(option, column)" @click="onOptionPathClick(optionPath(option, column), $event)">
+          <span v-if=${config().multiple && config().showPrefix} class="option-checkbox"
+            :class="checkboxClass(option, column)">
             <span class="checkbox-mark"></span>
           </span>
-          <span class="option-label"><slot>{{ optionLabel(option) }}</slot></span>
+          <span class="option-label">
+            <slot>{{ optionLabel(option) }}</slot>
+          </span>
           <span v-if="optionChildren(option).length > 0" class="option-arrow">›</span>
-          <span
-            v-else-if="isSelected(option, column) && !(config().multiple && config().showPrefix)"
-            class="check"
-            >✓</span
-          >
+          <span v-else-if="isSelected(option, column) && !(config().multiple && config().showPrefix)"
+            class="check">✓</span>
         </button>
       </div>
     </div>

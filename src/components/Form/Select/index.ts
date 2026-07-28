@@ -645,13 +645,13 @@ const Select = defineHtml(`
         <div v-for="entry in viewOptionEntries()" :key="entry.key" :data-index="String(entry.index)"
             :id="optionId(entry.index)" role="option" :aria-selected="isSelected(entry.option) ? 'true' : 'false'"
             :aria-disabled="isOptionDisabled(entry.option) ? 'true' : 'false'" :class="[
-              'option',
-              {
-                selected: isSelected(entry.option),
-                disabled: isOptionDisabled(entry.option),
-                active: activeIndex === entry.index
-              }
-            ]">
+                  'option',
+                  {
+                    selected: isSelected(entry.option),
+                    disabled: isOptionDisabled(entry.option),
+                    active: activeIndex === entry.index
+                  }
+                ]">
             <span>
                 <slot name="label" :option="entry.option" :index="entry.index" :value="optionValue(entry.option)"
                     :label="optionLabel(entry.option)">{{ optionLabel(entry.option) }}</slot>

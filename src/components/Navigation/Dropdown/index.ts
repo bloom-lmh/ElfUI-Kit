@@ -566,11 +566,7 @@ const onMenuKeydown = (event: KeyboardEvent): void => {
 
 const dismissibleOverlay = useDismissibleOverlay({
   kind: "dropdown",
-  containers: () => [
-    host,
-    getMenuEl(),
-    anchorReference() instanceof Element ? (anchorReference() as Element) : null,
-  ],
+  containers: () => [host, getMenuEl(), anchorReference() instanceof Element ? (anchorReference() as Element) : null],
   closeOnEscape: () => true,
   closeOnOutside: () => props.closeOnClickOutside !== false,
   onRequestClose: () => hide(),
@@ -703,134 +699,80 @@ defineExpose({
 
 const StandardTrigger = defineFragment(
   () => `
-    <button
-      v-if=${shouldRenderTrigger && !isSplitButton}
-      :class=${buttonClass("trigger")}
-      :style=${buttonStyle}
-      part="trigger"
-      type="button"
-      :disabled=${buttonDisabled}
-      :aria-expanded=${open ? "true" : "false"}
-      aria-haspopup="menu"
-      :tabindex=${triggerTabindex}
-      @click=${onTriggerClick}
-      @keydown=${onTriggerKeydown}
-    >
-      <slot>
-        <slot name="trigger">
-          <span class="label">${triggerLabel}</span>
-          <span class="arrow" v-if=${showsArrow} aria-hidden="true">▼</span>
-        </slot>
+  <button v-if=${shouldRenderTrigger && !isSplitButton} :class=${buttonClass("trigger")} :style=${buttonStyle}
+    part="trigger" type="button" :disabled=${buttonDisabled} :aria-expanded=${open ? "true" : "false"}
+    aria-haspopup="menu" :tabindex=${triggerTabindex} @click=${onTriggerClick} @keydown=${onTriggerKeydown}>
+    <slot>
+      <slot name="trigger">
+        <span class="label">${triggerLabel}</span>
+        <span class="arrow" v-if=${showsArrow} aria-hidden="true">▼</span>
       </slot>
-    </button>
-  `,
+    </slot>
+  </button>
+`,
 );
 
 const SplitTrigger = defineFragment(
   () => `
-    <template v-if=${shouldRenderTrigger && isSplitButton}>
-      <button
-        :class=${buttonClass("split-main")}
-        :style=${buttonStyle}
-        part="main"
-        type="button"
-        :disabled=${buttonDisabled}
-        @click=${onMainClick}
-      >
-        <slot><slot name="main">${triggerLabel}</slot></slot>
-      </button>
-      <button
-        :class=${buttonClass("split-toggle")}
-        part="trigger"
-        type="button"
-        :disabled=${buttonDisabled}
-        :aria-expanded=${open ? "true" : "false"}
-        aria-haspopup="menu"
-        :tabindex=${triggerTabindex}
-        @click=${onTriggerClick}
-        @keydown=${onTriggerKeydown}
-        :aria-label=${locale.t("menu.expand")}
-      >
-        <span class="arrow" v-if=${showsArrow} aria-hidden="true">▼</span>
-      </button>
-    </template>
-  `,
+  <template v-if=${shouldRenderTrigger && isSplitButton}>
+    <button :class=${buttonClass("split-main")} :style=${buttonStyle} part="main" type="button"
+      :disabled=${buttonDisabled} @click=${onMainClick}>
+      <slot>
+        <slot name="main">${triggerLabel}</slot>
+      </slot>
+    </button>
+    <button :class=${buttonClass("split-toggle")} part="trigger" type="button" :disabled=${buttonDisabled}
+      :aria-expanded=${open ? "true" : "false"} aria-haspopup="menu" :tabindex=${triggerTabindex} @click=${onTriggerClick}
+      @keydown=${onTriggerKeydown} :aria-label=${locale.t("menu.expand")}>
+      <span class="arrow" v-if=${showsArrow} aria-hidden="true">▼</span>
+    </button>
+  </template>
+`,
 );
 
 const MenuPanel = defineFragment(
   () => `
-    <div
-      v-if=${shouldRenderMenu}
-      :class=${menuClass}
-      :style=${menuStyle}
-      part="menu"
-      :popover=${popoverMode}
-      :data-append-to=${appendTargetLabel}
-      :role=${menuRole()}
-      :aria-hidden=${open ? "false" : "true"}
-      :inert=${open ? undefined : ""}
-      @keydown=${onMenuKeydown}
-    >
-      <slot name="dropdown">
-        <template v-for="item in viewItems" :key="item.key">
-          <div v-if="item.children.length > 0" :class="['sub', { 'is-divided': item.divided }]">
-            <button
-              type="button"
-              class="sub-trigger"
-              :class="{ 'is-disabled': item.disabled }"
-              :disabled="item.disabled"
-              role="menuitem"
-              aria-haspopup="true"
-            >
-              <span class="icon" aria-hidden="true">{{ item.icon }}</span>
-              <span class="item-label">{{ item.label }}</span>
-              <span class="shortcut">{{ item.shortcut }}</span>
-              <span class="chevron" aria-hidden="true">›</span>
-            </button>
-            <div class="sub-menu" role="menu">
-              <button
-                v-for="child in item.children"
-                :key="child.key"
-                type="button"
-                class="item"
-                :class="{
-                                  'is-disabled': child.disabled,
-                                  'is-divided': child.divided,
-                                  'is-selected': isSelected(child)
-                                }"
-                :disabled="child.disabled"
-                role="menuitem"
-                @click="onItemClick(child, $event)"
-              >
-                <span class="icon" aria-hidden="true">{{ child.icon }}</span>
-                <span class="item-label">{{ child.label }}</span>
-                <span class="shortcut">{{ child.shortcut }}</span>
-                <span></span>
-              </button>
-            </div>
-          </div>
-          <button
-            v-else
-            type="button"
-            class="item"
-            :class="{
-                          'is-disabled': item.disabled,
-                          'is-divided': item.divided,
-                          'is-selected': isSelected(item)
-                        }"
-            :disabled="item.disabled"
-            role="menuitem"
-            @click="onItemClick(item, $event)"
-          >
+  <div v-if=${shouldRenderMenu} :class=${menuClass} :style=${menuStyle} part="menu" :popover=${popoverMode}
+    :data-append-to=${appendTargetLabel} :role=${menuRole()} :aria-hidden=${open ? "false" : "true"}
+    :inert=${open ? undefined : ""} @keydown=${onMenuKeydown}>
+    <slot name="dropdown">
+      <template v-for="item in viewItems" :key="item.key">
+        <div v-if="item.children.length > 0" :class="['sub', { 'is-divided': item.divided }]">
+          <button type="button" class="sub-trigger" :class="{ 'is-disabled': item.disabled }" :disabled="item.disabled"
+            role="menuitem" aria-haspopup="true">
             <span class="icon" aria-hidden="true">{{ item.icon }}</span>
             <span class="item-label">{{ item.label }}</span>
             <span class="shortcut">{{ item.shortcut }}</span>
-            <span></span>
+            <span class="chevron" aria-hidden="true">›</span>
           </button>
-        </template>
-      </slot>
-    </div>
-  `,
+          <div class="sub-menu" role="menu">
+            <button v-for="child in item.children" :key="child.key" type="button" class="item" :class="{
+                                              'is-disabled': child.disabled,
+                                              'is-divided': child.divided,
+                                              'is-selected': isSelected(child)
+                                            }" :disabled="child.disabled" role="menuitem"
+              @click="onItemClick(child, $event)">
+              <span class="icon" aria-hidden="true">{{ child.icon }}</span>
+              <span class="item-label">{{ child.label }}</span>
+              <span class="shortcut">{{ child.shortcut }}</span>
+              <span></span>
+            </button>
+          </div>
+        </div>
+        <button v-else type="button" class="item" :class="{
+                                      'is-disabled': item.disabled,
+                                      'is-divided': item.divided,
+                                      'is-selected': isSelected(item)
+                                    }" :disabled="item.disabled" role="menuitem" @click="onItemClick(item, $event)">
+          <span class="icon" aria-hidden="true">{{ item.icon }}</span>
+          <span class="item-label">{{ item.label }}</span>
+          <span class="shortcut">{{ item.shortcut }}</span>
+          <span></span>
+        </button>
+      </template>
+    </slot>
+  </div>
+`,
 );
 
 defineStyle(styles);
