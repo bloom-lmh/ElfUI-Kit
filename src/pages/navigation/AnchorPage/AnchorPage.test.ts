@@ -47,6 +47,8 @@ describe("Anchor documentation", () => {
 
     const anchor = page.shadowRoot!.querySelector<HTMLElement>('elf-anchor[direction="horizontal"]')!;
     const container = page.shadowRoot!.querySelector<HTMLElement>("#anchor-horizontal-scroll")!;
+    (anchor as HTMLElement & { smooth?: boolean }).smooth = false;
+    await tick();
     Object.defineProperties(container, {
       clientWidth: { configurable: true, value: 640 },
       scrollWidth: { configurable: true, value: 4480 },
@@ -70,7 +72,7 @@ describe("Anchor documentation", () => {
     await tick();
     await tick();
 
-    expect(scrollTo).toHaveBeenCalledWith({ left: 3840, behavior: "smooth" });
+    expect(scrollTo).toHaveBeenCalledWith({ left: 3840, behavior: "auto" });
     expect(sections.every((section) => section.classList.contains("horizontal-section"))).toBe(true);
     const scrollbar = page.shadowRoot!.querySelector<HTMLInputElement>('.horizontal-scrollbar[type="range"]')!;
     expect(scrollbar).toBeTruthy();

@@ -16,6 +16,18 @@ import {
 } from "@elfui/core";
 
 import styles from "./style.scss?inline";
+import {
+  getElementScrollPosition,
+  getScrollPosition,
+  resolveScrollContainer,
+  type ScrollAxis,
+  type ScrollContainer,
+} from "../../../composables/scroll";
+import type {
+  GoToOptions,
+  GoToTask,
+} from "../../../composables/goTo";
+import { useGoTo } from "../../../composables/useGoTo";
 import { useLocaleProvider } from "../../Providers/context";
 import type {
   AnchorChangeDetail,
@@ -48,8 +60,6 @@ interface AnchorViewItem {
   children: AnchorViewItem[];
 }
 
-type ScrollContainer = Window | HTMLElement;
-
 interface AnchorLinkElement extends HTMLElement {
   href?: string;
   active?: boolean;
@@ -65,7 +75,8 @@ const props = defineProps<AnchorProps>({
   offset: { type: Number, default: 0 },
   bound: { type: Number, default: undefined },
   bounds: { type: Number, default: 15 },
-  duration: { type: Number, default: 300 },
+  duration: { type: Number, default: undefined },
+  easing: { type: null, default: undefined },
   marker: { type: Boolean, default: true },
   type: { type: String, default: "default" },
   direction: { type: String, default: "vertical" },
@@ -91,6 +102,7 @@ const emit = defineEmits<{
 }>();
 
 const host = useHost();
+const goTo = useGoTo();
 
 const activeHref = useRef("");
 
@@ -98,6 +110,8 @@ const mounted = useRef(false);
 const hasLinkChildren = useRef(false);
 
 let scrollTarget: ScrollContainer | null = null;
+let contentScrollTask: GoToTask | null = null;
+let navigationScrollTask: GoToTask | null = null;
 
 let cleanup = (): void => {};
 
@@ -196,26 +210,9 @@ const direction = (): "vertical" | "horizontal" => (props.direction === "horizon
 
 const type = (): "default" | "underline" => (props.type === "underline" ? "underline" : "default");
 
-const isScrollContainer = (value: unknown): value is ScrollContainer =>
-  typeof value === "object" && value !== null && "addEventListener" in value;
-
 const getContainer = (): ScrollContainer => {
-  if (typeof window === "undefined") return document.documentElement;
-  const target = props.container;
   const root = host.getRootNode() as Document | ShadowRoot;
-  if (typeof target === "string" && target) {
-    return (
-      (root.querySelector(target) as HTMLElement | null) ||
-      (document.querySelector(target) as HTMLElement | null) ||
-      window
-    );
-  }
-  if (typeof target === "function") {
-    const resolved = (target as () => ScrollContainer | null)();
-    return resolved || window;
-  }
-  if (isScrollContainer(target)) return target;
-  return window;
+  return resolveScrollContainer(props.container, root) ?? host;
 };
 
 const findTarget = (href: string): HTMLElement | null => {
@@ -229,27 +226,29 @@ const findTarget = (href: string): HTMLElement | null => {
 };
 
 const usesHorizontalContentAxis = (container: ScrollContainer): boolean => {
-  if (container === window) return false;
+  if (typeof window === "undefined" || container === window) return false;
   const element = container as HTMLElement;
   return direction() === "horizontal" && element.scrollWidth > element.clientWidth + 1;
 };
 
+const contentAxis = (container: ScrollContainer): ScrollAxis =>
+  usesHorizontalContentAxis(container) ? "x" : "y";
+
 const getScrollOffset = (container: ScrollContainer): number =>
-  container === window
-    ? window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0
-    : usesHorizontalContentAxis(container)
-      ? (container as HTMLElement).scrollLeft
-      : (container as HTMLElement).scrollTop;
+  getScrollPosition(container, contentAxis(container));
 
 const getElementOffset = (element: HTMLElement, container: ScrollContainer): number => {
-  const rect = element.getBoundingClientRect();
-  if (container === window) return getScrollOffset(container) + rect.top;
-  const parent = container as HTMLElement;
-  const parentRect = parent.getBoundingClientRect();
-  return usesHorizontalContentAxis(container)
-    ? parent.scrollLeft + rect.left - parentRect.left
-    : parent.scrollTop + rect.top - parentRect.top;
+  return getElementScrollPosition(element, container, contentAxis(container));
 };
+
+const motionOptions = (): GoToOptions => ({
+  ...(props.smooth
+    ? props.duration === undefined
+      ? {}
+      : { duration: props.duration }
+    : { duration: 0 }),
+  ...(props.easing === undefined ? {} : { easing: props.easing }),
+});
 
 const setActive = (href: string): void => {
   if (!href || href === activeHref.peek()) return;
@@ -278,11 +277,12 @@ const ensureHorizontalItemVisible = (href: string): void => {
   else if (itemEnd > viewportEnd) next = itemEnd - list.clientWidth;
   if (next === viewportStart) return;
 
-  if (typeof list.scrollTo === "function") {
-    list.scrollTo({ left: Math.max(0, next), behavior: props.smooth ? "smooth" : "auto" });
-  } else {
-    list.scrollLeft = Math.max(0, next);
-  }
+  navigationScrollTask?.cancel();
+  navigationScrollTask = goTo(Math.max(0, next), {
+    container: list,
+    axis: "x",
+    ...motionOptions(),
+  });
 };
 
 const horizontalControlDisabled = (directionValue: -1 | 1): boolean => {
@@ -348,30 +348,18 @@ const connect = (): void => {
   updateActive();
 };
 
-const scrollContainerTo = (container: ScrollContainer, position: number): void => {
-  const behavior = props.smooth && numberProp(props.duration, 300) > 0 ? "smooth" : "auto";
-  if (container === window) {
-    window.scrollTo({ top: position, behavior });
-    return;
-  }
-  const element = container as HTMLElement & {
-    scrollTo?: (options: ScrollToOptions) => void;
-  };
-  if (typeof element.scrollTo === "function") {
-    element.scrollTo(usesHorizontalContentAxis(container) ? { left: position, behavior } : { top: position, behavior });
-  } else if (usesHorizontalContentAxis(container)) {
-    element.scrollLeft = position;
-  } else {
-    element.scrollTop = position;
-  }
-};
-
 const scrollTo = (href: string): void => {
   const element = findTarget(href);
   if (!element) return;
   const target = scrollTarget || getContainer();
-  const position = Math.max(0, getElementOffset(element, target) - numberProp(props.offset));
-  scrollContainerTo(target, position);
+  contentScrollTask?.cancel();
+  contentScrollTask = goTo(element, {
+    root: host.getRootNode() as Document | ShadowRoot,
+    container: target,
+    axis: contentAxis(target),
+    offset: numberProp(props.offset),
+    ...motionOptions(),
+  });
 };
 
 const onItemClick = (item: AnchorViewItem, event: Event): void => {
@@ -447,6 +435,8 @@ onMounted(() => {
 onUnmounted(() => {
   mounted.set(false);
   cleanup();
+  contentScrollTask?.cancel();
+  navigationScrollTask?.cancel();
 });
 
 useHostAttr("active", currentHref);

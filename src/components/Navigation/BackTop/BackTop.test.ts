@@ -15,6 +15,7 @@ interface BackTopEl extends HTMLElement {
   target?: string | HTMLElement;
   visibilityHeight?: number;
   smooth?: boolean;
+  duration?: number;
   shape?: string;
   disabled?: boolean;
   scrollToTop?: () => void;
@@ -90,13 +91,25 @@ describe("elf-back-top", () => {
     expect(el.shadowRoot!.querySelector(".backtop")).toBeNull();
   });
 
-  it("uses smooth behavior by default", async () => {
-    const { el, target, scrollToMock } = await mount({ smooth: true });
+  it("uses configurable smooth animation", async () => {
+    const frame = vi
+      .spyOn(globalThis, "requestAnimationFrame")
+      .mockImplementation((callback) => {
+        queueMicrotask(() => callback(performance.now() + 100));
+        return 1;
+      });
+    const { el, target, scrollToMock } = await mount({
+      smooth: true,
+      duration: 20
+    });
     await scrollTo(target, 160);
 
     el.scrollToTop?.();
+    await tick();
+    await tick();
 
-    expect(scrollToMock).toHaveBeenCalledWith({ top: 0, behavior: "smooth" });
+    expect(frame).toHaveBeenCalled();
+    expect(scrollToMock).toHaveBeenCalledWith({ top: 0, behavior: "auto" });
   });
 
   it("supports disabled state", async () => {

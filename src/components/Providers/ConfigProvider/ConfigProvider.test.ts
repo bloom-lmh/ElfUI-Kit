@@ -33,11 +33,13 @@ describe("elf-config-provider", () => {
         },
       },
       defaults: { "elf-button": { variant: "outlined" } },
+      goTo: { duration: 480, offset: 12 },
     };
     provider.config = {
       locale: { name: "en-US" },
       defaults: { "elf-button": { color: "secondary" } },
       motion: "reduced",
+      goTo: { easing: "ease-out" },
     };
     provider.innerHTML = `
       <elf-config-provider-probe></elf-config-provider-probe>
@@ -54,6 +56,10 @@ describe("elf-config-provider", () => {
     expect(provider.shadowRoot?.querySelector("elf-locale-provider")?.getAttribute("lang")).toBe("en-US");
     expect(provider.shadowRoot?.querySelector("elf-theme-provider")?.style.getPropertyValue("--elf-primary"))
       .toBe("#1769aa");
+    const probeText =
+      provider.querySelector("elf-config-provider-probe")?.shadowRoot?.textContent ?? "";
+    expect(probeText).toContain("480");
+    expect(probeText).toContain("ease-out");
   });
 
   it("暴露响应式 display 与 reduced-motion 状态", async () => {

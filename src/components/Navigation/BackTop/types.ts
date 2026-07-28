@@ -1,12 +1,17 @@
+import type { GoToEasing } from "../../../composables/goTo";
+import type { ScrollContainerTarget } from "../../../composables/scroll";
+
 export type BackTopShape = "circle" | "square";
 
 export interface BackTopProps {
-  target: string | HTMLElement | Window | (() => HTMLElement | Window | null) | null;
+  target: ScrollContainerTarget;
   visibilityHeight: number;
   right: string | number;
   bottom: string | number;
   zIndex: string | number;
   smooth: boolean;
+  duration?: number;
+  easing?: GoToEasing;
   shape: BackTopShape;
   size: string | number;
   icon: string;

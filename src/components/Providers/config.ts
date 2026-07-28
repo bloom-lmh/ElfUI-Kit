@@ -1,6 +1,7 @@
 import { createInjectionKey, inject } from "@elfui/core";
 
 import type { IconOptions } from "../Basic/Icon/types";
+import type { GoToDefaults } from "../../composables/goTo";
 import type { ProviderDefaults, DefaultsStrategy } from "./context";
 import type { LocaleDirection, LocaleMessages } from "./context";
 import type { IconProviderProps } from "./IconProvider/types";
@@ -64,6 +65,7 @@ export interface ElfUIConfig {
   icons?: ElfUIIconOptions;
   display?: DisplayProviderOptions;
   motion?: MotionPreference;
+  goTo?: GoToDefaults;
 }
 
 export interface DisplayProviderContext {

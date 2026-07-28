@@ -6,7 +6,7 @@
 
 - ElfUI 组件：`Navigation/BackTop`。
 - 2026-07-15 复核 Element Plus 2.14.3 官方 API：`target`、`visibility-height`、`right`、`bottom`、`click`、默认插槽。
-- `smooth`、`shape`、`size`、`icon`、`disabled`、`zIndex`、`visible-change` 和 `scrollToTop()` 为 ElfUI 扩展。
+- `smooth`、`duration`、`easing`、`shape`、`size`、`icon`、`disabled`、`zIndex`、`visible-change` 和 `scrollToTop()` 为 ElfUI 扩展。
 
 ## 完成情况
 
@@ -24,11 +24,13 @@
 
 - Props、可见状态、目标解析、滚动方法、事件方法、生命周期、宿主绑定和模板分块集中。
 - 可见性状态由唯一 `setVisible` 入口更新，确保 `visible-change` 只在边沿变化时触发。
-- 目标滚动行为统一经 `scrollContainerTo`，Window 与 HTMLElement 保持同一 smooth 语义。
+- 目标滚动行为统一经公共 `useGoTo`；组件只维护阈值、可见状态和按钮交互。
+- duration / easing 支持 ConfigProvider 默认值与组件级覆盖，reduced-motion 自动降级为即时滚动。
+- 新滚动会替换旧任务，卸载时取消未完成任务。
 
 ## 验收记录
 
-- [x] `BackTop.test.ts` 7 项测试通过：阈值、click、smooth、disabled、shape、默认值归一化和动态 target。
+- [x] `BackTop.test.ts` 7 项测试通过：阈值、click、动画策略、disabled、shape、默认值归一化和动态 target。
 - [x] 页面案例与 API 表完成同步。
 - [x] 5 个相关组件联合回归 31/31 测试通过，`pnpm build` 通过。
 - [x] Playwright 实测：滚动 180px 后按钮出现，点击收到 MouseEvent，平滑回到 0 后按钮隐藏，控制台 0 error。

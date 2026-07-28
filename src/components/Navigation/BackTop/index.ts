@@ -15,11 +15,19 @@ import {
 } from "@elfui/core";
 
 import styles from "./style.scss?inline";
+import {
+  getScrollPosition,
+  resolveScrollContainer,
+  type ScrollContainer,
+} from "../../../composables/scroll";
+import type {
+  GoToOptions,
+  GoToTask,
+} from "../../../composables/goTo";
+import { useGoTo } from "../../../composables/useGoTo";
 import type { BackTopProps, BackTopShape, BackTopSlots } from "./types";
 
 export type { BackTopElement, BackTopProps, BackTopShape, BackTopSlots } from "./types";
-
-type ScrollContainer = Window | HTMLElement;
 
 const cssSize = (value: unknown, fallback: string): string => {
   if (value == null || value === "") return fallback;
@@ -40,6 +48,8 @@ const props = defineProps<BackTopProps>({
   bottom: { type: [Number, String], default: 40 },
   zIndex: { type: null, default: 10 },
   smooth: { type: Boolean, default: true },
+  duration: { type: Number, default: undefined },
+  easing: { type: null, default: undefined },
   shape: { type: String, default: "circle" },
   size: { type: [Number, String], default: 40 },
   icon: { type: String, default: "" },
@@ -52,40 +62,32 @@ const emit = defineEmits<{
 }>();
 
 const host = useHost();
+const goTo = useGoTo();
 
 const visible = useRef(false);
 
 let scrollTarget: ScrollContainer | null = null;
+let scrollTask: GoToTask | null = null;
 
 let cleanup = (): void => {};
 let mounted = false;
 
-const isScrollContainer = (value: unknown): value is ScrollContainer =>
-  typeof value === "object" && value !== null && "addEventListener" in value;
-
 const getContainer = (): ScrollContainer => {
-  if (typeof window === "undefined") return document.documentElement;
-  const target = props.target;
   const root = host.getRootNode() as Document | ShadowRoot;
-  if (typeof target === "string" && target) {
-    return (
-      (root.querySelector(target) as HTMLElement | null) ||
-      (document.querySelector(target) as HTMLElement | null) ||
-      window
-    );
-  }
-  if (typeof target === "function") {
-    const resolved = (target as () => ScrollContainer | null)();
-    return resolved || window;
-  }
-  if (isScrollContainer(target)) return target;
-  return window;
+  return resolveScrollContainer(props.target, root) ?? host;
 };
 
 const getScrollTop = (container: ScrollContainer): number =>
-  container === window
-    ? window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0
-    : (container as HTMLElement).scrollTop;
+  getScrollPosition(container);
+
+const motionOptions = (): GoToOptions => ({
+  ...(props.smooth
+    ? props.duration === undefined
+      ? {}
+      : { duration: props.duration }
+    : { duration: 0 }),
+  ...(props.easing === undefined ? {} : { easing: props.easing }),
+});
 
 const setVisible = (next: boolean): void => {
   if (visible.peek() === next) return;
@@ -102,26 +104,14 @@ const updateVisible = (): void => {
   setVisible(getScrollTop(target) >= Math.max(0, numberProp(props.visibilityHeight, 200)));
 };
 
-const scrollContainerTo = (container: ScrollContainer, top: number): void => {
-  const behavior = props.smooth ? "smooth" : "auto";
-  if (container === window) {
-    window.scrollTo({ top, behavior });
-    return;
-  }
-  const element = container as HTMLElement & {
-    scrollTo?: (options: ScrollToOptions) => void;
-  };
-  if (typeof element.scrollTo === "function") {
-    element.scrollTo({ top, behavior });
-  } else {
-    element.scrollTop = top;
-  }
-};
-
 const scrollToTop = (): void => {
   if (props.disabled) return;
   const target = scrollTarget || getContainer();
-  scrollContainerTo(target, 0);
+  scrollTask?.cancel();
+  scrollTask = goTo(0, {
+    container: target,
+    ...motionOptions(),
+  });
   updateVisible();
 };
 
@@ -168,6 +158,7 @@ onMounted(() => {
 onUnmounted(() => {
   mounted = false;
   cleanup();
+  scrollTask?.cancel();
 });
 
 useHostAttr("shape", shape);

@@ -28,11 +28,12 @@ export interface AnchorProps {
   items: AnchorItem[];
   modelValue: string;
   defaultActive: string;
-  container: string | HTMLElement | Window | (() => HTMLElement | Window | null) | null;
+  container: ScrollContainerTarget;
   offset: number;
   bound?: number;
   bounds: number;
-  duration: number;
+  duration?: number;
+  easing?: GoToEasing;
   marker: boolean;
   type: "default" | "underline";
   direction: "vertical" | "horizontal";
@@ -65,3 +66,5 @@ export interface AnchorElement {
   /** Safe Custom Element method; `scrollTo` is reserved by HTMLElement. */
   scrollToAnchor: (href: string) => void;
 }
+import type { GoToEasing } from "../../../composables/goTo";
+import type { ScrollContainerTarget } from "../../../composables/scroll";

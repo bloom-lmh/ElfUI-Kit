@@ -40,9 +40,11 @@ describe("BackTop documentation", () => {
     await tick();
     expect(backTop.shadowRoot?.querySelector(".backtop")).toBeTruthy();
 
+    (backTop as HTMLElement & { smooth?: boolean }).smooth = false;
+    await tick();
     (backTop.shadowRoot!.querySelector(".backtop") as HTMLButtonElement).click();
     await tick();
     expect(wrap.scrollTop).toBe(0);
-    expect(scrollTo).toHaveBeenCalledWith({ top: 0, behavior: "smooth" });
+    expect(scrollTo).toHaveBeenCalledWith({ top: 0, behavior: "auto" });
   });
 });

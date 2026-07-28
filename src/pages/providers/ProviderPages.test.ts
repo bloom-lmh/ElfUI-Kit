@@ -93,5 +93,6 @@ describe("Provider pages", () => {
     expect(text).toContain("One entry point");
     expect(text).toContain("Named theme");
     expect(text).toContain("Display and motion preferences");
+    expect(text).toContain("goTo · shared scrolling strategy");
   });
 });
