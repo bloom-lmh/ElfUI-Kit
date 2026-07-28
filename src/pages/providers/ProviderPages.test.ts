@@ -4,6 +4,7 @@ let localeMatrixTag = "";
 let localeNestedTag = "";
 let themeNestedTag = "";
 let defaultsNestedTag = "";
+let configProviderTag = "";
 
 beforeAll(async () => {
   await import("../../components");
@@ -12,10 +13,12 @@ beforeAll(async () => {
   const { PageLocaleProviderEx3 } = await import("./LocaleProviderPage/ex3");
   const { PageThemeProviderEx4 } = await import("./ThemeProviderPage/ex4");
   const { PageDefaultsProviderEx3 } = await import("./DefaultsProviderPage/ex3");
+  const { PageConfigProvider } = await import("./ConfigProviderPage/index");
   localeMatrixTag = ensureCustomElement(PageLocaleProviderEx2);
   localeNestedTag = ensureCustomElement(PageLocaleProviderEx3);
   themeNestedTag = ensureCustomElement(PageThemeProviderEx4);
   defaultsNestedTag = ensureCustomElement(PageDefaultsProviderEx3);
+  configProviderTag = ensureCustomElement(PageConfigProvider);
 });
 
 afterEach(async () => {
@@ -82,5 +85,13 @@ describe("Provider pages", () => {
     expect(innerButton.color).toBe("success");
     expect(resetButton.color).toBe("warning");
     expect(resetButton.variant).toBe("contained");
+  });
+
+  it("ConfigProvider 页面展示一站式配置、命名主题和断点", async () => {
+    const page = await mount(configProviderTag);
+    const text = collectText(page);
+    expect(text).toContain("One entry point");
+    expect(text).toContain("Named theme");
+    expect(text).toContain("Display and motion preferences");
   });
 });

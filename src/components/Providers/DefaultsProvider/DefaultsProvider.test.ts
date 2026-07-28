@@ -119,4 +119,24 @@ describe("elf-defaults-provider", () => {
     await tick();
     expect(tag.color).toBe("warning");
   });
+
+  it("支持 global 默认值，并让组件级配置覆盖 global", async () => {
+    const provider = document.createElement("elf-defaults-provider") as DefaultsProviderEl;
+    provider.defaults = {
+      global: { size: "sm" },
+      "elf-button": { size: "lg" },
+    };
+    provider.innerHTML = `
+      <elf-button id="button">Button</elf-button>
+      <elf-tag id="tag">Tag</elf-tag>
+    `;
+    document.body.appendChild(provider);
+    await tick();
+    await tick();
+
+    const button = provider.querySelector("#button") as HTMLElement & Record<string, unknown>;
+    const tag = provider.querySelector("#tag") as HTMLElement & Record<string, unknown>;
+    expect(button.size).toBe("lg");
+    expect(tag.size).toBe("sm");
+  });
 });

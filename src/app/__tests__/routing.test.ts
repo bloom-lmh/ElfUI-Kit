@@ -180,7 +180,8 @@ describe("路由跳转", () => {
     expect(menu?.shadowRoot?.textContent).not.toContain("Layout 布局");
     const { getActiveRouter } = await import("@elfui/router");
     expect(getActiveRouter()?.current.peek().path).toBe("/basic/button");
-    expect(app.shadowRoot?.querySelector("elf-locale-provider")?.getAttribute("lang")).toBe("en-US");
+    const configProvider = app.shadowRoot?.querySelector("elf-config-provider");
+    expect(configProvider?.shadowRoot?.querySelector("elf-locale-provider")?.getAttribute("lang")).toBe("en-US");
     expect(document.documentElement.lang).toBe("en-US");
   });
 

@@ -125,3 +125,10 @@
 - [x] 上下文提供 `applyTo(target)`，供 Message 等挂载到文档层的服务浮层继承主题。
 - [x] 补齐嵌套暗色、服务浮层与自定义 token 案例，并完成组件、Message 和页面回归。
 - [x] 真实浏览器截图为 `theme-provider-nested-overlay.png`；主题持久化明确由应用层负责。
+
+## 2026-07-28 全局配置收尾
+
+- [x] 支持命名主题、`system` 主题和 `ThemeDefinition.dark` 语义。
+- [x] 扩展颜色之外的字体、圆角、间距、阴影、动效和浮层层级 token。
+- [x] `applyTo()` 在转发前清理旧 token，避免服务浮层遗留旧主题变量。
+- [x] 主题切换通过 `matchMedia` 监听系统深色偏好，并在卸载时清理监听器。

@@ -112,3 +112,10 @@
 - [x] Provider 禁用、配置变化和卸载时恢复其写入的属性，不残留旧默认值。
 - [x] 通过 MutationObserver 覆盖动态插入子树，并隔离嵌套 Provider 的作用域。
 - [x] 组件 5 项及 Provider 页面回归通过，真实浏览器截图为 `defaults-provider-nested-reset.png`。
+
+## 2026-07-28 全局配置收尾
+
+- [x] 抽取 `normalizeProviderDefaults`、`mergeProviderDefaults`、`resolveComponentDefaults` 纯函数，统一标签名解析。
+- [x] 支持 `global` / `*` 默认项，并保证组件级 defaults 覆盖 global。
+- [x] 对转发 slot 监听 `slotchange`，覆盖 ConfigProvider 嵌套后的动态子树。
+- [x] 保留 missing / overwrite、reset、disabled、deep 和卸载恢复语义。

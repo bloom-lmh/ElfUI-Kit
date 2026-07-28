@@ -329,6 +329,10 @@ export const routes: RouteRecord[] = [
 
   // Providers
   {
+    path: "/providers/config",
+    component: () => import("../pages/providers/ConfigProviderPage/index")
+  },
+  {
     path: "/providers/defaults",
     component: () => import("../pages/providers/DefaultsProviderPage/index")
   },
@@ -444,7 +448,8 @@ export const navItems: NavItem[] = [
   { to: "/picker/time", text: "TimePicker 时间", group: "Picker 选择器" },
   { to: "/picker/calendar", text: "Calendar 日历", group: "Picker 选择器" },
 
-  { to: "/providers/defaults", text: "Defaults providers", group: "Providers 提供者" },
+  { to: "/providers/config", text: "ConfigProvider 全局配置", group: "Providers 提供者" },
+  { to: "/providers/defaults", text: "DefaultsProvider 默认值", group: "Providers 提供者" },
   { to: "/providers/locale", text: "Locale providers", group: "Providers 提供者" },
   { to: "/providers/theme", text: "Theme providers", group: "Providers 提供者" }
 ];

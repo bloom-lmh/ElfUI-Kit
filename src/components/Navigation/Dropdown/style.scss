@@ -137,7 +137,7 @@
 
 .menu {
   position: absolute;
-  z-index: 1000;
+  z-index: var(--elf-z-index-dropdown, 1000);
   min-width: 192px;
   width: max-content;
   max-width: min(340px, calc(100vw - 24px));

@@ -1,0 +1,10 @@
+:host {
+  display: contents;
+}
+
+:host([data-motion="reduced"]) {
+  --elf-transition-fast: 0ms linear;
+  --elf-transition-base: 0ms linear;
+  --elf-transition-slow: 0ms linear;
+  --elf-field-motion: 0ms linear;
+}

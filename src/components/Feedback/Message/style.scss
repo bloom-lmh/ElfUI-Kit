@@ -3,7 +3,7 @@
 :host {
   position: fixed;
   left: 50%;
-  z-index: var(--_z-index, 2000);
+  z-index: var(--_z-index, var(--elf-z-index-toast, 2000));
   display: block;
   max-width: calc(100vw - 32px);
   box-sizing: border-box;

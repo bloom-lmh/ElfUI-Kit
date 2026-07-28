@@ -3,6 +3,7 @@ import {
   defineHtml,
   defineProps,
   defineStyle,
+  useComputed,
   useEffect,
   useHostAttr,
   useHostCssVar,
@@ -47,6 +48,14 @@ const normalizedVariant = (): LoadingVariant => {
 };
 const isInteractiveFullscreen = (): boolean => props.fullscreen && props.closable;
 const overlayRole = (): "dialog" | "status" => (isInteractiveFullscreen() ? "dialog" : "status");
+const variant = useComputed(normalizedVariant);
+const interactiveFullscreen = useComputed(isInteractiveFullscreen);
+const indicatorClasses = useComputed(() => ["indicator", `is-${variant.value}`]);
+const hasSvg = useComputed(() => Boolean(props.svg));
+const showSpinner = useComputed(() => !hasSvg.value && variant.value === "spinner");
+const showDots = useComputed(() => variant.value === "dots");
+const showPulse = useComputed(() => variant.value === "pulse");
+const showBars = useComputed(() => variant.value === "bars");
 
 const close = (): void => {
   emit("update:loading", false);
@@ -80,27 +89,27 @@ const Loading = defineHtml<LoadingProps, LoadingEmits, LoadingSlots>(`
       part="overlay"
       :popover=${props.fullscreen ? "manual" : undefined}
       :role=${overlayRole()}
-      :aria-modal=${isInteractiveFullscreen() ? "true" : null}
+      :aria-modal=${interactiveFullscreen ? "true" : null}
       :aria-label=${props.text || locale.t("loading.active")}
     >
       <div class="box">
-        <span :class=${["indicator", `is-${normalizedVariant()}`]} aria-hidden="true">
+        <span :class=${indicatorClasses} aria-hidden="true">
           <svg
-            v-if=${Boolean(props.svg)}
+            v-if=${hasSvg}
             class="custom-spinner"
             :viewBox=${props.svgViewBox}
             focusable="false"
           >
             <path :d=${props.svg}></path>
           </svg>
-          <span v-if=${!props.svg && normalizedVariant() === "spinner"} class="spinner"></span>
-          <span v-if=${normalizedVariant() === "dots"} class="dot"></span>
-          <span v-if=${normalizedVariant() === "dots"} class="dot"></span>
-          <span v-if=${normalizedVariant() === "dots"} class="dot"></span>
-          <span v-if=${normalizedVariant() === "pulse"} class="pulse"></span>
-          <span v-if=${normalizedVariant() === "bars"} class="bar"></span>
-          <span v-if=${normalizedVariant() === "bars"} class="bar"></span>
-          <span v-if=${normalizedVariant() === "bars"} class="bar"></span>
+          <span v-if=${showSpinner} class="spinner"></span>
+          <span v-if=${showDots} class="dot"></span>
+          <span v-if=${showDots} class="dot"></span>
+          <span v-if=${showDots} class="dot"></span>
+          <span v-if=${showPulse} class="pulse"></span>
+          <span v-if=${showBars} class="bar"></span>
+          <span v-if=${showBars} class="bar"></span>
+          <span v-if=${showBars} class="bar"></span>
         </span>
         <span v-if=${props.text} class="loading-text">${props.text}</span>
       </div>

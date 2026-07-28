@@ -191,7 +191,7 @@
   box-shadow: var(--elf-shadow-3);
   max-height: var(--_select-dropdown-height, 240px);
   overflow-y: auto;
-  z-index: 1000;
+  z-index: var(--elf-z-index-dropdown, 1000);
   padding: 4px 0;
 
   /* Material Design smooth transitions */

@@ -23,6 +23,7 @@
   --elf-bg-default: #ffffff;
   --elf-bg-paper: #ffffff;
   --elf-bg-overlay: rgba(0, 0, 0, 0.04);
+  --elf-overlay-backdrop: rgba(0, 0, 0, 0.48);
   --elf-field-bg: #eeeeee;
   --elf-field-hover-bg: #e7e7e7;
 
@@ -63,6 +64,13 @@
   --elf-shadow-2: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
   --elf-shadow-4: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
 
+  // 层级：Provider 可按应用的浮层体系覆盖。
+  --elf-z-index-dropdown: 1000;
+  --elf-z-index-popover: 1200;
+  --elf-z-index-modal: 9999;
+  --elf-z-index-toast: 2000;
+  --elf-z-index-loading: 10000;
+
   // 动效
   --elf-transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
   --elf-transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -94,6 +102,7 @@
   --elf-border-strong: rgba(255, 255, 255, 0.23);
 
   --elf-divider: rgba(255, 255, 255, 0.08);
+  --elf-overlay-backdrop: rgba(0, 0, 0, 0.64);
   --elf-empty-illustration: #385069;
   --elf-empty-illustration-accent: #6f9fcf;
 }

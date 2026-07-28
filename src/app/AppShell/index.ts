@@ -11,6 +11,7 @@ import {
 } from "@elfui/core";
 
 import type { LocaleMessages } from "../../components/Providers/context";
+import type { ElfUIConfig } from "../../components/Providers/config";
 import { navItems } from "../../routes";
 import { APP_SKINS, type AppSkin } from "../skins";
 import styles from "./style.scss?inline";
@@ -130,6 +131,13 @@ let removeViewportListener = (): void => {};
 const currentSkin = (): AppSkin => APP_SKINS.find((skin) => skin.id === skinName.value) || APP_SKINS[0]!;
 const isEnglish = (): boolean => localeName.value === "en-US";
 const currentMessages = (): LocaleMessages => APP_MESSAGES[localeName.value] || APP_MESSAGES["zh-CN"]!;
+const providerConfig = (): ElfUIConfig => ({
+  locale: { name: localeName.value, messages: currentMessages() },
+  theme: {
+    theme: currentSkin().providerTheme,
+    tokens: currentSkin().tokens,
+  },
+});
 const text = (zh: string, en: string): string => isEnglish() ? en : zh;
 const localizeLabel = (label: string): string => isEnglish() ? englishLabel(label) : label;
 const collapseIcon = (): string => compactViewport.value
@@ -237,8 +245,7 @@ onUnmounted(() => {
 defineStyle(styles);
 
 const App = defineHtml(`
-  <elf-locale-provider :name=${localeName.value} :messages.prop=${currentMessages()}>
-    <elf-theme-provider :theme=${currentSkin().providerTheme} :tokens.prop=${currentSkin().tokens}>
+  <elf-config-provider :config.prop=${providerConfig()}>
       <elf-layout v-if=${isHome()} class="home-shell">
         <elf-router-view></elf-router-view>
       </elf-layout>
@@ -302,8 +309,7 @@ const App = defineHtml(`
 
         <elf-footer height="40px">© 2026 ElfUI · ${appMessage("footer")}</elf-footer>
       </elf-layout>
-    </elf-theme-provider>
-  </elf-locale-provider>
+  </elf-config-provider>
 `);
 
 export { App };

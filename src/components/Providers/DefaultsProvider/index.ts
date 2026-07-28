@@ -1,29 +1,32 @@
 // elf-defaults-provider — 为子树批量提供组件默认 props
 //
-// 参考 Vuetify VDefaultsProvider。Web Components 没有统一 app 实例，
-// 所以这里同时做两件事：
-// 1) provide 一个可 inject 的 defaults context；
-// 2) 对 light DOM 子组件实际写入默认 property/attribute，让现有组件立即可用。
+// Web Components 没有统一应用实例，因此 Provider 同时提供可注入上下文，
+// 并把默认值写入 light DOM 子组件，使尚未接入 composable 的组件也能立即使用。
 
 import {
+  defineHtml,
   defineProps,
   defineStyle,
-  onBeforeUnmount,
   onMounted,
   provide,
   useEffect,
   useHost,
   useTemplateRef,
-  defineHtml
 } from "@elfui/core";
 
 import {
-    DEFAULTS_PROVIDER_KEY,
-    type DefaultsProviderContext,
-    type DefaultsStrategy,
-    type ProviderDefaults,
-    useDefaultsProvider,
+  DEFAULTS_PROVIDER_KEY,
+  type DefaultsProviderContext,
+  type DefaultsStrategy,
+  type ProviderDefaults,
+  useDefaultsProvider,
 } from "../context";
+import {
+  mergeProviderDefaults,
+  normalizeProviderDefaults,
+  resolveComponentDefaults,
+  toAttributeName,
+} from "../defaults";
 import styles from "./style.scss?inline";
 import type { DefaultsProviderProps } from "./types";
 
@@ -31,190 +34,199 @@ export type { DefaultsProviderProps, DefaultsStrategy, ProviderDefaults } from "
 
 type LooseElement = HTMLElement & Record<string, unknown>;
 
+interface AppliedValue {
+  key: string;
+  propertyValue: unknown;
+  hadAttribute: boolean;
+  attributeValue: string | null;
+}
+
 const props = defineProps<DefaultsProviderProps>({
-    defaults: { type: Object, default: () => ({}) },
-    disabled: { type: Boolean, default: false },
-    deep: { type: Boolean, default: true },
-    strategy: { type: String, default: "missing" },
-    reset: { type: Boolean, default: false },
+  defaults: { type: Object, default: () => ({}) },
+  disabled: { type: Boolean, default: false },
+  deep: { type: Boolean, default: true },
+  strategy: { type: String, default: "missing" },
+  reset: { type: Boolean, default: false },
 });
 
 const host = useHost();
+const slotRef = useTemplateRef<HTMLSlotElement>("slotEl");
 const parentDefaults = useDefaultsProvider();
 
-const slotRef = useTemplateRef<HTMLSlotElement>("slotEl");
-
-const readOwnDefaults = (): ProviderDefaults => {
-    const value = props.defaults as unknown;
-    if (!value) return {};
-    if (typeof value === "string") {
-        try {
-            const parsed = JSON.parse(value) as ProviderDefaults;
-            return parsed && typeof parsed === "object" ? parsed : {};
-        } catch {
-            return {};
-        }
-    }
-    return value && typeof value === "object" ? (value as ProviderDefaults) : {};
-};
-
-const readDefaults = (): ProviderDefaults => {
-    const own = readOwnDefaults();
-    if (props.reset || !parentDefaults || parentDefaults.disabled) return own;
-    const merged: ProviderDefaults = { ...parentDefaults.defaults };
-    for (const [component, config] of Object.entries(own)) {
-        merged[component] = { ...(merged[component] || {}), ...config };
-    }
-    return merged;
-};
-
-const readStrategy = (): DefaultsStrategy => (props.strategy === "overwrite" ? "overwrite" : "missing");
-type AppliedValue = { key: string; propertyValue: unknown; hadAttribute: boolean; attributeValue: string | null };
 const appliedValues = new Map<Element, AppliedValue[]>();
+const forwardedSlots = new Set<HTMLSlotElement>();
 let observer: MutationObserver | undefined;
 let applyQueued = false;
 
-const findConfig = (el: Element): Record<string, unknown> | undefined => {
-    const defaults = readDefaults();
-    const tag = el.tagName.toLowerCase();
-    const short = tag.startsWith("elf-") ? tag.slice(4) : tag;
-    const pascal = tag
-        .split("-")
-        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-        .join("");
-    const shortPascal = short
-        .split("-")
-        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-        .join("");
+const readOwnDefaults = (): ProviderDefaults =>
+  normalizeProviderDefaults(props.defaults as unknown);
 
-    return defaults[tag] ?? defaults[short] ?? defaults[pascal] ?? defaults[shortPascal];
+const readDefaults = (): ProviderDefaults => {
+  const own = readOwnDefaults();
+  if (props.reset || !parentDefaults || parentDefaults.disabled) return own;
+  return mergeProviderDefaults(parentDefaults.defaults, own);
 };
 
-const shouldSkip = (el: Element, propKey: string): boolean => {
-    if (readStrategy() === "overwrite") return false;
-    const attrName = toKebab(propKey);
-    return el.hasAttribute(attrName) || el.hasAttribute(propKey);
+const readStrategy = (): DefaultsStrategy =>
+  props.strategy === "overwrite" ? "overwrite" : "missing";
+
+const assignedElements = (): Element[] =>
+  slotRef.value?.assignedElements({ flatten: true }) ?? Array.from(host.children);
+
+const shouldSkip = (element: Element, propKey: string): boolean => {
+  if (readStrategy() === "overwrite") return false;
+  const attribute = toAttributeName(propKey);
+  return element.hasAttribute(attribute) || element.hasAttribute(propKey);
 };
 
-const applyProp = (el: Element, propKey: string, value: unknown): void => {
-    if (shouldSkip(el, propKey)) return;
-    const target = el as LooseElement;
-    const attrName = toKebab(propKey);
-    const records = appliedValues.get(el) || [];
-    records.push({
-        key: propKey,
-        propertyValue: target[propKey],
-        hadAttribute: el.hasAttribute(attrName),
-        attributeValue: el.getAttribute(attrName),
-    });
-    appliedValues.set(el, records);
-    target[propKey] = value;
+const applyProp = (element: Element, propKey: string, value: unknown): void => {
+  if (shouldSkip(element, propKey)) return;
 
-    if (typeof value === "boolean") {
-        if (value) el.setAttribute(attrName, "");
-        else if (readStrategy() === "overwrite") el.removeAttribute(attrName);
-        return;
+  const target = element as LooseElement;
+  const attribute = toAttributeName(propKey);
+  const records = appliedValues.get(element) ?? [];
+  records.push({
+    key: propKey,
+    propertyValue: target[propKey],
+    hadAttribute: element.hasAttribute(attribute),
+    attributeValue: element.getAttribute(attribute),
+  });
+  appliedValues.set(element, records);
+  target[propKey] = value;
+
+  if (typeof value === "boolean") {
+    if (value) element.setAttribute(attribute, "");
+    else if (readStrategy() === "overwrite") element.removeAttribute(attribute);
+  } else if (typeof value === "string" || typeof value === "number") {
+    element.setAttribute(attribute, String(value));
+  }
+};
+
+const applyElement = (element: Element, defaults: ProviderDefaults): void => {
+  const { global, component } = resolveComponentDefaults(defaults, element.tagName);
+  if (!global && !component) return;
+
+  const target = element as LooseElement;
+  const applicableGlobal = Object.fromEntries(
+    Object.entries(global ?? {}).filter(([key]) => key in target),
+  );
+  const resolved = { ...applicableGlobal, ...(component ?? {}) };
+
+  for (const [key, value] of Object.entries(resolved)) {
+    applyProp(element, key, value);
+  }
+};
+
+const observeForwardedSlot = (slot: HTMLSlotElement): void => {
+  if (forwardedSlots.has(slot)) return;
+  forwardedSlots.add(slot);
+  slot.addEventListener("slotchange", queueApplyDefaults);
+};
+
+const walk = (element: Element, defaults: ProviderDefaults): void => {
+  if (element instanceof HTMLSlotElement) {
+    observeForwardedSlot(element);
+    for (const assigned of element.assignedElements({ flatten: true })) {
+      walk(assigned, defaults);
     }
-    if (typeof value === "string" || typeof value === "number") {
-        el.setAttribute(attrName, String(value));
-    }
-};
+    return;
+  }
 
-const applyElement = (el: Element): void => {
-    const config = findConfig(el);
-    if (!config) return;
-    for (const [key, value] of Object.entries(config)) {
-        applyProp(el, key, value);
-    }
-};
+  applyElement(element, defaults);
+  if (!props.deep) return;
+  if (element !== host && element.tagName.toLowerCase() === "elf-defaults-provider") return;
 
-const walk = (el: Element): void => {
-    applyElement(el);
-    if (!props.deep) return;
-    if (el !== host && el.tagName.toLowerCase() === "elf-defaults-provider") return;
-    for (const child of Array.from(el.children)) walk(child);
-};
-
-const assignedElements = (): Element[] => {
-    const slot = slotRef.value;
-    if (slot) return slot.assignedElements({ flatten: true });
-    return Array.from(host.children);
+  for (const child of Array.from(element.children)) {
+    walk(child, defaults);
+  }
 };
 
 const restoreApplied = (): void => {
-    for (const [element, records] of appliedValues) {
-        const target = element as LooseElement;
-        for (const record of records.reverse()) {
-            const attrName = toKebab(record.key);
-            target[record.key] = record.propertyValue;
-            if (record.hadAttribute) element.setAttribute(attrName, record.attributeValue ?? "");
-            else element.removeAttribute(attrName);
-        }
+  for (const [element, records] of appliedValues) {
+    const target = element as LooseElement;
+    for (const record of records.reverse()) {
+      const attribute = toAttributeName(record.key);
+      target[record.key] = record.propertyValue;
+      if (record.hadAttribute) element.setAttribute(attribute, record.attributeValue ?? "");
+      else element.removeAttribute(attribute);
     }
-    appliedValues.clear();
+  }
+  appliedValues.clear();
 };
 
 const applyDefaults = (root?: ParentNode): void => {
-    restoreApplied();
-    if (props.disabled) return;
-    const targetRoot = root && "children" in root ? root : undefined;
-    const roots = targetRoot ? Array.from(targetRoot.children) : assignedElements();
-    for (const child of roots) walk(child);
-};
-const queueApplyDefaults = (): void => {
-    if (applyQueued) return;
-    applyQueued = true;
-    queueMicrotask(() => {
-        applyQueued = false;
-        applyDefaults();
-    });
+  restoreApplied();
+  if (props.disabled) return;
+
+  const defaults = readDefaults();
+  const roots =
+    root && "children" in root
+      ? Array.from(root.children)
+      : assignedElements();
+
+  for (const child of roots) {
+    walk(child, defaults);
+  }
 };
 
+function queueApplyDefaults(): void {
+  if (applyQueued) return;
+  applyQueued = true;
+  queueMicrotask(() => {
+    applyQueued = false;
+    applyDefaults();
+  });
+}
+
 const context: DefaultsProviderContext = {
-    get defaults() {
-        return readDefaults();
-    },
-    get disabled() {
-        return Boolean(props.disabled);
-    },
-    get strategy() {
-        return readStrategy();
-    },
-    applyDefaults,
+  get defaults() {
+    return readDefaults();
+  },
+  get disabled() {
+    return Boolean(props.disabled);
+  },
+  get strategy() {
+    return readStrategy();
+  },
+  applyDefaults,
 };
 
 provide(DEFAULTS_PROVIDER_KEY, context);
 
 onMounted(() => {
-    // Apply before slotted custom-element children finish mounting, so their
-    // reflected default attributes are not mistaken for explicit user input.
-    applyDefaults();
-    queueMicrotask(() => applyDefaults());
-    if (typeof MutationObserver !== "undefined") {
-        observer = new MutationObserver(queueApplyDefaults);
-        observer.observe(host, { childList: true, subtree: true });
+  // 先于 slotted custom elements 完成挂载写入，避免默认反射属性被误判为用户显式输入。
+  applyDefaults();
+  queueMicrotask(applyDefaults);
+
+  if (typeof MutationObserver !== "undefined") {
+    observer = new MutationObserver(queueApplyDefaults);
+    observer.observe(host, { childList: true, subtree: true });
+  }
+
+  return () => {
+    observer?.disconnect();
+    observer = undefined;
+    for (const slot of forwardedSlots) {
+      slot.removeEventListener("slotchange", queueApplyDefaults);
     }
+    forwardedSlots.clear();
+    restoreApplied();
+  };
 });
 
 useEffect(() => {
-    readDefaults();
-    readStrategy();
-    Boolean(props.disabled);
-    Boolean(props.deep);
-    Boolean(props.reset);
-    queueApplyDefaults();
-});
-
-onBeforeUnmount(() => {
-    observer?.disconnect();
-    observer = undefined;
-    restoreApplied();
+  readDefaults();
+  readStrategy();
+  Boolean(props.disabled);
+  Boolean(props.deep);
+  Boolean(props.reset);
+  queueApplyDefaults();
 });
 
 defineStyle(styles);
 
-const DefaultsProvider = defineHtml(`<slot ref="slotEl" @slotchange=${queueApplyDefaults}></slot>`);
-
-const toKebab = (value: string): string => value.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
+const DefaultsProvider = defineHtml(
+  `<slot ref="slotEl" @slotchange=${queueApplyDefaults}></slot>`,
+);
 
 export { DefaultsProvider };

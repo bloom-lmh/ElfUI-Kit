@@ -221,7 +221,7 @@
   position: absolute;
   top: calc(100% - 1px);
   left: 0;
-  z-index: 1000;
+  z-index: var(--elf-z-index-dropdown, 1000);
   width: max-content;
   min-width: 0;
   max-width: min(720px, calc(100vw - 24px));

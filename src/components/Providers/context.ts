@@ -22,6 +22,8 @@ export interface LocaleProviderContext {
   formatDate(value: Date | number | string, options?: Intl.DateTimeFormatOptions): string;
 }
 
+export type ThemeTokenValue = string | number;
+
 export type ThemeTokens = Partial<{
   primary: string;
   primaryHover: string;
@@ -43,6 +45,36 @@ export type ThemeTokens = Partial<{
   border: string;
   borderStrong: string;
   divider: string;
+  overlayBackdrop: string;
+  fontFamily: string;
+  fontSizeXs: string;
+  fontSizeSm: string;
+  fontSizeMd: string;
+  fontSizeLg: string;
+  fontSizeXl: string;
+  lineHeightMd: string | number;
+  radiusSm: string;
+  radiusMd: string;
+  radiusLg: string;
+  radiusPill: string;
+  space1: string;
+  space2: string;
+  space3: string;
+  space4: string;
+  space5: string;
+  space6: string;
+  space8: string;
+  shadow1: string;
+  shadow2: string;
+  shadow4: string;
+  transitionFast: string;
+  transitionBase: string;
+  transitionSlow: string;
+  zIndexDropdown: string | number;
+  zIndexPopover: string | number;
+  zIndexModal: string | number;
+  zIndexToast: string | number;
+  zIndexLoading: string | number;
 }>;
 
 export interface ThemeProviderContext {
@@ -72,13 +104,47 @@ export const THEME_TOKEN_VARS: Record<keyof ThemeTokens, string> = {
   fieldHoverBg: "--elf-field-hover-bg",
   border: "--elf-border",
   borderStrong: "--elf-border-strong",
-  divider: "--elf-divider"
+  divider: "--elf-divider",
+  overlayBackdrop: "--elf-overlay-backdrop",
+  fontFamily: "--elf-font-family",
+  fontSizeXs: "--elf-font-size-xs",
+  fontSizeSm: "--elf-font-size-sm",
+  fontSizeMd: "--elf-font-size-md",
+  fontSizeLg: "--elf-font-size-lg",
+  fontSizeXl: "--elf-font-size-xl",
+  lineHeightMd: "--elf-line-height-md",
+  radiusSm: "--elf-radius-sm",
+  radiusMd: "--elf-radius-md",
+  radiusLg: "--elf-radius-lg",
+  radiusPill: "--elf-radius-pill",
+  space1: "--elf-space-1",
+  space2: "--elf-space-2",
+  space3: "--elf-space-3",
+  space4: "--elf-space-4",
+  space5: "--elf-space-5",
+  space6: "--elf-space-6",
+  space8: "--elf-space-8",
+  shadow1: "--elf-shadow-1",
+  shadow2: "--elf-shadow-2",
+  shadow4: "--elf-shadow-4",
+  transitionFast: "--elf-transition-fast",
+  transitionBase: "--elf-transition-base",
+  transitionSlow: "--elf-transition-slow",
+  zIndexDropdown: "--elf-z-index-dropdown",
+  zIndexPopover: "--elf-z-index-popover",
+  zIndexModal: "--elf-z-index-modal",
+  zIndexToast: "--elf-z-index-toast",
+  zIndexLoading: "--elf-z-index-loading",
 };
 
 export const applyThemeTokens = (target: HTMLElement, tokens: ThemeTokens): void => {
-  for (const [key, value] of Object.entries(tokens) as Array<[keyof ThemeTokens, string]>) {
+  for (const [key, value] of Object.entries(tokens) as Array<
+    [keyof ThemeTokens, ThemeTokenValue]
+  >) {
     const variable = THEME_TOKEN_VARS[key];
-    if (variable && value) target.style.setProperty(variable, value);
+    if (variable && value !== undefined && value !== null && value !== "") {
+      target.style.setProperty(variable, String(value));
+    }
   }
 };
 

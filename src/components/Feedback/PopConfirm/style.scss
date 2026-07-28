@@ -23,7 +23,7 @@
 
 .pop-confirm-popover {
   position: absolute;
-  z-index: 2000;
+  z-index: var(--elf-z-index-popover, 1200);
   display: flex;
   min-width: 220px;
   max-width: min(360px, calc(100vw - 32px));

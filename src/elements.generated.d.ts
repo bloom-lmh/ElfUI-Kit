@@ -220,6 +220,15 @@ declare global {
       disabled: boolean;
       deep: boolean;
       strategy: string;
+      reset: boolean;
+    };
+    "elf-config-provider": HTMLElement & {
+      config: Record<string, unknown>;
+      blueprint: Record<string, unknown>;
+      inherit: boolean;
+      theme: string;
+      locale: string;
+      motion: string;
     };
     "elf-descriptions": HTMLElement & {
       title: string;
@@ -800,6 +809,7 @@ declare global {
     };
     "elf-theme-provider": HTMLElement & {
       theme: string;
+      themes: Record<string, unknown>;
       primary: string;
       secondary: string;
       success: string;

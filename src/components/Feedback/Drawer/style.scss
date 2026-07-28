@@ -3,7 +3,7 @@
 .elf-drawer-mask {
   position: fixed;
   inset: 0;
-  z-index: 9998;
+  z-index: calc(var(--elf-z-index-modal, 9999) - 1);
   background: rgba(0, 0, 0, 0.45);
   animation: elf-dr-fade 0.25s ease both;
   opacity: 1;
