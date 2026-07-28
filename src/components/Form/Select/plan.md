@@ -1,5 +1,13 @@
 # Select Element Plus API 对标计划
 
+## 2026-07-28 虚拟化与双语文档收敛
+
+- [x] `virtual`、`virtualThreshold`、`itemHeight`、`overscan` 接入共享虚拟窗口算法。
+- [x] 选项 DOM 数量保持有界，滚动、Home/End、方向键与 `aria-activedescendant` 保持同步。
+- [x] 暴露 `scrollToOption(index)`，避免覆盖原生 `HTMLElement.scrollTo()` 并支持命令式定位大数据选项。
+- [x] 6 个案例、运行时数据、状态、占位符和 API 表完整支持中英文。
+- [x] 目录只保留简洁 Playground 标题与 API。
+
 ## 2026-07-19 弹层衔接
 - [x] 下拉面板与输入表面无缝贴合并统一底部圆角
 
@@ -362,7 +370,7 @@
 - [x] 远程案例覆盖加载、空结果、请求失败和过期响应忽略，Script 展示完整状态组织。
 - [x] 增加 header/footer/loading/empty 投影单测和真实页面远程错误回归测试。
 - [x] 表单校验与完整键盘路径已于 2026-07-27 收口。
-- [ ] 独立架构路线：大数据选项虚拟化与统一 Overlay 平台（跨 ShadowRoot teleport、碰撞和焦点管理），不以伪兼容属性进入当前发布验收。
+- [x] 大数据选项虚拟化已复用共享窗口算法；统一 Overlay 平台仍作为独立架构路线推进。
 
 ---
 

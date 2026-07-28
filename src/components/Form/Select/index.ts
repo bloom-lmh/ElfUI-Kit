@@ -20,6 +20,7 @@ import {
 } from "@elfui/core";
 
 import { useDisabled, useFormItem } from "../../../composables";
+import { computeVirtualWindow } from "../../../utils/virtual-window";
 import { FORM_ITEM_KEY } from "../context";
 import { listenForExternalOverlayMotion } from "../../Common/anchored-overlay";
 import { useLocaleProvider } from "../../Providers/context";
@@ -88,6 +89,10 @@ const props = defineProps<SelectProps>({
   valueOnClear: { type: null, default: undefined },
   emptyValues: { type: Array, default: () => [undefined, null, ""] },
   height: { type: Number, default: 240 },
+  virtual: { type: Boolean, default: false },
+  virtualThreshold: { type: Number, default: 100 },
+  itemHeight: { type: Number, default: 40 },
+  overscan: { type: Number, default: 4 },
   fitInputWidth: { type: Boolean, default: false },
   effect: { type: String, default: "light" },
   autocomplete: { type: String, default: "off" },
@@ -122,6 +127,7 @@ const rendered = useRef(false);
 
 const closing = useRef(false);
 const activeIndex = useRef(-1);
+const virtualScrollTop = useRef(0);
 
 const innerValue = useRef<unknown>(props.modelValue);
 
@@ -178,7 +184,9 @@ const openDropdown = (): void => {
   if (isDisabled() || open.peek()) return;
   document.dispatchEvent(new CustomEvent(SELECT_OPEN_EVENT, { detail: host }));
   open.set(true);
-  activeIndex.set(preferredActiveIndex());
+  const nextActiveIndex = preferredActiveIndex();
+  activeIndex.set(nextActiveIndex);
+  queueMicrotask(() => ensureOptionVisible(nextActiveIndex));
   emit("visible-change", true);
 };
 
@@ -299,6 +307,40 @@ const viewOptionEntries = (): Array<{
     key: `${index}-${String(valueIdentity(optionValue(option)))}`,
   }));
 
+const virtualEnabled = (): boolean => Boolean(
+  props.virtual && viewOptions().length >= Math.max(0, Number(props.virtualThreshold) || 0),
+);
+
+useHostFlag("data-virtualized", virtualEnabled);
+
+const normalizedItemHeight = (): number => Math.max(24, Number(props.itemHeight) || 40);
+
+const virtualWindow = () => computeVirtualWindow({
+  count: viewOptions().length,
+  itemSize: normalizedItemHeight(),
+  viewportSize: Math.max(80, Number(props.height) || 240),
+  scrollOffset: virtualScrollTop.value,
+  overscan: Math.max(0, Number(props.overscan) || 0),
+});
+
+const renderedOptionEntries = (): ReturnType<typeof viewOptionEntries> => {
+  const entries = viewOptionEntries();
+  if (!virtualEnabled()) return entries;
+  const range = virtualWindow();
+  return entries.slice(range.start, range.end);
+};
+
+const optionsTrackStyle = (): Record<string, string> => virtualEnabled()
+  ? { height: `${virtualWindow().totalSize}px` }
+  : {};
+
+const optionStyle = (index: number): Record<string, string> => virtualEnabled()
+  ? {
+      height: `${normalizedItemHeight()}px`,
+      transform: `translateY(${index * normalizedItemHeight()}px)`,
+    }
+  : {};
+
 const firstEnabledIndex = (): number => viewOptions().findIndex((option) => !isOptionDisabled(option));
 
 const preferredActiveIndex = (): number => {
@@ -316,6 +358,43 @@ const lastEnabledIndex = (): number => {
   return -1;
 };
 
+const syncDropdownScroll = (scrollTop: number): void => {
+  queueMicrotask(() => {
+    const dropdown = getDropdownEl();
+    const track = dropdown?.querySelector<HTMLElement>(".options-track");
+    if (dropdown) dropdown.scrollTop = Math.max(0, (track?.offsetTop ?? 0) + scrollTop);
+  });
+};
+
+const ensureOptionVisible = (index: number): void => {
+  if (index < 0) return;
+  if (!virtualEnabled()) {
+    queueMicrotask(() => {
+      host.shadowRoot
+        ?.querySelector<HTMLElement>(`[data-index="${index}"]`)
+        ?.scrollIntoView({ block: "nearest" });
+    });
+    return;
+  }
+
+  const rowTop = index * normalizedItemHeight();
+  const rowBottom = rowTop + normalizedItemHeight();
+  const viewportSize = Math.max(80, Number(props.height) || 240);
+  const current = virtualScrollTop.peek();
+  const next = rowTop < current
+    ? rowTop
+    : rowBottom > current + viewportSize
+      ? rowBottom - viewportSize
+      : current;
+  if (next !== current) virtualScrollTop.set(next);
+  syncDropdownScroll(next);
+};
+
+const setActiveIndex = (index: number): void => {
+  activeIndex.set(index);
+  ensureOptionVisible(index);
+};
+
 const moveActive = (step: 1 | -1): void => {
   const options = viewOptions();
   if (options.length === 0) {
@@ -327,10 +406,7 @@ const moveActive = (step: 1 | -1): void => {
     index = (index + step + options.length) % options.length;
     const option = options[index];
     if (option && !isOptionDisabled(option)) {
-      activeIndex.set(index);
-      queueMicrotask(() => {
-        host.shadowRoot?.querySelector<HTMLElement>(`[data-index="${index}"]`)?.scrollIntoView({ block: "nearest" });
-      });
+      setActiveIndex(index);
       return;
     }
   }
@@ -440,7 +516,8 @@ const clear = (): void => {
 
 const onFilterInput = (e: Event): void => {
   filterText.set((e.target as HTMLInputElement).value);
-  activeIndex.set(firstEnabledIndex());
+  virtualScrollTop.set(0);
+  setActiveIndex(firstEnabledIndex());
   if (!open.value) openDropdown();
   if (props.remote) {
     if (remoteTimer) clearTimeout(remoteTimer);
@@ -528,12 +605,12 @@ const onTriggerKeydown = (event: KeyboardEvent): void => {
   }
   if (event.key === "Home" && open.peek()) {
     event.preventDefault();
-    activeIndex.set(firstEnabledIndex());
+    setActiveIndex(firstEnabledIndex());
     return;
   }
   if (event.key === "End" && open.peek()) {
     event.preventDefault();
-    activeIndex.set(lastEnabledIndex());
+    setActiveIndex(lastEnabledIndex());
     return;
   }
   if (event.key === "Enter") {
@@ -553,6 +630,10 @@ const onTriggerKeydown = (event: KeyboardEvent): void => {
 
 const onDropdownScroll = (event: Event): void => {
   const target = event.currentTarget as HTMLElement;
+  if (virtualEnabled()) {
+    const track = target.querySelector<HTMLElement>(".options-track");
+    virtualScrollTop.set(Math.max(0, target.scrollTop - (track?.offsetTop ?? 0)));
+  }
   emit("popup-scroll", {
     scrollTop: target.scrollTop,
     scrollLeft: target.scrollLeft,
@@ -569,6 +650,23 @@ const focus = (): void => host.shadowRoot?.querySelector<HTMLElement>(".trigger"
 
 const blur = (): void => host.shadowRoot?.querySelector<HTMLElement>(".trigger")?.blur();
 
+const scrollToOption = (index: number): void => {
+  const count = viewOptions().length;
+  if (count === 0) return;
+  const normalized = Math.max(0, Math.min(count - 1, Math.floor(Number(index) || 0)));
+  if (virtualEnabled()) {
+    const next = normalized * normalizedItemHeight();
+    virtualScrollTop.set(next);
+    syncDropdownScroll(next);
+    return;
+  }
+  queueMicrotask(() => {
+    host.shadowRoot
+      ?.querySelector<HTMLElement>(`[data-index="${normalized}"]`)
+      ?.scrollIntoView({ block: "start" });
+  });
+};
+
 const controlId = (): string => props.id || fallbackId;
 const listboxId = (): string => `${controlId()}-listbox`;
 const optionId = (index: number): string => `${listboxId()}-option-${index}`;
@@ -581,6 +679,7 @@ defineExpose<SelectExpose>({
   focus,
   blur,
   selectedLabel,
+  scrollToOption,
 });
 
 defineStyle(styles);
@@ -642,21 +741,25 @@ const Select = defineHtml(`
         <div v-else-if=${viewOptions().length === 0} class="status">
             <slot name="empty">${filterText ? noMatchText() : noDataText()}</slot>
         </div>
-        <div v-for="entry in viewOptionEntries()" :key="entry.key" :data-index="String(entry.index)"
-            :id="optionId(entry.index)" role="option" :aria-selected="isSelected(entry.option) ? 'true' : 'false'"
-            :aria-disabled="isOptionDisabled(entry.option) ? 'true' : 'false'" :class="[
-                  'option',
-                  {
-                    selected: isSelected(entry.option),
-                    disabled: isOptionDisabled(entry.option),
-                    active: activeIndex === entry.index
-                  }
-                ]">
-            <span>
-                <slot name="label" :option="entry.option" :index="entry.index" :value="optionValue(entry.option)"
-                    :label="optionLabel(entry.option)">{{ optionLabel(entry.option) }}</slot>
-            </span>
-            <span v-if="isSelected(entry.option)" class="check">✓</span>
+        <div class="options-track" :style=${optionsTrackStyle()}>
+          <div v-for="entry in renderedOptionEntries()" :key="entry.key" :data-index="String(entry.index)"
+              :id="optionId(entry.index)" role="option" :aria-selected="isSelected(entry.option) ? 'true' : 'false'"
+              :aria-disabled="isOptionDisabled(entry.option) ? 'true' : 'false'" :style="optionStyle(entry.index)"
+              :class="[
+                    'option',
+                    {
+                      selected: isSelected(entry.option),
+                      disabled: isOptionDisabled(entry.option),
+                      active: activeIndex === entry.index,
+                      'is-virtual': virtualEnabled()
+                    }
+                  ]">
+              <span>
+                  <slot name="label" :option="entry.option" :index="entry.index" :value="optionValue(entry.option)"
+                      :label="optionLabel(entry.option)">{{ optionLabel(entry.option) }}</slot>
+              </span>
+              <span v-if="isSelected(entry.option)" class="check">✓</span>
+          </div>
         </div>
         <slot name="footer"></slot>
     </div>

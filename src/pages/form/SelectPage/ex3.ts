@@ -1,82 +1,62 @@
 import { defineHtml, useRef } from "@elfui/core";
+
+import { createDocsTranslator } from "../../docsLocale";
 import { opts } from "./shared";
 
-const multi = useRef<string[]>([]);
+const multiple = useRef<string[]>([]);
 const limited = useRef<string[]>(["vue"]);
 
-const code1 = `<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
-  <elf-select style="width:320px"
-    :options.prop=\${opts}
-    :modelValue=\${multi}
-    multiple
-    placeholder="多选"
-    @update:modelValue=\${onMultiUpdate}
-  />
-  <elf-select style="width:280px"
-    :options.prop=\${opts}
-    :modelValue=\${limited}
-    multiple
-    collapse-tags
-    :max-collapse-tags=\${1}
-    :multiple-limit=\${2}
-    placeholder="最多选 2 项"
-    @update:modelValue=\${onLimitedUpdate}
-    @remove-tag=\${onRemoveTag}
-  />
-</div>`;
+const t = createDocsTranslator({
+  title: { zh: "多选与折叠", en: "Multiple and collapsed tags" },
+  multiple: { zh: "选择多个框架", en: "Choose multiple frameworks" },
+  limited: { zh: "最多选择 2 项", en: "Choose up to 2 items" },
+  selected: { zh: "已选择", en: "Selected" },
+});
 
-const script1 = `const multi = useRef([]);
-const limited = useRef(["vue"]);
-
-const opts = [
-  { value: "vue", label: "Vue 3" },
-  { value: "react", label: "React" },
-  { value: "svelte", label: "Svelte" },
-  { value: "solid", label: "Solid" }
-];
-
-const onMultiUpdate = (event) => {
-  multi.set(event.detail);
+const onMultipleUpdate = (event: CustomEvent): void => {
+  multiple.set((event.detail ?? []) as string[]);
 };
-
-const onLimitedUpdate = (event) => {
-  limited.set(event.detail);
-};
-
-const onRemoveTag = (event) => {
-  console.log("remove-tag", event.detail);
-};`;
-
-const onMultiUpdate = (event: CustomEvent): void => {
-  multi.set((event.detail ?? []) as string[]);
-};
-
 const onLimitedUpdate = (event: CustomEvent): void => {
   limited.set((event.detail ?? []) as string[]);
 };
-
-const onRemoveTag = (): void => {
-  // 示例里保留 remove-tag 事件入口，方便用户复制后接自己的业务逻辑。
+const onRemoveTag = (event: CustomEvent): void => {
+  void event.detail;
 };
 
+const code = `<elf-select
+  :options.prop="options"
+  :modelValue.prop="selected"
+  multiple
+  collapse-tags
+  :max-collapse-tags="1"
+  :multiple-limit="2"
+  @update:modelValue="onUpdate"
+  @remove-tag="onRemoveTag"
+/>`;
+
+const script = `const selected = useRef(["vue"]);
+const onUpdate = (event) => selected.set(event.detail);
+const onRemoveTag = (event) => console.log("remove-tag", event.detail);`;
+
 const PageSelectEx3 = defineHtml(`
-  <elf-playground title="多选 / 限制数量 / 折叠标签" :code=${code1} :script=${script1}>
-    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;width:100%;justify-content:center">
+  <elf-playground :title=${t("title")} :code=${code} :script=${script}>
+    <span slot="status">${t("selected")} · ${String(multiple.value.length + limited.value.length)}</span>
+    <div style="display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;width:100%">
       <elf-select style="width:320px"
         :options.prop=${opts}
-        :modelValue=${multi}
+        :modelValue.prop=${multiple.value}
         multiple
-        placeholder="多选"
-        @update:modelValue=${onMultiUpdate}
+        :placeholder=${t("multiple")}
+        @update:modelValue=${onMultipleUpdate}
       ></elf-select>
-      <elf-select style="width:280px"
+      <elf-select style="width:300px"
         :options.prop=${opts}
-        :modelValue=${limited}
+        :modelValue.prop=${limited.value}
         multiple
         collapse-tags
         :maxCollapseTags=${1}
         :multipleLimit=${2}
-        placeholder="最多选 2 项"
+        :placeholder=${t("limited")}
         @update:modelValue=${onLimitedUpdate}
         @remove-tag=${onRemoveTag}
       ></elf-select>

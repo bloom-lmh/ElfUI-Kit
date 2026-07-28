@@ -59,6 +59,10 @@ export interface SelectProps {
   valueOnClear: SelectValue | SelectValue[] | (() => SelectValue | SelectValue[]);
   emptyValues: unknown[];
   height: number;
+  virtual: boolean;
+  virtualThreshold: number;
+  itemHeight: number;
+  overscan: number;
   fitInputWidth: boolean;
   effect: string;
   autocomplete: string;
@@ -94,6 +98,7 @@ export interface SelectExpose {
   focus(): void;
   blur(): void;
   selectedLabel(): string | string[];
+  scrollToOption(index: number): void;
 }
 
 export type SelectElement = HTMLElement & SelectExpose;

@@ -234,6 +234,14 @@
   color: inherit;
 }
 
+.options-track {
+  min-width: 100%;
+}
+
+:host([data-virtualized]) .options-track {
+  position: relative;
+}
+
 .option {
   display: flex;
   align-items: center;
@@ -248,6 +256,12 @@
   &:hover:not(.disabled) {
     background: var(--elf-bg-muted);
   }
+}
+
+.option.is-virtual {
+  position: absolute;
+  inset: 0 0 auto;
+  box-sizing: border-box;
 }
 
 .option.active:not(.disabled) {

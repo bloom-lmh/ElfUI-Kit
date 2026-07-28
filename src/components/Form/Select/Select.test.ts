@@ -29,8 +29,13 @@ interface SelectEl extends HTMLElement {
   popperStyle?: Record<string, string>;
   loading?: boolean;
   debounce?: number;
+  virtual?: boolean;
+  virtualThreshold?: number;
+  itemHeight?: number;
+  height?: number;
   remoteMethod?: (query: string) => void;
   selectedLabel?: () => string | string[];
+  scrollToOption?: (index: number) => void;
   focus?: () => void;
   blur?: () => void;
 }
@@ -375,6 +380,43 @@ describe("elf-select", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(remoteMethod).toHaveBeenCalledWith("vue");
+  });
+
+  it("虚拟化千项数据并保持滚动与键盘活动项可见", async () => {
+    const el = mount();
+    el.options = Array.from({ length: 1000 }, (_, index) => ({
+      value: index,
+      label: `Option ${String(index + 1).padStart(4, "0")}`,
+    }));
+    el.virtual = true;
+    el.virtualThreshold = 0;
+    el.itemHeight = 40;
+    el.height = 200;
+    await tick();
+
+    const trigger = el.shadowRoot!.querySelector<HTMLElement>(".trigger")!;
+    trigger.click();
+    await tick();
+
+    expect(el.hasAttribute("data-virtualized")).toBe(true);
+    expect(el.shadowRoot!.querySelectorAll(".option").length).toBeLessThan(20);
+    expect(el.shadowRoot!.querySelector<HTMLElement>(".options-track")?.style.height).toBe("40000px");
+
+    const dropdown = el.shadowRoot!.querySelector<HTMLElement>(".dropdown")!;
+    dropdown.scrollTop = 20000;
+    dropdown.dispatchEvent(new Event("scroll"));
+    await tick();
+
+    expect(el.shadowRoot!.querySelector('[data-index="500"]')).toBeTruthy();
+    expect(el.shadowRoot!.querySelector('[data-index="0"]')).toBeNull();
+
+    trigger.dispatchEvent(new KeyboardEvent("keydown", { key: "End", bubbles: true }));
+    await tick();
+    expect(el.shadowRoot!.querySelector('.option.active[data-index="999"]')).toBeTruthy();
+
+    el.scrollToOption?.(250);
+    await tick();
+    expect(el.shadowRoot!.querySelector('[data-index="250"]')).toBeTruthy();
   });
 
   it("header/footer 始终投影，loading/empty 根据远程状态切换", async () => {

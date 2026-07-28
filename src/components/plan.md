@@ -61,7 +61,7 @@
 - [x] `Form/RadioGroup`
 - [x] `Form/Rate`
 - [ ] `Form/Segmented`
-- [ ] `Form/Select`
+- [x] `Form/Select`
 - [x] `Form/Slider`
 - [x] `Form/Switch`
 - [x] `Form/Textarea`

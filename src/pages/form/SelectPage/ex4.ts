@@ -1,114 +1,102 @@
 import { defineHtml, useRef } from "@elfui/core";
-import { customOptions, optionFields, opts, remoteSource } from "./shared";
 
-const remoteOptions = useRef(remoteSource.slice(0, 2));
+import type { SelectOption } from "../../../components/Form";
+import { createDocsTranslator } from "../../docsLocale";
+import { optionFields, opts } from "./shared";
+
+const remoteOptions = useRef<SelectOption[]>([]);
 const remoteLoading = useRef(false);
 
-const code1 = `<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
-  <elf-select style="width:240px"
-    :options.prop=\${opts}
-    filterable
-    allow-create
-    default-first-option
-    placeholder="输入后可创建"
-  />
-  <elf-select style="width:240px"
-    :options.prop=\${remoteOptions}
-    :loading=\${remoteLoading}
-    filterable
-    remote
-    :remote-method.prop=\${remoteMethod}
-    placeholder="输入城市搜索"
-  />
-  <elf-select style="width:240px"
-    :options.prop=\${customOptions}
-    :props.prop=\${optionFields}
-    value-key="id"
-    placeholder="字段映射"
-  />
-</div>`;
+const t = createDocsTranslator({
+  title: { zh: "搜索与字段映射", en: "Search and field mapping" },
+  create: { zh: "输入后可创建", en: "Type to create" },
+  remote: { zh: "搜索城市", en: "Search cities" },
+  mapped: { zh: "自定义字段", en: "Custom fields" },
+  designer: { zh: "设计师", en: "Designer" },
+  engineer: { zh: "工程师", en: "Engineer" },
+  product: { zh: "产品经理", en: "Product manager" },
+  quality: { zh: "测试工程师", en: "QA engineer" },
+  beijing: { zh: "北京", en: "Beijing" },
+  shanghai: { zh: "上海", en: "Shanghai" },
+  shenzhen: { zh: "深圳", en: "Shenzhen" },
+  hangzhou: { zh: "杭州", en: "Hangzhou" },
+  chengdu: { zh: "成都", en: "Chengdu" },
+});
 
-const script1 = `const remoteOptions = useRef([]);
-const remoteLoading = useRef(false);
-
-const opts = [
-  { value: "vue", label: "Vue 3" },
-  { value: "react", label: "React" }
+const customOptions = () => [
+  { id: "designer", name: t("designer") },
+  { id: "engineer", name: t("engineer") },
+  { id: "pm", name: t("product"), locked: true },
+  { id: "qa", name: t("quality") },
 ];
 
-const remoteSource = [
-  { value: "beijing", label: "北京" },
-  { value: "shanghai", label: "上海" },
-  { value: "shenzhen", label: "深圳" },
-  { value: "hangzhou", label: "杭州" },
-  { value: "chengdu", label: "成都" }
+const remoteSource = (): SelectOption[] => [
+  { value: "beijing", label: t("beijing") },
+  { value: "shanghai", label: t("shanghai") },
+  { value: "shenzhen", label: t("shenzhen") },
+  { value: "hangzhou", label: t("hangzhou") },
+  { value: "chengdu", label: t("chengdu") },
 ];
-
-const customOptions = [
-  { id: "designer", name: "设计师" },
-  { id: "engineer", name: "工程师" },
-  { id: "pm", name: "产品经理", locked: true }
-];
-
-const optionFields = {
-  value: "id",
-  label: "name",
-  disabled: "locked"
-};
-
-const remoteMethod = (query) => {
-  remoteLoading.set(true);
-  const keyword = query.trim().toLowerCase();
-  setTimeout(() => {
-    remoteOptions.set(
-      remoteSource.filter((item) => item.label.includes(query) || item.value.includes(keyword))
-    );
-    remoteLoading.set(false);
-  }, 260);
-};`;
 
 const remoteMethod = (query: string): void => {
   remoteLoading.set(true);
-  const keyword = String(query || "")
-    .trim()
-    .toLowerCase();
+  const keyword = String(query || "").trim().toLowerCase();
   window.setTimeout(() => {
-    remoteOptions.set(
-      remoteSource.filter(
-        (item) => item.label?.includes(query) || String(item.value).includes(keyword)
-      )
-    );
+    remoteOptions.set(remoteSource().filter((item) =>
+      String(item.label ?? "").toLowerCase().includes(keyword)
+      || String(item.value).includes(keyword),
+    ));
     remoteLoading.set(false);
   }, 260);
 };
 
+const code = `<elf-select filterable allow-create default-first-option />
+
+<elf-select
+  :options.prop="remoteOptions"
+  :loading="remoteLoading"
+  filterable
+  remote
+  :remoteMethod.prop="remoteMethod"
+/>
+
+<elf-select
+  :options.prop="customOptions"
+  :props.prop="{ value: 'id', label: 'name', disabled: 'locked' }"
+  value-key="id"
+/>`;
+
+const script = `const remoteOptions = useRef([]);
+const remoteLoading = useRef(false);
+const remoteMethod = async (query) => {
+  remoteLoading.set(true);
+  remoteOptions.set(await searchCities(query));
+  remoteLoading.set(false);
+};`;
+
 const PageSelectEx4 = defineHtml(`
-  <elf-playground
-    title="filterable / allow-create / remote / props 字段映射"
-    :code=${code1}
-    :script=${script1}
-  >
-    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;width:100%;justify-content:center">
+  <elf-playground :title=${t("title")} :code=${code} :script=${script}>
+    <div style="display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;width:100%">
       <elf-select style="width:240px"
         :options.prop=${opts}
         filterable
         allow-create
         default-first-option
-        placeholder="输入后可创建"
+        :placeholder=${t("create")}
       ></elf-select>
       <elf-select style="width:240px"
-        :options.prop=${remoteOptions}
-        :loading=${remoteLoading}
+        :options.prop=${remoteOptions.value}
+        :loading=${remoteLoading.value}
         filterable
         remote
         :remoteMethod.prop=${remoteMethod}
-        placeholder="输入城市搜索"
+        :placeholder=${t("remote")}
       ></elf-select>
       <elf-select style="width:240px"
-        :options.prop=${customOptions}
+        :options.prop=${customOptions()}
         :props.prop=${optionFields}
         value-key="id"
-        placeholder="字段映射"
+        :placeholder=${t("mapped")}
       ></elf-select>
     </div>
   </elf-playground>
