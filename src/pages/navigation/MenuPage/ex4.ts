@@ -68,7 +68,7 @@ const code = `<elf-menu :items=\${items} :modelValue=\${active} rounded elevatio
   <template #footer>
     <div style="display:flex;align-items:center;justify-content:space-between">
       <span style="font-size:12px;color:var(--elf-text-disabled)">v1.0.0</span>
-      <elf-button variant="text" size="sm">退出</elf-button>
+      <elf-button variant="text" size="sm">Sign out</elf-button>
     </div>
   </template>
 </elf-menu>`;

@@ -60,7 +60,7 @@ const code = `<elf-menu :items="items" :modelValue="active" :defaultOpeneds="['p
   </template>
   <template #footer>
     <div style="display:flex;align-items:center;justify-content:flex-end">
-      <elf-button variant="text" size="sm">退出</elf-button>
+      <elf-button variant="text" size="sm">Sign out</elf-button>
     </div>
   </template>
 </elf-menu>`;

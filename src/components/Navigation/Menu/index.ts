@@ -20,12 +20,24 @@ import {
 import baseStyles from "./style-base.scss?inline";
 import modeStyles from "./style-mode.scss?inline";
 import themeStyles from "./style-theme.scss?inline";
+import { useDismissibleOverlay } from "../../../composables/useDismissibleOverlay";
 import { useLocaleProvider } from "../../Providers/context";
+import { normalizeCompositionItems } from "./composition-adapter";
+import {
+    findMenuItem,
+    flattenMenuItems,
+    getVisibleMenuItems,
+    hasActiveMenuDescendant,
+    normalizeMenuItems,
+    resolveMenuFieldNames,
+    resolveMenuRoutePath,
+    resolveMenuTrigger,
+    toMenuStyle,
+} from "./model";
+import type { MenuRawItem, MenuViewItem } from "./model";
 import type {
-    MenuFieldNames,
     MenuItemClickDetail,
     MenuMode,
-    MenuPopperStyle,
     MenuProps,
     MenuSlots,
     MenuTogglePlacement,
@@ -53,36 +65,6 @@ export type {
 } from "./types";
 
 const SIGNATURE_SEP = "::elf-menu::";
-
-type MenuRawItem = Record<string, unknown>;
-
-interface MenuViewItem {
-    raw: MenuRawItem;
-    index: string;
-    label: string;
-    title: string;
-    icon: string;
-    disabled: boolean;
-    badge: string;
-    divider: boolean;
-    group: boolean;
-    route: unknown;
-    popperClass: string;
-    popperStyle: MenuPopperStyle;
-    teleported: boolean;
-    popperOffset?: number | undefined;
-    showTimeout?: number | undefined;
-    hideTimeout?: number | undefined;
-    expandCloseIcon: string;
-    expandOpenIcon: string;
-    collapseCloseIcon: string;
-    collapseOpenIcon: string;
-    source?: HTMLElement;
-    level: number;
-    indexPath: string[];
-    hasChildren: boolean;
-    children: MenuViewItem[];
-}
 
 interface MenuRuntimeProps extends MenuProps {
     /** @deprecated Use menuTrigger. */
@@ -198,35 +180,10 @@ const lastHoveredIndex = useRef("");
 const lastHoveredIndex2 = useRef("");
 
 let compositionObserver: MutationObserver | undefined;
-let documentClickHandler: ((event: Event) => void) | undefined;
 let resizeObserver: ResizeObserver | undefined;
 let hoverTimer: ReturnType<typeof setTimeout> | null = null;
 
-const fieldNames = (): Required<MenuFieldNames> => {
-    const o = (props.props || {}) as MenuFieldNames;
-    return {
-        index: o.index || "index",
-        label: o.label || "label",
-        title: o.title || "title",
-        icon: o.icon || "icon",
-        disabled: o.disabled || "disabled",
-        children: o.children || "children",
-        badge: o.badge || "badge",
-        divider: o.divider || "divider",
-        group: o.group || "group",
-        route: o.route || "route",
-        popperClass: o.popperClass || "popperClass",
-        popperStyle: o.popperStyle || "popperStyle",
-        teleported: o.teleported || "teleported",
-        popperOffset: o.popperOffset || "popperOffset",
-        showTimeout: o.showTimeout || "showTimeout",
-        hideTimeout: o.hideTimeout || "hideTimeout",
-        expandCloseIcon: o.expandCloseIcon || "expandCloseIcon",
-        expandOpenIcon: o.expandOpenIcon || "expandOpenIcon",
-        collapseCloseIcon: o.collapseCloseIcon || "collapseCloseIcon",
-        collapseOpenIcon: o.collapseOpenIcon || "collapseOpenIcon",
-    };
-};
+const fieldNames = useComputed(() => resolveMenuFieldNames(props.props));
 
 const isHorizontal = useComputed(() => (props.mode as MenuMode) === "horizontal");
 
@@ -234,25 +191,8 @@ const isCollapsed = useComputed(() => !isHorizontal.value && collapsed.value);
 
 const _collapsed = () => isCollapsed.value;
 
-const objectStyle = (value: unknown): Record<string, string> => {
-    if (typeof value === "string") {
-        return Object.fromEntries(
-            value
-                .split(";")
-                .map((declaration) => declaration.split(":"))
-                .filter((parts) => parts.length >= 2 && parts[0]?.trim())
-                .map(([property, ...rest]) => [property!.trim(), rest.join(":").trim()]),
-        );
-    }
-    if (!value || typeof value !== "object" || Array.isArray(value)) return {};
-    return Object.fromEntries(
-        Object.entries(value as Record<string, string | number>).map(([key, item]) => [key, String(item)]),
-    );
-};
-
 const menuTrigger = (): "click" | "hover" => {
-    const value = String(props.menuTrigger || props.trigger || "click");
-    return value === "hover" ? "hover" : "click";
+    return resolveMenuTrigger(props.menuTrigger, props.trigger);
 };
 
 useEffect(() => {
@@ -274,12 +214,6 @@ const showFooterToggle = (): boolean =>
     Boolean(props.showToggle && !isHorizontal.value && togglePlacement() !== "header");
 
 const toggleTitle = (): string => locale.t(isCollapsed.value ? "menu.expand" : "menu.collapse");
-
-const matchesSearch = (item: MenuViewItem): boolean => {
-    const kw = searchText.value.toLowerCase();
-    if (!kw) return true;
-    return item.label.toLowerCase().includes(kw) || item.index.toLowerCase().includes(kw);
-};
 
 const onCustomToggleClick = (event: Event): void => {
     const isToggle = event
@@ -312,13 +246,6 @@ useEventListener(host, "click", onCustomToggleClick);
 useEventListener(host, "input", onCustomSearchInput);
 
 onMounted(() => {
-    documentClickHandler = (e: Event) => {
-        if (!isHorizontal.value) return;
-        if (!props.closeOnClickOutside) return;
-        if (!host.contains(e.target as HTMLElement)) openKeys.set([]);
-    };
-    document.addEventListener("click", documentClickHandler, true);
-
     compositionObserver = new MutationObserver(() => compositionVersion.set(compositionVersion.peek() + 1));
     compositionObserver.observe(host, { attributes: true, childList: true, subtree: true, characterData: true });
 
@@ -329,7 +256,6 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-    if (documentClickHandler) document.removeEventListener("click", documentClickHandler, true);
     compositionObserver?.disconnect();
     resizeObserver?.disconnect();
     clearHoverTimer();
@@ -372,229 +298,64 @@ useEffect(() => {
     openKeys.set(next);
 });
 
-const normalizeItems = (rawItems: unknown, level = 0, ancestors: string[] = []): MenuViewItem[] => {
-    if (!Array.isArray(rawItems)) return [];
-    const fields = fieldNames();
-    return rawItems.map((raw, fi) => {
-        const item = (raw || {}) as MenuRawItem;
-        const isDivider = Boolean(item[fields.divider]);
-        const isGroup = Boolean(item[fields.group]) && !isDivider;
-        if (isDivider)
-            return {
-                raw: item,
-                index: `__divider_${level}_${fi}`,
-                label: "",
-                title: "",
-                icon: "",
-                disabled: false,
-                badge: "",
-                divider: true,
-                group: false,
-                route: undefined,
-                popperClass: "",
-                popperStyle: {},
-                teleported: true,
-                expandCloseIcon: "",
-                expandOpenIcon: "",
-                collapseCloseIcon: "",
-                collapseOpenIcon: "",
-                level,
-                indexPath: ancestors,
-                hasChildren: false,
-                children: [],
-            };
-        if (isGroup) {
-            const groupIndex = String(item[fields.index] ?? [...ancestors, `__group_${level}_${fi}`].join("/"));
-            const groupLabel = String(item[fields.group] ?? "");
-            const children = normalizeItems(item[fields.children], level + 1, ancestors);
-            return {
-                raw: item,
-                index: groupIndex,
-                label: groupLabel,
-                title: String(item[fields.title] ?? groupLabel),
-                icon: String(item[fields.icon] ?? ""),
-                disabled: false,
-                badge: String(item[fields.badge] ?? ""),
-                divider: false,
-                group: true,
-                route: item[fields.route],
-                popperClass: String(item[fields.popperClass] ?? ""),
-                popperStyle: (item[fields.popperStyle] ?? {}) as MenuPopperStyle,
-                teleported: item[fields.teleported] !== false,
-                popperOffset: toOptionalNumber(item[fields.popperOffset]),
-                showTimeout: toOptionalNumber(item[fields.showTimeout]),
-                hideTimeout: toOptionalNumber(item[fields.hideTimeout]),
-                expandCloseIcon: String(item[fields.expandCloseIcon] ?? ""),
-                expandOpenIcon: String(item[fields.expandOpenIcon] ?? ""),
-                collapseCloseIcon: String(item[fields.collapseCloseIcon] ?? ""),
-                collapseOpenIcon: String(item[fields.collapseOpenIcon] ?? ""),
-                level,
-                indexPath: ancestors,
-                hasChildren: children.length > 0,
-                children,
-            };
-        }
-        const idx = String(item[fields.index] ?? [...ancestors, String(fi)].join("-"));
-        const children = normalizeItems(item[fields.children], level + 1, [...ancestors, idx]);
-        return {
-            raw: item,
-            index: idx,
-            label: String(item[fields.label] ?? item[fields.title] ?? idx),
-            title: String(item[fields.title] ?? item[fields.label] ?? idx),
-            icon: String(item[fields.icon] ?? ""),
-            disabled: Boolean(item[fields.disabled]),
-            badge: String(item[fields.badge] ?? ""),
-            divider: false,
-            group: false,
-            route: item[fields.route],
-            popperClass: String(item[fields.popperClass] ?? ""),
-            popperStyle: (item[fields.popperStyle] ?? {}) as MenuPopperStyle,
-            teleported: item[fields.teleported] !== false,
-            popperOffset: toOptionalNumber(item[fields.popperOffset]),
-            showTimeout: toOptionalNumber(item[fields.showTimeout]),
-            hideTimeout: toOptionalNumber(item[fields.hideTimeout]),
-            expandCloseIcon: String(item[fields.expandCloseIcon] ?? ""),
-            expandOpenIcon: String(item[fields.expandOpenIcon] ?? ""),
-            collapseCloseIcon: String(item[fields.collapseCloseIcon] ?? ""),
-            collapseOpenIcon: String(item[fields.collapseOpenIcon] ?? ""),
-            level,
-            indexPath: ancestors,
-            hasChildren: children.length > 0,
-            children,
-        };
-    });
+const closeOpenMenus = (): void => {
+    openKeys.set([]);
+    hoveredIndex.set("");
+    hoveredIndex2.set("");
 };
 
-const toOptionalNumber = (value: unknown): number | undefined => {
-    if (value === undefined || value === null || value === "") return undefined;
-    const number = Number(value);
-    return Number.isFinite(number) ? number : undefined;
-};
+const dismissibleOverlay = useDismissibleOverlay({
+    kind: "menu",
+    containers: () => [host],
+    closeOnEscape: () => true,
+    closeOnOutside: () => props.closeOnClickOutside !== false,
+    outsideCapture: true,
+    onRequestClose: closeOpenMenus,
+});
 
-const elementValue = (element: HTMLElement, name: string): unknown => {
-    const value = (element as unknown as Record<string, unknown>)[name];
-    if (value !== undefined && value !== null && value !== "") return value;
-    const attribute = name.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
-    return element.getAttribute(attribute) ?? undefined;
-};
-
-const elementBoolean = (element: HTMLElement, name: string, fallback = false): boolean => {
-    const value = elementValue(element, name);
-    if (value === undefined) return fallback;
-    return value !== false && value !== "false";
-};
-
-const titleText = (element: HTMLElement): string => {
-    const title = elementValue(element, "title");
-    if (title !== undefined) return String(title);
-    const source = Array.from(element.children).find(
-        (child): child is HTMLElement => child instanceof HTMLElement && child.slot === "title",
-    );
-    return source?.textContent?.trim() || "";
-};
-
-const compositionChildren = (parent: HTMLElement): HTMLElement[] =>
-    Array.from(parent.children).filter(
-        (child): child is HTMLElement => child instanceof HTMLElement && [
-            "elf-menu-item",
-            "elf-sub-menu",
-            "elf-menu-item-group",
-        ].includes(child.tagName.toLowerCase()),
-    );
-
-const compositionItem = (
-    element: HTMLElement,
-    level: number,
-    ancestors: string[],
-    fallbackIndex: string,
-): MenuViewItem => {
-    const tag = element.tagName.toLowerCase();
-    const group = tag === "elf-menu-item-group";
-    const submenu = tag === "elf-sub-menu";
-    const index = group ? `__group_${fallbackIndex}` : String(elementValue(element, "index") ?? fallbackIndex);
-    const title = titleText(element) || index;
-    const children = submenu || group
-        ? compositionChildren(element).map((child, childIndex) =>
-            compositionItem(child, level + 1, group ? ancestors : [...ancestors, index], `${fallbackIndex}-${childIndex}`))
-        : [];
-
-    return {
-        raw: { source: element },
-        index,
-        label: title,
-        title,
-        icon: String(elementValue(element, "icon") ?? ""),
-        disabled: elementBoolean(element, "disabled"),
-        badge: String(elementValue(element, "badge") ?? ""),
-        divider: false,
-        group,
-        route: elementValue(element, "route"),
-        popperClass: String(elementValue(element, "popperClass") ?? ""),
-        popperStyle: (elementValue(element, "popperStyle") ?? {}) as MenuPopperStyle,
-        teleported: elementBoolean(element, "teleported", level === 0),
-        popperOffset: toOptionalNumber(elementValue(element, "popperOffset")),
-        showTimeout: toOptionalNumber(elementValue(element, "showTimeout")),
-        hideTimeout: toOptionalNumber(elementValue(element, "hideTimeout")),
-        expandCloseIcon: String(elementValue(element, "expandCloseIcon") ?? ""),
-        expandOpenIcon: String(elementValue(element, "expandOpenIcon") ?? ""),
-        collapseCloseIcon: String(elementValue(element, "collapseCloseIcon") ?? ""),
-        collapseOpenIcon: String(elementValue(element, "collapseOpenIcon") ?? ""),
-        source: element,
-        level,
-        indexPath: ancestors,
-        hasChildren: children.length > 0,
-        children,
-    };
-};
-
-const compositionItems = (): MenuViewItem[] => {
-    compositionVersion.value;
-    return compositionChildren(host).map((child, index) => compositionItem(child, 0, [], String(index)));
-};
-
-const tree = (): MenuViewItem[] => {
-    const composed = compositionItems();
-    return composed.length > 0 ? composed : normalizeItems(props.items);
-};
-
-const findItem = (index: string, items = tree()): MenuViewItem | undefined => {
-    for (const item of items) {
-        if (item.index === index) return item;
-        const c = findItem(index, item.children);
-        if (c) return c;
+useEffect(() => {
+    if (isHorizontal.value && openKeys.value.length > 0) {
+        dismissibleOverlay.activate();
+    } else {
+        dismissibleOverlay.deactivate();
     }
-    return undefined;
-};
+});
+
+const dataItems = useComputed(() =>
+    normalizeMenuItems(props.items, fieldNames.value),
+);
+
+const compositionItems = useComputed(() => {
+    compositionVersion.value;
+    return normalizeCompositionItems(host);
+});
+
+const menuTree = useComputed(() =>
+    compositionItems.value.length > 0 ? compositionItems.value : dataItems.value,
+);
+
+const tree = (): MenuViewItem[] => menuTree.value;
+
+const findItem = (index: string): MenuViewItem | undefined =>
+    findMenuItem(menuTree.value, index);
 
 const isOpen = (index: string): boolean => openKeys.value.includes(index);
 
 const isActive = (index: string): boolean => activeKey.value === index;
 
-const getVisibleItems = (items = tree()): MenuViewItem[] => {
-    const out: MenuViewItem[] = [];
-    for (const item of items) {
-        if (props.searchable && searchText.value && !matchesSearch(item) && !item.hasChildren) continue;
-        out.push(item);
-        if (!_collapsed() && item.hasChildren && (item.group || isOpen(item.index) || (props.searchable && searchText.value)))
-            out.push(...getVisibleItems(item.children));
-    }
-    return out;
-};
-
-const flattenPanelItems = (items: MenuViewItem[]): MenuViewItem[] => {
-    const out: MenuViewItem[] = [];
-    for (const item of items) {
-        out.push(item);
-        if (item.hasChildren) out.push(...flattenPanelItems(item.children));
-    }
-    return out;
-};
+const getVisibleItems = (): MenuViewItem[] =>
+    getVisibleMenuItems(menuTree.value, {
+        collapsed: _collapsed(),
+        opened: openKeys.value,
+        searchable: Boolean(props.searchable),
+        searchText: searchText.value,
+    });
 
 const activeHorizontalRoot = (): MenuViewItem | undefined => {
     const roots = tree();
     const opened = openKeys.value.find((k) => roots.some((r) => r.index === k));
     if (opened) return roots.find((r) => r.index === opened);
-    return roots.find((root) => root.index === activeKey.value || flattenPanelItems(root.children).some(
+    return roots.find((root) => root.index === activeKey.value || flattenMenuItems(root.children).some(
         (item) => item.index === activeKey.value,
     ));
 };
@@ -614,7 +375,7 @@ const getHorizontalPanelItems = (): MenuViewItem[] => {
     const root = horizontalPanelRoot();
     if (!root?.hasChildren) return [];
     if (!props.persistent && !isOpen(root.index)) return [];
-    return flattenPanelItems(root.children);
+    return flattenMenuItems(root.children);
 };
 
 const alignPanel = (item: MenuViewItem) => {
@@ -655,7 +416,7 @@ const emitOpen = (item: MenuViewItem) => emit("open", item.index, [...item.index
 const emitClose = (item: MenuViewItem) => emit("close", item.index, [...item.indexPath, item.index], item.raw);
 
 const closeBranch = (item: MenuViewItem) => {
-    const rm = new Set([item.index, ...flattenPanelItems(item.children).map((c) => c.index)]);
+    const rm = new Set([item.index, ...flattenMenuItems(item.children).map((c) => c.index)]);
     openKeys.set(openKeys.value.filter((k) => !rm.has(k)));
     emitClose(item);
 };
@@ -678,17 +439,8 @@ const toggleOpen = (item: MenuViewItem) => {
     else openBranch(item);
 };
 
-const routePath = (item: MenuViewItem): string => {
-    const route = item.route;
-    if (typeof route === "string") return route;
-    if (route && typeof route === "object" && "path" in route) {
-        return String((route as { path?: unknown }).path || "");
-    }
-    return item.index;
-};
-
 const navigate = (item: MenuViewItem) => {
-    const target = routePath(item);
+    const target = resolveMenuRoutePath(item);
     if (props.router && typeof window !== "undefined" && target.startsWith("/")) window.location.hash = target;
 };
 
@@ -866,8 +618,7 @@ const onPopupLeave = () => {
 };
 
 const hasActiveChild = (item: MenuViewItem): boolean => {
-    if (!item.hasChildren) return false;
-    return item.children.some((c) => isActive(c.index) || hasActiveChild(c));
+    return item.hasChildren && hasActiveMenuDescendant(item, activeKey.value);
 };
 
 const itemClass = (item: MenuViewItem): Record<string, boolean> => ({
@@ -909,7 +660,7 @@ const popperClass = (base: string, item?: MenuViewItem): unknown[] => [
 ];
 
 const popperStyle = (extra: Record<string, string> = {}): Record<string, string> => ({
-    ...objectStyle(props.popperStyle),
+    ...toMenuStyle(props.popperStyle),
     ...extra,
 });
 
@@ -918,7 +669,7 @@ const horizontalPanelStyle = (): Record<string, string> => {
     const offset = item?.popperOffset ?? (Number(props.popperOffset) || 0);
     return {
         ...popperStyle(),
-        ...objectStyle(item?.popperStyle),
+        ...toMenuStyle(item?.popperStyle),
         left: panelLeft.value,
         marginTop: `${offset}px`,
     };
@@ -927,7 +678,7 @@ const horizontalPanelStyle = (): Record<string, string> => {
 const collapsePopupStyle = (): Record<string, string> => {
     const item = collapsePopupRoot();
     const offset = item?.popperOffset ?? (Number(props.popperOffset) || 0);
-    return { ...popperStyle(), ...objectStyle(item?.popperStyle), top: popupTop.value, marginLeft: `${offset}px` };
+    return { ...popperStyle(), ...toMenuStyle(item?.popperStyle), top: popupTop.value, marginLeft: `${offset}px` };
 };
 
 const nestedPopupStyle = (): Record<string, string> => {
@@ -935,7 +686,7 @@ const nestedPopupStyle = (): Record<string, string> => {
     const offset = item?.popperOffset ?? (Number(props.popperOffset) || 0);
     return {
         ...popperStyle(),
-        ...objectStyle(item?.popperStyle),
+        ...toMenuStyle(item?.popperStyle),
         top: nestedPopupTop.value,
         marginLeft: `${offset}px`,
     };
@@ -977,9 +728,9 @@ const onKeydown = (e: KeyboardEvent) => {
     }
     if (e.key === "Escape") {
         e.preventDefault();
-        openKeys.set([]);
-        hoveredIndex.set("");
-        hoveredIndex2.set("");
+        if (!dismissibleOverlay.isActive() || dismissibleOverlay.claim(e)) {
+            closeOpenMenus();
+        }
         return;
     }
     if (!["ArrowDown", "ArrowUp", "ArrowLeft", "ArrowRight", "Home", "End"].includes(e.key)) return;

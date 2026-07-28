@@ -28,25 +28,25 @@ const code = `<elf-menu
 >
   <elf-sub-menu
     index="workspace"
-    title="工作台"
+    title="Workspace"
     icon="W"
     expand-close-icon="＋"
     expand-open-icon="−"
   >
-    <elf-menu-item-group title="交付管理">
-      <elf-menu-item index="workspace/projects" title="项目" @click="onItemClick" />
-      <elf-menu-item index="workspace/releases" title="发布" />
+    <elf-menu-item-group title="Delivery">
+      <elf-menu-item index="workspace/projects" title="Projects" @click="onItemClick" />
+      <elf-menu-item index="workspace/releases" title="Releases" />
     </elf-menu-item-group>
-    <elf-menu-item index="workspace/archive" title="归档" disabled />
+    <elf-menu-item index="workspace/archive" title="Archive" disabled />
   </elf-sub-menu>
-  <elf-menu-item index="settings" title="设置" icon="S" />
+  <elf-menu-item index="settings" title="Settings" icon="S" />
 </elf-menu>`;
 
 const script = `const active = useRef("workspace/projects");
-const lastAction = useRef("等待操作");
+const lastAction = useRef("Waiting for action");
 const onSelect = (event) => {
   active.set(event.detail);
-  lastAction.set(\`已选择 \${event.detail}\`);
+  lastAction.set(\`Selected \${event.detail}\`);
 };
 
 const onItemClick = (event) => {

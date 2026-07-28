@@ -1,4 +1,5 @@
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { createOverlayInteractionController } from "../../Common/overlay-interaction-controller";
 
 beforeAll(async () => {
   await import("../../../components");
@@ -397,6 +398,29 @@ describe("elf-menu", () => {
     await tick();
     expect(el.shadowRoot!.querySelector(".horizontal-panel")).toBeTruthy();
     vi.useRealTimers();
+  });
+
+  it("closes horizontal panels only when the menu owns the outside interaction", async () => {
+    const el = await mount();
+    el.mode = "horizontal";
+    await tick();
+    await tick();
+
+    const workspace = el.shadowRoot!.querySelector('[data-index="/workspace"]') as HTMLElement;
+    workspace.click();
+    await tick();
+    expect(workspace.getAttribute("aria-expanded")).toBe("true");
+
+    const childOverlay = createOverlayInteractionController({ kind: "menu-test-child" });
+    childOverlay.activate();
+    document.body.click();
+    await tick();
+    expect(workspace.getAttribute("aria-expanded")).toBe("true");
+
+    childOverlay.dispose();
+    document.body.click();
+    await tick();
+    expect(workspace.getAttribute("aria-expanded")).toBe("false");
   });
 
   it("supports title alias, route navigation, ellipsis and expose helpers", async () => {

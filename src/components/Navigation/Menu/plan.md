@@ -223,6 +223,7 @@
 
 - [x] 2026-07-21 所有文档案例放入 `elf-card` 应用表面；基础、水平、折叠、搜索、暗色、hover、多级和组合式案例在 390px 窄屏下不坍缩，页面无横向溢出。
 - [x] 2026-07-19 搜索结果选择叶子菜单后同步清空内部状态、默认输入框与自定义 search 插槽输入框，完整菜单无需二次操作即可恢复。
+- [x] 2026-07-28 架构收敛：将数据规范化、路径查找、可见项投影与样式/路由解析拆入纯 `model`，将 Light DOM 组合式子组件转换拆入 `composition-adapter`；组件仅协调响应式状态、DOM 与事件。横向子菜单接入共享 `useDismissibleOverlay` 交互栈，补齐模型、组合适配器、嵌套浮层互斥测试及中英文 API 文档。
 
 - [x] 2026-07-11 Navigation 第一阶段：补 `ellipsis/ellipsisIcon/menuTrigger/showTimeout/hideTimeout/popperOffset/popperClass/popperStyle/collapseTransition/closeOnClickOutside/persistent` 兼容入口，支持 `title/route/popperClass/teleported` 字段映射，补 `handleResize/updateActiveIndex` 暴露方法，新增定向测试和 PropsTable/hover 案例。
 - [x] 2026-07-14 增加可选 `bordered` 外框；修复自定义 toggle 双触发、搜索事件与折叠 header 裁切，并将稳定 toggle 放入 header 同行。
