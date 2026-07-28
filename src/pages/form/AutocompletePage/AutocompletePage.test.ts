@@ -2,14 +2,17 @@ import { afterEach, beforeAll, describe, expect, it } from "vitest";
 
 let exampleTag = "";
 let scaleExampleTag = "";
+let basicExampleTag = "";
 
 beforeAll(async () => {
   await import("../../../components");
   const { ensureCustomElement } = await import("@elfui/core");
   const { PageAutocompleteEx5 } = await import("./ex5");
   const { PageAutocompleteEx6 } = await import("./ex6");
+  const { PageAutocompleteEx1 } = await import("./ex1");
   exampleTag = ensureCustomElement(PageAutocompleteEx5);
   scaleExampleTag = ensureCustomElement(PageAutocompleteEx6);
+  basicExampleTag = ensureCustomElement(PageAutocompleteEx1);
 });
 
 afterEach(() => {
@@ -19,6 +22,21 @@ afterEach(() => {
 const wait = (ms = 20): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
 
 describe("AutocompletePage", () => {
+  it("基础案例聚焦后立即显示本地建议", async () => {
+    const page = document.createElement(basicExampleTag);
+    document.body.appendChild(page);
+    await wait();
+
+    const autocomplete = page.shadowRoot!.querySelector<HTMLElement>("elf-autocomplete")!;
+    const input = autocomplete.shadowRoot!.querySelector<HTMLInputElement>("input")!;
+    input.focus();
+    await wait();
+
+    expect(input.getAttribute("aria-expanded")).toBe("true");
+    expect(autocomplete.shadowRoot!.textContent).toContain("Vue");
+    expect(autocomplete.shadowRoot!.textContent).toContain("React");
+  });
+
   it("远程案例可从失败状态恢复为建议列表", async () => {
     const page = document.createElement(exampleTag);
     document.body.appendChild(page);

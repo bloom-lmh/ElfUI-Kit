@@ -47,3 +47,8 @@
 - [x] Centralize panel open/close transitions so blur, selection, Escape, external motion and programmatic close unregister consistently.
 - [x] Keep focus on the combobox input during Escape; avoid refocusing it and reopening `trigger-on-focus` suggestions.
 - [x] Cover stacked suggestion panels so one Escape event closes only the topmost panel.
+
+## 2026-07-28 聚焦触发回归
+
+- [x] 用组件实例级焦点状态去重 `focus` / `focusin`，避免代理事件重复派发公共 focus 事件。
+- [x] 在真实 pointerdown 时同步打开 `trigger-on-focus` 建议，兼容非冒泡焦点事件被宿主代理遗漏的场景。

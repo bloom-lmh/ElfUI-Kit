@@ -35,6 +35,8 @@ interface CascaderEl extends HTMLElement {
   collapseTags?: boolean;
   collapseTagsTooltip?: boolean;
   maxCollapseTags?: number;
+  itemSize?: number;
+  height?: number;
   teleported?: boolean;
   appendTo?: string | HTMLElement;
   fitInputWidth?: boolean;
@@ -243,6 +245,42 @@ describe("elf-cascader", () => {
     el.shadowRoot!.querySelector<HTMLButtonElement>('.tree-option[aria-level="1"]')!.click();
     await tick();
     expect(el.shadowRoot!.querySelector('.tree-option[aria-level="4"]')).toBeTruthy();
+  });
+
+  it("lets a checkable tree parent row select all descendant leaves", async () => {
+    const deepOptions: CascaderOption[] = [{
+      label: "产品",
+      value: "product",
+      children: [{
+        label: "平台",
+        value: "platform",
+        children: [
+          { label: "稳定版", value: "stable" },
+          { label: "预览版", value: "preview" }
+        ]
+      }]
+    }];
+    const el = await mount({ options: deepOptions, panelMode: "tree", checkable: true, teleported: false });
+    const onUpdate = vi.fn();
+    el.addEventListener("update:modelValue", onUpdate as EventListener);
+
+    el.shadowRoot!.querySelector<HTMLElement>(".trigger")!.click();
+    await tick();
+    el.shadowRoot!.querySelector<HTMLButtonElement>('.tree-option[aria-level="1"]')!.click();
+    await tick();
+
+    expect((onUpdate.mock.calls.at(-1)![0] as CustomEvent).detail).toEqual([
+      ["product", "platform", "stable"],
+      ["product", "platform", "preview"]
+    ]);
+    expect(el.shadowRoot!.querySelector('.tree-option[aria-level="1"] .option-checkbox.is-checked')).toBeTruthy();
+  });
+
+  it("maps item size and panel height to the public CSS variables", async () => {
+    const el = await mount({ itemSize: 38, height: 152 });
+
+    expect(el.style.getPropertyValue("--_cascader-item-size")).toBe("38px");
+    expect(el.style.getPropertyValue("--_cascader-height")).toBe("152px");
   });
 
   it("keeps an active indeterminate parent label in the rendered option row", async () => {

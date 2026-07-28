@@ -313,6 +313,10 @@ input {
   padding-top: 16px;
 }
 
+:host([variant="outlined"][data-has-label]) input {
+  padding-top: 8px;
+}
+
 :host([variant="underlined"]) input {
   padding-inline: 0;
 }

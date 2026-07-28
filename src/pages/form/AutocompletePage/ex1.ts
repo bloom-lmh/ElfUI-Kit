@@ -1,27 +1,49 @@
 import { defineHtml, defineStyle, useRef } from "@elfui/core";
 
+import { createDocsPicker, createDocsTranslator } from "../../docsLocale";
+
+const pick = createDocsPicker();
 const keyword = useRef("");
 const variant = useRef("filled");
 const flags = useRef<string[]>(["clearable", "trigger"]);
+
+const t = createDocsTranslator({
+  section: { zh: "基础", en: "Basic" },
+  title: { zh: "综合操作台", en: "Autocomplete playground" },
+  current: { zh: "当前", en: "Current" },
+  empty: { zh: "未选择", en: "Not selected" },
+  controls: { zh: "自动补全配置", en: "Autocomplete controls" },
+  appearance: { zh: "外观", en: "Variant" },
+  filled: { zh: "填充", en: "Filled" },
+  outlined: { zh: "描边", en: "Outlined" },
+  underlined: { zh: "下划线", en: "Underlined" },
+  solo: { zh: "独立表面", en: "Solo" },
+  clearable: { zh: "允许清空", en: "Clearable" },
+  trigger: { zh: "聚焦触发", en: "Open on focus" },
+  highlight: { zh: "高亮首项", en: "Highlight first" },
+  label: { zh: "前端框架", en: "Frontend framework" },
+  placeholder: { zh: "输入框架名", en: "Type a framework" },
+  disabled: { zh: "禁用项", en: "Disabled option" }
+});
 
 const suggestions = [
   { label: "Vue", value: "Vue" },
   { label: "React", value: "React" },
   { label: "Solid", value: "Solid" },
   { label: "ElfUI", value: "ElfUI" },
-  { label: "禁用项", value: "disabled", disabled: true }
+  { label: pick("禁用项", "Disabled option"), value: "disabled", disabled: true }
 ];
 
-const variantOptions = [
-  { label: "填充", value: "filled" },
-  { label: "描边", value: "outlined" },
-  { label: "下划线", value: "underlined" },
-  { label: "独立表面", value: "solo" }
+const variantOptions = () => [
+  { label: t("filled"), value: "filled" },
+  { label: t("outlined"), value: "outlined" },
+  { label: t("underlined"), value: "underlined" },
+  { label: t("solo"), value: "solo" }
 ];
-const flagOptions = [
-  { label: "允许清空", value: "clearable" },
-  { label: "聚焦触发", value: "trigger" },
-  { label: "高亮首项", value: "highlight" }
+const flagOptions = () => [
+  { label: t("clearable"), value: "clearable" },
+  { label: t("trigger"), value: "trigger" },
+  { label: t("highlight"), value: "highlight" }
 ];
 const hasFlag = (name: string): boolean => flags.value.includes(name);
 
@@ -29,11 +51,11 @@ const code1 = (): string => `<elf-autocomplete
   :options.prop=\${suggestions}
   :modelValue.prop=\${keyword}
   variant="${variant.value}"
-  label="前端框架"
+  label="Frontend framework"
   :clearable="${hasFlag("clearable")}"
   :trigger-on-focus="${hasFlag("trigger")}"
   :highlight-first-item="${hasFlag("highlight")}"
-  placeholder="输入框架名"
+  placeholder="Type a framework"
   @update:modelValue=\${onKeywordUpdate}
   @select=\${onSelect}
 />`;
@@ -45,7 +67,7 @@ const suggestions = [
   { label: "React", value: "React" },
   { label: "Solid", value: "Solid" },
   { label: "ElfUI", value: "ElfUI" },
-  { label: "禁用项", value: "disabled", disabled: true }
+  { label: "Disabled option", value: "disabled", disabled: true }
 ];
 
 const onKeywordUpdate = (event) => {
@@ -69,27 +91,27 @@ defineStyle(`
 `);
 
 const PageAutocompleteEx1 = defineHtml(`
-<h2>基础</h2>
-<elf-playground title="综合操作台" :code=${code1()} :script=${script1}>
-      <span slot="status" class="demo-state">当前：${keyword.value || "未选择"}</span>
+<h2>${t("section")}</h2>
+<elf-playground :title=${t("title")} :code=${code1()} :script=${script1}>
+      <span slot="status" class="demo-state">${t("current")}：${keyword.value || t("empty")}</span>
       <div class="autocomplete-preview">
       <elf-autocomplete
         :options.prop=${suggestions}
         :modelValue.prop=${keyword}
         :variant.prop=${variant.value}
-        label="前端框架"
+        :label=${t("label")}
         :clearable.prop=${hasFlag("clearable")}
         :triggerOnFocus.prop=${hasFlag("trigger")}
         :highlightFirstItem.prop=${hasFlag("highlight")}
-        placeholder="输入框架名"
+        :placeholder=${t("placeholder")}
         @update:modelValue=${onKeywordUpdate}
         @select=${onSelect}
       ></elf-autocomplete>
       </div>
-      <aside slot="controls" class="autocomplete-controls" aria-label="自动补全配置">
-        <strong>自动补全配置</strong>
-        <label><span>外观</span><elf-select :options.prop=${variantOptions} :modelValue.prop=${variant.value} @update:modelValue=${onVariant}></elf-select></label>
-        <elf-checkbox-group :options.prop=${flagOptions} :modelValue.prop=${flags.value} @update:modelValue=${onFlags}></elf-checkbox-group>
+      <aside slot="controls" class="autocomplete-controls" :aria-label=${t("controls")}>
+        <strong>${t("controls")}</strong>
+        <label><span>${t("appearance")}</span><elf-select :options.prop=${variantOptions()} :modelValue.prop=${variant.value} @update:modelValue=${onVariant}></elf-select></label>
+        <elf-checkbox-group :options.prop=${flagOptions()} :modelValue.prop=${flags.value} @update:modelValue=${onFlags}></elf-checkbox-group>
       </aside>
     </elf-playground>
 `);

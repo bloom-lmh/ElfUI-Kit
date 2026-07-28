@@ -39,6 +39,8 @@ const treeCode = `<elf-form :model.prop="model" :rules.prop="rules">
       panel-mode="auto"
       tree-threshold="3"
       :checkable="checkable"
+      collapse-tags
+      :max-collapse-tags="1"
       @update:modelValue="onUpdate"
     />
   </elf-form-item>
@@ -206,6 +208,7 @@ const PageCascaderEx8 = defineHtml(`
           :props.prop=${lazyProps}
           :label=${t("teamLabel")}
           :placeholder=${t("teamPlaceholder")}
+          :height=${136}
           fit-input-width
           @update:modelValue=${onLazyUpdate}
         ></elf-cascader>
@@ -234,6 +237,9 @@ const PageCascaderEx8 = defineHtml(`
               panel-mode="auto"
               tree-threshold="3"
               :checkable.prop=${treeCheckable.value}
+              :collapseTags.prop=${treeCheckable.value}
+              :maxCollapseTags=${1}
+              collapse-tags-tooltip
               fit-input-width
               @update:modelValue=${onCategoryUpdate}
             ></elf-cascader>

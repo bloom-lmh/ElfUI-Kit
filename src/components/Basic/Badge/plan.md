@@ -94,3 +94,7 @@
 - [x] 关键交互和边界状态有单测覆盖。
 - [x] 文档示例能在 Playground 中显示 Template / Script，且复制内容正确。
 - [x] `pnpm build` 通过；`pnpm test src/components/Basic/Badge/Badge.test.ts` 17/17 通过。
+## 2026-07-28 动态值与 RTL 间距
+
+- [x] 调整动态值、零值与 RTL 案例的内容留白，避免 badge 与长文本贴合或重叠。
+- [x] 保留 badge 的绝对定位语义，间距修复限定在文档案例布局。

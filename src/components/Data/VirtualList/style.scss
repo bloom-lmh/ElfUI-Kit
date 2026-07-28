@@ -1,12 +1,12 @@
 @use "../../../styles/reset";
 
 :host { display: block; min-width: 0; color: var(--elf-text-primary); }
-.viewport { position: relative; width: 100%; overflow: auto; overflow-anchor: none; box-sizing: border-box; border-radius: var(--elf-radius-md); background: var(--elf-bg-paper); scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--elf-text-secondary) 34%, transparent) transparent; }
+.viewport { position: relative; isolation: isolate; width: 100%; overflow: auto; overflow-anchor: none; box-sizing: border-box; border-radius: var(--elf-radius-md); background: var(--elf-bg-paper); scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--elf-text-secondary) 34%, transparent) transparent; }
 .viewport::-webkit-scrollbar { width: 8px; }
 .viewport::-webkit-scrollbar-thumb { border: 2px solid transparent; border-radius: 999px; background: color-mix(in srgb, var(--elf-text-secondary) 34%, transparent); background-clip: padding-box; }
 .viewport.is-bordered { border: 1px solid var(--elf-border); }
 .spacer { position: relative; width: 100%; }
-.window { position: absolute; top: 0; right: 0; left: 0; contain: layout paint style; will-change: transform; }
+.window { position: absolute; top: 0; right: 0; left: 0; min-height: 1px; contain: layout paint style; backface-visibility: hidden; transform: translateZ(0); will-change: transform; }
 .item { display: flex; align-items: center; width: 100%; padding: 8px 16px; box-sizing: border-box; overflow: hidden; outline: none; }
 .item:focus-visible { background: color-mix(in srgb, var(--elf-primary) 9%, var(--elf-bg-paper)); box-shadow: inset 3px 0 0 var(--elf-primary); }
 .window.is-divided .item { border-bottom: 1px solid var(--elf-divider); }

@@ -59,6 +59,11 @@
   padding-top: 18px;
 }
 
+:host([data-has-label][data-multiple]) .trigger {
+  padding-top: 24px;
+  padding-bottom: 6px;
+}
+
 :host([data-has-label]:not([data-dirty]):not([data-open])) .placeholder,
 :host([data-has-label]:not([data-dirty]):not([data-open])) .filter-input::placeholder {
   color: transparent;
@@ -86,6 +91,7 @@
   flex: 1;
   min-width: 0;
   flex-wrap: wrap;
+  align-content: center;
   gap: 4px;
 }
 
@@ -283,7 +289,7 @@
 
 .columns {
   display: flex;
-  min-height: 192px;
+  min-height: min(192px, var(--_cascader-height, 280px));
   max-height: var(--_cascader-height, 280px);
   max-width: 100%;
   overflow-x: auto;

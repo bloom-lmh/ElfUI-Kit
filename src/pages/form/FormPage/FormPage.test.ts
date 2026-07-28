@@ -1,12 +1,15 @@
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
 
 let pageTag = "";
+let disabledExampleTag = "";
 
 beforeAll(async () => {
   await import("../../../components");
   const { ensureCustomElement } = await import("@elfui/core");
   const { PageForm } = await import("./index");
+  const { PageFormEx4 } = await import("./ex4");
   pageTag = ensureCustomElement(PageForm);
+  disabledExampleTag = ensureCustomElement(PageFormEx4);
 });
 
 afterEach(() => {
@@ -17,6 +20,27 @@ const tick = (): Promise<void> => new Promise((resolve) => queueMicrotask(resolv
 const wait = (ms = 30): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
 
 describe("FormPage", () => {
+  it("布局案例可以禁用并重新启用整张表单", async () => {
+    const page = document.createElement(disabledExampleTag);
+    document.body.appendChild(page);
+    await tick();
+    await tick();
+
+    const form = page.shadowRoot!.querySelector<HTMLElement & { disabled?: boolean }>("elf-form")!;
+    const button = page.shadowRoot!.querySelector<HTMLElement>("elf-button")!;
+    expect(form.disabled).toBe(false);
+
+    button.click();
+    await tick();
+    await tick();
+    expect(form.disabled).toBe(true);
+
+    button.click();
+    await tick();
+    await tick();
+    expect(form.disabled).toBe(false);
+  });
+
   it("documents the complete form command surface with executable script", async () => {
     const page = document.createElement(pageTag);
     document.body.appendChild(page);

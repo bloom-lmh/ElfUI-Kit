@@ -117,6 +117,7 @@ const loadError = useRef<unknown | null>(null);
 const overlayStyle = useRef<Record<string, string>>({});
 const resolvedPlacement = useRef<AutocompletePlacement>("bottom-start");
 const listScrollTop = useRef(0);
+const fieldFocused = useRef(false);
 let requestId = 0;
 let debounceTimer: ReturnType<typeof setTimeout> | undefined;
 let blurTimer: ReturnType<typeof setTimeout> | undefined;
@@ -375,17 +376,31 @@ const onInput = (event: Event): void => {
     resetActive();
 };
 
-const onFocus = (event: Event): void => {
-    ctl.dispatchFocus(event);
+const openOnFocus = (): void => {
     if (blurTimer) clearTimeout(blurTimer);
-    if (props.triggerOnFocus && !isDisabled()) {
-        scheduleSuggestions(String(ctl.model.value || ""));
-        setPanelOpen(true);
-        resetActive();
-    }
+    if (!props.triggerOnFocus || isDisabled() || open.value) return;
+    scheduleSuggestions(String(ctl.model.value || ""));
+    setPanelOpen(true);
+    resetActive();
+};
+
+const onPointerDown = (): void => {
+    // Some host integrations proxy non-bubbling focus events inconsistently.
+    // Open on the real pointer gesture as well, while native focus still owns
+    // the public focus event and keyboard-only entry point.
+    openOnFocus();
+};
+
+const onFocus = (event: Event): void => {
+    if (fieldFocused.value) return;
+    fieldFocused.set(true);
+    ctl.dispatchFocus(event);
+    openOnFocus();
 };
 
 const onBlur = (event: FocusEvent): void => {
+    if (!fieldFocused.value) return;
+    fieldFocused.set(false);
     ctl.dispatchBlur(event);
     if (blurTimer) clearTimeout(blurTimer);
     blurTimer = setTimeout(() => {
@@ -641,8 +656,11 @@ const Autocomplete = defineHtml<AutocompleteProps>(`
                 :aria-controls=${shouldShowPanel() ? listboxId : null}
                 :aria-activedescendant=${activeDescendant()}
                 @input=${onInput}
+                @pointerdown=${onPointerDown}
                 @focus=${onFocus}
+                @focusin=${onFocus}
                 @blur=${onBlur}
+                @focusout=${onBlur}
                 @keydown=${onKeydown}
             />
             <button v-if=${showClear()} class="clear" type="button" aria-label="Clear" @click=${clear}>

@@ -70,7 +70,9 @@
 
 .badge-long-state elf-badge > span {
   display: block;
-  padding-inline-end: 32px;
+  padding-block-start: 14px;
+  padding-inline-end: 40px;
+  line-height: 1.5;
 }
 
 .badge-custom-row {

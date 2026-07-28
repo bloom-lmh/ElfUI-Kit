@@ -61,6 +61,10 @@ let cachedVisibleStart = -1;
 let cachedVisibleEnd = -1;
 let cachedVisibleItems: Array<{ item: unknown; index: number; key: string }> = [];
 let scrollSyncTimer: ReturnType<typeof setTimeout> | undefined;
+let dynamicScrollFrame = 0;
+let pendingDynamicScroll: { offset: number; size: number } | undefined;
+let measurementFrame = 0;
+let pendingAnchorDelta = 0;
 let cachedOffsetSource: unknown[] | null = null;
 let cachedOffsetVersion = -1;
 let cachedOffsetEstimate = -1;
@@ -72,6 +76,11 @@ const effectiveOverscan = (size = viewportSize.value): number => Math.max(
   0,
   Number(props.overscan) || 0,
   Math.ceil(Math.max(0, size) / itemHeight())
+);
+const effectiveDynamicOverscan = (size = viewportSize.value): number => Math.max(
+  0,
+  Number(props.overscan) || 0,
+  Math.ceil(Math.max(0, size) / estimatedItemHeight())
 );
 const cssSize = (value: string | number): string => {
   if (typeof value === "number") return `${value}px`;
@@ -108,11 +117,12 @@ const dynamicWindowState = (): VirtualWindow =>
     offsets: dynamicOffsets(),
     viewportSize: viewportSize.value,
     scrollOffset: scrollOffset.value,
-    overscan: Math.max(0, Number(props.overscan) || 0)
+    overscan: effectiveDynamicOverscan()
   });
 const windowState = (): VirtualWindow => {
   const source = items();
-  const key = `${props.dynamic}:${source.length}:${itemHeight()}:${viewportSize.value}:${scrollOffset.value}:${effectiveOverscan()}:${measurementVersion.value}`;
+  const overscan = props.dynamic ? effectiveDynamicOverscan() : effectiveOverscan();
+  const key = `${props.dynamic}:${source.length}:${itemHeight()}:${estimatedItemHeight()}:${viewportSize.value}:${scrollOffset.value}:${overscan}:${measurementVersion.value}`;
   if (key === cachedWindowKey) return cachedWindow;
   cachedWindowKey = key;
   cachedWindow = props.dynamic ? dynamicWindowState() : computeVirtualWindow({
@@ -167,6 +177,15 @@ const renderWindowImmediately = (
     Array.from(windowElement.querySelectorAll<HTMLElement>(".item[data-virtual-key]"))
       .map((element) => [String(element.dataset.virtualKey), element] as const)
   );
+  const existingRows = Array.from(existing.values());
+  if (
+    existingRows.length === state.end - state.start
+    && Number(existingRows[0]?.dataset.virtualIndex) === state.start
+    && Number(existingRows.at(-1)?.dataset.virtualIndex) === state.end - 1
+  ) {
+    windowElement.style.transform = `translate3d(0, ${state.offset}px, 0)`;
+    return;
+  }
   const source = items();
   const nextKeys = new Set<string>();
   for (let index = state.start; index < state.end; index += 1) {
@@ -211,13 +230,25 @@ const synchronizeDeclarativeWindow = (offset: number, size: number): void => {
   if (viewportSize.peek() !== size) viewportSize.set(size);
 };
 
+const scheduleDynamicScroll = (offset: number, size: number): void => {
+  pendingDynamicScroll = { offset, size };
+  if (dynamicScrollFrame) return;
+  dynamicScrollFrame = requestAnimationFrame(() => {
+    dynamicScrollFrame = 0;
+    const next = pendingDynamicScroll;
+    pendingDynamicScroll = undefined;
+    if (!next) return;
+    synchronizeDeclarativeWindow(next.offset, next.size);
+    queueMicrotask(observeVisibleRows);
+  });
+};
+
 const onScroll = (event: Event): void => {
   const target = event.currentTarget as HTMLElement;
   const normalizedOffset = Math.max(0, target.scrollTop);
   const nextViewportSize = Math.max(0, target.clientHeight);
   if (props.dynamic) {
-    synchronizeDeclarativeWindow(normalizedOffset, nextViewportSize);
-    queueMicrotask(observeVisibleRows);
+    scheduleDynamicScroll(normalizedOffset, nextViewportSize);
     return;
   }
   // Native scrollbar thumb dragging can advance the compositor viewport
@@ -315,7 +346,6 @@ const observeVisibleRows = (): void => {
 const onRowsResized = (entries: ResizeObserverEntry[]): void => {
   const state = windowState();
   let changed = false;
-  let anchorDelta = 0;
   for (const entry of entries) {
     const row = entry.target as HTMLElement;
     const key = String(row.dataset.virtualKey || "");
@@ -324,17 +354,21 @@ const onRowsResized = (entries: ResizeObserverEntry[]): void => {
     const previous = measuredHeights.get(key) || estimatedItemHeight();
     if (!key || !Number.isFinite(next) || next <= 0 || Math.abs(next - previous) < 0.5) continue;
     measuredHeights.set(key, next);
-    if (index < state.start) anchorDelta += next - previous;
+    if (index < state.start) pendingAnchorDelta += next - previous;
     changed = true;
   }
-  if (!changed) return;
-  measurementVersion.set(measurementVersion.peek() + 1);
-  const viewport = viewportRef.value;
-  if (viewport && anchorDelta !== 0) {
-    viewport.scrollTop = Math.max(0, viewport.scrollTop + anchorDelta);
-    scrollOffset.set(viewport.scrollTop);
-  }
-  queueMicrotask(observeVisibleRows);
+  if (!changed || measurementFrame) return;
+  measurementFrame = requestAnimationFrame(() => {
+    measurementFrame = 0;
+    measurementVersion.set(measurementVersion.peek() + 1);
+    const viewport = viewportRef.value;
+    if (viewport && pendingAnchorDelta !== 0) {
+      viewport.scrollTop = Math.max(0, viewport.scrollTop + pendingAnchorDelta);
+      scrollOffset.set(viewport.scrollTop);
+    }
+    pendingAnchorDelta = 0;
+    queueMicrotask(observeVisibleRows);
+  });
 };
 
 useEffect(() => {
@@ -361,6 +395,12 @@ onMounted(() => {
 onBeforeUnmount(() => {
   if (scrollSyncTimer) clearTimeout(scrollSyncTimer);
   scrollSyncTimer = undefined;
+  if (dynamicScrollFrame) cancelAnimationFrame(dynamicScrollFrame);
+  dynamicScrollFrame = 0;
+  pendingDynamicScroll = undefined;
+  if (measurementFrame) cancelAnimationFrame(measurementFrame);
+  measurementFrame = 0;
+  pendingAnchorDelta = 0;
   resizeObserver?.disconnect();
   resizeObserver = undefined;
 });

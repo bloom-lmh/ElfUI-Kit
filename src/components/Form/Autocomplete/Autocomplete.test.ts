@@ -132,6 +132,35 @@ describe("elf-autocomplete", () => {
     expect(onChange).toHaveBeenCalled();
   });
 
+  it("opens local suggestions on a native focus event", async () => {
+    const el = document.createElement("elf-autocomplete") as AutocompleteEl;
+    el.options = [{ value: "Vue" }, { value: "React" }];
+    document.body.appendChild(el);
+    await tick();
+
+    const input = el.shadowRoot!.querySelector("input") as HTMLInputElement;
+    input.focus();
+    await tick();
+
+    expect(input.getAttribute("aria-expanded")).toBe("true");
+    expect(el.shadowRoot!.querySelectorAll(".option")).toHaveLength(2);
+  });
+
+  it("opens local suggestions when a pointer focuses the input", async () => {
+    const el = document.createElement("elf-autocomplete") as HTMLElement & Record<string, unknown>;
+    el.options = [{ value: "Vue" }, { value: "React" }];
+    el.triggerOnFocus = true;
+    document.body.appendChild(el);
+    await tick();
+
+    const input = el.shadowRoot!.querySelector("input")!;
+    input.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }));
+    await tick();
+
+    expect(input.getAttribute("aria-expanded")).toBe("true");
+    expect(el.shadowRoot!.querySelectorAll(".option")).toHaveLength(2);
+  });
+
   it("creates a non-existing value from the keyboard", async () => {
     const el = document.createElement("elf-autocomplete") as AutocompleteEl;
     el.options = [{ value: "Vue" }, { value: "React" }];

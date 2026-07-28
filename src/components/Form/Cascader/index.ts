@@ -816,7 +816,7 @@ const onTreeClick = (event: Event): void => {
     focusPathOption(path);
     return;
   }
-  if (hasChildren && !target?.closest?.(".option-checkbox")) {
+  if (hasChildren && !showPrefix() && !target?.closest?.(".option-checkbox")) {
     event.preventDefault();
     event.stopPropagation();
     if (!isTreePathExpanded(path)) activePath.set(path);
@@ -1360,7 +1360,10 @@ useHostAttr("size", () => fi.formSize);
 useHostAttr("variant", () => normalizeFieldVariant(props.variant));
 useHostFlag("data-dirty", hasValue);
 useHostCssVar("--elf-field-custom-bg", () => props.backgroundColor || "");
+useHostCssVar("--_cascader-item-size", () => `${Math.max(28, Number(props.itemSize) || 34)}px`);
+useHostCssVar("--_cascader-height", () => `${Math.max(68, Number(props.height) || 204)}px`);
 useHostFlag("data-has-label", () => Boolean(props.label));
+useHostFlag("data-multiple", isMultiple);
 
 defineExpose({
   clearSelection: clear,

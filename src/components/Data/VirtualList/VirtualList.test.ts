@@ -9,6 +9,7 @@ beforeEach(() => {
 });
 
 const tick = (): Promise<void> => new Promise((resolve) => queueMicrotask(resolve));
+const frame = (): Promise<void> => new Promise((resolve) => requestAnimationFrame(() => resolve()));
 
 describe("virtual window", () => {
   it("exposes list-item styling hooks on declarative rows", async () => {
@@ -147,6 +148,34 @@ describe("virtual window", () => {
     el.items = [...el.items, ...Array.from({ length: 20 }, (_, index) => ({ id: 100 + index, label: `Added ${index}` }))];
     await tick();
     expect((el.shadowRoot!.querySelector(".spacer") as HTMLElement).style.height).toBe("5040px");
+  });
+
+  it("coalesces rapid dynamic scroll updates while keeping a buffered row window", async () => {
+    const el = document.createElement("elf-virtual-list") as HTMLElement & Record<string, any>;
+    el.items = Array.from({ length: 2000 }, (_, index) => ({ id: index, label: `Dynamic ${index}` }));
+    el.dynamic = true;
+    el.estimatedItemHeight = 40;
+    el.height = 240;
+    el.overscan = 2;
+    el.renderItem = (item: { label: string }) => item.label;
+    document.body.appendChild(el);
+    await tick();
+    await tick();
+
+    const viewport = el.shadowRoot!.querySelector(".viewport") as HTMLElement;
+    Object.defineProperty(viewport, "clientHeight", { configurable: true, value: 240 });
+    for (let step = 1; step <= 40; step += 1) {
+      viewport.scrollTop = step * 1200;
+      viewport.dispatchEvent(new Event("scroll"));
+    }
+    await frame();
+    await tick();
+
+    const rows = el.shadowRoot!.querySelectorAll(".item");
+    expect(rows.length).toBeGreaterThan(12);
+    expect(rows.length).toBeLessThan(40);
+    expect(rows[0]?.textContent).not.toBe("");
+    expect(el.getVisibleRange().start).toBeGreaterThan(1100);
   });
 
   it("keeps keyboard focus navigation inside the virtual window", async () => {

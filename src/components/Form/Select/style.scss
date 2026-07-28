@@ -254,7 +254,8 @@
   transition: background-color var(--elf-transition-fast);
 
   &:hover:not(.disabled) {
-    background: var(--elf-bg-muted);
+    background: color-mix(in srgb, var(--elf-primary) 10%, var(--elf-bg-paper));
+    color: var(--elf-text-primary);
   }
 }
 

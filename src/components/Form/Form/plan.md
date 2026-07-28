@@ -214,3 +214,7 @@
   - [x] `validate`: 并行触发所有已注册子表项的 `validate()` 方法，收集所有异步校验结果，向外 emit `validate` 事件。
   - [x] `scrollToError`: 校验失败时，支持自动平滑滚动到第一个出错的 FormItem 位置。
 - [x] **2.4 自定义公共接口暴露**: 使用 `defineExpose` 暴露 `validate`、`validateField`、`resetFields` 和 `clearValidate`，供外部宿主直接调用。
+## 2026-07-28 布局与禁用态案例回归
+
+- [x] 迁移布局与禁用态案例到 beta15 静态表达式和属性绑定语法。
+- [x] 使用显式事件处理器维护表单模型，确保禁用开关可往返恢复并覆盖页面测试。
