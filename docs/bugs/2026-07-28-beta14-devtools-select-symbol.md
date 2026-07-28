@@ -2,7 +2,7 @@
 
 日期：2026-07-28
 
-状态：待框架修复
+状态：已由 ElfUI beta.15 修复
 
 ## 现象
 
@@ -31,3 +31,7 @@ TypeError: Cannot convert a Symbol value to a number
 - 原生 `select`、`input`、`button`、`option` 均可在 happy-dom 中渲染。
 - DevTools 能读取模板节点元数据。
 - 全量测试恢复为 165 个文件、1334 条测试通过。
+
+## 修复验证
+
+升级 `@elfui/core`、`@elfui/compiler`、`@elfui/vite-plugin` 至 `0.1.0-beta.15` 后，原失败的 Drawer focused 测试恢复为 2/2 通过，且不再输出 `Cannot convert a Symbol value to a number`。

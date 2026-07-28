@@ -34,12 +34,12 @@
     "prepublishOnly": "pnpm test && pnpm build:lib"
   },
   "dependencies": {
-    "@elfui/core": "0.1.0-beta.14",
+    "@elfui/core": "0.1.0-beta.15",
     "@elfui/router": "0.1.0-beta.10"
   },
   "devDependencies": {
-    "@elfui/compiler": "0.1.0-beta.14",
-    "@elfui/vite-plugin": "0.1.0-beta.14",
+    "@elfui/compiler": "0.1.0-beta.15",
+    "@elfui/vite-plugin": "0.1.0-beta.15",
     "happy-dom": "^20.10.6",
     "sass-embedded": "^1.83.0",
     "typescript": "~5.6.3",
