@@ -20,6 +20,7 @@ import type { DirectiveBinding } from "@elfui/core";
 import styles from "./style.scss?inline";
 import { computeAnchoredPosition } from "../../Common/anchored-overlay";
 import { useLocaleProvider } from "../../Providers/context";
+import { useDismissibleOverlay } from "../../../composables/useDismissibleOverlay";
 import { buildTableTree, normalizeTableTreeProps } from "./tree";
 import {
   buildVirtualOffsets,
@@ -1997,6 +1998,16 @@ const getFilterTrigger = (key = filterOpenKey.peek()): HTMLButtonElement | null 
 
 const getFilterPanel = (): HTMLElement | null => host.shadowRoot?.querySelector<HTMLElement>(".filter-panel") || null;
 
+const dismissibleFilterOverlay = useDismissibleOverlay({
+  kind: "table-filter",
+  containers: () => [host, getFilterPanel()],
+  closeOnEscape: () => Boolean(filterOpenKey.value),
+  closeOnOutside: () => Boolean(filterOpenKey.value),
+  outsideEvent: "click",
+  outsideCapture: true,
+  onRequestClose: (reason) => closeFilterPanel(reason === "escape"),
+});
+
 const updateFilterOverlayPosition = (): void => {
   if (typeof window === "undefined") return;
   const column = activeFilterColumn();
@@ -2068,6 +2079,7 @@ const openFilterPanel = (column: TableColumnView): void => {
   const key = filterKeyOf(column);
   filterOpenKey.set(key);
   filterDraftState.set([...(filterValuesState.peek()[key] || [])]);
+  dismissibleFilterOverlay.activate();
   queueMicrotask(() => {
     syncFilterTopLayer();
     connectFilterOverlay();
@@ -2075,8 +2087,9 @@ const openFilterPanel = (column: TableColumnView): void => {
   });
 };
 
-const closeFilterPanel = (returnFocus = false): void => {
+function closeFilterPanel(returnFocus = false): void {
   const key = filterOpenKey.peek();
+  dismissibleFilterOverlay.deactivate();
   const panel = getFilterPanel() as (HTMLElement & { hidePopover?: () => void }) | null;
   try {
     panel?.hidePopover?.();
@@ -2087,7 +2100,7 @@ const closeFilterPanel = (returnFocus = false): void => {
   filterDraftState.set([]);
   cleanupFilterOverlay();
   if (returnFocus) getFilterTrigger(key)?.focus();
-};
+}
 
 const toggleFilterPanel = (column: TableColumnView): void => {
   if (filterOpenKey.peek() === filterKeyOf(column)) closeFilterPanel();
@@ -2123,6 +2136,7 @@ const onFilterTriggerKeydown = (column: TableColumnView, event: KeyboardEvent): 
     openFilterPanel(column);
   } else if (event.key === "Escape" && filterOpenKey.peek() === filterKeyOf(column)) {
     event.preventDefault();
+    dismissibleFilterOverlay.claim(event);
     closeFilterPanel(true);
   }
 };
@@ -2130,11 +2144,8 @@ const onFilterTriggerKeydown = (column: TableColumnView, event: KeyboardEvent): 
 const onFilterPanelKeydown = (event: KeyboardEvent): void => {
   if (event.key !== "Escape") return;
   event.preventDefault();
+  dismissibleFilterOverlay.claim(event);
   closeFilterPanel(true);
-};
-
-const onDocumentPointerDown = (event: PointerEvent): void => {
-  if (filterOpenKey.peek() && !event.composedPath().includes(host)) closeFilterPanel();
 };
 
 const summaryCells = (): string[] => {
@@ -2370,7 +2381,6 @@ const doLayout = (): void => {
 };
 
 onMounted(() => {
-  document.addEventListener("pointerdown", onDocumentPointerDown);
   window.addEventListener("resize", requestTooltipPositionUpdate, { passive: true });
   window.addEventListener("scroll", requestTooltipPositionUpdate, { passive: true, capture: true });
   window.visualViewport?.addEventListener("resize", requestTooltipPositionUpdate, { passive: true });
@@ -2378,7 +2388,6 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-  document.removeEventListener("pointerdown", onDocumentPointerDown);
   window.removeEventListener("resize", requestTooltipPositionUpdate);
   window.removeEventListener("scroll", requestTooltipPositionUpdate, { capture: true });
   window.visualViewport?.removeEventListener("resize", requestTooltipPositionUpdate);

@@ -921,6 +921,80 @@ describe("elf-table", () => {
     expect(el.shadowRoot!.querySelector("tbody tr")?.textContent).toContain("Bob");
   });
 
+  it("同一外部点击只关闭最上层的筛选面板", async () => {
+    const withFilters = (table: TableEl): void => {
+      table.columns = [
+        { prop: "name", label: "姓名" },
+        {
+          prop: "role",
+          label: "角色",
+          filters: [
+            { text: "管理员", value: "Admin" },
+            { text: "编辑", value: "Editor" }
+          ]
+        }
+      ];
+    };
+    const first = await mount(withFilters);
+    const second = await mount(withFilters);
+
+    first.shadowRoot!.querySelector<HTMLButtonElement>(".filter-trigger")!.click();
+    second.shadowRoot!.querySelector<HTMLButtonElement>(".filter-trigger")!
+      .dispatchEvent(new KeyboardEvent("keydown", {
+        key: "ArrowDown",
+        bubbles: true
+      }));
+    await tick();
+    await tick();
+    expect(first.shadowRoot!.querySelector(".filter-panel")).toBeTruthy();
+    expect(second.shadowRoot!.querySelector(".filter-panel")).toBeTruthy();
+
+    document.body.dispatchEvent(new MouseEvent("click", {
+      bubbles: true,
+      composed: true
+    }));
+    await tick();
+    expect(first.shadowRoot!.querySelector(".filter-panel")).toBeTruthy();
+    expect(second.shadowRoot!.querySelector(".filter-panel")).toBeNull();
+
+    document.body.dispatchEvent(new MouseEvent("click", {
+      bubbles: true,
+      composed: true
+    }));
+    await tick();
+    expect(first.shadowRoot!.querySelector(".filter-panel")).toBeNull();
+  });
+
+  it("筛选面板消费 Escape 后不会连带关闭下层浮层", async () => {
+    const setup = (table: TableEl): void => {
+      table.columns = [{
+        prop: "role",
+        label: "角色",
+        filters: [{ text: "管理员", value: "Admin" }]
+      }];
+    };
+    const first = await mount(setup);
+    const second = await mount(setup);
+    first.shadowRoot!.querySelector<HTMLButtonElement>(".filter-trigger")!.click();
+    second.shadowRoot!.querySelector<HTMLButtonElement>(".filter-trigger")!
+      .dispatchEvent(new KeyboardEvent("keydown", {
+        key: "ArrowDown",
+        bubbles: true
+      }));
+    await tick();
+    await tick();
+
+    second.shadowRoot!.querySelector<HTMLElement>(".filter-panel")!
+      .dispatchEvent(new KeyboardEvent("keydown", {
+        key: "Escape",
+        bubbles: true,
+        composed: true
+      }));
+    await tick();
+    expect(second.shadowRoot!.querySelector(".filter-panel")).toBeNull();
+    expect(first.shadowRoot!.querySelector(".filter-panel")).toBeTruthy();
+  });
+
   it("border 表格可拖动列宽，并触发 header-dragend 后重算固定列偏移", async () => {
     const el = await mount((table) => {
       table.border = true;
