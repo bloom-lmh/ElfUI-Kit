@@ -180,6 +180,17 @@ const toggleLocale = (): void => {
   localeName.set(isEnglish() ? "zh-CN" : "en-US");
   applyDocumentSkin();
   try { localStorage.setItem(LOCALE_KEY, localeName.value); } catch { /* storage unavailable */ }
+
+  const router = getActiveRouter();
+  const current = router?.current.peek();
+  if (router && current) {
+    void router.replace({
+      path: current.path,
+      query: current.query,
+      hash: current.hash,
+      force: true,
+    });
+  }
 };
 
 const toggleCollapsed = (): void => {
@@ -245,6 +256,10 @@ defineStyle(styles);
 
 const App = defineHtml(`
   <elf-config-provider :config.prop=${providerConfig()}>
+    <elf-locale-provider
+      :name=${localeName.value}
+      :messages.prop=${currentMessages()}
+    >
       <elf-layout v-if=${isHome()} class="home-shell">
         <elf-router-view></elf-router-view>
       </elf-layout>
@@ -300,14 +315,20 @@ const App = defineHtml(`
 
           <div class="docs-scroll">
             <div class="docs-layout">
-              <elf-main><elf-router-view></elf-router-view></elf-main>
-              <elf-docs-toc :routeKey=${active.value + ":" + localeName.value}></elf-docs-toc>
+              <elf-main>
+                <elf-router-view></elf-router-view>
+              </elf-main>
+              <elf-docs-toc
+                :routeKey=${active.value + ":" + localeName.value}
+                :label=${text("本页目录", "On this page")}
+              ></elf-docs-toc>
             </div>
           </div>
         </elf-layout>
 
         <elf-footer height="40px">© 2026 ElfUI · ${appMessage("footer")}</elf-footer>
       </elf-layout>
+    </elf-locale-provider>
   </elf-config-provider>
 `);
 

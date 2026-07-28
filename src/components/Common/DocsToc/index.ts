@@ -25,6 +25,7 @@ interface TocItem {
 
 const props = defineProps<DocsTocProps>({
   routeKey: { type: String, default: "" },
+  label: { type: String, default: "" },
   target: { type: String, default: "elf-main" },
   minLevel: { type: Number, default: 2 },
   maxLevel: { type: Number, default: 3 }
@@ -45,7 +46,8 @@ let frame = 0;
 let removeRootClickListener = (): void => {};
 let scrollContainer: HTMLElement | null = null;
 
-const tocLabel = (): string => locale.name.toLowerCase().startsWith("en") ? "On this page" : "本页目录";
+const tocLabel = (): string => props.label ||
+  (locale.name.toLowerCase().startsWith("en") ? "On this page" : "本页目录");
 const tocItems = (): readonly TocItem[] => items.value;
 const hasItems = (): boolean => items.value.length > 0;
 const itemClass = (item: TocItem): Record<string, boolean> => ({

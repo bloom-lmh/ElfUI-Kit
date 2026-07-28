@@ -173,4 +173,24 @@ describe("elf-docs-toc", () => {
 
     expect(toc.shadowRoot?.querySelector(".item")?.textContent?.trim()).toBe("Shadow DOM 文档");
   });
+
+  it("允许应用壳显式覆盖目录语言", async () => {
+    const shell = document.createElement("div");
+    const main = document.createElement("main");
+    main.className = "localized-docs-main";
+    const heading = document.createElement("h2");
+    heading.textContent = "Basic selection";
+    main.appendChild(heading);
+
+    const toc = document.createElement("elf-docs-toc") as HTMLElement & { refresh?: () => void };
+    toc.setAttribute("target", ".localized-docs-main");
+    toc.setAttribute("label", "On this page");
+    shell.append(main, toc);
+    document.body.appendChild(shell);
+    toc.refresh?.();
+    await wait();
+
+    expect(toc.shadowRoot?.querySelector("nav")?.getAttribute("aria-label")).toBe("On this page");
+    expect(toc.shadowRoot?.querySelector(".label")?.textContent).toBe("On this page");
+  });
 });

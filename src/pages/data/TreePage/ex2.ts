@@ -1,11 +1,22 @@
 import { defineHtml, useRef } from "@elfui/core";
 
+import { createDocsTranslator } from "../../docsLocale";
 
 const checked = useRef<string[]>(["readme"]);
-
 const checkedStrict = useRef<string[]>([]);
 
-const data = [
+const t = createDocsTranslator({
+  cascadeTitle: { zh: "级联复选", en: "Cascading checks" },
+  strictTitle: { zh: "严格复选", en: "Strict checks" },
+  checked: { zh: "已勾选", en: "Checked" },
+  strictChecked: { zh: "严格勾选", en: "Strictly checked" },
+  none: { zh: "无", en: "None" },
+  search: { zh: "搜索文件", en: "Search files" },
+  ariaCascade: { zh: "文件权限树", en: "File permission tree" },
+  ariaStrict: { zh: "严格复选树", en: "Strict check tree" }
+});
+
+const data = () => [
   {
     id: "docs",
     name: "docs",
@@ -41,9 +52,8 @@ const onStrictChecked = (event: Event): void => {
   if (Array.isArray(detail)) checkedStrict.set(detail);
 };
 
-const checkedText = (): string => checked.value.join(", ") || "无";
-
-const checkedStrictText = (): string => checkedStrict.value.join(", ") || "无";
+const checkedText = (): string => checked.value.join(", ") || t("none");
+const checkedStrictText = (): string => checkedStrict.value.join(", ") || t("none");
 
 const code1 = `<elf-tree
   :data.prop="data"
@@ -113,37 +123,37 @@ const code2Script = `const data = [
 ];`;
 
 const PageTreeEx2 = defineHtml(`
-  <h2>复选框与过滤</h2>
-  <elf-playground title="父子级联勾选，输入关键字过滤节点" :code="code1" :script=${code1Script}>
+  <elf-playground :title=${t("cascadeTitle")} :code=${code1} :script=${code1Script}>
     <elf-card variant="outlined" density="compact" style="width:100%;max-width:560px">
       <elf-tree
-      :data.prop="data"
-      :props.prop="{ key: 'id', label: 'name', children: 'nodes' }"
-      :checkedKeys.prop="checked"
-      @update:checkedKeys="onChecked"
-      show-checkbox
-      filterable
-      default-expand-all
-      filter-placeholder="搜索文件"
-      ></elf-tree>
+        :data.prop=${data()}
+        :props.prop=${{ key: "id", label: "name", children: "nodes" }}
+        :checkedKeys.prop=${checked}
+        :filterPlaceholder.prop=${t("search")}
+        :ariaLabel.prop=${t("ariaCascade")}
+        show-checkbox
+        filterable
+        default-expand-all
+        @update:checkedKeys=${onChecked}
+      />
     </elf-card>
-    <p slot="status" class="demo-state">已勾选：{{ checkedText() }}</p>
+    <p slot="status" class="demo-state">${t("checked")} · ${checkedText()}</p>
   </elf-playground>
 
-  <h2>严格勾选</h2>
-  <elf-playground title="check-strictly 开启后父子节点互不影响" :code="code2" :script=${code2Script}>
+  <elf-playground :title=${t("strictTitle")} :code=${code2} :script=${code2Script}>
     <elf-card variant="outlined" density="compact" style="width:100%;max-width:560px">
       <elf-tree
-      :data.prop="data"
-      :props.prop="{ key: 'id', label: 'name', children: 'nodes' }"
-      :checkedKeys.prop="checkedStrict"
-      @update:checkedKeys="onStrictChecked"
-      show-checkbox
-      check-strictly
-      default-expand-all
-      ></elf-tree>
+        :data.prop=${data()}
+        :props.prop=${{ key: "id", label: "name", children: "nodes" }}
+        :checkedKeys.prop=${checkedStrict}
+        :ariaLabel.prop=${t("ariaStrict")}
+        show-checkbox
+        check-strictly
+        default-expand-all
+        @update:checkedKeys=${onStrictChecked}
+      />
     </elf-card>
-    <p slot="status" class="demo-state">严格勾选：{{ checkedStrictText() }}</p>
+    <p slot="status" class="demo-state">${t("strictChecked")} · ${checkedStrictText()}</p>
   </elf-playground>
 `);
 

@@ -166,6 +166,8 @@ describe("路由跳转", () => {
     await tick();
     await wait(20);
 
+    const routerView = app.shadowRoot?.querySelector("elf-router-view");
+    const routePageBefore = routerView?.firstElementChild;
     const languageButton = app.shadowRoot?.querySelector<HTMLElement>(".header-action");
     languageButton?.click();
     await tick();
@@ -180,6 +182,7 @@ describe("路由跳转", () => {
     expect(menu?.shadowRoot?.textContent).not.toContain("Layout 布局");
     const { getActiveRouter } = await import("@elfui/router");
     expect(getActiveRouter()?.current.peek().path).toBe("/basic/button");
+    expect(routerView?.firstElementChild).not.toBe(routePageBefore);
     const configProvider = app.shadowRoot?.querySelector("elf-config-provider");
     expect(configProvider?.shadowRoot?.querySelector("elf-locale-provider")?.getAttribute("lang")).toBe("en-US");
     expect(document.documentElement.lang).toBe("en-US");

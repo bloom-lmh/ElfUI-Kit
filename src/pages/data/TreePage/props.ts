@@ -1,179 +1,102 @@
 import { defineHtml } from "@elfui/core";
 
-const propsRows = [
-  { name: "data", type: "TreeNode[]", default: "[]", desc: "树形数据源" },
-  {
-    name: "node-key",
-    type: "string",
-    default: "''",
-    desc: "节点唯一标识字段，优先级高于 props.key"
-  },
-  { name: "model-value", type: "string", default: "''", desc: "当前选中节点 key" },
-  {
-    name: "current-node-key",
-    type: "string",
-    default: "''",
-    desc: "Element Plus 风格的当前高亮节点 key"
-  },
-  { name: "default-selected-key", type: "string", default: "''", desc: "非受控初始选中节点" },
-  {
-    name: "expanded-keys",
-    type: "string[]",
-    default: "undefined",
-    desc: "受控展开节点 key 数组"
-  },
-  { name: "checked-keys", type: "string[]", default: "undefined", desc: "受控勾选节点 key 数组" },
-  { name: "default-expanded-keys", type: "string[]", default: "[]", desc: "非受控初始展开节点" },
-  { name: "default-checked-keys", type: "string[]", default: "[]", desc: "非受控初始勾选节点" },
-  {
-    name: "props",
-    type: "TreeFieldNames",
-    default: "{}",
-    desc: "字段别名，支持 key/label/children/disabled/isLeaf/icon/class"
-  },
-  { name: "show-checkbox", type: "boolean", default: "false", desc: "显示复选框" },
-  { name: "check-strictly", type: "boolean", default: "false", desc: "父子节点勾选互不关联" },
-  { name: "highlight-current", type: "boolean", default: "true", desc: "是否高亮当前选中节点" },
-  { name: "accordion", type: "boolean", default: "false", desc: "同级只保留一个展开分支" },
-  {
-    name: "default-expand-all",
-    type: "boolean",
-    default: "false",
-    desc: "初始展开全部可展开节点"
-  },
-  {
-    name: "auto-expand-parent",
-    type: "boolean",
-    default: "true",
-    desc: "展开深层节点时同步展开其祖先"
-  },
-  {
-    name: "expand-on-click-node",
-    type: "boolean",
-    default: "true",
-    desc: "点击节点内容时展开或收起"
-  },
-  {
-    name: "check-on-click-node",
-    type: "boolean",
-    default: "false",
-    desc: "点击节点内容时同步勾选"
-  },
-  {
-    name: "check-on-click-leaf",
-    type: "boolean",
-    default: "true",
-    desc: "显示复选框时点击叶子内容同步勾选"
-  },
-  { name: "filterable", type: "boolean", default: "false", desc: "显示过滤输入框" },
-  {
-    name: "filter-placeholder",
-    type: "string",
-    default: "'搜索节点'",
-    desc: "过滤输入框占位文本"
-  },
-  { name: "empty-text", type: "string", default: "'暂无数据'", desc: "空状态文本" },
-  { name: "indent", type: "number", default: "20", desc: "层级缩进像素" },
-  { name: "lazy / load", type: "boolean / Function", default: "false / -", desc: "异步加载子节点" },
-  { name: "filter-node-method / filter-method", type: "Function", default: "-", desc: "普通树与虚拟树共用的过滤规则" },
-  { name: "render-content", type: "(node, context) => Node | string", default: "-", desc: "自定义节点内容渲染" },
-  { name: "icon", type: "string", default: "''", desc: "自定义展开指示图标" },
-  { name: "draggable / allow-drag / allow-drop", type: "boolean / Function", default: "false / -", desc: "节点拖拽约束" },
-  { name: "virtual", type: "boolean", default: "false", desc: "启用固定高度窗口化" },
-  { name: "height / item-size / overscan", type: "number", default: "420 / 40 / 6", desc: "虚拟树视口和缓存" },
-  { name: "scrollbar-always-on", type: "boolean", default: "false", desc: "始终预留纵向滚动条" },
-  { name: "aria-label", type: "string", default: "''", desc: "树区域的无障碍名称" }
+import { createDocsPicker } from "../../docsLocale";
+
+const pick = createDocsPicker();
+const row = (
+  name: string,
+  type: string,
+  fallback: string,
+  zh: string,
+  en: string
+) => ({ name, type, default: fallback, desc: pick(zh, en) });
+const event = (name: string, type: string, zh: string, en: string) =>
+  ({ name, type, desc: pick(zh, en) });
+
+const propsRows = () => [
+  row("data", "TreeNode[]", "[]", "树形数据源。", "Hierarchical data source."),
+  row("node-key", "string", "''", "节点唯一键字段，优先于 props.key。", "Unique node-key field; takes precedence over props.key."),
+  row("model-value", "string", "''", "当前选中节点键。", "Currently selected node key."),
+  row("current-node-key", "string", "''", "当前高亮节点键。", "Currently highlighted node key."),
+  row("default-selected-key", "string", "''", "非受控初始选中节点。", "Initial uncontrolled selection."),
+  row("expanded-keys", "string[]", "undefined", "受控展开节点键。", "Controlled expanded node keys."),
+  row("checked-keys", "string[]", "undefined", "受控勾选节点键。", "Controlled checked node keys."),
+  row("default-expanded-keys", "string[]", "[]", "非受控初始展开节点。", "Initial uncontrolled expanded keys."),
+  row("default-checked-keys", "string[]", "[]", "非受控初始勾选节点。", "Initial uncontrolled checked keys."),
+  row("props", "TreeFieldNames", "{}", "字段别名：key、label、children、disabled、isLeaf、icon、class。", "Field aliases for key, label, children, disabled, isLeaf, icon, and class."),
+  row("show-checkbox", "boolean", "false", "显示复选框。", "Show checkboxes."),
+  row("check-strictly", "boolean", "false", "父子节点勾选互不关联。", "Keep parent and child checks independent."),
+  row("highlight-current", "boolean", "true", "高亮当前节点。", "Highlight the current node."),
+  row("accordion", "boolean", "false", "同级只展开一个分支。", "Expand one sibling branch at a time."),
+  row("default-expand-all", "boolean", "false", "初始展开全部分支。", "Expand every branch initially."),
+  row("auto-expand-parent", "boolean", "true", "展开深层节点时同步展开祖先。", "Expand ancestors of a deep key."),
+  row("expand-on-click-node", "boolean", "true", "点击节点内容时切换展开。", "Toggle expansion when node content is clicked."),
+  row("check-on-click-node", "boolean", "false", "点击节点内容时同步勾选。", "Toggle checks when node content is clicked."),
+  row("check-on-click-leaf", "boolean", "true", "点击叶子内容时同步勾选。", "Toggle a leaf check when its content is clicked."),
+  row("filterable", "boolean", "false", "显示过滤输入框。", "Show the filter field."),
+  row("filter-placeholder", "string", "LocaleProvider", "过滤输入框占位文本。", "Filter-field placeholder."),
+  row("empty-text", "string", "LocaleProvider", "空状态文本。", "Empty-state text."),
+  row("indent", "number", "20", "每层缩进像素。", "Indent in pixels per level."),
+  row("bordered", "boolean", "false", "显示树容器边框。", "Show a tree-container border."),
+  row("lazy / load", "boolean / Function", "false / —", "按需异步加载子节点。", "Load child nodes asynchronously on demand."),
+  row("filter-node-method / filter-method", "Function", "—", "普通树与虚拟树共用的过滤规则。", "Filter predicate shared by standard and virtual trees."),
+  row("render-content", "(node, context) => Node | string", "—", "自定义节点内容。", "Custom node content renderer."),
+  row("icon", "string", "''", "自定义展开指示图标。", "Custom expansion indicator."),
+  row("draggable / allow-drag / allow-drop", "boolean / Function", "false / —", "启用拖拽并约束源和目标。", "Enable drag and constrain sources and targets."),
+  row("virtual", "boolean", "false", "启用固定行高虚拟化。", "Enable fixed-row virtualization."),
+  row("height / item-size / overscan", "number", "420 / 40 / 6", "配置虚拟视口、行高和缓存。", "Configure virtual viewport, row size, and overscan."),
+  row("scrollbar-always-on", "boolean", "false", "始终显示纵向滚动条。", "Keep the vertical scrollbar visible."),
+  row("aria-label", "string", "''", "树区域的无障碍名称。", "Accessible name for the tree.")
 ];
 
-const eventsRows = [
-  { name: "update:modelValue", type: "(key: string) => void", desc: "选中节点变化时触发" },
-  { name: "update:expandedKeys", type: "(keys: string[]) => void", desc: "展开节点变化时触发" },
-  { name: "update:checkedKeys", type: "(keys: string[]) => void", desc: "勾选节点变化时触发" },
-  { name: "node-click", type: "(node, key, viewNode) => void", desc: "点击可用节点时触发" },
-  { name: "node-expand", type: "(node, key, expandedKeys) => void", desc: "节点展开时触发" },
-  { name: "node-collapse", type: "(node, key, expandedKeys) => void", desc: "节点收起时触发" },
-  { name: "check", type: "(node, checkedKeys) => void", desc: "勾选状态变化时触发" },
-  {
-    name: "check-change",
-    type: "(node, checked, checkedKeys) => void",
-    desc: "单个节点勾选变化时触发"
-  },
-  { name: "node-load", type: "(node, children) => void", desc: "懒加载完成" },
-  { name: "node-drop", type: "(dragging, target, type, event) => void", desc: "拖拽放置完成" },
-  { name: "node-drag-start / node-drag-end", type: "(node, event) => void", desc: "拖拽生命周期起止" },
-  { name: "node-drag-enter / node-drag-over / node-drag-leave", type: "(dragging, target, event) => void", desc: "拖拽经过目标节点" },
-  { name: "current-change", type: "(node, key) => void", desc: "当前节点变化" },
-  { name: "node-contextmenu", type: "(event, node, key) => void", desc: "节点上下文菜单" }
+const eventsRows = () => [
+  event("update:modelValue", "(key: string) => void", "选中节点变化。", "Selected node changed."),
+  event("update:expandedKeys", "(keys: string[]) => void", "展开节点变化。", "Expanded keys changed."),
+  event("update:checkedKeys", "(keys: string[]) => void", "勾选节点变化。", "Checked keys changed."),
+  event("node-click", "(node, key, viewNode) => void", "点击可用节点。", "An enabled node was clicked."),
+  event("node-expand / node-collapse", "(node, key, expandedKeys) => void", "节点展开或收起。", "A node expanded or collapsed."),
+  event("check", "(node, checkedKeys) => void", "勾选集合变化。", "The checked collection changed."),
+  event("check-change", "(node, checked, checkedKeys) => void", "单个节点勾选变化。", "One node's checked state changed."),
+  event("node-load", "(node, children) => void", "懒加载完成。", "Lazy loading completed."),
+  event("node-drop", "(dragging, target, type, event) => void", "拖拽放置完成。", "A drag operation was dropped."),
+  event("node-drag-start / node-drag-end", "(node, event) => void", "拖拽生命周期起止。", "Drag lifecycle start and end."),
+  event("node-drag-enter / over / leave", "(dragging, target, event) => void", "拖拽经过目标节点。", "Drag interaction crossed a target."),
+  event("current-change", "(node, key) => void", "当前节点变化。", "Current node changed."),
+  event("node-contextmenu", "(event, node, key) => void", "打开节点上下文菜单。", "A node context menu was requested.")
 ];
 
-const methodsRows = [
-  { name: "expand(key)", type: "(key: string) => void", desc: "展开节点" },
-  { name: "collapse(key)", type: "(key: string) => void", desc: "收起节点" },
-  { name: "toggle(key)", type: "(key: string) => void", desc: "切换展开状态" },
-  { name: "select(key)", type: "(key: string) => void", desc: "选中节点" },
-  { name: "check(key)", type: "(key: string) => void", desc: "勾选节点" },
-  { name: "uncheck(key)", type: "(key: string) => void", desc: "取消勾选节点" },
-  {
-    name: "setChecked(key, checked, deep)",
-    type: "(string, boolean, boolean?) => void",
-    desc: "设置单个节点勾选状态，deep 控制是否级联后代"
-  },
-  {
-    name: "setCheckedKeys(keys, leafOnly)",
-    type: "(string[], boolean?) => void",
-    desc: "批量设置勾选节点 key，权限树回显常用"
-  },
-  {
-    name: "setCheckedNodes(nodes, leafOnly)",
-    type: "(TreeNode[], boolean?) => void",
-    desc: "按节点数据批量设置勾选状态"
-  },
-  {
-    name: "getCheckedKeys(leafOnly)",
-    type: "(boolean?) => string[]",
-    desc: "获取已勾选节点 key，可只取叶子节点"
-  },
-  {
-    name: "getCheckedNodes(leafOnly, includeHalfChecked)",
-    type: "(boolean?, boolean?) => TreeNode[]",
-    desc: "获取已勾选节点数据，可包含半选节点"
-  },
-  { name: "getHalfCheckedKeys()", type: "() => string[]", desc: "获取半选节点 key" },
-  { name: "getHalfCheckedNodes()", type: "() => TreeNode[]", desc: "获取半选节点数据" },
-  { name: "setCurrentKey(key)", type: "(key: string) => void", desc: "设置当前高亮节点" },
-  {
-    name: "setCurrentNode(node)",
-    type: "(node: TreeNode | null) => void",
-    desc: "按节点数据设置当前高亮节点"
-  },
-  { name: "getCurrentKey()", type: "() => string", desc: "获取当前高亮节点 key" },
-  { name: "getCurrentNode()", type: "() => TreeNode | undefined", desc: "获取当前高亮节点数据" },
-  {
-    name: "getNode(key)",
-    type: "(keyOrNode: string | TreeNode) => TreeNode | undefined",
-    desc: "按 key 或节点数据获取节点数据"
-  },
-  { name: "filter(keyword)", type: "(keyword: string) => void", desc: "主动过滤节点" },
-  { name: "updateKeyChildren(key, children)", type: "(key, TreeNode[]) => void", desc: "替换指定节点的子节点" },
-  { name: "setData(data)", type: "(TreeNode[]) => void", desc: "命令式替换当前数据" },
-  { name: "expandNode / collapseNode", type: "(key | TreeNode) => void", desc: "按 key 或节点展开、收起" },
-  { name: "appendNode(data, parent)", type: "(TreeNode, key?) => void", desc: "追加根节点或子节点" },
-  { name: "removeNode(target)", type: "(key | TreeNode) => TreeNode", desc: "移除节点" },
-  { name: "insertBeforeNode / insertAfterNode", type: "(data, reference) => void", desc: "相对插入节点" },
-  { name: "scrollTreeTo(offset)", type: "(number | ScrollToOptions) => void", desc: "控制树体滚动位置" },
-  { name: "scrollToNode(key)", type: "(key) => void", desc: "虚拟树滚动到节点" }
+const methodsRows = () => [
+  event("expand / collapse / toggle", "(key: string) => void", "控制节点展开状态。", "Control node expansion."),
+  event("select(key)", "(key: string) => void", "选中节点。", "Select a node."),
+  event("check / uncheck", "(key: string) => void", "勾选或取消节点。", "Check or uncheck a node."),
+  event("setChecked(key, checked, deep)", "(string, boolean, boolean?) => void", "设置节点勾选并可级联后代。", "Set a node check and optionally cascade."),
+  event("setCheckedKeys(keys, leafOnly)", "(string[], boolean?) => void", "批量设置勾选键。", "Set checked keys in bulk."),
+  event("setCheckedNodes(nodes, leafOnly)", "(TreeNode[], boolean?) => void", "按节点数据批量勾选。", "Check nodes in bulk by data."),
+  event("getCheckedKeys(leafOnly)", "(boolean?) => string[]", "获取勾选键，可只取叶子。", "Get checked keys, optionally leaves only."),
+  event("getCheckedNodes(leafOnly, includeHalfChecked)", "(boolean?, boolean?) => TreeNode[]", "获取勾选节点，可包含半选。", "Get checked nodes, optionally including half-checked nodes."),
+  event("getHalfCheckedKeys / getHalfCheckedNodes", "() => string[] | TreeNode[]", "获取半选键或节点。", "Get half-checked keys or nodes."),
+  event("setCurrentKey / setCurrentNode", "(key | TreeNode | null) => void", "设置当前高亮节点。", "Set the current highlighted node."),
+  event("getCurrentKey / getCurrentNode", "() => string | TreeNode", "获取当前高亮节点。", "Get the current highlighted node."),
+  event("getNode(key)", "(key | TreeNode) => TreeNode | undefined", "按键或节点获取数据。", "Resolve node data by key or node."),
+  event("filter(keyword)", "(keyword: string) => void", "命令式过滤节点。", "Filter nodes imperatively."),
+  event("updateKeyChildren(key, children)", "(key, TreeNode[]) => void", "替换指定节点的子节点。", "Replace a node's children."),
+  event("setData(data)", "(TreeNode[]) => void", "命令式替换数据。", "Replace tree data imperatively."),
+  event("appendNode / removeNode", "(data, parent?) => void", "追加或移除节点。", "Append or remove a node."),
+  event("insertBeforeNode / insertAfterNode", "(data, reference) => void", "相对插入节点。", "Insert relative to another node."),
+  event("scrollTreeTo(offset)", "(number | ScrollToOptions) => void", "控制树体滚动位置。", "Control the tree scroll position."),
+  event("scrollToNode(key)", "(key) => void", "虚拟树滚动到节点。", "Scroll a virtual tree to a node.")
 ];
 
-const slotsRows = [
-  { name: "empty", type: "slot", desc: "没有可见节点时替换默认空状态" }
+const slotsRows = () => [
+  event("empty", "slot", "替换默认空状态。", "Replace the default empty state.")
 ];
 
 const PageTreeProps = defineHtml(`
   <h2>API</h2>
-  <elf-props-table title="Props" :rows="propsRows" />
-  <elf-props-table title="Events" :rows="eventsRows" />
-  <elf-props-table title="Slots" :rows="slotsRows" />
-  <elf-props-table title="Methods" :rows="methodsRows" />
+  <elf-props-table title="Props" :rows.prop=${propsRows()} />
+  <elf-props-table title="Events" :rows.prop=${eventsRows()} />
+  <elf-props-table title="Slots" :rows.prop=${slotsRows()} />
+  <elf-props-table title="Methods" :rows.prop=${methodsRows()} />
 `);
 
 export { PageTreeProps };

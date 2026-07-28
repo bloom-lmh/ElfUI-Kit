@@ -1,24 +1,35 @@
-import { defineHtml, useRef } from "@elfui/core";
+import { defineHtml, useComputed, useRef } from "@elfui/core";
 import type { TreeNode } from "../../../components/Data/Tree";
+import { createDocsTranslator } from "../../docsLocale";
 
 const folderKeys = Array.from({ length: 334 }, (_, index) => `folder-${index + 1}`);
 const expanded = useRef<string[]>(folderKeys);
 const selected = useRef("asset-1");
 
-const data: TreeNode[] = folderKeys.map((key, folderIndex) => ({
+const t = createDocsTranslator({
+  title: { zh: "虚拟树", en: "Virtual tree" },
+  folder: { zh: "项目目录", en: "Project folder" },
+  asset: { zh: "设计资源", en: "Design asset" },
+  total: { zh: "总节点", en: "Total nodes" },
+  selected: { zh: "当前选中", en: "Selected" },
+  search: { zh: "搜索 2,004 个节点", en: "Search 2,004 nodes" },
+  aria: { zh: "项目资产目录", en: "Project asset directory" }
+});
+
+const data = useComputed<TreeNode[]>(() => folderKeys.map((key, folderIndex) => ({
   key,
-  label: `项目目录 ${String(folderIndex + 1).padStart(3, "0")}`,
+  label: `${t("folder")} ${String(folderIndex + 1).padStart(3, "0")}`,
   icon: "📁",
   children: Array.from({ length: 5 }, (_, itemIndex) => {
     const assetIndex = folderIndex * 5 + itemIndex + 1;
     return {
       key: `asset-${assetIndex}`,
-      label: `设计资源 ${String(assetIndex).padStart(4, "0")}`,
+      label: `${t("asset")} ${String(assetIndex).padStart(4, "0")}`,
       icon: "◻",
       isLeaf: true,
     };
   }),
-}));
+})));
 
 const onExpanded = (event: CustomEvent<string[]>): void => {
   expanded.set(Array.isArray(event.detail) ? event.detail : []);
@@ -45,10 +56,9 @@ const onExpanded = (event) => expanded.set(event.detail);
 const onSelect = (event) => selected.set(event.detail);`;
 
 const PageTreeEx5 = defineHtml(`
-  <h2>虚拟树</h2>
-  <elf-playground title="2,004 个节点的可视窗口" :code=${code} :script=${script}>
+  <elf-playground :title=${t("title")} :code=${code} :script=${script}>
     <span slot="status" class="demo-state">
-      总节点 2,004 · 当前选中：${selected}
+      ${t("total")} · 2,004 · ${t("selected")} · ${selected}
     </span>
     <elf-card variant="outlined" density="compact" style="width:100%;max-width:560px">
       <elf-tree
@@ -60,8 +70,9 @@ const PageTreeEx5 = defineHtml(`
         :modelValue.prop=${selected}
         virtual
         filterable
+        :filterPlaceholder.prop=${t("search")}
         scrollbar-always-on
-        aria-label="项目资产目录"
+        :ariaLabel.prop=${t("aria")}
         @update:expandedKeys=${onExpanded}
         @update:modelValue=${onSelect}
       ></elf-tree>

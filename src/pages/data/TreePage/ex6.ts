@@ -1,36 +1,63 @@
-import { defineHtml, useRef } from "@elfui/core";
+import { defineHtml, useComputed, useRef } from "@elfui/core";
 import type { TreeNode } from "../../../components/Data/Tree";
+import { createDocsTranslator } from "../../docsLocale";
 
-const activity = useRef("拖动文件卡片，将它放入另一个目录");
 const expanded = useRef<string[]>(["design", "engineering", "archive"]);
 
-const data: TreeNode[] = [
+const t = createDocsTranslator({
+  title: { zh: "目录拖拽", en: "Folder drag and drop" },
+  hint: { zh: "拖动文件，将它放入另一个目录", en: "Drag a file into another folder" },
+  moved: { zh: "已移动", en: "Moved" },
+  file: { zh: "文件", en: "File" },
+  folder: { zh: "目录", en: "Folder" },
+  design: { zh: "设计交付", en: "Design delivery" },
+  logo: { zh: "品牌标志.fig", en: "Brand logo.fig" },
+  tokens: { zh: "设计变量.json", en: "Design tokens.json" },
+  engineering: { zh: "工程资源", en: "Engineering resources" },
+  readme: { zh: "README.md", en: "README.md" },
+  archive: { zh: "归档", en: "Archive" },
+  legacy: { zh: "旧版归档.zip", en: "legacy.zip" },
+  aria: { zh: "可拖拽资源目录", en: "Draggable resource directory" }
+});
+
+const data = useComputed<TreeNode[]>(() => [
   {
     key: "design",
-    label: "设计交付",
+    label: t("design"),
     icon: "📁",
     children: [
-      { key: "logo", label: "品牌标志.fig", icon: "◆", isLeaf: true },
-      { key: "tokens", label: "设计变量.json", icon: "{}", isLeaf: true },
+      { key: "logo", label: t("logo"), icon: "◆", isLeaf: true },
+      { key: "tokens", label: t("tokens"), icon: "{}", isLeaf: true },
     ],
   },
   {
     key: "engineering",
-    label: "工程资源",
+    label: t("engineering"),
     icon: "📁",
     children: [
-      { key: "readme", label: "README.md", icon: "#", isLeaf: true },
+      { key: "readme", label: t("readme"), icon: "#", isLeaf: true },
     ],
   },
   {
     key: "archive",
-    label: "归档",
+    label: t("archive"),
     icon: "📦",
     children: [
-      { key: "legacy", label: "legacy.zip", icon: "↓", isLeaf: true },
+      { key: "legacy", label: t("legacy"), icon: "↓", isLeaf: true },
     ],
   },
-];
+]);
+
+const movement = useRef<{ source: string; target: string } | null>(null);
+const nodeLabel = (key: string, fallback: string): string => {
+  const known = ["design", "logo", "tokens", "engineering", "readme", "archive", "legacy"] as const;
+  return known.includes(key as typeof known[number])
+    ? t(key as typeof known[number])
+    : fallback;
+};
+const activityText = (): string => movement.value
+  ? `${t("moved")} · ${nodeLabel(movement.value.source, t("file"))} → ${nodeLabel(movement.value.target, t("folder"))}`
+  : t("hint");
 
 const allowDrag = (node: TreeNode): boolean => node.isLeaf === true;
 const allowDrop = (_dragging: TreeNode, target: TreeNode): boolean => target.isLeaf !== true;
@@ -41,7 +68,10 @@ const onExpanded = (event: CustomEvent<string[]>): void => {
 
 const onDrop = (event: CustomEvent<unknown[]>): void => {
   const [dragging, target] = Array.isArray(event.detail) ? event.detail : [];
-  activity.set(`已移动：${(dragging as TreeNode | undefined)?.label || "文件"} → ${(target as TreeNode | undefined)?.label || "目录"}`);
+  movement.set({
+    source: String((dragging as TreeNode | undefined)?.key || ""),
+    target: String((target as TreeNode | undefined)?.key || "")
+  });
 };
 
 const code = `<elf-tree
@@ -62,9 +92,8 @@ const onDrop = (event) => {
 };`;
 
 const PageTreeEx6 = defineHtml(`
-  <h2>目录拖拽</h2>
-  <elf-playground title="文件只能拖入目录" :code=${code} :script=${script}>
-    <span slot="status" class="demo-state">${activity}</span>
+  <elf-playground :title=${t("title")} :code=${code} :script=${script}>
+    <span slot="status" class="demo-state">${activityText()}</span>
     <elf-card variant="outlined" density="compact" style="width:100%;max-width:560px">
       <elf-tree
         :data.prop=${data}
@@ -73,7 +102,7 @@ const PageTreeEx6 = defineHtml(`
         :allowDrop.prop=${allowDrop}
         draggable
         bordered
-        aria-label="可拖拽资源目录"
+        :ariaLabel.prop=${t("aria")}
         @update:expandedKeys=${onExpanded}
         @node-drop=${onDrop}
       ></elf-tree>

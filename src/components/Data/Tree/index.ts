@@ -26,6 +26,15 @@ import {
 } from "../../../directives/draggable";
 import { computeVirtualWindow } from "../virtual-window";
 import { listContentDirective } from "../list-content";
+import {
+  buildTreeCollection,
+  resolveTreeFields,
+  treeChildrenOf,
+  treeKeyOf,
+  type TreeCollection,
+  type TreeFieldConfig,
+  type TreeViewNode
+} from "./tree-collection";
 import type {
   TreeDropType,
   TreeKey,
@@ -108,7 +117,9 @@ const emit = defineEmits([
   "node-load",
 ]);
 
-const allNodes = useRef<TreeViewNode[]>([]);
+const collection = useRef<TreeCollection>(
+  buildTreeCollection([], resolveTreeFields("", {}), false)
+);
 
 const visibleNodes = useRef<TreeViewNode[]>([]);
 
@@ -134,8 +145,6 @@ const dropTargetKey = useRef("");
 const dropPlacement = useRef<TreeDropType>("inner");
 const keyboardDragging = useRef(false);
 
-const nodeMap = useRef<Record<string, TreeViewNode>>({});
-
 const lastExpandedSig = useRef("");
 
 const lastCheckedSig = useRef("");
@@ -153,120 +162,38 @@ const normalizeKeys = (value: unknown): string[] => {
 const signature = (value: string[]): string => value.join(SIGNATURE_SEP);
 
 const fields = (): TreeFieldConfig => {
-  const custom = (props.props || {}) as Record<string, string>;
-  return {
-    key: String(props.nodeKey || custom.key || "key"),
-    label: custom.label || "label",
-    children: custom.children || "children",
-    disabled: custom.disabled || "disabled",
-    isLeaf: custom.isLeaf || "isLeaf",
-    icon: custom.icon || "icon",
-    class: custom.class || "class",
-  };
+  return resolveTreeFields(props.nodeKey, props.props);
 };
 
-const childListOf = (node: Record<string, unknown>, field: string): Record<string, unknown>[] => {
-  const children = node[field];
-  return Array.isArray(children) ? (children as Record<string, unknown>[]) : [];
-};
-
-const keyOf = (value: unknown): string => {
-  if (typeof value === "string" || typeof value === "number") return String(value);
-  if (value && typeof value === "object") {
-    const field = fields();
-    return String((value as Record<string, unknown>)[field.key] ?? "");
-  }
-  return "";
-};
-
-const findNode = (key: string): TreeViewNode | undefined => nodeMap.peek()[key];
+const keyOf = (value: unknown): string => treeKeyOf(value, fields());
 
 const isDescendantOf = (node: TreeViewNode, ancestorKey: string): boolean =>
-  node.key !== ancestorKey && node.path.includes(ancestorKey);
+  collection.peek().isDescendant(node, ancestorKey);
 
-const childRowsOf = (row: TreeViewNode): TreeViewNode[] => allNodes.peek().filter((node) => node.parentKey === row.key);
+const findNode = (key: string): TreeViewNode | undefined => collection.peek().find(key);
+
+const childRowsOf = (row: TreeViewNode): readonly TreeViewNode[] =>
+  collection.peek().childrenOf(row);
 
 const descendantRowsOf = (row: TreeViewNode, includeSelf = false): TreeViewNode[] =>
-  allNodes.peek().filter((node) => (includeSelf ? node.key === row.key : false) || isDescendantOf(node, row.key));
-
-const pruneKeys = (keys: string[]): string[] => {
-  const map = nodeMap.peek();
-  return keys.filter((key) => !!map[key]);
-};
-
-const withAncestorKeys = (keys: string[]): string[] => {
-  if (!props.autoExpandParent) return keys;
-  const expanded = new Set(keys);
-  for (const key of keys) {
-    const row = findNode(key);
-    for (const ancestor of row?.path.slice(0, -1) ?? []) expanded.add(ancestor);
-  }
-  return Array.from(expanded);
-};
+  collection.peek().descendantsOf(row, includeSelf);
 
 const resolvedFilterMethod = (): TreeProps["filterNodeMethod"] =>
   props.filterNodeMethod || props.filterMethod;
 
 const rebuildVisible = (): void => {
-  const rows = allNodes.peek();
-  const expanded = new Set(expandedState.peek());
-  const keyword = filterText.peek().trim().toLowerCase();
-
-  if (!keyword) {
-    visibleNodes.set(rows.filter((row) => row.level === 0 || row.path.slice(0, -1).every((key) => expanded.has(key))));
-    return;
-  }
-
-  const matched = new Set<string>();
-  const filterMethod = resolvedFilterMethod();
-  for (const row of rows) {
-    const matches = typeof filterMethod === "function"
-      ? Boolean(filterMethod(filterText.peek(), row.raw as TreeNode))
-      : row.label.toLowerCase().includes(keyword);
-    if (!matches) continue;
-    for (const key of row.path) matched.add(key);
-  }
-  visibleNodes.set(rows.filter((row) => matched.has(row.key)));
-};
-
-const syncCascadeParents = (set: Set<string>): void => {
-  if (props.checkStrictly) return;
-  const rows = [...allNodes.peek()].sort((a, b) => b.level - a.level);
-  for (const row of rows) {
-    if (!row.hasChildren || row.disabled) continue;
-    const children = childRowsOf(row).filter((child) => !child.disabled);
-    if (children.length > 0 && children.every((child) => set.has(child.key))) {
-      set.add(row.key);
-    } else {
-      set.delete(row.key);
-    }
-  }
-};
-
-const normalizeCheckedInput = (keys: string[], leafOnly = false): string[] => {
-  const set = new Set<string>();
-  const existing = pruneKeys(keys);
-
-  for (const key of existing) {
-    const row = findNode(key);
-    if (!row || row.disabled) continue;
-    if (leafOnly && row.hasChildren) continue;
-
-    if (!props.checkStrictly && row.hasChildren && !leafOnly) {
-      for (const item of descendantRowsOf(row, true)) {
-        if (!item.disabled) set.add(item.key);
-      }
-    } else {
-      set.add(row.key);
-    }
-  }
-
-  syncCascadeParents(set);
-  return Array.from(set);
+  visibleNodes.set(collection.peek().visible(
+    expandedState.peek(),
+    filterText.peek(),
+    resolvedFilterMethod()
+  ));
 };
 
 const setExpandedKeys = (keys: TreeKey[], shouldEmit = true): void => {
-  const next = withAncestorKeys(Array.from(new Set(pruneKeys(normalizeKeys(keys)))));
+  const next = collection.peek().normalizeExpanded(
+    normalizeKeys(keys),
+    props.autoExpandParent
+  );
   expandedState.set(next);
   lastExpandedSig.set(signature(next));
   rebuildVisible();
@@ -274,7 +201,7 @@ const setExpandedKeys = (keys: TreeKey[], shouldEmit = true): void => {
 };
 
 const commitCheckedKeys = (keys: string[], shouldEmit = true, leafOnly = false): void => {
-  const next = normalizeCheckedInput(keys, leafOnly);
+  const next = collection.peek().normalizeChecked(keys, props.checkStrictly, leafOnly);
   checkedState.set(next);
   lastCheckedSig.set(signature(next));
   if (shouldEmit) emit("update:checkedKeys", next);
@@ -299,37 +226,13 @@ const setSelectedKey = (key: string, shouldEmit = true): void => {
 
 const buildNodes = (): void => {
   const field = fields();
-  const source = Array.isArray(props.data) ? (props.data as Record<string, unknown>[]) : [];
-  const rows: TreeViewNode[] = [];
-  const map: Record<string, TreeViewNode> = {};
-
-  const walk = (items: Record<string, unknown>[], level: number, parentKey: string, parentPath: string[]): void => {
-    items.forEach((raw, index) => {
-      const fallbackKey = [...parentPath, String(index)].join("-");
-      const key = String(raw[field.key] ?? fallbackKey);
-      const children = childListOf(raw, field.children);
-      const row: TreeViewNode = {
-        key,
-        label: String(raw[field.label] ?? key),
-        icon: String(raw[field.icon] ?? ""),
-        className: String(raw[field.class] ?? ""),
-        level,
-        disabled: Boolean(raw[field.disabled]),
-        isLeaf: Boolean(raw[field.isLeaf]) || (!props.lazy && children.length === 0),
-        hasChildren: children.length > 0 || (Boolean(props.lazy) && raw[field.isLeaf] !== true),
-        parentKey,
-        path: [...parentPath, key],
-        raw,
-      };
-      rows.push(row);
-      map[key] = row;
-      if (children.length > 0) walk(children, level + 1, key, row.path);
-    });
-  };
-
-  walk(source, 0, "", []);
-  allNodes.set(rows);
-  nodeMap.set(map);
+  const nextCollection = buildTreeCollection(
+    Array.isArray(props.data) ? props.data : [],
+    field,
+    props.lazy
+  );
+  const rows = [...nextCollection.rows];
+  collection.set(nextCollection);
 
   if (!initialized) {
     initialized = true;
@@ -349,7 +252,7 @@ const buildNodes = (): void => {
   } else {
     setExpandedKeys(expandedState.peek(), false);
     commitCheckedKeys(checkedState.peek(), false);
-    if (selectedKey.peek() && !map[selectedKey.peek()]) setSelectedKey("", false);
+    if (selectedKey.peek() && !nextCollection.find(selectedKey.peek())) setSelectedKey("", false);
   }
 
   rebuildVisible();
@@ -469,8 +372,9 @@ const commitExpand = (row: TreeViewNode, open: boolean): void => {
   if (open) {
     if (props.accordion) {
       const siblings = new Set(
-        allNodes
+        collection
           .peek()
+          .rows
           .filter((node) => node.parentKey === row.parentKey && node.hasChildren)
           .map((node) => node.key),
       );
@@ -545,10 +449,9 @@ const toggleCheck = (row: TreeViewNode): void => {
       if (shouldCheck) checked.add(node.key);
       else checked.delete(node.key);
     }
-    syncCascadeParents(checked);
   }
 
-  const next = Array.from(checked);
+  const next = collection.peek().cascadeChecked([...checked], props.checkStrictly);
   checkedState.set(next);
   lastCheckedSig.set(signature(next));
   emit("update:checkedKeys", next);
@@ -567,9 +470,7 @@ const setChecked = (target: unknown, checked: boolean, deep = true): void => {
     if (checked) set.add(node.key);
     else set.delete(node.key);
   }
-  syncCascadeParents(set);
-
-  const next = Array.from(set);
+  const next = collection.peek().cascadeChecked([...set], props.checkStrictly);
   checkedState.set(next);
   lastCheckedSig.set(signature(next));
   emit("update:checkedKeys", next);
@@ -592,8 +493,9 @@ const getCheckedKeys = (leafOnly = false): string[] =>
   });
 
 const getHalfCheckedKeys = (): string[] =>
-  allNodes
+  collection
     .peek()
+    .rows
     .filter((row) => isIndeterminate(row))
     .map((row) => row.key);
 
@@ -645,7 +547,7 @@ const findRawLocation = (target: unknown): RawLocation | undefined => {
     for (let index = 0; index < list.length; index += 1) {
       const node = list[index]!;
       if (keyOf(node) === wanted) return { list, index, node };
-      const found = visit(childListOf(node, field.children));
+      const found = visit(treeChildrenOf(node, field.children));
       if (found) return found;
     }
     return undefined;
@@ -1076,29 +978,5 @@ const Tree = defineHtml(`
     </div>
   </div>
 `);
-
-interface TreeViewNode {
-  key: string;
-  label: string;
-  icon: string;
-  className: string;
-  level: number;
-  disabled: boolean;
-  isLeaf: boolean;
-  hasChildren: boolean;
-  parentKey: string;
-  path: string[];
-  raw: Record<string, unknown>;
-}
-
-type TreeFieldConfig = {
-  key: string;
-  label: string;
-  children: string;
-  disabled: string;
-  isLeaf: string;
-  icon: string;
-  class: string;
-};
 
 export { Tree };

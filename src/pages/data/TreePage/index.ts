@@ -1,4 +1,5 @@
 import { defineHtml, useComponents } from "@elfui/core";
+import { createDocsTranslator } from "../../docsLocale";
 import { PageTreeEx1 } from "./ex1";
 import { PageTreeEx2 } from "./ex2";
 import { PageTreeEx3 } from "./ex3";
@@ -19,18 +20,26 @@ useComponents({
   "page-tree-props": PageTreeProps
 });
 
+const t = createDocsTranslator({
+  title: { zh: "Tree 树", en: "Tree" },
+  description: {
+    zh: "展示和操作层级数据，覆盖选择、级联勾选、过滤、懒加载、虚拟化与无障碍拖拽。",
+    en: "Present and manage hierarchical data with selection, cascading checks, filtering, lazy loading, virtualization, and accessible drag and drop."
+  }
+});
+
 const PageTree = defineHtml(`
   <elf-container>
-    <h1>Tree 树</h1>
-    <p>用于展示层级数据，支持展开收起、节点选择、复选框级联、过滤和自定义字段。</p>
-    <page-tree-ex1></page-tree-ex1>
-    <page-tree-ex2></page-tree-ex2>
-    <page-tree-ex3></page-tree-ex3>
-    <page-tree-ex4></page-tree-ex4>
-    <page-tree-ex5></page-tree-ex5>
-    <page-tree-ex6></page-tree-ex6>
-    <page-tree-ex7></page-tree-ex7>
-    <page-tree-props></page-tree-props>
+    <h1>${t("title")}</h1>
+    <p>${t("description")}</p>
+    <page-tree-ex1 />
+    <page-tree-ex2 />
+    <page-tree-ex3 />
+    <page-tree-ex4 />
+    <page-tree-ex5 />
+    <page-tree-ex6 />
+    <page-tree-ex7 />
+    <page-tree-props />
   </elf-container>
 `);
 
