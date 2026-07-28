@@ -10,10 +10,8 @@ import {
   defineProps,
   defineStyle,
   onMounted,
-  useClickOutside,
   useComputed,
   useEffect,
-  useEscapeKey,
   useEventListener,
   useHost,
   useHostAttr,
@@ -23,6 +21,7 @@ import {
 
 import styles from "./style.scss?inline";
 import { computeAnchoredPosition, listenForExternalOverlayMotion } from "../../Common/anchored-overlay";
+import { useDismissibleOverlay } from "../../../composables/useDismissibleOverlay";
 import { useLocaleProvider } from "../../Providers/context";
 import {
   asStringList,
@@ -366,6 +365,7 @@ const closeDropdown = (): void => {
   clearHoverTimers();
   if (!open.peek()) return;
   restoreFocusBeforeClose();
+  dismissibleOverlay.deactivate();
   open.set(false);
   syncTopLayer();
   emit("visible-change", false);
@@ -378,6 +378,7 @@ const setOpen = (next: boolean): void => {
   if (next) {
     clearHoverTimers();
     document.dispatchEvent(new CustomEvent(DROPDOWN_OPEN_EVENT, { detail: host }));
+    dismissibleOverlay.activate();
   }
 
   open.set(next);
@@ -559,9 +560,21 @@ const onMenuKeydown = (event: KeyboardEvent): void => {
   if (event.key === "Escape") {
     event.preventDefault();
     event.stopPropagation();
-    closeDropdown();
+    if (dismissibleOverlay.claim(event)) closeDropdown();
   }
 };
+
+const dismissibleOverlay = useDismissibleOverlay({
+  kind: "dropdown",
+  containers: () => [
+    host,
+    getMenuEl(),
+    anchorReference() instanceof Element ? (anchorReference() as Element) : null,
+  ],
+  closeOnEscape: () => true,
+  closeOnOutside: () => props.closeOnClickOutside !== false,
+  onRequestClose: () => hide(),
+});
 
 useEventListener(host, "keydown", (event) => {
   if (!hasCompositionalMenu()) return;
@@ -630,17 +643,6 @@ useHostAttr("size", () => size.value);
 useHostAttr("type", () => buttonType.value);
 useHostAttr("effect", () => String(props.effect || "light"));
 useHostAttr("placement", placement);
-
-useClickOutside(host, (event) => {
-  const reference = virtualRef();
-  const path: readonly unknown[] = event.composedPath();
-  if (props.virtualTriggering && reference && path.includes(reference)) return;
-  if (props.closeOnClickOutside !== false) hide();
-});
-
-useEscapeKey(() => {
-  if (open.peek()) hide();
-});
 
 useEventListener<CustomEvent<HTMLElement>>(document, DROPDOWN_OPEN_EVENT, (event) => {
   if (event.detail !== host) closeDropdown();

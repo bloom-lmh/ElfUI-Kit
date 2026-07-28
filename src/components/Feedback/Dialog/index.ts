@@ -131,7 +131,11 @@ const onCloseClick = (event: Event): void => {
 };
 
 const onMaskClick = (event: MouseEvent): void => {
-    if (event.target === event.currentTarget && props.closeOnMask && overlay.isTopmost()) {
+    if (
+        event.target === event.currentTarget &&
+        props.closeOnMask &&
+        overlay.claim(event)
+    ) {
         void requestClose();
     }
 };

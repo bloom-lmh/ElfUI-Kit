@@ -34,10 +34,18 @@ export const collectFocusable = (root: ParentNode): HTMLElement[] => {
 /** Returns the innermost active element when focus is inside nested shadow roots. */
 export const deepActiveElement = (): HTMLElement | null => {
   let active = document.activeElement as HTMLElement | null;
-  while (active?.shadowRoot?.activeElement) {
-    active = active.shadowRoot.activeElement as HTMLElement;
+  while (active?.shadowRoot) {
+    let nested: Element | null = null;
+    try {
+      nested = active.shadowRoot.activeElement;
+    } catch {
+      // A test DOM or browser teardown can leave a detached shadow root behind.
+      return active.isConnected ? active : null;
+    }
+    if (!(nested instanceof HTMLElement)) break;
+    active = nested;
   }
-  return active;
+  return active?.isConnected ? active : null;
 };
 
 export interface FocusScopeController {

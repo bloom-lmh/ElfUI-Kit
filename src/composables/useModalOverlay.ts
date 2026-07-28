@@ -38,6 +38,7 @@ export const useModalOverlay = (
   const onDocumentKeydown = (event: KeyboardEvent): void => {
     if (!options.rendered() || options.closing() || !controller.isTopmost()) return;
     if (event.key === "Escape" && options.closeOnEscape()) {
+      if (!controller.claim(event)) return;
       options.onRequestClose("escape", event);
       return;
     }

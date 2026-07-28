@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createModalOverlayController } from "./modal-overlay-controller";
+import { createOverlayInteractionController } from "./overlay-interaction-controller";
 import { createModalOverlayStack } from "./modal-overlay-stack";
 
 afterEach(() => {
@@ -44,6 +45,31 @@ describe("modal overlay coordination", () => {
 
     drawer.beginClose();
     expect(dialog.isTopmost()).toBe(true);
+  });
+
+  it("allows only the top overlay to claim one physical close event", () => {
+    const stack = createModalOverlayStack();
+    const dialog = createModalOverlayController({
+      kind: "dialog",
+      panel: () => null,
+      stack,
+    });
+    const menu = createOverlayInteractionController({
+      kind: "dropdown",
+      stack,
+    });
+    const escapeEvent = new KeyboardEvent("keydown", { key: "Escape" });
+
+    dialog.activate();
+    menu.activate();
+
+    expect(menu.claim(escapeEvent)).toBe(true);
+    menu.deactivate();
+    expect(dialog.isTopmost()).toBe(true);
+    expect(dialog.claim(escapeEvent)).toBe(false);
+
+    const nextEscapeEvent = new KeyboardEvent("keydown", { key: "Escape" });
+    expect(dialog.claim(nextEscapeEvent)).toBe(true);
   });
 
   it("focuses once per activation and restores the captured trigger after closing", () => {

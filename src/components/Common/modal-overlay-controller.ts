@@ -3,16 +3,20 @@ import {
   type FocusScopeController
 } from "./focus-scope";
 import {
-  modalOverlayStack,
-  type ModalOverlayStack
-} from "./modal-overlay-stack";
+  overlayStack,
+  type OverlayStack
+} from "./overlay-stack";
+import {
+  createOverlayInteractionController,
+  type OverlayInteractionController
+} from "./overlay-interaction-controller";
 
 export interface ModalOverlayControllerOptions {
   kind: string;
   panel: () => HTMLElement | null;
   onInitialFocus?: () => void;
   onRestoreFocus?: () => void;
-  stack?: ModalOverlayStack;
+  stack?: OverlayStack;
 }
 
 export interface ModalOverlayController {
@@ -23,6 +27,7 @@ export interface ModalOverlayController {
   focusInitial: () => boolean;
   isActive: () => boolean;
   isTopmost: () => boolean;
+  claim: (event: Event) => boolean;
   trapFocus: (event: KeyboardEvent) => boolean;
 }
 
@@ -33,26 +38,26 @@ export interface ModalOverlayController {
 export const createModalOverlayController = (
   options: ModalOverlayControllerOptions
 ): ModalOverlayController => {
-  const id = Symbol(options.kind);
-  const stack = options.stack ?? modalOverlayStack;
+  const interaction: OverlayInteractionController =
+    createOverlayInteractionController({
+      kind: options.kind,
+      stack: options.stack ?? overlayStack
+    });
   const focus: FocusScopeController = createFocusScope({
     panel: options.panel,
     onInitialFocus: options.onInitialFocus,
     onRestoreFocus: options.onRestoreFocus
   });
-  let active = false;
   let initialFocusDone = false;
 
   const release = (): void => {
-    stack.unregister(id);
-    active = false;
+    interaction.deactivate();
   };
 
   return {
     activate: () => {
       focus.capture();
-      stack.register({ id, kind: options.kind });
-      active = true;
+      interaction.activate();
       initialFocusDone = false;
     },
     beginClose: release,
@@ -65,13 +70,14 @@ export const createModalOverlayController = (
       focus.restore();
     },
     focusInitial: () => {
-      if (!active || initialFocusDone || !stack.isTopmost(id)) return false;
+      if (!interaction.isActive() || initialFocusDone || !interaction.isTopmost()) return false;
       initialFocusDone = focus.focusInitial();
       return initialFocusDone;
     },
-    isActive: () => active,
-    isTopmost: () => active && stack.isTopmost(id),
+    isActive: interaction.isActive,
+    isTopmost: interaction.isTopmost,
+    claim: interaction.claim,
     trapFocus: (event) =>
-      active && stack.isTopmost(id) && focus.trap(event)
+      interaction.isActive() && interaction.isTopmost() && focus.trap(event)
   };
 };

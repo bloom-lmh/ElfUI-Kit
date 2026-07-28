@@ -2,14 +2,17 @@ import { afterEach, beforeAll, describe, expect, it } from "vitest";
 
 let exampleTag = "";
 let nestedExampleTag = "";
+let mixedOverlayExampleTag = "";
 
 beforeAll(async () => {
   await import("../../../components");
   const { ensureCustomElement } = await import("@elfui/core");
   const { PageDialogEx3 } = await import("./ex3");
   const { PageDialogEx4 } = await import("./ex4");
+  const { PageDialogEx5 } = await import("./ex5");
   exampleTag = ensureCustomElement(PageDialogEx3);
   nestedExampleTag = ensureCustomElement(PageDialogEx4);
+  mixedOverlayExampleTag = ensureCustomElement(PageDialogEx5);
 });
 
 afterEach(() => {
@@ -80,6 +83,29 @@ describe("DialogPage", () => {
     document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
     await wait(280);
     expect(document.body.querySelector(".elf-drawer-mask")).toBeNull();
+    expect(document.body.querySelector(".elf-dialog-mask")).toBeTruthy();
+
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    await wait(260);
+    expect(document.body.querySelector(".elf-dialog-mask")).toBeNull();
+  });
+
+  it("同一 Escape 事件只关闭最上层的 PopConfirm，不会连带关闭 Dialog", async () => {
+    const page = document.createElement(mixedOverlayExampleTag);
+    document.body.appendChild(page);
+    await wait();
+
+    page.shadowRoot!.querySelector<HTMLElement>("#dialog-open-overlay-flow")!.click();
+    await wait();
+
+    const popConfirm = document.body.querySelector<HTMLElement>("#dialog-overlay-popconfirm")!;
+    popConfirm.querySelector<HTMLElement>("elf-button")!.click();
+    await wait();
+    expect(popConfirm.shadowRoot!.querySelector(".pop-confirm-popover")).toBeTruthy();
+
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    await wait(180);
+    expect(popConfirm.shadowRoot!.querySelector(".pop-confirm-popover")).toBeNull();
     expect(document.body.querySelector(".elf-dialog-mask")).toBeTruthy();
 
     document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));

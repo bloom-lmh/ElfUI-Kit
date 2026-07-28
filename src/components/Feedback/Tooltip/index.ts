@@ -11,10 +11,8 @@ import {
   defineStyle,
   onBeforeUnmount,
   onMounted,
-  useClickOutside,
   useComputed,
   useEffect,
-  useEscapeKey,
   useHost,
   useRef,
   defineHtml
@@ -22,6 +20,7 @@ import {
 
 import styles from "./style.scss?inline";
 import type { TooltipEmits, TooltipExpose, TooltipProps, TooltipSlots } from "./types";
+import { useDismissibleOverlay } from "../../../composables/useDismissibleOverlay";
 
 export type {
   TooltipElement,
@@ -193,9 +192,24 @@ const hide = (): void => {
   }
 };
 
+const dismissibleOverlay = useDismissibleOverlay({
+  kind: "tooltip",
+  containers: () => [
+    host,
+    host.shadowRoot?.querySelector<HTMLElement>(".tooltip-content"),
+  ],
+  closeOnEscape: () => true,
+  closeOnOutside: () =>
+    props.trigger === "click" ||
+    props.trigger === "contextmenu" ||
+    touchOpen.peek(),
+  onRequestClose: () => hide(),
+});
+
 useEffect(() => {
   const isVisible = visible.value;
   if (isVisible) {
+    if (!dismissibleOverlay.isActive()) dismissibleOverlay.activate();
     const isEntering = !rendered.peek();
     rendered.set(true);
     closing.set(false);
@@ -203,6 +217,7 @@ useEffect(() => {
     schedulePlacement();
     if (isEntering) emit("show");
   } else {
+    dismissibleOverlay.deactivate();
     syncAccessibleDescription(false);
     if (rendered.peek() && !closing.peek()) {
       closing.set(true);
@@ -330,16 +345,6 @@ const disconnectTriggerEvents = (): void => {
   }
   connectedTriggers.clear();
 };
-
-useClickOutside(host, () => {
-  if (props.trigger === "click" || props.trigger === "contextmenu" || touchOpen.peek()) {
-    hide();
-  }
-});
-
-useEscapeKey(() => {
-  if (visible.value) hide();
-});
 
 const tooltipClass = useComputed((): string => {
   const p = resolvedPlacement.value || "top";

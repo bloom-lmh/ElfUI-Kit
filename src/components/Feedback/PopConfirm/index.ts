@@ -8,9 +8,7 @@ import {
   defineStyle,
   onBeforeUnmount,
   onMounted,
-  useClickOutside,
   useEffect,
-  useEscapeKey,
   useFocusTrap,
   useHost,
   useHostFlag,
@@ -20,6 +18,7 @@ import {
 
 import styles from "./style.scss?inline";
 import { computeAnchoredPosition, listenForExternalOverlayMotion } from "../../Common/anchored-overlay";
+import { useDismissibleOverlay } from "../../../composables/useDismissibleOverlay";
 import type { PopConfirmPlacement, PopConfirmProps, PopConfirmSlots, PopConfirmTrigger } from "./types";
 import { useLocaleProvider } from "../../Providers/context";
 
@@ -208,6 +207,14 @@ const cancel = (): void => {
     hide();
 };
 
+const dismissibleOverlay = useDismissibleOverlay({
+    kind: "pop-confirm",
+    containers: () => [host, getPanelEl()],
+    closeOnEscape: () => props.closeOnEscape && trigger() !== "manual",
+    closeOnOutside: () => props.closeOnClickOutside && trigger() !== "manual",
+    onRequestClose: () => hide(),
+});
+
 const onClick = (event?: MouseEvent): void => {
     if (trigger() !== "click") return;
     event?.stopPropagation();
@@ -346,16 +353,11 @@ const connectAnchoredOverlay = (): void => {
     requestOverlayUpdate();
 };
 
-useClickOutside(host, () => {
-    if (props.closeOnClickOutside && trigger() !== "manual") hide();
-});
-useEscapeKey(() => {
-    if (rendered.value && props.closeOnEscape && trigger() !== "manual") hide();
-});
 useFocusTrap(host);
 
 useEffect(() => {
     if (isOpen()) {
+        if (!dismissibleOverlay.isActive()) dismissibleOverlay.activate();
         clearTimers();
         if (!rendered.peek()) rendered.set(true);
         closing.set(false);
@@ -363,6 +365,7 @@ useEffect(() => {
         return;
     }
 
+    dismissibleOverlay.deactivate();
     if (!rendered.peek() || closing.peek()) return;
     closing.set(true);
     hideTimer = setTimeout(() => {
