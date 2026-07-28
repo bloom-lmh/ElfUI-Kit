@@ -1,12 +1,15 @@
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
 
 let exampleTag = "";
+let modalExampleTag = "";
 
 beforeAll(async () => {
   await import("../../../components");
   const { ensureCustomElement } = await import("@elfui/core");
   const { PageDatePickerEx6 } = await import("./ex6");
+  const { PageDatePickerEx8 } = await import("./ex8");
   exampleTag = ensureCustomElement(PageDatePickerEx6);
+  modalExampleTag = ensureCustomElement(PageDatePickerEx8);
 });
 
 afterEach(() => {
@@ -33,5 +36,29 @@ describe("DatePickerPage", () => {
     const calendar = picker.shadowRoot!.querySelector("elf-calendar") as HTMLElement;
     expect((calendar.shadowRoot!.querySelector('[data-date="2026-06-20"]') as HTMLButtonElement).disabled).toBe(true);
     expect(picker.shadowRoot!.querySelector('.panel[popover="manual"]')).toBeTruthy();
+  });
+
+  it("Dialog 内的日期面板按 Escape 时只关闭当前最上层浮层", async () => {
+    const page = document.createElement(modalExampleTag);
+    document.body.appendChild(page);
+    await wait();
+
+    page.shadowRoot!.querySelector<HTMLElement>("#date-picker-open-dialog")!.click();
+    await wait();
+
+    const picker = document.body.querySelector<HTMLElement>("#dialog-date-picker")!;
+    picker.shadowRoot!.querySelector<HTMLButtonElement>(".field-trigger")!.click();
+    await wait();
+    expect(picker.shadowRoot!.querySelector(".panel")).toBeTruthy();
+    expect(document.body.querySelector(".elf-dialog-mask")).toBeTruthy();
+
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    await wait();
+    expect(picker.shadowRoot!.querySelector(".panel")).toBeNull();
+    expect(document.body.querySelector(".elf-dialog-mask")).toBeTruthy();
+
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    await wait(260);
+    expect(document.body.querySelector(".elf-dialog-mask")).toBeNull();
   });
 });

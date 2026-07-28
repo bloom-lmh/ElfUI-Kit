@@ -7,6 +7,7 @@ import { PageDatePickerEx4 } from "./ex4";
 import { PageDatePickerEx5 } from "./ex5";
 import { PageDatePickerEx6 } from "./ex6";
 import { PageDatePickerEx7 } from "./ex7";
+import { PageDatePickerEx8 } from "./ex8";
 
 const propsRows = [
   { name: "variant / label", type: "default | outlined | underlined | solo | solo-filled | solo-inverted / string", default: "filled / ''", desc: "输入表面与浮动标签" },
@@ -74,7 +75,8 @@ useComponents({
   "page-date-picker-ex4": PageDatePickerEx4,
   "page-date-picker-ex5": PageDatePickerEx5,
   "page-date-picker-ex6": PageDatePickerEx6,
-  "page-date-picker-ex7": PageDatePickerEx7
+  "page-date-picker-ex7": PageDatePickerEx7,
+  "page-date-picker-ex8": PageDatePickerEx8
 });
 
 const PageDatePicker = defineHtml(`
@@ -94,6 +96,7 @@ const PageDatePicker = defineHtml(`
 
     <page-date-picker-ex6 />
     <page-date-picker-ex7 />
+    <page-date-picker-ex8 />
 
     <h2>API</h2>
     <elf-props-table title="Props" :rows=${propsRows}></elf-props-table>

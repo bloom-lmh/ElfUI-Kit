@@ -15,9 +15,11 @@ export interface UseDismissibleOverlayOptions {
   containers: () => Array<Element | null | undefined>;
   closeOnEscape: () => boolean;
   closeOnOutside: () => boolean;
+  outsideEvent?: "click" | "pointerdown";
+  outsideCapture?: boolean;
   onRequestClose: (
     reason: DismissibleOverlayCloseReason,
-    event: KeyboardEvent | MouseEvent,
+    event: KeyboardEvent | MouseEvent | PointerEvent,
   ) => void;
 }
 
@@ -31,8 +33,10 @@ export const useDismissibleOverlay = (
   options: UseDismissibleOverlayOptions,
 ): DismissibleOverlayHandle => {
   const controller = createOverlayInteractionController({ kind: options.kind });
+  const outsideEvent = options.outsideEvent ?? "click";
+  const outsideCapture = options.outsideCapture ?? false;
 
-  const onDocumentClick = (event: MouseEvent): void => {
+  const onDocumentOutside = (event: MouseEvent | PointerEvent): void => {
     if (
       !controller.isActive() ||
       !options.closeOnOutside() ||
@@ -57,11 +61,19 @@ export const useDismissibleOverlay = (
   };
 
   onMounted(() => {
-    document.addEventListener("click", onDocumentClick);
+    document.addEventListener(
+      outsideEvent,
+      onDocumentOutside as EventListener,
+      outsideCapture,
+    );
     document.addEventListener("keydown", onDocumentKeydown);
   });
   onBeforeUnmount(() => {
-    document.removeEventListener("click", onDocumentClick);
+    document.removeEventListener(
+      outsideEvent,
+      onDocumentOutside as EventListener,
+      outsideCapture,
+    );
     document.removeEventListener("keydown", onDocumentKeydown);
     controller.dispose();
   });

@@ -189,3 +189,8 @@
 - [x] 接入表单控制、父级禁用、尺寸、表单/无障碍属性、`valueOnClear` 与校验触发开关。
 - [x] 新增 `active-change`、focus/blur、visible-change 和 `show` / `hide` / `focusInput` / `blurInput` / `update`。
 - [x] 补齐键盘、清空与表单案例；组件 11 项 + 页面 1 项通过，Vite 793 模块构建和真实浏览器截图通过。
+
+## 2026-07-28 统一浮层协议
+
+- [x] 接入进程级 Overlay Stack 与 `useDismissibleOverlay`，兼容 Top Layer、append-to portal 与 persistent 策略。
+- [x] 色板内外部交互通过 composed path 判定；Escape 只关闭最上层色板并恢复输入焦点。

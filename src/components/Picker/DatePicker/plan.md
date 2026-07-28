@@ -374,3 +374,9 @@
 - [x] 补齐触发器键盘打开/关闭、焦点事件、`visible-change` 和无冲突公开方法。
 - [x] 使用原生 Popover Top Layer、视口碰撞计算和 resize 重定位解决层级遮挡。
 - [x] 新增格式与边界案例，完成组件 15 项、页面 1 项测试和真实浏览器截图。
+
+## 2026-07-28 统一浮层协议
+
+- [x] 接入进程级 Overlay Stack 与 `useDismissibleOverlay`，保留捕获阶段 pointerdown 和组件自身定位策略。
+- [x] Escape 由最上层日期面板独占，并把焦点恢复到触发器；同一次事件不会继续关闭外层 Dialog。
+- [x] 新增 Dialog 内日期选择案例及关闭顺序页面回归。

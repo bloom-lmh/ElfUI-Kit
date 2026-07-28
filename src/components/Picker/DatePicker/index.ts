@@ -16,11 +16,12 @@ import {
 } from "@elfui/core";
 
 import { Calendar } from "../Calendar";
-import { computeAnchoredPosition, isEventInside, listenForExternalOverlayMotion } from "../../Common/anchored-overlay";
+import { computeAnchoredPosition, listenForExternalOverlayMotion } from "../../Common/anchored-overlay";
 import { useLocaleProvider } from "../../Providers/context";
 import styles from "./style.scss?inline";
 import { normalizeFieldVariant } from "../../../types/field";
 import { useDisabled, useFormControl, useSize } from "../../../composables";
+import { useDismissibleOverlay } from "../../../composables/useDismissibleOverlay";
 import type { DatePickerEmits, DatePickerPlacement, DatePickerProps, DatePickerSlots, DatePickerType, DatePickerValue, DateShortcut } from "./types";
 
 export type { DatePickerElement, DatePickerEmits, DatePickerExpose, DatePickerPlacement, DatePickerPopperOptions, DatePickerProps, DatePickerSize, DatePickerSlots, DatePickerType, DatePickerValue, DatePickerVariant, DateShortcut } from "./types";
@@ -280,7 +281,12 @@ const toggleMultiple = (value: string): void => {
 
 const setOpen = (visible: boolean): void => {
   if (open.peek() === visible) return;
-  if (visible) syncPanelViews();
+  if (visible) {
+    syncPanelViews();
+    dismissibleOverlay.activate();
+  } else {
+    dismissibleOverlay.deactivate();
+  }
   open.set(visible);
   emit("visible-change", visible);
 };
@@ -296,6 +302,19 @@ const getPanelEl = (): HTMLElement | null =>
   host.shadowRoot?.querySelector<HTMLElement>(".panel") ?? null;
 const getTriggerEl = (): HTMLButtonElement | null =>
   host.shadowRoot?.querySelector<HTMLButtonElement>(".field-trigger") ?? null;
+
+const dismissibleOverlay = useDismissibleOverlay({
+  kind: "date-picker",
+  containers: () => [host, getPanelEl()],
+  closeOnEscape: () => true,
+  closeOnOutside: () => true,
+  outsideEvent: "pointerdown",
+  outsideCapture: true,
+  onRequestClose: (reason) => {
+    closePanel();
+    if (reason === "escape") queueMicrotask(() => getTriggerEl()?.focus());
+  },
+});
 
 const updateOverlayPosition = (): void => {
   if (!props.teleported || !open.peek()) {
@@ -369,7 +388,7 @@ const onTriggerKeydown = (event: KeyboardEvent): void => {
   if (event.key === "Escape" && open.peek()) {
     event.preventDefault();
     event.stopPropagation();
-    closePanel();
+    if (dismissibleOverlay.claim(event)) closePanel();
     return;
   }
   if (!["ArrowDown", "Enter", " "].includes(event.key) || isDisabled() || props.readonly) return;
@@ -384,11 +403,6 @@ const onTriggerFocus = (event: FocusEvent): void => {
 };
 const onTriggerBlur = (event: FocusEvent): void => {
   ctl.dispatchBlur(event);
-};
-
-const onDocumentPointerDown = (event: Event): void => {
-  if (!open.peek() || isEventInside(event, [host, getPanelEl()])) return;
-  closePanel();
 };
 
 let cleanupOverlayMotion = (): void => {};
@@ -567,13 +581,11 @@ useEffect(() => {
 });
 
 onMounted(() => {
-  document.addEventListener("pointerdown", onDocumentPointerDown, true);
   cleanupOverlayMotion = listenForExternalOverlayMotion(() => [getPanelEl()], closePanel);
   window.addEventListener("resize", requestOverlayUpdate, { passive: true });
   window.visualViewport?.addEventListener("resize", requestOverlayUpdate, { passive: true });
 });
 onBeforeUnmount(() => {
-  document.removeEventListener("pointerdown", onDocumentPointerDown, true);
   cleanupOverlayMotion();
   window.removeEventListener("resize", requestOverlayUpdate);
   window.visualViewport?.removeEventListener("resize", requestOverlayUpdate);

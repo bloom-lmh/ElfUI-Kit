@@ -16,9 +16,10 @@ import {
 
 import styles from "./style.scss?inline";
 import { useDisabled, useFormControl, useSize } from "../../../composables";
-import { computeAnchoredPosition, isEventInside, listenForExternalOverlayMotion } from "../../Common/anchored-overlay";
+import { computeAnchoredPosition, listenForExternalOverlayMotion } from "../../Common/anchored-overlay";
 import { useLocaleProvider } from "../../Providers/context";
 import { normalizeFieldVariant } from "../../../types/field";
+import { useDismissibleOverlay } from "../../../composables/useDismissibleOverlay";
 import type { ColorFormat, ColorPickerProps, ColorPreset } from "./types";
 
 export type {
@@ -296,6 +297,7 @@ const requestPanelUpdate = (): void => {
 
 const show = (): void => {
     if (isDisabled() || open.peek()) return;
+    dismissibleOverlay.activate();
     open.set(true);
     emit("visible-change", true);
     queueMicrotask(() => {
@@ -319,12 +321,26 @@ const hide = (): void => {
     } catch {
         // The panel may already be detached by the reactive render.
     }
+    dismissibleOverlay.deactivate();
     restorePanelPortal();
     open.set(false);
     emit("visible-change", false);
 };
 
 const toggle = (): void => (open.peek() ? hide() : show());
+
+const dismissibleOverlay = useDismissibleOverlay({
+    kind: "color-picker",
+    containers: () => [host, getPanel()],
+    closeOnEscape: () => true,
+    closeOnOutside: () => !props.persistent,
+    outsideEvent: "pointerdown",
+    outsideCapture: true,
+    onRequestClose: (reason) => {
+        hide();
+        if (reason === "escape") queueMicrotask(focusInput);
+    },
+});
 
 const focusInput = (): void => host.shadowRoot?.querySelector<HTMLInputElement>(".value")?.focus();
 const blurInput = (): void => host.shadowRoot?.querySelector<HTMLInputElement>(".value")?.blur();
@@ -336,15 +352,17 @@ const onTriggerKeydown = (event: KeyboardEvent): void => {
         queueMicrotask(() => getPanel()?.querySelector<HTMLElement>(".native")?.focus());
     } else if (event.key === "Escape") {
         event.preventDefault();
-        hide();
+        if (dismissibleOverlay.claim(event)) hide();
     }
 };
 
 const onPanelKeydown = (event: KeyboardEvent): void => {
     if (event.key !== "Escape") return;
     event.preventDefault();
-    hide();
-    queueMicrotask(focusInput);
+    if (dismissibleOverlay.claim(event)) {
+        hide();
+        queueMicrotask(focusInput);
+    }
 };
 
 const onPresetKeydown = (event: KeyboardEvent): void => {
@@ -359,11 +377,6 @@ const onPresetKeydown = (event: KeyboardEvent): void => {
 const onFocus = (event: FocusEvent): void => ctl.dispatchFocus(event);
 const onBlur = (event: FocusEvent): void => ctl.dispatchBlur(event);
 
-const onDocumentPointerDown = (event: Event): void => {
-    if (!open.peek() || props.persistent || isEventInside(event, [host, getPanel()])) return;
-    hide();
-};
-
 useHostAttr("variant", () => normalizeFieldVariant(props.variant));
 useHostAttr("size", resolvedSize);
 useHostFlag("disabled", isDisabled);
@@ -373,14 +386,12 @@ useHostFlag("data-has-label", () => Boolean(props.label));
 useHostFlag("data-open", () => open.value);
 
 onMounted(() => {
-    document.addEventListener("pointerdown", onDocumentPointerDown, true);
     cleanupOverlayMotion = listenForExternalOverlayMotion(() => [getPanel()], hide);
     window.addEventListener("resize", requestPanelUpdate, { passive: true });
     window.visualViewport?.addEventListener("resize", requestPanelUpdate, { passive: true });
 });
 
 onBeforeUnmount(() => {
-    document.removeEventListener("pointerdown", onDocumentPointerDown, true);
     cleanupOverlayMotion();
     window.removeEventListener("resize", requestPanelUpdate);
     window.visualViewport?.removeEventListener("resize", requestPanelUpdate);

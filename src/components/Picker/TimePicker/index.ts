@@ -17,8 +17,9 @@ import {
 import styles from "./style.scss?inline";
 import { normalizeFieldVariant } from "../../../types/field";
 import { useDisabled, useFormControl, useSize } from "../../../composables";
-import { computeAnchoredPosition, isEventInside, listenForExternalOverlayMotion } from "../../Common/anchored-overlay";
+import { computeAnchoredPosition, listenForExternalOverlayMotion } from "../../Common/anchored-overlay";
 import { useLocaleProvider } from "../../Providers/context";
+import { useDismissibleOverlay } from "../../../composables/useDismissibleOverlay";
 import type { TimePickerModelValue, TimePickerPlacement, TimePickerProps, TimePickerRole, TimeShortcut } from "./types";
 
 export type {
@@ -391,6 +392,7 @@ const handleOpen = (target: EditingTarget = "start"): void => {
   editingTarget.set(target);
   activeUnit.set("hour");
   if (open.peek()) return;
+  dismissibleOverlay.activate();
   open.set(true);
   emit("visible-change", true);
   queueMicrotask(syncPanelTopLayer);
@@ -404,11 +406,25 @@ const handleClose = (): void => {
   } catch {
     // Rapid conditional rendering can disconnect an already closed popover.
   }
+  dismissibleOverlay.deactivate();
   open.set(false);
   emit("visible-change", false);
 };
 
 const getPanelEl = (): HTMLElement | null => host.shadowRoot?.querySelector<HTMLElement>(".panel") ?? null;
+
+const dismissibleOverlay = useDismissibleOverlay({
+  kind: "time-picker",
+  containers: () => [host, getPanelEl()],
+  closeOnEscape: () => true,
+  closeOnOutside: () => true,
+  outsideEvent: "pointerdown",
+  outsideCapture: true,
+  onRequestClose: (reason) => {
+    handleClose();
+    if (reason === "escape") queueMicrotask(() => focusInput(editingTarget.peek()));
+  },
+});
 
 const updatePanelPosition = (): void => {
   if (!props.teleported || !open.peek() || typeof window === "undefined") {
@@ -477,11 +493,6 @@ const syncPanelTopLayer = (): void => {
   requestPanelUpdate();
 };
 
-const onDocumentPointerDown = (event: Event): void => {
-  if (!open.peek() || isEventInside(event, [host, getPanelEl()])) return;
-  handleClose();
-};
-
 let cleanupOverlayMotion = (): void => {};
 
 const onTriggerClick = (event: Event): void => {
@@ -518,7 +529,7 @@ const onTriggerKeydown = (event: KeyboardEvent): void => {
   }
   if (event.key === "Escape") {
     event.preventDefault();
-    handleClose();
+    if (dismissibleOverlay.claim(event)) handleClose();
     return;
   }
   adjustByKeyboard(event);
@@ -527,8 +538,10 @@ const onTriggerKeydown = (event: KeyboardEvent): void => {
 const onPanelKeydown = (event: KeyboardEvent): void => {
   if (event.key !== "Escape") return;
   event.preventDefault();
-  handleClose();
-  queueMicrotask(() => focusInput(editingTarget.peek()));
+  if (dismissibleOverlay.claim(event)) {
+    handleClose();
+    queueMicrotask(() => focusInput(editingTarget.peek()));
+  }
 };
 
 const focusInput = (target: EditingTarget = "start"): void => {
@@ -546,13 +559,11 @@ useHostFlag("data-open", () => open.value);
 useHostFlag("data-dirty", hasValue);
 useHostFlag("data-has-label", () => Boolean(props.label));
 onMounted(() => {
-  document.addEventListener("pointerdown", onDocumentPointerDown, true);
   cleanupOverlayMotion = listenForExternalOverlayMotion(() => [getPanelEl()], handleClose);
   window.addEventListener("resize", requestPanelUpdate, { passive: true });
   window.visualViewport?.addEventListener("resize", requestPanelUpdate, { passive: true });
 });
 onBeforeUnmount(() => {
-  document.removeEventListener("pointerdown", onDocumentPointerDown, true);
   cleanupOverlayMotion();
   window.removeEventListener("resize", requestPanelUpdate);
   window.visualViewport?.removeEventListener("resize", requestPanelUpdate);

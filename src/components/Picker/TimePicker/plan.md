@@ -272,3 +272,8 @@
 - [x] `step` 接入键盘增减、分钟刻度和秒刻度；格式含秒或步进小于一分钟时显示秒钟面。
 - [x] 补齐键盘打开/关闭、跨日范围和 `focusInput` / `blurInput` 公开方法。
 - [x] 新增两个高质量 Playground、组件 20 项测试、页面冒烟与真实浏览器截图；Vite 791 模块构建通过。
+
+## 2026-07-28 统一浮层协议
+
+- [x] 接入进程级 Overlay Stack 与 `useDismissibleOverlay`，外部 pointerdown、Escape 和外部滚动职责清晰分层。
+- [x] 触发器与钟面 Escape 都先认领事件，再关闭面板并恢复当前时间字段焦点。
