@@ -12,6 +12,7 @@ import {
 } from "@elfui/core";
 
 import styles from "./style.scss?inline";
+import { useDismissibleOverlay } from "../../../composables/useDismissibleOverlay";
 import { computeAnchoredPosition, listenForExternalOverlayMotion } from "../../Common/anchored-overlay";
 import { useLocaleProvider } from "../../Providers/context";
 import type {
@@ -209,6 +210,16 @@ const defaultCurrentPage = (): number => {
   return Math.max(1, Math.trunc(Number(attribute ?? props.defaultCurrentPage) || 1));
 };
 
+const dismissibleOverlay = useDismissibleOverlay({
+  kind: "pagination-size",
+  containers: () => [host, getSizePanel()],
+  closeOnEscape: () => sizeOpen.value,
+  closeOnOutside: () => sizeOpen.value,
+  outsideEvent: "click",
+  outsideCapture: true,
+  onRequestClose: (reason) => closeSizeMenu(reason === "escape")
+});
+
 const syncPage = (next: number): void => {
   const normalized = clampPage(next);
   if (normalized === page.peek()) return;
@@ -333,6 +344,7 @@ const openSizeMenu = (): void => {
   const selectedIndex = pageSizes().findIndex(isSizeSelected);
   sizeActiveIndex.set(selectedIndex >= 0 ? selectedIndex : 0);
   sizeOpen.set(true);
+  dismissibleOverlay.activate();
   queueMicrotask(() => {
     syncSizeTopLayer();
     connectSizeOverlay();
@@ -347,6 +359,7 @@ const closeSizeMenu = (returnFocus = false): void => {
     // The browser may already have closed a disconnected popover.
   }
   sizeOpen.set(false);
+  dismissibleOverlay.deactivate();
   sizeActiveIndex.set(-1);
   cleanupAnchoredOverlay();
   if (returnFocus) getSizeTrigger()?.focus();
@@ -394,6 +407,7 @@ const onSizeTriggerKeydown = (event: KeyboardEvent): void => {
   }
   if (event.key === "Escape" && sizeOpen.value) {
     event.preventDefault();
+    dismissibleOverlay.claim(event);
     closeSizeMenu(true);
   }
 };
@@ -401,12 +415,9 @@ const onSizeTriggerKeydown = (event: KeyboardEvent): void => {
 const onSizePanelKeydown = (event: KeyboardEvent): void => {
   if (event.key === "Escape") {
     event.preventDefault();
+    dismissibleOverlay.claim(event);
     closeSizeMenu(true);
   }
-};
-
-const onDocumentPointerDown = (event: PointerEvent): void => {
-  if (sizeOpen.value && !event.composedPath().includes(host)) closeSizeMenu();
 };
 
 const prev = (): void => {
@@ -470,11 +481,9 @@ onMounted(() => {
   if (props.currentPage == null) {
     syncPage(defaultCurrentPage());
   }
-  document.addEventListener("pointerdown", onDocumentPointerDown);
 });
 
 onUnmounted(() => {
-  document.removeEventListener("pointerdown", onDocumentPointerDown);
   cleanupAnchoredOverlay();
   if (overlayFrame) cancelAnimationFrame(overlayFrame);
 });

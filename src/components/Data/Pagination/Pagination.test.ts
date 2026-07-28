@@ -277,9 +277,34 @@ describe("elf-pagination", () => {
     await tick();
     expect(el.shadowRoot!.querySelector(".size-panel")).toBeTruthy();
 
-    document.body.dispatchEvent(new Event("pointerdown", { bubbles: true, composed: true }));
+    document.body.dispatchEvent(new MouseEvent("click", { bubbles: true, composed: true }));
     await tick();
     expect(el.shadowRoot!.querySelector(".size-panel")).toBeNull();
+  });
+
+  it("gives one outside click to only the topmost size dropdown", async () => {
+    const first = await mount();
+    const second = await mount();
+    first.openSizeMenu?.();
+    second.openSizeMenu?.();
+    await tick();
+    expect(first.shadowRoot!.querySelector(".size-panel")).toBeTruthy();
+    expect(second.shadowRoot!.querySelector(".size-panel")).toBeTruthy();
+
+    document.body.dispatchEvent(new MouseEvent("click", {
+      bubbles: true,
+      composed: true
+    }));
+    await tick();
+    expect(first.shadowRoot!.querySelector(".size-panel")).toBeTruthy();
+    expect(second.shadowRoot!.querySelector(".size-panel")).toBeNull();
+
+    document.body.dispatchEvent(new MouseEvent("click", {
+      bubbles: true,
+      composed: true
+    }));
+    await tick();
+    expect(first.shadowRoot!.querySelector(".size-panel")).toBeNull();
   });
 
   it("keeps size-panel scrolling usable and closes on external page motion", async () => {

@@ -40,3 +40,10 @@
 - [x] Add fixed-height virtualization with `itemHeight`, `maxHeight`, `overscan`, bounded DOM rendering and active-option scroll alignment.
 - [x] Consume handled Arrow / Enter / Escape events so document-level navigation cannot hijack combobox input.
 - [x] Add a 500-item creation/virtualization demo, component/page tests and real-browser screenshot verification.
+
+## 2026-07-28 overlay coordination
+
+- [x] Join the shared overlay interaction stack without coupling suggestion loading, form state or anchored positioning to the stack.
+- [x] Centralize panel open/close transitions so blur, selection, Escape, external motion and programmatic close unregister consistently.
+- [x] Keep focus on the combobox input during Escape; avoid refocusing it and reopening `trigger-on-focus` suggestions.
+- [x] Cover stacked suggestion panels so one Escape event closes only the topmost panel.

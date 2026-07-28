@@ -295,6 +295,38 @@ describe("elf-autocomplete", () => {
     expect(panel.classList.contains("is-teleported")).toBe(false);
   });
 
+  it("gives one Escape event to only the topmost suggestion panel", async () => {
+    const first = document.createElement("elf-autocomplete") as AutocompleteEl;
+    const second = document.createElement("elf-autocomplete") as AutocompleteEl;
+    first.options = [{ value: "First" }];
+    second.options = [{ value: "Second" }];
+    document.body.append(first, second);
+    await tick();
+
+    first.shadowRoot!.querySelector<HTMLInputElement>("input")!
+      .dispatchEvent(new FocusEvent("focus", { bubbles: true }));
+    second.shadowRoot!.querySelector<HTMLInputElement>("input")!
+      .dispatchEvent(new FocusEvent("focus", { bubbles: true }));
+    await tick();
+    expect(first.shadowRoot!.querySelector(".panel")).toBeTruthy();
+    expect(second.shadowRoot!.querySelector(".panel")).toBeTruthy();
+
+    document.dispatchEvent(new KeyboardEvent("keydown", {
+      key: "Escape",
+      bubbles: true
+    }));
+    await tick();
+    expect(first.shadowRoot!.querySelector(".panel")).toBeTruthy();
+    expect(second.shadowRoot!.querySelector(".panel")).toBeNull();
+
+    document.dispatchEvent(new KeyboardEvent("keydown", {
+      key: "Escape",
+      bubbles: true
+    }));
+    await tick();
+    expect(first.shadowRoot!.querySelector(".panel")).toBeNull();
+  });
+
   it("closes a top-layer panel on external scroll", async () => {
     const originalShow = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "showPopover");
     const originalHide = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "hidePopover");

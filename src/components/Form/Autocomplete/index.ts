@@ -15,6 +15,7 @@ import {
 } from "@elfui/core";
 
 import { useDisabled, useFormControl, useFormItem } from "../../../composables";
+import { useDismissibleOverlay } from "../../../composables/useDismissibleOverlay";
 import { computeAnchoredPosition, listenForExternalOverlayMotion } from "../../Common/anchored-overlay";
 import styles from "./style.scss?inline";
 import { normalizeFieldVariant } from "../../../types/field";
@@ -271,6 +272,31 @@ const panelStyle = (): Record<string, string> => ({
 const getPanelEl = (): HTMLElement | null => host.shadowRoot?.querySelector<HTMLElement>(".panel") || null;
 const getInputEl = (): HTMLInputElement | null => host.shadowRoot?.querySelector<HTMLInputElement>("input") || null;
 
+function syncDismissibleOverlay(): void {
+    if (shouldShowPanel()) dismissibleOverlay.activate();
+    else dismissibleOverlay.deactivate();
+}
+
+function setPanelOpen(next: boolean): void {
+    open.set(next);
+    syncDismissibleOverlay();
+}
+
+function close(): void {
+    setPanelOpen(false);
+    activeIndex.set(-1);
+}
+
+const dismissibleOverlay = useDismissibleOverlay({
+    kind: "autocomplete",
+    containers: () => [host, getPanelEl()],
+    closeOnEscape: () => shouldShowPanel(),
+    closeOnOutside: () => shouldShowPanel(),
+    outsideEvent: "click",
+    outsideCapture: true,
+    onRequestClose: () => close(),
+});
+
 const resetActive = (): void => {
     const firstEnabled = options().findIndex((option) => !option.disabled);
     activeIndex.set(props.highlightFirstItem ? firstEnabled : -1);
@@ -345,7 +371,7 @@ const onInput = (event: Event): void => {
     loadError.set(null);
     setValue(value, "input");
     scheduleSuggestions(value);
-    open.set(true);
+    setPanelOpen(true);
     resetActive();
 };
 
@@ -354,7 +380,7 @@ const onFocus = (event: Event): void => {
     if (blurTimer) clearTimeout(blurTimer);
     if (props.triggerOnFocus && !isDisabled()) {
         scheduleSuggestions(String(ctl.model.value || ""));
-        open.set(true);
+        setPanelOpen(true);
         resetActive();
     }
 };
@@ -364,7 +390,7 @@ const onBlur = (event: FocusEvent): void => {
     if (blurTimer) clearTimeout(blurTimer);
     blurTimer = setTimeout(() => {
         blurTimer = undefined;
-        open.set(false);
+        close();
     }, 120);
 };
 
@@ -377,8 +403,7 @@ const selectAt = (index: number): void => {
     setValue(option.text, "change");
     emit("select", option.raw);
     if (option.isCreate) emit("create", option.raw);
-    open.set(false);
-    activeIndex.set(-1);
+    close();
 };
 
 const onOptionClick = (event: Event): void => {
@@ -420,7 +445,7 @@ const onKeydown = (event: KeyboardEvent): void => {
         event.preventDefault();
         event.stopPropagation();
         if (!open.value) {
-            open.set(true);
+            setPanelOpen(true);
             scheduleSuggestions(String(ctl.model.value || ""));
             resetActive();
         }
@@ -437,8 +462,8 @@ const onKeydown = (event: KeyboardEvent): void => {
         if (!open.value) return;
         event.preventDefault();
         event.stopPropagation();
-        open.set(false);
-        activeIndex.set(-1);
+        dismissibleOverlay.claim(event);
+        close();
     }
 };
 
@@ -545,11 +570,6 @@ const connectAnchoredOverlay = (): void => {
     requestOverlayUpdate();
 };
 
-const close = (): void => {
-    open.set(false);
-    activeIndex.set(-1);
-};
-
 useHostAttr("variant", () => normalizeFieldVariant(props.variant));
 useHostAttr("data-state", () => fi.state);
 useHostFlag("disabled", isDisabled);
@@ -566,6 +586,7 @@ useEffect(() => {
     void props.placement;
     void props.popperOptions;
     void props.fitInputWidth;
+    syncDismissibleOverlay();
     if (mounted) queueMicrotask(() => {
         syncTopLayer();
         connectAnchoredOverlay();

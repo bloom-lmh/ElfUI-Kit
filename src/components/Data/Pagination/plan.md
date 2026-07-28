@@ -29,3 +29,10 @@
 
 - [x] Added the teleported size listbox, keyboard selection, outside/Escape closing, popper customization, and overlay lifecycle cleanup.
 - [x] Added previous/next icon props and SVG slots, public emits/slots/expose types, a dedicated overlay case, and expanded focused tests from 8 to 14.
+
+## 2026-07-28 overlay coordination
+
+- [x] Move the page-size listbox from a component-owned document listener to the shared overlay interaction stack.
+- [x] Use capture-phase outside clicks so a nested modal and the size listbox cannot consume the same physical click.
+- [x] Preserve listbox keyboard selection, focus return, external-scroll closing, Top Layer rendering and public expose methods.
+- [x] Cover two simultaneous Pagination overlays; each outside click closes exactly one topmost listbox.
