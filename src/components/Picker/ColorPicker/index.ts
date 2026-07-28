@@ -20,6 +20,13 @@ import { computeAnchoredPosition, listenForExternalOverlayMotion } from "../../C
 import { useLocaleProvider } from "../../Providers/context";
 import { normalizeFieldVariant } from "../../../types/field";
 import { useDismissibleOverlay } from "../../../composables/useDismissibleOverlay";
+import {
+    formatColorValue,
+    normalizeColorHex,
+    normalizeColorPresets,
+    parseColorAlpha,
+    resolveColorFormat,
+} from "./model";
 import type { ColorFormat, ColorPickerProps, ColorPreset } from "./types";
 
 export type {
@@ -91,7 +98,7 @@ let portalRoot: ShadowRoot | null = null;
 let panelOrigin: { parent: Node; next: Node | null } | null = null;
 
 const resolvedFormat = (): ColorFormat =>
-    (props.colorFormat || props.format || "hex") as ColorFormat;
+    resolveColorFormat(props.colorFormat, props.format);
 const resolvedPanelStyle = useComputed((): Record<string, string> => ({
     ...(props.popperStyle || {}),
     ...panelStyle.value,
@@ -99,42 +106,13 @@ const resolvedPanelStyle = useComputed((): Record<string, string> => ({
 const isEmptyValue = (value: unknown): boolean =>
     (props.emptyValues || []).some((candidate) => Object.is(candidate, value));
 
-const normalizeHex = (value: unknown): string | null => {
-    const raw = String(value || "").trim();
-    if (/^#[0-9a-fA-F]{6}$/.test(raw)) return raw.toLowerCase();
-    if (/^#[0-9a-fA-F]{3}$/.test(raw)) {
-        const [, r, g, b] = raw;
-        return `#${r}${r}${g}${g}${b}${b}`.toLowerCase();
-    }
-    const rgb = /^rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})(?:\s*,\s*(0|1|0?\.\d+))?\s*\)$/i.exec(raw);
-    if (rgb) {
-        const channels = rgb.slice(1, 4).map((channel) => Math.max(0, Math.min(255, Number(channel))));
-        return `#${channels.map((channel) => channel.toString(16).padStart(2, "0")).join("")}`;
-    }
-    return null;
-};
-
-const parseAlpha = (value: unknown): number | null => {
-    const match = /^rgba\([^,]+,[^,]+,[^,]+,\s*(0|1|0?\.\d+)\s*\)$/i.exec(String(value || "").trim());
-    return match ? Math.round(Math.max(0, Math.min(1, Number(match[1]))) * 100) : null;
-};
-
-const hexToRgb = (hex: string): [number, number, number] => [
-    Number.parseInt(hex.slice(1, 3), 16),
-    Number.parseInt(hex.slice(3, 5), 16),
-    Number.parseInt(hex.slice(5, 7), 16),
-];
-
-const outputValue = (): string => {
-    const hex = normalizeHex(color.value);
-    if (!hex) return "";
-    const [r, g, b] = hexToRgb(hex);
-    if (resolvedFormat() === "rgb" || (props.showAlpha && alpha.value < 100)) {
-        const a = Math.max(0, Math.min(100, alpha.value)) / 100;
-        return props.showAlpha ? `rgba(${r}, ${g}, ${b}, ${a})` : `rgb(${r}, ${g}, ${b})`;
-    }
-    return hex;
-};
+const outputValue = (): string =>
+    formatColorValue({
+        color: color.value,
+        format: resolvedFormat(),
+        alpha: alpha.value,
+        showAlpha: Boolean(props.showAlpha),
+    });
 
 useEffect(() => {
     const raw = isEmptyValue(props.modelValue) ? "" : String(props.modelValue ?? "").trim();
@@ -142,9 +120,9 @@ useEffect(() => {
         color.set("");
         return;
     }
-    const next = normalizeHex(raw);
+    const next = normalizeColorHex(raw);
     if (next) color.set(next);
-    const nextAlpha = parseAlpha(raw);
+    const nextAlpha = parseColorAlpha(raw);
     if (nextAlpha !== null) alpha.set(nextAlpha);
 });
 
@@ -154,7 +132,7 @@ const commit = (next: string): void => {
         clear();
         return;
     }
-    const normalized = normalizeHex(next);
+    const normalized = normalizeColorHex(next);
     if (!normalized) return;
     color.set(normalized);
     const value = outputValue();
@@ -179,26 +157,16 @@ const clear = (): void => {
     if (isDisabled()) return;
     const configured = props.valueOnClear;
     const next = typeof configured === "function" ? configured() : configured ?? "";
-    color.set(normalizeHex(next) || "");
+    color.set(normalizeColorHex(next) || "");
     ctl.dispatchInput(next);
     ctl.dispatchChange(next);
     emit("clear");
 };
 
-const presetItems = (): ColorPreset[] =>
-    (Array.isArray(props.predefine) && props.predefine.length > 0
-        ? props.predefine
-        : Array.isArray(props.presets)
-          ? props.presets
-          : []
-    ).map((item) =>
-        typeof item === "string"
-            ? { value: item, label: item }
-            : ({
-                  value: String((item as ColorPreset).value || ""),
-                  label: String((item as ColorPreset).label || (item as ColorPreset).value || ""),
-              } as ColorPreset),
-    );
+const presets = useComputed(() =>
+    normalizeColorPresets(props.predefine, props.presets),
+);
+const presetItems = (): ColorPreset[] => presets.value;
 
 const onPresetClick = (event: Event): void => {
     const index = Number((event.currentTarget as HTMLElement).dataset.index);
@@ -207,10 +175,10 @@ const onPresetClick = (event: Event): void => {
 };
 
 const presetStyle = (preset: ColorPreset): Record<string, string> => ({
-    background: normalizeHex(preset.value) || "transparent",
+    background: normalizeColorHex(preset.value) || "transparent",
 });
 
-const nativeColorValue = (): string => normalizeHex(color.value) || "#6750a4";
+const nativeColorValue = (): string => normalizeColorHex(color.value) || "#6750a4";
 
 const getPanel = (): HTMLElement | null =>
     portalRoot?.querySelector<HTMLElement>(".panel")

@@ -1,6 +1,11 @@
 import { defineHtml, useRef } from "@elfui/core";
 
+import { createDocsTranslator } from "../../docsLocale";
 
+const t = createDocsTranslator({
+  title: { zh: "基础选择与预设色", en: "Basic selection and presets" },
+  label: { zh: "品牌色", en: "Brand color" },
+});
 const color = useRef("#6750a4");
 
 const presets = [
@@ -15,7 +20,8 @@ const updateColor = (event: CustomEvent): void => {
 };
 
 const basicCode = `<elf-color-picker
-  :modelValue="color"
+  label="Brand color"
+  :modelValue.prop="color"
   :presets.prop="presets"
   clearable
   @update:modelValue="updateColor"
@@ -29,9 +35,9 @@ const presets = [
 const updateColor = (event) => color.set(event.detail);`;
 
 const PageColorPickerEx1 = defineHtml(`
-<elf-playground title="基础选择与预设色" :code=${basicCode} :script=${basicScript}>
+<elf-playground :title=${t("title")} :code=${basicCode} :script=${basicScript}>
       <div style="display:flex;justify-content:center;gap:12px;align-items:center;flex-wrap:wrap;width:100%;max-width:760px;margin-inline:auto">
-        <elf-color-picker label="品牌色" :modelValue=${color} :presets.prop=${presets} clearable @update:modelValue=${updateColor}></elf-color-picker>
+        <elf-color-picker :label=${t("label")} :modelValue.prop=${color} :presets.prop=${presets} clearable @update:modelValue=${updateColor}></elf-color-picker>
         <span slot="status" class="demo-state">{{ color }}</span>
       </div>
     </elf-playground>

@@ -194,3 +194,11 @@
 
 - [x] 接入进程级 Overlay Stack 与 `useDismissibleOverlay`，兼容 Top Layer、append-to portal 与 persistent 策略。
 - [x] 色板内外部交互通过 composed path 判定；Escape 只关闭最上层色板并恢复输入焦点。
+
+## 2026-07-28 架构与双语收口
+
+- [x] 将 HEX/RGB 解析、Alpha 投影、输出格式和预设色规范化拆入纯 `model`，组件仅维护字段、表单、浮层和事件事务。
+- [x] 同步提交路径直接调用纯格式化函数，避免依赖 beta.15 `useComputed()` 在同一事务内的延迟失效。
+- [x] 修正 RGB 与外部挂载案例的 Custom Element property 绑定，初值不再回落到默认紫色。
+- [x] 页面标题、说明、四个案例、状态、表单文本和 API 表完整覆盖 Provider 中英文切换。
+- [x] 纯模型、组件、页面共 17 项定向测试通过；真实浏览器中英文与展开面板截图通过，控制台 0 warning / 0 error。
