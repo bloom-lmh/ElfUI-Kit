@@ -21,7 +21,12 @@ import styles from "./style.scss?inline";
 import { computeAnchoredPosition } from "../../Common/anchored-overlay";
 import { useLocaleProvider } from "../../Providers/context";
 import { buildTableTree, normalizeTableTreeProps } from "./tree";
-import { computeVariableVirtualWindow, computeVirtualWindow, type VirtualWindow } from "../virtual-window";
+import {
+  buildVirtualOffsets,
+  computeVariableVirtualWindow,
+  computeVirtualWindow,
+  type VirtualWindow
+} from "../virtual-window";
 import type {
   TableCellContext,
   TableColumn,
@@ -785,11 +790,7 @@ const virtualRowOffsets = (): number[] => {
     props.rowHeight === cachedRowHeightResolver &&
     cachedRowOffsets.length === source.length + 1
   ) return cachedRowOffsets;
-  const offsets = new Array<number>(source.length + 1);
-  offsets[0] = 0;
-  for (let index = 0; index < source.length; index += 1) {
-    offsets[index + 1] = offsets[index]! + resolveVirtualRowHeight(source[index]!);
-  }
+  const offsets = buildVirtualOffsets(source, resolveVirtualRowHeight, 48);
   cachedRowHeightSource = source;
   cachedRowHeightResolver = props.rowHeight;
   cachedRowOffsets = offsets;

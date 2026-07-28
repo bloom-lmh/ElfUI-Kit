@@ -24,20 +24,51 @@ export interface VariableVirtualWindowOptions {
 const finite = (value: number, fallback = 0): number =>
   Number.isFinite(value) ? value : fallback;
 
+const itemSize = (value: number, fallback = 1): number => {
+  const normalizedFallback = Math.max(1, finite(fallback, 1));
+  return Number.isFinite(value) && value > 0
+    ? Math.max(1, value)
+    : normalizedFallback;
+};
+
+/**
+ * Builds cumulative offsets for variable-size virtual collections.
+ * Invalid measurements fall back to a stable positive estimate so consumers
+ * never create overlapping or non-monotonic ranges.
+ */
+export const buildVirtualOffsets = <T>(
+  items: readonly T[],
+  sizeOf: (item: T, index: number) => number,
+  fallbackSize = 1
+): number[] => {
+  const fallback = itemSize(fallbackSize);
+  const offsets = new Array<number>(items.length + 1);
+  offsets[0] = 0;
+  for (let index = 0; index < items.length; index += 1) {
+    offsets[index + 1] = offsets[index]! + itemSize(sizeOf(items[index]!, index), fallback);
+  }
+  return offsets;
+};
+
 /** Calculates a fixed-size virtual window. `end` is exclusive. */
 export const computeVirtualWindow = (options: VirtualWindowOptions): VirtualWindow => {
   const count = Math.max(0, Math.floor(finite(options.count)));
-  const itemSize = Math.max(1, finite(options.itemSize, 1));
+  const normalizedItemSize = itemSize(options.itemSize);
   const viewportSize = Math.max(0, finite(options.viewportSize));
   const overscan = Math.max(0, Math.floor(finite(options.overscan ?? 4)));
-  const maxOffset = Math.max(0, count * itemSize - viewportSize);
+  const maxOffset = Math.max(0, count * normalizedItemSize - viewportSize);
   const scrollOffset = Math.min(Math.max(0, finite(options.scrollOffset)), maxOffset);
-  const visibleStart = Math.floor(scrollOffset / itemSize);
-  const visibleCount = Math.max(1, Math.ceil(viewportSize / itemSize));
+  const visibleStart = Math.floor(scrollOffset / normalizedItemSize);
+  const visibleCount = Math.max(1, Math.ceil(viewportSize / normalizedItemSize));
   const start = Math.max(0, visibleStart - overscan);
   const end = Math.min(count, visibleStart + visibleCount + overscan);
 
-  return { start, end, offset: start * itemSize, totalSize: count * itemSize };
+  return {
+    start,
+    end,
+    offset: start * normalizedItemSize,
+    totalSize: count * normalizedItemSize
+  };
 };
 
 const indexAtOffset = (offsets: readonly number[], offset: number): number => {

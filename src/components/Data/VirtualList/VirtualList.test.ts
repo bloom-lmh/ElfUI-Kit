@@ -1,5 +1,4 @@
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { computeVirtualWindow } from "../virtual-window";
 
 beforeAll(async () => {
   await import("../../../components");
@@ -27,13 +26,6 @@ describe("virtual window", () => {
     expect(row.style.color).toBe("rgb(1, 2, 3)");
     expect(row.style.getPropertyValue("padding-inline")).toBe("18px");
   });
-  it("clamps and overscans a fixed-size range", () => {
-    expect(computeVirtualWindow({ count: 1000, itemSize: 40, viewportSize: 200, scrollOffset: 400, overscan: 2 }))
-      .toEqual({ start: 8, end: 17, offset: 320, totalSize: 40000 });
-    expect(computeVirtualWindow({ count: 0, itemSize: 0, viewportSize: 200, scrollOffset: -10 }))
-      .toEqual({ start: 0, end: 0, offset: 0, totalSize: 0 });
-  });
-
   it("renders a regular list with a custom renderer", async () => {
     expect(customElements.get("elf-list")).toBeTruthy();
     const el = document.createElement("elf-list") as HTMLElement & Record<string, unknown>;

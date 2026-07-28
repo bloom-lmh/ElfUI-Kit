@@ -12,7 +12,12 @@ import {
   useEffect
 } from "@elfui/core";
 import { listContentDirective } from "../list-content";
-import { computeVirtualWindow } from "../virtual-window";
+import {
+  buildVirtualOffsets,
+  computeVariableVirtualWindow,
+  computeVirtualWindow,
+  type VirtualWindow
+} from "../virtual-window";
 import styles from "./style.scss?inline";
 import { useLocaleProvider } from "../../Providers/context";
 import type { ListItemRenderer } from "../List/types";
@@ -87,39 +92,25 @@ const dynamicOffsets = (): number[] => {
     && cachedOffsetEstimate === estimate
     && cachedOffsets.length === source.length + 1
   ) return cachedOffsets;
-  const offsets = new Array<number>(source.length + 1);
-  offsets[0] = 0;
-  for (let index = 0; index < source.length; index += 1) {
-    offsets[index + 1] = offsets[index]! + (measuredHeights.get(keyOf(source[index], index)) || estimate);
-  }
+  const offsets = buildVirtualOffsets(
+    source,
+    (item, index) => measuredHeights.get(keyOf(item, index)) || estimate,
+    estimate
+  );
   cachedOffsetSource = source;
   cachedOffsetVersion = measurementVersion.value;
   cachedOffsetEstimate = estimate;
   cachedOffsets = offsets;
   return offsets;
 };
-const indexAtOffset = (offsets: number[], offset: number): number => {
-  let low = 0;
-  let high = Math.max(0, offsets.length - 2);
-  while (low <= high) {
-    const middle = (low + high) >> 1;
-    if (offsets[middle + 1]! <= offset) low = middle + 1;
-    else high = middle - 1;
-  }
-  return Math.max(0, Math.min(offsets.length - 2, low));
-};
-const dynamicWindowState = () => {
-  const source = items();
-  if (source.length === 0) return { start: 0, end: 0, offset: 0, totalSize: 0 };
-  const offsets = dynamicOffsets();
-  const visibleStart = indexAtOffset(offsets, Math.max(0, scrollOffset.value));
-  const visibleEnd = indexAtOffset(offsets, Math.max(0, scrollOffset.value + viewportSize.value)) + 1;
-  const overscan = Math.max(0, Number(props.overscan) || 0);
-  const start = Math.max(0, visibleStart - overscan);
-  const end = Math.min(source.length, visibleEnd + overscan);
-  return { start, end, offset: offsets[start] ?? 0, totalSize: offsets[offsets.length - 1] ?? 0 };
-};
-const windowState = () => {
+const dynamicWindowState = (): VirtualWindow =>
+  computeVariableVirtualWindow({
+    offsets: dynamicOffsets(),
+    viewportSize: viewportSize.value,
+    scrollOffset: scrollOffset.value,
+    overscan: Math.max(0, Number(props.overscan) || 0)
+  });
+const windowState = (): VirtualWindow => {
   const source = items();
   const key = `${props.dynamic}:${source.length}:${itemHeight()}:${viewportSize.value}:${scrollOffset.value}:${effectiveOverscan()}:${measurementVersion.value}`;
   if (key === cachedWindowKey) return cachedWindow;

@@ -57,7 +57,10 @@ interface TableEl extends HTMLElement {
   virtual?: boolean;
   virtualThreshold?: number;
   height?: string | number;
-  rowHeight?: number;
+  rowHeight?: number | ((context: {
+    row: Record<string, unknown>;
+    rowIndex: number;
+  }) => number);
   overscan?: number;
   tooltipOptions?: {
     placement?: string;
@@ -632,6 +635,41 @@ describe("elf-table", () => {
     await tick();
 
     expect(el.shadowRoot!.querySelector("tbody tr")?.textContent).toContain("300");
+  });
+
+  it("uses the shared variable-size window for functional row heights", async () => {
+    const el = document.createElement("elf-table") as TableEl;
+    el.data = Array.from({ length: 20 }, (_, index) => ({
+      id: index + 1,
+      name: `Variable row ${index + 1}`
+    }));
+    el.columns = [{ prop: "name", label: "Name" }];
+    el.virtual = true;
+    el.virtualThreshold = 1;
+    el.height = 260;
+    el.rowHeight = ({ rowIndex }) => rowIndex % 2 === 0 ? 60 : 30;
+    el.overscan = 1;
+    document.body.appendChild(el);
+    await tick();
+    await tick();
+
+    const wrap = el.shadowRoot!.querySelector<HTMLElement>(".table-wrap")!;
+    Object.defineProperty(wrap, "scrollTop", {
+      value: 300,
+      configurable: true,
+      writable: true
+    });
+    wrap.dispatchEvent(new Event("scroll"));
+    await tick();
+
+    const body = el.shadowRoot!.querySelector<HTMLElement>("tbody")!;
+    const renderedRows = Array.from(body.querySelectorAll("tr"), (row) =>
+      row.textContent?.trim()
+    );
+    expect(body.style.height).toBe("900px");
+    expect(body.style.paddingBlockStart).toBe("240px");
+    expect(renderedRows).toContain("Variable row 6");
+    expect(renderedRows).not.toContain("Variable row 1");
   });
 
   it("span-method 支持数组和对象结果，并隐藏被合并单元格", async () => {

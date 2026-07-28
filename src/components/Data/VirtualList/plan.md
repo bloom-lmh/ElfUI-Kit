@@ -38,3 +38,9 @@
 - [x] Added key/index positioning with alignment, Arrow/Home/End focus navigation, visible-range introspection, append loading, and empty state.
 - [x] Added a 240-row variable-height activity feed; browser measurement observed an 11-row DOM window and 73px / 93px row heights.
 - [x] Passed 11 component/page tests and the 800-module production build.
+
+## 2026-07-28 动态虚拟窗口收敛
+
+- [x] 将累计偏移构建、无效尺寸回退和动态窗口二分定位收敛到 `virtual-window` 纯逻辑模块。
+- [x] VirtualList 只保留测量缓存、滚动锚定和 DOM 复用职责，与 Table 共用同一窗口语义。
+- [x] 独立纯逻辑测试覆盖固定高度、动态高度、overscan、越界滚动与空集合。
