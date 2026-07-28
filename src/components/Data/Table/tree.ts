@@ -1,4 +1,8 @@
 import type { TableRow, TableTreeProps } from "./types";
+import {
+  createTableRowCollection,
+  type TableRowCollection,
+} from "./selection-model";
 
 export interface TableTreeConfig {
   children: string;
@@ -39,7 +43,12 @@ export const normalizeTableTreeProps = (value: TableTreeProps | undefined): Tabl
 
 export const buildTableTree = (
   options: BuildTableTreeOptions
-): { all: TableTreeRow[]; visible: TableTreeRow[]; isTree: boolean } => {
+): {
+  all: TableTreeRow[];
+  visible: TableTreeRow[];
+  isTree: boolean;
+  collection: TableRowCollection;
+} => {
   const all: BuiltNode[] = [];
   const visible: BuiltNode[] = [];
   let sourceIndex = 0;
@@ -95,12 +104,23 @@ export const buildTableTree = (
   appendAll(roots);
   appendVisible(roots);
 
-  return {
-    all: all.map(({ children: _children, matched: _matched, ...row }) => row),
-    visible: visible.map(({ children: _children, matched: _matched, ...row }, index) => ({
+  const normalizedAll = all.map(
+    ({ children: _children, matched: _matched, ...row }) => row,
+  );
+  const normalizedVisible = visible.map(
+    ({ children: _children, matched: _matched, ...row }, index) => ({
       ...row,
       index
-    })),
-    isTree
+    }),
+  );
+  return {
+    all: normalizedAll,
+    visible: normalizedVisible,
+    isTree,
+    collection: createTableRowCollection(
+      normalizedAll,
+      normalizedVisible,
+      isTree,
+    ),
   };
 };

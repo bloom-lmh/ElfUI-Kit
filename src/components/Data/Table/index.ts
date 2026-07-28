@@ -26,7 +26,7 @@ import {
   buildVirtualOffsets,
   computeVariableVirtualWindow,
   computeVirtualWindow,
-  type VirtualWindow
+  type VirtualWindow,
 } from "../virtual-window";
 import type {
   TableCellContext,
@@ -44,10 +44,7 @@ import type {
   TableTooltipOptions,
   TableTooltipPlacement,
 } from "./types";
-import {
-  getTableColumnSize,
-  normalizeTableColumns,
-} from "./column-model";
+import { getTableColumnSize, normalizeTableColumns } from "./column-model";
 import {
   activeTableFilterColumns,
   getTableValueAtPath as valueAtPath,
@@ -97,7 +94,8 @@ export type {
   TableSortOrder,
 } from "./types";
 
-const SIGNATURE_SEP = "::elf-table::";
+const TABLE_CELL_KEY_SEPARATOR = "::elf-table::";
+const TABLE_KEY_SEPARATOR = "::elf-table::";
 const TOOLTIP_PLACEMENTS: TableTooltipPlacement[] = [
   "top",
   "top-start",
@@ -240,6 +238,8 @@ const allRowsState = useShallowRef<TableRowView[]>([]);
 
 const isTreeState = useRef(false);
 
+let rowCollection: TableRowCollectionView | undefined;
+
 const selectedState = useShallowRef<string[]>([]);
 let pendingSelectedKeys: string[] | null = null;
 let selectionCommitFrame = 0;
@@ -305,7 +305,7 @@ const normalizeKeys = (value: unknown): string[] => {
   return value.map((item) => String(item)).filter(Boolean);
 };
 
-const signature = (keys: string[]): string => keys.join(SIGNATURE_SEP);
+const keySignature = (keys: readonly string[]): string => keys.join(TABLE_KEY_SEPARATOR);
 
 const cssSize = (value: unknown): string => {
   if (value == null || value === "") return "";
@@ -415,31 +415,7 @@ const isSelectable = (row: TableRowView): boolean => {
 };
 
 const normalizeTreeSelection = (keys: string[]): string[] => {
-  const rows = allRowsState.peek();
-  const existing = new Set(rows.map((row) => row.key));
-  const selected = new Set(keys.map(String).filter((key) => existing.has(key)));
-  if (!isTreeState.peek() || treeConfig().checkStrictly) return Array.from(selected);
-
-  for (const row of rows) {
-    if (!selected.has(row.key) || !row.hasChildren) continue;
-    for (const descendant of rows) {
-      if (descendant.key !== row.key && descendant.path.includes(row.key) && isSelectable(descendant)) {
-        selected.add(descendant.key);
-      }
-    }
-  }
-  for (const row of [...rows].sort((left, right) => right.level - left.level)) {
-    if (!row.hasChildren || !isSelectable(row)) continue;
-    const children = rows.filter((child) => child.parentKey === row.key && isSelectable(child));
-    if (children.length === 0) continue;
-    // Child selection must not implicitly promote a parent into the selection.
-    // Keep a parent selected only while all of its selectable children remain
-    // selected; selecting the parent itself still cascades in the pass above.
-    if (selected.has(row.key) && !children.every((child) => selected.has(child.key))) {
-      selected.delete(row.key);
-    }
-  }
-  return Array.from(selected);
+  return rowCollection?.normalizeSelection(keys, treeConfig().checkStrictly, isSelectable) ?? keys;
 };
 
 const rebuildRows = (): void => {
@@ -456,8 +432,7 @@ const rebuildRows = (): void => {
     sortRows: (rows) => sortedData(columns, rows),
     ...(activeFilters.length > 0
       ? {
-          matchesRow: (row: TableRow) =>
-            tableRowMatchesFilters(row, activeFilters, filterValuesState.value),
+          matchesRow: (row: TableRow) => tableRowMatchesFilters(row, activeFilters, filterValuesState.value),
         }
       : {}),
   });
@@ -468,17 +443,18 @@ const rebuildRows = (): void => {
   rowsState.set(rows);
   allRowsState.set(allRows);
   isTreeState.set(tree.isTree);
+  rowCollection = tree.collection as TableRowCollectionView;
 
   const rowKeys = new Set(allRows.map((row) => row.key));
   const nextSelected = normalizeTreeSelection(selectedKeysSnapshot());
-  if (signature(nextSelected) !== lastSelectedSig.peek()) {
+  if (keySignature(nextSelected) !== lastSelectedSig.peek()) {
     selectedState.set(nextSelected);
-    lastSelectedSig.set(signature(nextSelected));
+    lastSelectedSig.set(keySignature(nextSelected));
   }
   const nextExpanded = expandedState.peek().filter((key) => rowKeys.has(key));
-  if (signature(nextExpanded) !== lastExpandedSig.peek()) {
+  if (keySignature(nextExpanded) !== lastExpandedSig.peek()) {
     expandedState.set(nextExpanded);
-    lastExpandedSig.set(signature(nextExpanded));
+    lastExpandedSig.set(keySignature(nextExpanded));
   }
   if (currentKey.peek() && !rowKeys.has(currentKey.peek())) currentKey.set("");
 };
@@ -508,10 +484,10 @@ const scheduleSelectedKeysCommit = (next: string[]): void => {
 
 const setSelectedKeys = (keys: string[], shouldEmit = true): void => {
   const next = normalizeTreeSelection(keys);
-  const changed = signature(next) !== signature(selectedKeysSnapshot());
+  const changed = keySignature(next) !== keySignature(selectedKeysSnapshot());
   if (!changed) return;
   pendingSelectedKeys = next;
-  lastSelectedSig.set(signature(next));
+  lastSelectedSig.set(keySignature(next));
   applySelectionDom(next);
   if (shouldEmit) scheduleSelectedKeysCommit(next);
   else commitSelectedKeys(next);
@@ -525,7 +501,7 @@ const setExpandedKeys = (keys: string[], shouldEmit = true, row?: TableRowView, 
   const rowKeys = new Set(allRowsState.peek().map((item) => item.key));
   const next = Array.from(new Set(keys.map(String).filter((key) => rowKeys.has(key))));
   expandedState.set(next);
-  lastExpandedSig.set(signature(next));
+  lastExpandedSig.set(keySignature(next));
   if (shouldEmit) {
     emit("update:expandedRowKeys", next);
     emit("expand-change", row?.raw, treeExpanded ?? next);
@@ -572,14 +548,14 @@ useEffect(() => {
 useEffect(() => {
   if (!Array.isArray(props.expandedRowKeys)) return;
   const next = normalizeKeys(props.expandedRowKeys);
-  if (signature(next) === lastExpandedSig.peek()) return;
+  if (keySignature(next) === lastExpandedSig.peek()) return;
   setExpandedKeys(next, false);
 });
 
 useEffect(() => {
   if (!Array.isArray(props.selectedKeys)) return;
   const next = normalizeKeys(props.selectedKeys);
-  if (signature(next) === lastSelectedSig.peek()) return;
+  if (keySignature(next) === lastSelectedSig.peek()) return;
   setSelectedKeys(next, false);
 });
 
@@ -628,7 +604,8 @@ const virtualRowOffsets = (): number[] => {
     source === cachedRowHeightSource &&
     props.rowHeight === cachedRowHeightResolver &&
     cachedRowOffsets.length === source.length + 1
-  ) return cachedRowOffsets;
+  )
+    return cachedRowOffsets;
   const offsets = buildVirtualOffsets(source, resolveVirtualRowHeight, 48);
   cachedRowHeightSource = source;
   cachedRowHeightResolver = props.rowHeight;
@@ -1048,7 +1025,8 @@ const tooltipOptions = (): Required<TableTooltipOptions> => {
   };
 };
 
-const tooltipCellKey = (row: TableRowView, column: TableColumnView): string => `${row.key}${SIGNATURE_SEP}${column.id}`;
+const tooltipCellKey = (row: TableRowView, column: TableColumnView): string =>
+  `${row.key}${TABLE_CELL_KEY_SEPARATOR}${column.id}`;
 
 const clearTooltipTimers = (): void => {
   if (tooltipShowTimer) window.clearTimeout(tooltipShowTimer);
@@ -1057,10 +1035,12 @@ const clearTooltipTimers = (): void => {
   tooltipHideTimer = 0;
 };
 
-const getTooltipElement = (): (HTMLElement & {
-  showPopover?: () => void;
-  hidePopover?: () => void;
-}) | null => host.shadowRoot?.querySelector<HTMLElement>(".table-tooltip") ?? null;
+const getTooltipElement = ():
+  | (HTMLElement & {
+      showPopover?: () => void;
+      hidePopover?: () => void;
+    })
+  | null => host.shadowRoot?.querySelector<HTMLElement>(".table-tooltip") ?? null;
 
 const closeTooltip = (): void => {
   if (!tooltipOpenState.peek() && !tooltipAnchor && !tooltipCellKeyState.peek()) return;
@@ -1126,10 +1106,8 @@ const composedParentElement = (element: HTMLElement): HTMLElement | null => {
 
 const isScrollableElement = (element: HTMLElement): boolean => {
   const style = window.getComputedStyle(element);
-  const canScrollY = /(auto|scroll|overlay)/.test(style.overflowY)
-    && element.scrollHeight > element.clientHeight + 1;
-  const canScrollX = /(auto|scroll|overlay)/.test(style.overflowX)
-    && element.scrollWidth > element.clientWidth + 1;
+  const canScrollY = /(auto|scroll|overlay)/.test(style.overflowY) && element.scrollHeight > element.clientHeight + 1;
+  const canScrollX = /(auto|scroll|overlay)/.test(style.overflowX) && element.scrollWidth > element.clientWidth + 1;
   return canScrollX || canScrollY;
 };
 
@@ -1141,9 +1119,7 @@ const trackTooltipScrollAncestors = (anchor: HTMLElement): void => {
     if (isScrollableElement(current)) targets.push(current);
     current = composedParentElement(current);
   }
-  targets.forEach((target) =>
-    target.addEventListener("scroll", requestTooltipPositionUpdate, { passive: true })
-  );
+  targets.forEach((target) => target.addEventListener("scroll", requestTooltipPositionUpdate, { passive: true }));
   cleanupTooltipScrollTracking = () => {
     targets.forEach((target) => target.removeEventListener("scroll", requestTooltipPositionUpdate));
   };
@@ -1199,33 +1175,21 @@ const isSelected = (row: TableRowView): boolean => selectedKeysSnapshot(true).in
 
 const isExpanded = (row: TableRowView): boolean => expandedState.value.includes(row.key);
 
-const selectableRows = (): TableRowView[] => rowsState.value.filter(isSelectable);
+const isRowIndeterminate = (row: TableRowView): boolean =>
+  rowCollection?.isRowIndeterminate(row, selectedKeysSnapshot(true), treeConfig().checkStrictly, isSelectable) ?? false;
 
-const descendantRowsOf = (row: TableRowView, includeSelf = false): TableRowView[] =>
-  allRowsState
-    .peek()
-    .filter((item) => (includeSelf && item.key === row.key) || (item.key !== row.key && item.path.includes(row.key)));
+const selectionSummary = () =>
+  rowCollection?.selectionSummary(selectedKeysSnapshot(true), isSelectable) ?? {
+    selectableRows: [],
+    allSelected: false,
+    indeterminate: false,
+  };
 
-const isRowIndeterminate = (row: TableRowView): boolean => {
-  if (!row.hasChildren || treeConfig().checkStrictly) return false;
-  const descendants = descendantRowsOf(row).filter(isSelectable);
-  const keys = new Set(selectedKeysSnapshot(true));
-  const selected = descendants.filter((item) => keys.has(item.key)).length;
-  return selected > 0 && (!keys.has(row.key) || selected < descendants.length);
-};
+const selectableRows = (): TableRowView[] => selectionSummary().selectableRows as TableRowView[];
 
-const isAllSelected = (): boolean => {
-  const rows = selectableRows();
-  const keys = new Set(selectedKeysSnapshot(true));
-  return rows.length > 0 && rows.every((row) => keys.has(row.key));
-};
+const isAllSelected = (): boolean => selectionSummary().allSelected;
 
-const isIndeterminate = (): boolean => {
-  const rows = selectableRows();
-  const keys = new Set(selectedKeysSnapshot(true));
-  const count = rows.filter((row) => keys.has(row.key)).length;
-  return count > 0 && count < rows.length;
-};
+const isIndeterminate = (): boolean => selectionSummary().indeterminate;
 
 function applySelectionDom(keys: string[]): void {
   const root = host.shadowRoot;
@@ -1255,39 +1219,24 @@ function applySelectionDom(keys: string[]): void {
 }
 
 const toggleRowSelection = (target: unknown, selected?: boolean, ignoreSelectable = false): void => {
-  const rows = allRowsState.peek();
-  const row =
-    typeof target === "string" || typeof target === "number"
-      ? rows.find((item) => item.key === String(target))
-      : rows.find((item) => item.raw === target);
+  const row = rowCollection?.resolve(target);
   if (!row) return;
-  if (!ignoreSelectable && !isSelectable(row)) return;
-  const set = new Set(selectedKeysSnapshot());
-  const shouldSelect = selected == null ? !set.has(row.key) : selected;
-  const affected =
-    isTreeState.peek() && !treeConfig().checkStrictly
-      ? descendantRowsOf(row, true).filter((item) => ignoreSelectable || isSelectable(item))
-      : [row];
-  for (const item of affected) {
-    if (shouldSelect) set.add(item.key);
-    else set.delete(item.key);
-  }
-  setSelectedKeys(Array.from(set), true);
+  setSelectedKeys(
+    rowCollection!.toggleRowSelection(
+      selectedKeysSnapshot(),
+      row,
+      selected,
+      ignoreSelectable,
+      treeConfig().checkStrictly,
+      isSelectable,
+    ),
+    true,
+  );
 };
 
 const toggleAllSelection = (): void => {
-  const shouldClear = isAllSelected() || (isIndeterminate() && !props.selectOnIndeterminate);
-  const visibleKeys = new Set(rowsState.peek().map((row) => row.key));
-  const currentSelection = selectedKeysSnapshot();
-  const retainedKeys = currentSelection.filter((key) => !visibleKeys.has(key));
-  const disabledKeys = currentSelection.filter((key) => {
-    const row = rowsState.peek().find((item) => item.key === key);
-    return row ? !isSelectable(row) : false;
-  });
   setSelectedKeys(
-    shouldClear
-      ? [...retainedKeys, ...disabledKeys]
-      : [...retainedKeys, ...disabledKeys, ...selectableRows().map((row) => row.key)],
+    rowCollection?.toggleAllSelection(selectedKeysSnapshot(), isSelectable, props.selectOnIndeterminate) ?? [],
     true,
   );
 };
@@ -1305,14 +1254,7 @@ const onToggleAllSelection = (): void => {
 const clearSelection = (): void => setSelectedKeys([], true);
 
 const resolveRow = (target: unknown): TableRowView | undefined => {
-  const rows = allRowsState.peek();
-  if (typeof target === "string" || typeof target === "number") {
-    return rows.find((item) => item.key === String(target));
-  }
-  if (target && typeof target === "object" && "key" in target && "raw" in target) {
-    return target as TableRowView;
-  }
-  return rows.find((item) => item.raw === target);
+  return rowCollection?.resolve(target);
 };
 
 const setTreeLoading = (key: string, loading: boolean): void => {
@@ -1406,11 +1348,7 @@ const toggleRowExpansion = (target: unknown, expanded?: boolean): void => {
 };
 
 function getSelectionRows(keys: string[] = selectedKeysSnapshot()): Record<string, unknown>[] {
-  const selected = new Set(keys);
-  return allRowsState
-    .peek()
-    .filter((row) => selected.has(row.key))
-    .map((row) => row.raw);
+  return rowCollection?.selectedRows(keys) ?? [];
 }
 
 const setCurrentRow = (target: unknown): void => {
@@ -2250,242 +2188,130 @@ const Table = defineHtml<TableProps>(`
   <div class="table-root" :class=${tableClass()}>
     <div v-if=${props.title} class="table-title" part="title">${props.title}</div>
     <div ref="wrap" class="table-wrap" part="scroll" :style=${wrapStyle()} @scroll=${onScroll}>
-      <table part="table" :style=${tableStyle()} :role=${isTreeState ? "treegrid" : null} :aria-label=${props.title || null}>
+      <table part="table" :style=${tableStyle()} :role=${isTreeState ? "treegrid" : null}
+        :aria-label=${props.title || null}>
         <colgroup>
           <col v-for="column in getColumns()" :key="column.id" :style="colStyle(column)" />
         </colgroup>
         <thead v-if=${props.showHeader} part="header">
           <tr :class=${headerRowClass()} :style=${headerRowStyle()}>
-            <th
-              v-for="column in getColumns()"
-              :key="column.id"
-              :data-column-index="columnIndexOf(column)"
-              :aria-sort="ariaSort(column)"
-              :class="headerCellClass(column)"
-              :style="headerCellStyle(column)"
-              @click="onHeaderClick(column, $event)"
-              @contextmenu="onHeaderContextMenu(column, $event)"
-            >
-              <button
-                v-if="column.type === 'selection'"
-                type="button"
-                class="table-checkbox"
+            <th v-for="column in getColumns()" :key="column.id" :data-column-index="columnIndexOf(column)"
+              :aria-sort="ariaSort(column)" :class="headerCellClass(column)" :style="headerCellStyle(column)"
+              @click="onHeaderClick(column, $event)" @contextmenu="onHeaderContextMenu(column, $event)">
+              <button v-if="column.type === 'selection'" type="button" class="table-checkbox"
                 :class=${{ "is-checked": isAllSelected(), "is-indeterminate": isIndeterminate() }}
                 :disabled=${selectableRows().length === 0}
                 :aria-checked=${isIndeterminate() ? "mixed" : String(isAllSelected())}
-                @click.stop=${onToggleAllSelection()}
-                :aria-label=${locale.t("table.selectAll")}
-              >
+                @click.stop=${onToggleAllSelection()} :aria-label=${locale.t("table.selectAll")}>
                 <span class="checkbox-mark"></span>
               </button>
               <span v-else class="header-content">
-                <button
-                  v-if="column.sortable"
-                  type="button"
-                  class="sort-button"
-                  :class="sortClass(column)"
-                  :aria-label="sortLabel(column)"
-                  @click="toggleSort(column)"
-                >
+                <button v-if="column.sortable" type="button" class="sort-button" :class="sortClass(column)"
+                  :aria-label="sortLabel(column)" @click="toggleSort(column)">
                   <span class="rendered-content" v-elf-table-content="renderHeaderValue(column)"></span>
                   <span class="sort-icon"></span>
                 </button>
-                <span
-                  v-else
-                  class="rendered-content"
-                  v-elf-table-content="renderHeaderValue(column)"
-                ></span>
-                <button
-                  v-if="hasFilters(column)"
-                  type="button"
-                  class="filter-trigger"
-                  :class="filterButtonClass(column)"
-                  data-filter-trigger
-                  :data-filter-key="filterKeyOf(column)"
-                  aria-haspopup="listbox"
-                  :aria-expanded="String(filterOpenKey === filterKeyOf(column))"
-                  :aria-label="filterLabel(column)"
-                  @click.stop="toggleFilterPanel(column)"
-                  @keydown="onFilterTriggerKeydown(column, $event)"
-                >
-                  <span
-                    class="filter-icon"
-                    aria-hidden="true"
-                    v-elf-table-content="renderFilterIconValue(column)"
-                  ></span>
+                <span v-else class="rendered-content" v-elf-table-content="renderHeaderValue(column)"></span>
+                <button v-if="hasFilters(column)" type="button" class="filter-trigger" :class="filterButtonClass(column)"
+                  data-filter-trigger :data-filter-key="filterKeyOf(column)" aria-haspopup="listbox"
+                  :aria-expanded="String(filterOpenKey === filterKeyOf(column))" :aria-label="filterLabel(column)"
+                  @click.stop="toggleFilterPanel(column)" @keydown="onFilterTriggerKeydown(column, $event)">
+                  <span class="filter-icon" aria-hidden="true" v-elf-table-content="renderFilterIconValue(column)"></span>
                 </button>
-                <div
-                  v-if="filterOpenKey === filterKeyOf(column)"
-                  popover="manual"
-                  :class="filterPanelClass(column)"
-                  :style="filterOverlayStyle.value"
-                  role="listbox"
+                <div v-if="filterOpenKey === filterKeyOf(column)" popover="manual" :class="filterPanelClass(column)"
+                  :style="filterOverlayStyle.value" role="listbox"
                   :aria-multiselectable="String(column.raw.filterMultiple !== false)"
-                  :aria-label="filterPanelLabel(column)"
-                  @keydown=${onFilterPanelKeydown}
-                >
+                  :aria-label="filterPanelLabel(column)" @keydown=${onFilterPanelKeydown}>
                   <div class="filter-options">
-                    <button
-                      v-for="option in filterOptionViews(column)"
-                      :key="filterValueKey(option.value)"
-                      type="button"
-                      class="filter-option"
-                      :class='{ "is-selected": option.selected }'
-                      role="option"
-                      :aria-selected="String(option.selected)"
-                      @click="toggleFilterDraft(column, option.value)"
-                    >
+                    <button v-for="option in filterOptionViews(column)" :key="filterValueKey(option.value)" type="button"
+                      class="filter-option" :class='{ "is-selected": option.selected }' role="option"
+                      :aria-selected="String(option.selected)" @click="toggleFilterDraft(column, option.value)">
                       <span class="filter-check" aria-hidden="true"></span>
                       <span>{{ option.text }}</span>
                     </button>
                   </div>
                   <div class="filter-actions">
                     <button type="button" @click="resetFilter(column)">${locale.t("common.reset")}</button>
-                    <button
-                      v-if="column.raw.filterMultiple !== false"
-                      type="button"
-                      class="is-primary"
-                      @click="applyFilterDraft(column)"
-                    >
+                    <button v-if="column.raw.filterMultiple !== false" type="button" class="is-primary"
+                      @click="applyFilterDraft(column)">
                       ${locale.t("common.confirm")}
                     </button>
                   </div>
                 </div>
               </span>
-              <span
-                v-if="isColumnResizable(column)"
-                class="column-resizer"
-                :class='{ "is-active": isColumnResizing(column) }'
-                role="separator"
-                tabindex="0"
-                aria-orientation="vertical"
-                :aria-label="resizeLabel(column)"
-                :aria-valuemin="columnMinWidth(column)"
-                :aria-valuenow="columnSize(column)"
-                @pointerdown="onResizePointerDown(column, $event)"
-                @keydown="onResizeKeydown(column, $event)"
-                @click.stop=${stopResizeClick}
-              ></span>
+              <span v-if="isColumnResizable(column)" class="column-resizer"
+                :class='{ "is-active": isColumnResizing(column) }' role="separator" tabindex="0"
+                aria-orientation="vertical" :aria-label="resizeLabel(column)" :aria-valuemin="columnMinWidth(column)"
+                :aria-valuenow="columnSize(column)" @pointerdown="onResizePointerDown(column, $event)"
+                @keydown="onResizeKeydown(column, $event)" @click.stop=${stopResizeClick}></span>
             </th>
           </tr>
         </thead>
         <tbody part="body" :style=${virtualBodyStyle()}>
           <template v-for="row in getRenderRows()" :key="row.key">
-            <tr
-              :data-row-key="row.key"
-              :class="rowClass(row)"
-              :style="rowStyle(row)"
+            <tr :data-row-key="row.key" :class="rowClass(row)" :style="rowStyle(row)"
               :aria-level="isTreeState ? String(row.level + 1) : null"
-              :aria-expanded="row.hasChildren ? String(isExpanded(row)) : null"
-              @click="onRowClick(row, $event)"
-              @dblclick="onRowDblClick(row, $event)"
-              @contextmenu="onRowContextMenu(row, $event)"
-            >
+              :aria-expanded="row.hasChildren ? String(isExpanded(row)) : null" @click="onRowClick(row, $event)"
+              @dblclick="onRowDblClick(row, $event)" @contextmenu="onRowContextMenu(row, $event)">
               <template v-for="cell in bodyCells(row)" :key="cell.column.id">
-                <td
-                  v-if="!cell.hidden"
-                  :rowspan="cell.rowspan"
-                  :colspan="cell.colspan"
-                  :data-column-index="cell.columnIndex"
-                  :class="cellClass(cell.column, row)"
-                  :style="mergedCellStyle(cell.column, row)"
-                  :tabindex="hasCellTooltip(cell.column) ? 0 : null"
+                <td v-if="!cell.hidden" :rowspan="cell.rowspan" :colspan="cell.colspan"
+                  :data-column-index="cell.columnIndex" :class="cellClass(cell.column, row)"
+                  :style="mergedCellStyle(cell.column, row)" :tabindex="hasCellTooltip(cell.column) ? 0 : null"
                   :aria-describedby="tooltipDescriptionId(row, cell.column)"
                   @mouseenter="onCellMouseEnter(row, cell.column, $event)"
                   @mouseleave="onCellMouseLeave(row, cell.column, $event)"
-                  @focusin="onCellFocusIn(row, cell.column, $event)"
-                  @focusout="onCellFocusOut(cell.column, $event)"
-                  @keydown=${onCellKeydown}
-                  @click="onCellClick(row, cell.column, $event)"
+                  @focusin="onCellFocusIn(row, cell.column, $event)" @focusout="onCellFocusOut(cell.column, $event)"
+                  @keydown=${onCellKeydown} @click="onCellClick(row, cell.column, $event)"
                   @dblclick="onCellDblClick(row, cell.column, $event)"
-                  @contextmenu="onCellContextMenu(row, cell.column, $event)"
-                >
-                <button
-                  v-if="cell.column.type === 'selection'"
-                  type="button"
-                  class="table-checkbox"
-                  :class="{ 'is-checked': isSelected(row), 'is-indeterminate': isRowIndeterminate(row) }"
-                  :disabled="!isSelectable(row)"
-                  :aria-checked='isRowIndeterminate(row) ? "mixed" : String(isSelected(row))'
-                  @click.stop="onToggleRowSelection(row)"
-                  :aria-label=${locale.t("table.selectRow")}
-                >
-                  <span class="checkbox-mark"></span>
-                </button>
-                <button
-                  v-else-if="cell.column.type === 'expand'"
-                  type="button"
-                  class="expand-toggle"
-                  :class="{ 'is-expanded': isExpanded(row) }"
-                  @click.stop="row.hasChildren ? toggleTreeRow(row) : toggleDetailRowExpansion(row)"
-                  :aria-label=${locale.t("table.expandRow")}
-                >
-                  <span class="expand-icon"></span>
-                </button>
-                <span v-else-if="cell.column.type === 'actions'" class="action-group">
-                  <button
-                    v-for="action in getActions(row, cell.column)"
-                    :key="action.label"
-                    type="button"
-                    class="action-button"
-                    :class="actionClass(action)"
-                    :disabled="action.disabled"
-                    @click.stop="invokeAction(action, row)"
-                  >
-                    {{ action.label }}
+                  @contextmenu="onCellContextMenu(row, cell.column, $event)">
+                  <button v-if="cell.column.type === 'selection'" type="button" class="table-checkbox"
+                    :class="{ 'is-checked': isSelected(row), 'is-indeterminate': isRowIndeterminate(row) }"
+                    :disabled="!isSelectable(row)"
+                    :aria-checked='isRowIndeterminate(row) ? "mixed" : String(isSelected(row))'
+                    @click.stop="onToggleRowSelection(row)" :aria-label=${locale.t("table.selectRow")}>
+                    <span class="checkbox-mark"></span>
                   </button>
-                </span>
-                <span
-                  v-else-if="isTreeCell(row, cell.columnIndex)"
-                  class="tree-cell"
-                  :style="treeCellStyle(row)"
-                >
-                  <button
-                    v-if="row.hasChildren"
-                    type="button"
-                    class="tree-toggle"
-                    :class="{ 'is-expanded': isExpanded(row), 'is-loading': isTreeLoading(row) }"
-                    :data-tree-key="row.key"
-                    :disabled="isTreeLoading(row)"
-                    :aria-expanded="String(isExpanded(row))"
-                    :aria-label="treeToggleLabel(row)"
-                    @click.stop="toggleTreeRow(row)"
-                    @keydown="onTreeToggleKeydown(row, $event)"
-                  >
-                    <span class="tree-toggle-icon" aria-hidden="true"></span>
+                  <button v-else-if="cell.column.type === 'expand'" type="button" class="expand-toggle"
+                    :class="{ 'is-expanded': isExpanded(row) }"
+                    @click.stop="row.hasChildren ? toggleTreeRow(row) : toggleDetailRowExpansion(row)"
+                    :aria-label=${locale.t("table.expandRow")}>
+                    <span class="expand-icon"></span>
                   </button>
-                  <span v-else class="tree-toggle-spacer" aria-hidden="true"></span>
-                  <span
-                    class="cell-text rendered-content"
-                    v-elf-table-content="renderCellValue(row, cell.column)"
-                  ></span>
-                </span>
-                <span
-                  v-else
-                  class="cell-text rendered-content"
-                  v-elf-table-content="renderCellValue(row, cell.column)"
-                ></span>
+                  <span v-else-if="cell.column.type === 'actions'" class="action-group">
+                    <button v-for="action in getActions(row, cell.column)" :key="action.label" type="button"
+                      class="action-button" :class="actionClass(action)" :disabled="action.disabled"
+                      @click.stop="invokeAction(action, row)">
+                      {{ action.label }}
+                    </button>
+                  </span>
+                  <span v-else-if="isTreeCell(row, cell.columnIndex)" class="tree-cell" :style="treeCellStyle(row)">
+                    <button v-if="row.hasChildren" type="button" class="tree-toggle"
+                      :class="{ 'is-expanded': isExpanded(row), 'is-loading': isTreeLoading(row) }"
+                      :data-tree-key="row.key" :disabled="isTreeLoading(row)" :aria-expanded="String(isExpanded(row))"
+                      :aria-label="treeToggleLabel(row)" @click.stop="toggleTreeRow(row)"
+                      @keydown="onTreeToggleKeydown(row, $event)">
+                      <span class="tree-toggle-icon" aria-hidden="true"></span>
+                    </button>
+                    <span v-else class="tree-toggle-spacer" aria-hidden="true"></span>
+                    <span class="cell-text rendered-content"
+                      v-elf-table-content="renderCellValue(row, cell.column)"></span>
+                  </span>
+                  <span v-else class="cell-text rendered-content"
+                    v-elf-table-content="renderCellValue(row, cell.column)"></span>
                 </td>
               </template>
             </tr>
             <tr v-if="hasExpandColumn() && !row.hasChildren && isExpanded(row)" class="expand-row">
               <td :colspan=${getColumns().length}>
-                <div
-                  class="expand-content rendered-content"
-                  v-elf-table-content="getExpandContent(row)"
-                ></div>
+                <div class="expand-content rendered-content" v-elf-table-content="getExpandContent(row)"></div>
               </td>
             </tr>
           </template>
         </tbody>
         <tfoot v-if=${props.showSummary} part="footer">
           <tr class="summary-row">
-            <td
-              v-for="(value, index) in summaryCells()"
-              :key="index"
-              :class="summaryCellClass(index)"
-              :style="summaryCellStyle(index)"
-            >
+            <td v-for="(value, index) in summaryCells()" :key="index" :class="summaryCellClass(index)"
+              :style="summaryCellStyle(index)">
               <span class="summary-text">{{ value }}</span>
             </td>
           </tr>
@@ -2494,17 +2320,12 @@ const Table = defineHtml<TableProps>(`
       <div v-if=${getRows().length === 0} class="empty" part="empty">
         <slot name="empty">${props.emptyText || locale.t("table.empty")}</slot>
       </div>
-      <div class="append"><slot name="append"></slot></div>
+      <div class="append">
+        <slot name="append"></slot>
+      </div>
     </div>
-    <div
-      v-if=${tooltipOpenState}
-      :id=${tooltipId}
-      class="table-tooltip"
-      popover="manual"
-      :data-placement=${tooltipPlacementState}
-      :style="tooltipStyleState.value"
-      role="tooltip"
-    >${tooltipTextState}</div>
+    <div v-if=${tooltipOpenState} :id=${tooltipId} class="table-tooltip" popover="manual"
+      :data-placement=${tooltipPlacementState} :style="tooltipStyleState.value" role="tooltip">${tooltipTextState}</div>
     <div v-if=${props.loading} class="loading">${locale.t("table.loading")}</div>
   </div>
 `);
@@ -2540,6 +2361,45 @@ interface TableRowView {
   parentKey: string;
   path: string[];
   hasChildren: boolean;
+}
+
+interface TableSelectionSummaryView {
+  selectableRows: TableRowView[];
+  allSelected: boolean;
+  indeterminate: boolean;
+}
+
+interface TableRowCollectionView {
+  resolve(target: unknown): TableRowView | undefined;
+  normalizeSelection(
+    keys: readonly string[],
+    checkStrictly: boolean,
+    isSelectable: (row: TableRowView) => boolean,
+  ): string[];
+  selectionSummary(
+    selectedKeys: readonly string[],
+    isSelectable: (row: TableRowView) => boolean,
+  ): TableSelectionSummaryView;
+  isRowIndeterminate(
+    row: TableRowView,
+    selectedKeys: readonly string[],
+    checkStrictly: boolean,
+    isSelectable: (row: TableRowView) => boolean,
+  ): boolean;
+  toggleRowSelection(
+    keys: readonly string[],
+    row: TableRowView,
+    selected: boolean | undefined,
+    ignoreSelectable: boolean,
+    checkStrictly: boolean,
+    isSelectable: (row: TableRowView) => boolean,
+  ): string[];
+  toggleAllSelection(
+    selectedKeys: readonly string[],
+    isSelectable: (row: TableRowView) => boolean,
+    selectOnIndeterminate: boolean,
+  ): string[];
+  selectedRows(selectedKeys: readonly string[]): TableRow[];
 }
 
 interface TableActionView {
