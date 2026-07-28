@@ -672,15 +672,18 @@ const listboxId = (): string => `${controlId()}-listbox`;
 const optionId = (index: number): string => `${listboxId()}-option-${index}`;
 const activeOptionId = (): string | null => (activeIndex.value >= 0 ? optionId(activeIndex.value) : null);
 
-defineExpose<SelectExpose>({
-  open: openDropdown,
-  close: closeDropdown,
-  toggle: toggleDropdown,
-  focus,
-  blur,
-  selectedLabel,
-  scrollToOption,
-});
+defineExpose<SelectExpose>(
+  {
+    open: openDropdown,
+    close: closeDropdown,
+    toggle: toggleDropdown,
+    focus,
+    blur,
+    selectedLabel,
+    scrollToOption,
+  },
+  { overrideNative: ["focus", "blur"] },
+);
 
 defineStyle(styles);
 

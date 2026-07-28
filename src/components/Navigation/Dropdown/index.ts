@@ -699,9 +699,9 @@ defineExpose({
 
 const StandardTrigger = defineFragment(
   () => `
-  <button v-if=${shouldRenderTrigger && !isSplitButton} :class=${buttonClass("trigger")} :style=${buttonStyle}
-    part="trigger" type="button" :disabled=${buttonDisabled} :aria-expanded=${open ? "true" : "false"}
-    aria-haspopup="menu" :tabindex=${triggerTabindex} @click=${onTriggerClick} @keydown=${onTriggerKeydown}>
+  <button v-if=${shouldRenderTrigger && !isSplitButton} :class=${buttonClass("trigger")} :style=${buttonStyle} part="trigger"
+    type="button" :disabled=${buttonDisabled} :aria-expanded=${open ? "true" : "false"} aria-haspopup="menu"
+    :tabindex=${triggerTabindex} @click=${onTriggerClick} @keydown=${onTriggerKeydown}>
     <slot>
       <slot name="trigger">
         <span class="label">${triggerLabel}</span>
@@ -715,8 +715,8 @@ const StandardTrigger = defineFragment(
 const SplitTrigger = defineFragment(
   () => `
   <template v-if=${shouldRenderTrigger && isSplitButton}>
-    <button :class=${buttonClass("split-main")} :style=${buttonStyle} part="main" type="button"
-      :disabled=${buttonDisabled} @click=${onMainClick}>
+    <button :class=${buttonClass("split-main")} :style=${buttonStyle} part="main" type="button" :disabled=${buttonDisabled}
+      @click=${onMainClick}>
       <slot>
         <slot name="main">${triggerLabel}</slot>
       </slot>
@@ -746,12 +746,13 @@ const MenuPanel = defineFragment(
             <span class="chevron" aria-hidden="true">›</span>
           </button>
           <div class="sub-menu" role="menu">
-            <button v-for="child in item.children" :key="child.key" type="button" class="item" :class="{
-                                              'is-disabled': child.disabled,
-                                              'is-divided': child.divided,
-                                              'is-selected': isSelected(child)
-                                            }" :disabled="child.disabled" role="menuitem"
-              @click="onItemClick(child, $event)">
+            <button v-for="child in item.children" :key="child.key" type="button" class="item"
+              :class="{
+                'is-disabled': child.disabled,
+                'is-divided': child.divided,
+                'is-selected': isSelected(child)
+              }"
+              :disabled="child.disabled" role="menuitem" @click="onItemClick(child, $event)">
               <span class="icon" aria-hidden="true">{{ child.icon }}</span>
               <span class="item-label">{{ child.label }}</span>
               <span class="shortcut">{{ child.shortcut }}</span>
@@ -759,11 +760,13 @@ const MenuPanel = defineFragment(
             </button>
           </div>
         </div>
-        <button v-else type="button" class="item" :class="{
-                                      'is-disabled': item.disabled,
-                                      'is-divided': item.divided,
-                                      'is-selected': isSelected(item)
-                                    }" :disabled="item.disabled" role="menuitem" @click="onItemClick(item, $event)">
+        <button v-else type="button" class="item"
+          :class="{
+            'is-disabled': item.disabled,
+            'is-divided': item.divided,
+            'is-selected': isSelected(item)
+          }"
+          :disabled="item.disabled" role="menuitem" @click="onItemClick(item, $event)">
           <span class="icon" aria-hidden="true">{{ item.icon }}</span>
           <span class="item-label">{{ item.label }}</span>
           <span class="shortcut">{{ item.shortcut }}</span>

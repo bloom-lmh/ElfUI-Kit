@@ -193,8 +193,12 @@ const context: DefaultsProviderContext = {
 
 provide(DEFAULTS_PROVIDER_KEY, context);
 
+// Parent setup runs before child setup. Apply light-DOM defaults here so children
+// receive them as inputs instead of first reflecting their own prop defaults.
+applyDefaults();
+
 onMounted(() => {
-  // 先于 slotted custom elements 完成挂载写入，避免默认反射属性被误判为用户显式输入。
+  // Reconcile slotted and late-inserted children after the initial render.
   applyDefaults();
   queueMicrotask(applyDefaults);
 
