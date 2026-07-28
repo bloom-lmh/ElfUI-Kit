@@ -37,7 +37,6 @@ import type {
   TableProps,
   TableRow,
   TableScrollDetail,
-  TableSortBy,
   TableSpanResult,
   TableStyle,
   TableTreeNodeContext,
@@ -45,6 +44,19 @@ import type {
   TableTooltipOptions,
   TableTooltipPlacement,
 } from "./types";
+import {
+  activeTableFilterColumns,
+  getTableValueAtPath as valueAtPath,
+  normalizeTableFilterOptions as filterOptionsOf,
+  normalizeTableFilterValues,
+  normalizeTableSortOrders as sortOrdersOf,
+  sortTableRows,
+  tableFilterKey as filterKeyOf,
+  tableFilterSignature as filterSignature,
+  tableFilterValueEquals as filterValueEquals,
+  tableFilterValueKey as filterValueKey,
+  tableRowMatchesFilters,
+} from "./sort-filter";
 
 export type {
   TableAlign,
@@ -291,20 +303,6 @@ const normalizeKeys = (value: unknown): string[] => {
 
 const signature = (keys: string[]): string => keys.join(SIGNATURE_SEP);
 
-const filterValueKey = (value: unknown): string => {
-  if (value == null) return String(value);
-  if (typeof value === "string") return `string:${value}`;
-  if (typeof value === "number") return `number:${value}`;
-  if (typeof value === "boolean") return `boolean:${value}`;
-  try {
-    return `${typeof value}:${JSON.stringify(value)}`;
-  } catch {
-    return `${typeof value}:${String(value)}`;
-  }
-};
-
-const filterSignature = (values: unknown[]): string => values.map(filterValueKey).join(SIGNATURE_SEP);
-
 const cssSize = (value: unknown): string => {
   if (value == null || value === "") return "";
   if (typeof value === "number") return `${value}px`;
@@ -322,12 +320,6 @@ const columnSize = (column: TableColumnView, widths: Record<string, number> = co
 
 const columnWidth = (column: TableColumnView): string => `${columnSize(column)}px`;
 
-const valueAtPath = (row: TableRow, path: string): unknown =>
-  path.split(".").reduce<unknown>((value, key) => {
-    if (!value || typeof value !== "object") return undefined;
-    return (value as TableRow)[key];
-  }, row);
-
 const rowKeyOf = (row: TableRow, fallback: number | string): string => {
   const key = props.rowKey;
   if (typeof key === "function") {
@@ -344,15 +336,6 @@ const rawColumns = (): Record<string, unknown>[] =>
   Array.isArray(props.columns) ? (props.columns as Record<string, unknown>[]) : [];
 
 const rawRows = (): TableRow[] => (Array.isArray(props.data) ? (props.data as TableRow[]) : []);
-
-const filterKeyOf = (column: TableColumnView): string => String(column.raw.columnKey || column.prop);
-
-const filterOptionsOf = (column: TableColumnView): TableFilterOption[] => {
-  const filters = Array.isArray(column.raw.filters) ? column.raw.filters : [];
-  return filters
-    .filter((item): item is Record<string, unknown> => Boolean(item && typeof item === "object"))
-    .map((item) => ({ text: String(item.text ?? item.value ?? ""), value: item.value }));
-};
 
 const hasFilters = (column: TableColumnView): boolean => filterOptionsOf(column).length > 0;
 
@@ -463,95 +446,11 @@ const normalizeColumns = (widths: Record<string, number> = columnWidthsState.pee
   return columns;
 };
 
-const compareValue = (a: unknown, b: unknown): number => {
-  if (a == null && b == null) return 0;
-  if (a == null) return -1;
-  if (b == null) return 1;
-  if (typeof a === "number" && typeof b === "number") return a - b;
-  return String(a).localeCompare(String(b), "zh-Hans-CN", { numeric: true });
-};
-
-const resolveSortValue = (
-  sortBy: TableSortBy | undefined,
-  row: TableRow,
-  index: number,
-  rows: TableRow[],
-  fallbackProp: string,
-): unknown => {
-  if (typeof sortBy === "function") {
-    try {
-      return sortBy(row, index, rows);
-    } catch {
-      return undefined;
-    }
-  }
-  return valueAtPath(row, typeof sortBy === "string" ? sortBy : fallbackProp);
-};
-
-const compareRows = (
-  left: { row: TableRow; index: number },
-  right: { row: TableRow; index: number },
-  column: TableColumnView,
-  rows: TableRow[],
-): number => {
-  const method = column.raw.sortMethod;
-  if (typeof method === "function") {
-    try {
-      return Number(method(left.row, right.row)) || 0;
-    } catch {
-      return 0;
-    }
-  }
-  const sortBy = column.raw.sortBy as TableSortBy | undefined;
-  if (Array.isArray(sortBy)) {
-    for (const path of sortBy) {
-      const result = compareValue(valueAtPath(left.row, path), valueAtPath(right.row, path));
-      if (result !== 0) return result;
-    }
-    return 0;
-  }
-  return compareValue(
-    resolveSortValue(sortBy, left.row, left.index, rows, column.prop),
-    resolveSortValue(sortBy, right.row, right.index, rows, column.prop),
-  );
-};
-
 const activeFilterColumns = (columns: TableColumnView[]): TableColumnView[] =>
-  columns.filter((column) => hasFilters(column) && filterValuesOf(column).length > 0);
+  activeTableFilterColumns(columns, filterValuesState.value);
 
-const matchesFilters = (row: TableRow, columns: TableColumnView[]): boolean => {
-  const active = activeFilterColumns(columns);
-  if (active.length === 0) return true;
-  return active.every((column) => {
-    const values = filterValuesOf(column);
-    const method = column.raw.filterMethod;
-    return values.some((value) => {
-      if (typeof method === "function") {
-        try {
-          return Boolean(method(value, row, column.raw));
-        } catch {
-          return false;
-        }
-      }
-      return filterValueKey(valueAtPath(row, column.prop)) === filterValueKey(value);
-    });
-  });
-};
-
-const sortedData = (columns: TableColumnView[], source: TableRow[]): TableRow[] => {
-  const data = [...source];
-  const prop = sortPropState.value;
-  const order = sortOrderState.value;
-  if (!prop || !order) return data;
-  const column = columns.find((item) => item.prop === prop);
-  if (column?.sortable === "custom") return data;
-  const direction = order === "ascending" ? 1 : -1;
-  if (!column) return data.sort((a, b) => compareValue(valueAtPath(a, prop), valueAtPath(b, prop)) * direction);
-  return data
-    .map((row, index) => ({ row, index }))
-    .sort((left, right) => compareRows(left, right, column, data) * direction)
-    .map(({ row }) => row);
-};
+const sortedData = (columns: TableColumnView[], source: TableRow[]): TableRow[] =>
+  sortTableRows(columns, source, sortPropState.value, sortOrderState.value);
 
 const treeConfig = () => normalizeTableTreeProps(props.treeProps);
 
@@ -613,7 +512,7 @@ const rebuildRows = (): void => {
   fastVirtualRangeKey = "";
   const columns = normalizeColumns();
   syncExternalFilters(columns);
-  const hasActiveFilters = activeFilterColumns(columns).length > 0;
+  const activeFilters = activeFilterColumns(columns);
   const tree = buildTableTree({
     roots: rawRows(),
     expandedKeys: new Set(expandedState.value),
@@ -621,7 +520,12 @@ const rebuildRows = (): void => {
     keyOf: rowKeyOf,
     isExpandable: isTreeExpandable,
     sortRows: (rows) => sortedData(columns, rows),
-    ...(hasActiveFilters ? { matchesRow: (row: TableRow) => matchesFilters(row, columns) } : {}),
+    ...(activeFilters.length > 0
+      ? {
+          matchesRow: (row: TableRow) =>
+            tableRowMatchesFilters(row, activeFilters, filterValuesState.value),
+        }
+      : {}),
   });
   const rows = tree.visible as TableRowView[];
   const allRows = tree.all as TableRowView[];
@@ -1855,14 +1759,6 @@ const isColumnResizing = (column: TableColumnView): boolean => resizeState.value
 
 const stopResizeClick = (event: MouseEvent): void => event.stopPropagation();
 
-const sortOrdersOf = (column: TableColumnView): SortOrder[] => {
-  const raw = Array.isArray(column.raw.sortOrders) ? column.raw.sortOrders : [];
-  const normalized = raw
-    .map((order): SortOrder => (order === "ascending" || order === "descending" ? order : ""))
-    .filter((order, index, orders) => orders.indexOf(order) === index) as SortOrder[];
-  return normalized.length > 0 ? normalized : ["ascending", "descending", ""];
-};
-
 const sort = (prop: string, order: SortOrder = "ascending"): void => {
   const normalizedOrder = order === "ascending" || order === "descending" ? order : "";
   sortPropState.set(prop);
@@ -1942,8 +1838,6 @@ const filterLabel = (column: TableColumnView): string => {
 
 const filterPanelLabel = (column: TableColumnView): string => locale.t("table.filterOptions", { column: column.label });
 
-const filterValueEquals = (left: unknown, right: unknown): boolean => filterValueKey(left) === filterValueKey(right);
-
 const isDraftFilterSelected = (value: unknown): boolean =>
   filterDraftState.value.some((item) => filterValueEquals(item, value));
 
@@ -1962,13 +1856,7 @@ const filterChangePayload = (): Record<string, unknown[]> =>
 
 const setAppliedFilters = (column: TableColumnView, values: unknown[], shouldEmit = true): void => {
   const key = filterKeyOf(column);
-  const allowed = filterOptionsOf(column);
-  const normalized = values.filter(
-    (value, index, source) =>
-      source.findIndex((item) => filterValueEquals(item, value)) === index &&
-      allowed.some((option) => filterValueEquals(option.value, value)),
-  );
-  const nextValues = column.raw.filterMultiple === false ? normalized.slice(0, 1) : normalized;
+  const nextValues = normalizeTableFilterValues(column, values);
   const current = filterValuesState.peek()[key] || [];
   if (filterSignature(current) === filterSignature(nextValues)) return;
   filterValuesState.set({ ...filterValuesState.peek(), [key]: nextValues });
