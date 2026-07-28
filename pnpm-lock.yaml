@@ -9,18 +9,18 @@ importers:
   .:
     dependencies:
       '@elfui/core':
-        specifier: 0.1.0-beta.11
-        version: 0.1.0-beta.11
+        specifier: 0.1.0-beta.12
+        version: 0.1.0-beta.12
       '@elfui/router':
         specifier: 0.1.0-beta.10
-        version: 0.1.0-beta.10(@elfui/core@0.1.0-beta.11)
+        version: 0.1.0-beta.10(@elfui/core@0.1.0-beta.12)
     devDependencies:
       '@elfui/compiler':
-        specifier: 0.1.0-beta.11
-        version: 0.1.0-beta.11
+        specifier: 0.1.0-beta.12
+        version: 0.1.0-beta.12
       '@elfui/vite-plugin':
-        specifier: 0.1.0-beta.11
-        version: 0.1.0-beta.11
+        specifier: 0.1.0-beta.12
+        version: 0.1.0-beta.12
       happy-dom:
         specifier: ^20.10.6
         version: 20.10.6
@@ -42,31 +42,31 @@ packages:
   '@bufbuild/protobuf@2.12.1':
     resolution: {integrity: sha512-BvAMfS6LrgZiryOAZ4pBYucu4wG/Ei/9o9DZ9akbREnMLbPJiom2i8b9C8IsKErQoiKqVhrerzt3kOT/RrzLHg==}
 
-  '@elfui/compiler-template@0.1.0-beta.11':
-    resolution: {integrity: sha512-jh1iTrHo9+9FTHCNDh6q4nkNPObJ3BBpwcDtfzKeccQhHgpFZQANr8DzoZKLwMfZu2kcf8AL17nDwiH32QeDyQ==}
+  '@elfui/compiler-template@0.1.0-beta.12':
+    resolution: {integrity: sha512-P6NXmihNkbtI7rMFS4Yuin8qmeI4KszaKri1734eIUCibazZv+9JRqIhOYOgjQ8wTjXGQcB3GkHV8CNofLWmwg==}
 
-  '@elfui/compiler@0.1.0-beta.11':
-    resolution: {integrity: sha512-f3WS60HgX/KCSufXH48TK58IJwZyFaQZuiTgObY7cVzJzEGRHa3ZrvyzIMaA7lPNn70wT23teLfiDRFOJjihjQ==}
+  '@elfui/compiler@0.1.0-beta.12':
+    resolution: {integrity: sha512-htw7xsRVvqmRmbypTpQaxO2qv2bbsY5dy07JNYikhBew+zzmuC8Xuw87cmFW6hXpyMVXTt0wviGvDjn+Q2yEHQ==}
 
-  '@elfui/core@0.1.0-beta.11':
-    resolution: {integrity: sha512-6fa5swf3f6S2Y8PggEZjFTwwNnt0Ts+SQi7OyTZm4e1kQ1ZYicBj8efAnnKLM1FyrEjGy/xJUjjj1djPkYtQOg==}
+  '@elfui/core@0.1.0-beta.12':
+    resolution: {integrity: sha512-FIywBPCUoCCtcSbxmd0v2jiRLaQZsOY6OAaFhdg53xqIuiX++eLGxvKea1QGouaJzJUnbwsfimbhgxe5epS56g==}
 
-  '@elfui/reactivity@0.1.0-beta.11':
-    resolution: {integrity: sha512-ku/FPKwi269XXfe7uLMqgKeG8QJBS80AJuFcJfoGhxtJANpnu5yqSLVyodr4HwHLsg10XhEBa9RpGcxJEsBTHw==}
+  '@elfui/reactivity@0.1.0-beta.12':
+    resolution: {integrity: sha512-823TDtDQamwp6Zu14fjMshPfjZQTTKd3308W5Qz2PsO8DCif4VDDt9awuZy4e/hZvGxkEhw3XqPeTNcoAfhilQ==}
 
   '@elfui/router@0.1.0-beta.10':
     resolution: {integrity: sha512-SlLcTqb2tYBw94TNHp0r4iFzfMB3EJhBVZuV7RxnaWKfKzYwpGrYRK04xELRuWxoSBkkeUzfQhTHeVcp+oJGzw==}
     peerDependencies:
       '@elfui/core': '>=0.1.0-beta.9 <0.2.0'
 
-  '@elfui/runtime@0.1.0-beta.11':
-    resolution: {integrity: sha512-D3pDe92XtJakiYfuHVPe8ozuFtdNXduIV4Z4mPCf5cdhVchogMLzxAjh86RdwVkyd0nmjGzhiu94/6+QuDZGTQ==}
+  '@elfui/runtime@0.1.0-beta.12':
+    resolution: {integrity: sha512-r0Rn+fmOtHMwWNzyqWVmoXvhULTy982rURKLidz9vw0/1BxIr6YenVP4ujHjAHShAkesHVdnUaknSJ1Ijsfasg==}
 
-  '@elfui/shared@0.1.0-beta.11':
-    resolution: {integrity: sha512-Gef17n+i6LkmYPA2prv22qGDIpJrWM4HPiKZiIo9sagZq5fKLebxmBCBEE8pXpWrWPiUXC5B/OBsOzo14LDyDg==}
+  '@elfui/shared@0.1.0-beta.12':
+    resolution: {integrity: sha512-8Z6LHmLM1EvfBvk+Fa7s3Cz0n6HuzFzkbP8SABdh8SowHGnQ52wiebGLyN9aU44etW1Ar1DiF6BG/5K9Ho2dEA==}
 
-  '@elfui/vite-plugin@0.1.0-beta.11':
-    resolution: {integrity: sha512-b2qIUfw41or9tBOfJdMRGmXSwGT4C6dfYlKZHHuHlay47R9HGo3gKvpZs6x2WEQn6w8RS84fUivxWs0AI4ycrw==}
+  '@elfui/vite-plugin@0.1.0-beta.12':
+    resolution: {integrity: sha512-JqXqLEZKx4lD6wYijKlZ5x0mvmHUgeuQtI5gnDnELygGOX3mHsqGc49ja7fwMb/osC8Es+IzYdfnfESzwdfcwQ==}
 
   '@esbuild/aix-ppc64@0.28.1':
     resolution: {integrity: sha512-Svl7tq8k/08+p6CXPpRjQ1fKX+1odH/BQbb48fV6fj3CWHhsoIOoY87w1oHXm0qEpkIK3ZfVgp0hed3XBXzXMQ==}
@@ -882,42 +882,42 @@ snapshots:
 
   '@bufbuild/protobuf@2.12.1': {}
 
-  '@elfui/compiler-template@0.1.0-beta.11':
+  '@elfui/compiler-template@0.1.0-beta.12':
     dependencies:
-      '@elfui/shared': 0.1.0-beta.11
+      '@elfui/shared': 0.1.0-beta.12
 
-  '@elfui/compiler@0.1.0-beta.11':
+  '@elfui/compiler@0.1.0-beta.12':
     dependencies:
-      '@elfui/compiler-template': 0.1.0-beta.11
-      '@elfui/reactivity': 0.1.0-beta.11
-      '@elfui/runtime': 0.1.0-beta.11
-      '@elfui/shared': 0.1.0-beta.11
+      '@elfui/compiler-template': 0.1.0-beta.12
+      '@elfui/reactivity': 0.1.0-beta.12
+      '@elfui/runtime': 0.1.0-beta.12
+      '@elfui/shared': 0.1.0-beta.12
       typescript: 5.9.3
 
-  '@elfui/core@0.1.0-beta.11':
+  '@elfui/core@0.1.0-beta.12':
     dependencies:
-      '@elfui/reactivity': 0.1.0-beta.11
-      '@elfui/runtime': 0.1.0-beta.11
-      '@elfui/shared': 0.1.0-beta.11
+      '@elfui/reactivity': 0.1.0-beta.12
+      '@elfui/runtime': 0.1.0-beta.12
+      '@elfui/shared': 0.1.0-beta.12
 
-  '@elfui/reactivity@0.1.0-beta.11':
+  '@elfui/reactivity@0.1.0-beta.12':
     dependencies:
-      '@elfui/shared': 0.1.0-beta.11
+      '@elfui/shared': 0.1.0-beta.12
 
-  '@elfui/router@0.1.0-beta.10(@elfui/core@0.1.0-beta.11)':
+  '@elfui/router@0.1.0-beta.10(@elfui/core@0.1.0-beta.12)':
     dependencies:
-      '@elfui/core': 0.1.0-beta.11
+      '@elfui/core': 0.1.0-beta.12
 
-  '@elfui/runtime@0.1.0-beta.11':
+  '@elfui/runtime@0.1.0-beta.12':
     dependencies:
-      '@elfui/reactivity': 0.1.0-beta.11
-      '@elfui/shared': 0.1.0-beta.11
+      '@elfui/reactivity': 0.1.0-beta.12
+      '@elfui/shared': 0.1.0-beta.12
 
-  '@elfui/shared@0.1.0-beta.11': {}
+  '@elfui/shared@0.1.0-beta.12': {}
 
-  '@elfui/vite-plugin@0.1.0-beta.11':
+  '@elfui/vite-plugin@0.1.0-beta.12':
     dependencies:
-      '@elfui/compiler': 0.1.0-beta.11
+      '@elfui/compiler': 0.1.0-beta.12
 
   '@esbuild/aix-ppc64@0.28.1':
     optional: true

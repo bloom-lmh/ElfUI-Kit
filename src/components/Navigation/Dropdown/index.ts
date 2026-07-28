@@ -3,40 +3,50 @@
 // 支持 click / hover / contextmenu、分裂按钮、嵌套子菜单、键盘触发与基础无障碍。
 
 import {
+  defineFragment,
   defineEmits,
   defineExpose,
   defineHtml,
   defineProps,
   defineStyle,
   onMounted,
-  onUnmounted,
   useClickOutside,
+  useComputed,
   useEffect,
   useEscapeKey,
   useEventListener,
   useHost,
   useHostAttr,
   useHostFlag,
-  useRef
+  useRef,
 } from "@elfui/core";
 
 import styles from "./style.scss?inline";
 import { computeAnchoredPosition, listenForExternalOverlayMotion } from "../../Common/anchored-overlay";
 import { useLocaleProvider } from "../../Providers/context";
+import {
+  asStringList,
+  cssSize,
+  DEFAULT_TRIGGER_KEYS,
+  normalizeItems,
+  positiveDelay,
+  resolveButtonType,
+  resolveFieldNames,
+  resolvePopperConfig,
+  resolveSize,
+  resolveTriggers,
+  toStyleObject,
+} from "./model";
+import type { DropdownViewItem } from "./model";
 import type {
-  DropdownButtonType,
   DropdownCommand,
   DropdownCommandDetail,
   DropdownEmits,
   DropdownFieldNames,
   DropdownItem,
   DropdownPlacement,
-  DropdownPopperModifier,
-  DropdownPopperOptions,
   DropdownProps,
-  DropdownSize,
   DropdownSlots,
-  DropdownTrigger,
   DropdownTriggerMode,
   DropdownVirtualRef,
 } from "./types";
@@ -68,114 +78,6 @@ export type {
 } from "./types";
 
 const DROPDOWN_OPEN_EVENT = "elf-dropdown-open";
-
-const DEFAULT_FIELDS: Required<DropdownFieldNames> = {
-  label: "label",
-  command: "command",
-  icon: "icon",
-  disabled: "disabled",
-  divided: "divided",
-  shortcut: "shortcut",
-  children: "children",
-};
-
-const BUTTON_TYPES = new Set<DropdownButtonType>(["primary", "success", "warning", "danger", "info"]);
-
-const DEFAULT_TRIGGER_KEYS = ["Enter", " ", "Space", "ArrowDown", "NumpadEnter"];
-const TRIGGER_MODES = new Set<DropdownTriggerMode>(["click", "hover", "contextmenu"]);
-
-type RawItem = Record<string, unknown>;
-
-interface ViewItem {
-  raw: RawItem;
-  key: string;
-  label: string;
-  command: DropdownCommand;
-  icon: string;
-  disabled: boolean;
-  divided: boolean;
-  shortcut: string;
-  children: ViewItem[];
-}
-
-// ─── pure helpers ───────────────────────────────────────────
-
-const resolveFieldNames = (partial?: DropdownFieldNames | null): Required<DropdownFieldNames> => {
-  const o = partial || {};
-  return {
-    label: o.label || DEFAULT_FIELDS.label,
-    command: o.command || DEFAULT_FIELDS.command,
-    icon: o.icon || DEFAULT_FIELDS.icon,
-    disabled: o.disabled || DEFAULT_FIELDS.disabled,
-    divided: o.divided || DEFAULT_FIELDS.divided,
-    shortcut: o.shortcut || DEFAULT_FIELDS.shortcut,
-    children: o.children || DEFAULT_FIELDS.children,
-  };
-};
-
-const normalizeItems = (source: unknown[], fields: Required<DropdownFieldNames>, path = ""): ViewItem[] =>
-  source.map((raw, index) => {
-    const item = (raw || {}) as RawItem;
-    const childSource = Array.isArray(item[fields.children]) ? (item[fields.children] as unknown[]) : [];
-    const label = String(item[fields.label] ?? item[fields.command] ?? index);
-    const command = (item[fields.command] ?? label) as DropdownCommand;
-    const commandKey = typeof command === "object" ? String(index) : String(command || index);
-    const key = path ? `${path}/${commandKey}` : commandKey;
-    return {
-      raw: item,
-      key,
-      label,
-      command,
-      icon: String(item[fields.icon] ?? ""),
-      disabled: Boolean(item[fields.disabled]),
-      divided: Boolean(item[fields.divided]),
-      shortcut: String(item[fields.shortcut] ?? ""),
-      children: normalizeItems(childSource, fields, key),
-    };
-  });
-
-const toStyleObject = (value: unknown): Record<string, string> => {
-  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
-  return Object.fromEntries(
-    Object.entries(value as Record<string, string | number>).map(([key, item]) => [key, String(item)]),
-  );
-};
-
-const resolveTriggers = (value: unknown): DropdownTriggerMode[] => {
-  const source = Array.isArray(value) ? value : [value || "click"];
-  const resolved = source.map((item) => String(item) as DropdownTriggerMode).filter((item) => TRIGGER_MODES.has(item));
-  return resolved.length > 0 ? Array.from(new Set(resolved)) : ["click"];
-};
-
-const resolvePlacement = (value: unknown): DropdownPlacement => {
-  const next = String(value || "bottom-start");
-  return next === "bottom" || next === "bottom-end" || next === "top" || next === "top-start" || next === "top-end"
-    ? next
-    : "bottom-start";
-};
-
-const resolveButtonType = (value: unknown): DropdownButtonType => {
-  const next = String(value || "default") as DropdownButtonType;
-  return BUTTON_TYPES.has(next) ? next : "default";
-};
-
-const resolveSize = (value: unknown): DropdownSize => {
-  const next = String(value || "md");
-  if (next === "small") return "sm";
-  if (next === "large") return "lg";
-  if (next === "default") return "md";
-  return next === "sm" || next === "lg" ? next : "md";
-};
-
-const asStringList = (value: unknown, fallback: string[]): string[] =>
-  Array.isArray(value) ? value.map((key) => String(key)) : fallback;
-
-const positiveDelay = (value: unknown): number => Math.max(0, Number(value) || 0);
-
-const cssSize = (value: unknown, fallback: string): string => {
-  if (value == null || value === "") return fallback;
-  return typeof value === "number" ? `${Math.max(0, value)}px` : String(value);
-};
 
 // ─── component setup ────────────────────────────────────────
 
@@ -245,41 +147,45 @@ let mounted = false;
 
 const isDisabled = (): boolean => Boolean(props.disabled);
 
-const triggerModes = (): DropdownTriggerMode[] => resolveTriggers(props.trigger);
+const triggerModes = useComputed(() => resolveTriggers(props.trigger));
 
-const hasTrigger = (mode: DropdownTriggerMode): boolean => triggerModes().includes(mode);
+const hasTrigger = (mode: DropdownTriggerMode): boolean => triggerModes.value.includes(mode);
 
-const popperOptions = (): DropdownPopperOptions =>
-  props.popperOptions && typeof props.popperOptions === "object" ? (props.popperOptions as DropdownPopperOptions) : {};
+const popperConfig = useComputed(() => resolvePopperConfig(props.popperOptions, props.placement));
 
-const placement = (): DropdownPlacement => resolvePlacement(popperOptions().placement || props.placement);
+const placement = (): DropdownPlacement => popperConfig.value.placement;
 
-const size = (): DropdownSize => resolveSize(props.size);
+const size = useComputed(() => resolveSize(props.size));
 
-const buttonType = (): DropdownButtonType => resolveButtonType(props.type);
+const buttonType = useComputed(() => resolveButtonType(props.type));
 
-const fieldNames = (): Required<DropdownFieldNames> => resolveFieldNames(props.props as DropdownFieldNames | undefined);
+const fieldNames = useComputed(() => resolveFieldNames(props.props as DropdownFieldNames | undefined));
 
-const viewItems = (): ViewItem[] => normalizeItems(Array.isArray(props.items) ? props.items : [], fieldNames());
+const viewItems = useComputed(() => normalizeItems(Array.isArray(props.items) ? props.items : [], fieldNames.value));
 
-const triggerKeys = (): string[] => asStringList(props.triggerKeys, DEFAULT_TRIGGER_KEYS);
+const triggerKeys = useComputed(() => asStringList(props.triggerKeys, DEFAULT_TRIGGER_KEYS));
 
-const buttonPropsMap = (): Record<string, unknown> =>
-  props.buttonProps && typeof props.buttonProps === "object" ? (props.buttonProps as Record<string, unknown>) : {};
+const buttonPropsMap = useComputed<Record<string, unknown>>(() =>
+  props.buttonProps && typeof props.buttonProps === "object" ? (props.buttonProps as Record<string, unknown>) : {},
+);
 
-const buttonDisabled = (): boolean => isDisabled() || Boolean(buttonPropsMap().disabled);
+const buttonDisabled = useComputed(() => isDisabled() || Boolean(buttonPropsMap.value.disabled));
 
-const buttonClass = (base: string): unknown[] => [base, `is-${buttonType()}`, String(buttonPropsMap().class || "")];
+const buttonClass = (base: string): unknown[] => [
+  base,
+  `is-${buttonType.value}`,
+  String(buttonPropsMap.value.class || ""),
+];
 
-const buttonStyle = (): Record<string, string> => toStyleObject(buttonPropsMap().style);
+const buttonStyle = useComputed(() => toStyleObject(buttonPropsMap.value.style));
 
-const menuStyle = (): Record<string, string> => ({
+const menuStyle = useComputed<Record<string, string>>(() => ({
   "--dropdown-max-height": cssSize(props.maxHeight, "280px"),
   ...toStyleObject(props.popperStyle),
   ...(props.virtualTriggering || props.teleported ? overlayStyle.value : {}),
-});
+}));
 
-const menuClass = (): unknown[] => [
+const menuClass = useComputed<unknown[]>(() => [
   "menu",
   {
     "is-open": open.value,
@@ -289,19 +195,29 @@ const menuClass = (): unknown[] => [
     "is-teleported": Boolean(props.teleported),
   },
   String(props.popperClass || ""),
-];
+]);
 
-const shouldRenderMenu = (): boolean => Boolean(props.persistent) || open.value;
+const shouldRenderMenu = useComputed(() => Boolean(props.persistent) || open.value);
 
-const shouldRenderTrigger = (): boolean => !props.virtualTriggering;
+const shouldRenderTrigger = useComputed(() => !props.virtualTriggering);
+
+const isSplitButton = useComputed(() => Boolean(props.splitButton));
+
+const triggerTabindex = useComputed(() => Number(props.tabindex) || 0);
+
+const showsArrow = useComputed(() => Boolean(props.showArrow));
+
+const popoverMode = useComputed(() => (props.teleported ? "manual" : undefined));
+
+const appendTargetLabel = useComputed(() => (typeof props.appendTo === "string" ? props.appendTo : "element"));
 
 const hasCompositionalMenu = (): boolean => Boolean(host.querySelector("elf-dropdown-menu"));
 
 const menuRole = (): string => (hasCompositionalMenu() ? "presentation" : String(props.role || "menu"));
 
-const triggerLabel = (): string => selectedLabel.value || String(props.label || locale.t("menu.label"));
+const triggerLabel = useComputed(() => selectedLabel.value || String(props.label || locale.t("menu.label")));
 
-const isSelected = (item: ViewItem): boolean =>
+const isSelected = (item: DropdownViewItem): boolean =>
   selectedCommand.value !== null && item.command === selectedCommand.value;
 
 const virtualRef = (): DropdownVirtualRef | null => {
@@ -314,20 +230,6 @@ const triggerElement = (): HTMLElement | null =>
 
 const anchorReference = (): DropdownVirtualRef | HTMLElement | null =>
   props.virtualTriggering ? virtualRef() : triggerElement();
-
-const modifier = (name: string): DropdownPopperModifier | undefined => {
-  const modifiers = popperOptions().modifiers;
-  return (Array.isArray(modifiers) ? modifiers : []).find((item) => item?.name === name);
-};
-
-const offset = (): [number, number] => {
-  const value = modifier("offset")?.options?.offset;
-  return Array.isArray(value) && value.length >= 2 ? [Number(value[0]) || 0, Number(value[1]) || 0] : [0, 6];
-};
-
-const overflowPadding = (): number => Math.max(0, Number(modifier("preventOverflow")?.options?.padding) || 8);
-
-const flipEnabled = (): boolean => modifier("flip")?.enabled !== false;
 
 // ─── open / close ───────────────────────────────────────────
 
@@ -392,9 +294,9 @@ const updateOverlayPosition = (): void => {
     viewport,
     {
       placement: placement(),
-      offset: offset(),
-      padding: overflowPadding(),
-      flip: flipEnabled(),
+      offset: popperConfig.value.offset,
+      padding: popperConfig.value.overflowPadding,
+      flip: popperConfig.value.flip,
     },
   );
   resolvedPlacement.set(next.placement);
@@ -452,9 +354,8 @@ const deepestActiveElement = (): HTMLElement | null => {
 
 const restoreFocusBeforeClose = (): void => {
   const activeElement = deepestActiveElement();
-  const focusIsInMenu = activeElement && getFocusableItems().some(
-    (item) => item === activeElement || item.contains(activeElement),
-  );
+  const focusIsInMenu =
+    activeElement && getFocusableItems().some((item) => item === activeElement || item.contains(activeElement));
   if (!focusIsInMenu) return;
 
   const target = anchorReference();
@@ -535,7 +436,7 @@ const onTriggerClick = (event: Event): void => {
 
 const onTriggerKeydown = (event: KeyboardEvent): void => {
   if (isDisabled()) return;
-  if (!triggerKeys().includes(event.key)) return;
+  if (!triggerKeys.value.includes(event.key)) return;
   event.preventDefault();
   show();
 };
@@ -565,7 +466,7 @@ const onMainClick = (event: Event): void => {
   emit("click", event);
 };
 
-const onItemClick = (item: ViewItem, event?: Event): void => {
+const onItemClick = (item: DropdownViewItem, event?: Event): void => {
   event?.preventDefault();
   event?.stopPropagation();
   if (item.disabled || item.children.length > 0) return;
@@ -725,8 +626,8 @@ const connectAnchoredOverlay = (): void => {
 useHostFlag("data-open", () => open.value);
 useHostFlag("data-virtual-triggering", () => Boolean(props.virtualTriggering));
 useHostFlag("disabled", isDisabled);
-useHostAttr("size", size);
-useHostAttr("type", buttonType);
+useHostAttr("size", () => size.value);
+useHostAttr("type", () => buttonType.value);
 useHostAttr("effect", () => String(props.effect || "light"));
 useHostAttr("placement", placement);
 
@@ -780,14 +681,14 @@ onMounted(() => {
   mounted = true;
   connectVirtualTrigger();
   connectAnchoredOverlay();
-});
 
-onUnmounted(() => {
-  mounted = false;
-  clearHoverTimers();
-  cleanupVirtualTrigger();
-  cleanupAnchoredOverlay();
-  if (overlayFrame) cancelAnimationFrame(overlayFrame);
+  return () => {
+    mounted = false;
+    clearHoverTimers();
+    cleanupVirtualTrigger();
+    cleanupAnchoredOverlay();
+    if (overlayFrame) cancelAnimationFrame(overlayFrame);
+  };
 });
 
 defineExpose({
@@ -795,74 +696,81 @@ defineExpose({
   closeMenu: handleClose,
   toggleMenu: toggle,
 });
-defineStyle(styles);
 
-// ─── template ───────────────────────────────────────────────
+// ─── view fragments ─────────────────────────────────────────
 
-const Dropdown = defineHtml<DropdownProps, DropdownEmits, DropdownSlots>(`
-  <div class="dropdown" @mouseenter=${onMouseEnter} @mouseleave=${onMouseLeave} @contextmenu=${onContextMenu}>
+const StandardTrigger = defineFragment(
+  () => `
     <button
-      v-if=${shouldRenderTrigger() && !props.splitButton}
+      v-if=${shouldRenderTrigger && !isSplitButton}
       :class=${buttonClass("trigger")}
-      :style=${buttonStyle()}
+      :style=${buttonStyle}
       part="trigger"
       type="button"
-      :disabled=${buttonDisabled()}
+      :disabled=${buttonDisabled}
       :aria-expanded=${open ? "true" : "false"}
       aria-haspopup="menu"
-      :tabindex=${props.tabindex}
+      :tabindex=${triggerTabindex}
       @click=${onTriggerClick}
       @keydown=${onTriggerKeydown}
     >
       <slot>
         <slot name="trigger">
-          <span class="label">${triggerLabel()}</span>
-          <span class="arrow" v-if=${props.showArrow} aria-hidden="true">▼</span>
+          <span class="label">${triggerLabel}</span>
+          <span class="arrow" v-if=${showsArrow} aria-hidden="true">▼</span>
         </slot>
       </slot>
     </button>
+  `,
+);
 
-    <template v-if=${shouldRenderTrigger() && props.splitButton}>
+const SplitTrigger = defineFragment(
+  () => `
+    <template v-if=${shouldRenderTrigger && isSplitButton}>
       <button
         :class=${buttonClass("split-main")}
-        :style=${buttonStyle()}
+        :style=${buttonStyle}
         part="main"
         type="button"
-        :disabled=${buttonDisabled()}
+        :disabled=${buttonDisabled}
         @click=${onMainClick}
       >
-        <slot><slot name="main">${triggerLabel()}</slot></slot>
+        <slot><slot name="main">${triggerLabel}</slot></slot>
       </button>
       <button
         :class=${buttonClass("split-toggle")}
         part="trigger"
         type="button"
-        :disabled=${buttonDisabled()}
+        :disabled=${buttonDisabled}
         :aria-expanded=${open ? "true" : "false"}
         aria-haspopup="menu"
-        :tabindex=${props.tabindex}
+        :tabindex=${triggerTabindex}
         @click=${onTriggerClick}
         @keydown=${onTriggerKeydown}
         :aria-label=${locale.t("menu.expand")}
       >
-        <span class="arrow" v-if=${props.showArrow} aria-hidden="true">▼</span>
+        <span class="arrow" v-if=${showsArrow} aria-hidden="true">▼</span>
       </button>
     </template>
+  `,
+);
 
+const MenuPanel = defineFragment(
+  () => `
     <div
-      v-if=${shouldRenderMenu()}
-      :class=${menuClass()}
-      :style=${menuStyle()}
+      v-if=${shouldRenderMenu}
+      :class=${menuClass}
+      :style=${menuStyle}
       part="menu"
-      :popover=${props.teleported ? "manual" : undefined}
-      :data-append-to=${typeof props.appendTo === "string" ? props.appendTo : "element"}
+      :popover=${popoverMode}
+      :data-append-to=${appendTargetLabel}
       :role=${menuRole()}
       :aria-hidden=${open ? "false" : "true"}
       :inert=${open ? undefined : ""}
       @keydown=${onMenuKeydown}
     >
       <slot name="dropdown">
-        <template v-for="item in viewItems()" :key="item.key">
+        <template v-for="item in viewItems" :key="item.key">
           <div v-if="item.children.length > 0" :class="['sub', { 'is-divided': item.divided }]">
             <button
               type="button"
@@ -920,6 +828,18 @@ const Dropdown = defineHtml<DropdownProps, DropdownEmits, DropdownSlots>(`
         </template>
       </slot>
     </div>
+  `,
+);
+
+defineStyle(styles);
+
+// ─── root template ──────────────────────────────────────────
+
+const Dropdown = defineHtml<DropdownProps, DropdownEmits, DropdownSlots>(`
+  <div class="dropdown" @mouseenter=${onMouseEnter} @mouseleave=${onMouseLeave} @contextmenu=${onContextMenu}>
+    <StandardTrigger />
+    <SplitTrigger />
+    <MenuPanel />
   </div>
 `);
 
