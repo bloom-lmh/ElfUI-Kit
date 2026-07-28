@@ -45,6 +45,10 @@ import type {
   TableTooltipPlacement,
 } from "./types";
 import {
+  getTableColumnSize,
+  normalizeTableColumns,
+} from "./column-model";
+import {
   activeTableFilterColumns,
   getTableValueAtPath as valueAtPath,
   normalizeTableFilterOptions as filterOptionsOf,
@@ -316,7 +320,7 @@ const cssSizeNumber = (value: string): number => {
 };
 
 const columnSize = (column: TableColumnView, widths: Record<string, number> = columnWidthsState.peek()): number =>
-  widths[column.id] || cssSizeNumber(column.width || column.minWidth || "120px") || 120;
+  getTableColumnSize(column, widths);
 
 const columnWidth = (column: TableColumnView): string => `${columnSize(column)}px`;
 
@@ -336,6 +340,14 @@ const rawColumns = (): Record<string, unknown>[] =>
   Array.isArray(props.columns) ? (props.columns as Record<string, unknown>[]) : [];
 
 const rawRows = (): TableRow[] => (Array.isArray(props.data) ? (props.data as TableRow[]) : []);
+
+const normalizeColumns = (widths: Record<string, number> = columnWidthsState.peek()): TableColumnView[] =>
+  normalizeTableColumns({
+    columns: rawColumns(),
+    firstRow: rawRows()[0],
+    widths,
+    actionsLabel: locale.t("table.actions"),
+  });
 
 const hasFilters = (column: TableColumnView): boolean => filterOptionsOf(column).length > 0;
 
@@ -366,84 +378,6 @@ const syncExternalFilters = (columns: TableColumnView[]): void => {
     changed = true;
   }
   if (changed) filterValuesState.set(next);
-};
-
-const normalizeColumns = (widths: Record<string, number> = columnWidthsState.peek()): TableColumnView[] => {
-  const source = rawColumns();
-  if (source.length === 0) {
-    const first = rawRows()[0] || {};
-    return Object.keys(first).map((key) => ({
-      id: key,
-      prop: key,
-      label: key,
-      type: "default",
-      width: "",
-      minWidth: "120px",
-      align: "left",
-      headerAlign: "left",
-      sortable: false,
-      fixed: "",
-      fixedOffset: "",
-      fixedLast: false,
-      raw: { prop: key, label: key },
-    }));
-  }
-
-  const columns: TableColumnView[] = source.map((column, index) => {
-    const type = String(column.type || "default") as TableColumnView["type"];
-    const prop = String(column.prop || (type === "default" ? `column_${index}` : type));
-    const normalizedType: TableColumnView["type"] =
-      type === "selection" || type === "index" || type === "expand" || type === "actions" ? type : "default";
-    return {
-      id: String(column.id || prop || index),
-      prop,
-      label: String(
-        column.label ||
-          (type === "selection" || type === "expand"
-            ? ""
-            : type === "index"
-              ? "#"
-              : type === "actions"
-                ? locale.t("table.actions")
-                : prop),
-      ),
-      type: normalizedType,
-      width: cssSize(column.width),
-      minWidth: cssSize(
-        column.minWidth ||
-          (type === "selection" || type === "expand" ? 48 : type === "index" ? 64 : type === "actions" ? 140 : 120),
-      ),
-      align: column.align === "center" || column.align === "right" ? column.align : "left",
-      headerAlign:
-        column.headerAlign === "center" || column.headerAlign === "right"
-          ? column.headerAlign
-          : column.align === "center" || column.align === "right"
-            ? column.align
-            : "left",
-      sortable: column.sortable === "custom" ? "custom" : Boolean(column.sortable),
-      fixed: column.fixed === "left" || column.fixed === "right" ? column.fixed : "",
-      fixedOffset: "",
-      fixedLast: false,
-      raw: column,
-    };
-  });
-  let left = 0;
-  for (const column of columns) {
-    if (column.fixed !== "left") continue;
-    column.fixedOffset = `${left}px`;
-    left += columnSize(column, widths);
-  }
-  let right = 0;
-  for (const column of [...columns].reverse()) {
-    if (column.fixed !== "right") continue;
-    column.fixedOffset = `${right}px`;
-    right += columnSize(column, widths);
-  }
-  const leftFixed = columns.filter((column) => column.fixed === "left");
-  const rightFixed = columns.filter((column) => column.fixed === "right");
-  if (leftFixed.length > 0) leftFixed[leftFixed.length - 1]!.fixedLast = true;
-  if (rightFixed.length > 0) rightFixed[0]!.fixedLast = true;
-  return columns;
 };
 
 const activeFilterColumns = (columns: TableColumnView[]): TableColumnView[] =>
@@ -938,14 +872,7 @@ const cellStyle = (column: TableColumnView, row: TableRowView): StyleValue => {
 
 const fixedStyle = (column: TableColumnView): Record<string, string> => {
   if (!column.fixed) return {};
-  const columns = getColumns();
-  const index = columns.findIndex((item) => item.id === column.id);
-  const adjacent =
-    column.fixed === "left"
-      ? columns.slice(0, Math.max(0, index)).filter((item) => item.fixed === "left")
-      : columns.slice(index + 1).filter((item) => item.fixed === "right");
-  const offset = adjacent.reduce((sum, item) => sum + columnSize(item), 0);
-  return { [column.fixed]: `${offset}px` };
+  return { [column.fixed]: column.fixedOffset };
 };
 
 const headerCellStyle = (column: TableColumnView): StyleValue => ({
