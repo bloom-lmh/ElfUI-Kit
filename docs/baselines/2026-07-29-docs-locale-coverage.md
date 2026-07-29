@@ -12,10 +12,10 @@ pnpm docs:locale-audit
 
 | Surface | Localized | Total | Missing |
 | --- | ---: | ---: | ---: |
-| Page entries | 52 | 87 | 35 |
+| Page entries | 53 | 87 | 34 |
 | Examples | 200 | 342 | 142 |
 | Props/API files | 36 | 65 | 29 |
-| Total | 288 | 494 | 206 |
+| Total | 289 | 494 | 205 |
 
 The audit counts explicit `createDocsTranslator()` / `createDocsPicker()` participation. It does not treat component names, API identifiers, CSS values, or source code syntax as untranslated prose.
 
@@ -28,6 +28,7 @@ The following routes were switched in the running application and recursively sc
 - `/layout/grid`
 - `/layout/flex`
 - `/layout/shell`
+- `/layout/masonry`
 - `/feedback/alert`
 - `/feedback/dialog`
 - `/feedback/drawer`
@@ -47,6 +48,8 @@ For each route, English mode returned no Han text in visible content or localize
 Container covers the page entry, both example files, runtime copy, Template / Script, Props, Slots, and a focused Chinese / strict-English test (1 file / 2 tests). Its page class was mounted under the running application's existing provider tree for Material / Midnight and 1440px / 390px browser verification, producing no untranslated English-mode text, warnings, or errors. The current `/layout/container` route still loads `GridPage`; this route ownership issue is recorded for Thread A and was not worked around in page source.
 
 LayoutShell covers eight distinct application structures, including localized semantic region labels in both the live diagrams and Template source, plus complete Props and Slots descriptions. Its focused page suite passes 1 file / 4 tests, and the formal route passed strict English Shadow DOM scanning plus Material / Midnight desktop and mobile visual checks with 0 warnings and 0 errors.
+
+Masonry localizes all seven card titles and metadata values, status copy, Script data, Props, and Slots. Its focused page suite passes 1 file / 3 tests, and the formal route passed strict English Shadow DOM scanning with 0 warnings and 0 errors.
 
 ## Remaining gate
 
