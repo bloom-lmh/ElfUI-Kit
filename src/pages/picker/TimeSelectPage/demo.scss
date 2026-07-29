@@ -1,0 +1,39 @@
+:host {
+  display: block;
+}
+
+.demo-field {
+  width: min(100%, 360px);
+  margin-inline: auto;
+}
+
+.demo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: var(--elf-space-4);
+  width: min(100%, 720px);
+  margin-inline: auto;
+}
+
+.demo-card {
+  display: grid;
+  align-content: start;
+  gap: var(--elf-space-2);
+  min-width: 0;
+  padding: var(--elf-space-4);
+  border: 1px solid var(--elf-border);
+  border-radius: var(--elf-radius-md);
+  background: var(--elf-bg-paper);
+}
+
+.demo-card > strong {
+  color: var(--elf-text-primary);
+  font-size: var(--elf-font-size-sm);
+}
+
+.demo-card > small,
+.demo-state {
+  color: var(--elf-text-secondary);
+  font-size: var(--elf-font-size-xs);
+  line-height: 1.5;
+}

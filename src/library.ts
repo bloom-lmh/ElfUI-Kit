@@ -27,6 +27,7 @@ export * from "./components/Data";
 export * from "./components/Feedback";
 export * from "./components/Form";
 export * from "./components/Layout";
+export * from "./components/Picker";
 export * from "./components/Providers";
 export * from "./composables";
 export * from "./directives";

@@ -345,6 +345,10 @@ export const routes: RouteRecord[] = [
     component: () => import("../pages/picker/TimePickerPage/index")
   },
   {
+    path: "/picker/time-select",
+    component: () => import("../pages/picker/TimeSelectPage/index")
+  },
+  {
     path: "/picker/calendar",
     component: () => import("../pages/picker/CalendarPage/index")
   },
@@ -475,6 +479,7 @@ export const navItems: NavItem[] = [
   { to: "/picker/color", text: "ColorPicker 颜色", group: "Picker 选择器" },
   { to: "/picker/date", text: "DatePicker 日期", group: "Picker 选择器" },
   { to: "/picker/time", text: "TimePicker 时间", group: "Picker 选择器" },
+  { to: "/picker/time-select", text: "TimeSelect 时间选择", group: "Picker 选择器" },
   { to: "/picker/calendar", text: "Calendar 日历", group: "Picker 选择器" },
 
   { to: "/utilities", text: "Utilities 工具类", group: "Utilities 工具类" }
