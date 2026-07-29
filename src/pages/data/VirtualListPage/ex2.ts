@@ -2,7 +2,7 @@ import { defineHtml } from "@elfui/core";
 import { createDocsTranslator } from "../../docsLocale";
 
 const t = createDocsTranslator({
-  section: { zh: "VirtualList 虚拟列表", en: "VirtualList" },
+  section: { zh: "虚拟列表", en: "VirtualList" },
   title: { zh: "10,000 条构建任务与自定义行", en: "10,000 build tasks with custom rows" },
   task: { zh: "构建任务", en: "Build task" },
   running: { zh: "运行中", en: "Running" },

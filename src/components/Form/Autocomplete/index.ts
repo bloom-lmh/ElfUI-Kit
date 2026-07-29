@@ -16,7 +16,11 @@ import {
 
 import { useDisabled, useFormControl, useFormItem } from "../../../composables";
 import { useDismissibleOverlay } from "../../../composables/useDismissibleOverlay";
-import { computeAnchoredPosition, listenForExternalOverlayMotion } from "../../Common/anchored-overlay";
+import {
+    computeAnchoredPosition,
+    connectAnchoredOverlayLifecycle,
+    readOverlayViewport,
+} from "../../Common/overlay/anchored-overlay";
 import styles from "./style.scss?inline";
 import { normalizeFieldVariant } from "../../../types/field";
 import type {
@@ -503,19 +507,13 @@ const updateOverlayPosition = (): void => {
         return;
     }
     const panelRect = panel.getBoundingClientRect();
-    const visualViewport = window.visualViewport;
     const width = props.fitInputWidth
         ? anchorRect.width
         : Math.max(anchorRect.width, panelRect.width || panel.offsetWidth || 240);
     const next = computeAnchoredPosition(
         anchorRect,
         { width, height: panelRect.height || panel.offsetHeight || 0 },
-        {
-            width: visualViewport?.width || window.innerWidth,
-            height: visualViewport?.height || window.innerHeight,
-            offsetLeft: visualViewport?.offsetLeft || 0,
-            offsetTop: visualViewport?.offsetTop || 0,
-        },
+        readOverlayViewport(),
         {
             placement: placement(),
             offset: offset(),
@@ -566,21 +564,12 @@ const connectAnchoredOverlay = (): void => {
 
     const input = getInputEl();
     const panel = getPanelEl();
-    const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(requestOverlayUpdate) : undefined;
-    if (input) observer?.observe(input);
-    if (panel) observer?.observe(panel);
-
-    const cleanupOverlayMotion = listenForExternalOverlayMotion(() => [panel], close);
-
-    window.addEventListener("resize", requestOverlayUpdate, { passive: true });
-    window.visualViewport?.addEventListener("resize", requestOverlayUpdate, { passive: true });
-
-    cleanupAnchoredOverlay = () => {
-        observer?.disconnect();
-        cleanupOverlayMotion();
-        window.removeEventListener("resize", requestOverlayUpdate);
-        window.visualViewport?.removeEventListener("resize", requestOverlayUpdate);
-    };
+    cleanupAnchoredOverlay = connectAnchoredOverlayLifecycle({
+        resizeTargets: [input, panel],
+        motionContainers: () => [panel],
+        onResize: requestOverlayUpdate,
+        onExternalMotion: close,
+    });
     syncTopLayer();
     requestOverlayUpdate();
 };

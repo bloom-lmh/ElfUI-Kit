@@ -1,5 +1,10 @@
 # Notification alignment plan
 
+## 2026-07-29 detached service locale
+
+- [x] Document-level Notification hosts use the default locale context backed by `document.documentElement.lang`, without duplicating locale state in the service singleton.
+- [x] Keep the detached close-button label covered by an English regression test.
+
 ## Completed
 
 - [x] Typed service API, four positions, timed/manual close, stacking and `closeAll`.

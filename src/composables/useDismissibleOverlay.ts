@@ -2,13 +2,17 @@ import {
   onBeforeUnmount,
   onMounted,
 } from "@elfui/core";
-import { isEventInside } from "../components/Common/anchored-overlay";
+import { isEventInside } from "../components/Common/overlay/anchored-overlay";
 import {
   createOverlayInteractionController,
   type OverlayInteractionController,
-} from "../components/Common/overlay-interaction-controller";
+} from "../components/Common/overlay/overlay-interaction-controller";
+import type { OverlayCloseReason } from "../components/Common/overlay/overlay-protocol";
 
-export type DismissibleOverlayCloseReason = "escape" | "outside";
+export type DismissibleOverlayCloseReason = Extract<
+  OverlayCloseReason,
+  "escape" | "outside"
+>;
 
 export interface UseDismissibleOverlayOptions {
   kind: string;

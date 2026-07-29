@@ -8,9 +8,9 @@ import { PageFlexEx4 } from "./ex4";
 import { PageFlexProps } from "./props";
 
 const t = createDocsTranslator({
-  title: { zh: "Flex 弹性布局", en: "Flex layout" },
+  title: { zh: "弹性布局", en: "Flex layout" },
   description: {
-    zh: "一个页面覆盖 Flex、Spacer 与 Space 兼容输入，以统一编号结构图展示方向、对齐、换行和空间分配。",
+    zh: "一个页面覆盖弹性容器、剩余空间项与间距兼容输入，以统一编号结构图展示方向、对齐、换行和空间分配。",
     en: "One page covers Flex, Spacer, and Space-compatible inputs with consistent numbered diagrams for direction, alignment, wrapping, and space distribution."
   }
 });

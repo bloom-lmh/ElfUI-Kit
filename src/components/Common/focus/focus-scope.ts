@@ -5,7 +5,7 @@ const FOCUSABLE_SELECTOR = [
   "select:not([disabled])",
   "textarea:not([disabled])",
   "[tabindex]:not([tabindex='-1'])",
-  "[contenteditable='true']"
+  "[contenteditable='true']",
 ].join(",");
 
 const isFocusable = (element: HTMLElement): boolean =>

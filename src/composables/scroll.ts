@@ -68,6 +68,24 @@ export const resolveScrollTarget = (
     : null;
 };
 
+const composedParent = (element: Element): HTMLElement | null => {
+  if (element.parentElement) return element.parentElement;
+  const root = element.getRootNode();
+  return root instanceof ShadowRoot ? root.host as HTMLElement : null;
+};
+
+export const findScrollContainer = (element: Element): HTMLElement | null => {
+  let current = composedParent(element);
+  while (current && current !== document.documentElement) {
+    const overflowY = getComputedStyle(current).overflowY;
+    if (/(auto|scroll|overlay)/.test(overflowY) && current.scrollHeight > current.clientHeight) {
+      return current;
+    }
+    current = composedParent(current);
+  }
+  return null;
+};
+
 export const getScrollPosition = (
   container: ScrollContainer,
   axis: ScrollAxis = "y",

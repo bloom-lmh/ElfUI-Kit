@@ -12,6 +12,9 @@ import {
 } from "@elfui/core";
 
 import { useLocaleProvider } from "../../Providers/context";
+import { useGoTo } from "../../../composables/useGoTo";
+import { findScrollContainer } from "../../../composables/scroll";
+import type { GoToTask } from "../../../composables/goTo";
 import styles from "./style.scss?inline";
 import type { DocsTocEmits, DocsTocProps } from "./types";
 
@@ -34,6 +37,7 @@ const props = defineProps<DocsTocProps>({
 const emit = defineEmits<DocsTocEmits>();
 const host = useHost();
 const locale = useLocaleProvider();
+const goTo = useGoTo();
 
 const items = useRef<readonly TocItem[]>([]);
 const activeId = useRef("");
@@ -45,6 +49,7 @@ let intersectionObserver: IntersectionObserver | undefined;
 let frame = 0;
 let removeRootClickListener = (): void => {};
 let scrollContainer: HTMLElement | null = null;
+let navigationTask: GoToTask | null = null;
 
 const tocLabel = (): string => props.label ||
   (locale.name.toLowerCase().startsWith("en") ? "On this page" : "本页目录");
@@ -236,39 +241,22 @@ const scheduleRefresh = (delay = 0): void => {
   refreshTimers.push(timer);
 };
 
-const composedParent = (element: HTMLElement): HTMLElement | null => {
-  if (element.parentElement) return element.parentElement;
-  const root = element.getRootNode();
-  return root instanceof ShadowRoot ? root.host as HTMLElement : null;
-};
-
-const findScrollContainer = (element: HTMLElement): HTMLElement | null => {
-  let current = composedParent(element);
-  while (current && current !== document.documentElement) {
-    const overflowY = getComputedStyle(current).overflowY;
-    if (/(auto|scroll|overlay)/.test(overflowY) && current.scrollHeight > current.clientHeight) {
-      return current;
-    }
-    current = composedParent(current);
-  }
-  return null;
-};
-
 const navigate = (id: string): void => {
   const heading = headingElements.get(id);
   if (!heading) return;
   activeId.set(id);
   const container = findScrollContainer(heading);
-  if (container && typeof container.scrollTo === "function") {
-    const containerRect = container.getBoundingClientRect();
-    const headingRect = heading.getBoundingClientRect();
-    container.scrollTo({
-      top: Math.max(0, container.scrollTop + headingRect.top - containerRect.top - 24),
-      behavior: "smooth"
-    });
-  } else {
-    heading.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
+  navigationTask?.cancel();
+  const task = goTo(heading, {
+    container,
+    offset: container ? 24 : 0,
+  });
+  navigationTask = task;
+  void task.finished.then((result) => {
+    if (navigationTask !== task) return;
+    navigationTask = null;
+    if (result.status === "completed") scheduleActive();
+  });
   emit("navigate", id);
 };
 
@@ -293,6 +281,8 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+  navigationTask?.cancel();
+  navigationTask = null;
   removeRootClickListener();
   removeRootClickListener = () => {};
   disconnect();

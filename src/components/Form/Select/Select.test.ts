@@ -20,6 +20,8 @@ interface SelectEl extends HTMLElement {
   multiple?: boolean;
   multipleLimit?: number;
   clearable?: boolean;
+  valueOnClear?: unknown;
+  emptyValues?: unknown[];
   filterable?: boolean;
   allowCreate?: boolean;
   defaultFirstOption?: boolean;
@@ -72,6 +74,50 @@ describe("elf-select", () => {
     expect(el.hasAttribute("data-has-label")).toBe(true);
     expect(el.shadowRoot!.querySelector(".field-label")?.textContent).toBe("Framework");
     expect(el.shadowRoot!.querySelector(".field-outline legend")?.textContent).toBe("Framework");
+  });
+
+  it("inherits field empty and clear defaults while local props keep priority", async () => {
+    const provider = document.createElement("elf-config-provider") as HTMLElement & {
+      config?: Record<string, unknown>;
+    };
+    provider.config = {
+      field: {
+        emptyValues: [0],
+        valueOnClear: "provider-clear",
+      },
+    };
+    const inherited = document.createElement("elf-select") as SelectEl;
+    inherited.options = [{ value: 0, label: "Zero" }, ...opts];
+    inherited.modelValue = 0;
+    inherited.clearable = true;
+    provider.appendChild(inherited);
+    document.body.appendChild(provider);
+    await tick();
+    await tick();
+
+    expect(inherited.shadowRoot!.querySelector(".placeholder")).toBeTruthy();
+    expect(inherited.shadowRoot!.querySelector(".clear")).toBeNull();
+
+    inherited.modelValue = "vue";
+    await tick();
+    await tick();
+    const inheritedUpdate = vi.fn();
+    inherited.addEventListener("update:modelValue", inheritedUpdate as EventListener);
+    (inherited.shadowRoot!.querySelector(".clear") as HTMLButtonElement).click();
+    expect((inheritedUpdate.mock.calls[0]![0] as CustomEvent).detail).toBe("provider-clear");
+
+    const local = document.createElement("elf-select") as SelectEl;
+    local.options = opts;
+    local.modelValue = "vue";
+    local.clearable = true;
+    local.valueOnClear = "local-clear";
+    provider.appendChild(local);
+    await tick();
+    await tick();
+    const localUpdate = vi.fn();
+    local.addEventListener("update:modelValue", localUpdate as EventListener);
+    (local.shadowRoot!.querySelector(".clear") as HTMLButtonElement).click();
+    expect((localUpdate.mock.calls[0]![0] as CustomEvent).detail).toBe("local-clear");
   });
 
   it.each(["default", "underlined", "solo", "solo-filled", "solo-inverted"])(

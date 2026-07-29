@@ -200,6 +200,32 @@ describe("elf-tour", () => {
     expect(document.activeElement?.id).toBe("tour-target-one");
   });
 
+  it("step navigation cancels an offscreen scroll without stealing panel focus", async () => {
+    const el = await mount();
+    const closeButton = document.body.querySelector<HTMLElement>(".tour-close")!;
+    const secondTarget = document.querySelector("#tour-target-two") as HTMLElement;
+    secondTarget.getBoundingClientRect = () => ({
+      left: 220,
+      top: window.innerHeight + 600,
+      width: 120,
+      height: 40,
+      right: 340,
+      bottom: window.innerHeight + 640,
+      x: 220,
+      y: window.innerHeight + 600,
+      toJSON: () => ({}),
+    }) as DOMRect;
+    const scrollTo = vi.spyOn(window, "scrollTo").mockImplementation(() => {});
+
+    el.next!();
+    await tick();
+    el.prev!();
+    await wait(340);
+
+    expect(scrollTo).not.toHaveBeenCalled();
+    expect(document.activeElement).toBe(closeButton);
+  });
+
   it("visible 变更会关闭并触发 close", async () => {
     const el = await mount();
     const onClose = vi.fn();

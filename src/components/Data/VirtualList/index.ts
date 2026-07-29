@@ -62,6 +62,7 @@ let cachedVisibleEnd = -1;
 let cachedVisibleItems: Array<{ item: unknown; index: number; key: string }> = [];
 let scrollSyncTimer: ReturnType<typeof setTimeout> | undefined;
 let dynamicScrollFrame = 0;
+let dynamicSettleFrame = 0;
 let pendingDynamicScroll: { offset: number; size: number } | undefined;
 let measurementFrame = 0;
 let pendingAnchorDelta = 0;
@@ -166,13 +167,39 @@ const mountContent = (element: HTMLElement, value: unknown): void => {
   if (typeof Node !== "undefined" && value instanceof Node) element.appendChild(value);
   else element.textContent = String(value);
 };
+
+const applyImmediateItemStyle = (element: HTMLElement): void => {
+  element.style.cssText = typeof props.listItemStyle === "string" ? props.listItemStyle : "";
+  if (props.listItemStyle && typeof props.listItemStyle === "object") {
+    Object.entries(props.listItemStyle).forEach(([name, value]) => {
+      const cssName = name.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
+      element.style.setProperty(cssName, String(value));
+    });
+  }
+  if (props.dynamic) {
+    element.style.removeProperty("height");
+    element.style.minHeight = `${estimatedItemHeight()}px`;
+  } else {
+    element.style.removeProperty("min-height");
+    element.style.height = `${itemHeight()}px`;
+  }
+};
+
 const renderWindowImmediately = (
-  state: ReturnType<typeof computeVirtualWindow>,
+  state: VirtualWindow,
   viewport: HTMLElement | null = viewportRef.value
 ): void => {
-  if (props.dynamic) return;
-  const windowElement = viewport?.querySelector<HTMLElement>(".window");
+  const windowElement = viewport?.querySelector<HTMLElement>(
+    props.dynamic ? ".scroll-window" : ".window"
+  );
   if (!windowElement) return;
+  if (props.dynamic) {
+    if (dynamicSettleFrame) cancelAnimationFrame(dynamicSettleFrame);
+    dynamicSettleFrame = 0;
+    windowElement.hidden = false;
+    const declarativeWindow = viewport?.querySelector<HTMLElement>(".window");
+    declarativeWindow?.style.setProperty("visibility", "hidden");
+  }
   const existing = new Map(
     Array.from(windowElement.querySelectorAll<HTMLElement>(".item[data-virtual-key]"))
       .map((element) => [String(element.dataset.virtualKey), element] as const)
@@ -210,14 +237,7 @@ const renderWindowImmediately = (
     element.tabIndex = 0;
     element.onkeydown = (event) => onItemKeydown(index, event);
     mountContent(element, render(item, index));
-    element.style.cssText = typeof props.listItemStyle === "string" ? props.listItemStyle : "";
-    if (props.listItemStyle && typeof props.listItemStyle === "object") {
-      Object.entries(props.listItemStyle).forEach(([name, value]) => {
-        const cssName = name.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
-        element.style.setProperty(cssName, String(value));
-      });
-    }
-    element.style.height = `${itemHeight()}px`;
+    applyImmediateItemStyle(element);
     nextElements.push(element);
   }
   windowElement.style.top = "0px";
@@ -230,6 +250,16 @@ const synchronizeDeclarativeWindow = (offset: number, size: number): void => {
   if (viewportSize.peek() !== size) viewportSize.set(size);
 };
 
+const settleDynamicScrollWindow = (): void => {
+  dynamicSettleFrame = 0;
+  const viewport = viewportRef.value;
+  const scrollWindow = viewport?.querySelector<HTMLElement>(".scroll-window");
+  const declarativeWindow = viewport?.querySelector<HTMLElement>(".window");
+  if (scrollWindow) scrollWindow.hidden = true;
+  declarativeWindow?.style.removeProperty("visibility");
+  observeVisibleRows();
+};
+
 const scheduleDynamicScroll = (offset: number, size: number): void => {
   pendingDynamicScroll = { offset, size };
   if (dynamicScrollFrame) return;
@@ -239,7 +269,10 @@ const scheduleDynamicScroll = (offset: number, size: number): void => {
     pendingDynamicScroll = undefined;
     if (!next) return;
     synchronizeDeclarativeWindow(next.offset, next.size);
-    queueMicrotask(observeVisibleRows);
+    queueMicrotask(() => {
+      observeVisibleRows();
+      dynamicSettleFrame = requestAnimationFrame(settleDynamicScrollWindow);
+    });
   });
 };
 
@@ -248,6 +281,13 @@ const onScroll = (event: Event): void => {
   const normalizedOffset = Math.max(0, target.scrollTop);
   const nextViewportSize = Math.max(0, target.clientHeight);
   if (props.dynamic) {
+    const nextWindow = computeVariableVirtualWindow({
+      offsets: dynamicOffsets(),
+      viewportSize: nextViewportSize,
+      scrollOffset: normalizedOffset,
+      overscan: effectiveDynamicOverscan(nextViewportSize)
+    });
+    renderWindowImmediately(nextWindow, target);
     scheduleDynamicScroll(normalizedOffset, nextViewportSize);
     return;
   }
@@ -341,30 +381,60 @@ const getVisibleRange = (): { start: number; end: number } => {
 const observeVisibleRows = (): void => {
   if (!props.dynamic || !resizeObserver) return;
   resizeObserver.disconnect();
-  host.shadowRoot?.querySelectorAll<HTMLElement>(".item[data-virtual-key]").forEach((row) => resizeObserver?.observe(row));
+  host.shadowRoot
+    ?.querySelectorAll<HTMLElement>(".window > .item[data-virtual-key]")
+    .forEach((row) => resizeObserver?.observe(row));
 };
+
+const measuredBlockSize = (entry: ResizeObserverEntry, row: HTMLElement): number => {
+  const borderBox = Array.isArray(entry.borderBoxSize)
+    ? entry.borderBoxSize[0]
+    : entry.borderBoxSize;
+  const borderBoxSize = Number(borderBox?.blockSize);
+  if (Number.isFinite(borderBoxSize) && borderBoxSize > 0) return borderBoxSize;
+  const renderedSize = row.getBoundingClientRect().height;
+  return Number.isFinite(renderedSize) && renderedSize > 0
+    ? renderedSize
+    : entry.contentRect.height;
+};
+
 const onRowsResized = (entries: ResizeObserverEntry[]): void => {
-  const state = windowState();
+  const viewport = viewportRef.value;
+  const offsets = dynamicOffsets();
+  const currentViewportSize = viewport?.clientHeight || viewportSize.peek();
+  const currentScrollTop = viewport?.scrollTop ?? scrollOffset.peek();
+  const currentMaximum = Math.max(0, (offsets.at(-1) || 0) - currentViewportSize);
+  const keepEndPinned = currentMaximum - currentScrollTop <= 2;
+  const visibleStart = computeVariableVirtualWindow({
+    offsets,
+    viewportSize: currentViewportSize,
+    scrollOffset: currentScrollTop,
+    overscan: 0
+  }).start;
   let changed = false;
+  let totalDelta = 0;
   for (const entry of entries) {
     const row = entry.target as HTMLElement;
     const key = String(row.dataset.virtualKey || "");
     const index = Number(row.dataset.virtualIndex);
-    const next = entry.contentRect.height;
+    const next = measuredBlockSize(entry, row);
     const previous = measuredHeights.get(key) || estimatedItemHeight();
     if (!key || !Number.isFinite(next) || next <= 0 || Math.abs(next - previous) < 0.5) continue;
     measuredHeights.set(key, next);
-    if (index < state.start) pendingAnchorDelta += next - previous;
+    const delta = next - previous;
+    totalDelta += delta;
+    if (!keepEndPinned && index < visibleStart) pendingAnchorDelta += delta;
     changed = true;
   }
+  if (keepEndPinned) pendingAnchorDelta += totalDelta;
   if (!changed || measurementFrame) return;
   measurementFrame = requestAnimationFrame(() => {
     measurementFrame = 0;
     measurementVersion.set(measurementVersion.peek() + 1);
-    const viewport = viewportRef.value;
-    if (viewport && pendingAnchorDelta !== 0) {
-      viewport.scrollTop = Math.max(0, viewport.scrollTop + pendingAnchorDelta);
-      scrollOffset.set(viewport.scrollTop);
+    const currentViewport = viewportRef.value;
+    if (currentViewport && pendingAnchorDelta !== 0) {
+      currentViewport.scrollTop = Math.max(0, currentViewport.scrollTop + pendingAnchorDelta);
+      scrollOffset.set(currentViewport.scrollTop);
     }
     pendingAnchorDelta = 0;
     queueMicrotask(observeVisibleRows);
@@ -397,6 +467,8 @@ onBeforeUnmount(() => {
   scrollSyncTimer = undefined;
   if (dynamicScrollFrame) cancelAnimationFrame(dynamicScrollFrame);
   dynamicScrollFrame = 0;
+  if (dynamicSettleFrame) cancelAnimationFrame(dynamicSettleFrame);
+  dynamicSettleFrame = 0;
   pendingDynamicScroll = undefined;
   if (measurementFrame) cancelAnimationFrame(measurementFrame);
   measurementFrame = 0;
@@ -430,6 +502,12 @@ const VirtualList = defineHtml<VirtualListProps>(`
           v-elf-list-content="render(entry.item, entry.index)"
         ></div>
       </div>
+      <div
+        class="scroll-window"
+        :class=${{ "is-divided": props.divided }}
+        aria-hidden="true"
+        hidden
+      ></div>
     </div>
     <div v-else-if=${!props.loading} class="empty">${props.emptyText || locale.t("table.empty")}</div>
     <div v-if=${props.loading} class="loading" role="status">

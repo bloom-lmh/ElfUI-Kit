@@ -1,3 +1,4 @@
+/** One registered overlay participating in topmost-event arbitration. */
 export interface OverlayEntry {
   id: symbol;
   kind: string;

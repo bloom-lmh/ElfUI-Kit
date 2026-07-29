@@ -104,21 +104,6 @@ const methodsRows = [
   { name: "doLayout()", type: "() => void", desc: "容器尺寸变化后同步布局" }
 ];
 
-const tableV2Rows = [
-  { name: "data / columns", type: "TableRow[] / TableV2Column[]", default: "[]", desc: "虚拟正文数据与类型化列配置" },
-  { name: "fixed-data", type: "TableRow[]", default: "[]", desc: "固定在表头下方并与正文同步横向滚动的数据" },
-  { name: "row-height", type: "number | (row, index) => number", default: "44", desc: "固定或逐行计算的虚拟行高" },
-  { name: "header-height / footer-height", type: "number", default: "44 / 0", desc: "表头与页脚占用高度" },
-  { name: "height / overscan", type: "string | number / number", default: "400 / 6", desc: "表格总高度与窗口缓冲行数" },
-  { name: "loading / empty-text", type: "boolean / string", default: "false / ''", desc: "遮罩状态与空状态文案" }
-];
-
-const tableV2Slots = [
-  { name: "empty", desc: "无固定数据和正文数据时的空状态" },
-  { name: "overlay", desc: "loading 时覆盖表格的状态内容" },
-  { name: "footer", desc: "由 footer-height 约束的固定页脚" }
-];
-
 const PageTableProps = defineHtml(`
   <h2>API</h2>
   <elf-props-table title="Props" :rows="propsRows"></elf-props-table>
@@ -126,8 +111,6 @@ const PageTableProps = defineHtml(`
   <elf-props-table title="Events" :rows="eventsRows"></elf-props-table>
   <elf-props-table title="Slots" :rows="slotsRows"></elf-props-table>
   <elf-props-table title="Methods" :rows="methodsRows"></elf-props-table>
-  <elf-props-table title="TableV2 Props" :rows=${tableV2Rows}></elf-props-table>
-  <elf-props-table title="TableV2 Slots" :rows=${tableV2Slots}></elf-props-table>
 `);
 
 export { PageTableProps };

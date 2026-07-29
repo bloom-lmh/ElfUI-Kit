@@ -1,7 +1,7 @@
 import {
   createFocusScope,
   type FocusScopeController
-} from "./focus-scope";
+} from "../focus/focus-scope";
 import {
   overlayStack,
   type OverlayStack
@@ -10,6 +10,10 @@ import {
   createOverlayInteractionController,
   type OverlayInteractionController
 } from "./overlay-interaction-controller";
+import type {
+  OverlayCloseReason,
+  OverlayLifecycleState
+} from "./overlay-protocol";
 
 export interface ModalOverlayControllerOptions {
   kind: string;
@@ -21,14 +25,16 @@ export interface ModalOverlayControllerOptions {
 
 export interface ModalOverlayController {
   activate: () => void;
-  beginClose: () => void;
-  completeClose: () => void;
+  beginClose: (reason?: OverlayCloseReason) => boolean;
+  completeClose: () => boolean;
   dispose: () => void;
   focusInitial: () => boolean;
   isActive: () => boolean;
   isTopmost: () => boolean;
   claim: (event: Event) => boolean;
   trapFocus: (event: KeyboardEvent) => boolean;
+  state: () => OverlayLifecycleState;
+  closeReason: () => OverlayCloseReason | null;
 }
 
 /**
@@ -50,23 +56,22 @@ export const createModalOverlayController = (
   });
   let initialFocusDone = false;
 
-  const release = (): void => {
-    interaction.deactivate();
-  };
-
   return {
     activate: () => {
       focus.capture();
       interaction.activate();
       initialFocusDone = false;
     },
-    beginClose: release,
+    beginClose: interaction.beginClose,
     completeClose: () => {
+      const completed = interaction.completeClose();
+      if (!completed) return false;
       initialFocusDone = false;
       focus.restore();
+      return true;
     },
     dispose: () => {
-      release();
+      interaction.deactivate();
       focus.restore();
     },
     focusInitial: () => {
@@ -78,6 +83,8 @@ export const createModalOverlayController = (
     isTopmost: interaction.isTopmost,
     claim: interaction.claim,
     trapFocus: (event) =>
-      interaction.isActive() && interaction.isTopmost() && focus.trap(event)
+      interaction.isActive() && interaction.isTopmost() && focus.trap(event),
+    state: interaction.state,
+    closeReason: interaction.closeReason
   };
 };

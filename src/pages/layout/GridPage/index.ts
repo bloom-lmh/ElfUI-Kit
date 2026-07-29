@@ -8,9 +8,9 @@ import { PageGridEx4 } from "./ex4";
 import { PageGridProps } from "./props";
 
 const t = createDocsTranslator({
-  title: { zh: "Grid 栅格布局", en: "Grid layout" },
+  title: { zh: "栅格布局", en: "Grid layout" },
   description: {
-    zh: "一个页面覆盖 Container、Grid 与 GridItem，以统一编号结构图展示列宽、偏移和响应式关系。",
+    zh: "一个页面覆盖页面容器、栅格与栅格项，以统一编号结构图展示列宽、偏移和响应式关系。",
     en: "One page covers Container, Grid, and GridItem with consistent numbered diagrams for spans, offsets, and responsive behavior."
   }
 });

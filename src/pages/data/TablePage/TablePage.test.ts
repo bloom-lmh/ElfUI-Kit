@@ -11,8 +11,6 @@ let tableTreeTag = "";
 let tableRendererTag = "";
 let tableTooltipTag = "";
 let tableTitleTag = "";
-let tableV2Tag = "";
-let tableV2AdvancedTag = "";
 
 beforeAll(async () => {
   await import("../../../components");
@@ -28,8 +26,6 @@ beforeAll(async () => {
   const { PageTableEx19 } = await import("./ex19");
   const { PageTableEx20 } = await import("./ex20");
   const { PageTableEx22 } = await import("./ex22");
-  const { PageTableEx23 } = await import("./ex23");
-  const { PageTableEx24 } = await import("./ex24");
   tablePaginationTag = ensureCustomElement(PageTableEx2);
   tableActionTag = ensureCustomElement(PageTableEx9);
   tableAdvancedTag = ensureCustomElement(PageTableEx13);
@@ -41,8 +37,6 @@ beforeAll(async () => {
   tableRendererTag = ensureCustomElement(PageTableEx19);
   tableTooltipTag = ensureCustomElement(PageTableEx20);
   tableTitleTag = ensureCustomElement(PageTableEx22);
-  tableV2Tag = ensureCustomElement(PageTableEx23);
-  tableV2AdvancedTag = ensureCustomElement(PageTableEx24);
 });
 
 afterEach(() => {
@@ -294,33 +288,4 @@ describe("TablePage", () => {
     expect(table.shadowRoot!.querySelector(".table-root")?.classList.contains("title-primary")).toBe(true);
   });
 
-  it("TableV2 案例使用窗口化行、固定列与完整 Script", async () => {
-    const el = document.createElement(tableV2Tag);
-    document.body.appendChild(el);
-    await tick();
-    await tick();
-    await tick();
-
-    const tableV2 = el.shadowRoot!.querySelector("elf-table-v2")!;
-    const table = tableV2.shadowRoot!.querySelector("elf-table")!;
-    expect(table.shadowRoot!.querySelectorAll("tbody tr").length).toBeLessThan(30);
-    expect(table.shadowRoot!.querySelector("th.is-fixed-left")).toBeTruthy();
-    expect(table.shadowRoot!.querySelector("th.is-fixed-right")).toBeTruthy();
-    expect(el.shadowRoot!.querySelector("elf-playground")?.hasAttribute("script")).toBe(true);
-  });
-
-  it("TableV2 高级案例展示固定数据、动态行高和状态插槽", async () => {
-    const el = document.createElement(tableV2AdvancedTag);
-    document.body.appendChild(el);
-    await tick();
-    await tick();
-    await tick();
-
-    const tableV2 = el.shadowRoot!.querySelector("elf-table-v2")!;
-    const tables = tableV2.shadowRoot!.querySelectorAll("elf-table");
-    expect(tables).toHaveLength(2);
-    expect(tables[0]?.shadowRoot!.textContent).toContain("固定汇总");
-    expect(tables[1]?.shadowRoot!.querySelector("thead")).toBeNull();
-    expect(el.shadowRoot!.querySelector("elf-playground")?.hasAttribute("script")).toBe(true);
-  });
 });

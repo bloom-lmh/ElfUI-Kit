@@ -49,8 +49,8 @@ export interface TimePickerProps {
   id: string | [string, string];
   name: string;
   tabindex: string | number;
-  valueOnClear: string | [string, string] | (() => string | [string, string]) | undefined;
-  emptyValues: unknown[];
+  valueOnClear?: string | [string, string] | (() => string | [string, string]);
+  emptyValues?: unknown[];
   saveOnBlur: boolean;
   shortcuts: TimeShortcut[];
   defaultValue: string | [string, string];

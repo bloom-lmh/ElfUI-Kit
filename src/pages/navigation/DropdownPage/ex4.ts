@@ -1,18 +1,29 @@
 import { defineHtml } from "@elfui/core";
+import { createDocsTranslator } from "../../docsLocale";
+
+const t = createDocsTranslator({
+  title: { zh: "兼容配置", en: "Compatibility options" },
+  edit: { zh: "编辑资料", en: "Edit profile" },
+  copy: { zh: "复制链接", en: "Copy link" },
+  more: { zh: "更多操作", en: "More actions" },
+  archive: { zh: "移动到归档", en: "Move to archive" },
+  export: { zh: "导出记录", en: "Export record" },
+  delete: { zh: "删除", en: "Delete" },
+});
 
 const items = [
-  { label: "编辑资料", command: "edit", icon: "✎", shortcut: "E" },
-  { label: "复制链接", command: "copy", icon: "⧉", shortcut: "Ctrl C" },
+  { label: t("edit"), command: "edit", icon: "✎", shortcut: "E" },
+  { label: t("copy"), command: "copy", icon: "⧉", shortcut: "Ctrl C" },
   {
-    label: "更多操作",
+    label: t("more"),
     command: "more",
     icon: "⋯",
     children: [
-      { label: "移动到归档", command: "archive" },
-      { label: "导出记录", command: "export" }
+      { label: t("archive"), command: "archive" },
+      { label: t("export"), command: "export" }
     ]
   },
-  { label: "删除", command: "delete", icon: "×", divided: true }
+  { label: t("delete"), command: "delete", icon: "×", divided: true }
 ];
 
 const compatCode = `<elf-dropdown
@@ -28,21 +39,21 @@ const compatCode = `<elf-dropdown
 ></elf-dropdown>`;
 
 const triggerScript = `const items = [
-  { label: "编辑资料", command: "edit", icon: "✎", shortcut: "E" },
-  { label: "复制链接", command: "copy", icon: "⧉", shortcut: "Ctrl C" },
+  { label: "${t("edit")}", command: "edit", icon: "✎", shortcut: "E" },
+  { label: "${t("copy")}", command: "copy", icon: "⧉", shortcut: "Ctrl C" },
   {
-    label: "更多操作",
+    label: "${t("more")}",
     command: "more",
     icon: "⋯",
     children: [
-      { label: "移动到归档", command: "archive" },
-      { label: "导出记录", command: "export" }
+      { label: "${t("archive")}", command: "archive" },
+      { label: "${t("export")}", command: "export" }
     ]
   }
 ];`;
 
 const PageDropdownEx4 = defineHtml(`
-<elf-playground title="兼容配置" :code=${compatCode} :script=${triggerScript}>
+<elf-playground :title=${t("title")} :code=${compatCode} :script=${triggerScript}>
       <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
         <elf-dropdown
           type="primary"

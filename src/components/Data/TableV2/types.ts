@@ -38,6 +38,8 @@ export interface TableV2RowsRenderedDetail {
   rowVisibleEnd: number;
 }
 
+export type TableV2RowExpandDetail = [rowData: TableRow, expanded: boolean];
+
 export type TableV2RowHeight = number | ((row: TableRow, rowIndex: number) => number);
 
 export interface TableV2Slots {
@@ -58,6 +60,10 @@ export interface TableV2Props {
   headerHeight: number;
   footerHeight: number;
   overscan: number;
+  expandColumnKey: string;
+  expandedRowKeys?: string[];
+  defaultExpandedRowKeys: string[];
+  indentSize: number;
   sortBy?: TableV2SortBy;
   fixed: boolean;
   stripe: boolean;

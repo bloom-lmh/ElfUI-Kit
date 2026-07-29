@@ -5,7 +5,7 @@ import {
   type OverlayStack,
 } from "./overlay-stack";
 
-/** @deprecated Internal compatibility alias. Use the generic overlay stack. */
+/** @deprecated Internal compatibility alias. Use the generic overlay stack directly. */
 export type ModalOverlayEntry = OverlayEntry;
 /** @deprecated Internal compatibility alias. Use the generic overlay stack. */
 export type ModalOverlayStack = OverlayStack;

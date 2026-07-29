@@ -16,10 +16,11 @@ import {
 
 import styles from "./style.scss?inline";
 import { useDisabled, useFormControl, useSize } from "../../../composables";
-import { computeAnchoredPosition, listenForExternalOverlayMotion } from "../../Common/anchored-overlay";
+import { computeAnchoredPosition, connectAnchoredOverlayLifecycle } from "../../Common/overlay/anchored-overlay";
 import { useLocaleProvider } from "../../Providers/context";
 import { normalizeFieldVariant } from "../../../types/field";
 import { useDismissibleOverlay } from "../../../composables/useDismissibleOverlay";
+import { useFieldValueDefaults } from "../../../composables/field-values";
 import {
     formatColorValue,
     normalizeColorHex,
@@ -55,7 +56,7 @@ const props = defineProps<ColorPickerProps>({
     name: { type: String, default: "" },
     ariaLabel: { type: String, default: "Select color" },
     valueOnClear: { type: null, default: undefined },
-    emptyValues: { type: Array, default: () => [undefined, null, ""] },
+    emptyValues: { type: Array, default: undefined },
     validateEvent: { type: Boolean, default: true },
     teleported: { type: Boolean, default: true },
     persistent: { type: Boolean, default: false },
@@ -77,6 +78,7 @@ const emit = defineEmits<{
     blur: [event: FocusEvent];
     "visible-change": [visible: boolean];
 }>();
+const fieldValues = useFieldValueDefaults();
 
 const ctl = useFormControl<string>(props, emit, {
     ...(props.validateEvent === false ? { triggers: { input: false, change: false, blur: false } } : {}),
@@ -104,7 +106,7 @@ const resolvedPanelStyle = useComputed((): Record<string, string> => ({
     ...panelStyle.value,
 }));
 const isEmptyValue = (value: unknown): boolean =>
-    (props.emptyValues || []).some((candidate) => Object.is(candidate, value));
+    fieldValues.isEmpty(value, props.emptyValues);
 
 const outputValue = (): string =>
     formatColorValue({
@@ -155,8 +157,7 @@ const onAlpha = (event: Event): void => {
 
 const clear = (): void => {
     if (isDisabled()) return;
-    const configured = props.valueOnClear;
-    const next = typeof configured === "function" ? configured() : configured ?? "";
+    const next = fieldValues.valueOnClear<string>(props.valueOnClear, () => "");
     color.set(normalizeColorHex(next) || "");
     ctl.dispatchInput(next);
     ctl.dispatchChange(next);
@@ -354,15 +355,16 @@ useHostFlag("data-has-label", () => Boolean(props.label));
 useHostFlag("data-open", () => open.value);
 
 onMounted(() => {
-    cleanupOverlayMotion = listenForExternalOverlayMotion(() => [getPanel()], hide);
-    window.addEventListener("resize", requestPanelUpdate, { passive: true });
-    window.visualViewport?.addEventListener("resize", requestPanelUpdate, { passive: true });
+    cleanupOverlayMotion = connectAnchoredOverlayLifecycle({
+        resizeTargets: [],
+        motionContainers: () => [getPanel()],
+        onResize: requestPanelUpdate,
+        onExternalMotion: hide,
+    });
 });
 
 onBeforeUnmount(() => {
     cleanupOverlayMotion();
-    window.removeEventListener("resize", requestPanelUpdate);
-    window.visualViewport?.removeEventListener("resize", requestPanelUpdate);
     if (overlayFrame && typeof cancelAnimationFrame === "function") cancelAnimationFrame(overlayFrame);
     restorePanelPortal();
 });

@@ -164,3 +164,10 @@
 - [x] 焦点策略、Escape、滚动锁和监听清理由共享 controller / composable 管理。
 - [x] mask 关闭只对当前最上层浮层生效，跨组件嵌套不会误关父层。
 - [x] 复用 Dialog 混合嵌套案例和跨组件契约测试验证关闭顺序。
+
+## 2026-07-29 beta.20 与整页国际化
+
+- [x] 页面入口、4 个案例、运行时状态、Template/Script 和 API 表完成中英文覆盖。
+- [x] API 文档补齐真实 `open` 生命周期事件，并完整说明 resize 事件与 `resetSize()`。
+- [x] beta.20 下组件/页面聚焦测试、宏 typecheck、生产构建和打开状态英文扫描通过。
+- [x] 真实浏览器验证键盘调宽 420px → 430px、英文无障碍标签与 0 warning / 0 error；截图：`output/playwright/drawer-resizable-en-beta20.png`。

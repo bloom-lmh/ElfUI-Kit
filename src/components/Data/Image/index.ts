@@ -16,7 +16,7 @@ import {
   useScrollLock
 } from "@elfui/core";
 
-import { collectFocusable, deepActiveElement } from "../../Common/focus-scope";
+import { collectFocusable, deepActiveElement } from "../../Common/focus/focus-scope";
 import { useLocaleProvider } from "../../Providers/context";
 import previewStyles from "./preview.scss?inline";
 import styles from "./style.scss?inline";

@@ -6,9 +6,10 @@ import {
 import {
   createModalOverlayController,
   type ModalOverlayController
-} from "../components/Common/modal-overlay-controller";
+} from "../components/Common/overlay/modal-overlay-controller";
+import type { OverlayCloseReason } from "../components/Common/overlay/overlay-protocol";
 
-export type ModalOverlayCloseReason = "escape";
+export type ModalOverlayCloseReason = Extract<OverlayCloseReason, "escape">;
 
 export interface UseModalOverlayOptions {
   kind: string;

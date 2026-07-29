@@ -1,5 +1,10 @@
 # Message Element Plus API 对标计划
 
+## 2026-07-29 detached service locale
+
+- [x] Document-level Message hosts use the default locale context backed by `document.documentElement.lang`, while explicit LocaleProvider descendants continue to take priority.
+- [x] Keep the detached close-button label covered by an English regression test.
+
 ## 2026-07-19 surface consistency
 
 - [x] Use the compact shared small radius for all message types while preserving themed surfaces and stack spacing.

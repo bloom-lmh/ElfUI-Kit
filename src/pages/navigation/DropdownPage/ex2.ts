@@ -1,51 +1,68 @@
 import { defineHtml, useRef } from "@elfui/core";
+import { createDocsTranslator } from "../../docsLocale";
 
-
-const advancedSelected = useRef("未选择");
+const t = createDocsTranslator({
+  title: { zh: "子菜单、禁用项与保持展开", en: "Nested menu, disabled item, and persistent state" },
+  keepOpen: { zh: "选择后不关闭", en: "Keep open after selection" },
+  disabledItems: { zh: "禁用项", en: "Disabled items" },
+  edit: { zh: "编辑资料", en: "Edit profile" },
+  copy: { zh: "复制链接", en: "Copy link" },
+  more: { zh: "更多操作", en: "More actions" },
+  archive: { zh: "移动到归档", en: "Move to archive" },
+  export: { zh: "导出记录", en: "Export record" },
+  delete: { zh: "删除", en: "Delete" },
+  refresh: { zh: "刷新", en: "Refresh" },
+  locked: { zh: "锁定中", en: "Locked" },
+  audit: { zh: "审计日志", en: "Audit log" },
+  notSelected: { zh: "未选择", en: "No selection" },
+  currentCommand: { zh: "当前命令", en: "Current command" },
+});
 
 const items = [
-  { label: "编辑资料", command: "edit", icon: "✎", shortcut: "E" },
-  { label: "复制链接", command: "copy", icon: "⧉", shortcut: "Ctrl C" },
+  { label: t("edit"), command: "edit", icon: "✎", shortcut: "E" },
+  { label: t("copy"), command: "copy", icon: "⧉", shortcut: "Ctrl C" },
   {
-    label: "更多操作",
+    label: t("more"),
     command: "more",
     icon: "⋯",
     children: [
-      { label: "移动到归档", command: "archive" },
-      { label: "导出记录", command: "export" }
+      { label: t("archive"), command: "archive" },
+      { label: t("export"), command: "export" }
     ]
   },
-  { label: "删除", command: "delete", icon: "×", divided: true }
+  { label: t("delete"), command: "delete", icon: "×", divided: true }
 ];
 
 const disabledItems = [
-  { label: "刷新", command: "refresh" },
-  { label: "锁定中", command: "lock", disabled: true },
-  { label: "审计日志", command: "audit" }
+  { label: t("refresh"), command: "refresh" },
+  { label: t("locked"), command: "lock", disabled: true },
+  { label: t("audit"), command: "audit" }
 ];
+
+const advancedSelected = useRef(t("notSelected"));
 
 const advancedCode = `<elf-dropdown
   :items.prop=\${items}
-  label="选择后不关闭"
+  label="${t("keepOpen")}"
   :hideOnClick=\${false}
   @command=\${onAdvancedCommand}
 ></elf-dropdown>`;
 
 const triggerScript = `const items = [
-  { label: "编辑资料", command: "edit", icon: "✎", shortcut: "E" },
-  { label: "复制链接", command: "copy", icon: "⧉", shortcut: "Ctrl C" },
+  { label: "${t("edit")}", command: "edit", icon: "✎", shortcut: "E" },
+  { label: "${t("copy")}", command: "copy", icon: "⧉", shortcut: "Ctrl C" },
   {
-    label: "更多操作",
+    label: "${t("more")}",
     command: "more",
     icon: "⋯",
     children: [
-      { label: "移动到归档", command: "archive" },
-      { label: "导出记录", command: "export" }
+      { label: "${t("archive")}", command: "archive" },
+      { label: "${t("export")}", command: "export" }
     ]
   }
 ];
 
-const advancedSelected = useRef("未选择");
+const advancedSelected = useRef("${t("notSelected")}");
 const commandText = (event) => {
     const detail = event.detail;
     return \`\${String(detail.command || "")} / \${String(detail.item?.label || "")}\`;
@@ -64,16 +81,16 @@ const onAdvancedCommand = (event: CustomEvent): void => {
 };
 
 const PageDropdownEx2 = defineHtml(`
-<elf-playground title="子菜单、禁用项与保持展开" :code=${advancedCode} :script=${triggerScript}>
+<elf-playground :title=${t("title")} :code=${advancedCode} :script=${triggerScript}>
       <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
         <elf-dropdown
           :items.prop=${items}
-          label="选择后不关闭"
+          :label=${t("keepOpen")}
           :hideOnClick=${false}
           @command=${onAdvancedCommand}
         ></elf-dropdown>
-        <elf-dropdown :items.prop=${disabledItems} label="禁用项"></elf-dropdown>
-        <span slot="status" class="demo-state">当前命令：{{ advancedSelected }}</span>
+        <elf-dropdown :items.prop=${disabledItems} :label=${t("disabledItems")}></elf-dropdown>
+        <span slot="status" class="demo-state">${t("currentCommand")}: {{ advancedSelected }}</span>
       </div>
     </elf-playground>
 `);

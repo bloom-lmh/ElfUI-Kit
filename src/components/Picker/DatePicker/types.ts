@@ -59,8 +59,8 @@ export interface DatePickerProps {
   name: string;
   tabindex: string | number;
   ariaLabel: string;
-  valueOnClear: DatePickerValue | (() => DatePickerValue) | undefined;
-  emptyValues: unknown[];
+  valueOnClear?: DatePickerValue | (() => DatePickerValue);
+  emptyValues?: unknown[];
   validateEvent: boolean;
   shortcuts: DateShortcut[];
   confirmText: string;

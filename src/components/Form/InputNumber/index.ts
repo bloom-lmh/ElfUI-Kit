@@ -14,6 +14,7 @@ import {
 
 import styles from "./style.scss?inline";
 import { useFormControl } from "../../../composables";
+import { useFieldValueDefaults } from "../../../composables/field-values";
 import { normalizeFieldVariant } from "../../../types/field";
 import type { InputNumberControlsPosition, InputNumberControlVariant, InputNumberDensity, InputNumberProps, InputNumberSize } from "./types";
 
@@ -41,11 +42,12 @@ const props = defineProps<InputNumberProps>({
   backgroundColor: { type: String, default: "" },
   placeholder: { type: String, default: "" },
   name: { type: String, default: "" },
-  valueOnClear: { type: Number, default: null },
+  valueOnClear: { type: Number, default: undefined },
   validateEvent: { type: Boolean, default: true }
 });
 
 const emit = defineEmits(["update:modelValue", "change", "input", "focus", "blur"]);
+const fieldValues = useFieldValueDefaults();
 const host = useHost();
 const ctl = useFormControl<number | null>(props, emit, {
   ...(props.validateEvent === false
@@ -139,12 +141,22 @@ const commit = (value: number | null, eventName: "input" | "change"): void => {
 
 const onInput = (event: Event): void => {
   const value = numberOrNull((event.target as HTMLInputElement).value);
-  commit(value === null ? numberOrNull(props.valueOnClear) : value, "input");
+  commit(
+    value === null
+      ? numberOrNull(fieldValues.valueOnClear(props.valueOnClear, () => null))
+      : value,
+    "input"
+  );
 };
 
 const onChange = (event: Event): void => {
   const value = numberOrNull((event.target as HTMLInputElement).value);
-  commit(value === null ? numberOrNull(props.valueOnClear) : value, "change");
+  commit(
+    value === null
+      ? numberOrNull(fieldValues.valueOnClear(props.valueOnClear, () => null))
+      : value,
+    "change"
+  );
 };
 
 const inputElement = (): HTMLInputElement | null => host.shadowRoot?.querySelector("input") ?? null;

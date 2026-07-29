@@ -10,6 +10,8 @@ beforeAll(async () => {
 
 afterEach(() => {
   document.body.innerHTML = "";
+  document.documentElement.lang = "zh-CN";
+  document.documentElement.dir = "";
 });
 
 const tick = (): Promise<void> => new Promise((resolve) => queueMicrotask(resolve));
@@ -22,6 +24,17 @@ interface LocaleProviderEl extends HTMLElement {
 }
 
 describe("elf-locale-provider", () => {
+  it("无 Provider 时默认上下文跟随文档 lang 和 dir", async () => {
+    const { DEFAULT_LOCALE_CONTEXT } = await import("../context");
+    document.documentElement.lang = "en-US";
+    document.documentElement.dir = "rtl";
+
+    expect(DEFAULT_LOCALE_CONTEXT.name).toBe("en-US");
+    expect(DEFAULT_LOCALE_CONTEXT.dir).toBe("rtl");
+    expect(DEFAULT_LOCALE_CONTEXT.t("a11y.closeMessage")).toBe("Close message");
+    expect(DEFAULT_LOCALE_CONTEXT.t("a11y.closeNotification")).toBe("Close notification");
+  });
+
   it("向子组件提供 locale context", async () => {
     const provider = document.createElement("elf-locale-provider") as LocaleProviderEl;
     provider.name = "en-US";

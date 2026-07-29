@@ -20,8 +20,13 @@ import {
 } from "@elfui/core";
 
 import { useDisabled, useFormItem } from "../../../composables";
-import { computeAnchoredPosition, listenForExternalOverlayMotion } from "../../Common/anchored-overlay";
+import {
+  computeAnchoredPosition,
+  connectAnchoredOverlayLifecycle,
+  readOverlayViewport,
+} from "../../Common/overlay/anchored-overlay";
 import { useDismissibleOverlay } from "../../../composables/useDismissibleOverlay";
+import { useFieldValueDefaults } from "../../../composables/field-values";
 import { useLocaleProvider } from "../../Providers/context";
 import { FORM_ITEM_KEY } from "../context";
 import styles from "./style.scss?inline";
@@ -163,7 +168,7 @@ const props = defineProps<CascaderProps>({
   effect: { type: String, default: "light" },
   tagType: { type: String, default: "info" },
   tagEffect: { type: String, default: "light" },
-  emptyValues: { type: Array, default: () => ["", null, undefined] },
+  emptyValues: { type: Array, default: undefined },
   valueOnClear: { type: null, default: undefined },
   validateEvent: { type: Boolean, default: true },
   virtualScroll: { type: Boolean, default: false },
@@ -189,6 +194,7 @@ const props = defineProps<CascaderProps>({
 });
 
 const emit = defineEmits<CascaderEmits>();
+const fieldValues = useFieldValueDefaults();
 
 const fi = useFormItem(() => props.size as string);
 const formItem = inject(FORM_ITEM_KEY);
@@ -274,7 +280,7 @@ const showCheckedStrategy = (): CascaderShowCheckedStrategy =>
   props.showCheckedStrategy === "parent" ? "parent" : "child";
 
 const isEmptyValue = (value: unknown): boolean =>
-  (Array.isArray(props.emptyValues) ? props.emptyValues : ["", null, undefined]).some((item) => Object.is(item, value));
+  fieldValues.isEmpty(value, props.emptyValues);
 
 const normalizePathValue = (value: unknown): CascaderPathValue => {
   if (!Array.isArray(value)) return value == null || value === "" ? [] : [value as CascaderValue];
@@ -837,8 +843,10 @@ const clear = (event?: Event): void => {
   event?.stopPropagation();
   selectedValues.set([]);
   activePath.set([]);
-  const configured = props.valueOnClear as CascaderValueOnClear | undefined;
-  const value = configured === undefined ? [] : typeof configured === "function" ? configured() : configured;
+  const value = fieldValues.valueOnClear<CascaderModelValue>(
+    props.valueOnClear as CascaderValueOnClear | undefined,
+    () => []
+  );
   emit("update:modelValue", value);
   emit("change", { value, path: [], selected: [], multiple: isMultiple() });
   emit("clear");
@@ -1240,18 +1248,12 @@ const updateOverlayPosition = (): void => {
     return;
   }
   const dropdownRect = dropdown.getBoundingClientRect();
-  const visualViewport = window.visualViewport;
   const measuredDropdownWidth = dropdownRect.width || dropdown.offsetWidth || 184;
   const width = props.fitInputWidth ? anchorRect.width : measuredDropdownWidth;
   const next = computeAnchoredPosition(
     anchorRect,
     { width, height: dropdownRect.height || dropdown.offsetHeight || 0 },
-    {
-      width: visualViewport?.width || window.innerWidth,
-      height: visualViewport?.height || window.innerHeight,
-      offsetLeft: visualViewport?.offsetLeft || 0,
-      offsetTop: visualViewport?.offsetTop || 0,
-    },
+    readOverlayViewport(),
     {
       placement: placement(),
       offset: popperOffset(),
@@ -1304,18 +1306,12 @@ const connectAnchoredOverlay = (): void => {
   if (!props.teleported || typeof window === "undefined") return;
   const trigger = getTriggerEl();
   const dropdown = getDropdownEl();
-  const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(requestOverlayUpdate) : undefined;
-  if (trigger) observer?.observe(trigger);
-  if (dropdown) observer?.observe(dropdown);
-  const cleanupOverlayMotion = listenForExternalOverlayMotion(() => [dropdown], closeDropdown);
-  window.addEventListener("resize", requestOverlayUpdate, { passive: true });
-  window.visualViewport?.addEventListener("resize", requestOverlayUpdate, { passive: true });
-  cleanupAnchoredOverlay = () => {
-    observer?.disconnect();
-    cleanupOverlayMotion();
-    window.removeEventListener("resize", requestOverlayUpdate);
-    window.visualViewport?.removeEventListener("resize", requestOverlayUpdate);
-  };
+  cleanupAnchoredOverlay = connectAnchoredOverlayLifecycle({
+    resizeTargets: [trigger, dropdown],
+    motionContainers: () => [dropdown],
+    onResize: requestOverlayUpdate,
+    onExternalMotion: closeDropdown,
+  });
   syncTopLayer();
   requestOverlayUpdate();
 };

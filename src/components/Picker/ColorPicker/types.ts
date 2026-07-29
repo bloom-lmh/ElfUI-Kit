@@ -24,8 +24,8 @@ export interface ColorPickerProps {
   id: string;
   name: string;
   ariaLabel: string;
-  valueOnClear: string | (() => string) | undefined;
-  emptyValues: unknown[];
+  valueOnClear?: string | (() => string);
+  emptyValues?: unknown[];
   validateEvent: boolean;
   teleported: boolean;
   persistent: boolean;

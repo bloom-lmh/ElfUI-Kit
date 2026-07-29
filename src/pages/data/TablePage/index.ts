@@ -1,4 +1,5 @@
 import { defineHtml, useComponents } from "@elfui/core";
+import { createDocsTranslator } from "../../docsLocale";
 import { PageTableEx1 } from "./ex1";
 import { PageTableEx10 } from "./ex10";
 import { PageTableEx11 } from "./ex11";
@@ -13,8 +14,6 @@ import { PageTableEx19 } from "./ex19";
 import { PageTableEx20 } from "./ex20";
 import { PageTableEx21 } from "./ex21";
 import { PageTableEx22 } from "./ex22";
-import { PageTableEx23 } from "./ex23";
-import { PageTableEx24 } from "./ex24";
 import { PageTableEx2 } from "./ex2";
 import { PageTableEx3 } from "./ex3";
 import { PageTableEx4 } from "./ex4";
@@ -40,8 +39,6 @@ useComponents({
   "page-table-ex20": PageTableEx20,
   "page-table-ex21": PageTableEx21,
   "page-table-ex22": PageTableEx22,
-  "page-table-ex23": PageTableEx23,
-  "page-table-ex24": PageTableEx24,
   "page-table-ex2": PageTableEx2,
   "page-table-ex3": PageTableEx3,
   "page-table-ex4": PageTableEx4,
@@ -53,10 +50,18 @@ useComponents({
   "page-table-props": PageTableProps
 });
 
+const t = createDocsTranslator({
+  title: { zh: "表格", en: "Table" },
+  description: {
+    zh: "用于结构化数据展示，支持排序、选择、当前行、高度滚动和分页联动。",
+    en: "Display structured data with sorting, selection, current-row state, constrained scrolling, and pagination integration.",
+  },
+});
+
 const PageTable = defineHtml(`
   <elf-container>
-    <h1>Table 表格</h1>
-    <p>用于结构化数据展示，支持排序、选择、当前行、高度滚动和分页联动。</p>
+    <h1>${t("title")}</h1>
+    <p>${t("description")}</p>
     <page-table-ex1></page-table-ex1>
     <page-table-ex2></page-table-ex2>
     <page-table-ex3></page-table-ex3>
@@ -79,8 +84,6 @@ const PageTable = defineHtml(`
     <page-table-ex20></page-table-ex20>
     <page-table-ex21></page-table-ex21>
     <page-table-ex22></page-table-ex22>
-    <page-table-ex23></page-table-ex23>
-    <page-table-ex24></page-table-ex24>
     <page-table-props></page-table-props>
   </elf-container>
 `);

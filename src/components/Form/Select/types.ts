@@ -56,8 +56,8 @@ export interface SelectProps {
   loadingText: string;
   noDataText: string;
   noMatchText: string;
-  valueOnClear: SelectValue | SelectValue[] | (() => SelectValue | SelectValue[]);
-  emptyValues: unknown[];
+  valueOnClear?: SelectValue | SelectValue[] | (() => SelectValue | SelectValue[]);
+  emptyValues?: unknown[];
   height: number;
   virtual: boolean;
   virtualThreshold: number;

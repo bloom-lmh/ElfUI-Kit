@@ -1,4 +1,9 @@
 import { defineHtml } from "@elfui/core";
+import { createDocsTranslator } from "../../docsLocale";
+
+const t = createDocsTranslator({
+  title: { zh: "组件级英文覆盖", en: "Component-level English override" },
+});
 
 const options = [
   { label: "Design", value: "design" },
@@ -17,7 +22,7 @@ const script = `const options = [
 ];`;
 
 const PageLocaleProviderEx2 = defineHtml(`
-  <elf-playground title="组件级英文覆盖" :code="code" :script=${script}>
+  <elf-playground :title=${t("title")} :code=${code} :script=${script}>
     <elf-locale-provider name="en-US">
       <div
         style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;width:100%"

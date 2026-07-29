@@ -6,10 +6,13 @@
 .viewport::-webkit-scrollbar-thumb { border: 2px solid transparent; border-radius: 999px; background: color-mix(in srgb, var(--elf-text-secondary) 34%, transparent); background-clip: padding-box; }
 .viewport.is-bordered { border: 1px solid var(--elf-border); }
 .spacer { position: relative; width: 100%; }
-.window { position: absolute; top: 0; right: 0; left: 0; min-height: 1px; contain: layout paint style; backface-visibility: hidden; transform: translateZ(0); will-change: transform; }
+.window,
+.scroll-window { position: absolute; top: 0; right: 0; left: 0; min-height: 1px; contain: layout paint style; backface-visibility: hidden; transform: translateZ(0); will-change: transform; }
+.scroll-window[hidden] { display: none; }
 .item { display: flex; align-items: center; width: 100%; padding: 8px 16px; box-sizing: border-box; overflow: hidden; outline: none; }
 .item:focus-visible { background: color-mix(in srgb, var(--elf-primary) 9%, var(--elf-bg-paper)); box-shadow: inset 3px 0 0 var(--elf-primary); }
-.window.is-divided .item { border-bottom: 1px solid var(--elf-divider); }
+.window.is-divided .item,
+.scroll-window.is-divided .item { border-bottom: 1px solid var(--elf-divider); }
 .empty { display: grid; place-items: center; height: 100%; min-height: 120px; color: var(--elf-text-secondary); }
 .loading { position: sticky; right: 12px; bottom: 12px; display: flex; align-items: center; width: fit-content; margin: -44px 12px 12px auto; gap: 8px; padding: 8px 12px; border: 1px solid var(--elf-border); border-radius: 999px; background: color-mix(in srgb, var(--elf-bg-paper) 88%, transparent); color: var(--elf-text-secondary); box-shadow: var(--elf-shadow-sm); backdrop-filter: blur(10px); }
 .loading-spinner { width: 14px; height: 14px; border: 2px solid color-mix(in srgb, var(--elf-primary) 25%, transparent); border-top-color: var(--elf-primary); border-radius: 50%; animation: virtual-list-spin .7s linear infinite; }

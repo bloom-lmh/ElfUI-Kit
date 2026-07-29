@@ -826,6 +826,7 @@ const Menu = defineHtml<MenuRuntimeProps, Record<string, never>, MenuSlots>(`
                     ]}
                     role="menu"
                     :aria-hidden=${String(!isHorizontalPanelVisible())}
+                    :inert=${isHorizontalPanelVisible() ? undefined : ""}
                     :style=${horizontalPanelStyle()}
                 >
                     <template v-for="item in getHorizontalPanelItems()" :key="item.index">
@@ -896,6 +897,7 @@ const Menu = defineHtml<MenuRuntimeProps, Record<string, never>, MenuSlots>(`
                     ]}
                     role="menu"
                     :aria-hidden=${String(!hoveredIndex)}
+                    :inert=${hoveredIndex ? undefined : ""}
                     :style=${collapsePopupStyle()}
                     @mouseenter=${onPopupEnter}
                     @mouseleave=${onPopupLeave}

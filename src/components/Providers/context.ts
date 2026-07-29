@@ -529,15 +529,40 @@ export const mergeMessages = (
   return output;
 };
 
+const readDocumentLocaleName = (): string => {
+  if (typeof document === "undefined") return "zh-CN";
+  return document.documentElement.lang.trim() || "zh-CN";
+};
+
+const readDocumentLocaleDir = (): LocaleDirection => {
+  if (typeof document === "undefined") return "ltr";
+  return document.documentElement.dir === "rtl" ? "rtl" : "ltr";
+};
+
+const readDefaultLocaleMessages = (): LocaleMessages =>
+  localeMessagesFor(readDocumentLocaleName());
+
 export const DEFAULT_LOCALE_CONTEXT: LocaleProviderContext = {
-  name: "zh-CN",
-  dir: "ltr",
-  messages: DEFAULT_LOCALE_MESSAGES,
-  t: createTranslator(DEFAULT_LOCALE_MESSAGES),
-  formatNumber: (value, options) => new Intl.NumberFormat("zh-CN", options).format(value),
-  formatDate: (value, options) => new Intl.DateTimeFormat("zh-CN", options).format(
-    new Date(typeof value === "string" ? Date.parse(value) : value instanceof Date ? value.getTime() : value)
-  )
+  get name() {
+    return readDocumentLocaleName();
+  },
+  get dir() {
+    return readDocumentLocaleDir();
+  },
+  get messages() {
+    return readDefaultLocaleMessages();
+  },
+  t(path, params) {
+    return createTranslator(readDefaultLocaleMessages())(path, params);
+  },
+  formatNumber(value, options) {
+    return new Intl.NumberFormat(readDocumentLocaleName(), options).format(value);
+  },
+  formatDate(value, options) {
+    return new Intl.DateTimeFormat(readDocumentLocaleName(), options).format(
+      new Date(typeof value === "string" ? Date.parse(value) : value instanceof Date ? value.getTime() : value)
+    );
+  }
 };
 
 export const useDefaultsProvider = (): DefaultsProviderContext | undefined =>

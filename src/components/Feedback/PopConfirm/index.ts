@@ -17,7 +17,11 @@ import {
 } from "@elfui/core";
 
 import styles from "./style.scss?inline";
-import { computeAnchoredPosition, listenForExternalOverlayMotion } from "../../Common/anchored-overlay";
+import {
+    computeAnchoredPosition,
+    connectAnchoredOverlayLifecycle,
+    readOverlayViewport,
+} from "../../Common/overlay/anchored-overlay";
 import { useDismissibleOverlay } from "../../../composables/useDismissibleOverlay";
 import type { PopConfirmPlacement, PopConfirmProps, PopConfirmSlots, PopConfirmTrigger } from "./types";
 import { useLocaleProvider } from "../../Providers/context";
@@ -279,16 +283,10 @@ const updateOverlayPosition = (): void => {
     const anchorRect = triggerElement.getBoundingClientRect();
     if (anchorRect.width === 0 && anchorRect.height === 0) return;
     const panelRect = panel.getBoundingClientRect();
-    const visualViewport = window.visualViewport;
     const next = computeAnchoredPosition(
         anchorRect,
         { width: panelRect.width || panel.offsetWidth || 260, height: panelRect.height || panel.offsetHeight || 120 },
-        {
-            width: visualViewport?.width || window.innerWidth,
-            height: visualViewport?.height || window.innerHeight,
-            offsetLeft: visualViewport?.offsetLeft || 0,
-            offsetTop: visualViewport?.offsetTop || 0,
-        },
+        readOverlayViewport(),
         { placement: placement(), offset: [0, 12], padding: 8, flip: true },
     );
     resolvedPlacement.set(next.placement);
@@ -331,24 +329,15 @@ const connectAnchoredOverlay = (): void => {
     if (!props.teleported || !rendered.peek() || typeof window === "undefined") return;
     const triggerElement = getTriggerEl();
     const panel = getPanelEl();
-    const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(requestOverlayUpdate) : undefined;
-    if (triggerElement) observer?.observe(triggerElement);
-    if (panel) observer?.observe(panel);
     // A fixed top-layer panel must be re-anchored when an ancestor or the page
     // scrolls. Closing or leaving the old coordinates behind makes the panel
     // appear to drift with the document.
-    const cleanupMotion = listenForExternalOverlayMotion(
-        () => [host, panel],
-        requestOverlayUpdate,
-    );
-    window.addEventListener("resize", requestOverlayUpdate, { passive: true });
-    window.visualViewport?.addEventListener("resize", requestOverlayUpdate, { passive: true });
-    cleanupAnchoredOverlay = () => {
-        observer?.disconnect();
-        cleanupMotion();
-        window.removeEventListener("resize", requestOverlayUpdate);
-        window.visualViewport?.removeEventListener("resize", requestOverlayUpdate);
-    };
+    cleanupAnchoredOverlay = connectAnchoredOverlayLifecycle({
+        resizeTargets: [triggerElement, panel],
+        motionContainers: () => [host, panel],
+        onResize: requestOverlayUpdate,
+        onExternalMotion: requestOverlayUpdate,
+    });
     syncTopLayer();
     requestOverlayUpdate();
 };

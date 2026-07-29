@@ -11,6 +11,7 @@ afterEach(async () => {
   const { ElfNotification } = await import("../Notification/index");
   ElfNotification.closeAll();
   document.body.innerHTML = "";
+  document.documentElement.lang = "zh-CN";
 });
 
 const tick = (): Promise<void> => new Promise((r) => queueMicrotask(r));
@@ -191,5 +192,18 @@ describe("ElfNotification()", () => {
     expect(onClose).toHaveBeenCalledTimes(1);
     handle.close();
     expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it("uses the document locale for a detached service close label", async () => {
+    document.documentElement.lang = "en-US";
+    const { ElfNotification } = await import("../Notification/index");
+    ElfNotification({ message: "Detached notification", duration: 0 });
+    await tick();
+    await tick();
+
+    const close = document.body
+      .querySelector("elf-notification")!
+      .shadowRoot!.querySelector(".close");
+    expect(close?.getAttribute("aria-label")).toBe("Close notification");
   });
 });

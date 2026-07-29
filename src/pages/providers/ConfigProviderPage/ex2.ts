@@ -1,4 +1,14 @@
 import { defineHtml } from "@elfui/core";
+import { createDocsTranslator } from "../../docsLocale";
+
+const t = createDocsTranslator({
+  title: { zh: "命名主题 · 设计 token", en: "Named theme · design tokens" },
+  theme: { zh: "命名主题", en: "Named theme" },
+  description: {
+    zh: "颜色、圆角和阴影来自同一份 token 映射。",
+    en: "Colors, radius, and elevation come from one token map.",
+  },
+});
 
 const themes = {
   ocean: {
@@ -20,8 +30,8 @@ const config = {
 
 const code = `<elf-config-provider :config.prop="config">
   <elf-card>
-    <strong>Named theme</strong>
-    <p>Colors, radius and elevation come from one token map.</p>
+    <strong>${t("theme")}</strong>
+    <p>${t("description")}</p>
   </elf-card>
 </elf-config-provider>`;
 
@@ -42,14 +52,14 @@ const script = `const config = {
 
 const PageConfigProviderEx2 = defineHtml(`
   <elf-playground
-    title="Named theme · design tokens"
+    :title=${t("title")}
     :code=${code}
     :script=${script}
   >
     <elf-config-provider :config.prop=${config}>
       <elf-card class="theme-card">
-        <strong>Named theme</strong>
-        <p>Colors, radius and elevation come from one token map.</p>
+        <strong>${t("theme")}</strong>
+        <p>${t("description")}</p>
       </elf-card>
     </elf-config-provider>
   </elf-playground>

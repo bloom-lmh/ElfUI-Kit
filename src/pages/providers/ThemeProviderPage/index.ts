@@ -1,30 +1,41 @@
 import { defineHtml, useComponents } from "@elfui/core";
+import { createDocsPicker, createDocsTranslator } from "../../docsLocale";
 
 import { PageThemeProviderEx1 } from "./ex1";
 import { PageThemeProviderEx2 } from "./ex2";
 import { PageThemeProviderEx3 } from "./ex3";
 import { PageThemeProviderEx4 } from "./ex4";
 
+const pick = createDocsPicker();
+const t = createDocsTranslator({
+  title: { zh: "主题与个性化", en: "Theme and customization" },
+  description: {
+    zh: "ThemeProvider 通过局部 CSS 变量覆盖子树设计 token，不会意外修改全站主题。",
+    en: "ThemeProvider overrides design tokens for a subtree through local CSS variables without mutating the application theme.",
+  },
+});
+
 const propsRows = [
   {
     name: "theme",
-    type: "light | dark | custom",
+    type: "light | dark | system | custom | string",
     default: "light",
-    desc: "内置主题或自定义主题"
+    desc: pick("内置主题、系统主题或命名主题", "Built-in, system, or named theme.")
   },
   {
     name: "primary / secondary / surface",
     type: "string",
     default: "",
-    desc: "常用 token 快捷覆盖"
+    desc: pick("常用 token 快捷覆盖", "Shorthand overrides for common tokens.")
   },
-  { name: "tokens", type: "ThemeTokens", default: "{}", desc: "完整局部 CSS 变量覆盖" },
-  { name: "inherit", type: "boolean", default: "true", desc: "custom 主题是否继承外层 token 与暗色语义" }
+  { name: "themes", type: "Record<string, ThemeDefinition>", default: "{}", desc: pick("命名主题定义", "Named theme definitions.") },
+  { name: "tokens", type: "ThemeTokens", default: "{}", desc: pick("完整局部 CSS 变量覆盖", "Complete local token overrides.") },
+  { name: "inherit", type: "boolean", default: "true", desc: pick("自定义主题是否继承外层 token 与暗色语义", "Whether custom themes inherit outer tokens and dark semantics.") }
 ];
 
 const contextRows = [
-  { name: "theme / isDark / tokens", type: "readonly", default: "-", desc: "当前合并后的主题上下文" },
-  { name: "applyTo", type: "(target: HTMLElement) => void", default: "-", desc: "把主题转发给 document 级服务浮层" }
+  { name: "theme / isDark / tokens", type: "readonly", default: "-", desc: pick("当前合并后的主题上下文", "Current merged theme context.") },
+  { name: "applyTo", type: "(target: HTMLElement) => void", default: "-", desc: pick("把主题转发给 document 级服务浮层", "Apply the theme to document-level service overlays.") }
 ];
 
 useComponents({
@@ -36,8 +47,8 @@ useComponents({
 
 const PageThemeProvider = defineHtml(`
   <elf-container>
-    <h1>Theme & customization 主题与个性化</h1>
-    <p>ThemeProvider 通过局部 CSS variables 覆盖一段子树的设计 token，不会意外修改全站主题。</p>
+    <h1>${t("title")}</h1>
+    <p>${t("description")}</p>
 
     <page-theme-provider-ex1 />
 

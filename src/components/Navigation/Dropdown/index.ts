@@ -3,7 +3,6 @@
 // 支持 click / hover / contextmenu、分裂按钮、嵌套子菜单、键盘触发与基础无障碍。
 
 import {
-  defineFragment,
   defineEmits,
   defineExpose,
   defineHtml,
@@ -20,7 +19,11 @@ import {
 } from "@elfui/core";
 
 import styles from "./style.scss?inline";
-import { computeAnchoredPosition, listenForExternalOverlayMotion } from "../../Common/anchored-overlay";
+import {
+  computeAnchoredPosition,
+  connectAnchoredOverlayLifecycle,
+  readOverlayViewport,
+} from "../../Common/overlay/anchored-overlay";
 import { useDismissibleOverlay } from "../../../composables/useDismissibleOverlay";
 import { useLocaleProvider } from "../../Providers/context";
 import {
@@ -277,20 +280,13 @@ const updateOverlayPosition = (): void => {
     return;
   }
   const panelRect = panel.getBoundingClientRect();
-  const visualViewport = window.visualViewport;
-  const viewport = {
-    width: visualViewport?.width || window.innerWidth,
-    height: visualViewport?.height || window.innerHeight,
-    offsetLeft: visualViewport?.offsetLeft || 0,
-    offsetTop: visualViewport?.offsetTop || 0,
-  };
   const next = computeAnchoredPosition(
     referenceRect,
     {
       width: panelRect.width || panel.offsetWidth || 192,
       height: panelRect.height || panel.offsetHeight || 0,
     },
-    viewport,
+    readOverlayViewport(),
     {
       placement: placement(),
       offset: popperConfig.value.offset,
@@ -611,21 +607,12 @@ const connectAnchoredOverlay = (): void => {
 
   const reference = anchorReference();
   const panel = getMenuEl();
-  const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(requestOverlayUpdate) : undefined;
-  if (reference instanceof Element) observer?.observe(reference);
-  if (panel) observer?.observe(panel);
-
-  const cleanupOverlayMotion = listenForExternalOverlayMotion(() => [panel], closeDropdown);
-
-  window.addEventListener("resize", requestOverlayUpdate, { passive: true });
-  window.visualViewport?.addEventListener("resize", requestOverlayUpdate, { passive: true });
-
-  cleanupAnchoredOverlay = () => {
-    observer?.disconnect();
-    cleanupOverlayMotion();
-    window.removeEventListener("resize", requestOverlayUpdate);
-    window.visualViewport?.removeEventListener("resize", requestOverlayUpdate);
-  };
+  cleanupAnchoredOverlay = connectAnchoredOverlayLifecycle({
+    resizeTargets: [reference instanceof Element ? reference : null, panel],
+    motionContainers: () => [panel],
+    onResize: requestOverlayUpdate,
+    onExternalMotion: closeDropdown,
+  });
   syncTopLayer();
   requestOverlayUpdate();
 };
@@ -695,98 +682,80 @@ defineExpose({
   toggleMenu: toggle,
 });
 
-// ─── view fragments ─────────────────────────────────────────
-
-const StandardTrigger = defineFragment(
-  () => `
-  <button v-if=${shouldRenderTrigger && !isSplitButton} :class=${buttonClass("trigger")} :style=${buttonStyle} part="trigger"
-    type="button" :disabled=${buttonDisabled} :aria-expanded=${open ? "true" : "false"} aria-haspopup="menu"
-    :tabindex=${triggerTabindex} @click=${onTriggerClick} @keydown=${onTriggerKeydown}>
-    <slot>
-      <slot name="trigger">
-        <span class="label">${triggerLabel}</span>
-        <span class="arrow" v-if=${showsArrow} aria-hidden="true">▼</span>
-      </slot>
-    </slot>
-  </button>
-`,
-);
-
-const SplitTrigger = defineFragment(
-  () => `
-  <template v-if=${shouldRenderTrigger && isSplitButton}>
-    <button :class=${buttonClass("split-main")} :style=${buttonStyle} part="main" type="button" :disabled=${buttonDisabled}
-      @click=${onMainClick}>
-      <slot>
-        <slot name="main">${triggerLabel}</slot>
-      </slot>
-    </button>
-    <button :class=${buttonClass("split-toggle")} part="trigger" type="button" :disabled=${buttonDisabled}
-      :aria-expanded=${open ? "true" : "false"} aria-haspopup="menu" :tabindex=${triggerTabindex} @click=${onTriggerClick}
-      @keydown=${onTriggerKeydown} :aria-label=${locale.t("menu.expand")}>
-      <span class="arrow" v-if=${showsArrow} aria-hidden="true">▼</span>
-    </button>
-  </template>
-`,
-);
-
-const MenuPanel = defineFragment(
-  () => `
-  <div v-if=${shouldRenderMenu} :class=${menuClass} :style=${menuStyle} part="menu" :popover=${popoverMode}
-    :data-append-to=${appendTargetLabel} :role=${menuRole()} :aria-hidden=${open ? "false" : "true"}
-    :inert=${open ? undefined : ""} @keydown=${onMenuKeydown}>
-    <slot name="dropdown">
-      <template v-for="item in viewItems" :key="item.key">
-        <div v-if="item.children.length > 0" :class="['sub', { 'is-divided': item.divided }]">
-          <button type="button" class="sub-trigger" :class="{ 'is-disabled': item.disabled }" :disabled="item.disabled"
-            role="menuitem" aria-haspopup="true">
-            <span class="icon" aria-hidden="true">{{ item.icon }}</span>
-            <span class="item-label">{{ item.label }}</span>
-            <span class="shortcut">{{ item.shortcut }}</span>
-            <span class="chevron" aria-hidden="true">›</span>
-          </button>
-          <div class="sub-menu" role="menu">
-            <button v-for="child in item.children" :key="child.key" type="button" class="item"
-              :class="{
-                'is-disabled': child.disabled,
-                'is-divided': child.divided,
-                'is-selected': isSelected(child)
-              }"
-              :disabled="child.disabled" role="menuitem" @click="onItemClick(child, $event)">
-              <span class="icon" aria-hidden="true">{{ child.icon }}</span>
-              <span class="item-label">{{ child.label }}</span>
-              <span class="shortcut">{{ child.shortcut }}</span>
-              <span></span>
-            </button>
-          </div>
-        </div>
-        <button v-else type="button" class="item"
-          :class="{
-            'is-disabled': item.disabled,
-            'is-divided': item.divided,
-            'is-selected': isSelected(item)
-          }"
-          :disabled="item.disabled" role="menuitem" @click="onItemClick(item, $event)">
-          <span class="icon" aria-hidden="true">{{ item.icon }}</span>
-          <span class="item-label">{{ item.label }}</span>
-          <span class="shortcut">{{ item.shortcut }}</span>
-          <span></span>
-        </button>
-      </template>
-    </slot>
-  </div>
-`,
-);
-
 defineStyle(styles);
 
 // ─── root template ──────────────────────────────────────────
 
 const Dropdown = defineHtml<DropdownProps, DropdownEmits, DropdownSlots>(`
   <div class="dropdown" @mouseenter=${onMouseEnter} @mouseleave=${onMouseLeave} @contextmenu=${onContextMenu}>
-    <StandardTrigger />
-    <SplitTrigger />
-    <MenuPanel />
+    <button v-if=${shouldRenderTrigger && !isSplitButton} :class=${buttonClass("trigger")} :style=${buttonStyle} part="trigger"
+      type="button" :disabled=${buttonDisabled} :aria-expanded=${open ? "true" : "false"} aria-haspopup="menu"
+      :tabindex=${triggerTabindex} @click=${onTriggerClick} @keydown=${onTriggerKeydown}>
+      <slot>
+        <slot name="trigger">
+          <span class="label">${triggerLabel}</span>
+          <span class="arrow" v-if=${showsArrow} aria-hidden="true">▼</span>
+        </slot>
+      </slot>
+    </button>
+
+    <template v-if=${shouldRenderTrigger && isSplitButton}>
+      <button :class=${buttonClass("split-main")} :style=${buttonStyle} part="main" type="button" :disabled=${buttonDisabled}
+        @click=${onMainClick}>
+        <slot>
+          <slot name="main">${triggerLabel}</slot>
+        </slot>
+      </button>
+      <button :class=${buttonClass("split-toggle")} part="trigger" type="button" :disabled=${buttonDisabled}
+        :aria-expanded=${open ? "true" : "false"} aria-haspopup="menu" :tabindex=${triggerTabindex} @click=${onTriggerClick}
+        @keydown=${onTriggerKeydown} :aria-label=${locale.t("menu.expand")}>
+        <span class="arrow" v-if=${showsArrow} aria-hidden="true">▼</span>
+      </button>
+    </template>
+
+    <div v-if=${shouldRenderMenu} :class=${menuClass} :style=${menuStyle} part="menu" :popover=${popoverMode}
+      :data-append-to=${appendTargetLabel} :role=${menuRole()} :aria-hidden=${open ? "false" : "true"}
+      :inert=${open ? undefined : ""} @keydown=${onMenuKeydown}>
+      <slot name="dropdown">
+        <template v-for="item in viewItems" :key="item.key">
+          <div v-if="item.children.length > 0" :class="['sub', { 'is-divided': item.divided }]">
+            <button type="button" class="sub-trigger" :class="{ 'is-disabled': item.disabled }" :disabled="item.disabled"
+              role="menuitem" aria-haspopup="true">
+              <span class="icon" aria-hidden="true">{{ item.icon }}</span>
+              <span class="item-label">{{ item.label }}</span>
+              <span class="shortcut">{{ item.shortcut }}</span>
+              <span class="chevron" aria-hidden="true">›</span>
+            </button>
+            <div class="sub-menu" role="menu">
+              <button v-for="child in item.children" :key="child.key" type="button" class="item"
+                :class="{
+                  'is-disabled': child.disabled,
+                  'is-divided': child.divided,
+                  'is-selected': isSelected(child)
+                }"
+                :disabled="child.disabled" role="menuitem" @click="onItemClick(child, $event)">
+                <span class="icon" aria-hidden="true">{{ child.icon }}</span>
+                <span class="item-label">{{ child.label }}</span>
+                <span class="shortcut">{{ child.shortcut }}</span>
+                <span></span>
+              </button>
+            </div>
+          </div>
+          <button v-else type="button" class="item"
+            :class="{
+              'is-disabled': item.disabled,
+              'is-divided': item.divided,
+              'is-selected': isSelected(item)
+            }"
+            :disabled="item.disabled" role="menuitem" @click="onItemClick(item, $event)">
+            <span class="icon" aria-hidden="true">{{ item.icon }}</span>
+            <span class="item-label">{{ item.label }}</span>
+            <span class="shortcut">{{ item.shortcut }}</span>
+            <span></span>
+          </button>
+        </template>
+      </slot>
+    </div>
   </div>
 `);
 

@@ -3,6 +3,7 @@ import { afterEach, beforeAll, describe, expect, it } from "vitest";
 let exampleTag = "";
 let nestedExampleTag = "";
 let mixedOverlayExampleTag = "";
+let pageTag = "";
 
 beforeAll(async () => {
   await import("../../../components");
@@ -10,14 +11,17 @@ beforeAll(async () => {
   const { PageDialogEx3 } = await import("./ex3");
   const { PageDialogEx4 } = await import("./ex4");
   const { PageDialogEx5 } = await import("./ex5");
+  const { PageDialog } = await import("./index");
   exampleTag = ensureCustomElement(PageDialogEx3);
   nestedExampleTag = ensureCustomElement(PageDialogEx4);
   mixedOverlayExampleTag = ensureCustomElement(PageDialogEx5);
+  pageTag = ensureCustomElement(PageDialog);
 });
 
 afterEach(() => {
   document.body.innerHTML = "";
   document.body.style.overflow = "";
+  document.documentElement.lang = "zh-CN";
 });
 
 const wait = (ms = 20): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
@@ -40,7 +44,48 @@ const deepActiveElement = (): Element | null => {
   return active;
 };
 
+const collectText = (root: Node): string => {
+  let output = "";
+  const visit = (node: Node): void => {
+    if (node.nodeType === Node.TEXT_NODE) output += ` ${node.textContent || ""}`;
+    if (node instanceof Element && node.shadowRoot) visit(node.shadowRoot);
+    node.childNodes.forEach(visit);
+  };
+  visit(root);
+  return output.replace(/\s+/g, " ").trim();
+};
+
+const mountPage = async (): Promise<HTMLElement> => {
+  const page = document.createElement(pageTag);
+  document.body.appendChild(page);
+  await wait();
+  await wait();
+  return page;
+};
+
 describe("DialogPage", () => {
+  it("中文页面覆盖案例、源码和 API 文案", async () => {
+    const page = await mountPage();
+    const text = collectText(page);
+    expect(text).toContain("基础用法");
+    expect(text).toContain("关闭守卫");
+    expect(text).toContain("键盘与焦点");
+    expect(text).toContain("返回 false 或拒绝时阻止关闭");
+  });
+
+  it("英文页面覆盖全部案例、源码和 API 文案", async () => {
+    document.documentElement.lang = "en-US";
+    const page = await mountPage();
+    const text = collectText(page);
+    expect(text).toContain("Basic usage");
+    expect(text).toContain("Close guard");
+    expect(text).toContain("Keyboard and focus");
+    expect(text).toContain("Mixed nesting and close order");
+    expect(text).toContain("Modal and anchored overlays");
+    expect(text).toContain("Prevent closing by returning false or rejecting.");
+    expect(text).not.toContain("基础用法");
+  });
+
   it("键盘案例会聚焦输入框，并在关闭后恢复打开按钮", async () => {
     const page = document.createElement(exampleTag);
     document.body.appendChild(page);

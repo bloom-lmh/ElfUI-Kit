@@ -2,6 +2,10 @@
 
 :host {
   display: block;
+  --layout-demo-color-1: color-mix(in srgb, var(--elf-primary) 72%, var(--elf-bg-paper));
+  --layout-demo-color-2: color-mix(in srgb, var(--elf-primary) 86%, var(--elf-bg-paper));
+  --layout-demo-color-3: var(--elf-primary);
+  --layout-demo-color-4: color-mix(in srgb, var(--elf-primary) 82%, var(--elf-primary-active));
 }
 
 * {
@@ -11,7 +15,12 @@
 h2 {
   margin: 32px 0 12px;
   font-size: 20px;
-  letter-spacing: -.01em;
+  letter-spacing: 0;
+}
+
+elf-playground {
+  --elf-playground-demo-min-height: 260px;
+  border-radius: 0;
 }
 
 .diagram-stack {
@@ -37,55 +46,138 @@ h2 {
 .diagram-stage {
   width: 100%;
   min-width: 0;
-  min-height: 104px;
-  padding: 18px;
-  border: 1px solid var(--elf-divider);
-  border-radius: 8px;
-  background: color-mix(in srgb, var(--elf-primary) 2.5%, var(--elf-bg-paper));
+  min-height: 112px;
   overflow: hidden;
 }
 
 .diagram-stage.tall {
-  min-height: 184px;
+  min-height: 200px;
 }
 
 .diagram-item {
   display: grid;
   min-width: 0;
-  min-height: 54px;
+  min-height: 112px;
   place-items: center;
-  padding: 10px 12px;
-  border: 1px solid color-mix(in srgb, var(--elf-primary) 34%, var(--elf-divider));
-  border-radius: 6px;
-  background: color-mix(in srgb, var(--elf-primary) 11%, var(--elf-bg-paper));
-  color: var(--elf-primary);
+  padding: 14px;
+  border: 0;
+  border-radius: 0;
+  background: var(--layout-demo-color-1);
+  color: var(--elf-text-on-primary);
   font-size: 14px;
   font-weight: 750;
   text-align: center;
 }
 
 .diagram-item.alt {
-  border-color: color-mix(in srgb, var(--elf-info) 34%, var(--elf-divider));
-  background: color-mix(in srgb, var(--elf-info) 10%, var(--elf-bg-paper));
-  color: var(--elf-info);
+  background: var(--layout-demo-color-2);
+  color: var(--elf-text-on-primary);
 }
 
 .diagram-item.neutral {
-  border-color: color-mix(in srgb, var(--elf-text-secondary) 24%, var(--elf-divider));
-  background: color-mix(in srgb, var(--elf-text-secondary) 8%, var(--elf-bg-paper));
-  color: var(--elf-text-primary);
+  background: var(--layout-demo-color-3);
+  color: var(--elf-text-on-primary);
 }
 
 .diagram-item small {
   display: block;
   margin-top: 2px;
-  color: var(--elf-text-secondary);
+  color: currentColor;
+  opacity: 0.82;
   font-size: 10px;
   font-weight: 550;
 }
 
+.blue-grid elf-grid-item:nth-child(4n + 1) .diagram-item {
+  background: var(--layout-demo-color-1);
+}
+
+.blue-grid elf-grid-item:nth-child(4n + 2) .diagram-item {
+  background: var(--layout-demo-color-2);
+}
+
+.blue-grid elf-grid-item:nth-child(4n + 3) .diagram-item {
+  background: var(--layout-demo-color-3);
+}
+
+.blue-grid elf-grid-item:nth-child(4n) .diagram-item {
+  background: var(--layout-demo-color-4);
+}
+
+.diagram-grid,
+.layout-playground-preview {
+  width: 100%;
+  min-width: 0;
+}
+
+.layout-playground-preview {
+  display: grid;
+  align-content: center;
+  min-height: 240px;
+}
+
+.layout-playground-preview.tall {
+  min-height: 280px;
+}
+
+.wrap-preview {
+  justify-items: center;
+}
+
+.layout-playground-controls {
+  display: grid;
+  align-content: start;
+  gap: 16px;
+  height: 100%;
+}
+
+.layout-playground-controls label {
+  display: grid;
+  gap: 6px;
+  color: var(--elf-text-secondary);
+  font-size: 12px;
+}
+
+.container-preview {
+  width: 100%;
+  min-width: 0;
+  padding-block: 12px;
+  background:
+    linear-gradient(
+      to right,
+      color-mix(in srgb, var(--elf-primary) 7%, transparent),
+      color-mix(in srgb, var(--elf-primary) 7%, transparent)
+    ) center / 100% 1px no-repeat;
+}
+
+.container-frame {
+  transition: max-width var(--elf-transition-base);
+}
+
+.container-surface {
+  display: grid;
+  min-height: 136px;
+  place-items: center;
+  border: 0;
+  border-radius: 0;
+  background: var(--layout-demo-color-2);
+  color: var(--elf-text-on-primary);
+  font-size: 13px;
+  font-weight: 750;
+}
+
 .flex-demo {
   width: 100%;
+}
+
+.flex-direction-preview[direction^="column"] {
+  align-items: flex-start;
+  width: min(280px, 100%);
+}
+
+.flex-direction-preview[direction^="column"] .diagram-item {
+  flex: 0 0 auto;
+  width: min(180px, 100%);
 }
 
 .flex-demo.vertical {
@@ -94,30 +186,26 @@ h2 {
 }
 
 .flex-demo.vertical .diagram-item {
-  width: 72px;
+  width: min(180px, 100%);
 }
 
 .flex-demo .diagram-item {
-  flex: 0 0 72px;
+  flex: 1 1 112px;
 }
 
 .align-content-demo {
   width: 100%;
-  height: 148px;
-  padding: 8px;
-  border: 1px dashed color-mix(in srgb, var(--elf-primary) 35%, var(--elf-divider));
-  border-radius: 6px;
-  background: repeating-linear-gradient(
-    to bottom,
-    transparent 0 39px,
-    color-mix(in srgb, var(--elf-primary) 7%, transparent) 39px 40px
-  );
+  height: 200px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
 }
 
 .align-content-demo .diagram-item {
   flex: 0 0 calc(50% - 6px);
-  min-height: 44px;
-  height: 44px;
+  min-height: 64px;
+  height: 64px;
   padding: 6px 10px;
 }
 
@@ -126,9 +214,9 @@ h2 {
   font-size: 8px;
 }
 
-.flex-demo.align-demo .diagram-item:nth-child(1) { min-height: 44px; }
-.flex-demo.align-demo .diagram-item:nth-child(2) { min-height: 68px; }
-.flex-demo.align-demo .diagram-item:nth-child(3) { min-height: 92px; }
+.flex-demo.align-demo .diagram-item:nth-child(1) { min-height: 72px; }
+.flex-demo.align-demo .diagram-item:nth-child(2) { min-height: 104px; }
+.flex-demo.align-demo .diagram-item:nth-child(3) { min-height: 136px; }
 
 .container-demo {
   display: grid;
@@ -244,13 +332,35 @@ h2 {
 }
 
 @media (max-width: 640px) {
+  elf-playground {
+    --elf-playground-demo-min-height: 220px;
+  }
+
   .diagram-line {
     grid-template-columns: 1fr;
     gap: 6px;
   }
 
   .diagram-stage {
-    padding: 12px;
+    min-height: 96px;
+  }
+
+  .layout-playground-preview {
+    min-height: 200px;
+  }
+
+  .layout-playground-preview.tall {
+    min-height: 240px;
+  }
+
+  .blue-grid .diagram-item {
+    min-height: 96px;
+    padding: 4px 0;
+    font-size: 11px;
+  }
+
+  .blue-grid .diagram-item small {
+    display: none;
   }
 
   .flex-demo .diagram-item {

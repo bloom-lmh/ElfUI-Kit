@@ -16,12 +16,13 @@ import {
 } from "@elfui/core";
 
 import { Calendar } from "../Calendar";
-import { computeAnchoredPosition, listenForExternalOverlayMotion } from "../../Common/anchored-overlay";
+import { computeAnchoredPosition, connectAnchoredOverlayLifecycle } from "../../Common/overlay/anchored-overlay";
 import { useLocaleProvider } from "../../Providers/context";
 import styles from "./style.scss?inline";
 import { normalizeFieldVariant } from "../../../types/field";
 import { useDisabled, useFormControl, useSize } from "../../../composables";
 import { useDismissibleOverlay } from "../../../composables/useDismissibleOverlay";
+import { useFieldValueDefaults } from "../../../composables/field-values";
 import type { DatePickerEmits, DatePickerPlacement, DatePickerProps, DatePickerSlots, DatePickerType, DatePickerValue, DateShortcut } from "./types";
 
 export type { DatePickerElement, DatePickerEmits, DatePickerExpose, DatePickerPlacement, DatePickerPopperOptions, DatePickerProps, DatePickerSize, DatePickerSlots, DatePickerType, DatePickerValue, DatePickerVariant, DateShortcut } from "./types";
@@ -62,7 +63,7 @@ const props = defineProps<DatePickerProps>({
   tabindex: { type: null, default: 0 },
   ariaLabel: { type: String, default: "" },
   valueOnClear: { type: null, default: undefined },
-  emptyValues: { type: Array, default: () => [undefined, null, ""] },
+  emptyValues: { type: Array, default: undefined },
   validateEvent: { type: Boolean, default: true },
   shortcuts: { type: Array, default: () => [] },
   confirmText: { type: String, default: "" },
@@ -79,6 +80,7 @@ const props = defineProps<DatePickerProps>({
 });
 
 const emit = defineEmits<DatePickerEmits>();
+const fieldValues = useFieldValueDefaults();
 
 const ctl = useFormControl<DatePickerValue>(props, emit, {
   ...(props.validateEvent === false ? { triggers: { change: false, blur: false } } : {})
@@ -141,7 +143,7 @@ const resolvedPanelStyle = useComputed((): Record<string, string> => ({
 }));
 
 const isEmptyValue = (value: unknown): boolean =>
-  (props.emptyValues || []).some((candidate) => Object.is(candidate, value));
+  fieldValues.isEmpty(value, props.emptyValues);
 const readModelValue = (): DatePickerValue =>
   isEmptyValue(props.modelValue) ? (props.multiple ? [] : "") : props.modelValue as DatePickerValue;
 
@@ -510,14 +512,10 @@ const applyShortcut = (shortcut: DateShortcut): void => {
 
 const clear = (): void => {
   if (isDisabled() || props.readonly) return;
-  const configured = props.valueOnClear;
-  const next = typeof configured === "function"
-    ? configured()
-    : configured !== undefined
-      ? configured
-      : props.multiple || props.range
-        ? []
-        : "";
+  const next = fieldValues.valueOnClear<DatePickerValue>(
+    props.valueOnClear,
+    () => props.multiple || props.range ? [] : ""
+  );
   const values = Array.isArray(next) ? next.map(String) : [String(next || "")];
   start.set(values[0] || "");
   end.set(props.range ? values[1] || "" : "");
@@ -581,14 +579,15 @@ useEffect(() => {
 });
 
 onMounted(() => {
-  cleanupOverlayMotion = listenForExternalOverlayMotion(() => [getPanelEl()], closePanel);
-  window.addEventListener("resize", requestOverlayUpdate, { passive: true });
-  window.visualViewport?.addEventListener("resize", requestOverlayUpdate, { passive: true });
+  cleanupOverlayMotion = connectAnchoredOverlayLifecycle({
+    resizeTargets: [],
+    motionContainers: () => [getPanelEl()],
+    onResize: requestOverlayUpdate,
+    onExternalMotion: closePanel,
+  });
 });
 onBeforeUnmount(() => {
   cleanupOverlayMotion();
-  window.removeEventListener("resize", requestOverlayUpdate);
-  window.visualViewport?.removeEventListener("resize", requestOverlayUpdate);
   if (overlayFrame) cancelAnimationFrame(overlayFrame);
 });
 useHostAttr("variant", () => normalizeFieldVariant(props.variant));

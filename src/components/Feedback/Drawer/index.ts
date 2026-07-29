@@ -19,6 +19,7 @@ import {
 import styles from "./style.scss?inline";
 import { useLocaleProvider } from "../../Providers/context";
 import { useModalOverlay } from "../../../composables/useModalOverlay";
+import type { OverlayCloseReason } from "../../Common/overlay/overlay-protocol";
 import type { DrawerDirection, DrawerEmits, DrawerExpose, DrawerProps, DrawerResizeDetail, DrawerSlots } from "./types";
 
 export type { DrawerDirection, DrawerElement, DrawerEmits, DrawerExpose, DrawerProps, DrawerResizeDetail, DrawerSlots } from "./types";
@@ -238,7 +239,11 @@ const rootElement = (): HTMLElement | null => document.querySelector(rootSelecto
 
 const panelElement = (): HTMLElement | null => rootElement()?.querySelector(".elf-drawer-panel") ?? null;
 
-const requestClose = async (): Promise<void> => {
+let pendingCloseReason: OverlayCloseReason = "programmatic";
+
+const requestClose = async (
+    reason: OverlayCloseReason = "programmatic"
+): Promise<void> => {
     if (closing.peek()) return;
     const before = props.beforeClose as unknown as (() => boolean | Promise<boolean>) | null;
     if (typeof before === "function") {
@@ -248,6 +253,7 @@ const requestClose = async (): Promise<void> => {
             return;
         }
     }
+    pendingCloseReason = reason;
     model.set(false);
     emit("close");
 };
@@ -259,7 +265,7 @@ const overlay = useModalOverlay({
     closing: () => closing.value,
     closeOnEscape: () => Boolean(props.closeOnEscape),
     lockScroll: () => Boolean(props.lockScroll),
-    onRequestClose: () => void requestClose(),
+    onRequestClose: (reason) => void requestClose(reason),
     onInitialFocus: () => emit("open-auto-focus"),
     onRestoreFocus: () => emit("close-auto-focus")
 });
@@ -267,7 +273,7 @@ const overlay = useModalOverlay({
 const onCloseClick = (event: Event): void => {
     event.preventDefault();
     event.stopPropagation();
-    void requestClose();
+    void requestClose("action");
 };
 
 const onMaskClick = (event: MouseEvent): void => {
@@ -281,7 +287,7 @@ const onMaskClick = (event: MouseEvent): void => {
         props.closeOnMask &&
         overlay.claim(event)
     ) {
-        void requestClose();
+        void requestClose("backdrop");
     }
 };
 
@@ -304,7 +310,8 @@ useEffect(() => {
     }
 
     if (!rendered.peek() || closing.peek()) return;
-    overlay.beginClose();
+    overlay.beginClose(pendingCloseReason);
+    pendingCloseReason = "programmatic";
     closing.set(true);
     maskClosing.set(true);
     panelTimer = window.setTimeout(() => {

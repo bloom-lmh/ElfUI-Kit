@@ -13,7 +13,11 @@ import {
 
 import styles from "./style.scss?inline";
 import { useDismissibleOverlay } from "../../../composables/useDismissibleOverlay";
-import { computeAnchoredPosition, listenForExternalOverlayMotion } from "../../Common/anchored-overlay";
+import {
+  computeAnchoredPosition,
+  connectAnchoredOverlayLifecycle,
+  readOverlayViewport,
+} from "../../Common/overlay/anchored-overlay";
 import { useLocaleProvider } from "../../Providers/context";
 import type {
   PaginationEmits,
@@ -270,16 +274,10 @@ const updateSizeOverlayPosition = (): void => {
 
   const anchorRect = trigger.getBoundingClientRect();
   const panelRect = panel.getBoundingClientRect();
-  const viewport = window.visualViewport;
   const next = computeAnchoredPosition(
     anchorRect,
     { width: Math.max(anchorRect.width, panelRect.width, 112), height: panelRect.height },
-    {
-      width: viewport?.width || window.innerWidth,
-      height: viewport?.height || window.innerHeight,
-      offsetLeft: viewport?.offsetLeft || 0,
-      offsetTop: viewport?.offsetTop || 0
-    },
+    readOverlayViewport(),
     { placement: "bottom-start", offset: [0, 6], padding: 8, flip: true }
   );
   sizePlacement.set(next.placement as "bottom-start" | "top-start");
@@ -320,23 +318,12 @@ const connectSizeOverlay = (): void => {
   if (!props.teleported || !sizeOpen.value || typeof window === "undefined") return;
   const trigger = getSizeTrigger();
   const panel = getSizePanel();
-  const observer = typeof ResizeObserver !== "undefined"
-    ? new ResizeObserver(requestSizeOverlayUpdate)
-    : undefined;
-  if (trigger) observer?.observe(trigger);
-  if (panel) observer?.observe(panel);
-  const cleanupMotion = listenForExternalOverlayMotion(
-    () => [getSizePanel()],
-    () => closeSizeMenu()
-  );
-  window.addEventListener("resize", requestSizeOverlayUpdate, { passive: true });
-  window.visualViewport?.addEventListener("resize", requestSizeOverlayUpdate, { passive: true });
-  cleanupAnchoredOverlay = () => {
-    observer?.disconnect();
-    cleanupMotion();
-    window.removeEventListener("resize", requestSizeOverlayUpdate);
-    window.visualViewport?.removeEventListener("resize", requestSizeOverlayUpdate);
-  };
+  cleanupAnchoredOverlay = connectAnchoredOverlayLifecycle({
+    resizeTargets: [trigger, panel],
+    motionContainers: () => [getSizePanel()],
+    onResize: requestSizeOverlayUpdate,
+    onExternalMotion: () => closeSizeMenu(),
+  });
 };
 
 const openSizeMenu = (): void => {

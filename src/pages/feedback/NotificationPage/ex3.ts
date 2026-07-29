@@ -1,51 +1,73 @@
 import { defineHtml } from "@elfui/core";
 import { ElfNotification } from "../../../components/Feedback";
+import { createDocsTranslator } from "../../docsLocale";
+
+const t = createDocsTranslator({
+  section: { zh: "时长与服务选项", en: "Duration and service options" },
+  longTitle: { zh: "长时通知", en: "Long-lived" },
+  longMessage: { zh: "这条通知将持续显示十秒。", en: "This notification stays visible for ten seconds." },
+  persistentTitle: { zh: "常驻通知", en: "Persistent" },
+  persistentMessage: { zh: "这条通知只会通过服务句柄或 closeAll 关闭。", en: "This notification only closes through its handle or closeAll." },
+  customTitle: { zh: "自定义服务选项", en: "Custom service options" },
+  customMessage: { zh: "同时应用自定义类名、层级、偏移、关闭文字和回调。", en: "Custom class, z-index, offset, close label, and callback are applied together." },
+  closeLabel: { zh: "关闭", en: "Close" },
+  closedLog: { zh: "通知已关闭", en: "Notification closed" },
+  showLong: { zh: "显示 10 秒", en: "Show for 10 seconds" },
+  keepOpen: { zh: "保持显示", en: "Keep open" },
+  customOptions: { zh: "自定义选项", en: "Custom options" },
+  closeAll: { zh: "关闭全部", en: "Close all" },
+});
 
 const showLong = (): void => {
-  ElfNotification({ title: "Long-lived", message: "This notification stays visible for ten seconds.", duration: 10000 });
+  ElfNotification({ title: t("longTitle"), message: t("longMessage"), duration: 10000 });
 };
 
 const showPersistent = (): void => {
-  ElfNotification({ title: "Persistent", message: "This one only closes through the service handle or closeAll.", duration: 0 });
+  ElfNotification({ title: t("persistentTitle"), message: t("persistentMessage"), duration: 0 });
 };
 
 const showCustomized = (): void => {
   ElfNotification({
-    title: "Custom service options",
-    message: "Custom class, z-index, offset, close glyph, and callback are applied together.",
+    title: t("customTitle"),
+    message: t("customMessage"),
     type: "success",
     duration: 0,
     offset: 48,
     zIndex: 3100,
     customClass: "notification-demo-custom",
-    closeIcon: "Close",
-    onClose: () => console.info("Notification closed")
+    closeIcon: t("closeLabel"),
+    onClose: () => console.info(t("closedLog"))
   });
 };
 
 const handleCloseAll = (): void => ElfNotification.closeAll();
 
-const code3 = `ElfNotification({ title: "...", message: "...", duration: 10000 })
-ElfNotification({ title: "...", message: "...", duration: 0 })
-ElfNotification({
-  title: "Custom service options",
-  message: "...",
+const code = `<elf-button @click=\${showLong}>${t("showLong")}</elf-button>
+<elf-button @click=\${showPersistent}>${t("keepOpen")}</elf-button>
+<elf-button @click=\${showCustomized}>${t("customOptions")}</elf-button>
+<elf-button color="danger" @click=\${handleCloseAll}>${t("closeAll")}</elf-button>`;
+
+const script = `const showLong = () => ElfNotification({ title: "${t("longTitle")}", message: "${t("longMessage")}", duration: 10000 });
+const showPersistent = () => ElfNotification({ title: "${t("persistentTitle")}", message: "${t("persistentMessage")}", duration: 0 });
+const showCustomized = () => ElfNotification({
+  title: "${t("customTitle")}",
+  message: "${t("customMessage")}",
   customClass: "notification-demo-custom",
   zIndex: 3100,
   offset: 48,
-  closeIcon: "Close",
-  onClose: () => console.info("Notification closed")
-})
-ElfNotification.closeAll()`;
+  closeIcon: "${t("closeLabel")}",
+  onClose: () => console.info("${t("closedLog")}")
+});
+const handleCloseAll = () => ElfNotification.closeAll();`;
 
 const PageNotificationEx3 = defineHtml(`
-  <h2>Duration and service options</h2>
-  <elf-playground title="Duration, stacking offset, z-index, and close lifecycle" :code=${code3}>
+  <h2>${t("section")}</h2>
+  <elf-playground :title=${t("section")} :code=${code} :script=${script}>
     <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-      <elf-button @click=${showLong}>Show 10 seconds</elf-button>
-      <elf-button @click=${showPersistent}>Keep open</elf-button>
-      <elf-button @click=${showCustomized}>Custom options</elf-button>
-      <elf-button color="danger" @click=${handleCloseAll}>Close all</elf-button>
+      <elf-button @click=${showLong}>${t("showLong")}</elf-button>
+      <elf-button @click=${showPersistent}>${t("keepOpen")}</elf-button>
+      <elf-button @click=${showCustomized}>${t("customOptions")}</elf-button>
+      <elf-button color="danger" @click=${handleCloseAll}>${t("closeAll")}</elf-button>
     </div>
   </elf-playground>
 `);

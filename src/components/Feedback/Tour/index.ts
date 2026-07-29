@@ -23,6 +23,9 @@ import {
 import styles from "./style.scss?inline";
 import type { TourEmits, TourExpose, TourPlacement, TourProps, TourSlots, TourStep } from "./types";
 import { useLocaleProvider } from "../../Providers/context";
+import { useGoTo } from "../../../composables/useGoTo";
+import { findScrollContainer } from "../../../composables/scroll";
+import type { GoToTask } from "../../../composables/goTo";
 
 export type {
   TourChangeDetail,
@@ -68,6 +71,7 @@ const props = defineProps<TourProps>({
 const emit = defineEmits<TourEmits>();
 
 const locale = useLocaleProvider();
+const goTo = useGoTo();
 
 const host = useHost();
 const overlayRef = useTemplateRef<HTMLElement>("overlay");
@@ -85,6 +89,7 @@ let focusFrameId = 0;
 let previousActive: HTMLElement | null = null;
 let lastPropCurrent = 0;
 let targetObserver: MutationObserver | null = null;
+let targetScrollTask: GoToTask | null = null;
 
 const steps = (): TourStep[] => (Array.isArray(props.steps) ? (props.steps as TourStep[]) : []);
 const stepCount = (): number => steps().length;
@@ -137,6 +142,47 @@ const scheduleUpdate = (): void => {
   frameId = requestAnimationFrame(() => {
     frameId = 0;
     updateTarget();
+  });
+};
+
+const isTargetVisible = (
+  target: Element,
+  container: HTMLElement | null,
+  padding: number
+): boolean => {
+  const targetRect = target.getBoundingClientRect();
+  const bounds = container?.getBoundingClientRect() ?? {
+    top: 0,
+    bottom: window.innerHeight,
+  };
+  return targetRect.top >= bounds.top + padding
+    && targetRect.bottom <= bounds.bottom - padding;
+};
+
+const scrollToActiveTarget = (): void => {
+  targetScrollTask?.cancel();
+  targetScrollTask = null;
+  const target = resolveTarget();
+  if (!target) {
+    scheduleUpdate();
+    return;
+  }
+  const container = findScrollContainer(target);
+  const padding = Math.max(16, Number(props.gap) || 0);
+  if (isTargetVisible(target, container, padding)) {
+    scheduleUpdate();
+    return;
+  }
+
+  const task = goTo(target, {
+    container,
+    offset: padding,
+  });
+  targetScrollTask = task;
+  void task.finished.then((result) => {
+    if (targetScrollTask !== task) return;
+    targetScrollTask = null;
+    if (result.status === "completed") scheduleUpdate();
   });
 };
 
@@ -214,6 +260,8 @@ const close = (): void => {
   if (!rendered.peek() || closing.peek()) return;
   cancelScheduledFocus();
   disconnectTargetObserver();
+  targetScrollTask?.cancel();
+  targetScrollTask = null;
   closing.set(true);
   clearCloseTimer();
   closeTimer = setTimeout(() => {
@@ -386,6 +434,12 @@ useEffect(() => {
   scheduleUpdate();
 });
 
+useEffect(() => {
+  void currentStep.value;
+  if (!rendered.value || closing.value) return;
+  scrollToActiveTarget();
+});
+
 useEscapeKey(() => {
   if (props.keyboard && props.closeOnPressEscape && rendered.value) close();
 });
@@ -404,6 +458,8 @@ useHostFlag("data-visible", () => hostVisible.value);
 onBeforeUnmount(() => {
   clearCloseTimer();
   disconnectTargetObserver();
+  targetScrollTask?.cancel();
+  targetScrollTask = null;
   if (frameId) cancelAnimationFrame(frameId);
   cancelScheduledFocus();
   resolveOverlay()?.remove();

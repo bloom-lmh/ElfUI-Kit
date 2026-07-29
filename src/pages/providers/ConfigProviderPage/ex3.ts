@@ -1,6 +1,11 @@
 import { defineHtml, useComponents } from "@elfui/core";
+import { createDocsTranslator } from "../../docsLocale";
 
 import { PageConfigProviderPreview } from "./preview";
+
+const t = createDocsTranslator({
+  title: { zh: "显示与动效偏好", en: "Display and motion preferences" },
+});
 
 useComponents({
   "page-config-provider-preview": PageConfigProviderPreview,
@@ -28,7 +33,7 @@ const script = `const config = {
 
 const PageConfigProviderEx3 = defineHtml(`
   <elf-playground
-    title="Display and motion preferences"
+    :title=${t("title")}
     :code=${code}
     :script=${script}
   >

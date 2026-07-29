@@ -115,6 +115,11 @@ const englishLabel = (label: string): string => {
   return stripped || label;
 };
 
+const chineseLabel = (label: string): string => {
+  const firstChinese = label.search(/[\u3400-\u9fff]/u);
+  return firstChinese >= 0 ? label.slice(firstChinese).trim() : label;
+};
+
 // State
 const initialSkin = normalizeSkin(readStorage(SKIN_KEY, readStorage(LEGACY_THEME_KEY, "material")));
 const skinName = useRef(initialSkin);
@@ -138,7 +143,8 @@ const providerConfig = (): ElfUIConfig => ({
   },
 });
 const text = (zh: string, en: string): string => isEnglish() ? en : zh;
-const localizeLabel = (label: string): string => isEnglish() ? englishLabel(label) : label;
+const localizeLabel = (label: string): string =>
+  isEnglish() ? englishLabel(label) : chineseLabel(label);
 const collapseIcon = (): string => compactViewport.value
   ? (mobileMenuOpen.value ? "✕" : "☰")
   : (collapsed.value ? "☰" : "✕");

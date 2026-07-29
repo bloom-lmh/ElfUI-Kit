@@ -1,5 +1,5 @@
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
-import { createOverlayInteractionController } from "../../Common/overlay-interaction-controller";
+import { createOverlayInteractionController } from "../../Common/overlay/overlay-interaction-controller";
 
 beforeAll(async () => {
   await import("../../../components");
@@ -566,7 +566,10 @@ describe("elf-menu", () => {
     (persistentMenu.shadowRoot!.querySelector('.horizontal-panel [data-index="/workspace/projects"]') as HTMLElement).click();
     await tick();
 
-    expect(persistentMenu.shadowRoot!.querySelector(".horizontal-panel")?.classList.contains("is-hidden")).toBe(true);
+    const hiddenPanel = persistentMenu.shadowRoot!.querySelector(".horizontal-panel");
+    expect(hiddenPanel?.classList.contains("is-hidden")).toBe(true);
+    expect(hiddenPanel?.getAttribute("aria-hidden")).toBe("true");
+    expect(hiddenPanel?.hasAttribute("inert")).toBe(true);
 
     const disposableMenu = await mount();
     disposableMenu.mode = "horizontal";

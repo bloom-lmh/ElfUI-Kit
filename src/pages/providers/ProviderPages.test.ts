@@ -5,6 +5,9 @@ let localeNestedTag = "";
 let themeNestedTag = "";
 let defaultsNestedTag = "";
 let configProviderTag = "";
+let defaultsProviderTag = "";
+let localeProviderTag = "";
+let themeProviderTag = "";
 
 beforeAll(async () => {
   await import("../../components");
@@ -14,17 +17,24 @@ beforeAll(async () => {
   const { PageThemeProviderEx4 } = await import("./ThemeProviderPage/ex4");
   const { PageDefaultsProviderEx3 } = await import("./DefaultsProviderPage/ex3");
   const { PageConfigProvider } = await import("./ConfigProviderPage/index");
+  const { PageDefaultsProvider } = await import("./DefaultsProviderPage/index");
+  const { PageLocaleProvider } = await import("./LocaleProviderPage/index");
+  const { PageThemeProvider } = await import("./ThemeProviderPage/index");
   localeMatrixTag = ensureCustomElement(PageLocaleProviderEx2);
   localeNestedTag = ensureCustomElement(PageLocaleProviderEx3);
   themeNestedTag = ensureCustomElement(PageThemeProviderEx4);
   defaultsNestedTag = ensureCustomElement(PageDefaultsProviderEx3);
   configProviderTag = ensureCustomElement(PageConfigProvider);
+  defaultsProviderTag = ensureCustomElement(PageDefaultsProvider);
+  localeProviderTag = ensureCustomElement(PageLocaleProvider);
+  themeProviderTag = ensureCustomElement(PageThemeProvider);
 });
 
 afterEach(async () => {
   const { ElfMessage } = await import("../../components/Feedback/Message");
   ElfMessage.closeAll();
   document.body.innerHTML = "";
+  document.documentElement.lang = "zh-CN";
 });
 
 const tick = (): Promise<void> => new Promise((resolve) => queueMicrotask(resolve));
@@ -87,12 +97,60 @@ describe("Provider pages", () => {
     expect(resetButton.variant).toBe("contained");
   });
 
-  it("ConfigProvider 页面展示一站式配置、命名主题和断点", async () => {
+  it("ConfigProvider 中文页面展示一站式配置、命名主题和断点", async () => {
+    const page = await mount(configProviderTag);
+    const text = collectText(page);
+    expect(text).toContain("统一入口 · 蓝图与默认值");
+    expect(text).toContain("命名主题");
+    expect(text).toContain("显示与动效偏好");
+    expect(text).toContain("程序化滚动 · 共享滚动策略");
+  });
+
+  it("ConfigProvider 英文页面覆盖案例、预览和 API 文案", async () => {
+    document.documentElement.lang = "en-US";
     const page = await mount(configProviderTag);
     const text = collectText(page);
     expect(text).toContain("One entry point");
     expect(text).toContain("Named theme");
     expect(text).toContain("Display and motion preferences");
-    expect(text).toContain("goTo · shared scrolling strategy");
+    expect(text).toContain("Programmatic scrolling · shared strategy");
+    expect(text).toContain("Base preset merged before config.");
+    expect(text).not.toContain("统一入口 · 蓝图与默认值");
+  });
+
+  it("DefaultsProvider 英文页面覆盖三个策略案例和 API 文案", async () => {
+    document.documentElement.lang = "en-US";
+    const page = await mount(defaultsProviderTag);
+    const text = collectText(page);
+    expect(text).toContain("Propagating default props");
+    expect(text).toContain("Overwrite strategy");
+    expect(text).toContain("Nested overrides and reset");
+    expect(text).toContain("Default props keyed by component name.");
+    expect(text).not.toContain("默认属性下发");
+  });
+
+  it("LocaleProvider 英文页面覆盖切换、矩阵和嵌套作用域", async () => {
+    document.documentElement.lang = "en-US";
+    const page = await mount(localeProviderTag);
+    const text = collectText(page);
+    expect(text).toContain("Switching locale and RTL");
+    expect(text).toContain("Component-level English override");
+    expect(text).toContain("Nested scopes and formatting");
+    expect(text).toContain("Lokaler deutscher Freigabebereich");
+    expect(text).toContain("Localized messages merged with the defaults.");
+    expect(text).not.toContain("英文工作区中的中文审批区");
+  });
+
+  it("ThemeProvider 英文页面覆盖局部、动态、皮肤和服务浮层案例", async () => {
+    document.documentElement.lang = "en-US";
+    const page = await mount(themeProviderTag);
+    const text = collectText(page);
+    expect(text).toContain("Local dark theme");
+    expect(text).toContain("Custom primary color");
+    expect(text).toContain("Multiple theme skins");
+    expect(text).toContain("Nested themes and service overlays");
+    expect(text).toContain("Coral approval scope");
+    expect(text).toContain("Named theme definitions.");
+    expect(text).not.toContain("局部暗色主题");
   });
 });

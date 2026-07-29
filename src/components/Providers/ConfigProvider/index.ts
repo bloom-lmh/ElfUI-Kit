@@ -38,6 +38,7 @@ export type {
   ElfUIIconOptions,
   ElfUILocaleOptions,
   ElfUIThemeOptions,
+  FieldValueDefaults,
   MotionPreference,
 } from "../config";
 

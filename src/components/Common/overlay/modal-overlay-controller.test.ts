@@ -20,7 +20,7 @@ const panelWithButton = (label: string): {
   return { panel, button };
 };
 
-describe("modal overlay coordination", () => {
+describe("modal overlay controller coordination", () => {
   it("coordinates different modal kinds through one interaction stack", () => {
     const stack = createModalOverlayStack();
     const dialogPanel = panelWithButton("dialog").panel;
@@ -44,6 +44,8 @@ describe("modal overlay coordination", () => {
     expect(stack.top()?.kind).toBe("drawer");
 
     drawer.beginClose();
+    expect(drawer.state()).toBe("closing");
+    expect(drawer.closeReason()).toBe("programmatic");
     expect(dialog.isTopmost()).toBe(true);
   });
 
@@ -94,8 +96,9 @@ describe("modal overlay coordination", () => {
     expect(document.activeElement).toBe(button);
     expect(onInitialFocus).toHaveBeenCalledTimes(1);
 
-    overlay.beginClose();
-    overlay.completeClose();
+    overlay.beginClose("backdrop");
+    expect(overlay.closeReason()).toBe("backdrop");
+    expect(overlay.completeClose()).toBe(true);
     expect(document.activeElement).toBe(trigger);
     expect(onRestoreFocus).toHaveBeenCalledTimes(1);
 

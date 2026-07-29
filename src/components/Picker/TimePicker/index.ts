@@ -17,9 +17,10 @@ import {
 import styles from "./style.scss?inline";
 import { normalizeFieldVariant } from "../../../types/field";
 import { useDisabled, useFormControl, useSize } from "../../../composables";
-import { computeAnchoredPosition, listenForExternalOverlayMotion } from "../../Common/anchored-overlay";
+import { computeAnchoredPosition, connectAnchoredOverlayLifecycle } from "../../Common/overlay/anchored-overlay";
 import { useLocaleProvider } from "../../Providers/context";
 import { useDismissibleOverlay } from "../../../composables/useDismissibleOverlay";
+import { useFieldValueDefaults } from "../../../composables/field-values";
 import type { TimePickerModelValue, TimePickerPlacement, TimePickerProps, TimePickerRole, TimeShortcut } from "./types";
 
 export type {
@@ -69,7 +70,7 @@ const props = defineProps<TimePickerProps>({
   name: { type: String, default: "" },
   tabindex: { type: null, default: 0 },
   valueOnClear: { type: null, default: undefined },
-  emptyValues: { type: Array, default: () => [undefined, null, ""] },
+  emptyValues: { type: Array, default: undefined },
   saveOnBlur: { type: Boolean, default: true },
   shortcuts: { type: Array, default: () => [] },
   defaultValue: { type: null, default: "" },
@@ -95,6 +96,7 @@ const emit = defineEmits<{
   focus: [event: FocusEvent];
   "visible-change": [visible: boolean];
 }>();
+const fieldValues = useFieldValueDefaults();
 
 const ctl = useFormControl<TimePickerModelValue>(props, emit, {
   ...(props.validateEvent === false ? { triggers: { change: false, blur: false } } : {})
@@ -125,7 +127,7 @@ interface TimeParts {
 }
 
 const isEmptyValue = (value: unknown): boolean =>
-  (props.emptyValues || []).some((candidate) => Object.is(candidate, value));
+  fieldValues.isEmpty(value, props.emptyValues);
 
 const pad = (value: number): string => String(value).padStart(2, "0");
 
@@ -363,15 +365,10 @@ const onShortcutClick = (event: Event): void => {
 
 const clear = (): void => {
   if (isDisabled() || props.readonly) return;
-  const configured = props.valueOnClear;
-  const next: TimePickerModelValue =
-    typeof configured === "function"
-      ? configured()
-      : configured !== undefined
-        ? configured
-        : rangeMode()
-          ? ["", ""]
-          : "";
+  const next = fieldValues.valueOnClear<TimePickerModelValue>(
+    props.valueOnClear,
+    () => rangeMode() ? ["", ""] : ""
+  );
   if (Array.isArray(next)) {
     start.set(String(next[0] || ""));
     end.set(String(next[1] || ""));
@@ -559,14 +556,15 @@ useHostFlag("data-open", () => open.value);
 useHostFlag("data-dirty", hasValue);
 useHostFlag("data-has-label", () => Boolean(props.label));
 onMounted(() => {
-  cleanupOverlayMotion = listenForExternalOverlayMotion(() => [getPanelEl()], handleClose);
-  window.addEventListener("resize", requestPanelUpdate, { passive: true });
-  window.visualViewport?.addEventListener("resize", requestPanelUpdate, { passive: true });
+  cleanupOverlayMotion = connectAnchoredOverlayLifecycle({
+    resizeTargets: [],
+    motionContainers: () => [getPanelEl()],
+    onResize: requestPanelUpdate,
+    onExternalMotion: handleClose,
+  });
 });
 onBeforeUnmount(() => {
   cleanupOverlayMotion();
-  window.removeEventListener("resize", requestPanelUpdate);
-  window.visualViewport?.removeEventListener("resize", requestPanelUpdate);
   if (overlayFrame && typeof cancelAnimationFrame === "function") cancelAnimationFrame(overlayFrame);
 });
 

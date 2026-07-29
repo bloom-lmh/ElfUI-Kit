@@ -1,6 +1,11 @@
 import { defineHtml, useComponents } from "@elfui/core";
+import { createDocsTranslator } from "../../docsLocale";
 
 import { PageConfigProviderGoToPreview } from "./goToPreview";
+
+const t = createDocsTranslator({
+  title: { zh: "程序化滚动 · 共享滚动策略", en: "Programmatic scrolling · shared strategy" },
+});
 
 useComponents({
   "page-config-provider-goto-preview": PageConfigProviderGoToPreview,
@@ -39,7 +44,7 @@ const scrollToReview = () => goTo(
 
 const PageConfigProviderEx4 = defineHtml(`
   <elf-playground
-    title="goTo · shared scrolling strategy"
+    :title=${t("title")}
     :code=${code}
     :script=${script}
   >

@@ -1,4 +1,4 @@
-import { beforeAll, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 beforeAll(async () => {
   await import("../../../components");
@@ -6,6 +6,10 @@ beforeAll(async () => {
 
 beforeEach(() => {
   document.body.innerHTML = "";
+});
+
+afterEach(() => {
+  vi.unstubAllGlobals();
 });
 
 const tick = (): Promise<void> => new Promise((resolve) => queueMicrotask(resolve));
@@ -164,10 +168,19 @@ describe("virtual window", () => {
 
     const viewport = el.shadowRoot!.querySelector(".viewport") as HTMLElement;
     Object.defineProperty(viewport, "clientHeight", { configurable: true, value: 240 });
+    let recycledElements = new Set<Element>();
     for (let step = 1; step <= 40; step += 1) {
       viewport.scrollTop = step * 1200;
       viewport.dispatchEvent(new Event("scroll"));
+      const immediateRows = el.shadowRoot!.querySelectorAll(".scroll-window .item");
+      expect(immediateRows.length).toBeGreaterThan(0);
+      expect(immediateRows.length).toBeLessThan(40);
+      expect(immediateRows[0]?.textContent).not.toBe("");
+      if (step === 1) recycledElements = new Set(immediateRows);
     }
+    expect(el.shadowRoot!.textContent).toContain("Dynamic 1200");
+    expect(Array.from(el.shadowRoot!.querySelectorAll(".scroll-window .item"))
+      .some((item) => recycledElements.has(item))).toBe(true);
     await frame();
     await tick();
 
@@ -176,6 +189,69 @@ describe("virtual window", () => {
     expect(rows.length).toBeLessThan(40);
     expect(rows[0]?.textContent).not.toBe("");
     expect(el.getVisibleRange().start).toBeGreaterThan(1100);
+  });
+
+  it("anchors dynamic measurements against the visible range instead of overscan", async () => {
+    let resizeCallback: ResizeObserverCallback | undefined;
+    class ResizeObserverMock {
+      constructor(callback: ResizeObserverCallback) {
+        resizeCallback = callback;
+      }
+      observe(): void {}
+      disconnect(): void {}
+      unobserve(): void {}
+    }
+    vi.stubGlobal("ResizeObserver", ResizeObserverMock);
+
+    const el = document.createElement("elf-virtual-list") as HTMLElement & Record<string, any>;
+    el.items = Array.from({ length: 200 }, (_, index) => ({ id: index, label: `Measured ${index}` }));
+    el.dynamic = true;
+    el.estimatedItemHeight = 40;
+    el.height = 240;
+    el.overscan = 2;
+    el.renderItem = (item: { label: string }) => item.label;
+    document.body.appendChild(el);
+    await tick();
+    await tick();
+
+    const viewport = el.shadowRoot!.querySelector(".viewport") as HTMLElement;
+    Object.defineProperty(viewport, "clientHeight", { configurable: true, value: 240 });
+    viewport.scrollTop = 400;
+    viewport.dispatchEvent(new Event("scroll"));
+    await frame();
+    await tick();
+
+    const overscanRow = el.shadowRoot!.querySelector<HTMLElement>('.item[data-virtual-index="4"]')!;
+    expect(overscanRow).toBeTruthy();
+    resizeCallback?.([
+      {
+        target: overscanRow,
+        contentRect: { height: 44 },
+        borderBoxSize: [{ blockSize: 60 }],
+      } as unknown as ResizeObserverEntry,
+    ], {} as ResizeObserver);
+    await frame();
+    await tick();
+
+    expect(viewport.scrollTop).toBe(420);
+
+    viewport.scrollTop = 7780;
+    viewport.dispatchEvent(new Event("scroll"));
+    await frame();
+    await tick();
+    const bottomRow = el.shadowRoot!.querySelector<HTMLElement>('.item[data-virtual-index="199"]')!;
+    expect(bottomRow).toBeTruthy();
+    resizeCallback?.([
+      {
+        target: bottomRow,
+        contentRect: { height: 44 },
+        borderBoxSize: [{ blockSize: 60 }],
+      } as unknown as ResizeObserverEntry,
+    ], {} as ResizeObserver);
+    await frame();
+    await tick();
+
+    expect(viewport.scrollTop).toBe(7800);
   });
 
   it("keeps keyboard focus navigation inside the virtual window", async () => {

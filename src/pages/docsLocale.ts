@@ -6,6 +6,11 @@ import {
 export type DocsMessage = Readonly<{ zh: string; en: string }>;
 export type DocsMessages<Key extends string> = Readonly<Record<Key, DocsMessage>>;
 
+const localizeChineseTitle = (value: string): string => {
+  const match = value.match(/^[A-Za-z][A-Za-z0-9+&./ -]{0,36}\s+([\u3400-\u9fff].*)$/u);
+  return match?.[1]?.trim() || value;
+};
+
 const resolveDocsLocaleName = (): string => {
   const locale = useLocaleProvider();
   if (locale !== DEFAULT_LOCALE_CONTEXT || typeof document === "undefined") {
@@ -26,7 +31,11 @@ export const createDocsTranslator = <Key extends string>(messages: DocsMessages<
 
   return (key: Key): string => {
     const message = messages[key];
-    return isEnglish() ? message.en : message.zh;
+    return isEnglish()
+      ? message.en
+      : String(key).toLowerCase() === "title"
+        ? localizeChineseTitle(message.zh)
+        : message.zh;
   };
 };
 

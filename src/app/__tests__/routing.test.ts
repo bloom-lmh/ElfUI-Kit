@@ -76,14 +76,14 @@ describe("路由跳转", () => {
     expect(menu).toBeTruthy();
     const layout = Array.from(
       menu?.shadowRoot?.querySelectorAll<HTMLButtonElement>(".menu-item") ?? []
-    ).find((node) => node.textContent?.includes("Layout 布局"));
+    ).find((node) => node.textContent?.includes("布局"));
     layout?.click();
     await tick();
-    expect(menu?.shadowRoot?.textContent).toContain("Grid 栅格");
-    expect(menu?.shadowRoot?.textContent).toContain("Flex 弹性布局");
-    expect(menu?.shadowRoot?.textContent).toContain("Layout 应用骨架");
-    expect(menu?.shadowRoot?.textContent).not.toContain("Container 容器");
-    expect(menu?.shadowRoot?.textContent).not.toContain("Space 间距");
+    expect(menu?.shadowRoot?.textContent).toContain("栅格");
+    expect(menu?.shadowRoot?.textContent).toContain("弹性布局");
+    expect(menu?.shadowRoot?.textContent).toContain("应用骨架");
+    expect(menu?.shadowRoot?.textContent).not.toContain("容器");
+    expect(menu?.shadowRoot?.textContent).not.toContain("间距");
   });
 
   it("AppShell setup 早于 router 创建时，菜单点击仍能跳转", async () => {
@@ -107,12 +107,12 @@ describe("路由跳转", () => {
     const menu = app.shadowRoot?.querySelector("elf-menu");
     const basic = Array.from(
       menu?.shadowRoot?.querySelectorAll<HTMLButtonElement>(".menu-item") ?? []
-    ).find((node) => node.textContent?.includes("Basic 基础"));
+    ).find((node) => node.textContent?.includes("基础"));
     basic?.click();
     await tick();
     const button = Array.from(
       menu?.shadowRoot?.querySelectorAll<HTMLButtonElement>(".menu-item") ?? []
-    ).find((node) => node.textContent?.includes("Button 按钮"));
+    ).find((node) => node.textContent?.includes("按钮"));
     expect(button).toBeTruthy();
     button!.dispatchEvent(
       new MouseEvent("click", { bubbles: true, cancelable: true, composed: true })
@@ -227,18 +227,23 @@ describe("路由跳转", () => {
     }>("elf-menu");
     expect(menu?.items?.[0]).toEqual({
       index: "group:Guide 指南",
-      label: "Guide 指南",
+      label: "指南",
       icon: "G",
       children: expect.arrayContaining([
-        expect.objectContaining({ index: "/providers/config", label: "Global configuration 全局配置" }),
-        expect.objectContaining({ index: "/guide/accessibility", label: "Accessibility 无障碍" })
+        expect.objectContaining({ index: "/providers/config", label: "全局配置" }),
+        expect.objectContaining({ index: "/guide/accessibility", label: "无障碍" })
       ])
     });
+    const children = menu?.items?.flatMap((item) => item.children || []) || [];
+    expect(children).toEqual(expect.arrayContaining([
+        expect.objectContaining({ index: "/data/virtual-list", label: "虚拟列表" }),
+        expect.objectContaining({ index: "/data/virtual-table", label: "虚拟表格" })
+    ]));
     expect(menu?.items?.at(-1)).toEqual({
       index: "group:Utilities 工具类",
-      label: "Utilities 工具类",
+      label: "工具类",
       icon: "U",
-      children: [{ index: "/utilities", label: "Utilities 工具类", icon: "U" }]
+      children: [{ index: "/utilities", label: "工具类", icon: "U" }]
     });
   });
 

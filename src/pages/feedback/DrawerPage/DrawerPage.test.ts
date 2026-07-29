@@ -2,19 +2,23 @@ import { afterEach, beforeAll, describe, expect, it } from "vitest";
 
 let exampleTag = "";
 let resizeExampleTag = "";
+let pageTag = "";
 
 beforeAll(async () => {
   await import("../../../components");
   const { ensureCustomElement } = await import("@elfui/core");
   const { PageDrawerEx3 } = await import("./ex3");
   const { PageDrawerEx4 } = await import("./ex4");
+  const { PageDrawer } = await import("./index");
   exampleTag = ensureCustomElement(PageDrawerEx3);
   resizeExampleTag = ensureCustomElement(PageDrawerEx4);
+  pageTag = ensureCustomElement(PageDrawer);
 });
 
 afterEach(() => {
   document.body.innerHTML = "";
   document.body.style.overflow = "";
+  document.documentElement.lang = "zh-CN";
 });
 
 const wait = (ms = 20): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
@@ -37,7 +41,47 @@ const deepActiveElement = (): Element | null => {
   return active;
 };
 
+const collectText = (root: Node): string => {
+  let output = "";
+  const visit = (node: Node): void => {
+    if (node.nodeType === Node.TEXT_NODE) output += ` ${node.textContent || ""}`;
+    if (node instanceof Element && node.shadowRoot) visit(node.shadowRoot);
+    node.childNodes.forEach(visit);
+  };
+  visit(root);
+  return output.replace(/\s+/g, " ").trim();
+};
+
+const mountPage = async (): Promise<HTMLElement> => {
+  const page = document.createElement(pageTag);
+  document.body.appendChild(page);
+  await wait();
+  await wait();
+  return page;
+};
+
 describe("DrawerPage", () => {
+  it("中文页面覆盖案例、源码和 API 文案", async () => {
+    const page = await mountPage();
+    const text = collectText(page);
+    expect(text).toContain("弹出方向");
+    expect(text).toContain("非模态模式");
+    expect(text).toContain("焦点与移动端");
+    expect(text).toContain("允许通过内侧边缘或键盘调整尺寸");
+  });
+
+  it("英文页面覆盖全部案例、源码和 API 文案", async () => {
+    document.documentElement.lang = "en-US";
+    const page = await mountPage();
+    const text = collectText(page);
+    expect(text).toContain("Directions");
+    expect(text).toContain("Non-modal mode");
+    expect(text).toContain("Focus and mobile");
+    expect(text).toContain("Resizable drawer");
+    expect(text).toContain("Allow resizing from the inner edge or keyboard.");
+    expect(text).not.toContain("弹出方向");
+  });
+
   it("窄屏焦点案例锁定页面滚动，并在 Escape 后恢复打开按钮焦点", async () => {
     const page = document.createElement(exampleTag);
     document.body.appendChild(page);

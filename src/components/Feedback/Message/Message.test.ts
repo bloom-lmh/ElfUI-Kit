@@ -10,6 +10,7 @@ afterEach(async () => {
   ElfMessage.closeAll();
   document.body.innerHTML = "";
   delete document.documentElement.dataset.theme;
+  document.documentElement.lang = "zh-CN";
 });
 
 const tick = (): Promise<void> => new Promise((resolve) => queueMicrotask(resolve));
@@ -139,5 +140,18 @@ describe("ElfMessage()", () => {
     action.click();
     expect(onAction).toHaveBeenCalledTimes(1);
     expect(onClick).not.toHaveBeenCalled();
+  });
+
+  it("uses the document locale for a detached service close label", async () => {
+    document.documentElement.lang = "en-US";
+    const { ElfMessage } = await import("../Message/index");
+    ElfMessage({ message: "Detached message", duration: 0, closable: true });
+    await tick();
+    await tick();
+
+    const close = document.body
+      .querySelector("elf-message")!
+      .shadowRoot!.querySelector(".close");
+    expect(close?.getAttribute("aria-label")).toBe("Close message");
   });
 });

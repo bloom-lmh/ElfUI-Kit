@@ -57,6 +57,11 @@ export type ElfUILocaleOptions = Partial<LocaleProviderProps> & {
 
 export type ElfUIIconOptions = Partial<IconProviderProps> & IconOptions;
 
+export interface FieldValueDefaults {
+  emptyValues?: readonly unknown[];
+  valueOnClear?: unknown | (() => unknown);
+}
+
 export interface ElfUIConfig {
   defaults?: ProviderDefaults;
   defaultsOptions?: Omit<ElfUIDefaultsOptions, "values">;
@@ -66,6 +71,7 @@ export interface ElfUIConfig {
   display?: DisplayProviderOptions;
   motion?: MotionPreference;
   goTo?: GoToDefaults;
+  field?: FieldValueDefaults;
 }
 
 export interface DisplayProviderContext {

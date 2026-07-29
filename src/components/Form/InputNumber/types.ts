@@ -27,6 +27,6 @@ export interface InputNumberProps {
   backgroundColor: string;
   placeholder: string;
   name: string;
-  valueOnClear: number | null;
+  valueOnClear?: number | null;
   validateEvent: boolean;
 }

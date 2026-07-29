@@ -56,4 +56,39 @@ describe("virtual-window", () => {
       scrollOffset: 100
     })).toEqual({ start: 0, end: 0, offset: 0, totalSize: 0 });
   });
+
+  it("keeps a fixed window bounded after data shrink and invalid measurements", () => {
+    expect(computeVirtualWindow({
+      count: 3,
+      itemSize: 40,
+      viewportSize: 80,
+      scrollOffset: 1000,
+      overscan: 0
+    })).toEqual({ start: 1, end: 3, offset: 40, totalSize: 120 });
+
+    expect(computeVirtualWindow({
+      count: Number.NaN,
+      itemSize: -1,
+      viewportSize: Number.NaN,
+      scrollOffset: Number.POSITIVE_INFINITY,
+      overscan: -4
+    })).toEqual({ start: 0, end: 0, offset: 0, totalSize: 0 });
+  });
+
+  it("keeps one measurable row for a zero-size viewport without exceeding count", () => {
+    expect(computeVirtualWindow({
+      count: 3,
+      itemSize: 40,
+      viewportSize: 0,
+      scrollOffset: 80,
+      overscan: 0
+    })).toEqual({ start: 2, end: 3, offset: 80, totalSize: 120 });
+
+    expect(computeVariableVirtualWindow({
+      offsets: [0, 40, 80, 120],
+      viewportSize: 0,
+      scrollOffset: 80,
+      overscan: 0
+    })).toEqual({ start: 2, end: 3, offset: 80, totalSize: 120 });
+  });
 });

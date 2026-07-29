@@ -38,13 +38,13 @@ const updateDialog = (event: CustomEvent<boolean>): void => {
 const onConfirmOpen = (): void => status.set(t("confirmOpen"));
 const onConfirmClose = (): void => status.set(t("dialogOpen"));
 
-const code = `<elf-button @click="openDialog">打开发布流程</elf-button>
-<elf-dialog v-model:open="dialogOpen" title="发布版本">
+const code = `<elf-button @click="openDialog">${t("open")}</elf-button>
+<elf-dialog v-model:open="dialogOpen" title="${t("dialogTitle")}">
   <elf-pop-confirm
-    title="确认发布？"
-    content="该操作会立即更新线上版本。"
+    title="${t("confirmTitle")}"
+    content="${t("confirmContent")}"
   >
-    <elf-button>发布到生产环境</elf-button>
+    <elf-button>${t("trigger")}</elf-button>
   </elf-pop-confirm>
 </elf-dialog>`;
 

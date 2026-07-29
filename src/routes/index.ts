@@ -261,6 +261,10 @@ export const routes: RouteRecord[] = [
     component: () => import("../pages/data/TablePage/index")
   },
   {
+    path: "/data/virtual-table",
+    component: () => import("../pages/data/VirtualTablePage/index")
+  },
+  {
     path: "/data/list",
     component: () => import("../pages/data/ListPage/index")
   },
@@ -441,6 +445,7 @@ export const navItems: NavItem[] = [
   { to: "/data/pagination", text: "Pagination 分页", group: "Data 数据展示" },
   { to: "/data/progress", text: "Progress 进度条", group: "Data 数据展示" },
   { to: "/data/table", text: "Table 表格", group: "Data 数据展示" },
+  { to: "/data/virtual-table", text: "VirtualTable 虚拟表格", group: "Data 数据展示" },
   { to: "/data/list", text: "List 列表", group: "Data 数据展示" },
   { to: "/data/virtual-list", text: "VirtualList 虚拟列表", group: "Data 数据展示" },
   { to: "/data/skeleton", text: "Skeleton 骨架屏", group: "Data 数据展示" },

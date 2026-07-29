@@ -1,44 +1,56 @@
 import { defineHtml, useRef } from "@elfui/core";
+import { createDocsTranslator } from "../../docsLocale";
 
-
-const basicSelected = useRef("未选择");
+const t = createDocsTranslator({
+  title: { zh: "基础命令菜单", en: "Basic command menu" },
+  moreActions: { zh: "更多操作", en: "More actions" },
+  edit: { zh: "编辑资料", en: "Edit profile" },
+  copy: { zh: "复制链接", en: "Copy link" },
+  archive: { zh: "移动到归档", en: "Move to archive" },
+  export: { zh: "导出记录", en: "Export record" },
+  delete: { zh: "删除", en: "Delete" },
+  notSelected: { zh: "未选择", en: "No selection" },
+  currentCommand: { zh: "当前命令", en: "Current command" },
+});
 
 const items = [
-  { label: "编辑资料", command: "edit", icon: "✎", shortcut: "E" },
-  { label: "复制链接", command: "copy", icon: "⧉", shortcut: "Ctrl C" },
+  { label: t("edit"), command: "edit", icon: "✎", shortcut: "E" },
+  { label: t("copy"), command: "copy", icon: "⧉", shortcut: "Ctrl C" },
   {
-    label: "更多操作",
+    label: t("moreActions"),
     command: "more",
     icon: "⋯",
     children: [
-      { label: "移动到归档", command: "archive" },
-      { label: "导出记录", command: "export" }
+      { label: t("archive"), command: "archive" },
+      { label: t("export"), command: "export" }
     ]
   },
-  { label: "删除", command: "delete", icon: "×", divided: true }
+  { label: t("delete"), command: "delete", icon: "×", divided: true }
 ];
+
+const basicSelected = useRef(t("notSelected"));
 
 const basicCode = `<elf-dropdown
   :items.prop=\${items}
-  label="更多操作"
+  label="${t("moreActions")}"
   @command=\${onBasicCommand}
 ></elf-dropdown>`;
 
 const triggerScript = `const items = [
-  { label: "编辑资料", command: "edit", icon: "✎", shortcut: "E" },
-  { label: "复制链接", command: "copy", icon: "⧉", shortcut: "Ctrl C" },
+  { label: "${t("edit")}", command: "edit", icon: "✎", shortcut: "E" },
+  { label: "${t("copy")}", command: "copy", icon: "⧉", shortcut: "Ctrl C" },
   {
-    label: "更多操作",
+    label: "${t("moreActions")}",
     command: "more",
     icon: "⋯",
     children: [
-      { label: "移动到归档", command: "archive" },
-      { label: "导出记录", command: "export" }
+      { label: "${t("archive")}", command: "archive" },
+      { label: "${t("export")}", command: "export" }
     ]
   }
 ];
 
-const basicSelected = useRef("未选择");
+const basicSelected = useRef("${t("notSelected")}");
 const commandText = (event) => {
     const detail = event.detail;
     return \`\${String(detail.command || "")} / \${String(detail.item?.label || "")}\`;
@@ -57,14 +69,14 @@ const onBasicCommand = (event: CustomEvent): void => {
 };
 
 const PageDropdownEx1 = defineHtml(`
-<elf-playground title="基础命令菜单" :code=${basicCode} :script=${triggerScript}>
+<elf-playground :title=${t("title")} :code=${basicCode} :script=${triggerScript}>
       <div style="display:grid;gap:12px;align-items:start">
         <elf-dropdown
           :items.prop=${items}
-          label="更多操作"
+          :label=${t("moreActions")}
           @command=${onBasicCommand}
         ></elf-dropdown>
-        <span slot="status" class="demo-state">当前命令：{{ basicSelected }}</span>
+        <span slot="status" class="demo-state">${t("currentCommand")}: {{ basicSelected }}</span>
       </div>
     </elf-playground>
 `);

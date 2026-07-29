@@ -19,6 +19,9 @@ interface TableV2El extends HTMLElement {
   footerHeight?: number;
   loading?: boolean;
   overscan?: number;
+  expandColumnKey?: string;
+  expandedRowKeys?: string[];
+  defaultExpandedRowKeys?: string[];
   scrollToRow?: (row: number, strategy?: "auto" | "start" | "center" | "end") => void;
 }
 
@@ -46,6 +49,7 @@ describe("elf-table-v2", () => {
     await tick();
 
     const table = el.shadowRoot!.querySelector("elf-table")!;
+    expect((table as HTMLElement & { virtualThreshold: number }).virtualThreshold).toBe(0);
     expect(table.shadowRoot!.querySelectorAll("tbody tr").length).toBeLessThan(30);
     expect(table.shadowRoot!.querySelector("th.is-fixed-left")).toBeTruthy();
     expect(table.shadowRoot!.querySelector("th.is-fixed-right")).toBeTruthy();
@@ -116,13 +120,92 @@ describe("elf-table-v2", () => {
 
     const fixed = el.shadowRoot!.querySelector("elf-table[data-fixed-table]")!;
     const body = el.shadowRoot!.querySelector("elf-table[data-scroll-table]")!;
+    const root = el.shadowRoot!.querySelector(".table-v2")!;
+    expect(root.classList.contains("has-fixed-data")).toBe(true);
+    expect(root.classList.contains("has-footer")).toBe(true);
+    expect(fixed.shadowRoot!.querySelector("thead")).toBeTruthy();
     expect(fixed.shadowRoot!.querySelector("tbody")?.textContent).toContain("Pinned summary");
+    expect(fixed.shadowRoot!.querySelector("tbody tr")?.getAttribute("style")).toContain("64px");
     expect(body.shadowRoot!.querySelector("thead")).toBeNull();
     expect(body.shadowRoot!.querySelectorAll("tbody tr").length).toBeLessThan(30);
     expect(body.shadowRoot!.querySelector("tbody tr")?.getAttribute("style")).toContain("64px");
+    const bodyScroll = body.shadowRoot!.querySelector<HTMLElement>(".table-wrap")!;
+    bodyScroll.scrollTop = 180;
+    bodyScroll.dispatchEvent(new Event("scroll"));
+    await tick();
+    expect(fixed.shadowRoot!.querySelector("thead")).toBeTruthy();
+    expect(body.shadowRoot!.querySelector("thead")).toBeNull();
+    expect(body.shadowRoot!.querySelector(".table-root")?.classList.contains("is-sticky-header")).toBe(true);
     const overlaySlot = el.shadowRoot!.querySelector<HTMLSlotElement>('.overlay slot[name="overlay"]')!;
     const footerSlot = el.shadowRoot!.querySelector<HTMLSlotElement>('.footer slot[name="footer"]')!;
     expect(overlaySlot.assignedElements()[0]?.textContent).toContain("Refreshing metrics");
     expect(footerSlot.assignedElements()[0]?.textContent).toContain("300 records");
+  });
+
+  it("supports uncontrolled virtual tree expansion with keyboard and ARIA", async () => {
+    const el = document.createElement("elf-table-v2") as TableV2El;
+    el.data = [
+      {
+        id: "platform",
+        task: "Platform",
+        children: [
+          { id: "runtime", task: "Runtime" },
+          { id: "compiler", task: "Compiler" },
+        ],
+      },
+      { id: "docs", task: "Docs" },
+    ];
+    el.columns = [{ key: "task", title: "Task", width: 320 }];
+    el.expandColumnKey = "task";
+    const onExpanded = vi.fn();
+    const onRowExpand = vi.fn();
+    el.addEventListener("expanded-rows-change", onExpanded as EventListener);
+    el.addEventListener("row-expand", onRowExpand as EventListener);
+    document.body.appendChild(el);
+    await tick();
+    await tick();
+    await tick();
+
+    const table = el.shadowRoot!.querySelector("elf-table")!;
+    expect(table.shadowRoot!.querySelectorAll("tbody tr")).toHaveLength(2);
+    const toggle = table.shadowRoot!.querySelector<HTMLButtonElement>('[part~="table-v2-expand-toggle"]')!;
+    expect(toggle.getAttribute("aria-expanded")).toBe("false");
+    toggle.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
+    await tick();
+    await tick();
+
+    expect(table.shadowRoot!.querySelectorAll("tbody tr")).toHaveLength(4);
+    expect((onExpanded.mock.calls[0]![0] as CustomEvent).detail).toEqual(["platform"]);
+    expect((onRowExpand.mock.calls[0]![0] as CustomEvent).detail).toEqual([el.data![0], true]);
+    expect(
+      table.shadowRoot!.querySelector<HTMLButtonElement>('[part~="table-v2-expand-toggle"]')!.getAttribute(
+        "aria-expanded",
+      ),
+    ).toBe("true");
+  });
+
+  it("keeps controlled expansion parent-owned", async () => {
+    const el = document.createElement("elf-table-v2") as TableV2El;
+    el.data = [{ id: "root", task: "Root", children: [{ id: "leaf", task: "Leaf" }] }];
+    el.columns = [{ key: "task", title: "Task" }];
+    el.expandColumnKey = "task";
+    el.expandedRowKeys = [];
+    const onExpanded = vi.fn();
+    el.addEventListener("expanded-rows-change", onExpanded as EventListener);
+    document.body.appendChild(el);
+    await tick();
+    await tick();
+    await tick();
+
+    const table = el.shadowRoot!.querySelector("elf-table")!;
+    table.shadowRoot!.querySelector<HTMLButtonElement>('[part~="table-v2-expand-toggle"]')!.click();
+    await tick();
+    expect((onExpanded.mock.calls[0]![0] as CustomEvent).detail).toEqual(["root"]);
+    expect(table.shadowRoot!.querySelectorAll("tbody tr")).toHaveLength(1);
+
+    el.expandedRowKeys = ["root"];
+    await tick();
+    await tick();
+    expect(table.shadowRoot!.querySelectorAll("tbody tr")).toHaveLength(2);
   });
 });

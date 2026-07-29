@@ -88,6 +88,12 @@
   table-layout: fixed;
 }
 
+.is-virtualized.is-sticky-header thead {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
 .is-virtualized tbody {
   display: block;
   box-sizing: border-box;

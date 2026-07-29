@@ -56,10 +56,13 @@ describe("ElfUI utility classes", () => {
   it("keeps the utilities menu and routes in sync", () => {
     const utilityNav = navItems.filter((item) => item.to === "/utilities");
     const routePaths = new Set(routes.map((route) => route.path));
+    const virtualTableNav = navItems.filter((item) => item.to === "/data/virtual-table");
 
     expect(navItems[0]).toEqual({ to: "/providers/config", text: "Global configuration 全局配置", group: "Guide 指南" });
     expect(utilityNav).toEqual([{ to: "/utilities", text: "Utilities 工具类", group: "Utilities 工具类" }]);
+    expect(virtualTableNav).toEqual([{ to: "/data/virtual-table", text: "VirtualTable 虚拟表格", group: "Data 数据展示" }]);
     expect(utilityNav.every((item) => routePaths.has(item.to))).toBe(true);
+    expect(virtualTableNav.every((item) => routePaths.has(item.to))).toBe(true);
     expect(catalogEntries.every(([key]) => routePaths.has(`/utilities/${key}`))).toBe(true);
   });
 });

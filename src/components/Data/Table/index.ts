@@ -18,7 +18,7 @@ import {
 import type { DirectiveBinding } from "@elfui/core";
 
 import styles from "./style.scss?inline";
-import { computeAnchoredPosition } from "../../Common/anchored-overlay";
+import { computeAnchoredPosition } from "../../Common/overlay/anchored-overlay";
 import { useLocaleProvider } from "../../Providers/context";
 import { useDismissibleOverlay } from "../../../composables/useDismissibleOverlay";
 import { buildTableTree, normalizeTableTreeProps } from "./tree";

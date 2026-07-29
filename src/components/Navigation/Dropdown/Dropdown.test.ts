@@ -1,6 +1,6 @@
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
-import { computeAnchoredPosition } from "../../Common/anchored-overlay";
+import { computeAnchoredPosition } from "../../Common/overlay/anchored-overlay";
 import type { DropdownElement, DropdownItem } from "./types";
 
 beforeAll(async () => {

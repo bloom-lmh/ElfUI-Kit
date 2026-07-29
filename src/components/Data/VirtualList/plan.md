@@ -49,3 +49,13 @@
 - [x] 合并动态滚动事件到 requestAnimationFrame，避免追加数据和快速滚动触发连续重排。
 - [x] ResizeObserver 测量结果批量提交并修正滚动锚点，降低动态高度列表闪动。
 - [x] 固定高度窗口继续同步复用 DOM 行，快速拖动时保持非空窗口并覆盖回归测试。
+
+## 2026-07-29 动态拖动、盒模型测量与底部锚点
+
+- [x] 动态高度路径增加独立瞬时滚动层，在原生滚动事件内同步复用 24 行，避免快速拖动时出现白帧。
+- [x] 瞬时层和声明式窗口分别拥有 DOM；状态提交后再切回声明式窗口，不手工修改 keyed 模板节点。
+- [x] 普通测量锚点基于真实 `scrollTop` 和 `overscan: 0` 的首个可见行，不再误用缓冲窗口起点。
+- [x] ResizeObserver 优先记录 `borderBoxSize.blockSize`，把行 padding 与分隔边框计入累计偏移。
+- [x] 已在底部时按本批全部高度差保持底部锚点；追加到 270 条后仍可稳定滚动到最后一项。
+- [x] 组件测试覆盖同步动态换窗、盒模型测量、可见区锚点与底部锚点。
+- [x] Chromium 跨区跳转、240/270 条底部滚动通过，控制台 0 warning / 0 error；截图为 `output/playwright/virtual-list-dynamic-bottom-zh.png`。

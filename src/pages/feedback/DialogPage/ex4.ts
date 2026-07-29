@@ -40,13 +40,13 @@ const closeDrawer = (): void => drawerOpen.set(false);
 const updateDialog = (event: CustomEvent<boolean>): void => dialogOpen.set(Boolean(event.detail));
 const updateDrawer = (event: CustomEvent<boolean>): void => drawerOpen.set(Boolean(event.detail));
 
-const code = `<elf-button @click="openDialog">打开编辑流程</elf-button>
-<elf-dialog v-model:open="dialogOpen" title="编辑项目">
-  <p>Escape 始终只关闭最上层浮层。</p>
-  <elf-button @click="openDrawer">选择负责人</elf-button>
+const code = `<elf-button @click="openDialog">${t("openDialog")}</elf-button>
+<elf-dialog v-model:open="dialogOpen" title="${t("dialogTitle")}">
+  <p>${t("intro")}</p>
+  <elf-button @click="openDrawer">${t("openDrawer")}</elf-button>
 
-  <elf-drawer v-model:open="drawerOpen" title="项目成员" size="360px">
-    <p>Drawer 与 Dialog 共用同一交互栈。</p>
+  <elf-drawer v-model:open="drawerOpen" title="${t("drawerTitle")}" size="360px">
+    <p>${t("drawerBody")}</p>
   </elf-drawer>
 </elf-dialog>`;
 

@@ -21,8 +21,9 @@ import {
 import { useDisabled, useFormItem } from "../../../composables";
 import { computeVirtualWindow } from "../../../utils/virtual-window";
 import { FORM_ITEM_KEY } from "../context";
-import { listenForExternalOverlayMotion } from "../../Common/anchored-overlay";
+import { listenForExternalOverlayMotion } from "../../Common/overlay/anchored-overlay";
 import { useDismissibleOverlay } from "../../../composables/useDismissibleOverlay";
+import { useFieldValueDefaults } from "../../../composables/field-values";
 import { useLocaleProvider } from "../../Providers/context";
 import styles from "./style.scss?inline";
 import { normalizeFieldVariant } from "../../../types/field";
@@ -87,7 +88,7 @@ const props = defineProps<SelectProps>({
   noDataText: { type: String, default: "" },
   noMatchText: { type: String, default: "" },
   valueOnClear: { type: null, default: undefined },
-  emptyValues: { type: Array, default: () => [undefined, null, ""] },
+  emptyValues: { type: Array, default: undefined },
   height: { type: Number, default: 240 },
   virtual: { type: Boolean, default: false },
   virtualThreshold: { type: Number, default: 100 },
@@ -109,6 +110,7 @@ const props = defineProps<SelectProps>({
 });
 
 const emit = defineEmits<SelectEmits>();
+const fieldValues = useFieldValueDefaults();
 
 const fi = useFormItem(() => props.size as string);
 const formItem = inject(FORM_ITEM_KEY);
@@ -277,7 +279,7 @@ const valueIdentity = (value: unknown): unknown => {
 const sameValue = (a: unknown, b: unknown): boolean => Object.is(valueIdentity(a), valueIdentity(b));
 
 const isEmptyValue = (value: unknown): boolean =>
-  (Array.isArray(props.emptyValues) ? props.emptyValues : [undefined, null, ""]).some((item) => Object.is(item, value));
+  fieldValues.isEmpty(value, props.emptyValues);
 
 const valueArr = (): SelectValue[] => {
   const v = innerValue.value;
@@ -515,9 +517,10 @@ const removeTag = (opt: SelectOption): void => {
 };
 
 const clear = (): void => {
-  const configured = props.valueOnClear;
-  const next =
-    typeof configured === "function" ? configured() : configured !== undefined ? configured : isMulti() ? [] : "";
+  const next = fieldValues.valueOnClear<SelectValue | SelectValue[]>(
+    props.valueOnClear,
+    () => isMulti() ? [] : ""
+  );
   innerValue.set(next);
   emit("update:modelValue", next);
   emit("change", next);

@@ -125,7 +125,7 @@ export interface CascaderProps {
   effect: string;
   tagType: string;
   tagEffect: string;
-  emptyValues: unknown[];
+  emptyValues?: unknown[];
   valueOnClear?: CascaderValueOnClear;
   validateEvent: boolean;
   virtualScroll: boolean;

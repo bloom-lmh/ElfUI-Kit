@@ -162,3 +162,10 @@
 - [x] Escape、滚动锁与文档级键盘监听由 `useModalOverlay` 生命周期适配器统一管理。
 - [x] 增加 Dialog 内打开 Drawer 的跨组件嵌套案例；Escape 依次关闭最上层浮层。
 - [x] Chrome 验证两次 Escape 的关闭顺序、焦点恢复与 0 console warning；截图：`output/playwright/dialog-drawer-overlay-stack.png`。
+
+## 2026-07-29 beta.20 与整页国际化
+
+- [x] 页面入口、5 个案例、运行时状态、Template/Script 和 API 表完成中英文覆盖。
+- [x] API 文档补齐真实 `open` 生命周期事件，不新增或修改组件公开 API。
+- [x] beta.20 下组件/页面聚焦测试、宏 typecheck、生产构建和打开状态英文扫描通过。
+- [x] 真实浏览器验证初始焦点、Escape、英文关闭标签与 0 warning / 0 error；截图：`output/playwright/dialog-focus-en-beta20.png`。

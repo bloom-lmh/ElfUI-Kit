@@ -1,8 +1,17 @@
 import { defineHtml, useComponents, useRef } from "@elfui/core";
+import { createDocsPicker, createDocsTranslator } from "../../docsLocale";
 
 import { PageLocaleProviderPreview } from "./preview";
 
-const localeMode = useRef("zh");
+const pick = createDocsPicker();
+const t = createDocsTranslator({
+  title: { zh: "切换语言与 RTL", en: "Switching locale and RTL" },
+  chinese: { zh: "中文", en: "Chinese" },
+  english: { zh: "英文", en: "English" },
+  rtl: { zh: "从右到左", en: "RTL" },
+});
+
+const localeMode = useRef(pick("zh", "en"));
 
 const zhMessages = {
   common: { confirm: "确认", cancel: "取消" },
@@ -27,7 +36,7 @@ const code = `<elf-locale-provider
   <my-child></my-child>
 </elf-locale-provider>`;
 
-const localeScript = `const localeMode = useRef("zh");
+const localeScript = pick(`const localeMode = useRef("zh");
 
 const messages = {
   zh: { common: { confirm: "确认", cancel: "取消" } },
@@ -39,7 +48,19 @@ const currentLocaleName = () =>
   localeMode.value === "zh" ? "zh-CN" : localeMode.value === "ar" ? "ar" : "en-US";
 const currentMessages = () => messages[localeMode.value];
 const isRtl = () => localeMode.value === "ar";
-const setLocale = (value) => localeMode.set(value);`;
+const setLocale = (value) => localeMode.set(value);`, `const localeMode = useRef("en");
+
+const messages = {
+  zh: { common: { confirm: "\\u786e\\u8ba4", cancel: "\\u53d6\\u6d88" } },
+  en: { common: { confirm: "Confirm", cancel: "Cancel" } },
+  ar: { common: { confirm: "تأكيد", cancel: "إلغاء" } }
+};
+
+const currentLocaleName = () =>
+  localeMode.value === "zh" ? "zh-CN" : localeMode.value === "ar" ? "ar" : "en-US";
+const currentMessages = () => messages[localeMode.value];
+const isRtl = () => localeMode.value === "ar";
+const setLocale = (value) => localeMode.set(value);`);
 
 const currentLocaleName = (): string =>
   localeMode.value === "zh" ? "zh-CN" : localeMode.value === "ar" ? "ar" : "en-US";
@@ -56,26 +77,26 @@ const setLocale = (value: string): void => {
 useComponents({ "page-locale-provider-preview": PageLocaleProviderPreview });
 
 const PageLocaleProviderEx1 = defineHtml(`
-<elf-playground title="切换语言与 RTL" :code="code" :script=${localeScript}>
+<elf-playground :title=${t("title")} :code=${code} :script=${localeScript}>
       <div style="display:grid;gap:12px;width:100%;max-width:680px">
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <elf-button
             size="sm"
             :variant="localeMode === 'zh' ? 'contained' : 'outlined'"
             @click="setLocale('zh')"
-            >中文</elf-button
+            >${t("chinese")}</elf-button
           >
           <elf-button
             size="sm"
             :variant="localeMode === 'en' ? 'contained' : 'outlined'"
             @click="setLocale('en')"
-            >English</elf-button
+            >${t("english")}</elf-button
           >
           <elf-button
             size="sm"
             :variant="localeMode === 'ar' ? 'contained' : 'outlined'"
             @click="setLocale('ar')"
-            >RTL</elf-button
+            >${t("rtl")}</elf-button
           >
         </div>
         <div style="direction:ltr">

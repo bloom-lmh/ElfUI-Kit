@@ -1,3 +1,4 @@
+/** Placement values shared by components that position an anchored overlay. */
 export type AnchoredPlacement =
   | "bottom"
   | "bottom-start"
@@ -23,6 +24,16 @@ export interface OverlayViewport {
   offsetLeft?: number;
   offsetTop?: number;
 }
+
+export const readOverlayViewport = (): OverlayViewport => {
+  const viewport = window.visualViewport;
+  return {
+    width: viewport?.width || window.innerWidth,
+    height: viewport?.height || window.innerHeight,
+    offsetLeft: viewport?.offsetLeft || 0,
+    offsetTop: viewport?.offsetTop || 0,
+  };
+};
 
 export interface AnchoredPositionOptions<TPlacement extends AnchoredPlacement = AnchoredPlacement> {
   placement: TPlacement;
@@ -168,5 +179,44 @@ export const listenForExternalOverlayMotion = (
     window.removeEventListener("wheel", onMotion, { capture: true });
     window.removeEventListener("touchmove", onMotion, { capture: true });
     window.visualViewport?.removeEventListener("scroll", onMotion);
+  };
+};
+
+export interface AnchoredOverlayLifecycleOptions {
+  resizeTargets: ArrayLike<Element | null | undefined>;
+  motionContainers: () => ArrayLike<Element | null | undefined>;
+  onResize: () => void;
+  onExternalMotion: () => void;
+}
+
+/**
+ * Connects the shared browser resources for one active anchored overlay.
+ * Components retain the policy decision to update or close on external motion.
+ */
+export const connectAnchoredOverlayLifecycle = (
+  options: AnchoredOverlayLifecycleOptions
+): (() => void) => {
+  if (typeof window === "undefined") return () => {};
+
+  const resizeTargets = Array.from(options.resizeTargets).filter(
+    (target): target is Element => Boolean(target)
+  );
+  const observer = resizeTargets.length > 0 && typeof ResizeObserver !== "undefined"
+    ? new ResizeObserver(options.onResize)
+    : undefined;
+  resizeTargets.forEach((target) => observer?.observe(target));
+  const cleanupMotion = listenForExternalOverlayMotion(
+    options.motionContainers,
+    options.onExternalMotion
+  );
+
+  window.addEventListener("resize", options.onResize, { passive: true });
+  window.visualViewport?.addEventListener("resize", options.onResize, { passive: true });
+
+  return () => {
+    observer?.disconnect();
+    cleanupMotion();
+    window.removeEventListener("resize", options.onResize);
+    window.visualViewport?.removeEventListener("resize", options.onResize);
   };
 };
