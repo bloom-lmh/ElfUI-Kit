@@ -11,6 +11,7 @@ beforeAll(async () => {
 
 afterEach(() => {
   document.body.innerHTML = "";
+  document.documentElement.lang = "zh-CN";
   vi.restoreAllMocks();
 });
 
@@ -24,8 +25,19 @@ const mount = async (): Promise<HTMLElement> => {
   return page;
 };
 
+const collectText = (root: Node): string => {
+  let output = "";
+  const visit = (node: Node): void => {
+    if (node.nodeType === Node.TEXT_NODE) output += ` ${node.textContent || ""}`;
+    if (node instanceof Element && node.shadowRoot) visit(node.shadowRoot);
+    node.childNodes.forEach(visit);
+  };
+  visit(root);
+  return output.replace(/\s+/g, " ").trim();
+};
+
 describe("UtilitiesPage", () => {
-  it("在一个页面渲染全部工具类交互面板", async () => {
+  it("中文页面渲染全部工具类交互面板、运行文案和源码", async () => {
     const page = await mount();
     const root = page.shadowRoot!;
 
@@ -36,7 +48,7 @@ describe("UtilitiesPage", () => {
     const draggable = root.querySelector<HTMLElement>("elf-page-utilities-draggable")!;
     expect(draggable.shadowRoot?.querySelector("#utility-draggable")).toBeTruthy();
     expect(draggable.shadowRoot?.querySelectorAll(".task-card")).toHaveLength(4);
-    expect(root.textContent).toContain("Utilities 工具类");
+    expect(collectText(page)).toContain("工具类");
     expect(root.querySelector(".page-description")).toBeNull();
     expect(root.querySelector(".utility-toolbar")).toBeNull();
     expect(root.querySelector(".lab-description")).toBeNull();
@@ -47,7 +59,21 @@ describe("UtilitiesPage", () => {
     expect(playground.shadowRoot?.querySelector(".source-toolbar")).toBeTruthy();
     expect(playground.shadowRoot?.querySelectorAll('[role="tab"]')).toHaveLength(2);
     expect(root.querySelector<HTMLElement>("#utility-typography elf-playground")?.shadowRoot?.textContent)
-      .toContain("Text and typography 文本和排版");
+      .toContain("文本和排版");
+  });
+
+  it("英文页面渲染全部工具类、拖拽案例和源码且无汉字", async () => {
+    document.documentElement.lang = "en-US";
+    const page = await mount();
+    const text = collectText(page);
+
+    expect(text).toContain("Utilities");
+    expect(text).toContain("Borders");
+    expect(text).toContain("Text and typography");
+    expect(text).toContain("Drag source · Drop target · List sorting");
+    expect(text).toContain("Drop here to archive");
+    expect(text).toContain("Supports responsive breakpoint prefixes");
+    expect(text).not.toMatch(/[\u3400-\u9fff]/u);
   });
 
   it("使用下拉单选切换分类和工具类并同步预览代码", async () => {

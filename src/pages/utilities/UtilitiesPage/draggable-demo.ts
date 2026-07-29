@@ -10,7 +10,34 @@ import {
   type DraggableDropDetail,
   type DraggableOptions
 } from "../../../directives/draggable";
+import { createDocsTranslator } from "../../docsLocale";
 import styles from "./draggable-demo.scss?inline";
+
+const t = createDocsTranslator({
+  title: { zh: "拖拽", en: "Draggable" },
+  playgroundTitle: { zh: "拖拽源 · 目标接收 · 列表排序", en: "Drag source · Drop target · List sorting" },
+  designTokens: { zh: "设计令牌", en: "Design tokens" },
+  foundation: { zh: "基础", en: "Foundation" },
+  fieldSurfaces: { zh: "字段表面", en: "Field surfaces" },
+  components: { zh: "组件", en: "Components" },
+  focusAudit: { zh: "焦点审计", en: "Focus audit" },
+  accessibility: { zh: "无障碍", en: "Accessibility" },
+  releaseNotes: { zh: "发布说明", en: "Release notes" },
+  documentation: { zh: "文档", en: "Documentation" },
+  initialStatus: { zh: "拖动卡片调整顺序，或放入归档目标", en: "Drag cards to reorder them or drop them into the archive target" },
+  active: { zh: "进行中", en: "active" },
+  archived: { zh: "已归档", en: "archived" },
+  moved: { zh: "已移动", en: "Moved" },
+  archivedAction: { zh: "已归档", en: "Archived" },
+  reset: { zh: "重置", en: "Reset" },
+  sortableTasks: { zh: "可排序任务", en: "Sortable tasks" },
+  activeWork: { zh: "进行中的工作", en: "ACTIVE WORK" },
+  reorder: { zh: "拖动排序", en: "Drag to reorder" },
+  archiveTarget: { zh: "归档目标", en: "Archive target" },
+  target: { zh: "目标", en: "Target" },
+  dropToArchive: { zh: "放到这里归档", en: "Drop here to archive" },
+  updateComment: { zh: "使用 source.key、target.key 和 placement 更新源数组。", en: "Update the source array using source.key, target.key, and placement." }
+});
 
 interface Task {
   id: string;
@@ -19,10 +46,10 @@ interface Task {
 }
 
 const INITIAL_TASKS: Task[] = [
-  { id: "tokens", title: "Design tokens", meta: "Foundation" },
-  { id: "fields", title: "Field surfaces", meta: "Components" },
-  { id: "a11y", title: "Focus audit", meta: "Accessibility" },
-  { id: "release", title: "Release notes", meta: "Documentation" }
+  { id: "tokens", title: t("designTokens"), meta: t("foundation") },
+  { id: "fields", title: t("fieldSurfaces"), meta: t("components") },
+  { id: "a11y", title: t("focusAudit"), meta: t("accessibility") },
+  { id: "release", title: t("releaseNotes"), meta: t("documentation") }
 ];
 
 const draggable = defineDirective(draggableDirective);
@@ -30,10 +57,10 @@ const draggable = defineDirective(draggableDirective);
 // State
 const tasks = useRef<Task[]>([...INITIAL_TASKS]);
 const archived = useRef<Task[]>([]);
-const activity = useRef("拖动卡片调整顺序，或放入归档目标");
+const activity = useRef(t("initialStatus"));
 
 // Derived state
-const taskCount = (): string => `${tasks.value.length} active · ${archived.value.length} archived`;
+const taskCount = (): string => `${tasks.value.length} ${t("active")} · ${archived.value.length} ${t("archived")}`;
 
 const taskDragOptions = (task: Task): DraggableOptions<Task> => ({
   key: task.id,
@@ -45,7 +72,7 @@ const taskDragOptions = (task: Task): DraggableOptions<Task> => ({
 
 const archiveDragOptions = (): DraggableOptions<Task> => ({
   key: "archive",
-  data: { id: "archive", title: "Archive", meta: "Target" },
+  data: { id: "archive", title: t("archiveTarget"), meta: t("target") },
   group: "utility-tasks",
   draggable: false,
   droppable: true,
@@ -66,7 +93,7 @@ const reorderTask = (detail: DraggableDropDetail<Task>): void => {
   const insertAt = targetIndex + (detail.placement === "after" ? 1 : 0);
   remaining.splice(insertAt, 0, source);
   tasks.set(remaining);
-  activity.set(`已移动 ${source.title} · ${detail.placement}`);
+  activity.set(`${t("moved")} ${source.title} · ${detail.placement}`);
 };
 
 const archiveTask = (detail: DraggableDropDetail<Task>): void => {
@@ -74,13 +101,13 @@ const archiveTask = (detail: DraggableDropDetail<Task>): void => {
   if (!source) return;
   tasks.set(tasks.peek().filter((task) => task.id !== source.id));
   archived.set([...archived.peek(), source]);
-  activity.set(`已归档 ${source.title}`);
+  activity.set(`${t("archivedAction")} ${source.title}`);
 };
 
 const reset = (): void => {
   tasks.set([...INITIAL_TASKS]);
   archived.set([]);
-  activity.set("拖动卡片调整顺序，或放入归档目标");
+  activity.set(t("initialStatus"));
 };
 
 const code = `<section class="task-list">
@@ -93,7 +120,7 @@ const code = `<section class="task-list">
   </article>
 </section>
 
-<aside v-draggable="archiveDragOptions()">Archive target</aside>`;
+<aside v-draggable="archiveDragOptions()">${t("archiveTarget")}</aside>`;
 
 const script = `import { defineDirective } from "@elfui/core";
 import { draggableDirective } from "@elfui/kit";
@@ -107,7 +134,7 @@ const taskDragOptions = (task) => ({
   group: "tasks",
   axis: "y",
   onDrop: ({ source, target, placement }) => {
-    // Update the source array using source.key, target.key and placement.
+    // ${t("updateComment")}
   }
 });
 
@@ -123,17 +150,17 @@ defineStyle(styles);
 
 const PageUtilitiesDraggable = defineHtml(`
   <article id="utility-draggable" class="utility-lab draggable-utility">
-    <h2>Draggable 拖拽</h2>
-    <elf-playground title="拖拽源 · 目标接收 · 列表排序" :code=${code} :script=${script}>
+    <h2>${t("playgroundTitle")}</h2>
+    <elf-playground :title=${t("playgroundTitle")} :code=${code} :script=${script}>
       <div slot="status" class="draggable-status">
         <span role="status" aria-live="polite">${activity}</span>
         <strong>${taskCount()}</strong>
-        <elf-button size="sm" variant="text" @click=${reset}>重置</elf-button>
+        <elf-button size="sm" variant="text" @click=${reset}>${t("reset")}</elf-button>
       </div>
 
       <div class="draggable-board">
-        <section class="task-column" aria-label="可排序任务">
-          <header><span>ACTIVE WORK</span><strong>拖动排序</strong></header>
+        <section class="task-column" :aria-label=${t("sortableTasks")}>
+          <header><span>${t("activeWork")}</span><strong>${t("reorder")}</strong></header>
           <div class="task-list">
             <article
               v-for="(task, index) in tasks"
@@ -150,8 +177,8 @@ const PageUtilitiesDraggable = defineHtml(`
 
         <aside v-draggable=${archiveDragOptions()} class="archive-target">
           <span aria-hidden="true">↓</span>
-          <strong>Archive target</strong>
-          <small>放到这里归档</small>
+          <strong>${t("archiveTarget")}</strong>
+          <small>${t("dropToArchive")}</small>
           <div v-if=${archived.value.length > 0} class="archive-chips">
             <span v-for="task in archived" :key="task.id">{{ task.title }}</span>
           </div>

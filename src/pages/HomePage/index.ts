@@ -1,6 +1,7 @@
 import { defineHtml, defineStyle } from "@elfui/core";
 
 import { useLocaleProvider } from "../../components/Providers/context";
+import { createDocsPicker } from "../docsLocale";
 import styles from "./style.scss?inline";
 
 // Injected context
@@ -8,6 +9,7 @@ const locale = useLocaleProvider();
 
 // Derived content
 const t = (key: string): string => locale.t(`home.${key}`);
+const pick = createDocsPicker();
 
 defineStyle(styles);
 
@@ -57,7 +59,7 @@ const PageHome = defineHtml(`
                 <i></i>
               </div>
               <div class="metric-grid">
-                <article><small>${t("metricRevenue")}</small><b>¥ 86,420</b><em>+18.4%</em></article>
+                <article><small>${t("metricRevenue")}</small><b>${pick("¥ 86,420", "$86,420")}</b><em>+18.4%</em></article>
                 <article><small>${t("metricUsers")}</small><b>12,860</b><em>+9.2%</em></article>
               </div>
               <div class="chart-card">

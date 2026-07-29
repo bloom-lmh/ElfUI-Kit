@@ -1,4 +1,4 @@
-import { beforeAll, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeAll, describe, expect, it } from "vitest";
 
 let pageTag = "";
 
@@ -7,10 +7,11 @@ beforeAll(async () => {
   const { ensureCustomElement } = await import("@elfui/core");
   const { PageAccessibility } = await import("./index");
   pageTag = ensureCustomElement(PageAccessibility);
-});
+}, 30_000);
 
-beforeEach(() => {
+afterEach(() => {
   document.body.innerHTML = "";
+  document.documentElement.lang = "zh-CN";
 });
 
 const tick = (): Promise<void> => new Promise((resolve) => queueMicrotask(resolve));
@@ -39,25 +40,35 @@ const findByAttribute = (root: Node, name: string): Element | null => {
   return null;
 };
 
-describe("Accessibility guide", () => {
-  it("documents the shared accessibility contract", async () => {
-    const page = document.createElement(pageTag);
-    document.body.appendChild(page);
-    await tick();
-    await tick();
+const mount = async (): Promise<HTMLElement> => {
+  const page = document.createElement(pageTag);
+  document.body.appendChild(page);
+  await tick();
+  await tick();
+  return page;
+};
 
-    const text = collectText(page);
-    expect(text).toContain("Accessibility 无障碍");
+describe("Accessibility guide", () => {
+  it("中文页面覆盖案例、运行状态、源码和契约表", async () => {
+    const text = collectText(await mount());
     expect(text).toContain("焦点与弱化动效");
+    expect(text).toContain("快捷键与生命周期");
+    expect(text).toContain("无障碍契约");
+    expect(text).toContain("等待 Ctrl/⌘ + K");
+  });
+
+  it("英文页面覆盖案例、运行状态、源码和契约表且无汉字", async () => {
+    document.documentElement.lang = "en-US";
+    const text = collectText(await mount());
+    expect(text).toContain("Focus and reduced motion");
+    expect(text).toContain("Hotkeys and lifecycle");
     expect(text).toContain("Accessibility contract");
+    expect(text).toContain("Waiting for Ctrl/⌘ + K");
+    expect(text).not.toMatch(/[\u3400-\u9fff]/u);
   });
 
   it("exposes the keyboard shortcut semantics", async () => {
-    const page = document.createElement(pageTag);
-    document.body.appendChild(page);
-    await tick();
-    await tick();
-
+    const page = await mount();
     const button = findByAttribute(page, "aria-keyshortcuts");
     expect(button?.getAttribute("aria-keyshortcuts")).toContain("Control+K");
   });
