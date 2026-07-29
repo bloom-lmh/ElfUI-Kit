@@ -19,10 +19,10 @@ const city = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(`
 `)}`;
 
 const code = `<elf-parallax src="city.svg" position="top" scale="1.35" height="260">
-  <span slot>偏顶部取景</span>
+  <span slot>${t("first")}</span>
 </elf-parallax>
 <elf-parallax src="city.svg" disabled height="220">
-  <span slot>禁用视差</span>
+  <span slot>${t("second")}</span>
 </elf-parallax>`;
 
 defineStyle(styles);

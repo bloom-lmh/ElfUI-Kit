@@ -1,5 +1,14 @@
 import { defineHtml } from "@elfui/core";
+import { createDocsTranslator } from "../../docsLocale";
 
+const t = createDocsTranslator({
+  cardTitle: { zh: "卡片骨架", en: "Card skeleton" },
+  cardPlayground: { zh: "图片、标题、正文与按钮占位", en: "Placeholders for image, heading, body, and actions" },
+  listTitle: { zh: "列表骨架", en: "List skeleton" },
+  listPlayground: { zh: "头像与两行文字，共三项", en: "Three avatar-and-two-line items" },
+  dashboardTitle: { zh: "仪表盘骨架", en: "Dashboard skeleton" },
+  dashboardPlayground: { zh: "2×2 卡片网格", en: "A 2×2 card grid" }
+});
 const code1 = `<elf-card style="max-width:480px;width:100%">
   <elf-skeleton loading variant="image" width="100%" height="180px" />
   <div style="padding:20px 20px 0">
@@ -100,8 +109,8 @@ const code3 = `<div style="display:grid;grid-template-columns:repeat(2,minmax(0,
 </div>`;
 
 const PageSkeletonEx2 = defineHtml(`
-  <h2>卡片骨架</h2>
-  <elf-playground title="图片 + 标题 + 正文 + 按钮占位" :code="code1">
+  <h2>${t("cardTitle")}</h2>
+  <elf-playground :title=${t("cardPlayground")} :code="code1">
     <elf-card style="max-width:480px;width:100%;pointer-events:none">
       <elf-skeleton loading variant="image" width="100%" height="180px" />
       <div style="padding:20px 20px 0">
@@ -119,8 +128,8 @@ const PageSkeletonEx2 = defineHtml(`
     </elf-card>
   </elf-playground>
 
-  <h2>列表骨架</h2>
-  <elf-playground title="头像 + 两行文字 × 3" :code="code2">
+  <h2>${t("listTitle")}</h2>
+  <elf-playground :title=${t("listPlayground")} :code="code2">
     <div style="display:flex;flex-direction:column;gap:16px;width:360px">
       <div style="display:flex;gap:12px;align-items:center">
         <elf-skeleton loading variant="circle" width="48px" height="48px" />
@@ -146,8 +155,8 @@ const PageSkeletonEx2 = defineHtml(`
     </div>
   </elf-playground>
 
-  <h2>Dashboard 骨架</h2>
-  <elf-playground title="2×2 卡片网格" :code="code3">
+  <h2>${t("dashboardTitle")}</h2>
+  <elf-playground :title=${t("dashboardPlayground")} :code="code3">
     <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;width:100%;max-width:720px">
       <elf-card style="pointer-events:none">
         <div style="padding:20px">

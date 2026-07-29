@@ -1,5 +1,18 @@
 import { defineHtml, useRef } from "@elfui/core";
 import type { TransferRenderContext } from "../../../components/Data/Transfer";
+import { createDocsTranslator } from "../../docsLocale";
+
+const t = createDocsTranslator({
+  title: { zh: "按面板状态定制选项", en: "Customize options by panel state" },
+  status: { zh: "同一渲染器根据来源与目标面板呈现不同状态", en: "One renderer presents different states for source and target panels." },
+  design: { zh: "设计", en: "Design" },
+  docs: { zh: "文档", en: "Documentation" },
+  engineering: { zh: "工程", en: "Engineering" },
+  candidate: { zh: "候选", en: "Candidate" },
+  selected: { zh: "已选", en: "Selected" },
+  source: { zh: "可用工具", en: "Available tools" },
+  target: { zh: "项目工具", en: "Project tools" }
+});
 
 interface Asset {
   key: string;
@@ -8,9 +21,9 @@ interface Asset {
 }
 
 const assets: Asset[] = [
-  { key: "figma", label: "Figma", kind: "设计" },
-  { key: "storybook", label: "Storybook", kind: "文档" },
-  { key: "ci", label: "CI Pipeline", kind: "工程" },
+  { key: "figma", label: "Figma", kind: t("design") },
+  { key: "storybook", label: "Storybook", kind: t("docs") },
+  { key: "ci", label: "CI Pipeline", kind: t("engineering") },
 ];
 const selected = useRef<string[]>([]);
 const renderAsset = (item: Asset, context: TransferRenderContext): HTMLElement => {
@@ -19,7 +32,7 @@ const renderAsset = (item: Asset, context: TransferRenderContext): HTMLElement =
   const label = document.createElement("strong");
   label.textContent = item.label;
   const meta = document.createElement("small");
-  meta.textContent = `${item.kind} · ${context.side === "left" ? "候选" : "已选"}`;
+  meta.textContent = `${item.kind} · ${context.side === "left" ? t("candidate") : t("selected")}`;
   row.append(label, meta);
   return row;
 };
@@ -38,13 +51,13 @@ const script = `const renderAsset = (item, context) => {
 };`;
 
 const PageTransferEx6 = defineHtml(`
-  <elf-playground title="按面板状态定制选项" :code=${code} :script=${script}>
-    <span slot="status" class="demo-state">同一渲染器根据 source / target 呈现不同状态</span>
+  <elf-playground :title=${t("title")} :code=${code} :script=${script}>
+    <span slot="status" class="demo-state">${t("status")}</span>
     <elf-transfer
       :data.prop=${assets}
       :modelValue.prop=${selected}
       :renderContent.prop=${renderAsset}
-      :titles.prop=${["可用工具", "项目工具"]}
+      :titles.prop=${[t("source"), t("target")]}
       @update:modelValue=${onUpdate}
     ></elf-transfer>
   </elf-playground>

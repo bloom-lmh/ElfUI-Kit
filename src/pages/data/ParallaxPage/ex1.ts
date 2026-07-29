@@ -29,8 +29,8 @@ const image = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(`
 
 const code = `<elf-parallax src="mountains.svg" height="360">
   <div>
-    <h3>滚动时保持画面层次</h3>
-    <p>背景图片会跟随视口位置轻微移动。</p>
+    <h3>${t("heading")}</h3>
+    <p>${t("body")}</p>
   </div>
 </elf-parallax>`;
 

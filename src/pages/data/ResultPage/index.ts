@@ -1,8 +1,17 @@
 import { defineHtml, useComponents } from "@elfui/core";
+import { createDocsTranslator } from "../../docsLocale";
 import { PageResultProps } from "./props";
 import { PageResultEx1 } from "./ex1";
 import { PageResultEx2 } from "./ex2";
 import { PageResultEx3 } from "./ex3";
+
+const t = createDocsTranslator({
+  title: { zh: "结果", en: "Result" },
+  description: {
+    zh: "用于流程结束页或局部操作结果，支持 success、warning、error 与 info 状态。",
+    en: "Present page-level or local operation outcomes with success, warning, error, and info states."
+  }
+});
 
 useComponents({
   "page-result-ex1": PageResultEx1,
@@ -13,8 +22,8 @@ useComponents({
 
 const PageResult = defineHtml(`
   <elf-container>
-    <h1>Result 结果</h1>
-    <p>用于流程结束页或局部操作结果，支持 success、warning、error 与 info 状态。</p>
+    <h1>${t("title")}</h1>
+    <p>${t("description")}</p>
 
     <page-result-ex1 />
 

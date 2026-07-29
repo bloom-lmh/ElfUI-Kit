@@ -1,19 +1,30 @@
 import { defineHtml, useRef } from "@elfui/core";
+import { createDocsTranslator } from "../../docsLocale";
 
+const t = createDocsTranslator({
+  title: { zh: "动态增长", en: "Animated growth" },
+  playground: { zh: "起始值、时长与缓动", en: "Start value, duration, and easing" },
+  revenue: { zh: "实时收入", en: "Live revenue" },
+  orders: { zh: "完成订单", en: "Completed orders" },
+  ordersSuffix: { zh: "单", en: " orders" },
+  satisfaction: { zh: "满意度", en: "Satisfaction" },
+  target: { zh: "目标收入", en: "Target revenue" },
+  grow: { zh: "模拟下一批数据", en: "Simulate next batch" }
+});
 const revenue = useRef(18_640);
 const orders = useRef(486);
 const satisfaction = useRef(96.8);
 
 const code = `<elf-statistic
   animated
-  title="实时收入"
+  title="${t("revenue")}"
   :start-value="12000"
   :value.prop="revenue"
   :duration="1200"
   easing="ease-out"
   prefix="¥"
 />
-<elf-button @click="grow">模拟下一批数据</elf-button>`;
+<elf-button @click="grow">${t("grow")}</elf-button>`;
 
 const script = `const revenue = useRef(18640);
 
@@ -28,15 +39,15 @@ const grow = (): void => {
 };
 
 const PageStatisticEx5 = defineHtml(`
-  <h2>动态增长</h2>
-  <elf-playground title="起始值、时长与缓动" :code=${code} :script=${script}>
+  <h2>${t("title")}</h2>
+  <elf-playground :title=${t("playground")} :code=${code} :script=${script}>
     <div
       style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;width:100%;max-width:760px"
     >
       <elf-card variant="outlined">
         <elf-statistic
           animated
-          title="实时收入"
+          title=${t("revenue")}
           :start-value=${12000}
           :value.prop=${revenue.value}
           :duration=${1200}
@@ -47,18 +58,18 @@ const PageStatisticEx5 = defineHtml(`
       <elf-card variant="outlined">
         <elf-statistic
           animated
-          title="完成订单"
+          title=${t("orders")}
           :start-value=${320}
           :value.prop=${orders.value}
           :duration=${1600}
           easing="linear"
-          suffix="单"
+          suffix=${t("ordersSuffix")}
         ></elf-statistic>
       </elf-card>
       <elf-card variant="outlined">
         <elf-statistic
           animated
-          title="满意度"
+          title=${t("satisfaction")}
           :start-value=${80}
           :value.prop=${satisfaction.value}
           :precision=${1}
@@ -69,8 +80,8 @@ const PageStatisticEx5 = defineHtml(`
       </elf-card>
     </div>
     <span slot="status" style="display:flex;align-items:center;gap:10px">
-      <span>目标收入：¥{{ revenue }}</span>
-      <elf-button size="small" type="primary" @click=${grow}>模拟下一批数据</elf-button>
+      <span>${t("target")}：¥{{ revenue }}</span>
+      <elf-button size="small" type="primary" @click=${grow}>${t("grow")}</elf-button>
     </span>
   </elf-playground>
 `);

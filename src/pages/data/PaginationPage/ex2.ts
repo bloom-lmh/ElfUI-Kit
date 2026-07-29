@@ -1,5 +1,15 @@
 import { defineHtml, useRef } from "@elfui/core";
+import { createDocsTranslator } from "../../docsLocale";
 
+const t = createDocsTranslator({
+  title: { zh: "布局、默认值与尺寸", en: "Layout, defaults, and sizes" },
+  playground: {
+    zh: "已知页数、非受控默认值与紧凑布局",
+    en: "Known page counts, uncontrolled defaults, and compact layouts."
+  },
+  previous: { zh: "上一页", en: "Previous" },
+  next: { zh: "下一页", en: "Next" }
+});
 const compactPage = useRef(3);
 const simplePage = useRef(1);
 
@@ -15,8 +25,8 @@ const code = `<elf-pagination
   size="large"
   page-count="4"
   default-current-page="2"
-  prev-text="上一页"
-  next-text="下一页"
+  prev-text="${t("previous")}"
+  next-text="${t("next")}"
   layout="prev, pager, next"
 />
 
@@ -29,15 +39,15 @@ const onCompactChange = (event) => {
 };`;
 
 const PagePaginationEx2 = defineHtml(`
-  <h2>布局、默认值与尺寸</h2>
-  <elf-playground title="已知页数、非受控默认值与紧凑布局" :code=${code} :script=${script}>
+  <h2>${t("title")}</h2>
+  <elf-playground :title=${t("playground")} :code=${code} :script=${script}>
     <div style="width: 100%; display: grid; gap: 18px">
       <elf-pagination
         size="large"
         page-count="4"
         default-current-page="2"
-        prev-text="上一页"
-        next-text="下一页"
+        prev-text=${t("previous")}
+        next-text=${t("next")}
         layout="prev, pager, next"
       ></elf-pagination>
 

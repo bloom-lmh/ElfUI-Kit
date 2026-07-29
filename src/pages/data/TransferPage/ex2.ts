@@ -1,4 +1,14 @@
 import { defineHtml, useRef } from "@elfui/core";
+import { createDocsTranslator } from "../../docsLocale";
+
+const t = createDocsTranslator({
+  title: { zh: "过滤、默认值与目标排序", en: "Filter, defaults, and target ordering" },
+  playground: { zh: "自定义字段、禁用项、过滤方法与前置排序", en: "Custom fields, disabled items, custom filtering, and unshift ordering" },
+  remove: { zh: "移除", en: "Remove" },
+  add: { zh: "添加", en: "Add" },
+  users: { zh: "位用户", en: " users" },
+  selected: { zh: "已选", en: " selected" }
+});
 
 const users = [
   { id: "u1", name: "Ada" },
@@ -23,7 +33,7 @@ const code = `const selected = useRef(["u2"])
   :filterMethod="filterUsers"
   target-order="unshift"
   :leftDefaultChecked="['u1']"
-  :buttonTexts="['Remove', 'Add']"
+  :buttonTexts="['${t("remove")}', '${t("add")}']"
   :format="format"
 />`;
 
@@ -39,16 +49,16 @@ const readKeys = (event) => (Array.isArray(event.detail) ? event.detail : []);
 const onTransfer = (event) => selected.set(readKeys(event));
 const filterUsers = (query, user) => user.name.toLowerCase().startsWith(query.toLowerCase());
 const format = {
-  noChecked: "\${total} users",
-  hasChecked: "\${checked}/\${total} selected"
+  noChecked: "\${total}${t("users")}",
+  hasChecked: "\${checked}/\${total} ${t("selected")}"
 };`;
 
-const noCheckedFormat = "${total} users";
-const hasCheckedFormat = "${checked}/${total} selected";
+const noCheckedFormat = `\${total}${t("users")}`;
+const hasCheckedFormat = `\${checked}/\${total} ${t("selected")}`;
 
 const PageTransferEx2 = defineHtml(`
-  <h2>Filter, defaults, and target ordering</h2>
-  <elf-playground title="Custom fields, disabled items, custom filtering, and unshift ordering" :code=${code} :script=${script}>
+  <h2>${t("title")}</h2>
+  <elf-playground :title=${t("playground")} :code=${code} :script=${script}>
     <elf-transfer
       :data.prop=${users}
       :modelValue.prop=${selected.value}
@@ -58,7 +68,7 @@ const PageTransferEx2 = defineHtml(`
       :filterMethod=${filterUsers}
       target-order="unshift"
       :leftDefaultChecked.prop=${["u1"]}
-      :buttonTexts.prop=${["Remove", "Add"]}
+      :buttonTexts.prop=${[t("remove"), t("add")]}
       :format.prop=${{ noChecked: noCheckedFormat, hasChecked: hasCheckedFormat }}
     ></elf-transfer>
   </elf-playground>

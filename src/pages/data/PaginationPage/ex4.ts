@@ -1,12 +1,22 @@
 import { defineHtml, useRef } from "@elfui/core";
+import { createDocsTranslator } from "../../docsLocale";
 
+const t = createDocsTranslator({
+  title: { zh: "尺寸浮层与导航图标", en: "Size overlay and navigation icons" },
+  playground: {
+    zh: "浮层可越过裁剪容器，导航图标通过 SVG 插槽按需传入",
+    en: "The overlay escapes clipped containers while SVG slots customize navigation icons."
+  },
+  state: { zh: "当前每页", en: "Current page size:" },
+  items: { zh: "条", en: "items" }
+});
 const pageSize = useRef(20);
 
 const onSizeChange = (event: Event): void => {
   pageSize.set(Number((event as CustomEvent<number>).detail));
 };
 
-const stateText = (): string => `当前每页 ${pageSize.value} 条`;
+const stateText = (): string => `${t("state")} ${pageSize.value} ${t("items")}`;
 
 const code = `<div style="overflow:hidden;padding:20px">
   <elf-pagination
@@ -29,8 +39,8 @@ const onSizeChange = (event) => {
 };`;
 
 const PagePaginationEx4 = defineHtml(`
-  <h2>尺寸浮层与导航图标</h2>
-  <elf-playground title="浮层可越过裁剪容器，导航图标通过 SVG 插槽按需传入" :code=${code} :script=${script}>
+  <h2>${t("title")}</h2>
+  <elf-playground :title=${t("playground")} :code=${code} :script=${script}>
     <span slot="status">${stateText()}</span>
     <div
       id="pagination-overlay-root"
