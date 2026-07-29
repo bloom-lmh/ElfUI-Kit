@@ -28,3 +28,4 @@ export type {
   ScrollContainerTarget,
   ScrollTarget,
 } from "./scroll";
+export { useDateAdapter, type DateAdapterService } from "./date";

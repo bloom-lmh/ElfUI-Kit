@@ -21,6 +21,7 @@ import { useLocaleProvider } from "../../Providers/context";
 import styles from "./style.scss?inline";
 import { normalizeFieldVariant } from "../../../types/field";
 import { useDisabled, useFormControl, useSize } from "../../../composables";
+import { useDateAdapter } from "../../../composables/date";
 import { useDismissibleOverlay } from "../../../composables/useDismissibleOverlay";
 import { useFieldValueDefaults } from "../../../composables/field-values";
 import type { DatePickerEmits, DatePickerPlacement, DatePickerProps, DatePickerSlots, DatePickerType, DatePickerValue, DateShortcut } from "./types";
@@ -90,40 +91,31 @@ const resolvedSize = useSize(() => props.size);
 
 useComponents({ "date-picker-calendar": Calendar });
 const locale = useLocaleProvider();
+const dateService = useDateAdapter();
 
 const start = useRef("");
 const end = useRef("");
 const selected = useRef<string[]>([]);
 const open = useRef(false);
-const monthYear = useRef(new Date().getFullYear());
+const monthYear = useRef(dateService.adapter.now().getFullYear());
 const leftPanelView = useRef("");
 const rightPanelView = useRef("");
 const overlayStyle = useRef<Record<string, string>>({});
 const host = useHost();
 let overlayFrame = 0;
 
-const escapePattern = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-
 const parseFormattedValue = (value: unknown): string => {
   const source = String(value || "");
   const pattern = String(props.valueFormat || "");
   if (!source || !pattern || pattern === "YYYY-MM-DD" || String(props.type || "date") !== "date") return source;
-  const expression = escapePattern(pattern)
-    .replace("YYYY", "(?<year>\\d{4})")
-    .replace("MM", "(?<month>\\d{2})")
-    .replace("DD", "(?<day>\\d{2})");
-  const match = new RegExp(`^${expression}$`).exec(source);
-  const groups = match?.groups;
-  return groups?.year && groups.month && groups.day
-    ? `${groups.year}-${groups.month}-${groups.day}`
-    : source;
+  const parsed = dateService.adapter.parse(source, pattern);
+  return parsed ? dateService.adapter.toISODate(parsed) : source;
 };
 
 const formatValue = (value: string, pattern: string): string => {
   if (!value || !pattern || String(props.type || "date") !== "date") return value;
-  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
-  if (!match) return value;
-  return pattern.replace("YYYY", match[1]!).replace("MM", match[2]!).replace("DD", match[3]!);
+  const parsed = dateService.adapter.parse(value);
+  return parsed ? dateService.adapter.format(parsed, pattern, dateService.context) : value;
 };
 
 const externalValue = (value: string): string => formatValue(value, String(props.valueFormat || ""));
@@ -157,13 +149,13 @@ const toValues = (value: DatePickerValue): string[] => {
 
 const addMonths = (value: string, amount: number): string => {
   const source = parseFormattedValue(value || props.defaultValue);
-  const match = /^(\d{4})-(\d{2})/.exec(source);
-  const date = match ? new Date(Number(match[1]), Number(match[2]) - 1 + amount, 1) : new Date();
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-01`;
+  const date = dateService.adapter.parse(source) ?? dateService.adapter.now();
+  const month = dateService.adapter.create(date.getFullYear(), date.getMonth(), 1);
+  return dateService.adapter.toISODate(dateService.adapter.add(month, amount, "month"));
 };
 
 const syncPanelViews = (): void => {
-  const base = start.peek() || props.defaultValue || new Date().toISOString().slice(0, 10);
+  const base = start.peek() || props.defaultValue || dateService.adapter.toISODate(dateService.adapter.now());
   leftPanelView.set(base);
   rightPanelView.set(end.peek() || addMonths(base, 1));
 };
@@ -220,9 +212,8 @@ const inRange = (value: string): boolean => {
   if (props.min && value < String(props.min)) return false;
   if (props.max && value > String(props.max)) return false;
   if (typeof props.disabledDate === "function") {
-    const [year, month, day] = value.split("-").map(Number);
-    const date = new Date(year!, month! - 1, day!);
-    if (!Number.isNaN(date.getTime()) && props.disabledDate(date)) return false;
+    const date = dateService.adapter.parse(value);
+    if (date && props.disabledDate(date)) return false;
   }
   return true;
 };
@@ -435,9 +426,11 @@ const calendarValue = (): string | [string, string] => {
 
 const usesDualPanels = (): boolean => Boolean(props.range && !props.singlePanel);
 const onCalendarPanelChange = (side: "left" | "right", event: CustomEvent<Date>): void => {
-  const date = event.detail instanceof Date ? event.detail : new Date(String(event.detail));
-  if (Number.isNaN(date.getTime())) return;
-  const next = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-01`;
+  const date = dateService.adapter.parse(event.detail);
+  if (!date) return;
+  const next = dateService.adapter.toISODate(
+    dateService.adapter.create(date.getFullYear(), date.getMonth(), 1),
+  );
   if (side === "left") {
     leftPanelView.set(next);
     if (!props.unlinkPanels) rightPanelView.set(addMonths(next, 1));
@@ -449,10 +442,7 @@ const onCalendarPanelChange = (side: "left" | "right", event: CustomEvent<Date>)
 };
 
 const calendarDisabled = (date: Date): boolean => {
-  const value = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(
-    date.getDate()
-  ).padStart(2, "0")}`;
-  return !inRange(value);
+  return !inRange(dateService.adapter.toISODate(date));
 };
 
 const onCalendarUpdate = (event: CustomEvent): void => {
@@ -478,8 +468,10 @@ const monthItems = (): Array<{ id: string; label: string; active: boolean }> =>
     const id = `${monthYear.value}-${String(month + 1).padStart(2, "0")}`;
     return {
       id,
-      label: new Intl.DateTimeFormat(undefined, { month: "short" }).format(
-        new Date(monthYear.value, month, 1)
+      label: dateService.adapter.format(
+        dateService.adapter.create(monthYear.value, month, 1),
+        "monthShort",
+        dateService.context,
       ),
       active: start.value === id
     };
@@ -493,7 +485,7 @@ const selectMonth = (event: Event): void => {
 
 const shiftMonthYear = (offset: number): void => {
   monthYear.set(monthYear.value + offset);
-  emit("panel-change", new Date(monthYear.value, 0, 1), "year");
+  emit("panel-change", dateService.adapter.create(monthYear.value, 0, 1), "year");
 };
 const currentMonthYear = (): number => monthYear.value;
 
@@ -732,6 +724,7 @@ const DatePicker = defineHtml<DatePickerProps, DatePickerEmits, DatePickerSlots>
           :disabledDate.prop=${calendarDisabled}
           :cellClassName.prop=${props.cellClassName}
           :showWeekNumber.prop=${props.showWeekNumber}
+          :firstDayOfWeek.prop=${dateService.firstDayOfWeek}
           @panel-change="onCalendarPanelChange('left', $event)"
           @update:modelValue=${onCalendarUpdate}
         >
@@ -749,6 +742,7 @@ const DatePicker = defineHtml<DatePickerProps, DatePickerEmits, DatePickerSlots>
           :disabledDate.prop=${calendarDisabled}
           :cellClassName.prop=${props.cellClassName}
           :showWeekNumber.prop=${props.showWeekNumber}
+          :firstDayOfWeek.prop=${dateService.firstDayOfWeek}
           @panel-change="onCalendarPanelChange('right', $event)"
           @update:modelValue=${onCalendarUpdate}
         ></date-picker-calendar>

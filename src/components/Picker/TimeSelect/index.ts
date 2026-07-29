@@ -93,11 +93,14 @@ const onUpdate = (event: CustomEvent<unknown>): void =>
   control.setValue(eventValue(event));
 const onChange = (event: CustomEvent<unknown>): void =>
   control.dispatchChange(eventValue(event));
-const onClear = (): void => emit("clear");
+const onClear = (): void => {
+  emit("clear");
+};
 const onFocus = (event: FocusEvent): void => control.dispatchFocus(event);
 const onBlur = (event: FocusEvent): void => control.dispatchBlur(event);
-const onVisibleChange = (event: CustomEvent<boolean>): void =>
+const onVisibleChange = (event: CustomEvent<boolean>): void => {
   emit("visible-change", Boolean(event.detail));
+};
 
 const open = (): void => resolveSelect()?.open();
 const close = (): void => resolveSelect()?.close();

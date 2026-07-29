@@ -1,6 +1,7 @@
 import { createInjectionKey, inject } from "@elfui/core";
 
 import type { IconOptions } from "../Basic/Icon/types";
+import type { DateOptions } from "../../adapters";
 import type { LoadingOptions } from "../Feedback/Loading/types";
 import type { MessageOptions } from "../Feedback/Message/types";
 import type { MessageBoxOptions } from "../Feedback/MessageBox/types";
@@ -83,6 +84,7 @@ export interface ElfUIConfig {
   motion?: MotionPreference;
   goTo?: GoToDefaults;
   field?: FieldValueDefaults;
+  date?: DateOptions;
   services?: ElfUIServiceDefaults;
 }
 

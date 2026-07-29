@@ -3,6 +3,7 @@ import type {} from "./elements.generated";
 import "./components";
 import "./styles/utilities.scss";
 
+export * from "./adapters";
 export {
   configureIcons,
   createClassIconSet,

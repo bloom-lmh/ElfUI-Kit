@@ -1,0 +1,69 @@
+@use "../../../styles/reset";
+
+:host {
+  display: inline-block;
+  width: 100%;
+  max-width: 760px;
+  color: var(--elf-text-primary);
+  font-size: var(--elf-font-size-sm);
+}
+
+.date-time-picker {
+  position: relative;
+  display: grid;
+  gap: 8px;
+}
+
+.fields {
+  display: grid;
+  grid-template-columns: minmax(210px, 1.35fr) minmax(160px, 0.85fr);
+  align-items: center;
+  gap: 8px;
+}
+
+elf-date-picker,
+elf-time-picker {
+  display: block;
+  min-width: 0;
+  width: 100%;
+}
+
+.clear {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--elf-bg-paper) 88%, transparent);
+  color: var(--elf-text-secondary);
+  font: inherit;
+  cursor: pointer;
+}
+
+.clear:hover,
+.clear:focus-visible {
+  background: color-mix(in srgb, var(--elf-primary) 12%, var(--elf-bg-paper));
+  color: var(--elf-primary);
+  outline: none;
+}
+
+:host([disabled]) {
+  opacity: 0.62;
+}
+
+@media (max-width: 640px) {
+  .fields {
+    grid-template-columns: 1fr;
+  }
+
+  .clear {
+    top: auto;
+    bottom: 10px;
+  }
+}

@@ -1,0 +1,21 @@
+:host {
+  display: block;
+}
+
+.demo-field {
+  width: min(100%, 720px);
+  margin-inline: auto;
+}
+
+.demo-stack {
+  display: grid;
+  gap: var(--elf-space-4);
+  width: min(100%, 760px);
+  margin-inline: auto;
+}
+
+.demo-state {
+  color: var(--elf-text-secondary);
+  font-size: var(--elf-font-size-xs);
+  line-height: 1.5;
+}
