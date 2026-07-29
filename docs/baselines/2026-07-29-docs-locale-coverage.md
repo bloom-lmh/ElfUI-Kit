@@ -12,10 +12,10 @@ pnpm docs:locale-audit
 
 | Surface | Localized | Total | Missing |
 | --- | ---: | ---: | ---: |
-| Page entries | 46 | 85 | 39 |
-| Examples | 177 | 332 | 155 |
-| Props/API files | 29 | 63 | 34 |
-| Total | 252 | 480 | 228 |
+| Page entries | 48 | 86 | 38 |
+| Examples | 185 | 337 | 152 |
+| Props/API files | 31 | 64 | 33 |
+| Total | 264 | 487 | 223 |
 
 The audit counts explicit `createDocsTranslator()` / `createDocsPicker()` participation. It does not treat component names, API identifiers, CSS values, or source code syntax as untranslated prose.
 
@@ -32,12 +32,13 @@ The following routes were switched in the running application and recursively sc
 - `/feedback/loading`
 - `/feedback/message`
 - `/feedback/notification`
+- `/feedback/pop-confirm`
 - `/providers/config`
 - `/providers/defaults`
 - `/providers/locale`
 - `/providers/theme`
 
-For each route, English mode returned no Han text in visible content or localized attributes. The language switch command `中文` is the only intentional exception. VirtualTable additionally has a focused test covering English headers, runtime status/data, pinned rows, and Template / Script source. Provider page tests cover all DefaultsProvider, LocaleProvider, and ThemeProvider examples plus the ConfigProvider Chinese and English paths. Message and Notification were scanned with detached service overlays open, including action content, four screen corners, rich DOM content, and close-button accessible names. Dialog and Drawer were scanned with their modal content open; focus entry, localized close labels, Escape closing, and keyboard resizing from 420px to 430px were verified. Loading was scanned with controlled local and declarative fullscreen overlays active; its exit action, Material / Midnight themes, 1440px desktop viewport, and 390px mobile viewport were verified. The latest Loading page result is 1 file / 4 tests, and its clean beta.20 Playwright CLI session produced 0 warnings and 0 errors.
+For each route, English mode returned no Han text in visible content or localized attributes. The language switch command `中文` is the only intentional exception. VirtualTable additionally has a focused test covering English headers, runtime status/data, pinned rows, and Template / Script source. Provider page tests cover all DefaultsProvider, LocaleProvider, and ThemeProvider examples plus the ConfigProvider Chinese and English paths. Message and Notification were scanned with detached service overlays open, including action content, four screen corners, rich DOM content, and close-button accessible names. Dialog and Drawer were scanned with their modal content open; focus entry, localized close labels, Escape closing, and keyboard resizing from 420px to 430px were verified. Loading was scanned with controlled local and declarative fullscreen overlays active; its exit action, Material / Midnight themes, 1440px desktop viewport, and 390px mobile viewport were verified. PopConfirm was scanned through basic confirmation, async failure and retry, and custom actions; Material / Midnight themes and 1440px desktop / 390px mobile viewports were captured. Its focused page result is 1 file / 4 tests, and the clean beta.20 Playwright CLI session produced 0 warnings and 0 errors.
 
 ## Remaining gate
 

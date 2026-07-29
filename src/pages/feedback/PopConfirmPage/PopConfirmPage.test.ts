@@ -2,23 +2,66 @@ import { afterEach, beforeAll, describe, expect, it } from "vitest";
 
 let exampleTag = "";
 let customExampleTag = "";
+let pageTag = "";
 
 beforeAll(async () => {
   await import("../../../components");
   const { ensureCustomElement } = await import("@elfui/core");
   const { PagePopConfirmEx2 } = await import("./ex2");
   const { PagePopConfirmEx3 } = await import("./ex3");
+  const { PagePopConfirm } = await import("./index");
   exampleTag = ensureCustomElement(PagePopConfirmEx2);
   customExampleTag = ensureCustomElement(PagePopConfirmEx3);
-});
+  pageTag = ensureCustomElement(PagePopConfirm);
+}, 30_000);
 
 afterEach(() => {
   document.body.innerHTML = "";
+  document.documentElement.lang = "zh-CN";
 });
 
 const wait = (ms = 20): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
 
+const collectText = (root: Node): string => {
+  let output = "";
+  const visit = (node: Node): void => {
+    if (node.nodeType === Node.TEXT_NODE) output += ` ${node.textContent || ""}`;
+    if (node instanceof Element && node.shadowRoot) visit(node.shadowRoot);
+    node.childNodes.forEach(visit);
+  };
+  visit(root);
+  return output.replace(/\s+/g, " ").trim();
+};
+
+const mountPage = async (): Promise<HTMLElement> => {
+  const page = document.createElement(pageTag);
+  document.body.appendChild(page);
+  await wait();
+  await wait();
+  return page;
+};
+
 describe("PopConfirmPage", () => {
+  it("中文页面覆盖全部案例、源码和 API 文案", async () => {
+    const page = await mountPage();
+    const text = collectText(page);
+    expect(text).toContain("基础用法");
+    expect(text).toContain("定位与异步确认");
+    expect(text).toContain("浮层与自定义操作");
+    expect(text).toContain("确认前守卫");
+  });
+
+  it("英文页面覆盖全部案例、源码和 API 文案", async () => {
+    document.documentElement.lang = "en-US";
+    const page = await mountPage();
+    const text = collectText(page);
+    expect(text).toContain("Basic usage");
+    expect(text).toContain("Placement and async confirmation");
+    expect(text).toContain("Overlay and custom actions");
+    expect(text).toContain("Guard confirmation; false, a thrown error, or rejection keeps the popover open.");
+    expect(text).not.toMatch(/[\u3400-\u9fff]/u);
+  });
+
   it("异步案例先展示失败并允许原地重试", async () => {
     const page = document.createElement(exampleTag);
     document.body.appendChild(page);
