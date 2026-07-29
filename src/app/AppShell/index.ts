@@ -35,8 +35,7 @@ const ICONS: Record<string, string> = {
   "Feedback 反馈": "M",
   "Data 数据展示": "D",
   "Navigation 导航": "N",
-  "Picker 选择器": "P",
-  "Utilities 工具类": "U"
+  "Picker 选择器": "P"
 };
 
 const APP_MESSAGES: Record<string, LocaleMessages> = {

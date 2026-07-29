@@ -19,7 +19,7 @@ const onFinish = () => console.log("Countdown finished");`;
 
 const PageStatisticEx4 = defineHtml(`
 <elf-playground :title=${t("title")} :code=${countdownCode} :script=${countdownScript}>
-      <elf-countdown title=${t("release")} :value=${deadline} format="DD [days] HH:mm:ss"></elf-countdown>
+      <elf-countdown :title=${t("release")} :value=${deadline} format="DD [days] HH:mm:ss"></elf-countdown>
     </elf-playground>
 `);
 

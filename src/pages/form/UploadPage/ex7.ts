@@ -69,16 +69,17 @@ const updateFiles = (event) => {
 
 const PageUploadEx7 = defineHtml(`
   <elf-playground title="多文件列表与失败重试" :code=${listCode} :script=${listScript}>
-    <div style="display:grid;gap:12px;width:min(720px,100%);margin-inline:auto">
+    <div style="display:grid;place-items:center;width:100%">
       <elf-upload
+        style="width:min(100%,720px)"
         multiple
         :fileList.prop="fileList"
         button-text="继续添加"
         tip="失败文件提供重试操作；每一项均可预览或移除。"
         @update:fileList="updateFiles"
       ></elf-upload>
-      <span slot="status" class="demo-state">{{ statusText() }}</span>
     </div>
+    <span slot="status" class="demo-state">${statusText()}</span>
   </elf-playground>
 `);
 

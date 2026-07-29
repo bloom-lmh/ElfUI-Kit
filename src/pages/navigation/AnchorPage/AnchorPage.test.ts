@@ -91,6 +91,7 @@ describe("Anchor documentation", () => {
 
     const anchor = page.shadowRoot!.querySelector<HTMLElement>('elf-anchor[direction="horizontal"]')!;
     const container = page.shadowRoot!.querySelector<HTMLElement>("#anchor-horizontal-scroll")!;
+    expect(anchor.style.width).toBe("100%");
     (anchor as HTMLElement & { smooth?: boolean }).smooth = false;
     await tick();
     Object.defineProperties(container, {

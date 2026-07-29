@@ -48,7 +48,7 @@ const spanMethod = ({ rowIndex, columnIndex }) => {
 };`;
 
 const PageTableEx14 = defineHtml(`
-  <h2>合并单元格</h2>
+  <h2>值班排期：按日期与班次纵向合并</h2>
   <elf-playground title="值班排期：按日期与班次纵向合并" :code="code" :script=${script}>
     <div style="width: 100%">
       <elf-table

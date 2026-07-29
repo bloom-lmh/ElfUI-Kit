@@ -149,10 +149,10 @@ const propsRows = () => [
   {
     name: "fitInputWidth / offset",
     type: "boolean / number",
-    default: "true / 6",
+    default: "true / 0",
     desc: pick(
-      "面板宽度与触发器对齐并设置间距。",
-      "Align panel width with the trigger and set its gap.",
+      "面板默认贴合触发器并对齐宽度，offset 可增加间距。",
+      "Align panel width with the trigger; the panel is attached by default and offset can add a gap.",
     ),
   },
   {

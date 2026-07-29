@@ -57,8 +57,9 @@ const PageUploadEx5 = defineHtml(`
       :code=${requestCode}
       :script=${requestScript}
     >
-      <div style="display:grid;gap:12px;width:100%;max-width:720px;margin-inline:auto">
+      <div style="display:grid;place-items:center;width:100%">
         <elf-upload
+          style="width:min(100%,720px)"
           action="/api/upload"
           method="put"
           directory
@@ -68,8 +69,8 @@ const PageUploadEx5 = defineHtml(`
           tip="directory 开启文件夹选择；httpRequest 接管真实请求。"
           @success=${onRequestSuccess}
         ></elf-upload>
-        <span slot="status" class="demo-state">{{ requestLog }}</span>
       </div>
+      <span slot="status" class="demo-state">${requestLog.value}</span>
     </elf-playground>
 `);
 

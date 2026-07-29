@@ -48,8 +48,9 @@ const onChunkSuccess = (event: CustomEvent): void => {
 
 const PageUploadEx6 = defineHtml(`
 <elf-playground title="分片上传" :code=${chunkCode} :script=${chunkScript}>
-      <div style="display:grid;gap:12px;width:100%;max-width:720px;margin-inline:auto">
+      <div style="display:grid;place-items:center;width:100%">
         <elf-upload
+          style="width:min(100%,720px)"
           :chunkSize.prop=${262144}
           :chunkRequest.prop=${chunkRequest}
           button-text="选择大文件"
@@ -57,8 +58,8 @@ const PageUploadEx6 = defineHtml(`
           @progress=${onChunkProgress}
           @success=${onChunkSuccess}
         ></elf-upload>
-        <span slot="status" class="demo-state">{{ chunkLog }}；已处理 {{ uploadedChunks }} 片</span>
       </div>
+      <span slot="status" class="demo-state">${chunkLog.value}；已处理 ${uploadedChunks.value} 片</span>
     </elf-playground>
 `);
 

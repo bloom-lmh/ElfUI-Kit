@@ -71,7 +71,7 @@ const data = [
 const expandFormatter = (row) => \`说明：\${row.desc}\\n当前负责人：\${row.owner}\\n交付进度：\${row.progress}%\`;`;
 
 const PageTableEx10 = defineHtml(`
-  <h2>展开行</h2>
+  <h2>expand 列可展开当前行详情，适合订单、任务和日志详情</h2>
   <elf-playground title="expand 列可展开当前行详情，适合订单、任务和日志详情" :code="code" :script=${script}>
     <div style="width: 100%">
       <elf-table

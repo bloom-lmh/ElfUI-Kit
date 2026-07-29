@@ -12,7 +12,7 @@ const slotCode = `<elf-result title="${t("title")}" sub-title="${t("detail")}">
 
 const PageResultEx3 = defineHtml(`
 <elf-playground :title=${t("title")} :code=${slotCode}>
-      <elf-result title=${t("title")} sub-title=${t("detail")}>
+      <elf-result :title=${t("title")} :sub-title=${t("detail")}>
         <span slot="icon">★</span>
       </elf-result>
     </elf-playground>

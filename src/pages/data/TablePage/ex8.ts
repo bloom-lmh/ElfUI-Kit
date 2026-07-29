@@ -13,7 +13,7 @@ const script = `const columns = [
 ];`;
 
 const PageTableEx8 = defineHtml(`
-  <h2>空状态</h2>
+  <h2>无数据时展示 empty-text</h2>
   <elf-playground title="无数据时展示 empty-text" :code="code" :script=${script}>
     <div style="width: 100%">
       <elf-table :data.prop="[]" :columns.prop="columns" empty-text="没有匹配记录"></elf-table>

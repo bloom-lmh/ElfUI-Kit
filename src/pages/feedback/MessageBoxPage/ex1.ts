@@ -66,7 +66,7 @@ const PageMessageBoxEx1 = defineHtml(`
       <elf-button @click=${openAlert}>${t("alert")}</elf-button>
       <elf-button color="danger" @click=${openConfirm}>${t("confirm")}</elf-button>
     </elf-space>
-    <p class="demo-status">${statusText()}</p>
+    <span slot="status" class="demo-status">${statusText()}</span>
   </elf-playground>
 `);
 

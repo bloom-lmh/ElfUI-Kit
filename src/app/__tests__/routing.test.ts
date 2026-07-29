@@ -213,7 +213,7 @@ describe("路由跳转", () => {
     window.matchMedia = originalMatchMedia;
   });
 
-  it("指南与工具类各自保持唯一的一级入口", async () => {
+  it("工具类归入指南并保持唯一入口", async () => {
     await enterComponentDocs();
     localStorage.setItem("elfui-ui-locale", "zh-CN");
     const app = document.createElement("elf-app");
@@ -231,7 +231,8 @@ describe("路由跳转", () => {
       icon: "G",
       children: expect.arrayContaining([
         expect.objectContaining({ index: "/providers/config", label: "全局配置" }),
-        expect.objectContaining({ index: "/guide/accessibility", label: "无障碍" })
+        expect.objectContaining({ index: "/guide/accessibility", label: "无障碍" }),
+        expect.objectContaining({ index: "/utilities", label: "工具类" })
       ])
     });
     const children = menu?.items?.flatMap((item) => item.children || []) || [];
@@ -239,12 +240,7 @@ describe("路由跳转", () => {
         expect.objectContaining({ index: "/data/virtual-list", label: "虚拟列表" }),
         expect.objectContaining({ index: "/data/virtual-table", label: "虚拟表格" })
     ]));
-    expect(menu?.items?.at(-1)).toEqual({
-      index: "group:Utilities 工具类",
-      label: "工具类",
-      icon: "U",
-      children: [{ index: "/utilities", label: "工具类", icon: "U" }]
-    });
+    expect(menu?.items?.some((item) => item.index === "group:Utilities 工具类")).toBe(false);
   });
 
   it("侧栏不显示首页菜单且品牌按钮返回独立首页", async () => {

@@ -195,7 +195,7 @@ const columns = [
 ];`;
 
 const PageTableEx19 = defineHtml(`
-  <h2>自定义列内容</h2>
+  <h2>成员目录：富表头、单元格、展开区与筛选图标</h2>
   <elf-playground title="成员目录：富表头、单元格、展开区与筛选图标" :code="code" :script=${script}>
     <span slot="status" class="demo-state">{{ renderState }}</span>
     <div style="width:100%;max-width:860px">

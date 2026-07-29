@@ -77,7 +77,7 @@ const load = (_row, _treeNode, resolve) => {
 };`;
 
 const PageTableEx18 = defineHtml(`
-  <h2>树形数据与懒加载</h2>
+  <h2>组织架构：静态层级与按需加载</h2>
   <elf-playground title="组织架构：静态层级与按需加载" :code="code" :script=${script}>
     <span slot="status" class="demo-state">{{ treeState }}</span>
     <div style="width: 100%; max-width: 760px">

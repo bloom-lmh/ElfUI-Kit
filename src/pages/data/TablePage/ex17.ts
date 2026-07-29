@@ -72,7 +72,7 @@ const onHeaderDragend = (event) => {
 };`;
 
 const PageTableEx17 = defineHtml(`
-  <h2>可调整列宽</h2>
+  <h2>商品清单：拖动列宽并保持固定列位置</h2>
   <elf-playground title="商品清单：拖动列宽并保持固定列位置" :code="code" :script=${script}>
     <span slot="status" class="demo-state">{{ resizeState }}</span>
     <div style="width: 100%; max-width: 760px">

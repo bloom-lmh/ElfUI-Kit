@@ -46,7 +46,7 @@ const columns = [
 ];`;
 
 const PageTableEx21 = defineHtml(`
-  <h2>大数据虚拟滚动</h2>
+  <h2>10,000 行流水线记录</h2>
   <elf-playground title="10,000 行流水线记录" :code=${code} :script=${script}>
     <span slot="status" class="demo-state">10,000 行 · 44px 行高 · {{ sortState }}</span>
     <div style="width:100%;max-width:850px">

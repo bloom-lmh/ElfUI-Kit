@@ -1,4 +1,6 @@
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 
 let tablePaginationTag = "";
 let tableActionTag = "";
@@ -63,6 +65,19 @@ const collectText = (root: Node): string => {
 };
 
 describe("TablePage", () => {
+  it("keeps every directory heading identical to its playground title", () => {
+    for (let index = 1; index <= 22; index += 1) {
+      const source = readFileSync(
+        join(process.cwd(), "src", "pages", "data", "TablePage", `ex${index}.ts`),
+        "utf8",
+      );
+      const heading = source.match(/<h2>([^<]+)<\/h2>/)?.[1]?.trim();
+      const title = source.match(/<elf-playground\s+(?::title=\$\{([^}]+)\}|title="([^"]+)")/);
+      const expected = title?.[1] ? `\${${title[1]}}` : title?.[2];
+      expect(heading, `ex${index}.ts heading`).toBe(expected);
+    }
+  });
+
   it("表格示例可以和分页组件联动", async () => {
     const el = document.createElement(tablePaginationTag);
     document.body.appendChild(el);

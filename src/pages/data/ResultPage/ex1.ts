@@ -21,10 +21,10 @@ const statusCode = `<elf-result icon="success" title="${t("success")}" sub-title
 const PageResultEx1 = defineHtml(`
 <elf-playground :title=${t("title")} :code=${statusCode}>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;width:100%">
-        <elf-result style="border:1px solid var(--elf-border);border-radius:16px;background:var(--elf-bg-paper)" icon="success" title=${t("success")} sub-title=${t("successDetail")}></elf-result>
-        <elf-result style="border:1px solid var(--elf-border);border-radius:16px;background:var(--elf-bg-paper)" icon="warning" title=${t("warning")} sub-title=${t("warningDetail")}></elf-result>
-        <elf-result style="border:1px solid var(--elf-border);border-radius:16px;background:var(--elf-bg-paper)" icon="error" title=${t("error")} sub-title=${t("errorDetail")}></elf-result>
-        <elf-result style="border:1px solid var(--elf-border);border-radius:16px;background:var(--elf-bg-paper)" icon="info" title=${t("info")} sub-title=${t("infoDetail")}></elf-result>
+        <elf-result style="border:1px solid var(--elf-border);border-radius:16px;background:var(--elf-bg-paper)" icon="success" :title=${t("success")} :sub-title=${t("successDetail")}></elf-result>
+        <elf-result style="border:1px solid var(--elf-border);border-radius:16px;background:var(--elf-bg-paper)" icon="warning" :title=${t("warning")} :sub-title=${t("warningDetail")}></elf-result>
+        <elf-result style="border:1px solid var(--elf-border);border-radius:16px;background:var(--elf-bg-paper)" icon="error" :title=${t("error")} :sub-title=${t("errorDetail")}></elf-result>
+        <elf-result style="border:1px solid var(--elf-border);border-radius:16px;background:var(--elf-bg-paper)" icon="info" :title=${t("info")} :sub-title=${t("infoDetail")}></elf-result>
       </div>
     </elf-playground>
 `);

@@ -113,7 +113,7 @@ const props = defineProps<TreeSelectProps>({
   placement: { type: String, default: "bottom-start" },
   fallbackPlacements: { type: Array, default: () => ["top-start"] },
   fitInputWidth: { type: Boolean, default: true },
-  offset: { type: Number, default: 6 },
+  offset: { type: Number, default: 0 },
   popperClass: { type: String, default: "" },
   popperStyle: { type: Object, default: () => ({}) },
   tabindex: { type: null, default: 0 },

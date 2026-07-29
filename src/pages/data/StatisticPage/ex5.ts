@@ -47,7 +47,7 @@ const PageStatisticEx5 = defineHtml(`
       <elf-card variant="outlined">
         <elf-statistic
           animated
-          title=${t("revenue")}
+          :title=${t("revenue")}
           :start-value=${12000}
           :value.prop=${revenue.value}
           :duration=${1200}
@@ -58,18 +58,18 @@ const PageStatisticEx5 = defineHtml(`
       <elf-card variant="outlined">
         <elf-statistic
           animated
-          title=${t("orders")}
+          :title=${t("orders")}
           :start-value=${320}
           :value.prop=${orders.value}
           :duration=${1600}
           easing="linear"
-          suffix=${t("ordersSuffix")}
+          :suffix=${t("ordersSuffix")}
         ></elf-statistic>
       </elf-card>
       <elf-card variant="outlined">
         <elf-statistic
           animated
-          title=${t("satisfaction")}
+          :title=${t("satisfaction")}
           :start-value=${80}
           :value.prop=${satisfaction.value}
           :precision=${1}

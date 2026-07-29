@@ -104,7 +104,7 @@ const onSizeChange = (event) => {
 };`;
 
 const PageTableEx2 = defineHtml(`
-  <h2>${t("section")}</h2>
+  <h2>${t("title")}</h2>
   <elf-playground :title=${t("title")} :code=${code} :script=${script}>
     <span slot="status" class="demo-state">${rangeText()}</span>
     <div style="width:100%;display:grid;gap:14px">

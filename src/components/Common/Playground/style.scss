@@ -25,6 +25,11 @@
     --elf-playground-demo-min-height: 0px;
 }
 
+:host(:focus-within) {
+    position: relative;
+    z-index: var(--elf-z-index-dropdown, 1000);
+}
+
 .wrap {
     width: 100%;
     max-width: 100%;

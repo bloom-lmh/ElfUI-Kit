@@ -67,14 +67,11 @@ const ruleRows = [
 ];
 
 const PageFormProps = defineHtml(`
-  <h2>elf-form Props</h2>
+  <h2>API</h2>
   <elf-props-table title="elf-form Props" :rows.prop=${formRows}></elf-props-table>
-  <h2>elf-form-item Props</h2>
   <elf-props-table title="elf-form-item Props" :rows.prop=${formItemRows}></elf-props-table>
-  <h2>Expose</h2>
   <elf-props-table title="elf-form Expose" :rows.prop=${formExposeRows}></elf-props-table>
   <elf-props-table title="elf-form-item Expose" :rows.prop=${formItemExposeRows}></elf-props-table>
-  <h2>FormRule</h2>
   <elf-props-table title="FormRule" :rows.prop=${ruleRows}></elf-props-table>
 `);
 

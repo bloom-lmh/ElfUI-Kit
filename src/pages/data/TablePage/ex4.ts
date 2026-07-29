@@ -28,7 +28,7 @@ const data = [
 ];`;
 
 const PageTableEx4 = defineHtml(`
-  <h2>斑马纹</h2>
+  <h2>stripe 用于提升横向扫描可读性</h2>
   <elf-playground title="stripe 用于提升横向扫描可读性" :code="code" :script=${script}>
     <div style="width: 100%">
       <elf-table :data.prop="data" :columns.prop="columns" stripe></elf-table>

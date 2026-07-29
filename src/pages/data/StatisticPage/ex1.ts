@@ -14,8 +14,8 @@ const code1 = `<elf-statistic title="${t("users")}" :value="128430" suffix="${t(
 const PageStatisticEx1 = defineHtml(`
 <elf-playground :title=${t("title")} :code=${code1}>
       <div style="display:grid;grid-template-columns:repeat(2,minmax(160px,1fr));gap:24px">
-        <elf-statistic title=${t("users")} :value=${128430} suffix=${t("usersSuffix")}></elf-statistic>
-        <elf-statistic title=${t("conversion")} :value=${0.8732} :precision=${2} suffix="%"></elf-statistic>
+        <elf-statistic :title=${t("users")} :value=${128430} :suffix=${t("usersSuffix")}></elf-statistic>
+        <elf-statistic :title=${t("conversion")} :value=${0.8732} :precision=${2} suffix="%"></elf-statistic>
       </div>
     </elf-playground>
 `);

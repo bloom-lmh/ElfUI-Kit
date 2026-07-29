@@ -134,7 +134,7 @@ const PageAnchorEx2 = defineHtml(`
 
   <elf-playground :title=${t("horizontalTitle")} :code=${horizontalCode} :script=${script}>
     <div style="width:100%;max-width:960px;min-width:0">
-      <elf-anchor style="width:min(480px,100%)" :key=${t("horizontalTitle")} :items.prop=${horizontalItems()} direction="horizontal" type="underline" :marker=${false} :smooth=${false} container="#anchor-horizontal-scroll" :bound=${24} :modelValue.prop=${horizontalActive.value} @update:modelValue=${onHorizontalUpdate}></elf-anchor>
+      <elf-anchor style="width:100%" :key=${t("horizontalTitle")} :items.prop=${horizontalItems()} direction="horizontal" type="underline" :marker=${false} :smooth=${false} container="#anchor-horizontal-scroll" :bound=${24} :modelValue.prop=${horizontalActive.value} @update:modelValue=${onHorizontalUpdate}></elf-anchor>
       <div class="horizontal-scroll-shell">
         <div ref="horizontalScroll" id="anchor-horizontal-scroll" class="horizontal-scroll" @scroll=${onHorizontalContentScroll}>
           <section v-for="section in horizontalSections()" :key="section.id" :id="section.id" :class="['horizontal-section', section.tone]">

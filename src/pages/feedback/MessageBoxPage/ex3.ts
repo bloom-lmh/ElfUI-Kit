@@ -58,7 +58,7 @@ const PageMessageBoxEx3 = defineHtml(`
   <h2>${t("section")}</h2>
   <elf-playground :title=${t("section")} :code=${code} :script=${script}>
     <elf-button @click=${openGuarded}>${t("open")}</elf-button>
-    <p class="demo-status">${statusText()}</p>
+    <span slot="status" class="demo-status">${statusText()}</span>
   </elf-playground>
 `);
 

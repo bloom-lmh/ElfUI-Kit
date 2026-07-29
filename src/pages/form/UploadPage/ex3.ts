@@ -35,8 +35,9 @@ const onInvalid = (event: CustomEvent): void => {
 
 const PageUploadEx3 = defineHtml(`
 <elf-playground title="类型、大小与文件名校验" :code=${validateCode} :script=${validateScript}>
-      <div style="display:grid;gap:12px;width:100%;max-width:720px;margin-inline:auto">
+      <div style="display:grid;place-items:center;width:100%">
         <elf-upload
+          style="width:min(100%,720px)"
           accept=".pdf"
           file-name-pattern="^report-.*\\\\.pdf$"
           :maxSize=${1048576}
@@ -45,8 +46,8 @@ const PageUploadEx3 = defineHtml(`
           tip="只允许 report-*.pdf，且单文件不超过 1MB。"
           @invalid=${onInvalid}
         ></elf-upload>
-        <span slot="status" class="demo-state">{{ validateLog }}</span>
       </div>
+      <span slot="status" class="demo-state">${validateLog.value}</span>
     </elf-playground>
 `);
 

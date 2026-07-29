@@ -177,7 +177,7 @@ const columns = [
 ];`;
 
 const PageTableEx11 = defineHtml(`
-  <h2>模拟后端编辑与批量删除</h2>
+  <h2>action 回调拿当前行，selection 支持批量删除</h2>
   <elf-playground title="action 回调拿当前行，selection 支持批量删除" :code="code" :script=${script}>
     <div style="width:100%;display:grid;gap:12px">
       <div

@@ -28,15 +28,16 @@ const onBasicChange = (event: CustomEvent): void => {
 
 const PageUploadEx1 = defineHtml(`
 <elf-playground title="基础上传" :code=${basicCode} :script=${basicScript}>
-      <div style="display:grid;gap:12px;width:100%;max-width:720px;margin-inline:auto">
+      <div style="display:grid;place-items:center;width:100%">
         <elf-upload
+          style="width:min(100%,720px)"
           multiple
           :limit=${3}
           tip="最多选择 3 个文件，示例使用模拟上传。"
           @change=${onBasicChange}
         ></elf-upload>
-        <span slot="status" class="demo-state">{{ basicLog }}</span>
       </div>
+      <span slot="status" class="demo-state">${basicLog.value}</span>
     </elf-playground>
 `);
 

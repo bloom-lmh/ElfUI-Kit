@@ -28,7 +28,7 @@ const data = Array.from({ length: 12 }, (_, index) => ({
 }));`;
 
 const PageTableEx6 = defineHtml(`
-  <h2>固定高度滚动</h2>
+  <h2>max-height 限制表格高度，表头保持 sticky</h2>
   <elf-playground title="max-height 限制表格高度，表头保持 sticky" :code="code" :script=${script}>
     <div style="width: 100%">
       <elf-table :data.prop="data" :columns.prop="columns" max-height="220px"></elf-table>

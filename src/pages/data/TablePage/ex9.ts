@@ -161,7 +161,7 @@ const columns = [
 ];`;
 
 const PageTableEx9 = defineHtml(`
-  <h2>操作列与单元格样式</h2>
+  <h2>actions 列可直接声明行级操作，cellStyle 可按行定制样式</h2>
   <elf-playground title="actions 列可直接声明行级操作，cellStyle 可按行定制样式" :code="code" :script=${script}>
     <div style="width: 100%; display: grid; gap: 12px">
       <elf-table :data.prop="rowsData()" :columns.prop="columns" border></elf-table>

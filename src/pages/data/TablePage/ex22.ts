@@ -39,7 +39,7 @@ const code = (): string => `<elf-table
 />`;
 
 const PageTableEx22 = defineHtml(`
-  <h2>${t("section")}</h2>
+  <h2>${t("demo")}</h2>
   <elf-playground :title=${t("demo")} :code=${code()}>
     <div style="width:100%;max-width:820px">
       <elf-table

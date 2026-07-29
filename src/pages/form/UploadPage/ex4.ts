@@ -40,8 +40,9 @@ const onManualSuccess = (event: CustomEvent): void => {
 
 const PageUploadEx4 = defineHtml(`
 <elf-playground title="手动上传" :code=${manualCode} :script=${manualScript}>
-      <div style="display:grid;gap:12px;width:100%;max-width:720px;margin-inline:auto">
+      <div style="display:grid;place-items:center;width:100%">
         <elf-upload
+          style="width:min(100%,720px)"
           :modelValue=${manualFiles}
           :autoUpload=${false}
           button-text="选择待上传文件"
@@ -49,8 +50,8 @@ const PageUploadEx4 = defineHtml(`
           @update:modelValue=${onManualUpdate}
           @success=${onManualSuccess}
         ></elf-upload>
-        <span slot="status" class="demo-state">{{ manualLog }}</span>
       </div>
+      <span slot="status" class="demo-state">${manualLog.value}</span>
     </elf-playground>
 `);
 

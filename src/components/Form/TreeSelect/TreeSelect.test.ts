@@ -44,6 +44,7 @@ type TreeSelectHost = TreeSelectElement & {
   defaultExpandAll: boolean;
   collapseTags: boolean;
   maxCollapseTags: number;
+  offset: number;
 };
 
 const data: TreeNode[] = [
@@ -97,6 +98,11 @@ describe("elf-tree-select", () => {
     expect(
       element.shadowRoot!.querySelector(".field-outline legend")?.textContent,
     ).toBe("Team");
+  });
+
+  it("attaches the panel to the trigger by default", async () => {
+    const element = await mount();
+    expect(element.offset).toBe(0);
   });
 
   it("selects one node, closes the panel, and restores trigger focus", async () => {

@@ -59,6 +59,8 @@ describe("FormPage", () => {
     const propsPage = page.shadowRoot!.querySelector<HTMLElement>("elf-page-form-props")!;
     const tables = Array.from(propsPage.shadowRoot!.querySelectorAll<HTMLElement>("elf-props-table"));
     const apiTables = tables as Array<HTMLElement & { rows?: Array<{ name?: string }>; title?: string }>;
+    expect(Array.from(propsPage.shadowRoot!.querySelectorAll("h2")).map((heading) => heading.textContent?.trim()))
+      .toEqual(["API"]);
     expect(apiTables.map((table) => table.rows?.length)).toEqual([15, 13, 7, 5, 9]);
     expect(apiTables.map((table) => table.title)).toContain("elf-form Expose");
     expect(apiTables.flatMap((table) => table.rows ?? []).map((row) => row.name)).toContain("setInitialValue(value?)");

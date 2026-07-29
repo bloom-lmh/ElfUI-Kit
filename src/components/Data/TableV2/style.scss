@@ -37,7 +37,7 @@ elf-table[data-scroll-table]::part(scroll) {
 
 .table-v2.has-fixed-data {
   .fixed-table::part(scroll) {
-    border-bottom: 0;
+    border-bottom: 1px solid var(--elf-divider);
     border-radius: var(--elf-radius-md) var(--elf-radius-md) 0 0;
   }
 

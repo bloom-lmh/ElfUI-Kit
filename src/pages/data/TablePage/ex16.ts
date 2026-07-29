@@ -135,7 +135,7 @@ const onFilterChange = (event) => {
 };`;
 
 const PageTableEx16 = defineHtml(`
-  <h2>列筛选</h2>
+  <h2>订单工作台：多选状态与单选负责人</h2>
   <elf-playground title="订单工作台：多选状态与单选负责人" :code="code" :script=${script}>
     <span slot="status" class="demo-state">{{ filterState }}</span>
     <div style="width: 100%; display: grid; gap: 12px">

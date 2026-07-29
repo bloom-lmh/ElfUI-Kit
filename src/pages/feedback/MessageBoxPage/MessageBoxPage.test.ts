@@ -45,6 +45,22 @@ const deepQuery = <T extends Element>(
   return null;
 };
 
+const deepQueryAll = <T extends Element>(
+  root: Node,
+  selector: string,
+): T[] => {
+  const matches: T[] = [];
+  const visit = (node: Node): void => {
+    if (node instanceof Element) {
+      if (node.matches(selector)) matches.push(node as T);
+      if (node.shadowRoot) visit(node.shadowRoot);
+    }
+    node.childNodes.forEach(visit);
+  };
+  visit(root);
+  return matches;
+};
+
 const mount = async (tag: string): Promise<HTMLElement> => {
   const element = document.createElement(tag);
   document.body.appendChild(element);
@@ -63,6 +79,15 @@ afterEach(async () => {
 });
 
 describe("MessageBoxPage", () => {
+  it("keeps every example status in the playground title area", async () => {
+    const page = await mount(pageTag);
+    const playgrounds = deepQueryAll<HTMLElement>(page, "elf-playground");
+    expect(playgrounds).toHaveLength(4);
+    for (const playground of playgrounds) {
+      expect(playground.querySelector(':scope > [slot="status"]')).toBeTruthy();
+    }
+  });
+
   it("中文页面覆盖四类案例、源码和 API", async () => {
     const page = await mount(pageTag);
     const text = collectText(page);

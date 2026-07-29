@@ -402,6 +402,7 @@ export const navItems: NavItem[] = [
   { to: "/providers/locale", text: "Internationalization 国际化", group: "Guide 指南" },
   { to: "/guide/accessibility", text: "Accessibility 无障碍", group: "Guide 指南" },
   { to: "/guide/build", text: "Build & styles 构建与样式", group: "Guide 指南" },
+  { to: "/utilities", text: "Utilities 工具类", group: "Guide 指南" },
 
   { to: "/layout/grid", text: "Grid 栅格", group: "Layout 布局" },
   { to: "/layout/flex", text: "Flex 弹性布局", group: "Layout 布局" },
@@ -487,5 +488,4 @@ export const navItems: NavItem[] = [
   { to: "/picker/time-select", text: "TimeSelect 时间选择", group: "Picker 选择器" },
   { to: "/picker/calendar", text: "Calendar 日历", group: "Picker 选择器" },
 
-  { to: "/utilities", text: "Utilities 工具类", group: "Utilities 工具类" }
 ];

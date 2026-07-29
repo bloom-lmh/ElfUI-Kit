@@ -26,7 +26,7 @@ const data = [
 ];`;
 
 const PageTableEx5 = defineHtml(`
-  <h2>边框</h2>
+  <h2>border 用于财务、权限矩阵等需要清晰单元格边界的场景</h2>
   <elf-playground title="border 用于财务、权限矩阵等需要清晰单元格边界的场景" :code="code" :script=${script}>
     <div style="width: 100%">
       <elf-table :data.prop="data" :columns.prop="columns" border></elf-table>

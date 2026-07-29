@@ -18,7 +18,7 @@ const extraCode = `<elf-result icon="success" title="${t("result")}" sub-title="
 
 const PageResultEx2 = defineHtml(`
 <elf-playground :title=${t("title")} :code=${extraCode}>
-      <elf-result icon="success" title=${t("result")} sub-title=${t("detail")}>
+      <elf-result icon="success" :title=${t("result")} :sub-title=${t("detail")}>
         <div slot="extra" style="display:flex;gap:8px;justify-content:center">
           <elf-button variant="outlined">${t("view")}</elf-button>
           <elf-button>${t("edit")}</elf-button>
