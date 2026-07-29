@@ -1,4 +1,9 @@
 import { defineHtml, useRef } from "@elfui/core";
+import { createDocsTranslator } from "../../docsLocale";
+
+const t = createDocsTranslator({
+  title: { zh: "自定义符号与只读状态", en: "Custom characters and read-only state" },
+});
 
 
 const mood = useRef(4);
@@ -21,7 +26,7 @@ const onMood = (event: CustomEvent): void => {
 };
 
 const PageRateEx3 = defineHtml(`
-<elf-playground title="自定义符号与只读" :code=${customCode} :script=${customScript}>
+<elf-playground :title=${t("title")} :code=${customCode} :script=${customScript}>
       <div style="display:grid;gap:12px">
         <elf-rate
           :modelValue.prop=${mood.value}

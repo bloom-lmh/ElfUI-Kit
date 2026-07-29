@@ -7,6 +7,15 @@ import { PageSwitchProps } from "./props";
 import { defineHtml,
   useComponents
 } from "@elfui/core";
+import { createDocsTranslator } from "../../docsLocale";
+
+const t = createDocsTranslator({
+  title: { zh: "开关", en: "Switch" },
+  description: {
+    zh: "切换相互对立的即时状态，支持文字、尺寸、加载、外观、动作图标和自定义值。",
+    en: "Toggle an immediate binary state with text, sizes, loading, variants, action icons, and custom values.",
+  },
+});
 
 useComponents({
   "page-switch-ex1": PageSwitchEx1,
@@ -17,7 +26,8 @@ useComponents({
 
 const PageSwitch = defineHtml(`
   <elf-container>
-    <h1>Switch 开关</h1>
+    <h1>${t("title")}</h1>
+    <p>${t("description")}</p>
     <page-switch-ex1></page-switch-ex1>
     <page-switch-ex2></page-switch-ex2>
     <page-switch-ex3></page-switch-ex3>

@@ -1,4 +1,13 @@
 import { defineHtml, useRef } from "@elfui/core";
+import { createDocsTranslator } from "../../docsLocale";
+
+const t = createDocsTranslator({
+  title: { zh: "按钮风格", en: "Button style" },
+  optionX: { zh: "选项 X", en: "Option X" },
+  optionY: { zh: "选项 Y", en: "Option Y" },
+  optionZ: { zh: "选项 Z", en: "Option Z" },
+  current: { zh: "当前", en: "Current" },
+});
 
 const picked = useRef("x");
 
@@ -11,16 +20,16 @@ const code = `<elf-radio-group
   text-color="#fff"
   @update:modelValue=\${onUpdate}
 >
-  <elf-radio value="x" label="选项 X" />
-  <elf-radio value="y" label="选项 Y" />
-  <elf-radio value="z" label="选项 Z" />
+  <elf-radio value="x" label="${t("optionX")}" />
+  <elf-radio value="y" label="${t("optionY")}" />
+  <elf-radio value="z" label="${t("optionZ")}" />
 </elf-radio-group>`;
 
 const script = `const picked = useRef("x");
 const onUpdate = (event) => picked.set(String(event.detail));`;
 
 const PageRadioEx2 = defineHtml(`
-  <elf-playground title="按钮风格" :code=${code} :script=${script}>
+  <elf-playground :title=${t("title")} :code=${code} :script=${script}>
     <elf-radio-group
       :modelValue.prop=${picked.value}
       variant="button"
@@ -28,11 +37,11 @@ const PageRadioEx2 = defineHtml(`
       text-color="#fff"
       @update:modelValue=${onUpdate}
     >
-      <elf-radio value="x" label="选项 X"></elf-radio>
-      <elf-radio value="y" label="选项 Y"></elf-radio>
-      <elf-radio value="z" label="选项 Z"></elf-radio>
+      <elf-radio value="x" :label=${t("optionX")}></elf-radio>
+      <elf-radio value="y" :label=${t("optionY")}></elf-radio>
+      <elf-radio value="z" :label=${t("optionZ")}></elf-radio>
     </elf-radio-group>
-    <span slot="status" class="demo-state">当前：{{ picked }}</span>
+    <span slot="status" class="demo-state">${t("current")}：{{ picked }}</span>
   </elf-playground>
 `);
 
