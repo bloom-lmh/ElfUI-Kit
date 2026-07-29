@@ -132,12 +132,17 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
         Object.getPrototypeOf(value) === null),
   );
 
-const mergeValue = (left: unknown, right: unknown): unknown => {
+const mergeValue = (
+  left: unknown,
+  right: unknown,
+  key = "",
+): unknown => {
+  if (key === "adapter") return right;
   if (!isRecord(left) || !isRecord(right)) return right;
 
   const output: Record<string, unknown> = { ...left };
   for (const [key, value] of Object.entries(right)) {
-    output[key] = key in output ? mergeValue(output[key], value) : value;
+    output[key] = key in output ? mergeValue(output[key], value, key) : value;
   }
   return output;
 };

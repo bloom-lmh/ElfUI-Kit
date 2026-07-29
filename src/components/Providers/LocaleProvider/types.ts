@@ -1,4 +1,5 @@
 import type { LocaleDirection, LocaleMessages } from "../context";
+import type { LocaleAdapter } from "../../../adapters";
 
 export interface LocaleProviderProps {
   name: string;
@@ -6,6 +7,7 @@ export interface LocaleProviderProps {
   rtl: boolean;
   messages: LocaleMessages;
   timeZone: string;
+  adapter?: LocaleAdapter;
 }
 
-export type { LocaleDirection, LocaleMessages };
+export type { LocaleAdapter, LocaleDirection, LocaleMessages };

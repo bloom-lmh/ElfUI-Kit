@@ -3,6 +3,7 @@ import { createDocsPicker, createDocsTranslator } from "../../docsLocale";
 import { PageLocaleProviderEx1 } from "./ex1";
 import { PageLocaleProviderEx2 } from "./ex2";
 import { PageLocaleProviderEx3 } from "./ex3";
+import { PageLocaleProviderEx4 } from "./ex4";
 
 const pick = createDocsPicker();
 const t = createDocsTranslator({
@@ -18,7 +19,8 @@ const propsRows = [
   { name: "dir", type: "ltr | rtl", default: "ltr", desc: pick("文本方向", "Text direction.") },
   { name: "rtl", type: "boolean", default: "false", desc: pick("快捷切换为 rtl", "Shortcut for RTL direction.") },
   { name: "messages", type: "object", default: "{}", desc: pick("与默认文案合并的本地化消息", "Localized messages merged with the defaults.") },
-  { name: "time-zone", type: "string", default: "''", desc: pick("日期格式化默认时区", "Default time zone for date formatting.") }
+  { name: "time-zone", type: "string", default: "''", desc: pick("日期格式化默认时区", "Default time zone for date formatting.") },
+  { name: "adapter", type: "LocaleAdapter", default: "—", desc: pick("接入外部翻译与数字、日期格式化策略", "Connect external translation, number, and date formatting strategies.") },
 ];
 
 const contextRows = [
@@ -30,7 +32,8 @@ const contextRows = [
 useComponents({
   "page-locale-provider-ex1": PageLocaleProviderEx1,
   "page-locale-provider-ex2": PageLocaleProviderEx2,
-  "page-locale-provider-ex3": PageLocaleProviderEx3
+  "page-locale-provider-ex3": PageLocaleProviderEx3,
+  "page-locale-provider-ex4": PageLocaleProviderEx4,
 });
 
 const PageLocaleProvider = defineHtml(`
@@ -41,6 +44,7 @@ const PageLocaleProvider = defineHtml(`
     <page-locale-provider-ex1 />
     <page-locale-provider-ex2 />
     <page-locale-provider-ex3 />
+    <page-locale-provider-ex4 />
     <h2>API</h2>
     <elf-props-table title="LocaleProvider Props" :rows="propsRows"></elf-props-table>
     <elf-props-table title="Locale Context" :rows="contextRows"></elf-props-table>

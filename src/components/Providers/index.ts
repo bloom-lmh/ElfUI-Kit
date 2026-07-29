@@ -17,7 +17,7 @@ export type { DefaultsProviderProps } from "./DefaultsProvider/types";
 export { IconProvider } from "./IconProvider/index";
 export type { IconProviderProps } from "./IconProvider/types";
 export { LocaleProvider } from "./LocaleProvider/index";
-export type { LocaleProviderProps } from "./LocaleProvider/types";
+export type { LocaleAdapter, LocaleProviderProps } from "./LocaleProvider/types";
 export { ThemeProvider } from "./ThemeProvider/index";
 export type { ThemeDefinition, ThemeProviderProps } from "./ThemeProvider/types";
 

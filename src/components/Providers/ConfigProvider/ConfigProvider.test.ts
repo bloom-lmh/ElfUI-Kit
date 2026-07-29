@@ -1,11 +1,14 @@
 import { registerComponents } from "@elfui/core";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
 
+import { defineLocaleAdapter } from "../../../adapters";
+import { mergeElfUIConfig } from "../config";
+import { LocaleProviderProbe } from "../LocaleProvider/probe.test-component";
 import { ConfigProviderProbe } from "./probe.test-component";
 
 beforeAll(async () => {
   await import("../index");
-  registerComponents(ConfigProviderProbe);
+  registerComponents(ConfigProviderProbe, LocaleProviderProbe);
 });
 
 afterEach(() => {
@@ -53,7 +56,7 @@ describe("elf-config-provider", () => {
     expect(button.variant).toBe("outlined");
     expect(button.color).toBe("secondary");
     expect(provider.getAttribute("data-motion")).toBe("reduced");
-    expect(provider.shadowRoot?.querySelector("elf-locale-provider")?.getAttribute("lang")).toBe("en-US");
+    expect(provider.getAttribute("lang")).toBe("en-US");
     expect(provider.shadowRoot?.querySelector("elf-theme-provider")?.style.getPropertyValue("--elf-primary"))
       .toBe("#1769aa");
     const probeText =
@@ -80,6 +83,41 @@ describe("elf-config-provider", () => {
     expect(output).toContain("reduced");
     expect(output).toMatch(/mobile|desktop/);
     expect(provider.shadowRoot?.querySelector("elf-theme-provider")).toBeTruthy();
+  });
+
+  it("通过 ConfigProvider 向 LocaleProvider 传递外部翻译策略", async () => {
+    const provider = document.createElement("elf-config-provider") as HTMLElement & {
+      config?: Record<string, unknown>;
+    };
+    const adapter = defineLocaleAdapter({
+      translate: (path) => path === "common.confirm" ? "External confirm" : undefined,
+    });
+    provider.config = { locale: { name: "fr-FR", adapter } };
+    provider.innerHTML = `<elf-locale-provider-probe></elf-locale-provider-probe>`;
+    document.body.appendChild(provider);
+    await tick();
+    await tick();
+
+    expect(
+      provider.querySelector("elf-locale-provider-probe")?.shadowRoot?.textContent,
+    ).toContain("fr-FR|ltr|External confirm");
+  });
+
+  it("将嵌套 adapter 作为原子策略替换", () => {
+    const parentAdapter = defineLocaleAdapter({
+      translate: () => "parent",
+      formatNumber: () => "parent number",
+    });
+    const childAdapter = defineLocaleAdapter({
+      translate: () => "child",
+    });
+    const merged = mergeElfUIConfig(
+      { locale: { adapter: parentAdapter } },
+      { locale: { adapter: childAdapter } },
+    );
+
+    expect(merged.locale?.adapter).toBe(childAdapter);
+    expect(merged.locale?.adapter?.formatNumber).toBeUndefined();
   });
 });
 

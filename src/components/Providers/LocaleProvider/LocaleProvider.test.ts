@@ -1,6 +1,7 @@
 import { registerComponents } from "@elfui/core";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
 
+import { defineLocaleAdapter, type LocaleAdapter } from "../../../adapters";
 import { LocaleProviderFormatProbe, LocaleProviderProbe } from "./probe.test-component";
 
 beforeAll(async () => {
@@ -21,6 +22,7 @@ interface LocaleProviderEl extends HTMLElement {
   rtl?: boolean;
   messages?: Record<string, unknown>;
   timeZone?: string;
+  adapter?: LocaleAdapter;
 }
 
 describe("elf-locale-provider", () => {
@@ -137,5 +139,39 @@ describe("elf-locale-provider", () => {
     const text = provider.querySelector("elf-locale-provider-format-probe")!.shadowRoot?.textContent || "";
     expect(text).toContain("$1,234.50");
     expect(text).toContain("Jul 22, 2026");
+  });
+
+  it("委托外部 i18n adapter 并为缺失键保留内置回退", async () => {
+    const provider = document.createElement("elf-locale-provider") as LocaleProviderEl;
+    provider.name = "fr-FR";
+    provider.adapter = defineLocaleAdapter({
+      translate(path, _params, context) {
+        return path === "common.confirm"
+          ? `Valider · ${context.name}`
+          : undefined;
+      },
+      formatNumber: () => "NOMBRE EXTERNE",
+      formatDate: () => "DATE EXTERNE",
+    });
+    provider.innerHTML = [
+      "<elf-locale-provider-probe></elf-locale-provider-probe>",
+      "<elf-locale-provider-format-probe></elf-locale-provider-format-probe>",
+      "<elf-select></elf-select>",
+    ].join("");
+    document.body.appendChild(provider);
+    await tick();
+    await tick();
+
+    expect(
+      provider.querySelector("elf-locale-provider-probe")?.shadowRoot?.textContent,
+    ).toContain("fr-FR|ltr|Valider · fr-FR");
+    const formatted =
+      provider.querySelector("elf-locale-provider-format-probe")?.shadowRoot
+        ?.textContent ?? "";
+    expect(formatted).toContain("NOMBRE EXTERNE");
+    expect(formatted).toContain("DATE EXTERNE");
+    expect(provider.querySelector("elf-select")?.shadowRoot?.textContent).toContain(
+      "Select",
+    );
   });
 });

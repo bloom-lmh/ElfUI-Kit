@@ -136,6 +136,9 @@ describe("Provider pages", () => {
     expect(text).toContain("Switching locale and RTL");
     expect(text).toContain("Component-level English override");
     expect(text).toContain("Nested scopes and formatting");
+    expect(text).toContain("External i18n adapter");
+    expect(text).toContain("Adaptateur i18n externe");
+    expect(text).toContain("Valider");
     expect(text).toContain("Lokaler deutscher Freigabebereich");
     expect(text).toContain("Localized messages merged with the defaults.");
     expect(text).not.toContain("英文工作区中的中文审批区");

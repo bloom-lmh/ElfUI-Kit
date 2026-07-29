@@ -493,7 +493,9 @@ export const EN_LOCALE_MESSAGES: LocaleMessages = {
 };
 
 export const localeMessagesFor = (name: string): LocaleMessages =>
-  String(name).toLowerCase().startsWith("en") ? EN_LOCALE_MESSAGES : DEFAULT_LOCALE_MESSAGES;
+  String(name).toLowerCase().startsWith("zh")
+    ? DEFAULT_LOCALE_MESSAGES
+    : EN_LOCALE_MESSAGES;
 
 const readPath = (messages: LocaleMessages, path: string): unknown => {
   return path.split(".").reduce<unknown>((current, key) => {

@@ -1,5 +1,12 @@
 # LocaleProvider Element Plus API 对标计划
 
+## 2026-07-29 外部 i18n Adapter
+
+- [x] 建立与框架无关的 `LocaleAdapter`，覆盖翻译、数字格式化与日期格式化。
+- [x] LocaleProvider 与 ConfigProvider 复用唯一 Locale Context 工厂，不复制 Provider 行为。
+- [x] 嵌套 ConfigProvider 将 adapter 作为原子策略替换，缺失翻译继续使用内置英文或中文文案。
+- [x] 新增 ConfigProvider 法语目录案例、公开类型、Custom Element 类型与 Provider 回归测试。
+
 ## 2026-07-19 文档精简
 - [x] 曾移除重复的组件级英文案例；2026-07-22 已按完整覆盖矩阵重新设计并恢复
 

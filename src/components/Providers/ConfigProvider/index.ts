@@ -12,8 +12,9 @@ import {
 
 import { DefaultsProvider } from "../DefaultsProvider/index";
 import { IconProvider } from "../IconProvider/index";
-import { LocaleProvider } from "../LocaleProvider/index";
 import { ThemeProvider } from "../ThemeProvider/index";
+import { LOCALE_PROVIDER_KEY, type LocaleDirection } from "../context";
+import { createLocaleContext } from "../locale-context";
 import {
   CONFIG_PROVIDER_KEY,
   DEFAULT_DISPLAY_OPTIONS,
@@ -70,7 +71,6 @@ const systemReducedMotion = useRef(false);
 useComponents({
   "elf-defaults-provider": DefaultsProvider,
   "elf-icon-provider": IconProvider,
-  "elf-locale-provider": LocaleProvider,
   "elf-theme-provider": ThemeProvider,
 });
 
@@ -191,6 +191,15 @@ const defaultsOptions = () => {
 const localeOptions = () => ({
   ...(readConfig().locale ?? {}),
 });
+const localeDirection = (): LocaleDirection =>
+  localeOptions().rtl || localeOptions().dir === "rtl" ? "rtl" : "ltr";
+const localeContext = createLocaleContext({
+  name: () => localeOptions().name || "zh-CN",
+  direction: localeDirection,
+  messages: () => localeOptions().messages || {},
+  timeZone: () => localeOptions().timeZone || "",
+  adapter: () => localeOptions().adapter,
+});
 
 const themeOptions = () => ({
   ...(readConfig().theme ?? {}),
@@ -206,6 +215,7 @@ const iconOptions = () => ({
 const motionData = (): "full" | "reduced" => (reducedMotion() ? "reduced" : "full");
 
 provide(CONFIG_PROVIDER_KEY, context);
+provide(LOCALE_PROVIDER_KEY, localeContext);
 
 onMounted(() => {
   updateDisplay();
@@ -237,46 +247,41 @@ useEffect(() => {
   host.setAttribute("data-breakpoint", display.name);
   host.setAttribute("data-mobile", display.mobile ? "true" : "false");
   host.setAttribute("data-motion", motionData());
+  host.setAttribute("lang", localeContext.name);
+  host.setAttribute("dir", localeContext.dir);
+  host.setAttribute("data-locale", localeContext.name);
 });
 
 defineStyle(styles);
 
 const ConfigProvider = defineHtml<ConfigProviderProps>(`
-  <elf-locale-provider
-    :name=${localeOptions().name || "zh-CN"}
-    :dir=${localeOptions().dir || "ltr"}
-    :rtl=${Boolean(localeOptions().rtl)}
-    :messages.prop=${localeOptions().messages || {}}
-    :timeZone=${localeOptions().timeZone || ""}
+  <elf-theme-provider
+    :theme=${themeOptions().theme}
+    :themes.prop=${themeOptions().themes || {}}
+    :tokens.prop=${themeOptions().tokens || {}}
+    :primary=${themeOptions().primary || ""}
+    :secondary=${themeOptions().secondary || ""}
+    :success=${themeOptions().success || ""}
+    :warning=${themeOptions().warning || ""}
+    :danger=${themeOptions().danger || ""}
+    :info=${themeOptions().info || ""}
+    :background=${themeOptions().background || ""}
+    :surface=${themeOptions().surface || ""}
+    :textColor=${themeOptions().textColor || ""}
+    :inherit=${themeOptions().inherit}
   >
-    <elf-theme-provider
-      :theme=${themeOptions().theme}
-      :themes.prop=${themeOptions().themes || {}}
-      :tokens.prop=${themeOptions().tokens || {}}
-      :primary=${themeOptions().primary || ""}
-      :secondary=${themeOptions().secondary || ""}
-      :success=${themeOptions().success || ""}
-      :warning=${themeOptions().warning || ""}
-      :danger=${themeOptions().danger || ""}
-      :info=${themeOptions().info || ""}
-      :background=${themeOptions().background || ""}
-      :surface=${themeOptions().surface || ""}
-      :textColor=${themeOptions().textColor || ""}
-      :inherit=${themeOptions().inherit}
-    >
-      <elf-icon-provider :options.prop=${iconOptions()}>
-        <elf-defaults-provider
-          :defaults.prop=${defaultsOptions().defaults}
-          :strategy=${defaultsOptions().strategy || "missing"}
-          :deep=${defaultsOptions().deep !== false}
-          :disabled=${Boolean(defaultsOptions().disabled)}
-          :reset=${Boolean(defaultsOptions().reset)}
-        >
-          <slot></slot>
-        </elf-defaults-provider>
-      </elf-icon-provider>
-    </elf-theme-provider>
-  </elf-locale-provider>
+    <elf-icon-provider :options.prop=${iconOptions()}>
+      <elf-defaults-provider
+        :defaults.prop=${defaultsOptions().defaults}
+        :strategy=${defaultsOptions().strategy || "missing"}
+        :deep=${defaultsOptions().deep !== false}
+        :disabled=${Boolean(defaultsOptions().disabled)}
+        :reset=${Boolean(defaultsOptions().reset)}
+      >
+        <slot></slot>
+      </elf-defaults-provider>
+    </elf-icon-provider>
+  </elf-theme-provider>
 `);
 
 export { ConfigProvider };

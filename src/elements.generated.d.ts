@@ -515,6 +515,8 @@ declare global {
       dir: string;
       rtl: boolean;
       messages: Record<string, unknown>;
+      timeZone: string;
+      adapter: import("./adapters").LocaleAdapter | undefined;
     };
     "elf-main": HTMLElement;
     "elf-masonry": HTMLElement & {
