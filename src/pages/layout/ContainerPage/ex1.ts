@@ -1,4 +1,9 @@
 import { defineHtml } from "@elfui/core";
+import { createDocsTranslator } from "../../docsLocale";
+
+const t = createDocsTranslator({
+  title: { zh: "最大宽度档位", en: "Maximum-width presets" },
+});
 
 const code1 = `<elf-container max-width="xs">xs (480px)</elf-container>
 <elf-container max-width="sm">sm (600px)</elf-container>
@@ -7,8 +12,8 @@ const code1 = `<elf-container max-width="xs">xs (480px)</elf-container>
 <elf-container max-width="xl">xl (1536px)</elf-container>`;
 
 const PageContainerEx1 = defineHtml(`
-  <h2>不同 max-width</h2>
-  <elf-playground title="xs ~ xl" :code=${code1}>
+  <h2>${t("title")}</h2>
+  <elf-playground :title=${t("title")} :code=${code1}>
     <elf-container max-width="xs" style="border:1px dashed var(--elf-border-strong);border-radius:4px;background:transparent;margin:4px 0"
       >xs (480px)</elf-container
     >
