@@ -14,10 +14,13 @@ beforeAll(async () => {
 
 afterEach(() => {
   document.body.innerHTML = "";
+  document.documentElement.lang = "zh-CN";
 });
 
 const tick = (): Promise<void> => new Promise((resolve) => queueMicrotask(resolve));
 const wait = (ms = 30): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
+const collectText = (root: Node): string => { let text = ""; const visit = (node: Node): void => { if (node.nodeType === Node.TEXT_NODE) text += ` ${node.textContent || ""}`; if (node instanceof Element && node.shadowRoot) visit(node.shadowRoot); node.childNodes.forEach(visit); }; visit(root); return text.replace(/\s+/g, " ").trim(); };
+const mountPage = async (): Promise<string> => { const page = document.createElement(pageTag); document.body.appendChild(page); await wait(60); return collectText(page); };
 
 describe("FormPage", () => {
   it("布局案例可以禁用并重新启用整张表单", async () => {
@@ -57,7 +60,25 @@ describe("FormPage", () => {
     const tables = Array.from(propsPage.shadowRoot!.querySelectorAll<HTMLElement>("elf-props-table"));
     const apiTables = tables as Array<HTMLElement & { rows?: Array<{ name?: string }>; title?: string }>;
     expect(apiTables.map((table) => table.rows?.length)).toEqual([15, 13, 7, 5, 9]);
-    expect(apiTables.map((table) => table.title)).toContain("elf-form Exposes");
+    expect(apiTables.map((table) => table.title)).toContain("elf-form Expose");
     expect(apiTables.flatMap((table) => table.rows ?? []).map((row) => row.name)).toContain("setInitialValue(value?)");
+  });
+
+  it("renders complete Chinese docs", async () => {
+    const text = await mountPage();
+    expect(text).toContain("综合示例");
+    expect(text).toContain("提交校验");
+    expect(text).toContain("动态字段");
+    expect(text).toContain("校验全部已注册字段");
+  });
+
+  it("renders complete English docs without Han characters", async () => {
+    document.documentElement.lang = "en-US";
+    const text = await mountPage();
+    expect(text).toContain("Comprehensive example");
+    expect(text).toContain("Submit validation");
+    expect(text).toContain("Dynamic fields");
+    expect(text).toContain("Validate all registered fields");
+    expect(text).not.toMatch(/[\u3400-\u9fff]/u);
   });
 });

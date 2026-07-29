@@ -1,4 +1,11 @@
 import { defineHtml, useRef } from "@elfui/core";
+import { createDocsTranslator } from "../../docsLocale";
+
+const t = createDocsTranslator({
+  title: { zh: "键盘导航与上方弹出", en: "Keyboard navigation and top placement" },
+  search: { zh: "框架搜索", en: "Framework search" },
+  disabled: { zh: "禁用项", en: "Disabled option" }
+});
 
 const keyboardKeyword = useRef("");
 
@@ -7,7 +14,7 @@ const suggestions = [
   { label: "React", value: "React" },
   { label: "Solid", value: "Solid" },
   { label: "ElfUI", value: "ElfUI" },
-  { label: "禁用项", value: "disabled", disabled: true }
+  { label: t("disabled"), value: "disabled", disabled: true }
 ];
 
 const code3 = `<elf-autocomplete
@@ -15,7 +22,7 @@ const code3 = `<elf-autocomplete
   :options.prop=\${suggestions}
   :highlightFirstItem=\${true}
   placement="top-start"
-  aria-label="框架搜索"
+  aria-label="${t("search")}"
   @update:modelValue=\${onKeyboardUpdate}
 />`;
 
@@ -30,7 +37,7 @@ const suggestions = [
     { label: "React", value: "React" },
     { label: "Solid", value: "Solid" },
     { label: "ElfUI", value: "ElfUI" },
-    { label: "禁用项", value: "disabled", disabled: true }
+    { label: "${t("disabled")}", value: "disabled", disabled: true }
 ];`;
 
 const onKeyboardUpdate = (event: CustomEvent): void => {
@@ -38,13 +45,13 @@ const onKeyboardUpdate = (event: CustomEvent): void => {
 };
 
 const PageAutocompleteEx3 = defineHtml(`
-<elf-playground title="键盘导航与上方弹出" :code=${code3} :script=${script3}>
+<elf-playground :title=${t("title")} :code=${code3} :script=${script3}>
       <elf-autocomplete
         :modelValue=${keyboardKeyword}
         :options.prop=${suggestions}
         :highlightFirstItem=${true}
         placement="top-start"
-        aria-label="框架搜索"
+        :aria-label=${t("search")}
         @update:modelValue=${onKeyboardUpdate}
       ></elf-autocomplete>
     </elf-playground>

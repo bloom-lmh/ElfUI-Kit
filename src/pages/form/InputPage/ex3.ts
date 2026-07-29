@@ -1,4 +1,12 @@
 import { defineHtml, useRef, useTemplateRef } from "@elfui/core";
+import { createDocsTranslator } from "../../docsLocale";
+
+const t = createDocsTranslator({
+  formatting: { zh: "格式化与插槽", en: "Formatting and slots" }, amountHint: { zh: "请输入金额", en: "Enter an amount" }, total: { zh: "总价", en: "Total" }, raw: { zh: "原始值", en: "Raw value" },
+  count: { zh: "字数统计", en: "Character count" }, nicknameHint: { zh: "昵称最多 12 个字符", en: "Nickname up to 12 characters" }, nickname: { zh: "昵称", en: "Nickname" },
+  native: { zh: "原生属性", en: "Native attributes" }, phone: { zh: "手机号", en: "Phone number" },
+  focusTitle: { zh: "命令式焦点", en: "Imperative focus" }, focusHint: { zh: "使用标题按钮控制焦点", en: "Control focus with the action buttons" }, focus: { zh: "聚焦", en: "Focus" }, blur: { zh: "失焦", en: "Blur" }
+});
 
 const amount = useRef("1200");
 const nickname = useRef("ElfUI");
@@ -18,14 +26,14 @@ const code1 = `<div style="width:320px;margin-bottom:8px">
     :formatter.prop=\${currencyFormatter}
     :parser.prop=\${currencyParser}
     clearable
-    placeholder="请输入金额"
+    placeholder="${t("amountHint")}"
     @update:modelValue=\${onAmountUpdate}
   >
-    <span slot="prepend">总价</span>
+    <span slot="prepend">${t("total")}</span>
     <span slot="append">USD</span>
   </elf-input>
 </div>
-<span slot="status" class="demo-state">原始值：{{ amount }}</span>`;
+<span slot="status" class="demo-state">${t("raw")}：{{ amount }}</span>`;
 
 const script1 = `const amount = useRef("1200");
 
@@ -45,14 +53,14 @@ const code2 = `<div style="width:320px;margin-bottom:8px">
     maxlength="12"
     show-word-limit
     word-limit-position="outside"
-    placeholder="昵称最多 12 个字符"
+    placeholder="${t("nicknameHint")}"
     @update:modelValue=\${onNicknameUpdate}
   >
     <span slot="prefix">@</span>
     <span slot="suffix">CN</span>
   </elf-input>
 </div>
-<span slot="status" class="demo-state">昵称：{{ nickname }}</span>`;
+<span slot="status" class="demo-state">${t("nickname")}：{{ nickname }}</span>`;
 
 const script2 = `const nickname = useRef("ElfUI");
 
@@ -67,12 +75,12 @@ const code3 = `<div style="width:320px">
     :modelValue.prop=\${phone.value}
     id="phone"
     name="phone"
-    aria-label="手机号"
+    aria-label="${t("phone")}"
     inputmode="numeric"
     autocomplete="tel"
     minlength="6"
     maxlength="11"
-    placeholder="手机号"
+    placeholder="${t("phone")}"
     @update:modelValue=\${onPhoneUpdate}
   />
 </div>`;
@@ -83,10 +91,10 @@ const onPhoneUpdate = (event) => {
   phone.set(String(event.detail || ""));
 };`;
 
-const code4 = `<elf-input ref="commandInput" placeholder="使用标题按钮控制焦点" />
+const code4 = `<elf-input ref="commandInput" placeholder="${t("focusHint")}" />
 <div slot="status">
-  <elf-button size="small" @click=\${focusInput}>聚焦</elf-button>
-  <elf-button size="small" @click=\${blurInput}>失焦</elf-button>
+  <elf-button size="small" @click=\${focusInput}>${t("focus")}</elf-button>
+  <elf-button size="small" @click=\${blurInput}>${t("blur")}</elf-button>
 </div>`;
 
 const script4 = `const commandInput = useTemplateRef("commandInput");
@@ -111,7 +119,7 @@ const focusInput = (): void => commandInput.value?.focus();
 const blurInput = (): void => commandInput.value?.blur();
 
 const PageInputEx3 = defineHtml(`
-  <h2>格式化与插槽</h2>
+  <h2>${t("formatting")}</h2>
   <elf-playground title="formatter / parser / prepend / append" :code=${code1} :script=${script1}>
     <div style="width:320px;margin-bottom:8px">
       <elf-input
@@ -119,17 +127,17 @@ const PageInputEx3 = defineHtml(`
         :formatter.prop=${currencyFormatter}
         :parser.prop=${currencyParser}
         clearable
-        placeholder="请输入金额"
+        :placeholder=${t("amountHint")}
         @update:modelValue=${onAmountUpdate}
       >
-        <span slot="prepend">总价</span>
+        <span slot="prepend">${t("total")}</span>
         <span slot="append">USD</span>
       </elf-input>
     </div>
-    <span slot="status" class="demo-state">原始值：{{ amount }}</span>
+    <span slot="status" class="demo-state">${t("raw")}：{{ amount }}</span>
   </elf-playground>
 
-  <h2>字数统计</h2>
+  <h2>${t("count")}</h2>
   <elf-playground title="show-word-limit / count-graphemes" :code=${code2} :script=${script2}>
     <div style="width:320px;margin-bottom:8px">
       <elf-input
@@ -138,42 +146,42 @@ const PageInputEx3 = defineHtml(`
         maxlength="12"
         show-word-limit
         word-limit-position="outside"
-        placeholder="昵称最多 12 个字符"
+        :placeholder=${t("nicknameHint")}
         @update:modelValue=${onNicknameUpdate}
       >
         <span slot="prefix">@</span>
         <span slot="suffix">CN</span>
       </elf-input>
     </div>
-    <span slot="status" class="demo-state">昵称：{{ nickname }}</span>
+    <span slot="status" class="demo-state">${t("nickname")}：{{ nickname }}</span>
   </elf-playground>
 
-  <h2>原生属性</h2>
+  <h2>${t("native")}</h2>
   <elf-playground title="id / name / aria-label / inputmode" :code=${code3} :script=${script3}>
     <div style="width:320px">
       <elf-input
         :modelValue.prop=${phone.value}
         id="phone"
         name="phone"
-        aria-label="手机号"
+        :aria-label=${t("phone")}
         inputmode="numeric"
         autocomplete="tel"
         minlength="6"
         maxlength="11"
-        placeholder="手机号"
+        :placeholder=${t("phone")}
         @update:modelValue=${onPhoneUpdate}
       ></elf-input>
     </div>
   </elf-playground>
 
-  <h2>命令式焦点</h2>
+  <h2>${t("focusTitle")}</h2>
   <elf-playground title="focus / blur" :code=${code4} :script=${script4}>
     <div style="width:min(100%, 360px)">
-      <elf-input ref="commandInput" placeholder="使用标题按钮控制焦点"></elf-input>
+      <elf-input ref="commandInput" :placeholder=${t("focusHint")}></elf-input>
     </div>
     <div slot="status" style="display:flex;align-items:center;gap:8px">
-      <elf-button size="small" @click=${focusInput}>聚焦</elf-button>
-      <elf-button size="small" @click=${blurInput}>失焦</elf-button>
+      <elf-button size="small" @click=${focusInput}>${t("focus")}</elf-button>
+      <elf-button size="small" @click=${blurInput}>${t("blur")}</elf-button>
     </div>
   </elf-playground>
 `);

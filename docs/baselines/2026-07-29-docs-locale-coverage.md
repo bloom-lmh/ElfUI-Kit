@@ -12,10 +12,10 @@ pnpm docs:locale-audit
 
 | Surface | Localized | Total | Missing |
 | --- | ---: | ---: | ---: |
-| Page entries | 53 | 87 | 34 |
-| Examples | 200 | 342 | 142 |
-| Props/API files | 36 | 65 | 29 |
-| Total | 289 | 494 | 205 |
+| Page entries | 84 | 88 | 4 |
+| Examples | 301 | 346 | 45 |
+| Props/API files | 64 | 66 | 2 |
+| Total | 449 | 500 | 51 |
 
 The audit counts explicit `createDocsTranslator()` / `createDocsPicker()` participation. It does not treat component names, API identifiers, CSS values, or source code syntax as untranslated prose.
 
@@ -51,6 +51,12 @@ LayoutShell covers eight distinct application structures, including localized se
 
 Masonry localizes all seven card titles and metadata values, status copy, Script data, Props, and Slots. Its focused page suite passes 1 file / 3 tests, and the formal route passed strict English Shadow DOM scanning with 0 warnings and 0 errors.
 
+## Thread B locale sweep
+
+Thread B completed its assigned localization surface: the remaining Feedback pages; Container, LayoutShell, Masonry, Scrollbar, Splitter, and Sticky; Accessibility, BuildStyles, Utilities, Home, and the remaining Basic API copy; the safe Data and Navigation pages; and the assigned Form pages. Each page now participates in the shared docs translator across its entry, examples, runtime state, Template / Script source, and API tables, with focused Chinese and strict-English page tests.
+
+Per the maintainer's final verification direction, this sweep did not add another screenshot batch. The 51 audit entries still missing are exclusively owned by Thread A: Table, Upload, Tabs, Calendar, DatePicker, and TimePicker.
+
 ## Remaining gate
 
-Repository participation is not complete while `missing > 0`. Each batch must update its page entry, every example, Props/API data, runtime status, source snippets, tests, and browser scan together.
+Thread B's assigned surface is complete. Repository-wide participation remains incomplete while `missing > 0`; the remaining Thread A batches must update their page entry, every example, Props/API data, runtime status, source snippets, and tests together.

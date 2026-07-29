@@ -1,4 +1,22 @@
 import { defineHtml, defineStyle, useRef } from "@elfui/core";
+import { createDocsTranslator } from "../../docsLocale";
+
+const t = createDocsTranslator({
+  title: { zh: "创建项与长列表", en: "Creatable entries and long lists" },
+  playground: { zh: "自由输入与虚拟建议", en: "Free input with virtual suggestions" },
+  initial: { zh: "500 位成员 · 当前仅渲染可见候选", en: "500 members · Only visible suggestions are rendered" },
+  member: { zh: "成员", en: "Member" },
+  design: { zh: "设计团队", en: "Design team" },
+  engineering: { zh: "工程团队", en: "Engineering team" },
+  selected: { zh: "已选择", en: "Selected" },
+  created: { zh: "已创建候选", en: "Created candidate" },
+  create: { zh: "创建", en: "Create" },
+  label: { zh: "创建或邀请成员", en: "Create or invite a member" },
+  placeholder: { zh: "搜索或创建成员", en: "Search or create a member" },
+  paths: { zh: "两种输入路径", en: "Two input paths" },
+  searchHint: { zh: "输入成员 320 检索长列表；输入不存在的姓名后按 Enter 创建候选。", en: "Type Member 320 to search the long list, or enter a new name and press Enter to create it." },
+  keyboard: { zh: "方向键会跨越未渲染项，并自动保持当前项可见。", en: "Arrow keys traverse unrendered items and keep the active option visible." }
+});
 
 interface MemberOption {
   label: string;
@@ -6,9 +24,9 @@ interface MemberOption {
 }
 
 const keyword = useRef("");
-const status = useRef("500 位成员 · 当前仅渲染可见候选");
+const status = useRef(t("initial"));
 const members: MemberOption[] = Array.from({ length: 500 }, (_, index) => ({
-  label: `成员 ${String(index + 1).padStart(3, "0")} · ${index % 2 === 0 ? "设计团队" : "工程团队"}`,
+  label: `${t("member")} ${String(index + 1).padStart(3, "0")} · ${index % 2 === 0 ? t("design") : t("engineering")}`,
   value: `member-${index + 1}`
 }));
 
@@ -17,18 +35,18 @@ const onUpdate = (event: CustomEvent<string>): void => {
 };
 
 const onSelect = (event: CustomEvent<MemberOption>): void => {
-  status.set(`已选择：${event.detail.label}`);
+  status.set(`${t("selected")}：${event.detail.label}`);
 };
 
 const onCreate = (event: CustomEvent<MemberOption>): void => {
-  status.set(`已创建候选：${event.detail.value}`);
+  status.set(`${t("created")}：${event.detail.value}`);
 };
 
 const code = `<elf-autocomplete
   :modelValue="keyword"
   :options.prop="members"
   allow-create
-  create-text="创建"
+  create-text="${t("create")}"
   virtual
   :item-height="40"
   :max-height="240"
@@ -40,15 +58,15 @@ const code = `<elf-autocomplete
 />`;
 
 const script = `const keyword = useRef("");
-const status = useRef("500 位成员 · 当前仅渲染可见候选");
+const status = useRef("${t("initial")}");
 const members = Array.from({ length: 500 }, (_, index) => ({
-  label: \`成员 \${String(index + 1).padStart(3, "0")} · \${index % 2 === 0 ? "设计团队" : "工程团队"}\`,
+  label: \`${t("member")} \${String(index + 1).padStart(3, "0")} · \${index % 2 === 0 ? "${t("design")}" : "${t("engineering")}"}\`,
   value: \`member-\${index + 1}\`
 }));
 
 const onUpdate = (event) => keyword.set(String(event.detail || ""));
-const onSelect = (event) => status.set(\`已选择：\${event.detail.label}\`);
-const onCreate = (event) => status.set(\`已创建候选：\${event.detail.value}\`);`;
+const onSelect = (event) => status.set(\`${t("selected")}：\${event.detail.label}\`);
+const onCreate = (event) => status.set(\`${t("created")}：\${event.detail.value}\`);`;
 
 defineStyle(`
   .autocomplete-scale-stage {
@@ -76,15 +94,15 @@ defineStyle(`
 `);
 
 const PageAutocompleteEx6 = defineHtml(`
-  <h2>创建项与长列表</h2>
-  <elf-playground title="自由输入与虚拟建议" :code=${code} :script=${script}>
+  <h2>${t("title")}</h2>
+  <elf-playground :title=${t("playground")} :code=${code} :script=${script}>
     <span slot="status">{{ status }}</span>
     <section class="autocomplete-scale-stage">
       <elf-autocomplete
         :modelValue=${keyword}
         :options.prop=${members}
         allow-create
-        create-text="创建"
+        :create-text=${t("create")}
         virtual
         :item-height=${40}
         :max-height=${240}
@@ -92,16 +110,16 @@ const PageAutocompleteEx6 = defineHtml(`
         highlight-first-item
         fit-input-width
         clearable
-        label="创建或邀请成员"
-        placeholder="搜索或创建成员"
+        :label=${t("label")}
+        :placeholder=${t("placeholder")}
         @update:modelValue=${onUpdate}
         @select=${onSelect}
         @create=${onCreate}
       ></elf-autocomplete>
       <div class="autocomplete-scale-notes">
-        <strong>两种输入路径</strong>
-        <span>输入 <code>成员 320</code> 检索长列表；输入不存在的姓名后按 Enter 创建候选。</span>
-        <span>方向键会跨越未渲染项，并自动保持当前项可见。</span>
+        <strong>${t("paths")}</strong>
+        <span>${t("searchHint")}</span>
+        <span>${t("keyboard")}</span>
       </div>
     </section>
   </elf-playground>

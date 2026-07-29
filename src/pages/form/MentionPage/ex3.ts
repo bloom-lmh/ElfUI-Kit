@@ -1,27 +1,29 @@
 import { defineHtml, useRef } from "@elfui/core";
+import { createDocsPicker } from "../../docsLocale";
 
+const p = createDocsPicker();
 const keyboardContent = useRef("@");
 
 const members = [
-  { label: "林舟", value: "linzhou" },
-  { label: "周然", value: "zhouran" },
-  { label: "许宁", value: "xuning" }
+  { label: p("林舟", "Lin Zhou"), value: "linzhou" },
+  { label: p("周然", "Zhou Ran"), value: "zhouran" },
+  { label: p("许宁", "Xu Ning"), value: "xuning" }
 ];
 
 const code3 = `<elf-mention
   :modelValue.prop=\${keyboardContent}
   :options.prop=\${members}
   variant="outlined"
-  aria-label="使用键盘选择成员"
+  aria-label="${p("使用键盘选择成员", "Select a member with the keyboard")}"
   @update:modelValue=\${onKeyboardUpdate}
 />`;
 
 const script3 = `const keyboardContent = useRef("@");
 
 const members = [
-  { label: "林舟", value: "linzhou" },
-  { label: "周然", value: "zhouran" },
-  { label: "许宁", value: "xuning" }
+  { label: "${p("林舟", "Lin Zhou")}", value: "linzhou" },
+  { label: "${p("周然", "Zhou Ran")}", value: "zhouran" },
+  { label: "${p("许宁", "Xu Ning")}", value: "xuning" }
 ];
 
 const onKeyboardUpdate = (event) => {
@@ -33,16 +35,16 @@ const onKeyboardUpdate = (event: CustomEvent): void => {
 };
 
 const PageMentionEx3 = defineHtml(`
-<elf-playground title="键盘选择" :code=${code3} :script=${script3}>
+<elf-playground :title=${p("键盘选择", "Keyboard selection")} :code=${code3} :script=${script3}>
       <div style="display:grid;gap:10px;max-width:480px">
         <elf-mention
           :modelValue.prop=${keyboardContent}
           :options.prop=${members}
           variant="outlined"
-          aria-label="使用键盘选择成员"
+          :aria-label=${p("使用键盘选择成员", "Select a member with the keyboard")}
           @update:modelValue=${onKeyboardUpdate}
         ></elf-mention>
-        <span slot="status" class="demo-state">输入 @ 后，使用 ↑ / ↓ 切换候选项，按 Enter 确认。</span>
+        <span slot="status" class="demo-state">${p("输入 @ 后，使用 ↑ / ↓ 切换候选项，按 Enter 确认。", "Type @, use ↑ / ↓ to move through suggestions, then press Enter to select.")}</span>
       </div>
     </elf-playground>
 `);

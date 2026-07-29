@@ -3,6 +3,7 @@ import { afterEach, beforeAll, describe, expect, it } from "vitest";
 let exampleTag = "";
 let scaleExampleTag = "";
 let basicExampleTag = "";
+let pageTag = "";
 
 beforeAll(async () => {
   await import("../../../components");
@@ -10,16 +11,21 @@ beforeAll(async () => {
   const { PageAutocompleteEx5 } = await import("./ex5");
   const { PageAutocompleteEx6 } = await import("./ex6");
   const { PageAutocompleteEx1 } = await import("./ex1");
+  const { PageAutocomplete } = await import("./index");
   exampleTag = ensureCustomElement(PageAutocompleteEx5);
   scaleExampleTag = ensureCustomElement(PageAutocompleteEx6);
   basicExampleTag = ensureCustomElement(PageAutocompleteEx1);
-});
+  pageTag = ensureCustomElement(PageAutocomplete);
+}, 30_000);
 
 afterEach(() => {
   document.body.innerHTML = "";
+  document.documentElement.lang = "zh-CN";
 });
 
 const wait = (ms = 20): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
+const collectText = (root: Node): string => { let text = ""; const visit = (node: Node): void => { if (node.nodeType === Node.TEXT_NODE) text += ` ${node.textContent || ""}`; if (node instanceof Element && node.shadowRoot) visit(node.shadowRoot); node.childNodes.forEach(visit); }; visit(root); return text.replace(/\s+/g, " ").trim(); };
+const mountPage = async (): Promise<string> => { const page = document.createElement(pageTag); document.body.appendChild(page); await wait(40); return collectText(page); };
 
 describe("AutocompletePage", () => {
   it("基础案例聚焦后立即显示本地建议", async () => {
@@ -73,5 +79,23 @@ describe("AutocompletePage", () => {
     input.dispatchEvent(new Event("input", { bubbles: true }));
     await wait();
     expect(autocomplete.shadowRoot!.querySelector('[data-create="true"]')).toBeTruthy();
+  });
+
+  it("renders complete Chinese docs", async () => {
+    const text = await mountPage();
+    expect(text).toContain("异步建议");
+    expect(text).toContain("远程状态");
+    expect(text).toContain("创建项与长列表");
+    expect(text).toContain("远程空态与错误态文案");
+  });
+
+  it("renders complete English docs without Han characters", async () => {
+    document.documentElement.lang = "en-US";
+    const text = await mountPage();
+    expect(text).toContain("Async suggestions");
+    expect(text).toContain("Remote states");
+    expect(text).toContain("Creatable entries and long lists");
+    expect(text).toContain("Remote empty and error messages");
+    expect(text).not.toMatch(/[\u3400-\u9fff]/u);
   });
 });

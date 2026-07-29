@@ -1,13 +1,23 @@
 import { defineHtml, useRef } from "@elfui/core";
+import { createDocsTranslator } from "../../docsLocale";
+
+const t = createDocsTranslator({
+  title: { zh: "异步建议", en: "Async suggestions" },
+  placeholder: { zh: "远程搜索城市", en: "Search cities remotely" },
+  hangzhou: { zh: "杭州西湖", en: "Hangzhou West Lake" },
+  shanghai: { zh: "上海浦东", en: "Shanghai Pudong" },
+  shenzhen: { zh: "深圳南山", en: "Shenzhen Nanshan" },
+  beijing: { zh: "北京朝阳", en: "Beijing Chaoyang" }
+});
 
 const remoteKeyword = useRef("");
 
 const fetchSuggestions = async (query: string) => {
   const source = [
-    { label: "杭州 West Lake", value: "Hangzhou" },
-    { label: "上海 Pudong", value: "Shanghai" },
-    { label: "深圳 Nanshan", value: "Shenzhen" },
-    { label: "北京 Chaoyang", value: "Beijing" }
+    { label: t("hangzhou"), value: "Hangzhou" },
+    { label: t("shanghai"), value: "Shanghai" },
+    { label: t("shenzhen"), value: "Shenzhen" },
+    { label: t("beijing"), value: "Beijing" }
   ];
   return source.filter((item) => item.label.toLowerCase().includes(query.toLowerCase()));
 };
@@ -15,7 +25,7 @@ const fetchSuggestions = async (query: string) => {
 const code2 = `<elf-autocomplete
   :fetchSuggestions.prop=\${fetchSuggestions}
   :modelValue=\${remoteKeyword}
-  placeholder="远程搜索城市"
+  placeholder="${t("placeholder")}"
   @update:modelValue=\${onRemoteUpdate}
 />`;
 
@@ -23,10 +33,10 @@ const script2 = `const remoteKeyword = useRef("");
 
 const fetchSuggestions = async (query) => {
   const source = [
-    { label: "杭州 West Lake", value: "Hangzhou" },
-    { label: "上海 Pudong", value: "Shanghai" },
-    { label: "深圳 Nanshan", value: "Shenzhen" },
-    { label: "北京 Chaoyang", value: "Beijing" }
+    { label: "${t("hangzhou")}", value: "Hangzhou" },
+    { label: "${t("shanghai")}", value: "Shanghai" },
+    { label: "${t("shenzhen")}", value: "Shenzhen" },
+    { label: "${t("beijing")}", value: "Beijing" }
   ];
   return source.filter((item) => item.label.toLowerCase().includes(query.toLowerCase()));
 };
@@ -40,11 +50,11 @@ const onRemoteUpdate = (event: CustomEvent): void => {
 };
 
 const PageAutocompleteEx2 = defineHtml(`
-<elf-playground title="异步建议" :code=${code2} :script=${script2}>
+<elf-playground :title=${t("title")} :code=${code2} :script=${script2}>
       <elf-autocomplete
         :fetchSuggestions.prop=${fetchSuggestions}
         :modelValue=${remoteKeyword}
-        placeholder="远程搜索城市"
+        :placeholder=${t("placeholder")}
         @update:modelValue=${onRemoteUpdate}
       ></elf-autocomplete>
     </elf-playground>
