@@ -61,9 +61,9 @@ const PageMessageBoxEx4 = defineHtml(`
   <elf-playground :title=${t("section")} :code=${code} :script=${script}>
     <elf-config-provider :config.prop=${config()}>
       <page-message-box-service-preview
-        :openLabel=${t("open")}
-        :title=${t("title")}
-        :message=${t("message")}
+        :openLabel.prop=${t("open")}
+        :title.prop=${t("title")}
+        :message.prop=${t("message")}
         @status-change=${onStatusChange}
       />
     </elf-config-provider>

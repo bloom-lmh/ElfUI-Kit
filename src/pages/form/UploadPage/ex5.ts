@@ -12,6 +12,7 @@ const requestCode = `<elf-upload
   action="/api/upload"
   method="put"
   directory
+  button-text="选择目录"
   :headers.prop=\${headers}
   :data.prop=\${extraData}
   :http-request.prop=\${httpRequest}
@@ -59,10 +60,11 @@ const PageUploadEx5 = defineHtml(`
     >
       <div style="display:grid;place-items:center;width:100%">
         <elf-upload
-          style="width:min(100%,720px)"
+          style="width:min(100%,720px);--elf-upload-justify:center;--elf-upload-text-align:center"
           action="/api/upload"
           method="put"
           directory
+          button-text="选择目录"
           :headers.prop=${headers}
           :data.prop=${extraData}
           :httpRequest.prop=${httpRequest}

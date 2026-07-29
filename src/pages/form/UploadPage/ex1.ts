@@ -30,7 +30,7 @@ const PageUploadEx1 = defineHtml(`
 <elf-playground title="基础上传" :code=${basicCode} :script=${basicScript}>
       <div style="display:grid;place-items:center;width:100%">
         <elf-upload
-          style="width:min(100%,720px)"
+          style="width:min(100%,720px);--elf-upload-justify:center;--elf-upload-text-align:center"
           multiple
           :limit=${3}
           tip="最多选择 3 个文件，示例使用模拟上传。"

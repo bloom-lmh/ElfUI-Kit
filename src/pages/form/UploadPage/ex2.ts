@@ -6,7 +6,7 @@ const PageUploadEx2 = defineHtml(`
 <elf-playground title="拖拽与图片卡片" :code=${dragCode}>
       <div style="display:grid;place-items:center;width:100%">
         <elf-upload
-          style="width:min(100%,720px)"
+          style="width:min(100%,720px);--elf-upload-justify:center;--elf-upload-text-align:center"
           drag
           accept="image/*"
           list-type="picture-card"

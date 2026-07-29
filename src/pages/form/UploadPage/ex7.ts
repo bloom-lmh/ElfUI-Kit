@@ -71,7 +71,7 @@ const PageUploadEx7 = defineHtml(`
   <elf-playground title="多文件列表与失败重试" :code=${listCode} :script=${listScript}>
     <div style="display:grid;place-items:center;width:100%">
       <elf-upload
-        style="width:min(100%,720px)"
+        style="width:min(100%,720px);--elf-upload-justify:center;--elf-upload-text-align:center"
         multiple
         :fileList.prop="fileList"
         button-text="继续添加"

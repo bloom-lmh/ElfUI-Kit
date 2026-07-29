@@ -50,7 +50,7 @@ const PageUploadEx6 = defineHtml(`
 <elf-playground title="分片上传" :code=${chunkCode} :script=${chunkScript}>
       <div style="display:grid;place-items:center;width:100%">
         <elf-upload
-          style="width:min(100%,720px)"
+          style="width:min(100%,720px);--elf-upload-justify:center;--elf-upload-text-align:center"
           :chunkSize.prop=${262144}
           :chunkRequest.prop=${chunkRequest}
           button-text="选择大文件"

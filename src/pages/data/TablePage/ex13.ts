@@ -130,8 +130,8 @@ const onCellClick = (event) => {
 };`;
 
 const PageTableEx13 = defineHtml(`
-  <h2>业务报表：可选行、默认排序、汇总与滚动控制</h2>
-  <elf-playground title="业务报表：可选行、默认排序、汇总与滚动控制" :code="code" :script=${script}>
+  <h2>排序与汇总</h2>
+  <elf-playground title="排序与汇总" :code="code" :script=${script}>
     <span slot="status" class="demo-state">{{ interaction }}</span>
     <div style="width: 100%; max-width: 680px; display: grid; gap: 12px">
       <div style="display: flex; gap: 8px">

@@ -37,7 +37,7 @@ const PageUploadEx3 = defineHtml(`
 <elf-playground title="类型、大小与文件名校验" :code=${validateCode} :script=${validateScript}>
       <div style="display:grid;place-items:center;width:100%">
         <elf-upload
-          style="width:min(100%,720px)"
+          style="width:min(100%,720px);--elf-upload-justify:center;--elf-upload-text-align:center"
           accept=".pdf"
           file-name-pattern="^report-.*\\\\.pdf$"
           :maxSize=${1048576}

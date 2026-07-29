@@ -55,8 +55,8 @@ const data = Array.from({ length: 18 }, (_, index) => ({
 }));`;
 
 const PageTableEx12 = defineHtml(`
-  <h2>fixed left/right + sticky header</h2>
-  <elf-playground title="fixed left/right + sticky header" :code="code" :script=${script}>
+  <h2>固定列</h2>
+  <elf-playground title="固定列" :code="code" :script=${script}>
     <div style="width:100%;max-width:860px">
       <elf-table :data.prop="data" :columns.prop="columns" height="320px" border></elf-table>
     </div>

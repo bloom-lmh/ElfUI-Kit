@@ -313,7 +313,7 @@ describe("elf-upload", () => {
     expect(el.shadowRoot!.querySelector(".file.is-error")).toBeTruthy();
   });
 
-  it("directory 会透传目录选择属性", async () => {
+  it("directory 会透传目录选择属性并保留选择入口", async () => {
     const el = document.createElement("elf-upload") as UploadEl;
     el.directory = true;
     document.body.appendChild(el);
@@ -322,6 +322,11 @@ describe("elf-upload", () => {
 
     const input = el.shadowRoot!.querySelector("input.native") as HTMLInputElement;
     expect(input.hasAttribute("webkitdirectory")).toBe(true);
+    const trigger = el.shadowRoot!.querySelector<HTMLButtonElement>(".button");
+    expect(trigger).toBeTruthy();
+    const click = vi.spyOn(input, "click").mockImplementation(() => undefined);
+    trigger!.click();
+    expect(click).toHaveBeenCalledTimes(1);
   });
 
   it("handleStart / handleRemove / clearFiles 暴露方法可控制列表", async () => {

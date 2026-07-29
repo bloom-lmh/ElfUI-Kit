@@ -107,8 +107,8 @@ const columns = [
 ];`;
 
 const PageTableEx20 = defineHtml(`
-  <h2>项目清单：鼠标与键盘共享同一浮层</h2>
-  <elf-playground title="项目清单：鼠标与键盘共享同一浮层" :code="code" :script=${script}>
+  <h2>单元格浮层</h2>
+  <elf-playground title="单元格浮层" :code="code" :script=${script}>
     <span slot="status" class="demo-state">{{ tooltipState }}</span>
     <div style="width:100%;max-width:650px">
       <elf-table

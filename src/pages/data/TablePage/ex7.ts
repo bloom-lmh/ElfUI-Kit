@@ -22,8 +22,8 @@ const data = [
 ];`;
 
 const PageTableEx7 = defineHtml(`
-  <h2>loading 会覆盖当前表格，保留已有数据上下文</h2>
-  <elf-playground title="loading 会覆盖当前表格，保留已有数据上下文" :code="code" :script=${script}>
+  <h2>加载状态</h2>
+  <elf-playground title="加载状态" :code="code" :script=${script}>
     <div style="width: 100%">
       <elf-table :data.prop="data" :columns.prop="columns" loading></elf-table>
     </div>

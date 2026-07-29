@@ -106,8 +106,8 @@ const onSortChange = (event) => {
 };`;
 
 const PageTableEx15 = defineHtml(`
-  <h2>优先级比较、多字段排序与服务端排序</h2>
-  <elf-playground title="优先级比较、多字段排序与服务端排序" :code="code" :script=${script}>
+  <h2>自定义排序</h2>
+  <elf-playground title="自定义排序" :code="code" :script=${script}>
     <span slot="status" class="demo-state">{{ sortState }}</span>
     <div style="width: 100%">
       <elf-table

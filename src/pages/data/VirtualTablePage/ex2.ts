@@ -5,7 +5,7 @@ import { createDocsPicker, createDocsTranslator } from "../../docsLocale";
 
 const pick = createDocsPicker();
 const t = createDocsTranslator({
-  title: { zh: "固定数据 · 动态行高 · 状态插槽", en: "Pinned data · Dynamic row height · Status slots" },
+  title: { zh: "固定数据 · 状态插槽", en: "Pinned data · Status slots" },
   stopRefresh: { zh: "结束刷新", en: "Stop refresh" },
   simulateRefresh: { zh: "模拟刷新", en: "Simulate refresh" },
   refreshing: { zh: "正在刷新服务指标…", en: "Refreshing service metrics…" },
@@ -22,13 +22,7 @@ const fixedData: TableRow[] = [
 const data: TableRow[] = Array.from({ length: 320 }, (_, index) => ({
   id: index + 1,
   service: `service-${String(index + 1).padStart(3, "0")}`,
-  description:
-    index % 4 === 0
-      ? pick(
-          "跨区域依赖较多，本行使用更高的动态行高展示完整说明。",
-          "Cross-region dependencies use a taller row to show the full description.",
-        )
-      : pick("常规健康检查与版本状态。", "Routine health check and version status."),
+  description: pick("常规健康检查与版本状态。", "Routine health check and version status."),
   owner: ["Lin", "Xu", "Zhou"][index % 3],
 }));
 const columns: TableV2Column[] = [
@@ -37,14 +31,14 @@ const columns: TableV2Column[] = [
   { key: "owner", title: pick("负责人", "Owner"), width: 120, fixed: "right" },
 ];
 const loading = useRef(false);
-const rowHeight = (_row: TableRow, index: number): number => (index % 4 === 0 ? 64 : 42);
+const rowHeight = 44;
 const toggleLoading = (): void => loading.set(!loading.peek());
 
 const code = pick(`<elf-table-v2
   :fixed-data.prop="fixedData"
   :data.prop="data"
   :columns.prop="columns"
-  :row-height.prop="rowHeight"
+  :row-height="44"
   :footer-height="48"
   :loading="loading"
 >
@@ -54,19 +48,17 @@ const code = pick(`<elf-table-v2
   :fixed-data.prop="fixedData"
   :data.prop="data"
   :columns.prop="columns"
-  :row-height.prop="rowHeight"
+  :row-height="44"
   :footer-height="48"
   :loading="loading"
 >
   <span slot="overlay">Refreshing service metrics…</span>
   <span slot="footer">320 rows · Summary pinned at the top</span>
 </elf-table-v2>`);
-const script = pick(`const rowHeight = (_row, index) => (index % 4 === 0 ? 64 : 42);
-
-const fixedData = [{ id: "summary", service: "固定汇总", description: "今日 320 个服务检查项" }];`,
-`const rowHeight = (_row, index) => (index % 4 === 0 ? 64 : 42);
-
-const fixedData = [{ id: "summary", service: "Pinned summary", description: "320 service checks today" }];`);
+const script = pick(
+  `const fixedData = [{ id: "summary", service: "固定汇总", description: "今日 320 个服务检查项" }];`,
+  `const fixedData = [{ id: "summary", service: "Pinned summary", description: "320 service checks today" }];`,
+);
 
 const PageVirtualTableEx2 = defineHtml(`
   <elf-playground :title=${t("title")} :code=${code} :script=${script}>
@@ -76,7 +68,7 @@ const PageVirtualTableEx2 = defineHtml(`
         :fixedData.prop=${fixedData}
         :data.prop=${data}
         :columns.prop=${columns}
-        :rowHeight.prop=${rowHeight}
+        :rowHeight=${rowHeight}
         :footerHeight=${48}
         :loading=${loading}
         height="420"

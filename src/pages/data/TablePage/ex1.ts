@@ -115,8 +115,8 @@ const onRowClick = (event) => {
 };`;
 
 const PageTableEx1 = defineHtml(`
-  <h2>选择、排序和当前行高亮</h2>
-  <elf-playground title="选择、排序和当前行高亮" :code="code" :script=${script}>
+  <h2>基础交互</h2>
+  <elf-playground title="基础交互" :code="code" :script=${script}>
     <div style="width: 100%; display: grid; gap: 12px">
       <elf-table
         :data.prop="data"

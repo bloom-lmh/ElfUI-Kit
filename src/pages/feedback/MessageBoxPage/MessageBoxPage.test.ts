@@ -117,6 +117,7 @@ describe("MessageBoxPage", () => {
     const page = await mount(providerExampleTag);
     const trigger = deepQuery<HTMLElement>(page.shadowRoot!, "elf-button");
     expect(trigger).toBeTruthy();
+    expect(collectText(page)).toContain("Use configured defaults");
 
     trigger!.click();
     await wait();

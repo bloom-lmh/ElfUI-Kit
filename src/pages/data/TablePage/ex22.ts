@@ -4,7 +4,7 @@ import { createDocsTranslator } from "../../docsLocale";
 
 const t = createDocsTranslator({
   section: { zh: "标题栏", en: "Header" },
-  demo: { zh: "带标题的表格", en: "Table with header" },
+  demo: { zh: "标题栏", en: "Header" },
   title: { zh: "服务运行状态", en: "Service status" },
   service: { zh: "服务", en: "Service" },
   owner: { zh: "负责人", en: "Owner" },

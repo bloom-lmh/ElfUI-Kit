@@ -54,7 +54,7 @@ describe("VirtualTablePage", () => {
     expect(playground.hasAttribute("script")).toBe(true);
   });
 
-  it("固定数据案例保持连续外壳、固定表头、动态行高和状态插槽", async () => {
+  it("固定数据案例保持连续外壳、固定表头、统一行高和状态插槽", async () => {
     const el = document.createElement(virtualTableAdvancedTag);
     document.body.appendChild(el);
     await tick();
@@ -65,12 +65,13 @@ describe("VirtualTablePage", () => {
     const tableV2 = el.shadowRoot!.querySelector("elf-table-v2")!;
     const root = tableV2.shadowRoot!.querySelector(".table-v2")!;
     const tables = tableV2.shadowRoot!.querySelectorAll("elf-table");
-    expect(playground.getAttribute("title")).toBe("固定数据 · 动态行高 · 状态插槽");
+    expect(playground.getAttribute("title")).toBe("固定数据 · 状态插槽");
     expect(root.classList.contains("has-fixed-data")).toBe(true);
     expect(tables).toHaveLength(2);
     expect(tables[0]?.shadowRoot!.textContent).toContain("固定汇总");
     expect(tables[0]?.shadowRoot!.querySelector("thead")).toBeTruthy();
     expect(tables[1]?.shadowRoot!.querySelector("thead")).toBeNull();
+    expect((tables[1] as HTMLElement & { rowHeight?: number }).rowHeight).toBe(44);
     expect(playground.hasAttribute("script")).toBe(true);
   });
 

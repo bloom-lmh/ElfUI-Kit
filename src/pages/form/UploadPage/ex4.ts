@@ -42,7 +42,7 @@ const PageUploadEx4 = defineHtml(`
 <elf-playground title="手动上传" :code=${manualCode} :script=${manualScript}>
       <div style="display:grid;place-items:center;width:100%">
         <elf-upload
-          style="width:min(100%,720px)"
+          style="width:min(100%,720px);--elf-upload-justify:center;--elf-upload-text-align:center"
           :modelValue=${manualFiles}
           :autoUpload=${false}
           button-text="选择待上传文件"

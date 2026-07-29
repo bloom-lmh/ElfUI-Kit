@@ -3,7 +3,7 @@ import { createDocsTranslator } from "../../docsLocale";
 
 const t = createDocsTranslator({
   section: { zh: "分页联动", en: "Pagination" },
-  title: { zh: "即时分页与页大小切换", en: "Immediate paging and page-size changes" },
+  title: { zh: "分页联动", en: "Pagination" },
   order: { zh: "订单号", en: "Order" },
   customer: { zh: "客户", en: "Customer" },
   amount: { zh: "金额", en: "Amount" },

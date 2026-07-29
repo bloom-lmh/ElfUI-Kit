@@ -653,7 +653,7 @@ const Upload = defineHtml(`
     <div v-if=${props.directory} class="directory-note" role="note">
       ${locale.t("upload.directoryHint")}
     </div>
-    <div v-else class="trigger" part="trigger">
+    <div class="trigger" part="trigger">
       <slot name="trigger" :select=${select} :disabled=${isDisabled()}>
         <button class="button" type="button" @click=${select}>${props.buttonText || locale.t("upload.choose")}</button>
       </slot>

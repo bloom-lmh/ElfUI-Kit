@@ -26,8 +26,8 @@ const data = [
 ];`;
 
 const PageTableEx3 = defineHtml(`
-  <h2>适合信息密度更高的后台列表</h2>
-  <elf-playground title="适合信息密度更高的后台列表" :code="code" :script=${script}>
+  <h2>紧凑表格</h2>
+  <elf-playground title="紧凑表格" :code="code" :script=${script}>
     <div style="width: 100%">
       <elf-table :data.prop="data" :columns.prop="columns" size="small"></elf-table>
     </div>
