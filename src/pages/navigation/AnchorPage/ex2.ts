@@ -14,6 +14,8 @@ const t = createDocsTranslator({
   registration: { zh: "注册", en: "Registration" }, tokens: { zh: "设计令牌", en: "Design tokens" },
   accessibility: { zh: "无障碍", en: "Accessibility" }, keyboard: { zh: "键盘导航", en: "Keyboard navigation" },
   release: { zh: "发布说明", en: "Release notes" },
+  horizontalPosition: { zh: "水平内容位置", en: "Horizontal content position" },
+  section: { zh: "章节", en: "Section" },
   startBody: { zh: "组件接收树形数据，并将其展平为清晰的导航轨道。", en: "The component accepts tree data and flattens it into a clear navigation rail." },
   installBody: { zh: "此示例通过 modelValue 受控管理激活项。", en: "The active item is controlled by modelValue in this example." },
   registerBody: { zh: "父级需要管理当前链接时，请监听 update:modelValue。", en: "Listen for update:modelValue when the parent owns the active href." },
@@ -82,11 +84,11 @@ const horizontalCode = `<elf-anchor :items.prop="horizontalItems" direction="hor
 const script = `const active = useRef("#install");
 const items = [
   {
-    title: "Getting started",
+    title: "${t("start")}",
     href: "#start",
     children: [
-      { title: "Install", href: "#install" },
-      { title: "Register", href: "#register" }
+      { title: "${t("install")}", href: "#install" },
+      { title: "${t("register")}", href: "#register" }
     ]
   }
 ];
@@ -95,25 +97,23 @@ const onUpdate = (event) => active.set(event.detail);
 
 const horizontalActive = useRef("#overview");
 const horizontalItems = [
-  { title: "Overview", href: "#overview" },
-  { title: "Installation", href: "#installation" },
+  { title: "${t("overview")}", href: "#overview" },
+  { title: "${t("installation")}", href: "#installation" },
   { title: "API", href: "#api" }
 ];
 const sections = horizontalItems.map((item, index) => ({
   ...item,
   id: item.href.slice(1),
-  body: \`Section \${index + 1}\`
+  body: \`${t("section")} \${index + 1}\`
 }));
 
 const onHorizontalContentScroll = (event) => {
   const { scrollLeft, scrollWidth, clientWidth } = event.currentTarget;
   const progress = scrollLeft / Math.max(1, scrollWidth - clientWidth);
-  // Synchronize a custom scrollbar or other external navigation here.
 };
 
 const onHorizontalScrollbarInput = (event) => {
   const progress = Number(event.currentTarget.value) / 1000;
-  // Apply progress to the horizontal content container's scrollLeft.
 };`;
 
 const PageAnchorEx2 = defineHtml(`
@@ -149,7 +149,7 @@ const PageAnchorEx2 = defineHtml(`
           min="0"
           max="1000"
           :value=${horizontalScrollbarValue()}
-          aria-label="水平内容位置"
+          :aria-label=${t("horizontalPosition")}
           @input=${onHorizontalScrollbarInput}
         />
       </div>

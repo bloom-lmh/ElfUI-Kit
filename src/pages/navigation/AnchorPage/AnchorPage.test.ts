@@ -2,24 +2,68 @@ import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
 let exampleTag = "";
 let basicExampleTag = "";
+let pageTag = "";
 
 beforeAll(async () => {
   await import("../../../components");
   const { ensureCustomElement } = await import("@elfui/core");
   const { PageAnchorEx2 } = await import("./ex2");
   const { PageAnchorEx1 } = await import("./ex1");
+  const { PageAnchor } = await import("./index");
   exampleTag = ensureCustomElement(PageAnchorEx2);
   basicExampleTag = ensureCustomElement(PageAnchorEx1);
-});
+  pageTag = ensureCustomElement(PageAnchor);
+}, 30_000);
 
 afterEach(() => {
   document.body.innerHTML = "";
+  document.documentElement.lang = "zh-CN";
   vi.restoreAllMocks();
 });
 
 const tick = (): Promise<void> => new Promise((resolve) => queueMicrotask(resolve));
+const wait = (ms = 20): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
+
+const collectText = (root: Node): string => {
+  let output = "";
+  const visit = (node: Node): void => {
+    if (node.nodeType === Node.TEXT_NODE) output += ` ${node.textContent || ""}`;
+    if (node instanceof Element && node.shadowRoot) visit(node.shadowRoot);
+    node.childNodes.forEach(visit);
+  };
+  visit(root);
+  return output.replace(/\s+/g, " ").trim();
+};
+
+const mountPage = async (): Promise<HTMLElement> => {
+  const page = document.createElement(pageTag);
+  document.body.appendChild(page);
+  await wait();
+  await wait();
+  return page;
+};
 
 describe("Anchor documentation", () => {
+  it("中文页面覆盖全部案例、运行文案、源码和 API", async () => {
+    const page = await mountPage();
+    const text = collectText(page);
+    expect(text).toContain("组合式链接");
+    expect(text).toContain("默认插槽可自定义链接标签");
+    expect(text).toContain("平滑滚动缓动策略");
+    expect(text).toContain("滚动到目标");
+  });
+
+  it("英文页面覆盖全部案例、运行文案、源码和 API 且无汉字", async () => {
+    document.documentElement.lang = "en-US";
+    const page = await mountPage();
+    const text = collectText(page);
+    expect(text).toContain("Compositional links");
+    expect(text).toContain("The default slot customizes a link label");
+    expect(text).toContain("Smooth-scroll easing strategy.");
+    expect(text).toContain("Scroll to the target");
+    expect(text).not.toMatch(/[\u3400-\u9fff]/u);
+  });
+
   it("lets the basic example disable smooth scrolling", async () => {
     const page = document.createElement(basicExampleTag);
     document.body.appendChild(page);

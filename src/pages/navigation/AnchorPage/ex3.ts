@@ -1,4 +1,25 @@
 import { defineHtml, useRef } from "@elfui/core";
+import { createDocsTranslator } from "../../docsLocale";
+
+const t = createDocsTranslator({
+  section: { zh: "组合式链接", en: "Compositional links" },
+  title: { zh: "锚点链接与嵌套子链接", en: "AnchorLink and nested sub-link" },
+  overview: { zh: "概览", en: "Overview" },
+  guide: { zh: "指南", en: "Guide" },
+  api: { zh: "API", en: "API" },
+  overviewBody: {
+    zh: "需要直接通过标记声明导航内容时，可以使用 AnchorLink。",
+    en: "Use AnchorLink when navigation content should be declared directly in markup.",
+  },
+  guideBody: {
+    zh: "默认插槽可自定义链接标签，sub-link 插槽用于创建嵌套。",
+    en: "The default slot customizes a link label, while sub-link creates nesting.",
+  },
+  apiBody: {
+    zh: "父级会让所有组合式链接与当前目标保持同步。",
+    en: "The parent keeps every compositional link synchronized with the active target.",
+  },
+});
 
 const active = useRef("#anchor-links-overview");
 
@@ -11,8 +32,8 @@ const code = `<elf-anchor
   :modelValue=\${active}
   @change=\${onChange}
 >
-  <elf-anchor-link href="#anchor-links-overview" title="Overview" />
-  <elf-anchor-link href="#anchor-links-guide" title="Guide">
+  <elf-anchor-link href="#anchor-links-overview" title="${t("overview")}" />
+  <elf-anchor-link href="#anchor-links-guide" title="${t("guide")}">
     <elf-anchor-link slot="sub-link" href="#anchor-links-api" title="API" />
   </elf-anchor-link>
 </elf-anchor>`;
@@ -24,8 +45,8 @@ const onChange = (event) => {
 };`;
 
 const PageAnchorEx3 = defineHtml(`
-  <h2>Compositional links</h2>
-  <elf-playground title="AnchorLink and nested sub-link" :code=${code} :script=${script}>
+  <h2>${t("section")}</h2>
+  <elf-playground :title=${t("title")} :code=${code} :script=${script}>
     <div
       style="display:grid;grid-template-columns:minmax(160px,220px) 1fr;gap:20px;width:100%;max-width:860px"
     >
@@ -34,12 +55,12 @@ const PageAnchorEx3 = defineHtml(`
         :modelValue.prop=${active.value}
         @change=${onChange}
       >
-        <elf-anchor-link href="#anchor-links-overview" title="Overview"></elf-anchor-link>
-        <elf-anchor-link href="#anchor-links-guide" title="Guide">
+        <elf-anchor-link href="#anchor-links-overview" :title=${t("overview")}></elf-anchor-link>
+        <elf-anchor-link href="#anchor-links-guide" :title=${t("guide")}>
           <elf-anchor-link
             slot="sub-link"
             href="#anchor-links-api"
-            title="API"
+            :title=${t("api")}
           ></elf-anchor-link>
         </elf-anchor-link>
       </elf-anchor>
@@ -48,22 +69,22 @@ const PageAnchorEx3 = defineHtml(`
         style="height:280px;overflow:auto;border:1px solid var(--elf-border);border-radius:8px;background:var(--elf-bg-paper)"
       >
         <section id="anchor-links-overview" style="min-height:220px;padding:20px">
-          <h3>Overview</h3>
-          <p>Use AnchorLink when navigation content should be declared directly in markup.</p>
+          <h3>${t("overview")}</h3>
+          <p>${t("overviewBody")}</p>
         </section>
         <section
           id="anchor-links-guide"
           style="min-height:220px;padding:20px;border-top:1px solid var(--elf-border)"
         >
-          <h3>Guide</h3>
-          <p>The default slot customizes a link label, while sub-link creates nesting.</p>
+          <h3>${t("guide")}</h3>
+          <p>${t("guideBody")}</p>
         </section>
         <section
           id="anchor-links-api"
           style="min-height:220px;padding:20px;border-top:1px solid var(--elf-border)"
         >
-          <h3>API</h3>
-          <p>The parent keeps every compositional link synchronized with the active target.</p>
+          <h3>${t("api")}</h3>
+          <p>${t("apiBody")}</p>
         </section>
       </div>
     </div>
