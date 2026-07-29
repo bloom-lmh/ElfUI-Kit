@@ -1,4 +1,5 @@
 import { defineHtml, useComponents } from "@elfui/core";
+import { createDocsTranslator } from "../../docsLocale";
 
 import { PageLoadingEx1 } from "./ex1";
 import { PageLoadingEx2 } from "./ex2";
@@ -9,6 +10,14 @@ import { PageLoadingEx6 } from "./ex6";
 import { PageLoadingEx7 } from "./ex7";
 import { PageLoadingEx8 } from "./ex8";
 import { PageLoadingProps } from "./props";
+
+const t = createDocsTranslator({
+  title: { zh: "加载", en: "Loading" },
+  description: {
+    zh: "为局部内容或全屏任务添加加载遮罩，支持声明式组件、v-loading 指令和命令式服务。",
+    en: "Add loading overlays to local content or fullscreen tasks with a component, the v-loading directive, or an imperative service.",
+  },
+});
 
 useComponents({
   "page-loading-ex1": PageLoadingEx1,
@@ -24,8 +33,8 @@ useComponents({
 
 const PageLoading = defineHtml(`
   <elf-container>
-    <h1>Loading 加载</h1>
-    <p>给局部内容或全屏状态添加加载遮罩，支持声明式组件、v-loading 指令和命令式 service。</p>
+    <h1>${t("title")}</h1>
+    <p>${t("description")}</p>
 
     <page-loading-ex1 />
 

@@ -1,15 +1,22 @@
 import { defineHtml, useRef } from "@elfui/core";
+import { createDocsTranslator } from "../../docsLocale";
+
+const t = createDocsTranslator({
+  title: { zh: "全屏加载", en: "Fullscreen loading" },
+  open: { zh: "开启全屏加载", en: "Start fullscreen loading" },
+  task: { zh: "正在执行全屏任务", en: "Running a fullscreen task" },
+});
 
 const loading = useRef(false);
 
 const fullscreenLoading = useRef(false);
 
-const code3 = `<elf-button @click=\${toggleFullscreen}>开启全屏加载</elf-button>
+const code3 = `<elf-button @click=\${toggleFullscreen}>${t("open")}</elf-button>
 <elf-loading
   fullscreen
   closable
   :loading=\${fullscreenLoading}
-  text="正在执行全屏任务"
+  text="${t("task")}"
   @close=\${closeFullscreen}
 />`;
 
@@ -30,13 +37,13 @@ const closeFullscreen = (): void => {
 };
 
 const PageLoadingEx3 = defineHtml(`
-<elf-playground title="全屏加载" :code=${code3} :script=${code3Script}>
-      <elf-button @click=${toggleFullscreen}>开启全屏加载</elf-button>
+<elf-playground :title=${t("title")} :code=${code3} :script=${code3Script}>
+      <elf-button @click=${toggleFullscreen}>${t("open")}</elf-button>
       <elf-loading
         fullscreen
         closable
         :loading=${fullscreenLoading}
-        text="正在执行全屏任务"
+        :text=${t("task")}
         @close=${closeFullscreen}
       ></elf-loading>
     </elf-playground>
