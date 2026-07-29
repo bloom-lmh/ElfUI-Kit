@@ -25,3 +25,13 @@ export interface MessageOptions {
 export interface MessageHandle {
   close(): void;
 }
+
+export interface MessageApi {
+  (options: MessageOptions | string): MessageHandle;
+  info(message: string, options?: Omit<MessageOptions, "message" | "type">): MessageHandle;
+  success(message: string, options?: Omit<MessageOptions, "message" | "type">): MessageHandle;
+  warning(message: string, options?: Omit<MessageOptions, "message" | "type">): MessageHandle;
+  danger(message: string, options?: Omit<MessageOptions, "message" | "type">): MessageHandle;
+  error(message: string, options?: Omit<MessageOptions, "message" | "type">): MessageHandle;
+  closeAll(): void;
+}

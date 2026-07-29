@@ -34,3 +34,12 @@ export interface NotificationOptions {
 export interface NotificationHandle {
   close(): void;
 }
+
+export interface NotificationApi {
+  (options: NotificationOptions | string): NotificationHandle;
+  info(options: NotificationOptions | string): NotificationHandle;
+  success(options: NotificationOptions | string): NotificationHandle;
+  warning(options: NotificationOptions | string): NotificationHandle;
+  error(options: NotificationOptions | string): NotificationHandle;
+  closeAll(): void;
+}

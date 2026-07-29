@@ -34,6 +34,10 @@ export interface LoadingInstance {
   setText: (text: string) => void;
 }
 
+export interface LoadingApi {
+  (options?: LoadingOptions): LoadingInstance;
+}
+
 export type LoadingDirectiveValue = boolean | (LoadingOptions & { loading?: boolean });
 
 export interface LoadingEmits {

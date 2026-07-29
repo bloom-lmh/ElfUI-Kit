@@ -9,6 +9,7 @@ import { ThemeProvider } from "./ThemeProvider/index";
 
 export * from "./context";
 export * from "./config";
+export * from "./service-defaults";
 export { ConfigProvider } from "./ConfigProvider/index";
 export type { ConfigProviderProps } from "./ConfigProvider/index";
 export { DefaultsProvider } from "./DefaultsProvider/index";

@@ -1,7 +1,13 @@
 import { registerComponents } from "@elfui/core";
 
 import { Notification as NotificationElement } from "./component";
+import {
+  resolveServiceOptions,
+  useServiceDefaults,
+  type ServiceDefaultsReader
+} from "../../Providers/service-defaults";
 import type {
+  NotificationApi,
   NotificationAppendTarget,
   NotificationContent,
   NotificationHandle,
@@ -11,6 +17,7 @@ import type {
 } from "./types";
 
 export type {
+  NotificationApi,
   NotificationAppendTarget,
   NotificationContent,
   NotificationHandle,
@@ -78,9 +85,11 @@ interface NotificationEl extends HTMLElement {
 
 const createNotification = (
   options: NotificationOptions | string,
-  forcedType?: NotificationType
+  forcedType?: NotificationType,
+  defaults?: Partial<NotificationOptions>
 ): NotificationHandle => {
-  const opts: NotificationOptions = typeof options === "string" ? { message: options } : { ...options };
+  const normalized: NotificationOptions = typeof options === "string" ? { message: options } : { ...options };
+  const opts = resolveServiceOptions(defaults, normalized);
   if (forcedType) opts.type = forcedType;
 
   const position: NotificationPosition = opts.position ?? "top-right";
@@ -150,24 +159,25 @@ const createNotification = (
   return { close: remove };
 };
 
-interface NotificationApi {
-  (options: NotificationOptions | string): NotificationHandle;
-  info(options: NotificationOptions | string): NotificationHandle;
-  success(options: NotificationOptions | string): NotificationHandle;
-  warning(options: NotificationOptions | string): NotificationHandle;
-  error(options: NotificationOptions | string): NotificationHandle;
-  closeAll(): void;
-}
-
-const fn = ((options: NotificationOptions | string): NotificationHandle => createNotification(options)) as NotificationApi;
-fn.info = (options) => createNotification(options, "info");
-fn.success = (options) => createNotification(options, "success");
-fn.warning = (options) => createNotification(options, "warning");
-fn.error = (options) => createNotification(options, "error");
-fn.closeAll = (): void => {
-  for (const position of Object.keys(activeStacks) as NotificationPosition[]) {
-    for (const entry of [...activeStacks[position]]) entry.el.dispatchEvent(new CustomEvent("close"));
-  }
+const createNotificationApi = (
+  readDefaults?: ServiceDefaultsReader<"notification">
+): NotificationApi => {
+  const fn = ((options: NotificationOptions | string): NotificationHandle =>
+    createNotification(options, undefined, readDefaults?.())) as NotificationApi;
+  fn.info = (options) => createNotification(options, "info", readDefaults?.());
+  fn.success = (options) => createNotification(options, "success", readDefaults?.());
+  fn.warning = (options) => createNotification(options, "warning", readDefaults?.());
+  fn.error = (options) => createNotification(options, "error", readDefaults?.());
+  fn.closeAll = (): void => {
+    for (const position of Object.keys(activeStacks) as NotificationPosition[]) {
+      for (const entry of [...activeStacks[position]]) entry.el.dispatchEvent(new CustomEvent("close"));
+    }
+  };
+  return fn;
 };
 
-export const ElfNotification: NotificationApi = fn;
+export const ElfNotification = createNotificationApi();
+
+/** Returns a Notification API bound to the nearest ConfigProvider. */
+export const useNotification = (): NotificationApi =>
+  createNotificationApi(useServiceDefaults("notification"));

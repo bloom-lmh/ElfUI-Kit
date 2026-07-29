@@ -111,7 +111,9 @@ export const createFocusScope = (options: FocusScopeOptions): FocusScopeControll
       const panel = options.panel();
       if (!panel) return false;
       const focusable = collectFocusable(panel);
-      const target = focusable.find((element) => element.hasAttribute("autofocus"))
+      const target = focusable.find((element) =>
+        element.hasAttribute("autofocus") || element.hasAttribute("data-autofocus"),
+      )
         ?? focusable[0]
         ?? panel;
       target.focus({ preventScroll: true });

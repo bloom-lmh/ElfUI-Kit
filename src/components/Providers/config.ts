@@ -1,6 +1,10 @@
 import { createInjectionKey, inject } from "@elfui/core";
 
 import type { IconOptions } from "../Basic/Icon/types";
+import type { LoadingOptions } from "../Feedback/Loading/types";
+import type { MessageOptions } from "../Feedback/Message/types";
+import type { MessageBoxOptions } from "../Feedback/MessageBox/types";
+import type { NotificationOptions } from "../Feedback/Notification/types";
 import type { GoToDefaults } from "../../composables/goTo";
 import type { ProviderDefaults, DefaultsStrategy } from "./context";
 import type { LocaleDirection, LocaleMessages } from "./context";
@@ -62,6 +66,13 @@ export interface FieldValueDefaults {
   valueOnClear?: unknown | (() => unknown);
 }
 
+export interface ElfUIServiceDefaults {
+  message?: Partial<MessageOptions>;
+  notification?: Partial<NotificationOptions>;
+  loading?: Partial<Omit<LoadingOptions, "target" | "onClose">>;
+  messageBox?: Partial<MessageBoxOptions>;
+}
+
 export interface ElfUIConfig {
   defaults?: ProviderDefaults;
   defaultsOptions?: Omit<ElfUIDefaultsOptions, "values">;
@@ -72,6 +83,7 @@ export interface ElfUIConfig {
   motion?: MotionPreference;
   goTo?: GoToDefaults;
   field?: FieldValueDefaults;
+  services?: ElfUIServiceDefaults;
 }
 
 export interface DisplayProviderContext {

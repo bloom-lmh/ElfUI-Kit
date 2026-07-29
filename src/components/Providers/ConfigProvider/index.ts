@@ -34,6 +34,7 @@ export type {
   DisplayProviderContext,
   DisplayProviderOptions,
   ElfUIConfig,
+  ElfUIServiceDefaults,
   ElfUIDefaultsOptions,
   ElfUIIconOptions,
   ElfUILocaleOptions,

@@ -1,7 +1,12 @@
 import { registerComponents } from "@elfui/core";
 
 import { Loading } from "./index";
-import type { LoadingInstance, LoadingOptions, LoadingTarget } from "./types";
+import {
+  resolveServiceOptions,
+  useServiceDefaults,
+  type ServiceDefaultsReader
+} from "../../Providers/service-defaults";
+import type { LoadingApi, LoadingInstance, LoadingOptions, LoadingTarget } from "./types";
 
 interface LoadingElement extends HTMLElement {
   loading: boolean;
@@ -100,7 +105,11 @@ const applyBodyTargetGeometry = (el: HTMLElement, target: HTMLElement): (() => v
 
 registerComponents(Loading);
 
-export const ElfLoading = (options: LoadingOptions = {}): LoadingInstance => {
+const createLoading = (
+  input: LoadingOptions = {},
+  defaults?: Partial<LoadingOptions>
+): LoadingInstance => {
+  const options = resolveServiceOptions(defaults, input);
   const target = resolveTarget(options.target);
   const fullscreen = options.fullscreen ?? options.target == null;
   const closable = fullscreen && (options.closable ?? true);
@@ -167,3 +176,13 @@ export const ElfLoading = (options: LoadingOptions = {}): LoadingInstance => {
     }
   };
 };
+
+const createLoadingApi = (
+  readDefaults?: ServiceDefaultsReader<"loading">
+): LoadingApi => (options = {}) => createLoading(options, readDefaults?.());
+
+export const ElfLoading = createLoadingApi();
+
+/** Returns a Loading API bound to the nearest ConfigProvider. */
+export const useLoading = (): LoadingApi =>
+  createLoadingApi(useServiceDefaults("loading"));

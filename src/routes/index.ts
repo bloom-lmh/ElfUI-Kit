@@ -175,6 +175,10 @@ export const routes: RouteRecord[] = [
     component: () => import("../pages/feedback/MessagePage/index")
   },
   {
+    path: "/feedback/message-box",
+    component: () => import("../pages/feedback/MessageBoxPage/index")
+  },
+  {
     path: "/feedback/dialog",
     component: () => import("../pages/feedback/DialogPage/index")
   },
@@ -423,6 +427,7 @@ export const navItems: NavItem[] = [
   { to: "/feedback/alert", text: "Alert 警告提示", group: "Feedback 反馈" },
   { to: "/feedback/loading", text: "Loading 加载", group: "Feedback 反馈" },
   { to: "/feedback/message", text: "Message 全局提示", group: "Feedback 反馈" },
+  { to: "/feedback/message-box", text: "MessageBox 消息框", group: "Feedback 反馈" },
   { to: "/feedback/dialog", text: "Dialog 对话框", group: "Feedback 反馈" },
   { to: "/feedback/drawer", text: "Drawer 抽屉", group: "Feedback 反馈" },
   { to: "/feedback/notification", text: "Notification 通知", group: "Feedback 反馈" },

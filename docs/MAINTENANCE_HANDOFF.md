@@ -15,7 +15,7 @@
 ### 仓库基线
 
 - Kit 版本：`0.0.2-beta.1`。
-- `@elfui/core`、`@elfui/compiler`、`@elfui/vite-plugin` 已统一到 `0.1.0-beta.18`。
+- `@elfui/core`、`@elfui/compiler`、`@elfui/vite-plugin` 已统一到 `0.1.0-beta.20`。
 - `@elfui/router` 当前为 `0.1.0-beta.10`。
 - `typecheck` 同时执行 unsupported macro 扫描和 macro-aware TypeScript 检查。
 - 工作树包含多批尚未提交的维护改动。不得回退不属于当前任务的文件。
@@ -143,24 +143,43 @@
   - `output/playwright/dialog-focus-en-beta20.png`
   - `output/playwright/drawer-resizable-en-beta20.png`
 
+### 2026-07-29 统一服务默认值与 MessageBox
+
+- ConfigProvider 新增类型安全的 `services` 作用域配置；Message、Notification、Loading、MessageBox 分别通过 `useMessage()`、`useNotification()`、`useLoading()`、`useMessageBox()` 读取最近 Provider，调用参数优先于 Provider 默认值。
+- Provider 只保存默认策略，各服务继续独立拥有实例、计时器、队列、滚动锁和清理生命周期，没有新增进程级 Provider 单例。
+- 新增 MessageBox 的 alert、confirm、prompt、异步 `beforeClose`、输入校验、关闭原因区分、可信 Node 内容、挂载目标、主题 token、Promise 与 callback 契约。
+- MessageBox 复用 modal overlay controller、focus scope、overlay stack 和滚动锁；新增 `data-autofocus` 作为命令式初始焦点标记，避免原生 `autofocus` 与 focus controller 重复竞争。
+- 新增 `/feedback/message-box`、四个完整双语案例、API 表和 ConfigProvider 服务行为章节；文档审计因此扩展到 487 个目标文件。
+
+验证结果：
+
+- 服务与 MessageBox 聚焦测试 7 个文件、47 项通过；全量测试 179 个文件、1409 项通过。
+- `pnpm typecheck` 通过：960 个源码文件旧宏扫描 0 问题，111 个宏组件 0 宏错误、0 TypeScript 错误。
+- `pnpm build` 通过，872 个模块完成生产构建；`pnpm build:lib` 通过，283 个模块完成库构建和类型产物生成。
+- 中文 Alert、英文 Prompt、输入校验、合法值回写、初始焦点、Alert Escape 策略均通过真实 Chromium 验收；最终会话 0 warning / 0 error。
+- 截图：
+  - `output/playwright/message-box-page-zh-beta20.png`
+  - `output/playwright/message-box-alert-zh-beta20.png`
+  - `output/playwright/message-box-prompt-en-beta20.png`
+
 ## 3. 未作的工作（将要做的）
 
 仓库级中英文覆盖仍未完成。准确基线：
 
-- 页面入口：45/85 已接入，40 个待处理。
-- 案例：169/332 已接入，163 个待处理。
-- Props/API：28/63 已接入，35 个待处理。
-- 总计：242/480 已接入，238 个待处理。
+- 页面入口：47/86 已接入，39 个待处理。
+- 案例：182/337 已接入，155 个待处理。
+- Props/API：30/64 已接入，34 个待处理。
+- 总计：259/487 已接入，228 个待处理。
 
-“接入”只表示文件显式使用翻译 helper，不代表已经通过中英文内容终审。Providers、Message、Notification、Dialog 和 Drawer 批次已完成，后续按 Feedback 剩余 4 页、Form、Data、Picker/Navigation、Layout/Guide/Utilities 的整页批次推进；每页必须同时处理入口、全部案例、Props/API、Template/Script、运行时状态、测试和真实浏览器扫描。
+“接入”只表示文件显式使用翻译 helper，不代表已经通过中英文内容终审。Providers、Message、MessageBox、Notification、Dialog、Drawer 和 Loading 批次已完成，后续按 Feedback 剩余 3 页、Form、Data、Picker/Navigation、Layout/Guide/Utilities 的整页批次推进；每页必须同时处理入口、全部案例、Props/API、Template/Script、运行时状态、测试和真实浏览器扫描。
 
 ### 执行顺序
 
-1. 按整页原子批次补齐剩余 238 个文件的中英文；下一批继续 Feedback 剩余 4 页。
+1. 按整页原子批次补齐剩余 228 个文件的中英文；下一批继续 Feedback 剩余 3 页。
 2. 每批同时处理页面入口、全部案例、Props/API、Template/Script、运行时状态和页面测试。
 3. 每批运行聚焦测试、`pnpm docs:locale-audit` 和真实浏览器英文可见文本扫描。
 4. 审计清零后启用 strict 门禁，再做 85 个页面的中英文、双主题和桌面/移动端终审。
-5. 继续按总计划推进 TreeSelect、MessageBox、DateTimePicker、TimeSelect、metadata、单组件入口、resolver 和真实 tree-shaking 验证。
+5. 继续按总计划推进 TreeSelect、DateTimePicker、TimeSelect、metadata、单组件入口、resolver 和真实 tree-shaking 验证。
 6. 每个批次结束立即更新总计划、语言基线和本交接。
 
 ### 已确认决策
@@ -175,7 +194,7 @@
 - TableV2 完整性脚本仍按 `TableV2Page` 命名查找，不能识别实际的 `VirtualTablePage`，因此会给出 demo page false negative；实际页面和页面测试存在。
 - TableV2 性能基线旧中位数来自拆分前的 `/data/table`；脚本已改为 `/data/virtual-table`，后续需重新跑 5 次中位数再替换旧页面级计时。
 - 当前 authoring skill 的框架参考文件名仍为 `framework-beta15.md`，内容版本说明落后于仓库 beta.20；实际依赖以 `package.json` 为准。
-- 全站语言审计当前还有 238 个文件未接入，不能把十二条路由的严格扫描结果外推为全站完成。
+- 全站语言审计当前还有 228 个文件未接入，不能把已验收路由的严格扫描结果外推为全站完成。
 - 审计脚本目前检查 helper 参与度；浏览器可见文本、属性、源码示例与布局仍需逐页终审。
 - `src/components/Common/focus-scope.ts`、`overlay-protocol.ts` 等旧根路径已经迁入 `Common/focus/` 与 `Common/overlay/`；IDE 中仍打开的旧标签会显示删除状态，后续代码必须使用新路径。
 - 工作树已有大量用户改动，任何目录移动都必须保留并兼容这些改动。

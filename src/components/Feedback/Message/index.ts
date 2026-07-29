@@ -9,9 +9,15 @@ import { registerComponents } from "@elfui/core";
 
 import { Message as MessageElement } from "./component";
 import { applyThemeTokens } from "../../Providers/context";
+import {
+    resolveServiceOptions,
+    useServiceDefaults,
+    type ServiceDefaultsReader,
+} from "../../Providers/service-defaults";
 
 import type {
     MessageHandle,
+    MessageApi,
     MessageOptions,
     MessagePosition,
     MessageType,
@@ -19,6 +25,7 @@ import type {
 
 export type {
     MessageHandle,
+    MessageApi,
     MessageOptions,
     MessagePosition,
     MessageType,
@@ -72,9 +79,11 @@ interface MessageEl extends HTMLElement {
 const createMessage = (
     options: MessageOptions | string,
     type?: MessageType,
+    defaults?: Partial<MessageOptions>,
 ): MessageHandle => {
-    const opts: MessageOptions =
+    const normalized: MessageOptions =
         typeof options === "string" ? { message: options } : { ...options };
+    const opts = resolveServiceOptions(defaults, normalized);
     if (type) opts.type = type;
     const duration = opts.duration ?? 3000;
     const position: MessagePosition =
@@ -132,55 +141,39 @@ const createMessage = (
     return { close: remove };
 };
 
-interface MessageApi {
-    (options: MessageOptions | string): MessageHandle;
-    info(
-        message: string,
-        options?: Omit<MessageOptions, "message" | "type">,
-    ): MessageHandle;
-    success(
-        message: string,
-        options?: Omit<MessageOptions, "message" | "type">,
-    ): MessageHandle;
-    warning(
-        message: string,
-        options?: Omit<MessageOptions, "message" | "type">,
-    ): MessageHandle;
-    danger(
-        message: string,
-        options?: Omit<MessageOptions, "message" | "type">,
-    ): MessageHandle;
-    error(
-        message: string,
-        options?: Omit<MessageOptions, "message" | "type">,
-    ): MessageHandle;
-    closeAll(): void;
-}
+const createMessageApi = (
+    readDefaults?: ServiceDefaultsReader<"message">,
+): MessageApi => {
+    const fn = ((options: MessageOptions | string): MessageHandle =>
+        createMessage(options, undefined, readDefaults?.())) as MessageApi;
 
-const fn = ((options: MessageOptions | string): MessageHandle =>
-    createMessage(options)) as MessageApi;
-
-fn.info = (message, options) =>
-    createMessage({ ...(options ?? {}), message }, "info");
-fn.success = (message, options) =>
-    createMessage({ ...(options ?? {}), message }, "success");
-fn.warning = (message, options) =>
-    createMessage({ ...(options ?? {}), message }, "warning");
-fn.danger = (message, options) =>
-    createMessage({ ...(options ?? {}), message }, "danger");
-fn.error = (message, options) =>
-    createMessage({ ...(options ?? {}), message }, "error");
-fn.closeAll = () => {
-    for (const position of Object.keys(activeStacks) as MessagePosition[]) {
-        for (const el of [...activeStacks[position]]) {
-            const message = el as MessageEl;
-            if (typeof message.close === "function") {
-                message.close();
-            } else {
-                el.dispatchEvent(new CustomEvent("close"));
+    fn.info = (message, options) =>
+        createMessage({ ...(options ?? {}), message }, "info", readDefaults?.());
+    fn.success = (message, options) =>
+        createMessage({ ...(options ?? {}), message }, "success", readDefaults?.());
+    fn.warning = (message, options) =>
+        createMessage({ ...(options ?? {}), message }, "warning", readDefaults?.());
+    fn.danger = (message, options) =>
+        createMessage({ ...(options ?? {}), message }, "danger", readDefaults?.());
+    fn.error = (message, options) =>
+        createMessage({ ...(options ?? {}), message }, "error", readDefaults?.());
+    fn.closeAll = () => {
+        for (const position of Object.keys(activeStacks) as MessagePosition[]) {
+            for (const el of [...activeStacks[position]]) {
+                const message = el as MessageEl;
+                if (typeof message.close === "function") {
+                    message.close();
+                } else {
+                    el.dispatchEvent(new CustomEvent("close"));
+                }
             }
         }
-    }
+    };
+    return fn;
 };
 
-export const ElfMessage: MessageApi = fn;
+export const ElfMessage = createMessageApi();
+
+/** Returns a Message API bound to the nearest ConfigProvider. */
+export const useMessage = (): MessageApi =>
+    createMessageApi(useServiceDefaults("message"));
