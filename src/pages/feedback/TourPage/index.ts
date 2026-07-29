@@ -1,8 +1,17 @@
 import { defineHtml, useComponents } from "@elfui/core";
+import { createDocsTranslator } from "../../docsLocale";
 import { PageTourEx1 } from "./ex1";
 import { PageTourEx2 } from "./ex2";
 import { PageTourEx3 } from "./ex3";
 import { PageTourProps } from "./props";
+
+const t = createDocsTranslator({
+  title: { zh: "漫游式引导", en: "Tour" },
+  description: {
+    zh: "分步骤介绍页面功能，支持目标高亮、面板定位、键盘导航与焦点管理。",
+    en: "Introduce page features step by step with target highlighting, panel placement, keyboard navigation, and focus management.",
+  },
+});
 
 useComponents({
   "page-tour-ex1": PageTourEx1,
@@ -13,8 +22,8 @@ useComponents({
 
 const PageTour = defineHtml(`
   <elf-container>
-    <h1>Tour 漫游式引导</h1>
-    <p>分步骤引导用户了解页面功能，支持高亮遮罩、步骤定位、键盘导航和焦点管理。</p>
+    <h1>${t("title")}</h1>
+    <p>${t("description")}</p>
     <page-tour-ex1 />
     <page-tour-ex2 />
     <page-tour-ex3 />
