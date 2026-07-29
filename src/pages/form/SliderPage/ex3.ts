@@ -1,6 +1,10 @@
 import { defineHtml, useRef } from "@elfui/core";
+import { createDocsTranslator } from "../../docsLocale";
 
-
+const t = createDocsTranslator({
+  title: { zh: "数字输入、颜色与提示格式", en: "Numeric input, color, and tooltip formatting" },
+  ratio: { zh: "比例", en: "Ratio" }
+});
 const value = useRef(64);
 
 const format = (next: number): string => `${next}%`;
@@ -25,8 +29,8 @@ const onChange = (event: CustomEvent<number>): void => {
 };`;
 
 const PageSliderEx3 = defineHtml(`
-  <h2>输入框联动</h2>
-  <elf-playground title="数字输入、颜色与提示格式" :code=${code} :script=${script}>
+  <h2>${t("title")}</h2>
+  <elf-playground :title=${t("title")} :code=${code} :script=${script}>
     <div style="display:grid;gap:14px;width:100%;max-width:720px">
       <elf-slider
         show-input
@@ -35,7 +39,7 @@ const PageSliderEx3 = defineHtml(`
         :modelValue.prop=${value.value}
         @update:modelValue=${onChange}
       ></elf-slider>
-      <p slot="status" class="demo-state">比例：{{ value }}%</p>
+      <p slot="status" class="demo-state">${t("ratio")}: {{ value }}%</p>
     </div>
   </elf-playground>
 `);

@@ -1,6 +1,10 @@
 import { defineHtml, useRef } from "@elfui/core";
+import { createDocsTranslator } from "../../docsLocale";
 
-
+const t = createDocsTranslator({
+  title: { zh: "范围、步进、刻度与间断点", en: "Range, steps, marks, and stops" },
+  interval: { zh: "区间", en: "Range" }
+});
 const value = useRef<[number, number]>([20, 72]);
 
 const marks = [
@@ -35,8 +39,8 @@ const onChange = (event: CustomEvent<[number, number]>): void => {
 };`;
 
 const PageSliderEx2 = defineHtml(`
-  <h2>范围选择</h2>
-  <elf-playground title="范围、步进、刻度与间断点" :code=${code} :script=${script}>
+  <h2>${t("title")}</h2>
+  <elf-playground :title=${t("title")} :code=${code} :script=${script}>
     <div style="display:grid;gap:14px;width:100%;max-width:720px">
       <elf-slider
         range
@@ -46,7 +50,7 @@ const PageSliderEx2 = defineHtml(`
         :modelValue.prop=${value.value}
         @update:modelValue=${onChange}
       ></elf-slider>
-      <p slot="status" class="demo-state">区间：{{ value[0] }} - {{ value[1] }}</p>
+      <p slot="status" class="demo-state">${t("interval")}: {{ value[0] }} - {{ value[1] }}</p>
     </div>
   </elf-playground>
 `);

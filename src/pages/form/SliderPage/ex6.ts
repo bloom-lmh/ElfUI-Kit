@@ -1,6 +1,10 @@
 import { defineHtml, useRef } from "@elfui/core";
+import { createDocsTranslator } from "../../docsLocale";
 
-
+const t = createDocsTranslator({
+  title: { zh: "自定义温度节点 0 / 30 / 100 ℃", en: "Custom temperature marks at 0 / 30 / 100 °C" },
+  temperature: { zh: "温度", en: "Temperature" }
+});
 const value = useRef(30);
 
 const marks = {
@@ -28,8 +32,8 @@ const onChange = (event: CustomEvent<number>): void => {
 };`;
 
 const PageSliderEx6 = defineHtml(`
-  <h2>非等距节点</h2>
-  <elf-playground title="自定义温度节点 0 / 30 / 100 ℃" :code=${code} :script=${script}>
+  <h2>${t("title")}</h2>
+  <elf-playground :title=${t("title")} :code=${code} :script=${script}>
     <div style="display:grid;gap:14px;width:100%;max-width:720px">
       <elf-slider
         segmented
@@ -37,7 +41,7 @@ const PageSliderEx6 = defineHtml(`
         :modelValue.prop=${value.value}
         @update:modelValue=${onChange}
       ></elf-slider>
-      <p slot="status" class="demo-state">温度：{{ value }} ℃</p>
+      <p slot="status" class="demo-state">${t("temperature")}: {{ value }} ℃</p>
     </div>
   </elf-playground>
 `);

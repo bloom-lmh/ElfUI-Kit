@@ -1,52 +1,61 @@
 import { defineHtml } from "@elfui/core";
+import { createDocsPicker, createDocsTranslator } from "../../docsLocale";
+
+const t = createDocsTranslator({
+  api: { zh: "API", en: "API" },
+  props: { zh: "属性", en: "Props" },
+  events: { zh: "事件", en: "Events" },
+  expose: { zh: "暴露方法", en: "Expose" }
+});
+const pick = createDocsPicker();
 
 const propsRows = [
-  { name: "modelValue", type: "number | [number, number]", default: "0", desc: "当前值" },
-  { name: "min", type: "number", default: "0", desc: "最小值" },
-  { name: "max", type: "number", default: "100", desc: "最大值" },
-  { name: "step", type: "number", default: "1", desc: "步长" },
-  { name: "range", type: "boolean", default: "false", desc: "范围选择" },
-  { name: "vertical", type: "boolean", default: "false", desc: "垂直滑块" },
-  { name: "height", type: "string | number", default: "240", desc: "垂直滑块高度" },
-  { name: "disabled", type: "boolean", default: "false", desc: "禁用状态" },
-  { name: "readonly", type: "boolean", default: "false", desc: "只读状态" },
-  { name: "showTooltip", type: "boolean", default: "true", desc: "显示数值提示" },
-  { name: "tooltipClass", type: "string", default: "''", desc: "数值提示的附加 CSS 类" },
-  { name: "placement", type: "top | bottom | left | right", default: "top", desc: "数值提示的位置" },
-  { name: "persistent", type: "boolean", default: "true", desc: "保留提示节点渲染的兼容属性" },
-  { name: "showStops", type: "boolean", default: "false", desc: "显示步进点" },
-  { name: "segmented", type: "boolean", default: "false", desc: "按 step 或 marks 分段展示轨道" },
-  { name: "showInput", type: "boolean", default: "false", desc: "显示数字输入框；范围模式下无效" },
-  { name: "showInputControls", type: "boolean", default: "true", desc: "显示数字输入框的原生调节按钮" },
-  { name: "inputSize", type: "sm | md | lg | small | default | large", default: "''", desc: "数字输入框尺寸" },
-  { name: "marks", type: "SliderMark[] | Record<string, string | number>", default: "[]", desc: "刻度标记" },
-  { name: "formatTooltip", type: "(value) => string", default: "undefined", desc: "格式化提示文案" },
-  { name: "formatValueText", type: "(value) => string", default: "undefined", desc: "辅助技术读取的值文本" },
-  { name: "ariaLabel", type: "string", default: "''", desc: "滑块的无障碍标签" },
-  { name: "rangeStartLabel", type: "string", default: "''", desc: "范围起点的无障碍标签" },
-  { name: "rangeEndLabel", type: "string", default: "''", desc: "范围终点的无障碍标签" },
-  { name: "label", type: "string", default: "''", desc: "滑块及数字输入框的无障碍标签" },
-  { name: "validateEvent", type: "boolean", default: "true", desc: "变更时是否触发表单校验" },
-  { name: "color", type: "string", default: "''", desc: "激活轨道颜色" },
-  { name: "size", type: "sm | md | lg", default: "md", desc: "滑块尺寸" }
+  { name: "modelValue", type: "number | [number, number]", default: "0", desc: pick("当前值", "Current value.") },
+  { name: "min", type: "number", default: "0", desc: pick("最小值", "Minimum value.") },
+  { name: "max", type: "number", default: "100", desc: pick("最大值", "Maximum value.") },
+  { name: "step", type: "number", default: "1", desc: pick("步长", "Step interval.") },
+  { name: "range", type: "boolean", default: "false", desc: pick("范围选择", "Enables range selection.") },
+  { name: "vertical", type: "boolean", default: "false", desc: pick("垂直滑块", "Uses vertical orientation.") },
+  { name: "height", type: "string | number", default: "240", desc: pick("垂直滑块高度", "Vertical slider height.") },
+  { name: "disabled", type: "boolean", default: "false", desc: pick("禁用状态", "Disables interaction.") },
+  { name: "readonly", type: "boolean", default: "false", desc: pick("只读状态", "Makes the value read-only.") },
+  { name: "showTooltip", type: "boolean", default: "true", desc: pick("显示数值提示", "Shows the value tooltip.") },
+  { name: "tooltipClass", type: "string", default: "''", desc: pick("数值提示的附加 CSS 类", "Additional CSS class for the value tooltip.") },
+  { name: "placement", type: "top | bottom | left | right", default: "top", desc: pick("数值提示的位置", "Value tooltip placement.") },
+  { name: "persistent", type: "boolean", default: "true", desc: pick("保留提示节点渲染的兼容属性", "Compatibility prop that keeps the tooltip node rendered.") },
+  { name: "showStops", type: "boolean", default: "false", desc: pick("显示步进点", "Shows step stops.") },
+  { name: "segmented", type: "boolean", default: "false", desc: pick("按 step 或 marks 分段展示轨道", "Segments the track using step or marks.") },
+  { name: "showInput", type: "boolean", default: "false", desc: pick("显示数字输入框；范围模式下无效", "Shows numeric input; ignored in range mode.") },
+  { name: "showInputControls", type: "boolean", default: "true", desc: pick("显示数字输入框的原生调节按钮", "Shows native numeric-input controls.") },
+  { name: "inputSize", type: "sm | md | lg | small | default | large", default: "''", desc: pick("数字输入框尺寸", "Numeric-input size.") },
+  { name: "marks", type: "SliderMark[] | Record<string, string | number>", default: "[]", desc: pick("刻度标记", "Track marks.") },
+  { name: "formatTooltip", type: "(value) => string", default: "undefined", desc: pick("格式化提示文案", "Formats tooltip content.") },
+  { name: "formatValueText", type: "(value) => string", default: "undefined", desc: pick("辅助技术读取的值文本", "Formats value text for assistive technology.") },
+  { name: "ariaLabel", type: "string", default: "''", desc: pick("滑块的无障碍标签", "Accessible slider label.") },
+  { name: "rangeStartLabel", type: "string", default: "''", desc: pick("范围起点的无障碍标签", "Accessible label for the range start.") },
+  { name: "rangeEndLabel", type: "string", default: "''", desc: pick("范围终点的无障碍标签", "Accessible label for the range end.") },
+  { name: "label", type: "string", default: "''", desc: pick("滑块及数字输入框的无障碍标签", "Accessible label for the slider and numeric input.") },
+  { name: "validateEvent", type: "boolean", default: "true", desc: pick("变更时是否触发表单校验", "Whether changes trigger form validation.") },
+  { name: "color", type: "string", default: "''", desc: pick("激活轨道颜色", "Active track color.") },
+  { name: "size", type: "sm | md | lg", default: "md", desc: pick("滑块尺寸", "Slider size.") }
 ];
 
 const eventsRows = [
-  { name: "update:modelValue", type: "(value) => void", desc: "值变化时触发" },
-  { name: "input", type: "(value) => void", desc: "拖动或输入时触发" },
-  { name: "change", type: "(value) => void", desc: "提交变化时触发" }
+  { name: "update:modelValue", type: "(value) => void", desc: pick("值变化时触发", "Emitted when the value changes.") },
+  { name: "input", type: "(value) => void", desc: pick("拖动或输入时触发", "Emitted while dragging or typing.") },
+  { name: "change", type: "(value) => void", desc: pick("提交变化时触发", "Emitted when a change is committed.") }
 ];
 
 const methodsRows = [
-  { name: "setValue(value)", desc: "主动设置值并触发 change" },
-  { name: "clear()", desc: "单值清空为最小值；范围清空为 [min, min]" }
+  { name: "setValue(value)", desc: pick("主动设置值并触发 change", "Sets the value and emits change.") },
+  { name: "clear()", desc: pick("单值清空为最小值；范围清空为 [min, min]", "Resets a single value to min or a range to [min, min].") }
 ];
 
 const PageSliderProps = defineHtml(`
-  <h2>API</h2>
-  <elf-props-table title="属性" :rows.prop=${propsRows}></elf-props-table>
-  <elf-props-table title="事件" :rows.prop=${eventsRows}></elf-props-table>
-  <elf-props-table title="方法" :rows.prop=${methodsRows}></elf-props-table>
+  <h2>${t("api")}</h2>
+  <elf-props-table :title=${t("props")} :rows.prop=${propsRows}></elf-props-table>
+  <elf-props-table :title=${t("events")} :rows.prop=${eventsRows}></elf-props-table>
+  <elf-props-table :title=${t("expose")} :rows.prop=${methodsRows}></elf-props-table>
 `);
 
 export { PageSliderProps };
