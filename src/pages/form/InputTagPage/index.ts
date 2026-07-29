@@ -1,7 +1,10 @@
 import { defineHtml, useComponents } from "@elfui/core";
+import { createDocsPicker } from "../../docsLocale";
 import { PageInputTagProps } from "./props";
 import { PageInputTagEx1 } from "./ex1";
 import { PageInputTagEx2 } from "./ex2";
+
+const p = createDocsPicker();
 
 useComponents({
   "page-input-tag-ex1": PageInputTagEx1,
@@ -11,8 +14,8 @@ useComponents({
 
 const PageInputTag = defineHtml(`
   <elf-container>
-    <h1>InputTag 标签输入</h1>
-    <p>把输入内容转换成标签。标签复用 Tag 的颜色、轮廓和关闭语义，内容较多时自动换行并保持每项可操作。</p>
+    <h1>${p("标签输入", "Input tag")}</h1>
+    <p>${p("把输入内容转换成标签；内容较多时自动换行，并保持每个标签可操作。", "Turn typed content into tags that wrap automatically while each item remains operable.")}</p>
 
     <page-input-tag-ex1 />
 

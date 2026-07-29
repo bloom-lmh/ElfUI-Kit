@@ -1,22 +1,24 @@
 import { defineHtml, useRef } from "@elfui/core";
+import { createDocsPicker } from "../../docsLocale";
 
-const tags = useRef(["设计", "开发"]);
+const p = createDocsPicker();
+const tags = useRef([p("设计", "Design"), p("开发", "Development")]);
 
 const code1 = `<elf-input-tag
   :modelValue.prop=\${tags}
   variant="outlined"
-  label="标签"
+  label="${p("标签", "Tags")}"
   clearable
   tag-type="primary"
   tag-effect="light"
-  placeholder="输入后按 Enter"
+  placeholder="${p("输入后按 Enter", "Type and press Enter")}"
   @update:modelValue=\${onTagsUpdate}
   @add-tag=\${onAddTag}
   @remove-tag=\${onRemoveTag}
 />
-<span slot="status" class="demo-state">当前：\${tags.join(" / ")}</span>`;
+<span slot="status" class="demo-state">${p("当前标签", "Current tags")}: \${tags.join(" / ")}</span>`;
 
-const script1 = `const tags = useRef(["设计", "开发"]);
+const script1 = `const tags = useRef(["${p("设计", "Design")}", "${p("开发", "Development")}"]);
 
 const onTagsUpdate = (event) => {
   tags.set(event.detail);
@@ -41,20 +43,20 @@ const onRemoveTag = (): void => undefined;
 const tagSummary = (): string => tags.value.join(" / ");
 
 const PageInputTagEx1 = defineHtml(`
-<elf-playground title="受控数组与清空" :code=${code1} :script=${script1}>
+<elf-playground :title=${p("受控数组与清空", "Controlled array and clear")} :code=${code1} :script=${script1}>
       <elf-input-tag
         :modelValue.prop=${tags}
         variant="outlined"
-        label="标签"
+        :label=${p("标签", "Tags")}
         clearable
         tag-type="primary"
         tag-effect="light"
-        placeholder="输入后按 Enter"
+        :placeholder=${p("输入后按 Enter", "Type and press Enter")}
         @update:modelValue=${onTagsUpdate}
         @add-tag=${onAddTag}
         @remove-tag=${onRemoveTag}
       ></elf-input-tag>
-      <span slot="status" class="demo-state">当前：${tagSummary()}</span>
+      <span slot="status" class="demo-state">${p("当前标签", "Current tags")}: ${tagSummary()}</span>
     </elf-playground>
 `);
 
