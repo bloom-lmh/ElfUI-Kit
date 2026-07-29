@@ -162,6 +162,24 @@
   - `output/playwright/message-box-alert-zh-beta20.png`
   - `output/playwright/message-box-prompt-en-beta20.png`
 
+### 2026-07-29 TreeSelect 组合组件
+
+- 新增 `elf-tree-select`，以 Tree collection、勾选/键盘/懒加载/虚拟窗口为数据内核，复用字段表面、FormItem 状态、ConfigProvider 清空值、锚定浮层和 dismissible overlay；没有复制第二套树选择算法。
+- 完成单选、多选与联动/严格勾选、折叠标签、搜索和自定义匹配、懒加载、10,000 节点虚拟化、表单校验、禁用态、自定义字段、teleport、定位和公开方法。
+- 新增 `/form/tree-select`、五组完整双语案例、Template/Script、Props/Events/Slots/Methods 和全局 `HTMLElementTagNameMap` 类型。
+- 真实浏览器发现并修复“已聚焦触发器切换到 Tree 节点时，`focusout` 早于 `click` 关闭面板”的竞态；现在延迟到下一任务确认组合焦点边界，节点选择和焦点恢复均正常。
+
+验证结果：
+
+- TreeSelect、Tree、页面和路由聚焦测试共 5 个文件、49 项通过。
+- 全量测试 183 个文件、1433 项通过。
+- `pnpm typecheck` 通过：973 个源码文件旧宏扫描 0 问题，112 个宏组件 0 宏错误、0 TypeScript 错误。
+- `pnpm build` 通过，883 个模块完成生产构建；`pnpm build:lib` 通过，286 个模块完成库构建和类型产物生成。
+- Chromium 验证单选、搜索、懒加载、虚拟化和英文页面；10,000 节点场景实际渲染 12 个节点，英文主内容递归扫描 `han: []`，控制台 0 warning / 0 error。
+- 截图：
+  - `output/playwright/tree-select-virtual-zh-beta20.png`
+  - `output/playwright/tree-select-basic-en-beta20.png`
+
 ## 3. 未作的工作（将要做的）
 
 仓库级中英文覆盖仍未完成。准确基线：
@@ -179,7 +197,7 @@
 2. 每批同时处理页面入口、全部案例、Props/API、Template/Script、运行时状态和页面测试。
 3. 每批运行聚焦测试、`pnpm docs:locale-audit` 和真实浏览器英文可见文本扫描。
 4. 审计清零后启用 strict 门禁，再做 85 个页面的中英文、双主题和桌面/移动端终审。
-5. 继续按总计划推进 TreeSelect、DateTimePicker、TimeSelect、metadata、单组件入口、resolver 和真实 tree-shaking 验证。
+5. 继续按总计划推进 DateTimePicker、TimeSelect、metadata、单组件入口、resolver 和真实 tree-shaking 验证。
 6. 每个批次结束立即更新总计划、语言基线和本交接。
 
 ### 已确认决策
@@ -197,6 +215,7 @@
 - 全站语言审计当前还有 228 个文件未接入，不能把已验收路由的严格扫描结果外推为全站完成。
 - 审计脚本目前检查 helper 参与度；浏览器可见文本、属性、源码示例与布局仍需逐页终审。
 - `src/components/Common/focus-scope.ts`、`overlay-protocol.ts` 等旧根路径已经迁入 `Common/focus/` 与 `Common/overlay/`；IDE 中仍打开的旧标签会显示删除状态，后续代码必须使用新路径。
+- beta.20 宏类型检查器的虚拟模板声明仍遗漏部分运行时类型/API，并可能把依赖文件诊断按行号映射到当前模板。TreeSelect 通过正常的全局自定义元素组合与显式本地类型保持组件代码干净；后续应在框架类型检查器中补齐 stub，并仅映射属于当前虚拟源文件的诊断。
 - 工作树已有大量用户改动，任何目录移动都必须保留并兼容这些改动。
 
 ### 常用命令

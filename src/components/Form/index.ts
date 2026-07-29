@@ -57,6 +57,18 @@ export type { SwitchProps, SwitchSize } from "./Switch/types";
 export type { CheckboxProps, CheckboxSize } from "./Checkbox/types";
 export type { RadioProps, RadioSize } from "./Radio/types";
 export type { SelectOption, SelectProps, SelectSize, SelectVariant } from "./Select/types";
+export { TreeSelect } from "./TreeSelect/index";
+export type {
+  TreeSelectElement,
+  TreeSelectEmits,
+  TreeSelectExpose,
+  TreeSelectModelValue,
+  TreeSelectPlacement,
+  TreeSelectProps,
+  TreeSelectSize,
+  TreeSelectValue,
+  TreeSelectVariant
+} from "./TreeSelect/types";
 export type {
   SegmentedFieldNames,
   SegmentedOption,

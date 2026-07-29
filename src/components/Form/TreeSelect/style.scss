@@ -1,0 +1,230 @@
+@use "../../../styles/reset";
+@use "../../../styles/field-surface" as field;
+
+:host {
+  @include field.tokens;
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.tree-select {
+  position: relative;
+  width: 100%;
+}
+
+.trigger {
+  position: relative;
+  display: flex;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: var(--elf-field-control-height);
+  align-items: center;
+  gap: var(--elf-space-1);
+  flex-wrap: wrap;
+  padding: 4px var(--elf-field-padding-end) 4px var(--elf-field-padding-start);
+  cursor: pointer;
+  font-size: var(--elf-font-size-sm);
+  user-select: none;
+}
+
+@include field.surface(".trigger");
+@include field.floating-label(".trigger");
+@include field.reduced-motion(".trigger");
+
+.trigger > :not(.field-outline):not(.field-label) {
+  position: relative;
+  z-index: 1;
+}
+
+:host([data-has-label]) .trigger {
+  padding-top: 18px;
+}
+
+:host([data-has-label]:not([data-dirty]):not([data-open])) .placeholder {
+  color: transparent;
+}
+
+:host([size="sm"]) {
+  --elf-field-control-height: 40px;
+}
+
+:host([size="lg"]) {
+  --elf-field-control-height: 64px;
+}
+
+:host([density="comfortable"]) {
+  --elf-field-control-height: 48px;
+}
+
+:host([density="compact"]) {
+  --elf-field-control-height: 40px;
+}
+
+:host([variant="underlined"]) .trigger {
+  padding-inline: 0;
+}
+
+:host([disabled]) .trigger {
+  color: var(--elf-text-disabled);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.placeholder,
+.value {
+  min-width: 0;
+  overflow: hidden;
+  flex: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.placeholder {
+  color: var(--elf-text-disabled);
+}
+
+.value {
+  color: var(--elf-text-primary);
+}
+
+.tag,
+.collapse-tag {
+  display: inline-flex;
+  max-width: min(220px, 72%);
+  align-items: center;
+  gap: 2px;
+  padding: 2px 7px;
+  border-radius: var(--elf-radius-sm);
+  background: color-mix(in srgb, var(--elf-primary) 10%, var(--elf-bg-paper));
+  color: var(--elf-text-primary);
+  font-size: var(--elf-font-size-xs);
+  line-height: 20px;
+}
+
+.tag {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.collapse-tag {
+  color: var(--elf-text-secondary);
+  white-space: nowrap;
+}
+
+.tag-remove,
+.clear {
+  display: inline-flex;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--elf-text-secondary);
+  cursor: pointer;
+  font: inherit;
+  line-height: 1;
+}
+
+.tag-remove:hover,
+.clear:hover {
+  background: color-mix(in srgb, var(--elf-text-primary) 9%, transparent);
+  color: var(--elf-text-primary);
+}
+
+.filter-input {
+  min-width: 72px;
+  flex: 1;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+
+.filter-input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.suffix {
+  display: inline-flex;
+  align-items: center;
+  margin-inline-start: auto;
+  padding-inline-start: var(--elf-space-2);
+  color: var(--elf-text-secondary);
+}
+
+.arrow {
+  display: inline-flex;
+  transition: transform var(--elf-transition-fast);
+}
+
+.arrow::before {
+  content: attr(data-icon);
+}
+
+:host([data-open]) .arrow {
+  transform: rotate(180deg);
+}
+
+.panel {
+  position: absolute;
+  z-index: var(--elf-z-index-dropdown, 1000);
+  top: calc(100% + 6px);
+  right: auto;
+  left: 0;
+  box-sizing: border-box;
+  width: max-content;
+  min-width: 100%;
+  max-width: min(480px, calc(100vw - 16px));
+  max-height: min(420px, calc(100vh - 16px));
+  overflow: hidden;
+  border: 1px solid var(--elf-border);
+  border-radius: var(--elf-radius-sm);
+  background: var(--elf-bg-paper);
+  color: var(--elf-text-primary);
+  box-shadow: var(--elf-shadow-3);
+}
+
+.panel[popover] {
+  inset: auto;
+  margin: 0;
+  padding: 0;
+}
+
+.panel[popover]::backdrop {
+  background: transparent;
+}
+
+.panel.is-teleported {
+  position: fixed;
+}
+
+.panel.placement-top-start,
+.panel.placement-top-end {
+  transform-origin: bottom center;
+}
+
+elf-tree {
+  display: block;
+  min-width: 260px;
+  width: 100%;
+}
+
+::slotted([slot="footer"]) {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--elf-space-2);
+  padding: var(--elf-space-2) var(--elf-space-3);
+  border-top: 1px solid var(--elf-border);
+  color: var(--elf-text-secondary);
+  font-size: var(--elf-font-size-xs);
+}

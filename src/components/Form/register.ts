@@ -22,6 +22,7 @@ import { Select } from "./Select/index";
 import { Slider } from "./Slider/index";
 import { Switch } from "./Switch/index";
 import { Textarea } from "./Textarea/index";
+import { TreeSelect } from "./TreeSelect/index";
 import { Upload } from "./Upload/index";
 
 registerComponents(
@@ -40,6 +41,7 @@ registerComponents(
   Radio,
   RadioGroup,
   Select,
+  TreeSelect,
   Segmented,
   Cascader,
   CascaderPanel,

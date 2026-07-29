@@ -886,6 +886,36 @@ declare global {
       close: (...args: unknown[]) => void;
       open: (...args: unknown[]) => void;
     };
+    "elf-tree-select": HTMLElement & {
+      modelValue: string | number | Array<string | number>;
+      data: unknown[];
+      props: Record<string, unknown>;
+      nodeKey: string;
+      valueKey: string;
+      multiple: boolean;
+      showCheckbox: boolean;
+      checkStrictly: boolean;
+      filterable: boolean;
+      lazy: boolean;
+      virtual: boolean;
+      clearable: boolean;
+      disabled: boolean;
+      size: string;
+      variant: string;
+      label: string;
+      placeholder: string;
+      open: (...args: unknown[]) => void;
+      close: (...args: unknown[]) => void;
+      toggle: (...args: unknown[]) => void;
+      focus: (...args: unknown[]) => void;
+      blur: (...args: unknown[]) => void;
+      filter: (...args: unknown[]) => void;
+      selectedLabel: (...args: unknown[]) => string | string[];
+      getCheckedKeys: (...args: unknown[]) => string[];
+      setCheckedKeys: (...args: unknown[]) => void;
+      getCurrentNode: (...args: unknown[]) => Record<string, unknown> | undefined;
+      scrollToNode: (...args: unknown[]) => void;
+    };
     "elf-transfer": HTMLElement & {
       data: unknown[];
       modelValue: unknown[];

@@ -133,6 +133,10 @@ export const routes: RouteRecord[] = [
     component: () => import("../pages/form/SelectPage/index")
   },
   {
+    path: "/form/tree-select",
+    component: () => import("../pages/form/TreeSelectPage/index")
+  },
+  {
     path: "/form/segmented",
     component: () => import("../pages/form/SegmentedPage/index")
   },
@@ -417,6 +421,7 @@ export const navItems: NavItem[] = [
   { to: "/form/checkbox", text: "Checkbox 复选框", group: "Form 表单" },
   { to: "/form/radio", text: "Radio 单选", group: "Form 表单" },
   { to: "/form/select", text: "Select 选择器", group: "Form 表单" },
+  { to: "/form/tree-select", text: "TreeSelect 树选择器", group: "Form 表单" },
   { to: "/form/segmented", text: "Segmented 分段控制", group: "Form 表单" },
   { to: "/form/cascader", text: "Cascader 级联选择器", group: "Form 表单" },
   { to: "/form/form", text: "Form 表单容器", group: "Form 表单" },

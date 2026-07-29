@@ -1,0 +1,55 @@
+:host {
+  display: block;
+}
+
+.demo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: var(--elf-space-5);
+  width: 100%;
+}
+
+.demo-field {
+  width: min(100%, 360px);
+  margin-inline: auto;
+}
+
+.demo-column {
+  display: grid;
+  align-content: start;
+  gap: var(--elf-space-2);
+  min-width: 0;
+}
+
+.demo-column > strong {
+  color: var(--elf-text-primary);
+  font-size: var(--elf-font-size-sm);
+}
+
+.demo-column > small,
+.demo-note {
+  color: var(--elf-text-secondary);
+  font-size: var(--elf-font-size-xs);
+  line-height: 1.5;
+}
+
+.demo-state {
+  color: var(--elf-text-secondary);
+  font-size: var(--elf-font-size-xs);
+}
+
+.form-card {
+  box-sizing: border-box;
+  width: min(100%, 520px);
+  margin-inline: auto;
+  padding: var(--elf-space-5);
+  border: 1px solid var(--elf-border);
+  border-radius: var(--elf-radius-md);
+  background: var(--elf-bg-paper);
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--elf-space-4);
+}
