@@ -1,8 +1,12 @@
 import type {
-  DirectiveBinding,
   DirectiveDefinition,
   ElfUIApp
 } from "@elfui/core";
+import {
+  createControllerDirective,
+  registerDirective,
+  type DirectiveController
+} from "./controller";
 
 export type ClickOutsideEventName = "click" | "pointerdown";
 export type ClickOutsideHandler = (event: MouseEvent | PointerEvent) => void;
@@ -23,10 +27,7 @@ export interface ClickOutsideOptions {
 
 export type ClickOutsideDirectiveValue = ClickOutsideHandler | ClickOutsideOptions;
 
-export interface ClickOutsideController {
-  update(value: ClickOutsideDirectiveValue): void;
-  dispose(): void;
-}
+export type ClickOutsideController = DirectiveController<ClickOutsideDirectiveValue>;
 
 interface NormalizedOptions extends ClickOutsideOptions {
   event: ClickOutsideEventName;
@@ -110,41 +111,13 @@ export const createClickOutsideController = (
   };
 };
 
-const controllers = new WeakMap<Element, ClickOutsideController>();
-
-const mount = (
-  element: HTMLElement,
-  binding: DirectiveBinding<ClickOutsideDirectiveValue>
-): void => {
-  controllers.get(element)?.dispose();
-  controllers.set(element, createClickOutsideController(element, binding.value));
-};
-
-const update = (
-  element: HTMLElement,
-  binding: DirectiveBinding<ClickOutsideDirectiveValue>
-): void => {
-  const controller = controllers.get(element);
-  if (controller) controller.update(binding.value);
-  else mount(element, binding);
-};
-
-const unmount = (element: HTMLElement): void => {
-  controllers.get(element)?.dispose();
-  controllers.delete(element);
-};
-
 export const clickOutsideDirective: DirectiveDefinition<
   ClickOutsideDirectiveValue,
   HTMLElement
-> = {
-  mounted: mount,
-  updated: update,
-  beforeUnmount: unmount
-};
+> = createControllerDirective(createClickOutsideController);
 
 export const registerClickOutsideDirective = (
   app: Pick<ElfUIApp, "directive">
 ): void => {
-  app.directive("click-outside", clickOutsideDirective as DirectiveDefinition);
+  registerDirective(app, "click-outside", clickOutsideDirective as DirectiveDefinition);
 };

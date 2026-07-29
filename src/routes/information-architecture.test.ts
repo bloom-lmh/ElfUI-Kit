@@ -14,6 +14,13 @@ describe("文档信息架构", () => {
       "/getting-started/faq",
       "/directives",
       "/directives/click-outside",
+      "/directives/intersect",
+      "/directives/mutate",
+      "/directives/resize",
+      "/directives/ripple",
+      "/directives/scroll",
+      "/directives/tooltip",
+      "/directives/touch",
       "/quality",
       "/quality/accessibility",
       "/labs"
@@ -40,9 +47,9 @@ describe("文档信息架构", () => {
   });
 
   it("未完成的指令和实验组件不创建空白菜单项", () => {
-    expect(groupItems("Directives 指令")).toHaveLength(2);
-    expect(groupItems("Labs 实验室")).toHaveLength(1);
-    expect(paths).not.toEqual(expect.arrayContaining([
+    expect(groupItems("Directives 指令")).toHaveLength(9);
+    expect(groupItems("Labs 实验室")).toHaveLength(3);
+    expect(paths).toEqual(expect.arrayContaining([
       "/labs/video",
       "/labs/heatmap"
     ]));

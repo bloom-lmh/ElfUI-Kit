@@ -1,0 +1,153 @@
+:host {
+  display: block;
+  width: 100%;
+  color: var(--elf-text-on-primary, #fff);
+  font-family: var(--elf-font-family, sans-serif);
+}
+
+.video-shell {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  aspect-ratio: var(--_video-ratio, 16 / 9);
+  border-radius: var(--elf-radius-md, 8px);
+  background: #0b0d10;
+  box-shadow: var(--elf-shadow-sm, 0 2px 8px rgb(0 0 0 / 14%));
+}
+
+video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #0b0d10;
+}
+
+.center-action {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.center-icon {
+  display: grid;
+  width: 58px;
+  height: 58px;
+  place-items: center;
+  border: 1px solid rgb(255 255 255 / 35%);
+  border-radius: 50%;
+  background: rgb(8 12 18 / 64%);
+  backdrop-filter: blur(8px);
+}
+
+.center-icon::before,
+.control-icon.play {
+  display: block;
+  width: 0;
+  height: 0;
+  margin-left: 3px;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+  border-left: 15px solid currentColor;
+  content: "";
+}
+
+.control-icon.play {
+  border-top-width: 7px;
+  border-bottom-width: 7px;
+  border-left-width: 10px;
+}
+
+.control-icon.pause {
+  display: block;
+  width: 11px;
+  height: 14px;
+  border-right: 3px solid currentColor;
+  border-left: 3px solid currentColor;
+}
+
+.controls {
+  position: absolute;
+  inset: auto 0 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto auto;
+  gap: 10px;
+  align-items: center;
+  padding: 28px 14px 12px;
+  background: linear-gradient(transparent, rgb(0 0 0 / 78%));
+}
+
+.control {
+  display: inline-grid;
+  min-width: 34px;
+  height: 34px;
+  place-items: center;
+  padding: 0 8px;
+  border: 0;
+  border-radius: var(--elf-radius-sm, 4px);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+}
+
+.control:hover,
+.control:focus-visible {
+  background: rgb(255 255 255 / 14%);
+}
+
+.control:focus-visible,
+.timeline:focus-visible,
+.rate:focus-visible {
+  outline: 2px solid var(--elf-primary, #409eff);
+  outline-offset: 2px;
+}
+
+.timeline {
+  width: 100%;
+  accent-color: var(--elf-primary, #409eff);
+  cursor: pointer;
+}
+
+.time {
+  min-width: 88px;
+  color: rgb(255 255 255 / 86%);
+  font: 500 12px/1 ui-monospace, SFMono-Regular, Consolas, monospace;
+  text-align: center;
+}
+
+.rate {
+  width: 60px;
+  height: 32px;
+  border: 0;
+  border-radius: var(--elf-radius-sm, 4px);
+  background: rgb(255 255 255 / 12%);
+  color: #fff;
+  text-align: center;
+}
+
+.rate option {
+  color: #111;
+}
+
+@media (max-width: 620px) {
+  .controls {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+
+  .time,
+  .rate {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    scroll-behavior: auto !important;
+  }
+}

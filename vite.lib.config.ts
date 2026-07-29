@@ -19,9 +19,12 @@ export default defineConfig({
     outDir: "lib-dist",
     sourcemap: true,
     lib: {
-      entry: "src/library.ts",
+      entry: {
+        "elfui-kit": "src/library.ts",
+        labs: "src/labs.ts"
+      },
       formats: ["es"],
-      fileName: "elfui-kit",
+      fileName: (_format, entryName) => `${entryName}.js`,
       cssFileName: "utilities"
     },
     rollupOptions: {

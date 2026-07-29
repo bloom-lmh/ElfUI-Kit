@@ -1,0 +1,98 @@
+:host {
+  display: block;
+  width: 100%;
+  color: var(--elf-text-color, #303133);
+  font-family: var(--elf-font-family, sans-serif);
+}
+
+.heatmap {
+  overflow-x: auto;
+  padding: 16px;
+  border: 1px solid var(--elf-border-color, #dcdfe6);
+  border-radius: var(--elf-radius-md, 8px);
+  background: var(--elf-bg-color, #fff);
+}
+
+.grid {
+  display: grid;
+  width: max-content;
+  align-items: center;
+}
+
+.corner {
+  min-width: 88px;
+}
+
+.axis {
+  overflow: hidden;
+  color: var(--elf-text-secondary, #606266);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.row-label {
+  padding-right: 8px;
+  text-align: right;
+}
+
+.cell {
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid rgb(255 255 255 / 56%);
+  color: #fff;
+  cursor: pointer;
+  font-size: 11px;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.cell.empty {
+  color: var(--elf-text-secondary, #909399);
+  cursor: default;
+}
+
+.cell.hoverable:not(:disabled):hover,
+.cell:not(:disabled):focus-visible {
+  z-index: 1;
+  transform: scale(1.08);
+  box-shadow: 0 0 0 2px var(--elf-primary, #409eff);
+}
+
+.cell:focus-visible {
+  outline: 2px solid var(--elf-primary, #409eff);
+  outline-offset: 2px;
+}
+
+.cell:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  color: var(--elf-text-secondary, #606266);
+  font-size: 12px;
+}
+
+.legend-scale {
+  display: flex;
+  gap: 3px;
+}
+
+.legend-cell {
+  width: 18px;
+  height: 12px;
+  border-radius: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cell {
+    transition: none;
+  }
+}

@@ -4,57 +4,175 @@ import { createDocsTranslator } from "../../docsLocale";
 import articleStyles from "../../shared/article.scss?inline";
 
 const t = createDocsTranslator({
+  kicker: { zh: "快速入门", en: "Getting started" },
   title: { zh: "升级指南", en: "Upgrade guide" },
   description: {
-    zh: "升级分为版本对齐、API 迁移、组件回归和真实浏览器验收四步。先让工具链一致，再处理源码，避免用组件侧兼容掩盖框架问题。",
-    en: "Upgrade in four stages: version alignment, API migration, component regression, and real-browser acceptance. Align the toolchain first so component workarounds never hide framework defects.",
+    zh: "升级不是一次依赖更新，而是一条可回滚、可验证的迁移链路。先锁定版本与变更范围，再迁移 API，最后运行组件测试和真实浏览器验收。",
+    en: "An upgrade is a reversible, verifiable migration—not a dependency bump. Lock versions and scope first, migrate APIs next, then run component tests and real-browser acceptance.",
   },
-  alignTitle: { zh: "一、锁定版本", en: "1. Align versions" },
+  scope: { zh: "适用范围", en: "Scope" },
+  scopeValue: { zh: "Framework beta 与 Kit", en: "Framework beta and Kit" },
+  sequence: { zh: "执行顺序", en: "Sequence" },
+  sequenceValue: { zh: "版本 → 源码 → 回归", en: "Versions → source → regression" },
+  rule: { zh: "核心原则", en: "Core rule" },
+  ruleValue: { zh: "框架缺陷不在组件侧硬绕", en: "Do not mask framework defects" },
+  beforeTitle: { zh: "升级前准备", en: "Before upgrading" },
+  beforeLead: {
+    zh: "先记录当前可工作的版本和关键页面截图。没有基线，就无法判断升级是修复还是退化。",
+    en: "Record the last known-good versions and screenshots of critical pages. Without a baseline, regressions cannot be distinguished from intended changes.",
+  },
+  beforeOne: { zh: "提交或暂存当前工作区，保留可回滚点。", en: "Commit or stash the current workspace to preserve a rollback point." },
+  beforeTwo: { zh: "记录 Core、Compiler、Vite Plugin、Router 与 Kit 的精确版本。", en: "Record exact Core, Compiler, Vite Plugin, Router, and Kit versions." },
+  beforeThree: { zh: "列出 Provider、Teleport、表单、弹层和虚拟滚动等高风险路径。", en: "List high-risk Provider, Teleport, form, overlay, and virtual-scroll paths." },
+  alignTitle: { zh: "对齐工具链", en: "Align the toolchain" },
   alignBody: {
-    zh: "Core、Compiler 和 Vite Plugin 必须使用完全相同的 beta 版本。",
-    en: "Core, Compiler, and the Vite Plugin must use exactly the same beta version.",
+    zh: "Core、Compiler 与 Vite Plugin 必须使用完全相同的 beta。先更新锁文件，再进入源码迁移。",
+    en: "Core, Compiler, and the Vite Plugin must use the exact same beta. Update the lockfile before touching source code.",
   },
-  migrateTitle: { zh: "二、迁移 API", en: "2. Migrate APIs" },
+  migrateTitle: { zh: "迁移公开 API", en: "Migrate public APIs" },
   migrateBody: {
-    zh: "使用 defineHtml/defineStyle 字符串、onMounted/onUnmounted、useComputed 和 useEffect，删除旧 tagged template 与生命周期别名。",
-    en: "Use defineHtml/defineStyle strings, onMounted/onUnmounted, useComputed, and useEffect; remove legacy tagged templates and lifecycle aliases.",
+    zh: "通过静态扫描处理已删除入口，不保留双写兼容层。迁移后再运行类型检查，避免错误被构建输出淹没。",
+    en: "Use static scans to remove deleted entries without keeping dual compatibility layers. Run type checks immediately after migration.",
   },
-  verifyTitle: { zh: "三、运行门禁", en: "3. Run quality gates" },
+  verifyTitle: { zh: "运行质量门禁", en: "Run quality gates" },
   verifyBody: {
-    zh: "先运行迁移扫描和目标测试，再执行类型检查、库构建与应用构建。",
-    en: "Run the migration scan and focused tests first, followed by type checking, library build, and application build.",
+    zh: "从聚焦单测到完整构建，再到浏览器行为与截图，按成本从低到高执行。",
+    en: "Run focused tests, full builds, browser behavior, and screenshots in increasing order of cost.",
   },
-  browserTitle: { zh: "四、浏览器验收", en: "4. Verify in a browser" },
-  browserBody: {
-    zh: "Provider、Teleport、弹层、焦点、拖拽和滚动行为必须通过真实浏览器验证。",
-    en: "Provider, Teleport, overlay, focus, drag, and scrolling behavior require real-browser verification.",
+  migrationTitle: { zh: "beta.7 以后关键迁移", en: "Key migrations since beta.7" },
+  oldApi: { zh: "旧 API", en: "Previous API" },
+  newApi: { zh: "当前 API", en: "Current API" },
+  reason: { zh: "迁移意图", en: "Migration intent" },
+  templateReason: { zh: "模板和样式必须可由编译器静态分析。", en: "Templates and styles remain statically analyzable." },
+  lifecycleReason: { zh: "生命周期命名统一，并允许 mounted 返回清理函数。", en: "Lifecycle naming is consistent and mounted may return cleanup." },
+  reactiveReason: { zh: "明确区分派生值、自动依赖副作用和显式监听。", en: "Derived values, effects, and explicit watchers have distinct roles." },
+  themeReason: { zh: "theme() 注入主题样式，不再混淆为上下文读取。", en: "theme() injects theme CSS instead of implying context access." },
+  directiveReason: { zh: "指令作用域显式化，避免进程级隐式状态。", en: "Directive scope is explicit instead of process-global." },
+  gatesTitle: { zh: "推荐门禁顺序", en: "Recommended gate order" },
+  gatesLead: {
+    zh: "任何一步失败都先停止并定位，不要继续堆叠后续错误。",
+    en: "Stop at the first failing gate and isolate it instead of stacking later failures.",
   },
-  policy: {
-    zh: "如果问题能够缩小为框架最小复现，应提交框架修复，不在组件内部增加轮询、延时或全局桥接。",
-    en: "When a defect reduces to a framework reproduction, fix the framework instead of adding polling, delays, or global bridges inside components.",
+  defectTitle: { zh: "确认是框架问题时", en: "When the framework is responsible" },
+  defectBody: {
+    zh: "缩小为最小复现并反馈框架线程。不要在组件内增加轮询、随意 setTimeout、全局事件桥或重复渲染来掩盖问题。",
+    en: "Reduce the issue to a framework reproduction. Do not mask it in components with polling, arbitrary timeouts, global event bridges, or duplicate renders.",
   },
+  doneTitle: { zh: "完成标准", en: "Definition of done" },
+  doneOne: { zh: "旧 API 扫描为零，类型检查与生产构建通过。", en: "Legacy API scans are clean; typecheck and production build pass." },
+  doneTwo: { zh: "高风险组件的聚焦测试全部通过。", en: "Focused tests for high-risk components all pass." },
+  doneThree: { zh: "中英文、浅色与深色模式完成真实浏览器验收。", en: "Chinese and English, light and dark modes pass real-browser acceptance." },
+  doneFour: { zh: "控制台没有新增 warning/error，关键页面截图可比较。", en: "No new console warnings or errors, and critical screenshots are comparable." },
+  nextTitle: { zh: "继续了解", en: "Continue" },
+  nextBody: { zh: "浏览器支持定义运行环境，质量章节定义验收边界。", en: "Browser support defines the runtime matrix; Quality defines acceptance gates." },
+  browserLink: { zh: "浏览器支持", en: "Browser support" },
+  qualityLink: { zh: "质量门禁", en: "Quality gates" },
 });
 
 defineStyle(articleStyles);
 
 const PageUpgradeGuide = defineHtml(`
   <elf-container class="docs-article">
+    <span class="docs-kicker">${t("kicker")}</span>
     <h1>${t("title")}</h1>
     <p class="page-lead">${t("description")}</p>
 
-    <div class="article-grid">
-      <section class="article-card"><h2>${t("alignTitle")}</h2><p>${t("alignBody")}</p></section>
-      <section class="article-card"><h2>${t("migrateTitle")}</h2><p>${t("migrateBody")}</p></section>
-      <section class="article-card"><h2>${t("verifyTitle")}</h2><p>${t("verifyBody")}</p></section>
-      <section class="article-card"><h2>${t("browserTitle")}</h2><p>${t("browserBody")}</p></section>
+    <div class="docs-summary">
+      <div class="docs-summary-item">
+        <span class="docs-summary-label">${t("scope")}</span>
+        <span class="docs-summary-value">${t("scopeValue")}</span>
+      </div>
+      <div class="docs-summary-item">
+        <span class="docs-summary-label">${t("sequence")}</span>
+        <span class="docs-summary-value">${t("sequenceValue")}</span>
+      </div>
+      <div class="docs-summary-item">
+        <span class="docs-summary-label">${t("rule")}</span>
+        <span class="docs-summary-value">${t("ruleValue")}</span>
+      </div>
     </div>
 
-    <pre><code>node scripts/check-beta8-migration.mjs
-pnpm exec vitest run path/to/component.test.ts --maxWorkers=1
-pnpm exec tsc -p tsconfig.lib.json --noEmit
-pnpm build</code></pre>
+    <section class="docs-section">
+      <h2>${t("beforeTitle")}</h2>
+      <p class="docs-section-lead">${t("beforeLead")}</p>
+      <ul class="docs-checklist">
+        <li>${t("beforeOne")}</li>
+        <li>${t("beforeTwo")}</li>
+        <li>${t("beforeThree")}</li>
+      </ul>
+    </section>
 
-    <p class="article-note">${t("policy")}</p>
+    <section class="docs-section">
+      <h2>${t("sequence")}</h2>
+      <div class="docs-flow" data-docs-toc-ignore>
+        <article class="docs-flow-item">
+          <span class="docs-flow-index">01</span>
+          <h3>${t("alignTitle")}</h3>
+          <p>${t("alignBody")}</p>
+        </article>
+        <article class="docs-flow-item">
+          <span class="docs-flow-index">02</span>
+          <h3>${t("migrateTitle")}</h3>
+          <p>${t("migrateBody")}</p>
+        </article>
+        <article class="docs-flow-item">
+          <span class="docs-flow-index">03</span>
+          <h3>${t("verifyTitle")}</h3>
+          <p>${t("verifyBody")}</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="docs-section">
+      <h2>${t("migrationTitle")}</h2>
+      <table class="docs-matrix">
+        <thead>
+          <tr><th>${t("oldApi")}</th><th>${t("newApi")}</th><th>${t("reason")}</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>html\`...\` / css\`...\`</td><td>defineHtml("...") / defineStyle("...")</td><td>${t("templateReason")}</td></tr>
+          <tr><td>onMount / onUnmount</td><td>onMounted / onUnmounted</td><td>${t("lifecycleReason")}</td></tr>
+          <tr><td>computed / watchEffect</td><td>useComputed / useEffect / watch</td><td>${t("reactiveReason")}</td></tr>
+          <tr><td>useTheme</td><td>theme</td><td>${t("themeReason")}</td></tr>
+          <tr><td>directive(name, definition)</td><td>defineDirective / app.directive</td><td>${t("directiveReason")}</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="docs-section">
+      <h2>${t("gatesTitle")}</h2>
+      <p class="docs-section-lead">${t("gatesLead")}</p>
+      <div class="docs-code">
+        <span class="docs-code-label">Terminal</span>
+        <pre><code>node scripts/check-beta8-migration.mjs
+pnpm exec vitest run path/to/component.test.ts --maxWorkers=1
+pnpm typecheck
+pnpm build:lib
+pnpm build</code></pre>
+      </div>
+      <p class="docs-callout is-warning"><strong>${t("defectTitle")}</strong> ${t("defectBody")}</p>
+    </section>
+
+    <section class="docs-section">
+      <h2>${t("doneTitle")}</h2>
+      <ul class="docs-checklist">
+        <li>${t("doneOne")}</li>
+        <li>${t("doneTwo")}</li>
+        <li>${t("doneThree")}</li>
+        <li>${t("doneFour")}</li>
+      </ul>
+    </section>
+
+    <section class="docs-next" data-docs-toc-ignore>
+      <div>
+        <h2>${t("nextTitle")}</h2>
+        <p>${t("nextBody")}</p>
+      </div>
+      <div class="docs-link-list">
+        <elf-link href="#/getting-started/browser-support">${t("browserLink")} →</elf-link>
+        <elf-link href="#/quality">${t("qualityLink")} →</elf-link>
+      </div>
+    </section>
   </elf-container>
 `);
 

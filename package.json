@@ -12,6 +12,10 @@
       "types": "./lib-dist/library.d.ts",
       "import": "./lib-dist/elfui-kit.js"
     },
+    "./labs": {
+      "types": "./lib-dist/labs.d.ts",
+      "import": "./lib-dist/labs.js"
+    },
     "./styles/utilities.css": "./lib-dist/utilities.css"
   },
   "files": [
@@ -23,6 +27,7 @@
     "./src/components/index.ts",
     "./src/components/**/index.ts",
     "./lib-dist/elfui-kit.js",
+    "./lib-dist/labs.js",
     "./lib-dist/utilities.css"
   ],
   "scripts": {

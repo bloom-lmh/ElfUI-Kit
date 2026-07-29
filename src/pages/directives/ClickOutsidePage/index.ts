@@ -10,6 +10,7 @@ import { createDocsTranslator } from "../../docsLocale";
 import articleStyles from "../../shared/article.scss?inline";
 
 const t = createDocsTranslator({
+  kicker: { zh: "指令", en: "Directive" },
   title: { zh: "外部点击", en: "Click outside" },
   description: {
     zh: "当指针事件发生在目标及排除元素之外时触发回调，支持 Shadow DOM 的组合事件路径、动态配置和自动卸载清理。",
@@ -31,6 +32,28 @@ const t = createDocsTranslator({
     zh: "排除元素、选择器、元素数组或返回元素的函数。",
     en: "Exclude an element, selector, element array, or element resolver.",
   },
+  purpose: { zh: "典型用途", en: "Typical use" },
+  purposeValue: { zh: "关闭非模态浮层", en: "Close non-modal overlays" },
+  eventPath: { zh: "事件边界", en: "Event boundary" },
+  eventPathValue: { zh: "支持 Shadow DOM composedPath", en: "Shadow DOM composedPath aware" },
+  cleanup: { zh: "资源管理", en: "Resource management" },
+  cleanupValue: { zh: "卸载自动清理", en: "Automatic cleanup" },
+  usageTitle: { zh: "使用原则", en: "Usage guidance" },
+  usageLead: {
+    zh: "外部点击适合关闭菜单、建议面板和轻量弹出层。模态 Dialog 不能只依赖它，还必须处理焦点隔离、Escape 和焦点恢复。",
+    en: "Outside click suits menus, suggestion panels, and lightweight popovers. A modal Dialog must also manage focus isolation, Escape, and focus restoration.",
+  },
+  usageOne: { zh: "触发器通常加入 exclude，避免点击触发器时先关闭再重新打开。", en: "Usually exclude the activator so its click does not close and immediately reopen the overlay." },
+  usageTwo: { zh: "优先监听 pointerdown，在焦点变化前决定是否关闭。", en: "Prefer pointerdown when the close decision must happen before focus changes." },
+  usageThree: { zh: "回调只处理业务状态，监听和卸载由指令内核负责。", en: "Keep callbacks focused on business state; the directive core owns listeners and cleanup." },
+  a11yTitle: { zh: "无障碍边界", en: "Accessibility boundary" },
+  a11yBody: {
+    zh: "关闭浮层前确认焦点不在即将隐藏的内容中。若浮层拥有键盘导航，应先恢复焦点到激活器，再设置 hidden/aria-hidden，避免辅助技术警告。",
+    en: "Before hiding an overlay, ensure focus is not retained inside it. When the overlay owns keyboard navigation, restore focus to the activator before setting hidden or aria-hidden.",
+  },
+  nextTitle: { zh: "理解实现边界", en: "Understand the boundary" },
+  nextBody: { zh: "指令介绍说明局部/应用级注册和单一行为内核约束。", en: "The Directives introduction explains local/app registration and the single behavior-core rule." },
+  backLink: { zh: "返回指令介绍", en: "Back to Directives" },
 });
 
 defineStyle(
@@ -115,8 +138,34 @@ const directiveOptions = () => ({
 
 const PageClickOutside = defineHtml(`
   <elf-container class="docs-article">
+    <span class="docs-kicker">${t("kicker")}</span>
     <h1>${t("title")}</h1>
     <p class="page-lead">${t("description")}</p>
+
+    <div class="docs-summary">
+      <div class="docs-summary-item">
+        <span class="docs-summary-label">${t("purpose")}</span>
+        <span class="docs-summary-value">${t("purposeValue")}</span>
+      </div>
+      <div class="docs-summary-item">
+        <span class="docs-summary-label">${t("eventPath")}</span>
+        <span class="docs-summary-value">${t("eventPathValue")}</span>
+      </div>
+      <div class="docs-summary-item">
+        <span class="docs-summary-label">${t("cleanup")}</span>
+        <span class="docs-summary-value">${t("cleanupValue")}</span>
+      </div>
+    </div>
+
+    <section class="docs-section">
+      <h2>${t("usageTitle")}</h2>
+      <p class="docs-section-lead">${t("usageLead")}</p>
+      <ul class="docs-checklist">
+        <li>${t("usageOne")}</li>
+        <li>${t("usageTwo")}</li>
+        <li>${t("usageThree")}</li>
+      </ul>
+    </section>
 
     <elf-playground :title=${t("demoTitle")} :code=${code} :script=${script}>
       <span slot="status">${t("count")}: ${outsideCount}</span>
@@ -131,9 +180,9 @@ const PageClickOutside = defineHtml(`
       </div>
     </elf-playground>
 
-    <section class="article-card">
+    <section class="docs-section">
       <h2>${t("optionTitle")}</h2>
-      <table class="support-table">
+      <table class="docs-matrix">
         <thead>
           <tr><th>${t("option")}</th><th>${t("type")}</th><th>${t("optionDescription")}</th></tr>
         </thead>
@@ -144,6 +193,18 @@ const PageClickOutside = defineHtml(`
           <tr><td>exclude</td><td>Element | string | Function</td><td>${t("excludeDescription")}</td></tr>
         </tbody>
       </table>
+    </section>
+
+    <p class="docs-callout is-warning"><strong>${t("a11yTitle")}</strong> ${t("a11yBody")}</p>
+
+    <section class="docs-next" data-docs-toc-ignore>
+      <div>
+        <h2>${t("nextTitle")}</h2>
+        <p>${t("nextBody")}</p>
+      </div>
+      <div class="docs-link-list">
+        <elf-link href="#/directives">${t("backLink")} →</elf-link>
+      </div>
     </section>
   </elf-container>
 `);

@@ -1,0 +1,77 @@
+.directive-demo {
+  display: grid;
+  width: min(720px, 100%);
+  min-height: 190px;
+  place-items: center;
+  padding: var(--elf-space-5, 24px);
+  border: 1px solid var(--elf-border-color, #dcdfe6);
+  border-radius: var(--elf-radius-md, 8px);
+  background: color-mix(in srgb, var(--elf-primary, #409eff) 3%, var(--elf-bg-color, #fff));
+}
+
+.directive-stack {
+  display: grid;
+  width: min(520px, 100%);
+  gap: var(--elf-space-3, 12px);
+}
+
+.directive-status {
+  color: var(--elf-text-secondary, #606266);
+  font-size: 13px;
+}
+
+.directive-scroll {
+  overflow: auto;
+  width: min(520px, 100%);
+  height: 190px;
+  border: 1px solid var(--elf-border-color, #dcdfe6);
+  border-radius: var(--elf-radius-sm, 4px);
+  background: var(--elf-bg-color, #fff);
+}
+
+.directive-scroll-content {
+  display: grid;
+  min-height: 520px;
+  align-content: end;
+  padding: 18px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--elf-primary, #409eff) 8%, transparent), transparent 52%);
+}
+
+.directive-observer-target,
+.directive-gesture {
+  display: grid;
+  min-height: 92px;
+  place-items: center;
+  padding: 16px;
+  border: 1px dashed color-mix(in srgb, var(--elf-primary, #409eff) 54%, var(--elf-border-color, #dcdfe6));
+  border-radius: var(--elf-radius-sm, 4px);
+  color: var(--elf-primary, #409eff);
+  text-align: center;
+}
+
+.directive-resize {
+  overflow: auto;
+  width: 260px;
+  min-width: 180px;
+  min-height: 110px;
+  padding: 16px;
+  border: 1px solid color-mix(in srgb, var(--elf-primary, #409eff) 48%, var(--elf-border-color, #dcdfe6));
+  border-radius: var(--elf-radius-sm, 4px);
+  background: var(--elf-bg-color, #fff);
+  resize: both;
+}
+
+.directive-gesture {
+  min-width: min(360px, 100%);
+  min-height: 150px;
+  touch-action: none;
+  user-select: none;
+}
+
+.directive-tooltip-row,
+.directive-action-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--elf-space-3, 12px);
+}

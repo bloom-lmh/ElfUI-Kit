@@ -1093,6 +1093,44 @@ declare global {
       handleStart: (...args: unknown[]) => void;
       handleRemove: (...args: unknown[]) => void;
     };
+    "elf-video": HTMLElement & {
+      src: string;
+      poster: string;
+      title: string;
+      autoplay: boolean;
+      muted: boolean;
+      loop: boolean;
+      controls: boolean;
+      nativeControls: boolean;
+      aspectRatio: string | number;
+      volume: number;
+      playbackRate: number;
+      playbackRates: number[];
+      tracks: unknown[];
+      playMedia: (...args: unknown[]) => Promise<void>;
+      pauseMedia: (...args: unknown[]) => void;
+      togglePlayback: (...args: unknown[]) => Promise<void>;
+      seekTo: (...args: unknown[]) => void;
+      setVolumeLevel: (...args: unknown[]) => void;
+      requestMediaFullscreen: (...args: unknown[]) => Promise<void>;
+      togglePictureInPicture: (...args: unknown[]) => Promise<void>;
+      getMediaElement: (...args: unknown[]) => HTMLVideoElement | null;
+    };
+    "elf-heatmap": HTMLElement & {
+      items: unknown[];
+      rows: unknown[];
+      columns: unknown[];
+      thresholds: unknown[];
+      cellSize: number;
+      gap: number;
+      rounded: number;
+      showRowHeaders: boolean;
+      showColumnHeaders: boolean;
+      legend: boolean;
+      hover: boolean;
+      focusCell: (...args: unknown[]) => void;
+      getCell: (...args: unknown[]) => HTMLButtonElement | null;
+    };
     "elf-virtual-list": HTMLElement & {
       items: unknown[];
       itemKey: unknown;

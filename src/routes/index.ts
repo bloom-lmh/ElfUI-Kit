@@ -45,6 +45,34 @@ export const routes: RouteRecord[] = [
     component: () => import("../pages/directives/ClickOutsidePage/index")
   },
   {
+    path: "/directives/intersect",
+    component: () => import("../pages/directives/IntersectPage/index")
+  },
+  {
+    path: "/directives/mutate",
+    component: () => import("../pages/directives/MutatePage/index")
+  },
+  {
+    path: "/directives/resize",
+    component: () => import("../pages/directives/ResizePage/index")
+  },
+  {
+    path: "/directives/ripple",
+    component: () => import("../pages/directives/RipplePage/index")
+  },
+  {
+    path: "/directives/scroll",
+    component: () => import("../pages/directives/ScrollPage/index")
+  },
+  {
+    path: "/directives/tooltip",
+    component: () => import("../pages/directives/TooltipPage/index")
+  },
+  {
+    path: "/directives/touch",
+    component: () => import("../pages/directives/TouchPage/index")
+  },
+  {
     path: "/quality",
     component: () => import("../pages/quality/QualityIntroductionPage/index")
   },
@@ -55,6 +83,14 @@ export const routes: RouteRecord[] = [
   {
     path: "/labs",
     component: () => import("../pages/labs/LabsIntroductionPage/index")
+  },
+  {
+    path: "/labs/video",
+    component: () => import("../pages/labs/VideoPage/index")
+  },
+  {
+    path: "/labs/heatmap",
+    component: () => import("../pages/labs/HeatmapPage/index")
   },
 
   // Layout
@@ -532,9 +568,18 @@ export const navItems: NavItem[] = [
 
   { to: "/directives", text: "Introduction 介绍", group: "Directives 指令" },
   { to: "/directives/click-outside", text: "Click outside 外部点击", group: "Directives 指令" },
+  { to: "/directives/intersect", text: "Intersect 交叉观察", group: "Directives 指令" },
+  { to: "/directives/mutate", text: "Mutate DOM 变化观察", group: "Directives 指令" },
+  { to: "/directives/resize", text: "Resize 尺寸观察", group: "Directives 指令" },
+  { to: "/directives/ripple", text: "Ripple 波纹", group: "Directives 指令" },
+  { to: "/directives/scroll", text: "Scroll 滚动", group: "Directives 指令" },
+  { to: "/directives/tooltip", text: "Tooltip 工具提示", group: "Directives 指令" },
+  { to: "/directives/touch", text: "Touch 触摸手势", group: "Directives 指令" },
 
   { to: "/quality", text: "Introduction 介绍", group: "Quality 质量" },
   { to: "/quality/accessibility", text: "Accessibility 无障碍", group: "Quality 质量" },
 
   { to: "/labs", text: "Introduction 介绍", group: "Labs 实验室" },
+  { to: "/labs/video", text: "Video 视频", group: "Labs 实验室" },
+  { to: "/labs/heatmap", text: "Heatmap 热力图", group: "Labs 实验室" },
 ];
