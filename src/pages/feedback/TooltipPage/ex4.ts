@@ -1,13 +1,34 @@
 import { defineHtml, defineStyle, useRef } from "@elfui/core";
+import { createDocsTranslator } from "../../docsLocale";
 
-const status = useRef("按 Tab 聚焦右侧帮助按钮");
+const t = createDocsTranslator({
+  title: { zh: "键盘、长内容与自动避让", en: "Keyboard, long content, and auto placement" },
+  initialStatus: { zh: "按 Tab 聚焦右侧帮助按钮", en: "Press Tab to focus the help button" },
+  focusedStatus: {
+    zh: "提示已显示；按 Esc 可关闭但不会丢失焦点",
+    en: "Tooltip shown; press Escape to close it without losing focus",
+  },
+  blurredStatus: { zh: "焦点已离开帮助按钮", en: "Focus left the help button" },
+  content: {
+    zh: "权限继承自上级空间；单独修改后不会再跟随上级策略更新。",
+    en: "Permissions inherit from the parent workspace; local changes stop following parent policy updates.",
+  },
+  accessTitle: { zh: "访问权限", en: "Access permissions" },
+  description: {
+    zh: "提示靠近容器边缘时会选择可用方向；长内容受最大宽度约束，不会成为超长单行文本。",
+    en: "Near a container edge, the tooltip chooses an available direction and constrains long content to a readable width.",
+  },
+  button: { zh: "权限说明", en: "Permission details" },
+});
+
+const status = useRef(t("initialStatus"));
 
 const onFocus = (): void => {
-  status.set("提示已显示；按 Esc 可关闭但不会丢失焦点");
+  status.set(t("focusedStatus"));
 };
 
 const onBlur = (): void => {
-  status.set("焦点已离开帮助按钮");
+  status.set(t("blurredStatus"));
 };
 
 const code = `<elf-tooltip
@@ -15,19 +36,19 @@ const code = `<elf-tooltip
   placement="auto"
   :show-after="160"
   :max-width="280"
-  content="权限继承自上级空间；单独修改后不会再跟随上级策略更新。"
+  content="${t("content")}"
 >
-  <button type="button">权限说明</button>
+  <button type="button">${t("button")}</button>
 </elf-tooltip>`;
 
-const script = `const status = useRef("按 Tab 聚焦右侧帮助按钮");
+const script = `const status = useRef("${t("initialStatus")}");
 
 const onFocus = () => {
-  status.set("提示已显示；按 Esc 可关闭但不会丢失焦点");
+  status.set("${t("focusedStatus")}");
 };
 
 const onBlur = () => {
-  status.set("焦点已离开帮助按钮");
+  status.set("${t("blurredStatus")}");
 };`;
 
 defineStyle(`
@@ -68,22 +89,20 @@ defineStyle(`
 `);
 
 const PageTooltipEx4 = defineHtml(`
-  <h2>键盘与长内容</h2>
-  <elf-playground title="焦点触发、Esc 关闭与自动避让" :code=${code} :script=${script}>
+  <h2>${t("title")}</h2>
+  <elf-playground :title=${t("title")} :code=${code} :script=${script}>
     <span slot="status">{{ status }}</span>
     <section class="tooltip-a11y-stage">
       <div class="tooltip-a11y-copy">
-        <strong>访问权限</strong>
-        <p>
-          提示位于容器边缘时会选择可用方向；长内容受最大宽度约束，不会变成超长单行文本。
-        </p>
+        <strong>${t("accessTitle")}</strong>
+        <p>${t("description")}</p>
       </div>
       <elf-tooltip
         trigger="focus"
         placement="auto"
         :showAfter=${160}
         :maxWidth=${280}
-        content="权限继承自上级空间；单独修改后不会再跟随上级策略更新。"
+        :content=${t("content")}
       >
         <button
           type="button"
@@ -91,7 +110,7 @@ const PageTooltipEx4 = defineHtml(`
           @focus="onFocus()"
           @blur="onBlur()"
         >
-          权限说明
+          ${t("button")}
         </button>
       </elf-tooltip>
     </section>

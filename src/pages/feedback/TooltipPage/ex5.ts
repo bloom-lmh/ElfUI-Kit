@@ -1,32 +1,46 @@
 import { defineHtml, defineStyle, useRef } from "@elfui/core";
+import { createDocsTranslator } from "../../docsLocale";
 
-const status = useRef("在触屏设备上长按卡片 500ms");
+const t = createDocsTranslator({
+  title: { zh: "长按提示与手势取消", en: "Long-press tooltip and gesture cancellation" },
+  initialStatus: { zh: "在触屏设备上长按卡片 500 毫秒", en: "Long-press the card for 500 ms on a touch device" },
+  pressingStatus: { zh: "正在识别长按；移动手指可取消", en: "Recognizing a long press; move your finger to cancel" },
+  releasedStatus: { zh: "松手后提示保持，点击外部关闭", en: "The tooltip stays open after release; tap outside to close" },
+  content: { zh: "长按提示不会阻断轻触和滚动手势。", en: "Long-press tooltips preserve tap and scrolling gestures." },
+  button: { zh: "长按查看说明", en: "Long-press for details" },
+  description: {
+    zh: "移动超过 10 像素会取消，正常纵向滚动不会误打开。",
+    en: "Moving more than 10 px cancels the gesture, so normal vertical scrolling does not open the tooltip.",
+  },
+});
+
+const status = useRef(t("initialStatus"));
 
 const onPointerDown = (event: PointerEvent): void => {
-  if (event.pointerType === "touch") status.set("正在识别长按；移动手指可取消");
+  if (event.pointerType === "touch") status.set(t("pressingStatus"));
 };
 
 const onPointerUp = (event: PointerEvent): void => {
-  if (event.pointerType === "touch") status.set("松手后提示保持，点击外部关闭");
+  if (event.pointerType === "touch") status.set(t("releasedStatus"));
 };
 
 const code = `<elf-tooltip
-  content="长按提示不会阻断轻触和滚动手势。"
+  content="${t("content")}"
   :touch-long-press="true"
   :long-press-delay="500"
   :long-press-tolerance="10"
 >
-  <button type="button">长按查看说明</button>
+  <button type="button">${t("button")}</button>
 </elf-tooltip>`;
 
-const script = `const status = useRef("在触屏设备上长按卡片 500ms");
+const script = `const status = useRef("${t("initialStatus")}");
 
 const onPointerDown = (event) => {
-  if (event.pointerType === "touch") status.set("正在识别长按；移动手指可取消");
+  if (event.pointerType === "touch") status.set("${t("pressingStatus")}");
 };
 
 const onPointerUp = (event) => {
-  if (event.pointerType === "touch") status.set("松手后提示保持，点击外部关闭");
+  if (event.pointerType === "touch") status.set("${t("releasedStatus")}");
 };`;
 
 defineStyle(`
@@ -63,12 +77,12 @@ defineStyle(`
 `);
 
 const PageTooltipEx5 = defineHtml(`
-  <h2>触屏长按</h2>
-  <elf-playground title="长按提示与手势取消" :code=${code} :script=${script}>
+  <h2>${t("title")}</h2>
+  <elf-playground :title=${t("title")} :code=${code} :script=${script}>
     <span slot="status">{{ status }}</span>
     <section class="tooltip-touch-stage">
       <elf-tooltip
-        content="长按提示不会阻断轻触和滚动手势。"
+        :content=${t("content")}
         :touchLongPress=${true}
         :longPressDelay=${500}
         :longPressTolerance=${10}
@@ -79,8 +93,8 @@ const PageTooltipEx5 = defineHtml(`
           @pointerdown=${onPointerDown}
           @pointerup=${onPointerUp}
         >
-          <strong>长按查看说明</strong>
-          <span>移动超过 10px 会取消，正常纵向滚动不会误打开。</span>
+          <strong>${t("button")}</strong>
+          <span>${t("description")}</span>
         </button>
       </elf-tooltip>
     </section>
