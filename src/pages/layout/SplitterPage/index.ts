@@ -1,10 +1,19 @@
 import { defineHtml, useComponents } from "@elfui/core";
+import { createDocsTranslator } from "../../docsLocale";
 import { PageSplitterEx1 } from "./ex1";
 import { PageSplitterEx2 } from "./ex2";
 import { PageSplitterEx3 } from "./ex3";
 import { PageSplitterEx4 } from "./ex4";
 import { PageSplitterEx5 } from "./ex5";
 import { PageSplitterProps } from "./props";
+
+const t = createDocsTranslator({
+  title: { zh: "分割面板", en: "Splitter" },
+  description: {
+    zh: "通过拖动分隔条调整两个区域的比例，并支持面板折叠、延迟渲染、尺寸持久化和键盘操作。",
+    en: "Resize two regions by dragging their separator, with panel collapsing, lazy rendering, size persistence, and keyboard controls."
+  }
+});
 
 useComponents({
   "page-splitter-ex1": PageSplitterEx1,
@@ -17,8 +26,8 @@ useComponents({
 
 const PageSplitter = defineHtml(`
   <elf-container>
-    <h1>Splitter 分割面板</h1>
-    <p>通过拖拽分隔条调整两个区域比例，支持 Panel 子组件、折叠、延迟激活和尺寸持久化。</p>
+    <h1>${t("title")}</h1>
+    <p>${t("description")}</p>
     <page-splitter-ex1></page-splitter-ex1>
     <page-splitter-ex2></page-splitter-ex2>
     <page-splitter-ex3></page-splitter-ex3>

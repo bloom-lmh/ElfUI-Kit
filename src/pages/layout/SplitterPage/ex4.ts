@@ -1,4 +1,14 @@
 import { defineHtml } from "@elfui/core";
+import { createDocsTranslator } from "../../docsLocale";
+
+const t = createDocsTranslator({
+  title: { zh: "面板折叠、延迟渲染与持久化", en: "Panel collapse, lazy rendering, and persistence" },
+  navigation: { zh: "项目导航", en: "Project navigation" },
+  workspace: { zh: "编辑工作区", en: "Editor workspace" },
+  status: { zh: "双击分隔条或使用折叠按钮", en: "Double-click the separator or use the collapse control" },
+  collapseComment: { zh: "双击分隔条或点击折叠按钮可以收起第一个面板。", en: "Double-click the separator or use the collapse control to collapse the first panel." },
+  storageComment: { zh: "storage-key 会在本地存储中保存最近一次尺寸。", en: "storage-key persists the latest size in local storage." }
+});
 
 const code = `<elf-splitter storage-key="workspace-splitter">
   <elf-splitter-panel
@@ -9,21 +19,22 @@ const code = `<elf-splitter storage-key="workspace-splitter">
     collapsible
     lazy
   >
-    项目导航
+    ${t("navigation")}
   </elf-splitter-panel>
-  <elf-splitter-panel slot="second">编辑工作区</elf-splitter-panel>
+  <elf-splitter-panel slot="second">${t("workspace")}</elf-splitter-panel>
 </elf-splitter>`;
 
-const script = `// 双击分隔条或点击折叠按钮可收起第一个面板。
-// storage-key 会在 localStorage 中保存最近一次尺寸。`;
+const script = `// ${t("collapseComment")}
+// ${t("storageComment")}`;
 
 const PageSplitterEx4 = defineHtml(`
-  <h2>Panel 子组件、折叠与持久化</h2>
+  <h2>${t("title")}</h2>
   <elf-playground
-    title="collapsible / lazy / storage-key"
+    :title=${t("title")}
     :code=${code}
     :script=${script}
   >
+    <span slot="status">${t("status")}</span>
     <div style="height:280px">
       <elf-splitter storage-key="elfui-demo-workspace-splitter">
         <elf-splitter-panel
@@ -35,7 +46,7 @@ const PageSplitterEx4 = defineHtml(`
           lazy
         >
           <div style="display:grid;gap:10px">
-            <strong>项目导航</strong>
+            <strong>${t("navigation")}</strong>
             <span>src/components</span>
             <span>src/pages</span>
             <span>tests</span>
@@ -43,7 +54,7 @@ const PageSplitterEx4 = defineHtml(`
         </elf-splitter-panel>
         <elf-splitter-panel slot="second">
           <div style="display:grid;place-items:center;height:100%;color:var(--elf-text-secondary)">
-            编辑工作区
+            ${t("workspace")}
           </div>
         </elf-splitter-panel>
       </elf-splitter>

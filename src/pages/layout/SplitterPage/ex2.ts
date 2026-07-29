@@ -1,4 +1,12 @@
 import { defineHtml, useRef } from "@elfui/core";
+import { createDocsTranslator } from "../../docsLocale";
+
+const t = createDocsTranslator({
+  title: { zh: "垂直分割", en: "Vertical split" },
+  topPanel: { zh: "上方面板", en: "Top panel" },
+  bottomPanel: { zh: "下方面板", en: "Bottom panel" },
+  currentRatio: { zh: "上方面板比例", en: "Top panel ratio" }
+});
 
 const verticalSize = useRef(48);
 
@@ -11,8 +19,8 @@ const code = `<elf-splitter
   :modelValue.prop=\${verticalSize}
   @update:modelValue=\${onVerticalUpdate}
 >
-  <div slot="first">上方面板</div>
-  <div slot="second">下方面板</div>
+  <div slot="first">${t("topPanel")}</div>
+  <div slot="second">${t("bottomPanel")}</div>
 </elf-splitter>`;
 
 const script = `const verticalSize = useRef(48);
@@ -22,12 +30,13 @@ const onVerticalUpdate = (event) => {
 };`;
 
 const PageSplitterEx2 = defineHtml(`
-  <h2>垂直分割</h2>
-  <elf-playground title="vertical" :code=${code} :script=${script}>
+  <h2>${t("title")}</h2>
+  <elf-playground :title=${t("title")} :code=${code} :script=${script}>
+    <span slot="status">${t("currentRatio")}: ${Math.round(verticalSize.value)}%</span>
     <div style="width:100%;max-width:720px;height:260px">
       <elf-splitter vertical :modelValue.prop=${verticalSize.value} @update:modelValue=${onVerticalUpdate}>
-        <div slot="first" style="padding:16px">上方面板</div>
-        <div slot="second" style="padding:16px">下方面板</div>
+        <div slot="first" style="padding:16px">${t("topPanel")}</div>
+        <div slot="second" style="padding:16px">${t("bottomPanel")}</div>
       </elf-splitter>
     </div>
   </elf-playground>

@@ -1,8 +1,17 @@
 import { defineHtml, useComponents } from "@elfui/core";
+import { createDocsTranslator } from "../../docsLocale";
 import { PageScrollbarEx1 } from "./ex1";
 import { PageScrollbarEx2 } from "./ex2";
 import { PageScrollbarEx3 } from "./ex3";
 import { PageScrollbarProps } from "./props";
+
+const t = createDocsTranslator({
+  title: { zh: "滚动条", en: "Scrollbar" },
+  description: {
+    zh: "包装滚动内容并提供滚动事件，支持固定高度、最大高度、常显轨道和命令式滚动控制。",
+    en: "Wrap scrollable content with scroll events, fixed or maximum heights, persistent tracks, and imperative scrolling controls."
+  }
+});
 
 useComponents({
   "page-scrollbar-ex1": PageScrollbarEx1,
@@ -13,8 +22,8 @@ useComponents({
 
 const PageScrollbar = defineHtml(`
   <elf-container>
-    <h1>Scrollbar 滚动条</h1>
-    <p>包裹滚动内容并抛出 scroll 事件，支持固定高度、最大高度、always 预留滚动条空间，以及 setScrollTop / setScrollLeft 命令控制。</p>
+    <h1>${t("title")}</h1>
+    <p>${t("description")}</p>
     <page-scrollbar-ex1></page-scrollbar-ex1>
     <page-scrollbar-ex2></page-scrollbar-ex2>
     <page-scrollbar-ex3></page-scrollbar-ex3>

@@ -1,31 +1,51 @@
 import { defineHtml } from "@elfui/core";
+import { createDocsTranslator } from "../../docsLocale";
 
-const scrollbarRows = [
-  { name: "height", type: "number | string", desc: "容器固定高度" },
-  { name: "max-height", type: "number | string", desc: "容器最大高度" },
-  { name: "always", type: "boolean", default: "false", desc: "始终预留滚动条空间" },
-  { name: "native", type: "boolean", default: "true", desc: "使用原生美化滚动条" },
-  { name: "noresize", type: "boolean", default: "false", desc: "关闭 resize 监听" },
-  { name: "wrap-class", type: "string", desc: "包裹层额外 class" },
-  { name: "view-class", type: "string", desc: "视图层额外 class" }
+const t = createDocsTranslator({
+  height: { zh: "容器固定高度", en: "Fixed container height." },
+  maxHeight: { zh: "容器最大高度", en: "Maximum container height." },
+  always: { zh: "始终预留滚动条空间", en: "Always reserve space for the scrollbar." },
+  native: { zh: "使用原生滚动并应用滚动条样式", en: "Use native scrolling with styled scrollbars." },
+  noresize: { zh: "关闭尺寸变化监听", en: "Disable resize observation." },
+  wrapClass: { zh: "包裹层的额外类名", en: "Additional class for the scroll wrapper." },
+  viewClass: { zh: "内容视图的额外类名", en: "Additional class for the content view." },
+  scroll: { zh: "滚动时触发，detail 包含 scrollTop 和 scrollLeft", en: "Emitted on scroll; detail contains scrollTop and scrollLeft." },
+  setTop: { zh: "设置垂直滚动位置", en: "Set the vertical scroll position." },
+  setLeft: { zh: "设置水平滚动位置", en: "Set the horizontal scroll position." },
+  update: { zh: "手动更新滚动条状态", en: "Refresh the scrollbar state manually." },
+  wrapRef: { zh: "滚动包裹层的 DOM 引用", en: "DOM reference to the scroll wrapper." },
+  defaultSlot: { zh: "需要滚动的内容", en: "Scrollable content." }
+});
+
+const scrollbarRows = () => [
+  { name: "height", type: "number | string", default: "—", desc: t("height") },
+  { name: "max-height", type: "number | string", default: "—", desc: t("maxHeight") },
+  { name: "always", type: "boolean", default: "false", desc: t("always") },
+  { name: "native", type: "boolean", default: "true", desc: t("native") },
+  { name: "noresize", type: "boolean", default: "false", desc: t("noresize") },
+  { name: "wrap-class", type: "string", default: "''", desc: t("wrapClass") },
+  { name: "view-class", type: "string", default: "''", desc: t("viewClass") }
 ];
 
-const eventRows = [
-  { name: "scroll", type: "CustomEvent<ScrollbarScrollDetail>", desc: "滚动时触发，detail 包含 scrollTop / scrollLeft" }
+const eventRows = () => [
+  { name: "scroll", type: "CustomEvent<ScrollbarScrollDetail>", desc: t("scroll") }
 ];
 
-const exposeRows = [
-  { name: "setScrollTop", type: "(value: number) => void", desc: "设置垂直滚动位置" },
-  { name: "setScrollLeft", type: "(value: number) => void", desc: "设置水平滚动位置" },
-  { name: "update", type: "() => void", desc: "手动触发滚动条更新" },
-  { name: "wrapRef", type: "HTMLElement | null", desc: "包裹层 DOM 引用" }
+const exposeRows = () => [
+  { name: "setScrollTop", type: "(value: number) => void", desc: t("setTop") },
+  { name: "setScrollLeft", type: "(value: number) => void", desc: t("setLeft") },
+  { name: "update", type: "() => void", desc: t("update") },
+  { name: "wrapRef", type: "HTMLElement | null", desc: t("wrapRef") }
 ];
+
+const slotRows = () => [{ name: "default", type: "—", default: "—", desc: t("defaultSlot") }];
 
 const PageScrollbarProps = defineHtml(`
   <h2>API</h2>
-  <elf-props-table title="elf-scrollbar Props" :rows="scrollbarRows" />
-  <elf-props-table title="elf-scrollbar Events" :rows="eventRows" />
-  <elf-props-table title="elf-scrollbar 暴露方法" :rows="exposeRows" />
+  <elf-props-table title="elf-scrollbar Props" :rows=${scrollbarRows()} />
+  <elf-props-table title="Events" :rows=${eventRows()} />
+  <elf-props-table title="Slots" :rows=${slotRows()} />
+  <elf-props-table title="Expose" :rows=${exposeRows()} />
 `);
 
 export { PageScrollbarProps };
