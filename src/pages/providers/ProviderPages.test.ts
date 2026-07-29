@@ -114,6 +114,8 @@ describe("Provider pages", () => {
     expect(text).toContain("Named theme");
     expect(text).toContain("Display and motion preferences");
     expect(text).toContain("Programmatic scrolling · shared strategy");
+    expect(text).toContain("Field value semantics");
+    expect(text).toContain("Shared emptyValues and valueOnClear semantics across fields.");
     expect(text).toContain("Base preset merged before config.");
     expect(text).not.toContain("统一入口 · 蓝图与默认值");
   });

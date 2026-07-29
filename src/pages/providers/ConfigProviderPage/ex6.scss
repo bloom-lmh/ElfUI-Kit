@@ -1,0 +1,36 @@
+:host {
+  display: block;
+}
+
+.field-defaults-demo {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--elf-space-4);
+  width: min(100%, 680px);
+  margin: 0 auto;
+}
+
+.field-defaults-card {
+  display: grid;
+  gap: var(--elf-space-3);
+  min-width: 0;
+  padding: var(--elf-space-4);
+  border: 1px solid var(--elf-border);
+  border-radius: var(--elf-radius-md);
+  background: var(--elf-bg-paper);
+}
+
+.field-defaults-card small {
+  color: var(--elf-text-secondary);
+  line-height: 1.5;
+}
+
+.field-defaults-card elf-select {
+  width: 100%;
+}
+
+@media (max-width: 640px) {
+  .field-defaults-demo {
+    grid-template-columns: 1fr;
+  }
+}

@@ -6,6 +6,7 @@ import { PageConfigProviderEx2 } from "./ex2";
 import { PageConfigProviderEx3 } from "./ex3";
 import { PageConfigProviderEx4 } from "./ex4";
 import { PageConfigProviderEx5 } from "./ex5";
+import { PageConfigProviderEx6 } from "./ex6";
 import pageStyles from "./style.scss?inline";
 
 const pick = createDocsPicker();
@@ -26,12 +27,26 @@ const propsRows = [
   { name: "motion", type: "system | full | reduced", default: "system", desc: pick("统一动效偏好", "Shared motion preference.") },
 ];
 
+const configRows = [
+  { name: "defaults / defaultsOptions", type: "ProviderDefaults", default: "{}", desc: pick("按组件下发默认属性及合并策略", "Component defaults and merge strategy.") },
+  { name: "theme", type: "ElfUIThemeOptions", default: "{}", desc: pick("主题、命名皮肤与设计 token", "Theme, named skins, and design tokens.") },
+  { name: "locale", type: "ElfUILocaleOptions", default: "{}", desc: pick("语言、RTL、外部 i18n Adapter 与格式化", "Locale, RTL, external i18n adapter, and formatting.") },
+  { name: "icons", type: "ElfUIIconOptions", default: "{}", desc: pick("默认图标集、别名和自定义图标集", "Default icon set, aliases, and custom icon sets.") },
+  { name: "display", type: "DisplayProviderOptions", default: "{}", desc: pick("响应式断点、移动端阈值与 SSR 初始尺寸", "Breakpoints, mobile threshold, and SSR initial size.") },
+  { name: "motion", type: "system | full | reduced", default: "system", desc: pick("应用级动效偏好", "Application-level motion preference.") },
+  { name: "goTo", type: "GoToDefaults", default: "{}", desc: pick("程序化滚动的时长、偏移与缓动", "Duration, offset, and easing for programmatic scrolling.") },
+  { name: "field", type: "FieldValueDefaults", default: "{}", desc: pick("跨字段共享 emptyValues 与 valueOnClear 语义", "Shared emptyValues and valueOnClear semantics across fields.") },
+  { name: "date", type: "DateOptions", default: "{}", desc: pick("日期 Adapter、语言、时区与周起始日", "Date adapter, locale, time zone, and first day of week.") },
+  { name: "services", type: "ElfUIServiceDefaults", default: "{}", desc: pick("Message、Notification、Loading 与 MessageBox 默认行为", "Default behavior for Message, Notification, Loading, and MessageBox.") },
+];
+
 useComponents({
   "page-config-provider-ex1": PageConfigProviderEx1,
   "page-config-provider-ex2": PageConfigProviderEx2,
   "page-config-provider-ex3": PageConfigProviderEx3,
   "page-config-provider-ex4": PageConfigProviderEx4,
   "page-config-provider-ex5": PageConfigProviderEx5,
+  "page-config-provider-ex6": PageConfigProviderEx6,
 });
 
 defineStyle(pageStyles);
@@ -46,9 +61,11 @@ const PageConfigProvider = defineHtml(`
     <page-config-provider-ex3 />
     <page-config-provider-ex4 />
     <page-config-provider-ex5 />
+    <page-config-provider-ex6 />
 
     <h2>API</h2>
     <elf-props-table title="ConfigProvider Props" :rows="propsRows"></elf-props-table>
+    <elf-props-table title="ElfUIConfig" :rows="configRows"></elf-props-table>
   </elf-container>
 `);
 
