@@ -41,6 +41,10 @@ export const routes: RouteRecord[] = [
     component: () => import("../pages/directives/DirectivesIntroductionPage/index")
   },
   {
+    path: "/directives/click-outside",
+    component: () => import("../pages/directives/ClickOutsidePage/index")
+  },
+  {
     path: "/quality",
     component: () => import("../pages/quality/QualityIntroductionPage/index")
   },
@@ -527,6 +531,7 @@ export const navItems: NavItem[] = [
   { to: "/picker/calendar", text: "Calendar 日历", group: "Picker 选择器" },
 
   { to: "/directives", text: "Introduction 介绍", group: "Directives 指令" },
+  { to: "/directives/click-outside", text: "Click outside 外部点击", group: "Directives 指令" },
 
   { to: "/quality", text: "Introduction 介绍", group: "Quality 质量" },
   { to: "/quality/accessibility", text: "Accessibility 无障碍", group: "Quality 质量" },

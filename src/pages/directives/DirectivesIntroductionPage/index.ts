@@ -21,13 +21,13 @@ const t = createDocsTranslator({
   },
   stableTitle: { zh: "已有稳定能力", en: "Stable capabilities" },
   stableBody: {
-    zh: "拖拽、加载和无限滚动已有组件库实现；后续会统一公开入口、类型和文档。",
-    en: "Draggable, Loading, and Infinite Scroll already have library implementations; their public entries, types, and docs will be consolidated.",
+    zh: "外部点击已具备公开指令、行为控制器、严格类型、案例和测试；拖拽、加载和无限滚动已有组件库实现，后续继续统一文档。",
+    en: "Click Outside now has a public directive, behavior controller, strict types, demo, and tests. Draggable, Loading, and Infinite Scroll already have library implementations and will receive consolidated docs.",
   },
   plannedTitle: { zh: "计划补齐", en: "Planned directives" },
   plannedBody: {
-    zh: "外部点击、交叉观察、DOM 变动观察、尺寸变化、波纹、滚动、工具提示和触摸。",
-    en: "Click Outside, Intersection Observer, Mutation Observer, Resize, Ripple, Scroll, Tooltip, and Touch.",
+    zh: "交叉观察、DOM 变动观察、尺寸变化、波纹、滚动、工具提示和触摸。",
+    en: "Intersection Observer, Mutation Observer, Resize, Ripple, Scroll, Tooltip, and Touch.",
   },
   architecture: {
     zh: "实现约束：每项行为只有一个权威内核；指令只负责绑定，组合式函数负责状态复用；两者都必须支持卸载清理、SSR 安全和严格类型。",
@@ -47,11 +47,8 @@ const PageDirectivesIntroduction = defineHtml(`
         <span class="status">defineDirective</span>
         <h2>${t("localTitle")}</h2>
         <p>${t("localBody")}</p>
-        <pre><code>const clickOutside = defineDirective({
-  mounted(element, binding) {
-    return bindClickOutside(element, binding.value);
-  }
-});</code></pre>
+        <pre><code>const clickOutside =
+  defineDirective(clickOutsideDirective);</code></pre>
       </section>
 
       <section class="article-card">
@@ -59,7 +56,7 @@ const PageDirectivesIntroduction = defineHtml(`
         <h2>${t("appTitle")}</h2>
         <p>${t("appBody")}</p>
         <pre><code>const app = createApp(App);
-app.directive("click-outside", clickOutside);</code></pre>
+registerClickOutsideDirective(app);</code></pre>
       </section>
 
       <section class="article-card">
@@ -67,6 +64,7 @@ app.directive("click-outside", clickOutside);</code></pre>
         <h2>${t("stableTitle")}</h2>
         <p>${t("stableBody")}</p>
         <ul>
+          <li>Click Outside</li>
           <li>Draggable</li>
           <li>Loading</li>
           <li>Infinite Scroll</li>

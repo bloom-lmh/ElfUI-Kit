@@ -29,6 +29,7 @@ beforeAll(async () => {
     { PageBrowserSupport },
     { PageFaq },
     { PageDirectivesIntroduction },
+    { PageClickOutside },
     { PageQualityIntroduction },
     { PageLabsIntroduction }
   ] = await Promise.all([
@@ -37,6 +38,7 @@ beforeAll(async () => {
     import("./getting-started/BrowserSupportPage/index"),
     import("./getting-started/FaqPage/index"),
     import("./directives/DirectivesIntroductionPage/index"),
+    import("./directives/ClickOutsidePage/index"),
     import("./quality/QualityIntroductionPage/index"),
     import("./labs/LabsIntroductionPage/index")
   ]);
@@ -47,6 +49,7 @@ beforeAll(async () => {
     { tag: ensureCustomElement(PageBrowserSupport), title: "Browser support" },
     { tag: ensureCustomElement(PageFaq), title: "Frequently asked questions" },
     { tag: ensureCustomElement(PageDirectivesIntroduction), title: "Directives" },
+    { tag: ensureCustomElement(PageClickOutside), title: "Click outside" },
     { tag: ensureCustomElement(PageQualityIntroduction), title: "Quality" },
     { tag: ensureCustomElement(PageLabsIntroduction), title: "Labs" }
   );
