@@ -28,6 +28,7 @@ interface AppMenuItem {
 }
 
 const ICONS: Record<string, string> = {
+  "Getting started 快速入门": "S",
   "Guide 指南": "G",
   "Layout 布局": "L",
   "Basic 基础": "B",
@@ -35,7 +36,10 @@ const ICONS: Record<string, string> = {
   "Feedback 反馈": "M",
   "Data 数据展示": "D",
   "Navigation 导航": "N",
-  "Picker 选择器": "P"
+  "Picker 选择器": "P",
+  "Directives 指令": "ƒ",
+  "Quality 质量": "Q",
+  "Labs 实验室": "X"
 };
 
 const APP_MESSAGES: Record<string, LocaleMessages> = {

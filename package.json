@@ -20,6 +20,8 @@
     "LICENSE"
   ],
   "sideEffects": [
+    "./src/components/index.ts",
+    "./src/components/**/index.ts",
     "./lib-dist/elfui-kit.js",
     "./lib-dist/utilities.css"
   ],

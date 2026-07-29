@@ -9,6 +9,24 @@ export const routes: RouteRecord[] = [
     component: () => import("../pages/HomePage/index")
   },
 
+  // Getting started
+  {
+    path: "/getting-started/installation",
+    component: () => import("../pages/getting-started/InstallationPage/index")
+  },
+  {
+    path: "/getting-started/upgrade-guide",
+    component: () => import("../pages/getting-started/UpgradeGuidePage/index")
+  },
+  {
+    path: "/getting-started/browser-support",
+    component: () => import("../pages/getting-started/BrowserSupportPage/index")
+  },
+  {
+    path: "/getting-started/faq",
+    component: () => import("../pages/getting-started/FaqPage/index")
+  },
+
   // Guide
   {
     path: "/guide/accessibility",
@@ -17,6 +35,22 @@ export const routes: RouteRecord[] = [
   {
     path: "/guide/build",
     component: () => import("../pages/guide/BuildStylesPage/index")
+  },
+  {
+    path: "/directives",
+    component: () => import("../pages/directives/DirectivesIntroductionPage/index")
+  },
+  {
+    path: "/quality",
+    component: () => import("../pages/quality/QualityIntroductionPage/index")
+  },
+  {
+    path: "/quality/accessibility",
+    component: () => import("../pages/guide/AccessibilityPage/index")
+  },
+  {
+    path: "/labs",
+    component: () => import("../pages/labs/LabsIntroductionPage/index")
   },
 
   // Layout
@@ -396,11 +430,15 @@ export interface NavItem {
 }
 
 export const navItems: NavItem[] = [
+  { to: "/getting-started/installation", text: "Installation 安装", group: "Getting started 快速入门" },
+  { to: "/getting-started/upgrade-guide", text: "Upgrade guide 升级指南", group: "Getting started 快速入门" },
+  { to: "/getting-started/browser-support", text: "Browser support 浏览器支持", group: "Getting started 快速入门" },
+  { to: "/getting-started/faq", text: "FAQ 常见问题", group: "Getting started 快速入门" },
+
   { to: "/providers/config", text: "Global configuration 全局配置", group: "Guide 指南" },
   { to: "/providers/theme", text: "Theme & customization 主题与个性化", group: "Guide 指南" },
   { to: "/basic/icon", text: "Icons 图标配置", group: "Guide 指南" },
   { to: "/providers/locale", text: "Internationalization 国际化", group: "Guide 指南" },
-  { to: "/guide/accessibility", text: "Accessibility 无障碍", group: "Guide 指南" },
   { to: "/guide/build", text: "Build & styles 构建与样式", group: "Guide 指南" },
   { to: "/utilities", text: "Utilities 工具类", group: "Guide 指南" },
 
@@ -488,4 +526,10 @@ export const navItems: NavItem[] = [
   { to: "/picker/time-select", text: "TimeSelect 时间选择", group: "Picker 选择器" },
   { to: "/picker/calendar", text: "Calendar 日历", group: "Picker 选择器" },
 
+  { to: "/directives", text: "Introduction 介绍", group: "Directives 指令" },
+
+  { to: "/quality", text: "Introduction 介绍", group: "Quality 质量" },
+  { to: "/quality/accessibility", text: "Accessibility 无障碍", group: "Quality 质量" },
+
+  { to: "/labs", text: "Introduction 介绍", group: "Labs 实验室" },
 ];

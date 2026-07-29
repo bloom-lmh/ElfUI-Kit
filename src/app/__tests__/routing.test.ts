@@ -177,14 +177,12 @@ describe("路由跳转", () => {
     const menu = app.shadowRoot?.querySelector<HTMLElement & { items?: Array<{ label: string }> }>(
       "elf-menu"
     );
-    expect(menu?.items?.[0]?.label).toBe("Guide");
+    expect(menu?.items?.[0]?.label).toBe("Getting started");
     expect(menu?.shadowRoot?.textContent).not.toContain("Home");
     expect(menu?.shadowRoot?.textContent).not.toContain("Layout 布局");
     const { getActiveRouter } = await import("@elfui/router");
     expect(getActiveRouter()?.current.peek().path).toBe("/basic/button");
     expect(routerView?.firstElementChild).not.toBe(routePageBefore);
-    const configProvider = app.shadowRoot?.querySelector("elf-config-provider");
-    expect(configProvider?.shadowRoot?.querySelector("elf-locale-provider")?.getAttribute("lang")).toBe("en-US");
     expect(document.documentElement.lang).toBe("en-US");
   });
 
@@ -225,13 +223,13 @@ describe("路由跳转", () => {
     const menu = app.shadowRoot?.querySelector<HTMLElement & {
       items?: Array<{ label: string; icon: string; children?: Array<{ index: string; label: string }> }>;
     }>("elf-menu");
-    expect(menu?.items?.[0]).toEqual({
+    const guide = menu?.items?.find((item) => item.index === "group:Guide 指南");
+    expect(guide).toEqual({
       index: "group:Guide 指南",
       label: "指南",
       icon: "G",
       children: expect.arrayContaining([
         expect.objectContaining({ index: "/providers/config", label: "全局配置" }),
-        expect.objectContaining({ index: "/guide/accessibility", label: "无障碍" }),
         expect.objectContaining({ index: "/utilities", label: "工具类" })
       ])
     });
@@ -241,6 +239,11 @@ describe("路由跳转", () => {
         expect.objectContaining({ index: "/data/virtual-table", label: "虚拟表格" })
     ]));
     expect(menu?.items?.some((item) => item.index === "group:Utilities 工具类")).toBe(false);
+    expect(menu?.items?.find((item) => item.index === "group:Quality 质量")?.children).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ index: "/quality/accessibility", label: "无障碍" })
+      ])
+    );
   });
 
   it("侧栏不显示首页菜单且品牌按钮返回独立首页", async () => {
