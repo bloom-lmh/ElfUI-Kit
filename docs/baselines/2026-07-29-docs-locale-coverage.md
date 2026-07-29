@@ -12,10 +12,10 @@ pnpm docs:locale-audit
 
 | Surface | Localized | Total | Missing |
 | --- | ---: | ---: | ---: |
-| Page entries | 84 | 88 | 4 |
-| Examples | 301 | 346 | 45 |
-| Props/API files | 64 | 66 | 2 |
-| Total | 449 | 500 | 51 |
+| Page entries | 85 | 89 | 4 |
+| Examples | 305 | 350 | 45 |
+| Props/API files | 65 | 67 | 2 |
+| Total | 455 | 506 | 51 |
 
 The audit counts explicit `createDocsTranslator()` / `createDocsPicker()` participation. It does not treat component names, API identifiers, CSS values, or source code syntax as untranslated prose.
 
