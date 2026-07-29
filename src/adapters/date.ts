@@ -5,6 +5,7 @@ export type DateFormatPreset =
   | "keyboardDate"
   | "keyboardDateTime"
   | "monthAndYear"
+  | "monthLong"
   | "monthShort"
   | "weekdayShort";
 
@@ -28,6 +29,11 @@ export interface DateAdapter {
   format(value: Date, pattern?: string, context?: DateAdapterContext): string;
   toISODate(value: Date): string;
   toISODateTime(value: Date): string;
+  getYear(value: Date): number;
+  getMonth(value: Date): number;
+  getDate(value: Date): number;
+  getWeekday(value: Date): number;
+  getWeekNumber(value: Date): number;
   add(value: Date, amount: number, unit: DateAdapterUnit): Date;
   compare(left: Date, right: Date): number;
   daysInMonth(value: Date): number;
@@ -51,6 +57,7 @@ const DEFAULT_FORMATS: Record<DateFormatPreset, Intl.DateTimeFormatOptions> = {
     second: "2-digit",
   },
   monthAndYear: { year: "numeric", month: "long" },
+  monthLong: { month: "long" },
   monthShort: { month: "short" },
   weekdayShort: { weekday: "short" },
 };
@@ -163,6 +170,25 @@ export const createNativeDateAdapter = (): DateAdapter => ({
 
   toISODateTime(value) {
     return this.format(value, "YYYY-MM-DDTHH:mm:ss");
+  },
+
+  getYear: (value) => value.getFullYear(),
+
+  getMonth: (value) => value.getMonth(),
+
+  getDate: (value) => value.getDate(),
+
+  getWeekday: (value) => value.getDay(),
+
+  getWeekNumber(value) {
+    const utc = new Date(
+      Date.UTC(this.getYear(value), this.getMonth(value), this.getDate(value)),
+    );
+    utc.setUTCDate(utc.getUTCDate() + 4 - (utc.getUTCDay() || 7));
+    const yearStart = new Date(Date.UTC(utc.getUTCFullYear(), 0, 1));
+    return Math.ceil(
+      ((utc.getTime() - yearStart.getTime()) / 86_400_000 + 1) / 7,
+    );
   },
 
   add(value, amount, unit) {

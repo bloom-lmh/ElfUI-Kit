@@ -7,6 +7,10 @@
   color: var(--elf-text-primary);
 }
 
+:host([data-show-week-number]) {
+  width: min(100%, 480px);
+}
+
 .calendar {
   overflow: hidden;
   border: 1px solid var(--elf-divider);

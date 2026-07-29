@@ -17,7 +17,8 @@ export interface CalendarProps {
   /** 仅控制初始/受控视图月份，不会把日期标记为已选择。 */
   viewDate: string;
   defaultValue: string;
-  firstDayOfWeek: number;
+  /** Weekday index from 0 (Sunday) to 6 (Saturday). Falls back to ConfigProvider. */
+  firstDayOfWeek?: number;
   range: boolean;
   disabledDate?: (date: Date) => boolean;
   cellClassName?: (date: Date) => string;

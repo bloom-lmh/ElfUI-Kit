@@ -1,5 +1,12 @@
 # Calendar Element Plus API 对齐计划
 
+## 2026-07-29 Date Adapter 与双语文档收口
+
+- [x] 日期解析、格式化、字段读取、不可变日期运算、星期与 ISO 周序号统一通过 `DateAdapter`。
+- [x] `firstDayOfWeek` 未显式传入时读取 ConfigProvider，全局配置与局部覆盖保持明确优先级。
+- [x] 页面入口、5 个案例、Template / Script、运行状态和 Props / Events / Slots API 完整支持中英文。
+- [x] Provider 周起始、键盘、范围、自定义日期内容均有聚焦测试。
+
 ## 2026-07-21 本地提交范围
 
 - [x] 使用本地已提交范围渲染端点与区间，等待父级受控值回写时不再回闪旧日期。

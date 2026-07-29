@@ -39,4 +39,14 @@ describe("native date adapter", () => {
     expect(adapter.format(value, "monthShort", { locale: "en-US" })).toBe("Jul");
     expect(adapter.format(value, "monthShort", { locale: "zh-CN" })).toContain("7");
   });
+
+  it("exposes calendar fields and ISO week numbers without consumer-side date math", () => {
+    const value = adapter.create(2026, 6, 29);
+
+    expect(adapter.getYear(value)).toBe(2026);
+    expect(adapter.getMonth(value)).toBe(6);
+    expect(adapter.getDate(value)).toBe(29);
+    expect(adapter.getWeekday(value)).toBe(3);
+    expect(adapter.getWeekNumber(value)).toBe(31);
+  });
 });
