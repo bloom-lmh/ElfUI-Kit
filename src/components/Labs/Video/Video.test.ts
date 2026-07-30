@@ -35,7 +35,7 @@ describe("elf-video", () => {
     expect(video.getAttribute("src")).toBe("demo.mp4");
     expect(el.shadowRoot!.querySelector(".center-action")?.getAttribute("aria-label")).toBe("Play");
     expect(el.shadowRoot!.querySelector(".video-shell")?.getAttribute("aria-label")).toBe("Product overview");
-    expect(el.shadowRoot!.querySelector<HTMLSelectElement>(".rate")?.value).toBe("1");
+    expect(el.shadowRoot!.querySelector<HTMLButtonElement>(".rate")?.textContent).toContain("1x");
     expect(el.shadowRoot!.querySelector(".fullscreen-icon")).toBeTruthy();
   });
 
@@ -50,6 +50,28 @@ describe("elf-video", () => {
     el.setVolumeLevel!(2);
     expect(video.currentTime).toBe(40);
     expect(video.volume).toBe(1);
+  });
+
+  it("opens custom volume and playback-rate menus", async () => {
+    const el = document.createElement("elf-video") as VideoEl;
+    document.body.appendChild(el);
+    await tick();
+    const root = el.shadowRoot!;
+    root.querySelector<HTMLButtonElement>(".volume-control")!.click();
+    await tick();
+    expect(root.querySelector(".volume-popover")).toBeTruthy();
+
+    const volumeInput = root.querySelector<HTMLInputElement>(".volume-slider")!;
+    volumeInput.value = "0.4";
+    volumeInput.dispatchEvent(new Event("input", { bubbles: true }));
+    expect(el.getMediaElement!()!.volume).toBeCloseTo(0.4);
+
+    root.querySelector<HTMLButtonElement>(".rate")!.click();
+    await tick();
+    expect(root.querySelectorAll(".rate-option")).toHaveLength(5);
+    root.querySelector<HTMLButtonElement>('.rate-option[data-rate="1.5"]')!.click();
+    expect(el.getMediaElement!()!.playbackRate).toBe(1.5);
+    expect(root.querySelector(".rate-popover")).toBeNull();
   });
 
   it("maps native media lifecycle to semantic events", async () => {

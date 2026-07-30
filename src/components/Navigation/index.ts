@@ -3,7 +3,9 @@ import { registerComponents } from "@elfui/core";
 
 import { Anchor } from "./Anchor/index";
 import { AnchorLink } from "./AnchorLink/index";
+import { AppBar } from "./AppBar/index";
 import { BackTop } from "./BackTop/index";
+import { BottomNavigation } from "./BottomNavigation/index";
 import { Breadcrumb } from "./Breadcrumb/index";
 import { BreadcrumbItem } from "./BreadcrumbItem/index";
 import { Dropdown } from "./Dropdown/index";
@@ -19,7 +21,18 @@ import { TabPane } from "./TabPane/index";
 import { Tabs } from "./Tabs/index";
 import { SubMenu } from "./SubMenu/index";
 
-registerComponents(Anchor, AnchorLink, BackTop, Breadcrumb, BreadcrumbItem, Dropdown, DropdownMenu, DropdownItem, Menu, MenuItem, MenuItemGroup, SubMenu, Steps, Step, Tabs, TabPane, PageHeader);
+registerComponents(AppBar, BottomNavigation, Anchor, AnchorLink, BackTop, Breadcrumb, BreadcrumbItem, Dropdown, DropdownMenu, DropdownItem, Menu, MenuItem, MenuItemGroup, SubMenu, Steps, Step, Tabs, TabPane, PageHeader);
+
+export { AppBar } from "./AppBar/index";
+export type { AppBarDensity, AppBarEmits, AppBarProps, AppBarScrollBehavior, AppBarSlots } from "./AppBar/types";
+export { BottomNavigation } from "./BottomNavigation/index";
+export type {
+  BottomNavigationEmits,
+  BottomNavigationItem,
+  BottomNavigationProps,
+  BottomNavigationSlots,
+  BottomNavigationValue
+} from "./BottomNavigation/types";
 
 export type {
   AnchorChangeDetail,

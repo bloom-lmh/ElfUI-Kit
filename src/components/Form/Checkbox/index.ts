@@ -9,7 +9,7 @@ import {
   useHost,
   useHostAttr,
   useHostFlag,
-  defineHtml
+  defineHtml,
 } from "@elfui/core";
 
 import { CHECKBOX_GROUP_KEY } from "../context";
@@ -34,16 +34,19 @@ const props = defineProps({
   ariaLabel: { type: String, default: "" },
   ariaControls: { type: String, default: "" },
   trueLabel: { type: String, default: "" },
-  falseLabel: { type: String, default: "" }
+  falseLabel: { type: String, default: "" },
 });
 
 const emit = defineEmits(["update:modelValue", "change"]);
 
 const group = inject(CHECKBOX_GROUP_KEY);
 
-const isDisabled = useDisabled(() => Boolean(props.disabled) || (group?.disabled ?? false));
+const isDisabled = useDisabled(
+  () => Boolean(props.disabled) || (group?.disabled ?? false),
+);
 
-const checkboxValue = (): unknown => group?.resolveValue(props.value) ?? props.value;
+const checkboxValue = (): unknown =>
+  group?.resolveValue(props.value) ?? props.value;
 
 const checked = (): boolean => {
   if (group) return group.modelValue.includes(checkboxValue());
@@ -99,7 +102,8 @@ const toggle = (e?: Event): void => {
   const mv = props.modelValue;
   if (Array.isArray(mv)) {
     const idx = mv.indexOf(props.value);
-    const next = idx >= 0 ? mv.filter((_, i) => i !== idx) : [...mv, props.value];
+    const next =
+      idx >= 0 ? mv.filter((_, i) => i !== idx) : [...mv, props.value];
     emit("update:modelValue", next);
     emit("change", next);
   } else {
@@ -124,20 +128,15 @@ const onKeyDown = (e: KeyboardEvent): void => {
 defineStyle(styles);
 
 const Checkbox = defineHtml(`
-  <span
-    class="box"
-    part="box"
-    :id=${props.id || null}
-    :tabindex=${isDisabled() ? -1 : props.tabindex}
-    role="checkbox"
+  <span class="box" part="box" :id=${props.id || null}
+    :tabindex=${isDisabled() ? -1 : props.tabindex} role="checkbox"
     :aria-checked=${ariaChecked()}
     :aria-label=${props.ariaLabel || props.label || props.trueLabel || null}
-    :aria-controls=${props.ariaControls || null}
-    @keydown=${onKeyDown}
-    @click.stop.prevent=${toggle}
-  ></span>
+    :aria-controls=${props.ariaControls || null} @keydown=${onKeyDown}
+    @click.stop.prevent=${toggle}></span>
   <span class="label" part="label" @click.stop.prevent=${toggle}>
-    <slot>${props.label || (checked() ? props.trueLabel : props.falseLabel)}</slot>
+    <slot>${props.label || (checked() ? props.trueLabel : props.falseLabel)}
+    </slot>
   </span>
 `);
 

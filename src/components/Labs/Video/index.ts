@@ -38,6 +38,7 @@ const DEFAULT_LABELS: VideoControlLabels = {
   pause: "Pause",
   mute: "Mute",
   unmute: "Unmute",
+  volume: "Volume",
   seek: "Seek",
   playbackRate: "Playback rate",
   pictureInPicture: "Picture in picture",
@@ -72,6 +73,8 @@ const duration = useRef(0);
 const muted = useRef(false);
 const volume = useRef(1);
 const playbackRate = useRef(1);
+const volumeMenuOpen = useRef(false);
+const rateMenuOpen = useRef(false);
 
 const media = (): HTMLVideoElement | null =>
   host.shadowRoot?.querySelector<HTMLVideoElement>("video") ?? null;
@@ -80,7 +83,7 @@ const clamp = (value: number, minimum: number, maximum: number): number =>
   Math.min(maximum, Math.max(minimum, Number.isFinite(value) ? value : minimum));
 
 const label = (key: keyof VideoControlLabels): string =>
-  props.labels?.[key] || DEFAULT_LABELS[key];
+  props.labels?.[key] || DEFAULT_LABELS[key] || key;
 
 const trackItems = (): VideoTrack[] => props.tracks;
 const rateItems = (): number[] => props.playbackRates;
@@ -139,12 +142,31 @@ const toggleMuted = (): void => {
   syncVolume();
 };
 
-const setPlaybackRate = (event: Event): void => {
+const setVolumeFromInput = (event: Event): void => {
+  setVolumeLevel(Number((event.currentTarget as HTMLInputElement).value));
+};
+
+const toggleVolumeMenu = (): void => {
+  volumeMenuOpen.set(!volumeMenuOpen.value);
+  rateMenuOpen.set(false);
+};
+
+const toggleRateMenu = (): void => {
+  rateMenuOpen.set(!rateMenuOpen.value);
+  volumeMenuOpen.set(false);
+};
+
+const selectPlaybackRate = (event: Event): void => {
   const video = media();
   if (!video) return;
-  video.playbackRate = clamp(Number((event.currentTarget as HTMLSelectElement).value), 0.25, 4);
+  video.playbackRate = clamp(
+    Number((event.currentTarget as HTMLElement).dataset.rate),
+    0.25,
+    4
+  );
   playbackRate.set(video.playbackRate);
   emit("rate-change", video.playbackRate);
+  rateMenuOpen.set(false);
 };
 
 const onSeekInput = (event: Event): void =>
@@ -194,15 +216,21 @@ const togglePictureInPicture = async (): Promise<void> => {
 };
 
 const onKeydown = (event: KeyboardEvent): void => {
-  if (event.target instanceof HTMLInputElement || event.target instanceof HTMLSelectElement) return;
   const key = event.key.toLowerCase();
-  if (key === " " || key === "k") {
+  if (key === "escape") {
+    volumeMenuOpen.set(false);
+    rateMenuOpen.set(false);
+    return;
+  } else if (key === " " || key === "k") {
+    if (event.target instanceof HTMLInputElement || event.target instanceof HTMLSelectElement) return;
     event.preventDefault();
     void togglePlayback();
   } else if (key === "arrowleft" || key === "arrowright") {
+    if (event.target instanceof HTMLInputElement || event.target instanceof HTMLSelectElement) return;
     event.preventDefault();
     seekTo(currentTime.peek() + (key === "arrowleft" ? -5 : 5));
   } else if (key === "m") {
+    if (event.target instanceof HTMLInputElement || event.target instanceof HTMLSelectElement) return;
     toggleMuted();
   } else if (key === "f") {
     void requestMediaFullscreen();
@@ -218,11 +246,15 @@ const timeLabel = (): string => `${formatTime(currentTime.value)} / ${formatTime
 const playbackLabel = (): string => label(playing.value ? "pause" : "play");
 const muteLabel = (): string => label(muted.value || volume.value === 0 ? "unmute" : "mute");
 const isMuted = (): boolean => muted.value;
+const isVolumeMenuOpen = (): boolean => volumeMenuOpen.value;
+const isRateMenuOpen = (): boolean => rateMenuOpen.value;
 const isPlaying = (): boolean => playing.value;
 const showCenterAction = (): boolean => props.controls && !isPlaying();
 const timelineMaximum = (): number => Math.max(duration.value, 0);
 const timelineValue = (): number => currentTime.value;
 const selectedPlaybackRate = (): number => playbackRate.value;
+const volumeValue = (): number => volume.value;
+const volumePercent = (): number => Math.round(volume.value * 100);
 const pipSupported = (): boolean =>
   typeof document !== "undefined" && "pictureInPictureEnabled" in document;
 
@@ -250,8 +282,18 @@ onMounted(() => {
   const onPipLeave = (): void => {
     emit("picture-in-picture-change", false);
   };
+  const onDocumentPointerDown = (event: PointerEvent): void => {
+    if (
+      event.target === host
+      || host.contains(event.target as Node)
+      || event.composedPath().includes(host)
+    ) return;
+    volumeMenuOpen.set(false);
+    rateMenuOpen.set(false);
+  };
 
   document.addEventListener("fullscreenchange", onFullscreenChange);
+  document.addEventListener("pointerdown", onDocumentPointerDown);
   video.addEventListener("enterpictureinpicture", onPipEnter);
   video.addEventListener("leavepictureinpicture", onPipLeave);
   syncConfiguredMedia();
@@ -259,6 +301,7 @@ onMounted(() => {
 
   return () => {
     document.removeEventListener("fullscreenchange", onFullscreenChange);
+    document.removeEventListener("pointerdown", onDocumentPointerDown);
     video.removeEventListener("enterpictureinpicture", onPipEnter);
     video.removeEventListener("leavepictureinpicture", onPipLeave);
   };
@@ -337,17 +380,41 @@ const Video = defineHtml(`
         @input=${onSeekInput}
       />
       <span class="time">${timeLabel()}</span>
-      <button class="control volume-control" type="button" :aria-label=${muteLabel()} @click=${toggleMuted}>
-        <span class="volume-icon" :class="{ muted: isMuted() }" aria-hidden="true"></span>
-      </button>
-      <select
-        class="rate"
-        :value=${selectedPlaybackRate()}
-        :aria-label=${label("playbackRate")}
-        @change=${setPlaybackRate}
-      >
-        <option v-for="rate in rateItems()" :value="rate" :selected="rate === selectedPlaybackRate()">{{ rate }}x</option>
-      </select>
+      <div class="volume-menu">
+        <button class="control volume-control" type="button" :aria-label=${muteLabel()} :aria-expanded=${isVolumeMenuOpen()} @click=${toggleVolumeMenu}>
+          <span class="volume-icon" :class="{ muted: isMuted() }" aria-hidden="true"></span>
+        </button>
+        <div v-if=${isVolumeMenuOpen()} class="volume-popover" role="dialog" :aria-label=${label("volume")}>
+          <input
+            class="volume-slider"
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
+            :value=${volumeValue()}
+            :aria-label=${label("volume")}
+            @input=${setVolumeFromInput}
+          />
+          <output>${volumePercent()}%</output>
+        </div>
+      </div>
+      <div class="rate-menu">
+        <button class="rate" type="button" :aria-label=${label("playbackRate")} :aria-expanded=${isRateMenuOpen()} @click=${toggleRateMenu}>
+          ${selectedPlaybackRate()}x <span class="rate-chevron" aria-hidden="true"></span>
+        </button>
+        <div v-if=${isRateMenuOpen()} class="rate-popover" role="listbox" :aria-label=${label("playbackRate")}>
+          <button
+            v-for="rate in rateItems()"
+            class="rate-option"
+            :class="{ active: rate === selectedPlaybackRate() }"
+            type="button"
+            role="option"
+            :data-rate="rate"
+            :aria-selected="rate === selectedPlaybackRate()"
+            @click=${selectPlaybackRate}
+          >{{ rate }}x</button>
+        </div>
+      </div>
       <button
         v-if=${pipSupported()}
         class="control pip-control"

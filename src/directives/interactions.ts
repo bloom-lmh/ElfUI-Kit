@@ -213,6 +213,27 @@ export type TooltipDirectiveValue = string | TooltipDirectiveOptions;
 
 let tooltipSeed = 0;
 
+const TOOLTIP_THEME_VARIABLES = [
+  "--elf-text-primary",
+  "--elf-bg-paper",
+  "--elf-font-family",
+  "--elf-radius-sm",
+  "--elf-shadow-2"
+] as const;
+
+const inheritCssVariables = (
+  source: HTMLElement,
+  target: HTMLElement,
+  variables: readonly string[]
+): void => {
+  const computed = getComputedStyle(source);
+  variables.forEach((variable) => {
+    const value = computed.getPropertyValue(variable).trim();
+    if (value) target.style.setProperty(variable, value);
+    else target.style.removeProperty(variable);
+  });
+};
+
 const normalizeTooltip = (
   value: TooltipDirectiveValue
 ): Required<TooltipDirectiveOptions> => {
@@ -248,10 +269,10 @@ export const createTooltipController = (
     zIndex: "2147483000",
     maxWidth: "280px",
     padding: "6px 10px",
-    borderRadius: "4px",
+    borderRadius: "var(--elf-radius-sm, 4px)",
     background: "var(--elf-text-primary, #1f2328)",
     color: "var(--elf-bg-paper, #fff)",
-    boxShadow: "0 6px 18px rgb(0 0 0 / 18%)",
+    boxShadow: "var(--elf-shadow-2, 0 6px 18px rgb(0 0 0 / 18%))",
     font: "500 12px/1.5 var(--elf-font-family, sans-serif)",
     pointerEvents: "none"
   });
@@ -267,6 +288,10 @@ export const createTooltipController = (
   });
   tooltip.append(content, arrow);
   document.body.appendChild(tooltip);
+
+  const syncTheme = (): void => {
+    inheritCssVariables(element, tooltip, TOOLTIP_THEME_VARIABLES);
+  };
 
   const clearTimers = (): void => {
     if (showTimer) clearTimeout(showTimer);
@@ -314,6 +339,7 @@ export const createTooltipController = (
     clearTimers();
     if (options.disabled || !options.content) return;
     showTimer = setTimeout(() => {
+      syncTheme();
       content.textContent = options.content;
       tooltip.hidden = false;
       element.setAttribute(
@@ -349,6 +375,7 @@ export const createTooltipController = (
     update(value) {
       options = normalizeTooltip(value);
       if (!tooltip.hidden) {
+        syncTheme();
         content.textContent = options.content;
         if (options.disabled) close();
         else position();

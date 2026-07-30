@@ -21,6 +21,31 @@
   width: 100%;
 }
 
+.line-stack {
+  display: grid;
+  gap: 7px;
+  width: 100%;
+}
+
+.line-meta {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--elf-space-3);
+}
+
+.line-label {
+  overflow: hidden;
+  min-width: 0;
+  color: var(--elf-text-primary);
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.line-label.inline { flex: 0 1 auto; max-width: 34%; }
+
 .line {
   display: flex;
   align-items: center;
@@ -137,6 +162,19 @@
 
 :host([data-text-inside]) .line-track {
   height: max(var(--_progress-height), 18px);
+}
+
+:host([data-reverse]) .line { flex-direction: row-reverse; }
+:host([data-reverse]) .line-value { margin-inline-start: auto; }
+:host([data-reverse]) .line-meta { flex-direction: row-reverse; }
+:host([label-position="bottom"]) .line-meta { order: 2; }
+:host([label-position="bottom"]) .line { order: 1; }
+:host([data-type="line"]) .progress { min-width: 0; }
+:host([data-type="line"][status="exception"]) .line-value,
+:host([data-type="line"][status="danger"]) .line-value { background-color: var(--elf-danger); }
+
+:host([data-type="line"]) .line-track:has(.line-value) {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--_progress-color) 4%, transparent);
 }
 
 :host([data-striped-flow]) .line-value {

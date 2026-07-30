@@ -103,6 +103,26 @@ describe("interaction directives", () => {
     expect(tooltip?.isConnected).toBe(false);
   });
 
+  it("inherits Provider-resolved theme tokens into the document-level tooltip", () => {
+    vi.useFakeTimers();
+    const element = document.createElement("button");
+    element.style.setProperty("--elf-text-primary", "#17211b");
+    element.style.setProperty("--elf-bg-paper", "#f5faf5");
+    element.style.setProperty("--elf-radius-sm", "10px");
+    document.body.appendChild(element);
+    const directive = hooks<TooltipDirectiveValue>(tooltipDirective);
+    directive.mounted(element, binding("Forest tooltip"));
+    element.dispatchEvent(new FocusEvent("focusin", { bubbles: true }));
+    vi.runAllTimers();
+
+    const tooltip = document.body.querySelector<HTMLElement>("[data-elf-tooltip]")!;
+    expect(tooltip.style.getPropertyValue("--elf-text-primary")).toBe("#17211b");
+    expect(tooltip.style.getPropertyValue("--elf-bg-paper")).toBe("#f5faf5");
+    expect(tooltip.style.getPropertyValue("--elf-radius-sm")).toBe("10px");
+
+    directive.beforeUnmount(element);
+  });
+
   it("emits directional touch gestures above the threshold", () => {
     const element = document.createElement("div");
     const handler = vi.fn();

@@ -23,10 +23,15 @@ type ProgressHost = HTMLElement & {
   strokeWidth?: number;
   showText?: boolean;
   textInside?: boolean;
+  label?: string;
+  labelPosition?: string;
+  hideValue?: boolean;
+  reverse?: boolean;
   striped?: boolean;
   indeterminate?: boolean;
   transitionDuration?: number;
   format?: (percent: number, value: number) => string;
+  valueFormat?: string | ((percent: number, value: number, max: number) => string);
 };
 
 const mount = async (patch: Partial<ProgressHost> = {}): Promise<ProgressHost> => {
@@ -130,5 +135,29 @@ describe("elf-progress", () => {
 
     expect(el.style.getPropertyValue("--_progress-transition-duration")).toBe("1.25s");
     expect(el.style.getPropertyValue("--_progress-duration")).toBe("3s");
+  });
+
+  it("supports labels, positions, hidden values, and template formatting", async () => {
+    const el = await mount({
+      value: 19,
+      max: 80,
+      label: "Uploading files",
+      labelPosition: "bottom",
+      valueFormat: "[value] / [max] ([percent]%)",
+      reverse: true
+    });
+    expect(el.getAttribute("label-position")).toBe("bottom");
+    expect(el.hasAttribute("data-reverse")).toBe(true);
+    expect(el.shadowRoot!.querySelector(".line-label")?.textContent).toContain("Uploading files");
+    expect(el.shadowRoot!.textContent).toContain("19 / 80 (24%)");
+
+    el.hideValue = true;
+    await tick();
+    expect(el.shadowRoot!.textContent).not.toContain("19 / 80");
+  });
+
+  it("maps semantic custom colors through theme variables", async () => {
+    const el = await mount({ color: "success" });
+    expect(el.style.getPropertyValue("--_progress-color")).toBe("var(--elf-success)");
   });
 });

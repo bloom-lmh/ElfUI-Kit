@@ -75,7 +75,7 @@ defineStyle(
 
 const ripple = defineDirective(rippleDirective);
 const activationCount = useRef(0);
-const cardOptions = () => ({ color: "#ffffff", duration: 520 });
+const cardOptions = () => ({ duration: 520 });
 
 const activate = (): void => {
   activationCount.set(activationCount.value + 1);
@@ -95,7 +95,7 @@ const optionRows = () => [
 ];
 
 const code = `<article
-  v-ripple={ color: '#ffffff', duration: 520 }
+  v-ripple={ duration: 520 }
   role="button"
   tabindex="0"
   @click="activate"

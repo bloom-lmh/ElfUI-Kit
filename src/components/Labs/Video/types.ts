@@ -14,6 +14,7 @@ export interface VideoControlLabels {
   pause: string;
   mute: string;
   unmute: string;
+  volume?: string;
   seek: string;
   playbackRate: string;
   pictureInPicture: string;

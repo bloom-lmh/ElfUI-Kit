@@ -114,6 +114,10 @@ export const routes: RouteRecord[] = [
     path: "/layout/masonry",
     component: () => import("../pages/layout/MasonryPage/index")
   },
+  {
+    path: "/layout/toolbar",
+    component: () => import("../pages/layout/ToolbarPage/index")
+  },
 
   // Basic
   {
@@ -388,6 +392,18 @@ export const routes: RouteRecord[] = [
     path: "/navigation/page-header",
     component: () => import("../pages/navigation/PageHeaderPage/index")
   },
+  {
+    path: "/navigation/app-bar",
+    component: () => import("../pages/navigation/AppBarPage/index")
+  },
+  {
+    path: "/navigation/bottom-navigation",
+    component: () => import("../pages/navigation/BottomNavigationPage/index")
+  },
+  {
+    path: "/navigation/footer",
+    component: () => import("../pages/navigation/FooterPage/index")
+  },
 
   // Picker
   {
@@ -474,6 +490,7 @@ export const navItems: NavItem[] = [
   { to: "/layout/splitter", text: "Splitter 分割面板", group: "Layout 布局" },
   { to: "/layout/scrollbar", text: "Scrollbar 滚动条", group: "Layout 布局" },
   { to: "/layout/masonry", text: "Masonry 瀑布流", group: "Layout 布局" },
+  { to: "/layout/toolbar", text: "Toolbar 工具栏", group: "Layout 布局" },
 
   { to: "/basic/button", text: "Button 按钮", group: "Basic 基础" },
   { to: "/basic/link", text: "Link 链接", group: "Basic 基础" },
@@ -543,6 +560,9 @@ export const navItems: NavItem[] = [
   { to: "/navigation/tabs", text: "Tabs 标签页", group: "Navigation 导航" },
   { to: "/navigation/steps", text: "Steps 步骤条", group: "Navigation 导航" },
   { to: "/navigation/page-header", text: "PageHeader 页头", group: "Navigation 导航" },
+  { to: "/navigation/app-bar", text: "AppBar 应用栏", group: "Navigation 导航" },
+  { to: "/navigation/bottom-navigation", text: "BottomNavigation 底部导航栏", group: "Navigation 导航" },
+  { to: "/navigation/footer", text: "Footer 页脚", group: "Navigation 导航" },
 
   { to: "/picker/color", text: "ColorPicker 颜色", group: "Picker 选择器" },
   { to: "/picker/date", text: "DatePicker 日期", group: "Picker 选择器" },

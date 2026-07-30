@@ -2,6 +2,8 @@ export type ProgressVariant = "line" | "circle";
 export type ProgressType = ProgressVariant | "dashboard";
 
 export type ProgressStatus = "" | "primary" | "success" | "warning" | "danger" | "exception" | "info";
+export type ProgressLabelPosition = "top" | "bottom" | "start" | "end";
+export type ProgressValueFormatter = string | ((percent: number, value: number, max: number) => string);
 
 export interface ProgressProps {
   percentage?: number;
@@ -21,10 +23,21 @@ export interface ProgressProps {
   size: number;
   strokeWidth: number;
   strokeLinecap: "butt" | "round" | "square";
+  label: string;
+  labelPosition: ProgressLabelPosition;
   showText: boolean;
+  hideValue: boolean;
   textInside: boolean;
+  reverse: boolean;
   striped: boolean;
   stripedFlow: boolean;
   indeterminate: boolean;
   format?: (percent: number, value: number) => string;
+  valueFormat?: ProgressValueFormatter;
+}
+
+export interface ProgressSlots {
+  default?: unknown;
+  label?: unknown;
+  value?: unknown;
 }
