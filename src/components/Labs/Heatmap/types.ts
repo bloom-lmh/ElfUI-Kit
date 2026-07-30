@@ -36,6 +36,10 @@ export interface HeatmapProps {
   showRowHeaders: boolean;
   showColumnHeaders: boolean;
   legend: boolean;
+  legendInteractive: boolean;
+  lessText: string;
+  moreText: string;
+  legendAriaLabel: string;
   hover: boolean;
   emptyColor: string;
   ariaLabel: string;
@@ -44,11 +48,13 @@ export interface HeatmapProps {
 export interface HeatmapEmits {
   "cell-click": [detail: HeatmapCellDetail];
   "cell-focus": [detail: HeatmapCellDetail];
+  "legend-change": [threshold: HeatmapThreshold | null];
 }
 
 export interface HeatmapExpose {
   focusCell(row: string, column: string): void;
   getCell(row: string, column: string): HTMLButtonElement | null;
+  clearLegendFilter(): void;
 }
 
 export type HeatmapElement = HTMLElement & HeatmapProps & HeatmapExpose;

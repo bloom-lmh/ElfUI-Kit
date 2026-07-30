@@ -28,7 +28,6 @@ beforeAll(async () => {
     { PageUpgradeGuide },
     { PageBrowserSupport },
     { PageFaq },
-    { PageDirectivesIntroduction },
     { PageClickOutside },
     { PageIntersect },
     { PageMutate },
@@ -37,8 +36,6 @@ beforeAll(async () => {
     { PageScroll },
     { PageTooltipDirective },
     { PageTouch },
-    { PageQualityIntroduction },
-    { PageLabsIntroduction },
     { PageLabsVideo },
     { PageLabsHeatmap }
   ] = await Promise.all([
@@ -46,7 +43,6 @@ beforeAll(async () => {
     import("./getting-started/UpgradeGuidePage/index"),
     import("./getting-started/BrowserSupportPage/index"),
     import("./getting-started/FaqPage/index"),
-    import("./directives/DirectivesIntroductionPage/index"),
     import("./directives/ClickOutsidePage/index"),
     import("./directives/IntersectPage/index"),
     import("./directives/MutatePage/index"),
@@ -55,8 +51,6 @@ beforeAll(async () => {
     import("./directives/ScrollPage/index"),
     import("./directives/TooltipPage/index"),
     import("./directives/TouchPage/index"),
-    import("./quality/QualityIntroductionPage/index"),
-    import("./labs/LabsIntroductionPage/index"),
     import("./labs/VideoPage/index"),
     import("./labs/HeatmapPage/index")
   ]);
@@ -66,7 +60,6 @@ beforeAll(async () => {
     { tag: ensureCustomElement(PageUpgradeGuide), title: "Upgrade guide" },
     { tag: ensureCustomElement(PageBrowserSupport), title: "Browser support" },
     { tag: ensureCustomElement(PageFaq), title: "Frequently asked questions" },
-    { tag: ensureCustomElement(PageDirectivesIntroduction), title: "Directives" },
     { tag: ensureCustomElement(PageClickOutside), title: "Click outside" },
     { tag: ensureCustomElement(PageIntersect), title: "Intersect" },
     { tag: ensureCustomElement(PageMutate), title: "Mutate" },
@@ -75,8 +68,6 @@ beforeAll(async () => {
     { tag: ensureCustomElement(PageScroll), title: "Scroll" },
     { tag: ensureCustomElement(PageTooltipDirective), title: "Tooltip" },
     { tag: ensureCustomElement(PageTouch), title: "Touch" },
-    { tag: ensureCustomElement(PageQualityIntroduction), title: "Quality" },
-    { tag: ensureCustomElement(PageLabsIntroduction), title: "Labs" },
     { tag: ensureCustomElement(PageLabsVideo), title: "Video" },
     { tag: ensureCustomElement(PageLabsHeatmap), title: "Heatmap" }
   );
@@ -88,7 +79,7 @@ afterEach(() => {
 });
 
 describe("新文档领域页面", () => {
-  it("英文模式覆盖七个入口且不泄漏中文", async () => {
+  it("英文模式覆盖全部入口且不泄漏中文", async () => {
     document.documentElement.lang = "en-US";
 
     for (const pageCase of pages) {
@@ -108,19 +99,16 @@ describe("新文档领域页面", () => {
       ["Upgrade guide", [[".docs-flow-item", 3], [".docs-matrix", 1]]],
       ["Browser support", [[".docs-matrix", 2], [".docs-checklist li", 4]]],
       ["Frequently asked questions", [["details", 10], [".docs-section", 4]]],
-      ["Directives", [[".docs-flow-item", 3], [".docs-matrix", 1]]],
-      ["Click outside", [["elf-playground", 1], [".docs-matrix", 1]]],
-      ["Intersect", [["elf-playground", 1], [".docs-matrix", 1]]],
-      ["Mutate", [["elf-playground", 1], [".docs-matrix", 1]]],
-      ["Resize", [["elf-playground", 1], [".docs-matrix", 1]]],
-      ["Ripple", [["elf-playground", 1], [".docs-matrix", 1]]],
-      ["Scroll", [["elf-playground", 1], [".docs-matrix", 1]]],
-      ["Tooltip", [["elf-playground", 1], [".docs-matrix", 1]]],
-      ["Touch", [["elf-playground", 1], [".docs-matrix", 1]]],
-      ["Quality", [[".docs-flow-item", 3], [".docs-matrix", 2]]],
-      ["Labs", [[".docs-flow-item", 3], [".docs-matrix", 1]]],
-      ["Video", [["elf-playground", 1], [".docs-matrix", 2]]],
-      ["Heatmap", [["elf-playground", 1], [".docs-matrix", 2]]],
+      ["Click outside", [["elf-playground", 1], ["elf-props-table", 1]]],
+      ["Intersect", [["elf-playground", 1], ["elf-props-table", 1]]],
+      ["Mutate", [["elf-playground", 1], ["elf-props-table", 1]]],
+      ["Resize", [["elf-playground", 1], ["elf-props-table", 1]]],
+      ["Ripple", [["elf-playground", 1], ["elf-props-table", 1]]],
+      ["Scroll", [["elf-playground", 1], ["elf-props-table", 1]]],
+      ["Tooltip", [["elf-playground", 1], ["elf-props-table", 1]]],
+      ["Touch", [["elf-playground", 1], ["elf-props-table", 1]]],
+      ["Video", [["elf-playground", 1], ["elf-props-table", 2]]],
+      ["Heatmap", [["elf-playground", 1], ["elf-props-table", 2]]],
     ]);
 
     for (const pageCase of pages) {

@@ -234,6 +234,8 @@ export const createTooltipController = (
   const id = `elf-directive-tooltip-${++tooltipSeed}`;
   const previousDescribedBy = element.getAttribute("aria-describedby");
   const tooltip = document.createElement("div");
+  const content = document.createElement("span");
+  const arrow = document.createElement("span");
   let showTimer: ReturnType<typeof setTimeout> | undefined;
   let hideTimer: ReturnType<typeof setTimeout> | undefined;
 
@@ -253,6 +255,17 @@ export const createTooltipController = (
     font: "500 12px/1.5 var(--elf-font-family, sans-serif)",
     pointerEvents: "none"
   });
+  arrow.dataset.elfTooltipArrow = "";
+  arrow.setAttribute("aria-hidden", "true");
+  Object.assign(arrow.style, {
+    position: "absolute",
+    width: "8px",
+    height: "8px",
+    background: "inherit",
+    transform: "rotate(45deg)",
+    pointerEvents: "none"
+  });
+  tooltip.append(content, arrow);
   document.body.appendChild(tooltip);
 
   const clearTimers = (): void => {
@@ -264,6 +277,7 @@ export const createTooltipController = (
 
   const position = (): void => {
     if (tooltip.hidden) return;
+    const placement = options.placement;
     const target = element.getBoundingClientRect();
     const tip = tooltip.getBoundingClientRect();
     const gap = 8;
@@ -273,16 +287,34 @@ export const createTooltipController = (
       left: [target.left - tip.width - gap, target.top + (target.height - tip.height) / 2],
       right: [target.right + gap, target.top + (target.height - tip.height) / 2]
     };
-    const [left, top] = positions[options.placement];
+    const [left, top] = positions[placement];
     tooltip.style.left = `${Math.max(4, Math.min(left, window.innerWidth - tip.width - 4))}px`;
     tooltip.style.top = `${Math.max(4, Math.min(top, window.innerHeight - tip.height - 4))}px`;
+    tooltip.dataset.placement = placement;
+    Object.assign(arrow.style, {
+      top: "auto",
+      right: "auto",
+      bottom: "auto",
+      left: "auto",
+      marginTop: "0",
+      marginLeft: "0"
+    });
+    if (placement === "top" || placement === "bottom") {
+      arrow.style.left = "50%";
+      arrow.style.marginLeft = "-4px";
+      arrow.style[placement === "top" ? "bottom" : "top"] = "-4px";
+    } else {
+      arrow.style.top = "50%";
+      arrow.style.marginTop = "-4px";
+      arrow.style[placement === "left" ? "right" : "left"] = "-4px";
+    }
   };
 
   const open = (): void => {
     clearTimers();
     if (options.disabled || !options.content) return;
     showTimer = setTimeout(() => {
-      tooltip.textContent = options.content;
+      content.textContent = options.content;
       tooltip.hidden = false;
       element.setAttribute(
         "aria-describedby",
@@ -317,7 +349,7 @@ export const createTooltipController = (
     update(value) {
       options = normalizeTooltip(value);
       if (!tooltip.hidden) {
-        tooltip.textContent = options.content;
+        content.textContent = options.content;
         if (options.disabled) close();
         else position();
       }

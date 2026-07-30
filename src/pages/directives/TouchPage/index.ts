@@ -15,6 +15,12 @@ const touch = defineDirective(touchDirective);
 const gesture = useRef("");
 const onGesture = (detail: TouchGestureDetail): void => gesture.set(`${detail.direction} · ${Math.round(Math.max(Math.abs(detail.deltaX), Math.abs(detail.deltaY)))}px`);
 const options = () => ({ handler: onGesture, threshold: 28 });
+const optionRows = () => [
+  { name: "handler", type: "(detail) => void", default: "—", desc: t("handler") },
+  { name: "left / right / up / down", type: "(detail) => void", default: "—", desc: t("directions") },
+  { name: "threshold", type: "number", default: "36", desc: t("threshold") },
+  { name: "disabled", type: "boolean", default: "false", desc: t("disabled") }
+];
 const code = `<section v-touch={ handler: onGesture, threshold: 28 }>
   Swipe in any direction
 </section>`;
@@ -26,7 +32,7 @@ const onGesture = ({ direction }) => setDirection(direction);`;
 const PageTouch = defineHtml(`
   <elf-container class="docs-article"><span class="docs-kicker">${t("kicker")}</span><h1>${t("title")}</h1><p class="page-lead">${t("description")}</p>
     <elf-playground :title=${t("demo")} :code=${code} :script=${script}><span slot="status">${t("detected")}: ${gesture || t("idle")}</span><section v-touch=${options()} class="directive-gesture">${t("demo")}</section></elf-playground>
-    <section class="docs-section"><h2>${t("api")}</h2><table class="docs-matrix"><thead><tr><th>Option</th><th>${t("type")}</th><th>${t("desc")}</th></tr></thead><tbody><tr><td>handler</td><td>(detail) =&gt; void</td><td>${t("handler")}</td></tr><tr><td>left / right / up / down</td><td>(detail) =&gt; void</td><td>${t("directions")}</td></tr><tr><td>threshold</td><td>number</td><td>${t("threshold")}</td></tr><tr><td>disabled</td><td>boolean</td><td>${t("disabled")}</td></tr></tbody></table></section>
+    <section class="docs-section"><h2>${t("api")}</h2><elf-props-table :title=${t("api")} :rows=${optionRows()} /></section>
   </elf-container>
 `);
 export { PageTouch };

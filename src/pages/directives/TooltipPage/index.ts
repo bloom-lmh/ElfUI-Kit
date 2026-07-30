@@ -13,6 +13,12 @@ const t = createDocsTranslator({
 defineStyle(articleStyles, demoStyles);
 const tooltip = defineDirective(tooltipDirective);
 const rightTip = () => ({ content: t("right"), placement: "right", showDelay: 120 });
+const optionRows = () => [
+  { name: "content", type: "string", default: "—", desc: t("content") },
+  { name: "placement", type: "'top' | 'bottom' | 'left' | 'right'", default: "top", desc: t("placement") },
+  { name: "showDelay", type: "number", default: "0", desc: t("showDelay") },
+  { name: "hideDelay", type: "number", default: "0", desc: t("hideDelay") }
+];
 const code = `<button v-tooltip={ content: 'Save changes', placement: 'top' }>Save</button>`;
 const script = `import { defineDirective } from "@elfui/core";
 import { tooltipDirective } from "@elfui/kit";
@@ -21,7 +27,7 @@ const tooltip = defineDirective(tooltipDirective);`;
 const PageTooltipDirective = defineHtml(`
   <elf-container class="docs-article"><span class="docs-kicker">${t("kicker")}</span><h1>${t("title")}</h1><p class="page-lead">${t("description")}</p>
     <elf-playground :title=${t("demo")} :code=${code} :script=${script}><div class="directive-tooltip-row"><elf-button v-tooltip=${t("top")} type="button">${t("top")}</elf-button><elf-button v-tooltip=${rightTip()} type="button">${t("right")}</elf-button></div></elf-playground>
-    <section class="docs-section"><h2>${t("api")}</h2><table class="docs-matrix"><thead><tr><th>Option</th><th>${t("type")}</th><th>${t("desc")}</th></tr></thead><tbody><tr><td>content</td><td>string</td><td>${t("content")}</td></tr><tr><td>placement</td><td>'top' | 'bottom' | 'left' | 'right'</td><td>${t("placement")}</td></tr><tr><td>showDelay</td><td>number</td><td>${t("showDelay")}</td></tr><tr><td>hideDelay</td><td>number</td><td>${t("hideDelay")}</td></tr></tbody></table></section>
+    <section class="docs-section"><h2>${t("api")}</h2><elf-props-table :title=${t("api")} :rows=${optionRows()} /></section>
   </elf-container>
 `);
 export { PageTooltipDirective };

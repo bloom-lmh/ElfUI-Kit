@@ -5,7 +5,8 @@ import {
   defineProps,
   defineStyle,
   useComputed,
-  useHost
+  useHost,
+  useRef
 } from "@elfui/core";
 
 import styles from "./style.scss?inline";
@@ -44,6 +45,10 @@ const props = defineProps<HeatmapProps>({
   showRowHeaders: { type: Boolean, default: true },
   showColumnHeaders: { type: Boolean, default: true },
   legend: { type: Boolean, default: true },
+  legendInteractive: { type: Boolean, default: true },
+  lessText: { type: String, default: "Less" },
+  moreText: { type: String, default: "More" },
+  legendAriaLabel: { type: String, default: "Filter heatmap by color" },
   hover: { type: Boolean, default: true },
   emptyColor: { type: String, default: "var(--elf-fill-color-light, #f2f6fc)" },
   ariaLabel: { type: String, default: "Heatmap" }
@@ -51,6 +56,7 @@ const props = defineProps<HeatmapProps>({
 
 const emit = defineEmits<HeatmapEmits>();
 const host = useHost();
+const activeThresholdIndex = useRef(-1);
 const sortedThresholds = useComputed(() =>
   [...(props.thresholds as HeatmapThreshold[])].sort((a, b) => a.max - b.max)
 );
@@ -75,6 +81,12 @@ const valueColor = (value: number | null): string => {
   return last?.color ?? "var(--elf-primary, #409eff)";
 };
 
+const thresholdIndex = (value: number | null): number => {
+  if (value === null || !Number.isFinite(value)) return -1;
+  const index = thresholds().findIndex((entry) => value <= entry.max);
+  return index >= 0 ? index : thresholds().length - 1;
+};
+
 const detail = (rowKey: string, columnKey: string): HeatmapCellDetail => ({
   item: findItem(rowKey, columnKey),
   row: rows().find((entry) => entry.key === rowKey) ?? { key: rowKey, label: rowKey },
@@ -89,7 +101,9 @@ const cellLabel = (rowKey: string, columnKey: string): string => {
 const cellClass = (rowKey: string, columnKey: string): Record<string, boolean> => ({
   cell: true,
   empty: findItem(rowKey, columnKey).value === null,
-  hoverable: props.hover
+  hoverable: props.hover,
+  "is-filtered": activeThresholdIndex.value >= 0
+    && thresholdIndex(findItem(rowKey, columnKey).value) !== activeThresholdIndex.value
 });
 
 const cellStyle = (rowKey: string, columnKey: string): Record<string, string> => ({
@@ -114,6 +128,30 @@ const getCell = (row: string, column: string): HTMLButtonElement | null =>
   ) ?? null;
 
 const focusCell = (row: string, column: string): void => getCell(row, column)?.focus();
+const clearLegendFilter = (): void => {
+  activeThresholdIndex.set(-1);
+  emit("legend-change", null);
+};
+
+const legendLabel = (threshold: HeatmapThreshold): string =>
+  threshold.label || `≤ ${threshold.max}`;
+const isLegendActive = (index: number): boolean =>
+  activeThresholdIndex.value === index;
+const legendPressed = (index: number): string =>
+  String(isLegendActive(index));
+
+const onLegendClick = (event: Event): void => {
+  if (!props.legendInteractive) return;
+  const index = Number((event.currentTarget as HTMLElement).dataset.index);
+  const threshold = thresholds()[index];
+  if (!Number.isInteger(index) || !threshold) return;
+  if (activeThresholdIndex.value === index) {
+    clearLegendFilter();
+    return;
+  }
+  activeThresholdIndex.set(index);
+  emit("legend-change", threshold);
+};
 
 const moveFocus = (event: KeyboardEvent): void => {
   const target = event.currentTarget as HTMLButtonElement;
@@ -132,7 +170,7 @@ const moveFocus = (event: KeyboardEvent): void => {
   if (row && column) focusCell(row.key, column.key);
 };
 
-defineExpose<HeatmapExpose>({ focusCell, getCell });
+defineExpose<HeatmapExpose>({ focusCell, getCell, clearLegendFilter });
 defineStyle(styles);
 
 const Heatmap = defineHtml<HeatmapProps>(`
@@ -164,12 +202,24 @@ const Heatmap = defineHtml<HeatmapProps>(`
         >{{ findItem(row.key, column.key).value ?? "—" }}</button>
       </template>
     </div>
-    <div v-if=${showLegend()} class="legend" aria-hidden="true">
-      <span>Less</span>
+    <div v-if=${showLegend()} class="legend" :aria-label=${props.legendAriaLabel}>
+      <span>${props.lessText}</span>
       <span class="legend-scale">
-        <span v-for="threshold in thresholds()" class="legend-cell" :style="{ background: threshold.color }"></span>
+        <button
+          v-for="(threshold, index) in thresholds()"
+          class="legend-cell"
+          :class="{ active: isLegendActive(index) }"
+          type="button"
+          :data-index="index"
+          :style="{ background: threshold.color }"
+          :aria-label="legendLabel(threshold)"
+          :aria-pressed="legendPressed(index)"
+          :aria-disabled=${!props.legendInteractive}
+          :tabindex=${props.legendInteractive ? 0 : -1}
+          @click=${onLegendClick}
+        ></button>
       </span>
-      <span>More</span>
+      <span>${props.moreText}</span>
     </div>
   </section>
 `);

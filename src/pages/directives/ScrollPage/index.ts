@@ -15,6 +15,12 @@ const scroll = defineDirective(scrollDirective);
 const position = useRef("0 / 0 · 0%");
 const onScroll = (detail: ScrollDirectiveDetail): void => position.set(`${Math.round(detail.position)} / ${Math.round(detail.maximum)} · ${Math.round(detail.progress * 100)}%`);
 const options = () => ({ handler: onScroll, target: ".scroll-directive-view", immediate: true });
+const optionRows = () => [
+  { name: "handler", type: "(detail) => void", default: "—", desc: t("handler") },
+  { name: "target", type: "Element | string | Window", default: "nearest", desc: t("target") },
+  { name: "axis", type: "'x' | 'y'", default: "y", desc: t("axis") },
+  { name: "immediate", type: "boolean", default: "true", desc: t("immediate") }
+];
 const code = `<div class="scroll-area"><div v-scroll={ handler: onScroll, target: '.scroll-area' }></div></div>`;
 const script = `import { defineDirective } from "@elfui/core";
 import { scrollDirective } from "@elfui/kit";
@@ -24,7 +30,7 @@ const onScroll = ({ progress }) => updateProgress(progress);`;
 const PageScroll = defineHtml(`
   <elf-container class="docs-article"><span class="docs-kicker">${t("kicker")}</span><h1>${t("title")}</h1><p class="page-lead">${t("description")}</p>
     <elf-playground :title=${t("demo")} :code=${code} :script=${script}><span slot="status">${t("position")}: ${position}</span><div class="directive-scroll scroll-directive-view"><div v-scroll=${options()} class="directive-scroll-content"><p>${t("hint")}</p><div class="directive-observer-target">${t("demo")}</div></div></div></elf-playground>
-    <section class="docs-section"><h2>${t("api")}</h2><table class="docs-matrix"><thead><tr><th>Option</th><th>${t("type")}</th><th>${t("desc")}</th></tr></thead><tbody><tr><td>handler</td><td>(detail) =&gt; void</td><td>${t("handler")}</td></tr><tr><td>target</td><td>Element | string | Window</td><td>${t("target")}</td></tr><tr><td>axis</td><td>'x' | 'y'</td><td>${t("axis")}</td></tr><tr><td>immediate</td><td>boolean</td><td>${t("immediate")}</td></tr></tbody></table></section>
+    <section class="docs-section"><h2>${t("api")}</h2><elf-props-table :title=${t("api")} :rows=${optionRows()} /></section>
   </elf-container>
 `);
 export { PageScroll };

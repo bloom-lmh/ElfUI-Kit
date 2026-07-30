@@ -38,7 +38,6 @@ const ICONS: Record<string, string> = {
   "Navigation 导航": "N",
   "Picker 选择器": "P",
   "Directives 指令": "ƒ",
-  "Quality 质量": "Q",
   "Labs 实验室": "X"
 };
 

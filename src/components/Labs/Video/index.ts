@@ -222,12 +222,21 @@ const isPlaying = (): boolean => playing.value;
 const showCenterAction = (): boolean => props.controls && !isPlaying();
 const timelineMaximum = (): number => Math.max(duration.value, 0);
 const timelineValue = (): number => currentTime.value;
-const volumeSymbol = (): string => muted.value || volume.value === 0 ? "Off" : "Vol";
 const selectedPlaybackRate = (): number => playbackRate.value;
 const pipSupported = (): boolean =>
   typeof document !== "undefined" && "pictureInPictureEnabled" in document;
 
 useHostCssVar("--_video-ratio", () => String(props.aspectRatio || "16 / 9"));
+
+const syncConfiguredMedia = (): void => {
+  const video = media();
+  if (!video) return;
+  video.volume = clamp(props.volume, 0, 1);
+  video.muted = Boolean(props.muted);
+  video.playbackRate = clamp(props.playbackRate, 0.25, 4);
+  syncVolume();
+  playbackRate.set(video.playbackRate);
+};
 
 onMounted(() => {
   const video = media();
@@ -245,6 +254,7 @@ onMounted(() => {
   document.addEventListener("fullscreenchange", onFullscreenChange);
   video.addEventListener("enterpictureinpicture", onPipEnter);
   video.addEventListener("leavepictureinpicture", onPipLeave);
+  syncConfiguredMedia();
   syncTime();
 
   return () => {
@@ -255,13 +265,7 @@ onMounted(() => {
 });
 
 useEffect(() => {
-  const video = media();
-  if (!video) return;
-  video.volume = clamp(props.volume, 0, 1);
-  video.muted = Boolean(props.muted);
-  video.playbackRate = clamp(props.playbackRate, 0.25, 4);
-  syncVolume();
-  playbackRate.set(video.playbackRate);
+  syncConfiguredMedia();
 });
 
 defineExpose<VideoExpose>({
@@ -333,8 +337,8 @@ const Video = defineHtml(`
         @input=${onSeekInput}
       />
       <span class="time">${timeLabel()}</span>
-      <button class="control" type="button" :aria-label=${muteLabel()} @click=${toggleMuted}>
-        <span aria-hidden="true">${volumeSymbol()}</span>
+      <button class="control volume-control" type="button" :aria-label=${muteLabel()} @click=${toggleMuted}>
+        <span class="volume-icon" :class="{ muted: isMuted() }" aria-hidden="true"></span>
       </button>
       <select
         class="rate"
@@ -342,21 +346,21 @@ const Video = defineHtml(`
         :aria-label=${label("playbackRate")}
         @change=${setPlaybackRate}
       >
-        <option v-for="rate in rateItems()" :value="rate">{{ rate }}x</option>
+        <option v-for="rate in rateItems()" :value="rate" :selected="rate === selectedPlaybackRate()">{{ rate }}x</option>
       </select>
       <button
         v-if=${pipSupported()}
-        class="control"
+        class="control pip-control"
         type="button"
         :aria-label=${label("pictureInPicture")}
         @click=${togglePictureInPicture}
-      >PiP</button>
+      ><span class="pip-icon" aria-hidden="true"></span></button>
       <button
-        class="control"
+        class="control fullscreen-control"
         type="button"
         :aria-label=${label("fullscreen")}
         @click=${requestMediaFullscreen}
-      >[ ]</button>
+      ><span class="fullscreen-icon" aria-hidden="true"></span></button>
     </div>
   </div>
 `);

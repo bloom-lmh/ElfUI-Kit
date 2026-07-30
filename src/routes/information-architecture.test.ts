@@ -6,13 +6,12 @@ const paths = routes.map((route) => route.path);
 const groupItems = (group: string) => navItems.filter((item) => item.group === group);
 
 describe("文档信息架构", () => {
-  it("为四个新领域提供可访问路由", () => {
+  it("为快速入门、独立指令和实验组件提供可访问路由", () => {
     expect(paths).toEqual(expect.arrayContaining([
       "/getting-started/installation",
       "/getting-started/upgrade-guide",
       "/getting-started/browser-support",
       "/getting-started/faq",
-      "/directives",
       "/directives/click-outside",
       "/directives/intersect",
       "/directives/mutate",
@@ -21,9 +20,8 @@ describe("文档信息架构", () => {
       "/directives/scroll",
       "/directives/tooltip",
       "/directives/touch",
-      "/quality",
-      "/quality/accessibility",
-      "/labs"
+      "/labs/video",
+      "/labs/heatmap"
     ]));
   });
 
@@ -36,19 +34,17 @@ describe("文档信息架构", () => {
     ]);
   });
 
-  it("无障碍只在质量目录出现并保留旧地址兼容", () => {
+  it("无障碍归入指南且不再创建质量章节", () => {
     expect(paths).toContain("/guide/accessibility");
-    expect(groupItems("Quality 质量")).toEqual(expect.arrayContaining([
-      expect.objectContaining({ to: "/quality/accessibility" })
-    ]));
-    expect(groupItems("Guide 指南")).not.toEqual(expect.arrayContaining([
+    expect(groupItems("Quality 质量")).toHaveLength(0);
+    expect(groupItems("Guide 指南")).toEqual(expect.arrayContaining([
       expect.objectContaining({ to: "/guide/accessibility" })
     ]));
   });
 
-  it("未完成的指令和实验组件不创建空白菜单项", () => {
-    expect(groupItems("Directives 指令")).toHaveLength(9);
-    expect(groupItems("Labs 实验室")).toHaveLength(3);
+  it("指令和实验组件只显示实际功能页面", () => {
+    expect(groupItems("Directives 指令")).toHaveLength(8);
+    expect(groupItems("Labs 实验室")).toHaveLength(2);
     expect(paths).toEqual(expect.arrayContaining([
       "/labs/video",
       "/labs/heatmap"

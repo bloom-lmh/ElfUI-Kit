@@ -28,6 +28,11 @@ const onIntersect = (entries: readonly IntersectionObserverEntry[]): void => {
   if (entries.some((entry) => entry.isIntersecting)) visibleCount.set(visibleCount.value + 1);
 };
 const options = () => ({ handler: onIntersect, once: false, threshold: 0.6 });
+const optionRows = () => [
+  { name: "handler", type: "(entries, observer) => void", default: "—", desc: t("handler") },
+  { name: "once", type: "boolean", default: "false", desc: t("once") },
+  { name: "threshold", type: "number | number[]", default: "0", desc: t("threshold") }
+];
 const code = `<div class="scroll-container">
   <section v-intersect={ handler: onIntersect, threshold: 0.6 }>
     Load when visible
@@ -48,7 +53,7 @@ const PageIntersect = defineHtml(`
       <span slot="status">${t("seen")}: ${visibleCount}</span>
       <div class="directive-scroll"><div class="directive-scroll-content"><p>${t("hint")}</p><section v-intersect=${options()} class="directive-observer-target">${t("demo")}</section></div></div>
     </elf-playground>
-    <section class="docs-section"><h2>${t("api")}</h2><table class="docs-matrix"><thead><tr><th>Option</th><th>${t("type")}</th><th>${t("descriptionLabel")}</th></tr></thead><tbody><tr><td>handler</td><td>(entries, observer) =&gt; void</td><td>${t("handler")}</td></tr><tr><td>once</td><td>boolean</td><td>${t("once")}</td></tr><tr><td>threshold</td><td>number | number[]</td><td>${t("threshold")}</td></tr></tbody></table></section>
+    <section class="docs-section"><h2>${t("api")}</h2><elf-props-table :title=${t("api")} :rows=${optionRows()} /></section>
   </elf-container>
 `);
 

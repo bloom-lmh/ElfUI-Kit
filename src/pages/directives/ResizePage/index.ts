@@ -17,6 +17,11 @@ const onResize = (entries: readonly ResizeObserverEntry[]): void => {
   const rect = entries.at(-1)?.contentRect;
   if (rect) dimensions.set(`${Math.round(rect.width)} × ${Math.round(rect.height)}`);
 };
+const optionRows = () => [
+  { name: "handler", type: "(entries, observer) => void", default: "—", desc: t("handler") },
+  { name: "box", type: "ResizeObserverBoxOptions", default: "content-box", desc: t("box") },
+  { name: "disabled", type: "boolean", default: "false", desc: t("disabled") }
+];
 const code = `<section v-resize={ onResize } class="resizable-panel">Resize me</section>`;
 const script = `import { defineDirective } from "@elfui/core";
 import { resizeDirective } from "@elfui/kit";
@@ -26,7 +31,7 @@ const onResize = ([entry]) => updateSize(entry.contentRect);`;
 const PageResize = defineHtml(`
   <elf-container class="docs-article"><span class="docs-kicker">${t("kicker")}</span><h1>${t("title")}</h1><p class="page-lead">${t("description")}</p>
     <elf-playground :title=${t("demo")} :code=${code} :script=${script}><span slot="status">${t("size")}: ${dimensions}</span><section v-resize=${onResize} class="directive-resize">${t("demo")}</section></elf-playground>
-    <section class="docs-section"><h2>${t("api")}</h2><table class="docs-matrix"><thead><tr><th>Option</th><th>${t("type")}</th><th>${t("desc")}</th></tr></thead><tbody><tr><td>handler</td><td>(entries, observer) =&gt; void</td><td>${t("handler")}</td></tr><tr><td>box</td><td>ResizeObserverBoxOptions</td><td>${t("box")}</td></tr><tr><td>disabled</td><td>boolean</td><td>${t("disabled")}</td></tr></tbody></table></section>
+    <section class="docs-section"><h2>${t("api")}</h2><elf-props-table :title=${t("api")} :rows=${optionRows()} /></section>
   </elf-container>
 `);
 export { PageResize };

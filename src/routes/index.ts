@@ -37,10 +37,6 @@ export const routes: RouteRecord[] = [
     component: () => import("../pages/guide/BuildStylesPage/index")
   },
   {
-    path: "/directives",
-    component: () => import("../pages/directives/DirectivesIntroductionPage/index")
-  },
-  {
     path: "/directives/click-outside",
     component: () => import("../pages/directives/ClickOutsidePage/index")
   },
@@ -71,18 +67,6 @@ export const routes: RouteRecord[] = [
   {
     path: "/directives/touch",
     component: () => import("../pages/directives/TouchPage/index")
-  },
-  {
-    path: "/quality",
-    component: () => import("../pages/quality/QualityIntroductionPage/index")
-  },
-  {
-    path: "/quality/accessibility",
-    component: () => import("../pages/guide/AccessibilityPage/index")
-  },
-  {
-    path: "/labs",
-    component: () => import("../pages/labs/LabsIntroductionPage/index")
   },
   {
     path: "/labs/video",
@@ -479,6 +463,7 @@ export const navItems: NavItem[] = [
   { to: "/providers/theme", text: "Theme & customization 主题与个性化", group: "Guide 指南" },
   { to: "/basic/icon", text: "Icons 图标配置", group: "Guide 指南" },
   { to: "/providers/locale", text: "Internationalization 国际化", group: "Guide 指南" },
+  { to: "/guide/accessibility", text: "Accessibility 无障碍", group: "Guide 指南" },
   { to: "/guide/build", text: "Build & styles 构建与样式", group: "Guide 指南" },
   { to: "/utilities", text: "Utilities 工具类", group: "Guide 指南" },
 
@@ -566,7 +551,6 @@ export const navItems: NavItem[] = [
   { to: "/picker/time-select", text: "TimeSelect 时间选择", group: "Picker 选择器" },
   { to: "/picker/calendar", text: "Calendar 日历", group: "Picker 选择器" },
 
-  { to: "/directives", text: "Introduction 介绍", group: "Directives 指令" },
   { to: "/directives/click-outside", text: "Click outside 外部点击", group: "Directives 指令" },
   { to: "/directives/intersect", text: "Intersect 交叉观察", group: "Directives 指令" },
   { to: "/directives/mutate", text: "Mutate DOM 变化观察", group: "Directives 指令" },
@@ -576,10 +560,6 @@ export const navItems: NavItem[] = [
   { to: "/directives/tooltip", text: "Tooltip 工具提示", group: "Directives 指令" },
   { to: "/directives/touch", text: "Touch 触摸手势", group: "Directives 指令" },
 
-  { to: "/quality", text: "Introduction 介绍", group: "Quality 质量" },
-  { to: "/quality/accessibility", text: "Accessibility 无障碍", group: "Quality 质量" },
-
-  { to: "/labs", text: "Introduction 介绍", group: "Labs 实验室" },
   { to: "/labs/video", text: "Video 视频", group: "Labs 实验室" },
   { to: "/labs/heatmap", text: "Heatmap 热力图", group: "Labs 实验室" },
 ];

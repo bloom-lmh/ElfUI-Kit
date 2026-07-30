@@ -20,6 +20,11 @@ const visibleEntries = (): string[] => entries.value;
 const onMutate = (records: readonly MutationRecord[]): void => count.set(count.value + records.length);
 const addRecord = (): void => entries.set([...entries.value, `Record ${entries.value.length + 1}`]);
 const options = () => ({ handler: onMutate, observer: { childList: true } });
+const optionRows = () => [
+  { name: "handler", type: "(records, observer) => void", default: "—", desc: t("handler") },
+  { name: "observer", type: "MutationObserverInit", default: "{ childList: true }", desc: t("observer") },
+  { name: "disabled", type: "boolean", default: "false", desc: t("disabled") }
+];
 const code = `<section v-mutate={ handler: onMutate, observer: { childList: true } }>
   <p v-for="entry in entries">{{ entry }}</p>
 </section>`;
@@ -31,7 +36,7 @@ const onMutate = (records) => sync(records);`;
 const PageMutate = defineHtml(`
   <elf-container class="docs-article"><span class="docs-kicker">${t("kicker")}</span><h1>${t("title")}</h1><p class="page-lead">${t("description")}</p>
     <elf-playground :title=${t("demo")} :code=${code} :script=${script}><span slot="status">${t("records")}: ${count}</span><div class="directive-stack"><elf-button @click=${addRecord}>${t("add")}</elf-button><section v-mutate=${options()} class="directive-demo"><div><p v-for="entry in visibleEntries()" :key="entry">{{ entry }}</p></div></section></div></elf-playground>
-    <section class="docs-section"><h2>${t("api")}</h2><table class="docs-matrix"><thead><tr><th>Option</th><th>${t("type")}</th><th>${t("desc")}</th></tr></thead><tbody><tr><td>handler</td><td>(records, observer) =&gt; void</td><td>${t("handler")}</td></tr><tr><td>observer</td><td>MutationObserverInit</td><td>${t("observer")}</td></tr><tr><td>disabled</td><td>boolean</td><td>${t("disabled")}</td></tr></tbody></table></section>
+    <section class="docs-section"><h2>${t("api")}</h2><elf-props-table :title=${t("api")} :rows=${optionRows()} /></section>
   </elf-container>
 `);
 export { PageMutate };

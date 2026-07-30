@@ -35,6 +35,8 @@ describe("elf-video", () => {
     expect(video.getAttribute("src")).toBe("demo.mp4");
     expect(el.shadowRoot!.querySelector(".center-action")?.getAttribute("aria-label")).toBe("Play");
     expect(el.shadowRoot!.querySelector(".video-shell")?.getAttribute("aria-label")).toBe("Product overview");
+    expect(el.shadowRoot!.querySelector<HTMLSelectElement>(".rate")?.value).toBe("1");
+    expect(el.shadowRoot!.querySelector(".fullscreen-icon")).toBeTruthy();
   });
 
   it("clamps exposed seek and volume actions", async () => {

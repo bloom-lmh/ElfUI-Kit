@@ -18,6 +18,7 @@ interface HeatmapEl extends HTMLElement {
   thresholds?: Array<{ max: number; color: string }>;
   focusCell?: (row: string, column: string) => void;
   getCell?: (row: string, column: string) => HTMLButtonElement | null;
+  clearLegendFilter?: () => void;
 }
 
 const createHeatmap = async (): Promise<HeatmapEl> => {
@@ -61,5 +62,24 @@ describe("elf-heatmap", () => {
     first.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
     await tick();
     expect(el.shadowRoot!.activeElement).toBe(el.getCell!("w1", "tue"));
+  });
+
+  it("filters cells by an interactive legend color and toggles the filter", async () => {
+    const el = await createHeatmap();
+    const onLegendChange = vi.fn();
+    el.addEventListener("legend-change", onLegendChange as EventListener);
+    const legends = el.shadowRoot!.querySelectorAll<HTMLButtonElement>(".legend-cell");
+
+    legends[1].click();
+    await tick();
+    expect(el.getCell!("w1", "mon")?.classList.contains("is-filtered")).toBe(false);
+    expect(el.getCell!("w1", "tue")?.classList.contains("is-filtered")).toBe(true);
+    expect(legends[1].getAttribute("aria-pressed")).toBe("true");
+    expect(onLegendChange).toHaveBeenCalledTimes(1);
+
+    legends[1].click();
+    await tick();
+    expect(el.shadowRoot!.querySelectorAll(".cell.is-filtered")).toHaveLength(0);
+    expect(onLegendChange.mock.calls.at(-1)?.[0].detail).toBeNull();
   });
 });

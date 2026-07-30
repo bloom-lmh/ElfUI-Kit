@@ -95,6 +95,7 @@ describe("interaction directives", () => {
     const tooltip = document.body.querySelector<HTMLElement>("[data-elf-tooltip]");
     expect(tooltip?.hidden).toBe(false);
     expect(tooltip?.textContent).toBe("Helpful text");
+    expect(tooltip?.querySelector("[data-elf-tooltip-arrow]")).toBeTruthy();
     expect(element.getAttribute("aria-describedby")).toContain(tooltip!.id);
 
     directive.beforeUnmount(element);
