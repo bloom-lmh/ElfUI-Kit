@@ -339,6 +339,16 @@
 - 仓库格式棘轮另被 17 个并行修改文件阻断；仓库 CSpell 被并行 Sparkline 的 11 个文件、62 处未登记词阻断。本批没有修改或回退这些文件。
 - 本批不改变 DOM、ARIA、样式或视觉，浏览器截图不适用。按共同完成门禁，OP-02 暂不勾选；总进度仍为 1/38 完成、37 个未完成。
 
+### 2026-07-31 VU-01 Vuetify 能力矩阵（验收待门禁）
+
+- 新增 `docs/architecture/2026-07-31-vuetify-capability-matrix.md`，固定 Vuetify `4.1.7` authority，覆盖 Defaults、Theme、Locale、Icons、Display、Layout、Platform、Date、GoTo、Overlay、Services、Directives、Aliases、Tokens、SSR 共 15 类能力。
+- Vuetify 事实来自 immutable `v4.1.7` 源码：`framework.ts` 的插件选项与注入 owner、Theme/Locale/Icons/Display/Layout/Date/GoTo composables、Overlay `stack.ts`、8 类官方 directives、`ssrBoot.ts` 与 `hydration.ts`。Kit owner 对应当前 DefaultsProvider、ThemeProvider、LocaleProvider、IconProvider、ConfigProvider、date adapter、GoTo、Common overlay、service defaults、directives 与 token stylesheet。
+- 矩阵明确 `Layout`、完整 `Platform`、component `Aliases` 和统一 `SSR` owner 为 `missing`，Vuetify 没有跨组件 service registry 为 `not applicable`；Tokens/Display/Overlay 等现有能力标为 `equivalent` 并指向 `VU-04`、`VU-03`、`OP-07` 后续闭环。不得为提升对齐率增加空 API。
+- 新增 `scripts/vuetify-capability-matrix.test.ts`：1 个文件、4 项通过；目标 Prettier、ESLint、CSpell 与 `git diff --check` 通过。该批只改架构文档和静态测试，不改变 DOM、ARIA、样式或视觉，浏览器截图不适用。
+- 仓库 ESLint 与本地化 strict 审计 `535/535` 通过。全量测试为 234/238 个文件通过、1654/1661 项通过、4 项跳过；Tree、Table locale、Progress 三个失败文件以单 worker 复跑为 3 个文件、10 项通过，但全量结果仍有并行 `OverviewPage/style.scss` 渐变守卫等失败，因此不记录为通过。
+- 类型检查扫描 1098 个源文件、121 个宏组件，0 个 TypeScript 错误；2 个宏错误均位于并行 `OverviewCard/index.ts:24`。应用构建通过 969 个模块并保留大 chunk 警告，`build:lib` 被相同前置宏错误阻断。格式棘轮被 20 个并行文件阻断；CSpell 被 Sparkline 11 个并行文件的 62 处词阻断。本批没有修改或回退这些文件。
+- 按共同门禁 VU-01 暂不勾选。当前总进度仍为 `1/38`；该批只新增架构文档和静态测试，不改变 DOM、ARIA、样式或视觉，浏览器截图不适用。
+
 ## 3. 未作的工作（将要做的）
 
 仓库级翻译 helper 参与度已经清零。2026-07-31 Table 批次收尾时的当前仓库准确基线：
