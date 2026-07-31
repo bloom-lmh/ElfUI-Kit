@@ -171,3 +171,13 @@
 - [x] API 文档补齐真实 `open` 生命周期事件，并完整说明 resize 事件与 `resetSize()`。
 - [x] beta.20 下组件/页面聚焦测试、宏 typecheck、生产构建和打开状态英文扫描通过。
 - [x] 真实浏览器验证键盘调宽 420px → 430px、英文无障碍标签与 0 warning / 0 error；截图：`output/playwright/drawer-resizable-en-beta20.png`。
+
+## 2026-07-31 OP-04-TR-02 Transition 生命周期迁移
+
+- [x] 结构显隐改由 Core `<Transition name="elf-drawer" appear>` 管理，移除 `PANEL_LEAVE_MS`、结构定时器、重复投射微任务、手工离场 class 和手工 Teleport 根删除；resize 手势结束后的零延迟点击抑制定时器保留为浏览器事务边界。
+- [x] 显式维护快速重开时的 `activeRoot`，同步 restore/project Light DOM，确保投射、焦点和 resize 指向替代根；旧 leave 完成不会触发 `closed`、恢复焦点或释放新浮层资源。
+- [x] 四方向位移动画改为 `elf-drawer-enter/leave-*` class 协议，遮罩与面板同一结构事务离场，并补齐 `prefers-reduced-motion`。
+- [x] 组件、页面与架构聚焦测试共 3 文件 32 项通过；覆盖事件顺序、leave 完成、快速重开、真实节点身份、Escape、焦点/滚动锁、resize 与离场卸载清理。
+- [x] 目标 Prettier、ESLint、CSpell、`git diff --check` 通过；生产构建 1098 modules 通过，仅保留既存大 chunk warning。
+- [x] 浏览器验证：1440x1000 Material 中文下 RTL 开关、快速重开、焦点恢复、滚动锁及无横向溢出通过；390x844 Midnight 英文下滚动锁、无横向溢出、separator 键盘调宽 420px → 430px、关闭清理通过，控制台 0 warning / 0 error。截图仅用于现场检查，按要求未保存文件；移动打开态截图通道超时，DOM、尺寸与资源状态已独立核验。
+- [ ] 仓库全量 typecheck：Unsupported Macro 1114 文件 0 问题；被本批范围外的 `OverviewCard` 2 个宏类型错误与 `CodeCard` 2 个 TypeScript 错误阻断，Drawer 无报错。

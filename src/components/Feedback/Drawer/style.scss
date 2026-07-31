@@ -1,21 +1,13 @@
-// Drawer 全局样式 — Teleport to body
+// Drawer global styles are injected into document for Teleport to body.
 
 .elf-drawer-mask {
   position: fixed;
   inset: 0;
   z-index: calc(var(--elf-z-index-modal, 9999) - 1);
   background: rgba(0, 0, 0, 0.45);
-  animation: elf-dr-fade 0.25s ease both;
-  opacity: 1;
-  transition: opacity 0.24s ease;
 
   &.no-modal {
     background: transparent;
-    pointer-events: none;
-  }
-
-  &.mask-closing {
-    opacity: 0;
     pointer-events: none;
   }
 }
@@ -26,7 +18,6 @@
   display: flex;
   flex-direction: column;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-  transition: transform 0.24s cubic-bezier(0.4, 0, 0.2, 1);
   outline: none;
   pointer-events: auto;
 
@@ -35,28 +26,27 @@
     right: 0;
     bottom: 0;
     border-left: 1px solid var(--elf-border);
-    animation: elf-dr-in-rtl 0.25s ease both;
   }
+
   &.ltr {
     top: 0;
     left: 0;
     bottom: 0;
     border-right: 1px solid var(--elf-border);
-    animation: elf-dr-in-ltr 0.25s ease both;
   }
+
   &.ttb {
     top: 0;
     left: 0;
     right: 0;
     border-bottom: 1px solid var(--elf-border);
-    animation: elf-dr-in-ttb 0.25s ease both;
   }
+
   &.btt {
     bottom: 0;
     left: 0;
     right: 0;
     border-top: 1px solid var(--elf-border);
-    animation: elf-dr-in-btt 0.25s ease both;
   }
 }
 
@@ -123,25 +113,6 @@
   }
 }
 
-// closing
-.elf-drawer-mask.closing {
-  pointer-events: none;
-}
-.elf-drawer-mask.closing .elf-drawer-panel {
-  &.rtl {
-    animation: elf-dr-out-rtl 0.24s cubic-bezier(0.4, 0, 1, 1) both;
-  }
-  &.ltr {
-    animation: elf-dr-out-ltr 0.24s cubic-bezier(0.4, 0, 1, 1) both;
-  }
-  &.ttb {
-    animation: elf-dr-out-ttb 0.24s cubic-bezier(0.4, 0, 1, 1) both;
-  }
-  &.btt {
-    animation: elf-dr-out-btt 0.24s cubic-bezier(0.4, 0, 1, 1) both;
-  }
-}
-
 .elf-drawer-resize-handle {
   position: absolute;
   z-index: 2;
@@ -155,7 +126,9 @@
     border-radius: 999px;
     background: color-mix(in srgb, var(--elf-text-secondary, #6b7280) 45%, transparent);
     opacity: 0;
-    transition: opacity 0.16s ease, background 0.16s ease;
+    transition:
+      opacity 0.16s ease,
+      background 0.16s ease;
   }
 
   &:hover::after,
@@ -172,11 +145,18 @@
   width: 12px;
   cursor: col-resize;
 
-  &::after { width: 3px; height: 44px; }
+  &::after {
+    width: 3px;
+    height: 44px;
+  }
 }
 
-.elf-drawer-panel.rtl > .elf-drawer-resize-handle { left: -6px; }
-.elf-drawer-panel.ltr > .elf-drawer-resize-handle { right: -6px; }
+.elf-drawer-panel.rtl > .elf-drawer-resize-handle {
+  left: -6px;
+}
+.elf-drawer-panel.ltr > .elf-drawer-resize-handle {
+  right: -6px;
+}
 
 .elf-drawer-panel.ttb > .elf-drawer-resize-handle,
 .elf-drawer-panel.btt > .elf-drawer-resize-handle {
@@ -185,85 +165,64 @@
   height: 12px;
   cursor: row-resize;
 
-  &::after { width: 44px; height: 3px; }
-}
-
-.elf-drawer-panel.ttb > .elf-drawer-resize-handle { bottom: -6px; }
-.elf-drawer-panel.btt > .elf-drawer-resize-handle { top: -6px; }
-
-@keyframes elf-dr-fade {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
+  &::after {
+    width: 44px;
+    height: 3px;
   }
 }
-@keyframes elf-dr-in-rtl {
-  from {
+
+.elf-drawer-panel.ttb > .elf-drawer-resize-handle {
+  bottom: -6px;
+}
+.elf-drawer-panel.btt > .elf-drawer-resize-handle {
+  top: -6px;
+}
+
+.elf-drawer-enter-active {
+  transition: opacity 0.24s ease;
+
+  .elf-drawer-panel {
+    transition: transform 0.24s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+}
+
+.elf-drawer-leave-active {
+  pointer-events: none;
+  transition: opacity 0.24s ease;
+
+  .elf-drawer-panel {
+    transition: transform 0.24s cubic-bezier(0.4, 0, 1, 1);
+  }
+}
+
+.elf-drawer-enter-from,
+.elf-drawer-leave-to {
+  opacity: 0;
+
+  .elf-drawer-panel.rtl {
     transform: translateX(100%);
   }
-  to {
-    transform: translateX(0);
-  }
-}
-@keyframes elf-dr-in-ltr {
-  from {
+
+  .elf-drawer-panel.ltr {
     transform: translateX(-100%);
   }
-  to {
-    transform: translateX(0);
-  }
-}
-@keyframes elf-dr-in-ttb {
-  from {
+
+  .elf-drawer-panel.ttb {
     transform: translateY(-100%);
   }
-  to {
-    transform: translateY(0);
-  }
-}
-@keyframes elf-dr-in-btt {
-  from {
+
+  .elf-drawer-panel.btt {
     transform: translateY(100%);
   }
-  to {
-    transform: translateY(0);
-  }
 }
 
-@keyframes elf-dr-out-rtl {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(100%);
-  }
-}
+@media (prefers-reduced-motion: reduce) {
+  .elf-drawer-enter-active,
+  .elf-drawer-leave-active {
+    transition: none;
 
-@keyframes elf-dr-out-ltr {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-100%);
-  }
-}
-
-@keyframes elf-dr-out-ttb {
-  from {
-    transform: translateY(0);
-  }
-  to {
-    transform: translateY(-100%);
-  }
-}
-
-@keyframes elf-dr-out-btt {
-  from {
-    transform: translateY(0);
-  }
-  to {
-    transform: translateY(100%);
+    .elf-drawer-panel {
+      transition: none;
+    }
   }
 }

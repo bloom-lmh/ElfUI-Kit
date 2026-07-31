@@ -1,21 +1,33 @@
 // elf-drawer 测试
 
+import { ensureCustomElement } from "@elfui/core";
+import { readFileSync } from "node:fs";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
+import { Drawer } from "./index";
 
-beforeAll(async () => {
-  await import("../../../components");
+beforeAll(() => {
+  ensureCustomElement(Drawer);
 });
 
 afterEach(() => {
   document.body.innerHTML = "";
   document.body.style.overflow = "";
+  document.body.style.cursor = "";
+  document.body.style.userSelect = "";
 });
 
 const tick = (): Promise<void> => new Promise((r) => setTimeout(r, 20));
-const wait = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms));
+const frame = (): Promise<void> => new Promise((resolve) => requestAnimationFrame(() => resolve()));
 
 const mask = (): HTMLElement | null => document.body.querySelector(".elf-drawer-mask");
 const panel = (): HTMLElement | null => document.body.querySelector(".elf-drawer-panel");
+
+const finishTransition = async (element: HTMLElement | null = mask()): Promise<void> => {
+  await frame();
+  await frame();
+  element?.dispatchEvent(new Event("transitionend", { bubbles: true }));
+  await tick();
+};
 
 type DrawerEl = HTMLElement & {
   open?: boolean;
@@ -42,12 +54,26 @@ const pointerEvent = (type: string, clientX: number, clientY: number): Event => 
     clientX: { value: clientX },
     clientY: { value: clientY },
     pointerId: { value: 1 },
-    pointerType: { value: "mouse" }
+    pointerType: { value: "mouse" },
   });
   return event;
 };
 
 describe("elf-drawer", () => {
+  it("通过 Core Transition 管理结构生命周期和 reduced-motion 样式", () => {
+    const source = readFileSync("src/components/Feedback/Drawer/index.ts", "utf8");
+    const cssText = readFileSync("src/components/Feedback/Drawer/style.scss", "utf8");
+
+    expect(source).toContain('<Transition\n      name="elf-drawer"');
+    expect(source).toContain("@after-leave=${onAfterLeave}");
+    expect(source).not.toMatch(/PANEL_LEAVE_MS|panelTimer|cleanupTimer/);
+    expect(source).toContain("suppressMaskClickTimer");
+    expect(cssText).toContain(".elf-drawer-enter-active");
+    expect(cssText).toContain(".elf-drawer-leave-active");
+    expect(cssText).toContain("@media (prefers-reduced-motion: reduce)");
+    expect(cssText).toMatch(/prefers-reduced-motion[\s\S]*transition: none/);
+  });
+
   it("默认关闭，open=true 后 Teleport 到 body", async () => {
     const el = document.createElement("elf-drawer") as DrawerEl;
     el.title = "我的抽屉";
@@ -61,6 +87,30 @@ describe("elf-drawer", () => {
 
     expect(mask()).toBeTruthy();
     expect(document.body.textContent).toContain("我的抽屉");
+  });
+
+  it("按 Transition enter/leave 完成顺序派发 opened 和 closed", async () => {
+    const el = document.createElement("elf-drawer") as DrawerEl;
+    const events: string[] = [];
+    el.addEventListener("open", () => events.push("open"));
+    el.addEventListener("opened", () => events.push("opened"));
+    el.addEventListener("close", () => events.push("close"));
+    el.addEventListener("closed", () => events.push("closed"));
+    el.open = true;
+    document.body.appendChild(el);
+    await tick();
+
+    await finishTransition();
+    expect(events).toEqual(["open", "opened"]);
+
+    el.close?.();
+    const leavingRoot = mask();
+    expect(leavingRoot).toBeTruthy();
+    expect(events).toEqual(["open", "opened", "close"]);
+
+    await finishTransition(leavingRoot);
+    expect(mask()).toBeNull();
+    expect(events).toEqual(["open", "opened", "close", "closed"]);
   });
 
   it("direction 反映到 panel class/style 和 host attribute", async () => {
@@ -102,7 +152,16 @@ describe("elf-drawer", () => {
 
     const drawerPanel = panel()!;
     Object.defineProperty(drawerPanel, "getBoundingClientRect", {
-      value: () => ({ width: 300, height: 600, x: 700, y: 0, top: 0, left: 700, right: 1000, bottom: 600 })
+      value: () => ({
+        width: 300,
+        height: 600,
+        x: 700,
+        y: 0,
+        top: 0,
+        left: 700,
+        right: 1000,
+        bottom: 600,
+      }),
     });
     const handle = document.body.querySelector<HTMLElement>(".elf-drawer-resize-handle")!;
     const events: Array<[string, number]> = [];
@@ -121,7 +180,7 @@ describe("elf-drawer", () => {
     expect(events).toEqual([
       ["resize-start", 300],
       ["resize", 350],
-      ["resize-end", 350]
+      ["resize-end", 350],
     ]);
     expect(document.body.style.userSelect).toBe("");
   });
@@ -137,7 +196,16 @@ describe("elf-drawer", () => {
 
     const drawerPanel = panel()!;
     Object.defineProperty(drawerPanel, "getBoundingClientRect", {
-      value: () => ({ width: 300, height: 600, x: 700, y: 0, top: 0, left: 700, right: 1000, bottom: 600 })
+      value: () => ({
+        width: 300,
+        height: 600,
+        x: 700,
+        y: 0,
+        top: 0,
+        left: 700,
+        right: 1000,
+        bottom: 600,
+      }),
     });
     const handle = document.body.querySelector<HTMLElement>(".elf-drawer-resize-handle")!;
     const drawerMask = mask()!;
@@ -164,7 +232,16 @@ describe("elf-drawer", () => {
 
     const drawerPanel = panel()!;
     Object.defineProperty(drawerPanel, "getBoundingClientRect", {
-      value: () => ({ width: 300, height: 600, x: 700, y: 0, top: 0, left: 700, right: 1000, bottom: 600 })
+      value: () => ({
+        width: 300,
+        height: 600,
+        x: 700,
+        y: 0,
+        top: 0,
+        left: 700,
+        right: 1000,
+        bottom: 600,
+      }),
     });
     const handle = document.body.querySelector<HTMLElement>(".elf-drawer-resize-handle")!;
     expect(handle.getAttribute("role")).toBe("separator");
@@ -294,7 +371,8 @@ describe("elf-drawer", () => {
     expect(document.body.style.overflow).toBe("hidden");
 
     el.open = false;
-    await wait(400);
+    expect(mask()).toBeTruthy();
+    await finishTransition();
     expect(document.body.style.overflow).toBe("");
   });
 
@@ -321,7 +399,7 @@ describe("elf-drawer", () => {
     expect(openFocusEvents).toBe(1);
 
     el.close?.();
-    await wait(280);
+    await finishTransition();
     expect(document.activeElement).toBe(trigger);
     expect(closeFocusEvents).toBe(1);
   });
@@ -352,20 +430,120 @@ describe("elf-drawer", () => {
     expect(childUpdate.value).toBe(false);
   });
 
-  it("关闭时遮罩和面板同步离场", async () => {
+  it("关闭完成前重新打开会忽略旧 leave，并保持投射、焦点和 Escape 能力", async () => {
+    const trigger = document.createElement("button");
+    document.body.appendChild(trigger);
+    trigger.focus();
+
+    const el = document.createElement("elf-drawer") as DrawerEl;
+    const content = document.createElement("button");
+    let clicks = 0;
+    content.addEventListener("click", () => clicks++);
+    el.appendChild(content);
+    el.open = true;
+    document.body.appendChild(el);
+    await tick();
+    await finishTransition();
+
+    let closedEvents = 0;
+    let restoreEvents = 0;
+    el.addEventListener("closed", () => closedEvents++);
+    el.addEventListener("close-auto-focus", () => restoreEvents++);
+
+    el.open = false;
+    const leavingRoot = mask();
+    expect(leavingRoot).toBeTruthy();
+    el.open = true;
+    await tick();
+
+    await finishTransition(leavingRoot);
+    const activeRoots = document.body.querySelectorAll(".elf-drawer-mask");
+    expect(activeRoots).toHaveLength(1);
+    expect(document.body.querySelector(".elf-drawer-body button")).toBe(content);
+    content.click();
+    expect(clicks).toBe(1);
+    expect(closedEvents).toBe(0);
+    expect(restoreEvents).toBe(0);
+    expect(document.activeElement).not.toBe(trigger);
+
+    let lastOpen: unknown = true;
+    el.addEventListener("update:open", (event) => {
+      lastOpen = (event as CustomEvent).detail;
+    });
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    await tick();
+
+    expect(lastOpen).toBe(false);
+    await finishTransition();
+    expect(mask()).toBeNull();
+    expect(closedEvents).toBe(1);
+    expect(restoreEvents).toBe(1);
+    expect(document.activeElement).toBe(trigger);
+  });
+
+  it("离场期间卸载会释放投射、滚动、resize、焦点和 Teleport 资源", async () => {
+    document.body.style.cursor = "crosshair";
+    document.body.style.userSelect = "text";
+    const trigger = document.createElement("button");
+    document.body.appendChild(trigger);
+    trigger.focus();
+
+    const el = document.createElement("elf-drawer") as DrawerEl;
+    const content = document.createElement("input");
+    content.setAttribute("autofocus", "");
+    el.appendChild(content);
+    el.resizable = true;
+    el.size = "300px";
+    el.open = true;
+    document.body.appendChild(el);
+    await tick();
+    await finishTransition();
+
+    const drawerPanel = panel()!;
+    Object.defineProperty(drawerPanel, "getBoundingClientRect", {
+      value: () => ({
+        width: 300,
+        height: 600,
+        x: 700,
+        y: 0,
+        top: 0,
+        left: 700,
+        right: 1000,
+        bottom: 600,
+      }),
+    });
+    const handle = document.body.querySelector<HTMLElement>(".elf-drawer-resize-handle")!;
+    handle.dispatchEvent(pointerEvent("pointerdown", 700, 200));
+    expect(document.body.style.cursor).toBe("col-resize");
+    expect(document.body.style.userSelect).toBe("none");
+    expect(document.body.style.overflow).toBe("hidden");
+    expect(document.body.querySelector(".elf-drawer-body input")).toBe(content);
+
+    el.open = false;
+    await tick();
+    el.remove();
+    await tick();
+
+    expect(document.body.querySelectorAll(".elf-drawer-mask")).toHaveLength(0);
+    expect(document.body.style.overflow).toBe("");
+    expect(document.body.style.cursor).toBe("crosshair");
+    expect(document.body.style.userSelect).toBe("text");
+    expect(el.contains(content)).toBe(true);
+    expect(document.activeElement).toBe(trigger);
+  });
+
+  it("关闭时遮罩和面板由 Transition 同步离场", async () => {
     const el = document.createElement("elf-drawer") as DrawerEl;
     el.open = true;
     document.body.appendChild(el);
     await tick();
 
     el.open = false;
-    await tick();
 
-    expect(mask()?.classList.contains("closing")).toBe(true);
-    expect(mask()?.classList.contains("mask-closing")).toBe(true);
+    expect(mask()?.classList.contains("elf-drawer-leave-active")).toBe(true);
     expect(panel()?.classList.contains("rtl")).toBe(true);
 
-    await wait(260);
+    await finishTransition();
     expect(mask()).toBeNull();
   });
 
@@ -403,7 +581,7 @@ describe("elf-drawer", () => {
     el.close?.();
     await tick();
     expect(lastOpen).toBe(false);
-    await wait(400);
+    await finishTransition();
     expect(mask()).toBeNull();
   });
 });

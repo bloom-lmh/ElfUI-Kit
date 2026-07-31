@@ -1,15 +1,15 @@
+import { ensureCustomElement } from "@elfui/core";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
+import "../../../components";
+import { PageDrawerEx3 } from "./ex3";
+import { PageDrawerEx4 } from "./ex4";
+import { PageDrawer } from "./index";
 
 let exampleTag = "";
 let resizeExampleTag = "";
 let pageTag = "";
 
-beforeAll(async () => {
-  await import("../../../components");
-  const { ensureCustomElement } = await import("@elfui/core");
-  const { PageDrawerEx3 } = await import("./ex3");
-  const { PageDrawerEx4 } = await import("./ex4");
-  const { PageDrawer } = await import("./index");
+beforeAll(() => {
   exampleTag = ensureCustomElement(PageDrawerEx3);
   resizeExampleTag = ensureCustomElement(PageDrawerEx4);
   pageTag = ensureCustomElement(PageDrawer);
