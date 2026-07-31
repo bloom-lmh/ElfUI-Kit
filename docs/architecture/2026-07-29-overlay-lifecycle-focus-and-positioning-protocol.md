@@ -55,4 +55,4 @@ Dropdown、Autocomplete、Cascader、Pagination、PopConfirm、DatePicker、Time
 - z-index 分配与 overlay stack 层级尚未形成同一协议。
 - `appendTo` / teleport 容器解析仍散落在组件中。
 - fixed 定位与非 body 容器、嵌套缩放和 Visual Viewport 键盘场景仍需真实浏览器矩阵。
-- Core `useScrollLock` 并发 owner 缺陷修复前，不扩大其采用范围。
+- Core beta.20 已修复 `useScrollLock` 并发 owner；Core 继续作为唯一滚动锁实现，Kit 的 modal controller 只协调最上层 overlay 与焦点，不建立第二个全局锁 registry。

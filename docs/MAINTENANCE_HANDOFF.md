@@ -322,6 +322,15 @@
 - 类型检查扫描 1098 个源码文件与 121 个宏组件，0 个 TypeScript 错误；唯一 2 个宏错误仍位于并行 `OverviewCard/index.ts:24`。应用构建通过 968 个模块，`build:lib` 被同一前置类型检查阻断，本批未修改这些并行文件。
 - helper strict 不替代逐路由浏览器终审；可见文本、属性、Template/Script、交互、主题、响应式布局、截图和控制台仍必须逐批记录。
 
+### 2026-07-31 OP-01 能力所有权与复用清单
+
+- `docs/architecture/2026-07-31-capability-ownership-and-reuse-inventory.md` 是当前共享能力权威入口。每个新任务先查该表，再决定复用 Core、directive、composable、Common controller、Provider 或现有组件。
+- 清单覆盖 121 个非测试宏组件、9 个 composable 源文件、11 类公开 directive 能力（8 个 owner 文件）、8 个 Common controller、15 个 Provider 源文件和 beta.20 Core authoring API，并记录每项的 owner、消费者与禁止重复边界。
+- Application Layout 与 Platform/Display/SSR 被明确记录为 `VU-02` / `VU-03` 缺口，没有建立临时 owner。beta.15 Core composable 矩阵已标为历史快照；Core beta.20 的并发 scroll lock 是唯一锁实现。
+- `scripts/capability-ownership.test.ts` 动态防止组件、共享源文件与 Core API 漏登记，聚焦测试 1 个文件、3 项通过。目标 Prettier、ESLint、CSpell（6 个文件、0 问题）和 `git diff --check` 通过；本批不改变 DOM 或视觉，浏览器截图不适用。
+- 全量测试为 235/236 个文件、1647/1648 项通过，唯一失败仍是并行 `OverviewPage/style.scss` 的渐变守卫。类型检查扫描 1098 个源码文件与 121 个宏组件，0 个 TypeScript 错误；唯一 2 个宏错误仍位于并行 `OverviewCard/index.ts:24`。应用构建通过 968 个模块，`build:lib` 被同一前置类型检查阻断，本批未修改这些并行文件。
+- OP-01 已完成。38 个总工作包现在为 1 个完成、37 个未完成；下一顶层工作包为 OP-02，之后是 EP-01 与 VU-01。
+
 ## 3. 未作的工作（将要做的）
 
 仓库级翻译 helper 参与度已经清零。2026-07-31 Table 批次收尾时的当前仓库准确基线：
@@ -335,12 +344,13 @@
 
 ### 执行顺序
 
-1. 继续剩余页面的中英文、双主题和桌面/移动端终审；helper strict 门禁已经启用，不再重复实现。
-2. 使用能够向嵌套 Shadow DOM 投递事件的独立 Chromium 会话或人工验收 Table 排序、选择、筛选、树展开与虚拟表格交互；不得用 DOM patch、脚本直接调用公开方法或框架 workaround 伪造通过。
-3. 每批同时处理页面入口、全部案例、Props/API、Template/Script、运行时状态和页面测试，并运行聚焦测试、审计与真实浏览器英文扫描。
-4. 由样式线程修复 390px AppShell 英文 Footer 截断并补截图回归。
-5. 继续按总计划推进 DateTimePicker、TimeSelect、metadata、单组件入口、resolver 和真实 tree-shaking 验证。
-6. 每个批次结束立即更新总计划、语言基线和本交接。
+1. 先按当前所有权清单完成 OP-02 分层设计，再建立 EP-01 Element Plus 契约矩阵与 VU-01 Vuetify 能力矩阵。
+2. 继续剩余页面的中英文、双主题和桌面/移动端终审；helper strict 门禁已经启用，不再重复实现。
+3. 使用能够向嵌套 Shadow DOM 投递事件的独立 Chromium 会话或人工验收 Table 排序、选择、筛选、树展开与虚拟表格交互；不得用 DOM patch、脚本直接调用公开方法或框架 workaround 伪造通过。
+4. 每批同时处理页面入口、全部案例、Props/API、Template/Script、运行时状态和页面测试，并运行聚焦测试、审计与真实浏览器英文扫描。
+5. 由样式线程修复 390px AppShell 英文 Footer 截断并补视觉回归。
+6. 继续按总计划推进 DateTimePicker、TimeSelect、metadata、单组件入口、resolver 和真实 tree-shaking 验证。
+7. 每个批次结束立即更新总计划、语言基线和本交接。
 
 ### 已确认决策
 
