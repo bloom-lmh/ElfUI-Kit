@@ -1,4 +1,4 @@
-import { beforeAll, afterEach, describe, expect, it } from "vitest";
+import { beforeAll, afterEach, describe, expect, it, vi } from "vitest";
 
 beforeAll(async () => {
   await import("../../index");
@@ -6,6 +6,7 @@ beforeAll(async () => {
 
 afterEach(() => {
   document.body.innerHTML = "";
+  vi.unstubAllGlobals();
 });
 
 const tick = (): Promise<void> => new Promise((resolve) => queueMicrotask(resolve));
@@ -25,8 +26,8 @@ describe("elf-defaults-provider", () => {
         color: "secondary",
         variant: "outlined",
         size: "sm",
-        disabled: true
-      }
+        disabled: true,
+      },
     };
     provider.innerHTML = `
       <elf-button id="a">默认按钮</elf-button>
@@ -117,6 +118,79 @@ describe("elf-defaults-provider", () => {
     provider.querySelector("#target")!.appendChild(tag);
     await new Promise((resolve) => setTimeout(resolve, 0));
     await tick();
+    expect(tag.color).toBe("warning");
+  });
+
+  it("复用 Mutate controller 观察稳定宿主并在卸载时释放", async () => {
+    interface ObserverRecord {
+      callback: MutationObserverCallback;
+      disconnect: ReturnType<typeof vi.fn>;
+      observed: Array<[Node, MutationObserverInit | undefined]>;
+    }
+
+    const instances: ObserverRecord[] = [];
+    vi.stubGlobal(
+      "MutationObserver",
+      class {
+        private readonly record: ObserverRecord;
+
+        constructor(next: MutationObserverCallback) {
+          this.record = {
+            callback: next,
+            disconnect: vi.fn(),
+            observed: [],
+          };
+          instances.push(this.record);
+        }
+
+        observe = (target: Node, options?: MutationObserverInit): void => {
+          this.record.observed.push([target, options]);
+        };
+
+        disconnect = (): void => {
+          this.record.disconnect();
+        };
+      },
+    );
+
+    const provider = document.createElement("elf-defaults-provider") as DefaultsProviderEl;
+    provider.strategy = "overwrite";
+    provider.defaults = { "elf-tag": { color: "warning" } };
+    provider.innerHTML = `<section id="target"></section>`;
+    document.body.appendChild(provider);
+    await tick();
+    await tick();
+
+    const providerObserver = instances.find((instance) =>
+      instance.observed.some(
+        ([target, options]) =>
+          target === provider && options?.childList === true && options.subtree === true,
+      ),
+    );
+    expect(providerObserver).toBeDefined();
+
+    const tag = document.createElement("elf-tag") as HTMLElement & Record<string, unknown>;
+    provider.querySelector("#target")!.appendChild(tag);
+    providerObserver!.callback([], {} as MutationObserver);
+    await tick();
+    expect(tag.color).toBe("warning");
+
+    provider.remove();
+    await tick();
+    expect(providerObserver!.disconnect).toHaveBeenCalledOnce();
+  });
+
+  it("MutationObserver 不可用时保留初始默认值下发", async () => {
+    vi.stubGlobal("MutationObserver", undefined);
+    const provider = document.createElement("elf-defaults-provider") as DefaultsProviderEl;
+    provider.defaults = { "elf-tag": { color: "warning" } };
+    provider.innerHTML = `<elf-tag>Fallback</elf-tag>`;
+
+    document.body.appendChild(provider);
+    await tick();
+    await tick();
+
+    const tag = provider.querySelector("elf-tag") as HTMLElement & Record<string, unknown>;
     expect(tag.color).toBe("warning");
   });
 

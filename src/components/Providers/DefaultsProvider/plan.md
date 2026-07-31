@@ -119,3 +119,9 @@
 - [x] 支持 `global` / `*` 默认项，并保证组件级 defaults 覆盖 global。
 - [x] 对转发 slot 监听 `slotchange`，覆盖 ConfigProvider 嵌套后的动态子树。
 - [x] 保留 missing / overwrite、reset、disabled、deep 和卸载恢复语义。
+
+## 2026-07-31 OP-03 Observer 所有权收敛
+
+- [x] 稳定 Provider 宿主的子树观察复用公开 `createMutateController`，不再直接创建第二套 `MutationObserver`。
+- [x] 保持 `{ childList: true, subtree: true }` 契约、微任务合并和动态深层组件默认值行为不变。
+- [x] 聚焦回归覆盖观察参数、变更回调和卸载断开；浏览器缺失 `MutationObserver` 时沿用 controller 的安全降级。

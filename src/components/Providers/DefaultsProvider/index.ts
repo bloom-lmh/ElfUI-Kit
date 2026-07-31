@@ -27,6 +27,7 @@ import {
   resolveComponentDefaults,
   toAttributeName,
 } from "../defaults";
+import { createMutateController } from "../../../directives/observers";
 import styles from "./style.scss?inline";
 import type { DefaultsProviderProps } from "./types";
 
@@ -55,7 +56,6 @@ const parentDefaults = useDefaultsProvider();
 
 const appliedValues = new Map<Element, AppliedValue[]>();
 const forwardedSlots = new Set<HTMLSlotElement>();
-let observer: MutationObserver | undefined;
 let applyQueued = false;
 
 const readOwnDefaults = (): ProviderDefaults =>
@@ -159,10 +159,7 @@ const applyDefaults = (root?: ParentNode): void => {
   if (props.disabled) return;
 
   const defaults = readDefaults();
-  const roots =
-    root && "children" in root
-      ? Array.from(root.children)
-      : assignedElements();
+  const roots = root && "children" in root ? Array.from(root.children) : assignedElements();
 
   for (const child of roots) {
     walk(child, defaults);
@@ -202,14 +199,17 @@ onMounted(() => {
   applyDefaults();
   queueMicrotask(applyDefaults);
 
-  if (typeof MutationObserver !== "undefined") {
-    observer = new MutationObserver(queueApplyDefaults);
-    observer.observe(host, { childList: true, subtree: true });
-  }
+  /**
+   * The shared Mutate controller owns observer construction and teardown. This
+   * Provider only supplies its stable host target and reconciliation callback.
+   */
+  const mutationController = createMutateController(host, {
+    handler: queueApplyDefaults,
+    observer: { childList: true, subtree: true },
+  });
 
   return () => {
-    observer?.disconnect();
-    observer = undefined;
+    mutationController.dispose();
     for (const slot of forwardedSlots) {
       slot.removeEventListener("slotchange", queueApplyDefaults);
     }
@@ -229,8 +229,6 @@ useEffect(() => {
 
 defineStyle(styles);
 
-const DefaultsProvider = defineHtml(
-  `<slot ref="slotEl" @slotchange=${queueApplyDefaults}></slot>`,
-);
+const DefaultsProvider = defineHtml(`<slot ref="slotEl" @slotchange=${queueApplyDefaults}></slot>`);
 
 export { DefaultsProvider };
