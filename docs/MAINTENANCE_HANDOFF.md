@@ -357,6 +357,15 @@
 - 当前仓库 ESLint 与本地化 strict 审计 `535/535` 通过；全量测试为 238/239 个文件、1666/1667 项通过，唯一失败是并行 `OverviewPage/style.scss` 渐变守卫。类型检查为 0 个 TypeScript 错误、并行 `OverviewCard/index.ts:24` 的 2 个宏错误；应用构建通过 969 个模块，`build:lib` 被同一前置错误阻断。
 - 格式棘轮被 24 个并行修改文件阻断，`format:check:all` 报告 1286 个历史或当前文件；CSpell 被并行 Sparkline 的 11 个文件、62 处词阻断。本批没有修改或回退这些文件。EP-01 暂不勾选，总进度仍为 `1/38`。
 
+### 2026-07-31 OP-03 框架 API 收敛首批（验收待交互与门禁）
+
+- 新增框架 API 采用矩阵；Loading 声明式与命令式实例统一由 Core beta.20 `useScrollLock` 管理 body 锁，service 不再维护 `bodyLockCount` 或直接写 overflow。稳定 document 监听迁移到 Core `useEventListener`，动态事务和深 Shadow DOM 焦点保留现有 adapter 并记录原因。
+- 架构边界测试现在要求低层 body overflow 写入与 Loading 专用锁计数器均为 0；分层、复用清单和 Vuetify service 矩阵已同步删除旧迁移缺口。行为聚焦回归 9 个文件、115 项通过；架构修正后 3 个文件、19 项通过；目标 ESLint、Prettier、CSpell 与 `git diff --check` 通过。
+- Chromium 静态矩阵覆盖 `/feedback/loading` 的 1440x1000 Material 中文和 390x844 Midnight 英文：无页面级横向溢出，控制台 `0 warning / 0 error`。截图为 `docs/screenshots/2026-07-31/op03-loading-desktop-material-zh.png` 与 `op03-loading-mobile-midnight-en.png`。
+- 当前控制通道无法向嵌套 Shadow DOM 的命令式服务按钮投递用户事件；宿主/原生按钮点击、真实坐标与 Enter 均未触发。未直接调用 API 伪造通过，服务遮罩、滚动锁、退出和焦点恢复仍待独立 Chromium 或人工验收。
+- 全库 ESLint 通过，本地化 strict 为 `535/535`，应用构建通过 970 个模块并保留大 chunk 警告；全量测试为 239/240 个文件、1672/1673 项通过，唯一失败为并行 Overview 渐变守卫。类型检查为 0 个 TypeScript 错误、并行 OverviewCard 2 个宏错误，`build:lib` 被同一前置错误阻断。
+- 格式棘轮被 22 个并行文件阻断，全量 Prettier 报告 1257 个历史或当前文件；CSpell 被 Sparkline 11 个文件、62 处词阻断。OP-03 保持部分完成，总进度仍为 `1/38`。
+
 ## 3. 未作的工作（将要做的）
 
 仓库级翻译 helper 参与度已经清零。2026-07-31 Table 批次收尾时的当前仓库准确基线：
@@ -370,7 +379,7 @@
 
 ### 执行顺序
 
-1. OP-02 分层设计、EP-01 Element Plus 契约矩阵与 VU-01 Vuetify 能力矩阵及其漂移测试已落地；等待并行仓库门禁全绿后分别关闭验收，下一原子工作包推进 OP-03。
+1. OP-02、EP-01 与 VU-01 的架构产物已落地；OP-03 首批已统一 Loading 锁 owner 和稳定全局事件，下一批继续 observer/adapter 审计并补独立 Chromium 服务交互证据。
 2. 继续剩余页面的中英文、双主题和桌面/移动端终审；helper strict 门禁已经启用，不再重复实现。
 3. 使用能够向嵌套 Shadow DOM 投递事件的独立 Chromium 会话或人工验收 Table 排序、选择、筛选、树展开与虚拟表格交互；不得用 DOM patch、脚本直接调用公开方法或框架 workaround 伪造通过。
 4. 每批同时处理页面入口、全部案例、Props/API、Template/Script、运行时状态和页面测试，并运行聚焦测试、审计与真实浏览器英文扫描。
@@ -393,8 +402,8 @@
 - 文档审计当前为 `535/535`，默认命令、CI 和 Release 已严格阻塞缺口；该数字仍只代表 helper 参与度，不能外推为全部路由已经完成严格视觉和交互终审。
 - Table 浏览器控制层限制已经在全新会话中确认：顶层原生按钮正常，嵌套 Shadow DOM 控件和案例 `elf-button` 均无法由当前控制通道触发；组件聚焦测试 90/90 通过且 Vite 编译产物存在正式监听。真实用户交互仍待独立 Chromium 或人工验收，不能外推为通过。
 - 390px 英文模式下全局 AppShell 固定 Footer 末尾截断，交由样式范围修复并补视觉回归。
-- 当前全量测试为 238/239 个文件、1666/1667 项通过，唯一失败是并行 `OverviewPage/style.scss` 的渐变守卫；类型检查与 `build:lib` 被并行 `OverviewCard/index.ts:24` 的两条宏模板类型错误阻断。
-- 当前格式棘轮被 24 个并行修改文件阻断，`format:check:all` 还报告 1286 个历史或当前文件；CSpell 被并行 Sparkline 的 11 个文件、62 处 `Sparkline/sparkline/VIEWBOX` 阻断。
+- 当前全量测试为 239/240 个文件、1672/1673 项通过，唯一失败是并行 `OverviewPage/style.scss` 的渐变守卫；类型检查为 0 个 TypeScript 错误，`build:lib` 被并行 `OverviewCard/index.ts:24` 的两条宏模板类型错误阻断。
+- 当前格式棘轮被 22 个并行修改文件阻断，`format:check:all` 报告 1257 个历史或当前文件；CSpell 被并行 Sparkline 的 11 个文件、62 处 `Sparkline/sparkline/VIEWBOX` 阻断。
 - 审计脚本目前检查 helper 参与度；浏览器可见文本、属性、源码示例与布局仍需逐页终审。
 - `src/components/Common/focus-scope.ts`、`overlay-protocol.ts` 等旧根路径已经迁入 `Common/focus/` 与 `Common/overlay/`；IDE 中仍打开的旧标签会显示删除状态，后续代码必须使用新路径。
 - beta.20 宏类型检查器的虚拟模板声明仍遗漏部分运行时类型/API，并可能把依赖文件诊断按行号映射到当前模板。TreeSelect 通过正常的全局自定义元素组合与显式本地类型保持组件代码干净；后续应在框架类型检查器中补齐 stub，并仅映射属于当前虚拟源文件的诊断。

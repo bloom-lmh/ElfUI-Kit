@@ -8,7 +8,7 @@ import {
   useHostAttr,
   useHostCssVar,
   useScrollLock,
-  useTemplateRef
+  useTemplateRef,
 } from "@elfui/core";
 
 import styles from "./style.scss?inline";
@@ -23,7 +23,7 @@ export type {
   LoadingProps,
   LoadingSlots,
   LoadingTarget,
-  LoadingVariant
+  LoadingVariant,
 } from "./types";
 
 const props = defineProps<LoadingProps>({
@@ -35,7 +35,7 @@ const props = defineProps<LoadingProps>({
   variant: { type: String, default: "spinner" },
   svg: { type: String, default: "" },
   svgViewBox: { type: String, default: "0 0 50 50" },
-  lock: { type: Boolean, default: false }
+  lock: { type: Boolean, default: false },
 });
 
 const emit = defineEmits<LoadingEmits>();
@@ -64,7 +64,8 @@ const close = (): void => {
 
 useHostAttr("fullscreen", () => (props.fullscreen ? "" : null));
 useHostCssVar("--_loading-bg", () => props.background || "rgba(255,255,255,0.72)");
-useScrollLock(() => props.loading && props.fullscreen && props.lock);
+/** Shares Core's owner-counted body lock with service-created Loading hosts. */
+useScrollLock(() => props.loading && props.lock);
 
 useEffect(() => {
   void props.loading;

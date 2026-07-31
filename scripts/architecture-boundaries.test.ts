@@ -179,7 +179,7 @@ describe("architecture boundaries", () => {
     expect(source).toContain("useServiceDefaults");
   });
 
-  it("isolates the known Loading service scroll-lock violation", () => {
+  it("prevents duplicate Loading service scroll-lock ownership", () => {
     const directBodyLockOwners = lowerLayerSources
       .filter((path) => readFileSync(path, "utf8").includes("document.body.style.overflow"))
       .map(toRepositoryPath)
@@ -188,10 +188,11 @@ describe("architecture boundaries", () => {
       .filter((path) => readFileSync(path, "utf8").includes("bodyLockCount"))
       .map(toRepositoryPath)
       .sort();
-    const allowlist = ["src/components/Feedback/Loading/service.ts"];
 
-    expect(directBodyLockOwners).toEqual(allowlist);
-    expect(localLockCounterOwners).toEqual(allowlist);
-    expect(architecture).toContain("existing migration gap, not an approved second owner");
+    expect(directBodyLockOwners).toEqual([]);
+    expect(localLockCounterOwners).toEqual([]);
+    expect(architecture).toContain(
+      "Core `useScrollLock` owns both declarative and service-created Loading locks",
+    );
   });
 });

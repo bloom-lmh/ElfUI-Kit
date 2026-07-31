@@ -19,3 +19,5 @@
 - [x] 2026-07-15 完成指令与 service 生命周期、局部/body/fullscreen 定位、并发滚动锁、自定义 SVG path、公开类型和 API 表；9 项专项测试及真实浏览器交互/截图通过，控制台无错误。
 - [x] 2026-07-16 修复四动效案例的模板局部值绑定，确保 spinner / dots / pulse / bars 结构可辨识；全屏 service 默认提供退出按钮，补齐 dialog 语义、焦点进入/恢复、滚动锁与实例清理测试，并修复 API 表数据绑定。
 - [x] 2026-07-22 全屏声明式遮罩进入浏览器 Top Layer，提供 SVG 退出按钮并隔离后续局部 Loading 的层叠上下文；命令式服务同步提升层级。
+- [x] 2026-07-31 OP-03 框架 API 收敛：声明式与命令式 Loading 统一复用 Core `useScrollLock`，移除 service 的第二套 body lock 计数器，并补充跨 owner 回归测试。
+- [ ] 2026-07-31 OP-03 浏览器交互复核：静态页面已覆盖 1440x1000 Material 中文和 390x844 Midnight 英文，控制台无 warning/error；当前控制通道无法向嵌套 Shadow DOM 示例按钮投递用户事件，命令式服务的锁定、退出与焦点恢复仍需独立 Chromium 或人工验收，不得用脚本直接调用 API 代替。

@@ -1,11 +1,7 @@
-import {
-  onBeforeUnmount,
-  onMounted,
-  useScrollLock
-} from "@elfui/core";
+import { onBeforeUnmount, useEventListener, useScrollLock } from "@elfui/core";
 import {
   createModalOverlayController,
-  type ModalOverlayController
+  type ModalOverlayController,
 } from "../components/Common/overlay/modal-overlay-controller";
 import type { OverlayCloseReason } from "../components/Common/overlay/overlay-protocol";
 
@@ -31,9 +27,7 @@ export interface ModalOverlayHandle extends ModalOverlayController {
  * Lifecycle adapter for modal components.
  * It centralizes document keyboard listeners and scroll locking while keeping rendering local.
  */
-export const useModalOverlay = (
-  options: UseModalOverlayOptions
-): ModalOverlayHandle => {
+export const useModalOverlay = (options: UseModalOverlayOptions): ModalOverlayHandle => {
   const controller = createModalOverlayController(options);
 
   const onDocumentKeydown = (event: KeyboardEvent): void => {
@@ -47,16 +41,13 @@ export const useModalOverlay = (
   };
 
   useScrollLock(() => options.lockScroll() && options.rendered());
-  onMounted(() => document.addEventListener("keydown", onDocumentKeydown));
-  onBeforeUnmount(() => {
-    document.removeEventListener("keydown", onDocumentKeydown);
-    controller.dispose();
-  });
+  useEventListener(typeof document === "undefined" ? null : document, "keydown", onDocumentKeydown);
+  onBeforeUnmount(() => controller.dispose());
 
   return {
     ...controller,
     scheduleInitialFocus: () => {
       queueMicrotask(() => queueMicrotask(() => controller.focusInitial()));
-    }
+    },
   };
 };

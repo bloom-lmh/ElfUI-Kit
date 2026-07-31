@@ -66,7 +66,7 @@ describe("elf-loading", () => {
       spinner: [".spinner", 1],
       dots: [".dot", 3],
       pulse: [".pulse", 1],
-      bars: [".bar", 3]
+      bars: [".bar", 3],
     } as const;
 
     for (const [variant, [selector, count]] of Object.entries(expectations)) {
@@ -130,7 +130,7 @@ describe("elf-loading", () => {
       variant: "bars",
       lock: true,
       customClass: "report-loading",
-      onClose: () => closed++
+      onClose: () => closed++,
     });
     await tick();
 
@@ -156,7 +156,9 @@ describe("elf-loading", () => {
 
   it("supports fullscreen and body-mounted target geometry", async () => {
     const fullscreen = createService({ text: "全屏处理中" });
-    const fullscreenEl = document.body.querySelector<LoadingEl>("elf-loading[data-loading-service]")!;
+    const fullscreenEl = document.body.querySelector<LoadingEl>(
+      "elf-loading[data-loading-service]",
+    )!;
     expect(fullscreenEl.fullscreen).toBe(true);
     expect(fullscreenEl.style.position).toBe("fixed");
     expect(fullscreenEl.style.zIndex).toBe("10000");
@@ -164,7 +166,17 @@ describe("elf-loading", () => {
 
     const target = document.createElement("section");
     target.getBoundingClientRect = () =>
-      ({ left: 12, top: 24, width: 320, height: 180, right: 332, bottom: 204, x: 12, y: 24, toJSON: () => ({}) }) as DOMRect;
+      ({
+        left: 12,
+        top: 24,
+        width: 320,
+        height: 180,
+        right: 332,
+        bottom: 204,
+        x: 12,
+        y: 24,
+        toJSON: () => ({}),
+      }) as DOMRect;
     document.body.appendChild(target);
     const bodyMounted = createService({ target, body: true, fullscreen: false });
     const bodyEl = document.body.querySelector<LoadingEl>("elf-loading[data-loading-service]")!;
@@ -210,15 +222,38 @@ describe("elf-loading", () => {
     expect(document.body.style.overflow).toBe("");
   });
 
+  it("shares Core scroll-lock ownership between declarative and service instances", async () => {
+    document.body.style.overflow = "scroll";
+    const declarative = document.createElement("elf-loading") as LoadingEl;
+    declarative.loading = true;
+    declarative.lock = true;
+    document.body.appendChild(declarative);
+    await tick();
+
+    expect(document.body.style.overflow).toBe("hidden");
+
+    const service = createService({ lock: true });
+    await tick();
+    declarative.loading = false;
+    await tick();
+
+    expect(document.body.style.overflow).toBe("hidden");
+    service.close();
+    expect(document.body.style.overflow).toBe("scroll");
+  });
+
   it("mounts, updates, and disposes v-loading directive instances", async () => {
     const target = document.createElement("section");
     target.style.position = "relative";
     document.body.appendChild(target);
     const hooks = loadingDirective as DirectiveHooks<LoadingDirectiveValue, HTMLElement>;
-    const binding = (value: LoadingDirectiveValue, oldValue?: LoadingDirectiveValue): DirectiveBinding<LoadingDirectiveValue> => ({
+    const binding = (
+      value: LoadingDirectiveValue,
+      oldValue?: LoadingDirectiveValue,
+    ): DirectiveBinding<LoadingDirectiveValue> => ({
       value,
       oldValue,
-      modifiers: Object.freeze({})
+      modifiers: Object.freeze({}),
     });
 
     hooks.mounted!(target, binding({ loading: true, text: "指令加载", variant: "dots" }));

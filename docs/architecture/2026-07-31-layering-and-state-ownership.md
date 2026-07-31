@@ -74,7 +74,7 @@ overlay-protocol + overlay-stack
 
 Forbidden edges include component-local Escape/outside stacks, independent global z-index counters, direct writes to `document.body.style.overflow`, manual DOM moves in place of `Teleport`, and access to another component's Shadow DOM.
 
-Known violation: `src/components/Feedback/Loading/service.ts` still owns `bodyLockCount` and direct body overflow writes while declaration-based Loading uses Core `useScrollLock`. This is an existing migration gap, not an approved second owner. `OP-03` / `OP-07` must migrate it with concurrent instance, close-order, original overflow restoration, and teardown tests.
+Resolved `OP-03` boundary: Core `useScrollLock` owns both declarative and service-created Loading locks. `src/components/Feedback/Loading/service.ts` sets the public `lock` prop before connecting the component and does not write body overflow or maintain a second owner counter. Mixed-owner regression tests cover concurrent close order and restoration of the original overflow value.
 
 ## 2. Field and Form
 
@@ -223,14 +223,14 @@ ConfigProvider service default policy
         -> application or component consumer
 ```
 
-| State or side effect                                   | Sole owner                                                   |
-| ------------------------------------------------------ | ------------------------------------------------------------ |
-| Default option policy                                  | `Providers/service-defaults.ts` and ConfigProvider context   |
-| Message top/bottom stacks and timers                   | Message service                                              |
-| Notification corner stacks, append target and timers   | Notification service                                         |
-| Active dialogs, promise settlement and hash cleanup    | MessageBox service and its modal component                   |
-| Loading target geometry, instances and target position | Loading service; scroll lock is the known Core migration gap |
-| Detached theme/locale application                      | Provider context adapters consumed by each service           |
+| State or side effect                                   | Sole owner                                                 |
+| ------------------------------------------------------ | ---------------------------------------------------------- |
+| Default option policy                                  | `Providers/service-defaults.ts` and ConfigProvider context |
+| Message top/bottom stacks and timers                   | Message service                                            |
+| Notification corner stacks, append target and timers   | Notification service                                       |
+| Active dialogs, promise settlement and hash cleanup    | MessageBox service and its modal component                 |
+| Loading target geometry, instances and target position | Loading service; Core `useScrollLock` owns body locking    |
+| Detached theme/locale application                      | Provider context adapters consumed by each service         |
 
 Service option merging remains shallow because callbacks, Nodes, request targets, and strategy objects are atomic. Providers must not create service instances, timers, DOM nodes, stacks, or cleanup callbacks. Each service must make `close()` idempotent and release listeners, timers, stack membership, focus, geometry, and component nodes exactly once.
 
@@ -246,7 +246,7 @@ Detached services may create component hosts because they are facades over those
 4. the virtual-window and date pure owners do not gain upward dependencies;
 5. Common focus/overlay foundations import only within their shared domain;
 6. service-default policy remains free of DOM instances, listeners, timers, and request resources;
-7. the Loading service body-lock violation remains isolated to its explicit allowlist until migration removes it.
+7. no lower-layer module writes body overflow or introduces a Loading-specific lock counter; service instances delegate locking to Core through the public component prop.
 
 The test is a boundary guard, not proof that every future extraction is implemented. Component behavior, browser cleanup, SSR, performance, and screenshots remain the responsibility of the named follow-up work package.
 
@@ -254,7 +254,6 @@ The test is a boundary guard, not proof that every future extraction is implemen
 
 | Current gap                                                                  | Owning work package | Closure evidence                                                                                      |
 | ---------------------------------------------------------------------------- | ------------------- | ----------------------------------------------------------------------------------------------------- |
-| Loading service duplicates body scroll locking                               | `OP-03` / `OP-07`   | Core adoption plus concurrent Loading/modal close-order, restore, and teardown tests                  |
 | Form contract types point upward and native form association is absent       | `EP-01` / `OP-03`   | Lower-layer contract extraction plus native submit/reset/restore/disabled and validation tests        |
 | Anchored overlay container, z-index and scaled coordinates remain incomplete | `OP-07`             | Controller tests and real Visual Viewport/container browser matrix                                    |
 | Upload is a mixed component/resource/request owner                           | `EP-04`             | State machine, request Strategy, resource Controller, focused tests, performance and browser evidence |

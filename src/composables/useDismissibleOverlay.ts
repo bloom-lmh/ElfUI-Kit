@@ -1,7 +1,4 @@
-import {
-  onBeforeUnmount,
-  onMounted,
-} from "@elfui/core";
+import { onBeforeUnmount, useEventListener } from "@elfui/core";
 import { isEventInside } from "../components/Common/overlay/anchored-overlay";
 import {
   createOverlayInteractionController,
@@ -9,10 +6,7 @@ import {
 } from "../components/Common/overlay/overlay-interaction-controller";
 import type { OverlayCloseReason } from "../components/Common/overlay/overlay-protocol";
 
-export type DismissibleOverlayCloseReason = Extract<
-  OverlayCloseReason,
-  "escape" | "outside"
->;
+export type DismissibleOverlayCloseReason = Extract<OverlayCloseReason, "escape" | "outside">;
 
 export interface UseDismissibleOverlayOptions {
   kind: string;
@@ -64,23 +58,10 @@ export const useDismissibleOverlay = (
     options.onRequestClose("escape", event);
   };
 
-  onMounted(() => {
-    document.addEventListener(
-      outsideEvent,
-      onDocumentOutside as EventListener,
-      outsideCapture,
-    );
-    document.addEventListener("keydown", onDocumentKeydown);
-  });
-  onBeforeUnmount(() => {
-    document.removeEventListener(
-      outsideEvent,
-      onDocumentOutside as EventListener,
-      outsideCapture,
-    );
-    document.removeEventListener("keydown", onDocumentKeydown);
-    controller.dispose();
-  });
+  const documentTarget = typeof document === "undefined" ? null : document;
+  useEventListener(documentTarget, outsideEvent, onDocumentOutside, outsideCapture);
+  useEventListener(documentTarget, "keydown", onDocumentKeydown);
+  onBeforeUnmount(() => controller.dispose());
 
   return controller;
 };

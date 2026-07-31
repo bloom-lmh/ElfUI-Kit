@@ -4,7 +4,7 @@ import { Loading } from "./index";
 import {
   resolveServiceOptions,
   useServiceDefaults,
-  type ServiceDefaultsReader
+  type ServiceDefaultsReader,
 } from "../../Providers/service-defaults";
 import type { LoadingApi, LoadingInstance, LoadingOptions, LoadingTarget } from "./types";
 
@@ -26,8 +26,6 @@ interface TargetPositionState {
 }
 
 const targetPositionStates = new WeakMap<HTMLElement, TargetPositionState>();
-let bodyLockCount = 0;
-let previousBodyOverflow = "";
 
 const resolveTarget = (target: LoadingTarget | undefined): HTMLElement => {
   if (target instanceof HTMLElement) return target;
@@ -63,20 +61,6 @@ const releaseTargetPosition = (target: HTMLElement): void => {
   targetPositionStates.delete(target);
 };
 
-const acquireBodyLock = (): void => {
-  if (bodyLockCount === 0) {
-    previousBodyOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-  }
-  bodyLockCount += 1;
-};
-
-const releaseBodyLock = (): void => {
-  bodyLockCount = Math.max(0, bodyLockCount - 1);
-  if (bodyLockCount !== 0) return;
-  document.body.style.overflow = previousBodyOverflow;
-};
-
 const applyBodyTargetGeometry = (el: HTMLElement, target: HTMLElement): (() => void) => {
   const update = (): void => {
     if (target === document.body) {
@@ -105,9 +89,15 @@ const applyBodyTargetGeometry = (el: HTMLElement, target: HTMLElement): (() => v
 
 registerComponents(Loading);
 
+/**
+ * Creates an imperative Loading host around the public component contract.
+ *
+ * @remarks Target geometry remains service-owned, while the connected
+ * component delegates body locking to Core's shared `useScrollLock` owner.
+ */
 const createLoading = (
   input: LoadingOptions = {},
-  defaults?: Partial<LoadingOptions>
+  defaults?: Partial<LoadingOptions>,
 ): LoadingInstance => {
   const options = resolveServiceOptions(defaults, input);
   const target = resolveTarget(options.target);
@@ -126,8 +116,7 @@ const createLoading = (
   el.variant = options.variant ?? "spinner";
   el.svg = options.svg ?? "";
   el.svgViewBox = options.svgViewBox ?? "0 0 50 50";
-  // The service owns its shared lock counter; avoid locking twice in the component.
-  el.lock = false;
+  el.lock = options.lock ?? false;
   el.setAttribute("data-loading-service", "");
   el.style.zIndex = "10000";
 
@@ -148,7 +137,6 @@ const createLoading = (
     el.style.inset = "0";
   }
 
-  if (options.lock) acquireBodyLock();
   appendTarget.appendChild(el);
 
   let closed = false;
@@ -157,7 +145,6 @@ const createLoading = (
     closed = true;
     releaseGeometry?.();
     if (!fullscreen && !appendToBody) releaseTargetPosition(target);
-    if (options.lock) releaseBodyLock();
     el.loading = false;
     el.remove();
     if (previousActive?.isConnected) previousActive.focus();
@@ -173,16 +160,16 @@ const createLoading = (
     close,
     setText(text: string): void {
       if (!closed) el.text = text;
-    }
+    },
   };
 };
 
-const createLoadingApi = (
-  readDefaults?: ServiceDefaultsReader<"loading">
-): LoadingApi => (options = {}) => createLoading(options, readDefaults?.());
+const createLoadingApi =
+  (readDefaults?: ServiceDefaultsReader<"loading">): LoadingApi =>
+  (options = {}) =>
+    createLoading(options, readDefaults?.());
 
 export const ElfLoading = createLoadingApi();
 
 /** Returns a Loading API bound to the nearest ConfigProvider. */
-export const useLoading = (): LoadingApi =>
-  createLoadingApi(useServiceDefaults("loading"));
+export const useLoading = (): LoadingApi => createLoadingApi(useServiceDefaults("loading"));
