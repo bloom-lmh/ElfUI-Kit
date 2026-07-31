@@ -4,6 +4,7 @@ import { extname, join, relative, sep } from "node:path";
 const root = process.cwd();
 const pagesRoot = join(root, "src", "pages");
 const targetName = /^(?:index|props|ex\d+)\.ts$/;
+const reportOnly = process.argv.includes("--report-only");
 const categoryOf = (file) => {
   const name = file.replaceAll("\\", "/").split("/").at(-1) || "";
   if (name === "index.ts") return "pages";
@@ -50,11 +51,13 @@ if (process.argv.includes("--json")) {
       `${category.padEnd(8)} ${String(item.localized).padStart(3)}/${String(item.total).padEnd(3)} localized, ${item.missing} missing`,
     );
   }
-  console.log(`total    ${records.length - missing.length}/${records.length} localized, ${missing.length} missing`);
+  console.log(
+    `total    ${records.length - missing.length}/${records.length} localized, ${missing.length} missing`,
+  );
   if (missing.length) {
     console.log("\nMissing files:");
     for (const record of missing) console.log(record.file);
   }
 }
 
-if (process.argv.includes("--strict") && missing.length) process.exitCode = 1;
+if (!reportOnly && missing.length) process.exitCode = 1;

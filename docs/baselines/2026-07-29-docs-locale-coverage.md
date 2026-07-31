@@ -19,6 +19,8 @@ pnpm docs:locale-audit
 
 This update was captured after the Table EP-11 page-family batch. Explicit helper participation is complete for the current audit inventory. This does not replace strict visible-text, attribute, source, layout, interaction, and screenshot review for every route.
 
+As of 2026-07-31, the command above is a blocking gate by default. Any missing audit target exits with status 1; use `node scripts/audit-docs-locale.mjs --report-only` only for an explicitly non-blocking diagnostic report. CI and Release both execute the default command before build or publication.
+
 ## 2026-07-29 repository coverage
 
 | Surface         | Localized | Total | Missing |
@@ -76,4 +78,4 @@ Per the maintainer's final verification direction, this sweep did not add anothe
 
 ## Remaining gate
 
-Repository-wide helper participation is complete for the current `535`-file inventory. The remaining gate is strict per-route verification and enforcement: visible text, localized attributes, Template/Script, layout, interactions, themes, desktop/mobile screenshots, and clean console output must still be recorded route by route.
+Repository-wide helper participation and its default blocking enforcement are complete for the current `535`-file inventory. The remaining gate is strict per-route verification: visible text, localized attributes, Template/Script, layout, interactions, themes, desktop/mobile screenshots, and clean console output must still be recorded route by route.

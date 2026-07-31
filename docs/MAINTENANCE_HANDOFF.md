@@ -313,6 +313,15 @@
 - 责任归类后重新执行：全量测试为 233/234 个文件、1641/1642 项，唯一失败仍为并行 `OverviewPage/style.scss`；类型检查扫描 1098 个源文件、121 个宏组件，唯一 2 个错误仍在并行 `OverviewCard/index.ts:24`；应用构建通过 968 个模块，`build:lib` 被同一前置类型检查阻断。
 - 移动端 Table 页面本身无重叠或页面级横向溢出；全局 AppShell 固定 Footer 的英文末尾在 390px 下被截断，属于并行样式范围，未在本批修改。
 
+### 2026-07-31 文档本地化 strict 门禁
+
+- `pnpm docs:locale-audit` 现在默认阻塞任何 helper 参与缺口；仅显式 `node scripts/audit-docs-locale.mjs --report-only` 作为非阻塞诊断。现有 package 脚本无需变更，因此未触碰并行工具链线程的 `package.json`。
+- 新增 CLI 集成测试，使用隔离临时文档树覆盖默认失败、报告模式和满覆盖，共 1 个文件、3 项通过。
+- CI 与 Release 均在构建或发布前执行默认 strict 命令；当前仓库通过 pages `109/109`、examples `356/356`、props `70/70`，总计 `535/535`。
+- 目标 Prettier、ESLint、CSpell（7 个文件、0 问题）与 `git diff --check` 通过。全量测试为 234/235 个文件、1644/1645 项通过，唯一失败仍是并行 `OverviewPage/style.scss` 的渐变守卫。
+- 类型检查扫描 1098 个源码文件与 121 个宏组件，0 个 TypeScript 错误；唯一 2 个宏错误仍位于并行 `OverviewCard/index.ts:24`。应用构建通过 968 个模块，`build:lib` 被同一前置类型检查阻断，本批未修改这些并行文件。
+- helper strict 不替代逐路由浏览器终审；可见文本、属性、Template/Script、交互、主题、响应式布局、截图和控制台仍必须逐批记录。
+
 ## 3. 未作的工作（将要做的）
 
 仓库级翻译 helper 参与度已经清零。2026-07-31 Table 批次收尾时的当前仓库准确基线：
@@ -322,11 +331,11 @@
 - Props/API：70/70 已接入，0 个待处理。
 - 总计：535/535 已接入，0 个待处理。
 
-“接入”只表示文件显式使用翻译 helper，不代表所有路由都通过中英文内容、交互与视觉终审。Table 的浏览器控制层责任已经确认，下一轮启用 strict 门禁并继续剩余路由终审；Table 真实交互由独立 Chromium 或人工验收补齐。
+“接入”只表示文件显式使用翻译 helper，不代表所有路由都通过中英文内容、交互与视觉终审。helper strict 门禁已经启用；下一轮继续剩余路由终审，Table 真实交互由独立 Chromium 或人工验收补齐。
 
 ### 执行顺序
 
-1. 启用本地化 strict 门禁，再做剩余页面的中英文、双主题和桌面/移动端终审。
+1. 继续剩余页面的中英文、双主题和桌面/移动端终审；helper strict 门禁已经启用，不再重复实现。
 2. 使用能够向嵌套 Shadow DOM 投递事件的独立 Chromium 会话或人工验收 Table 排序、选择、筛选、树展开与虚拟表格交互；不得用 DOM patch、脚本直接调用公开方法或框架 workaround 伪造通过。
 3. 每批同时处理页面入口、全部案例、Props/API、Template/Script、运行时状态和页面测试，并运行聚焦测试、审计与真实浏览器英文扫描。
 4. 由样式线程修复 390px AppShell 英文 Footer 截断并补截图回归。
@@ -345,7 +354,7 @@
 - TableV2 完整性脚本仍按 `TableV2Page` 命名查找，不能识别实际的 `VirtualTablePage`，因此会给出 demo page false negative；实际页面和页面测试存在。
 - TableV2 性能基线旧中位数来自拆分前的 `/data/table`；脚本已改为 `/data/virtual-table`，后续需重新跑 5 次中位数再替换旧页面级计时。
 - 当前 authoring skill 的框架参考文件名仍为 `framework-beta15.md`，内容版本说明落后于仓库 beta.20；实际依赖以 `package.json` 为准。
-- 文档审计当前为 `535/535`；该数字只代表 helper 参与度，不能外推为全部路由已经完成严格视觉和交互终审。
+- 文档审计当前为 `535/535`，默认命令、CI 和 Release 已严格阻塞缺口；该数字仍只代表 helper 参与度，不能外推为全部路由已经完成严格视觉和交互终审。
 - Table 浏览器控制层限制已经在全新会话中确认：顶层原生按钮正常，嵌套 Shadow DOM 控件和案例 `elf-button` 均无法由当前控制通道触发；组件聚焦测试 90/90 通过且 Vite 编译产物存在正式监听。真实用户交互仍待独立 Chromium 或人工验收，不能外推为通过。
 - 390px 英文模式下全局 AppShell 固定 Footer 末尾截断，交由样式范围修复并补视觉回归。
 - 当前全量测试唯一失败是并行 `OverviewPage/style.scss` 的渐变守卫；类型检查与 `build:lib` 被并行 `OverviewCard/index.ts:24` 的两条宏模板类型错误阻断。
