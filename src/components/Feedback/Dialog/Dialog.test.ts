@@ -1,16 +1,18 @@
 // elf-dialog 测试
 
-import {
-  compile } from "@elfui/compiler";
-import { defineComponent,
-  useRef,
-  type RenderFn
-} from "@elfui/core";
+import { compile } from "@elfui/compiler";
+import { defineComponent, useRef, type RenderFn } from "@elfui/core";
 import { readFileSync } from "node:fs";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
 
 beforeAll(async () => {
-  await import("../../../components");
+  const [{ ensureCustomElement }, { Button }, { Dialog }] = await Promise.all([
+    import("@elfui/core"),
+    import("../../Basic/Button/index"),
+    import("./index"),
+  ]);
+  ensureCustomElement(Button);
+  ensureCustomElement(Dialog);
 });
 
 afterEach(() => {
@@ -20,10 +22,17 @@ afterEach(() => {
 });
 
 const tick = (): Promise<void> => new Promise((r) => setTimeout(r, 20));
-const wait = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms));
+const frame = (): Promise<void> => new Promise((resolve) => requestAnimationFrame(() => resolve()));
 
 const mask = (): HTMLElement | null => document.body.querySelector(".elf-dialog-mask");
 const panel = (): HTMLElement | null => document.body.querySelector(".elf-dialog-panel");
+
+const finishTransition = async (element: HTMLElement | null = mask()): Promise<void> => {
+  await frame();
+  await frame();
+  element?.dispatchEvent(new Event("transitionend", { bubbles: true }));
+  await tick();
+};
 
 type DialogEl = HTMLElement & {
   open?: boolean;
@@ -38,6 +47,20 @@ type DialogEl = HTMLElement & {
 };
 
 describe("elf-dialog", () => {
+  it("通过 Core Transition 管理结构生命周期和 reduced-motion 样式", () => {
+    const source = readFileSync("src/components/Feedback/Dialog/index.ts", "utf8");
+    const cssText = readFileSync("src/components/Feedback/Dialog/style.scss", "utf8");
+
+    expect(source).toContain('<Transition\n      name="elf-dialog"');
+    expect(source).toContain("@after-leave=${onAfterLeave}");
+    expect(source).not.toContain("setTimeout");
+    expect(source).not.toContain("closeTimer");
+    expect(cssText).toContain(".elf-dialog-enter-active");
+    expect(cssText).toContain(".elf-dialog-leave-active");
+    expect(cssText).toContain("@media (prefers-reduced-motion: reduce)");
+    expect(cssText).toMatch(/prefers-reduced-motion[\s\S]*transition: none/);
+  });
+
   it("默认关闭，open=true 后 Teleport 到 body", async () => {
     const el = document.createElement("elf-dialog") as DialogEl;
     el.title = "我的标题";
@@ -178,8 +201,30 @@ describe("elf-dialog", () => {
     expect(document.body.style.overflow).toBe("hidden");
 
     el.open = false;
-    await wait(250);
+    await finishTransition();
     expect(document.body.style.overflow).toBe("");
+  });
+
+  it("只在 Transition leave 完成后触发 closed 和清理 Teleport", async () => {
+    const el = document.createElement("elf-dialog") as DialogEl;
+    const events: string[] = [];
+    el.addEventListener("open", () => events.push("open"));
+    el.addEventListener("opened", () => events.push("opened"));
+    el.addEventListener("closed", () => events.push("closed"));
+    el.open = true;
+    document.body.appendChild(el);
+    await tick();
+
+    await finishTransition();
+    expect(events).toEqual(["open", "opened"]);
+
+    el.open = false;
+    expect(mask()).toBeTruthy();
+    expect(events).toEqual(["open", "opened"]);
+
+    await finishTransition();
+    expect(mask()).toBeNull();
+    expect(events).toEqual(["open", "opened", "closed"]);
   });
 
   it("打开后聚焦 autofocus，并在 Tab / Shift+Tab 时约束焦点", async () => {
@@ -207,15 +252,19 @@ describe("elf-dialog", () => {
     expect(autoFocusEvents).toBe(1);
 
     action.focus();
-    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", bubbles: true, cancelable: true }));
+    document.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "Tab", bubbles: true, cancelable: true }),
+    );
     expect(document.activeElement).toBe(input);
 
-    document.dispatchEvent(new KeyboardEvent("keydown", {
-      key: "Tab",
-      shiftKey: true,
-      bubbles: true,
-      cancelable: true
-    }));
+    document.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        key: "Tab",
+        shiftKey: true,
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
     expect(document.activeElement).toBe(action);
   });
 
@@ -238,7 +287,7 @@ describe("elf-dialog", () => {
     expect(document.activeElement).toBe(input);
 
     el.close?.();
-    await wait(250);
+    await finishTransition();
     expect(document.activeElement).toBe(trigger);
     expect(restoreEvents).toBe(1);
   });
@@ -270,15 +319,32 @@ describe("elf-dialog", () => {
   });
 
   it("关闭动画完成前重新打开会恢复到模态栈并继续响应 Escape", async () => {
+    const trigger = document.createElement("button");
+    document.body.appendChild(trigger);
+    trigger.focus();
+
     const el = document.createElement("elf-dialog") as DialogEl;
     el.open = true;
     document.body.appendChild(el);
     await tick();
+    await finishTransition();
+
+    let closedEvents = 0;
+    let restoreEvents = 0;
+    el.addEventListener("closed", () => closedEvents++);
+    el.addEventListener("close-auto-focus", () => restoreEvents++);
 
     el.open = false;
-    await tick();
+    const leavingRoot = mask();
+    expect(leavingRoot).toBeTruthy();
     el.open = true;
     await tick();
+
+    await finishTransition(leavingRoot);
+    expect(mask()).toBeTruthy();
+    expect(closedEvents).toBe(0);
+    expect(restoreEvents).toBe(0);
+    expect(document.activeElement).not.toBe(trigger);
 
     let lastOpen: unknown = true;
     el.addEventListener("update:open", (event) => {
@@ -288,6 +354,39 @@ describe("elf-dialog", () => {
     await tick();
 
     expect(lastOpen).toBe(false);
+    await finishTransition();
+    expect(mask()).toBeNull();
+    expect(closedEvents).toBe(1);
+    expect(restoreEvents).toBe(1);
+    expect(document.activeElement).toBe(trigger);
+  });
+
+  it("卸载会取消 Transition 并释放投射、滚动锁和焦点资源", async () => {
+    const trigger = document.createElement("button");
+    const content = document.createElement("button");
+    trigger.textContent = "打开";
+    content.textContent = "内容操作";
+    document.body.appendChild(trigger);
+    trigger.focus();
+
+    const el = document.createElement("elf-dialog") as DialogEl;
+    el.appendChild(content);
+    el.open = true;
+    document.body.appendChild(el);
+    await tick();
+
+    expect(document.body.style.overflow).toBe("hidden");
+    expect(document.body.querySelector(".elf-dialog-body button")).toBe(content);
+
+    el.open = false;
+    await tick();
+    el.remove();
+    await tick();
+
+    expect(mask()).toBeNull();
+    expect(document.body.style.overflow).toBe("");
+    expect(el.contains(content)).toBe(true);
+    expect(document.activeElement).toBe(trigger);
   });
 
   it("footer light DOM 使用真实节点投射，事件不丢失", async () => {
@@ -325,7 +424,7 @@ describe("elf-dialog", () => {
     el.close?.();
     await tick();
     expect(lastOpen).toBe(false);
-    await wait(250);
+    await finishTransition();
     expect(mask()).toBeNull();
   });
 
@@ -336,7 +435,7 @@ describe("elf-dialog", () => {
         const visible = useRef(false);
         return {
           visible,
-          open: () => visible.set(true)
+          open: () => visible.set(true),
         };
       },
       render: compile(`
@@ -344,7 +443,7 @@ describe("elf-dialog", () => {
         <elf-dialog v-model:open="visible" title="真实页面弹窗">
           <p>内容</p>
         </elf-dialog>
-      `) as unknown as RenderFn
+      `) as unknown as RenderFn,
     });
 
     const page = document.createElement("test-dialog-page-open");
@@ -368,14 +467,14 @@ describe("elf-dialog", () => {
         const visible = useRef(true);
         return {
           visible,
-          guard: () => false
+          guard: () => false,
         };
       },
       render: compile(`
         <elf-dialog v-model:open="visible" :before-close="guard" title="拦截">
           <p>内容</p>
         </elf-dialog>
-      `) as unknown as RenderFn
+      `) as unknown as RenderFn,
     });
 
     const page = document.createElement("test-dialog-before-close-binding");

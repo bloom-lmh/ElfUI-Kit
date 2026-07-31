@@ -169,3 +169,10 @@
 - [x] API 文档补齐真实 `open` 生命周期事件，不新增或修改组件公开 API。
 - [x] beta.20 下组件/页面聚焦测试、宏 typecheck、生产构建和打开状态英文扫描通过。
 - [x] 真实浏览器验证初始焦点、Escape、英文关闭标签与 0 warning / 0 error；截图：`output/playwright/dialog-focus-en-beta20.png`。
+
+## 2026-07-31 OP-04 Transition 生命周期收敛
+
+- [x] 使用 Core beta.20 `<Transition>` 接管 Teleport 根节点的结构性 enter/leave，删除组件自有 220ms 关闭定时器和重复投射微任务。
+- [x] overlay stack、滚动锁、Light DOM 投射、`opened` / `closed` 与焦点恢复分别绑定到框架 enter/leave hooks；关闭中重开时，旧 leave 完成不会清理新根节点或恢复焦点。
+- [x] 动效改为 Transition class 驱动，并为 `prefers-reduced-motion: reduce` 提供无动效完成路径；普通 hover 状态继续保留 CSS。
+- [x] 聚焦回归覆盖 CSS 结束事件、快速切换、卸载清理、reduced motion、焦点恢复和架构守卫；真实浏览器只现场检查，不保存截图。

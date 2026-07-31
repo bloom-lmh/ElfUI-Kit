@@ -8,7 +8,6 @@
   align-items: center;
   justify-content: center;
   z-index: var(--elf-z-index-modal, 9999);
-  animation: elf-dialog-fade-in 0.2s ease;
 }
 
 .elf-dialog-panel {
@@ -20,7 +19,6 @@
   display: flex;
   flex-direction: column;
   max-height: calc(100vh - 80px);
-  animation: elf-dialog-zoom-in 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
 
   &.sm {
     width: 320px;
@@ -99,47 +97,44 @@
   }
 }
 
-.elf-dialog-mask.elf-dialog-closing {
-  animation: elf-dialog-fade-out 0.22s ease both;
+.elf-dialog-enter-active {
+  transition: opacity 0.2s ease;
 
   .elf-dialog-panel {
-    animation: elf-dialog-zoom-out 0.22s cubic-bezier(0.4, 0, 1, 1) both;
+    transition:
+      opacity 0.2s ease,
+      transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
   }
 }
 
-@keyframes elf-dialog-fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-@keyframes elf-dialog-fade-out {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
+.elf-dialog-leave-active {
+  pointer-events: none;
+  transition: opacity 0.22s ease;
+
+  .elf-dialog-panel {
+    transition:
+      opacity 0.22s ease,
+      transform 0.22s cubic-bezier(0.4, 0, 1, 1);
   }
 }
-@keyframes elf-dialog-zoom-in {
-  from {
+
+.elf-dialog-enter-from,
+.elf-dialog-leave-to {
+  opacity: 0;
+
+  .elf-dialog-panel {
     opacity: 0;
     transform: scale(0.96);
   }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
 }
-@keyframes elf-dialog-zoom-out {
-  from {
-    opacity: 1;
-    transform: scale(1);
-  }
-  to {
-    opacity: 0;
-    transform: scale(0.96);
+
+@media (prefers-reduced-motion: reduce) {
+  .elf-dialog-enter-active,
+  .elf-dialog-leave-active {
+    transition: none;
+
+    .elf-dialog-panel {
+      transition: none;
+    }
   }
 }
