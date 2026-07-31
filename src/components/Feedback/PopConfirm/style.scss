@@ -40,7 +40,6 @@
   outline: none;
   overflow: visible;
   scrollbar-width: none;
-  animation: pop-confirm-in 0.14s ease-out;
 }
 
 .pop-confirm-popover::-webkit-scrollbar {
@@ -56,12 +55,21 @@
   background: transparent;
 }
 
-.pop-confirm-popover.is-closing {
+.pop-confirm-enter-active,
+.pop-confirm-leave-active {
+  transition:
+    opacity 0.14s ease,
+    transform 0.14s ease;
+}
+
+.pop-confirm-leave-active {
+  pointer-events: none;
+}
+
+.pop-confirm-enter-from,
+.pop-confirm-leave-to {
   opacity: 0;
   transform: scale(0.96);
-  transition:
-    opacity 0.14s,
-    transform 0.14s;
 }
 
 .pop-confirm-arrow {
@@ -220,6 +228,13 @@
 @keyframes pop-confirm-spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pop-confirm-enter-active,
+  .pop-confirm-leave-active {
+    transition: none;
   }
 }
 

@@ -122,3 +122,12 @@
 - [x] `teleported` 默认使用原生 Popover Top Layer，支持 top/bottom/left/right 碰撞翻转、视口约束、尺寸更新和外部滚动关闭。
 - [x] 新增 `actions` 插槽与 `confirm/cancel` 公开方法；自定义操作仍复用异步守卫、事件和焦点闭环。
 - [x] 新增裁切滚动容器案例、组件与页面回归测试和真实浏览器截图。
+
+## 2026-07-31 Transition 生命周期批次
+
+- [x] 复用 Core `<Transition>` 接管 enter/leave，删除结构 `setTimeout`、关闭 class 与重复焦点微任务，并覆盖 reduced motion。
+- [x] 复用 `useDismissibleOverlay` 的 `beginClose/completeClose`，leave 开始即释放栈所有权，快速重开以活动面板 identity 隔离旧 leave。
+- [x] 触发行为收敛为 wrapper hover 与宿主委托 click/focus 的单 owner；复用 `elf-button` 公共 click，不再逐个绑定 Light DOM 子节点。
+- [x] 扩展公共 `focus-scope`，支持 slot 分配节点及嵌套 Shadow DOM；真实 `elf-button` actions 首焦点、首尾 Tab 闭环已有回归。
+- [x] 聚焦矩阵 `6 files / 67 tests` 通过；Prettier、ESLint、CSpell、diff-check 通过。
+- [x] 真实浏览器检查桌面与 `390×844` 打开态，移动端 `scrollWidth = clientWidth = 390`，控制台 `0 warning / 0 error`；截图仅现场判断，未写入仓库。

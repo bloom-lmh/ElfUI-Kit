@@ -17,13 +17,30 @@ const isFocusable = (element: HTMLElement): boolean =>
 /** Collects focusable descendants across nested custom-element shadow roots. */
 export const collectFocusable = (root: ParentNode): HTMLElement[] => {
   const result: HTMLElement[] = [];
+  const visited = new Set<HTMLElement>();
+
+  const visitElement = (element: HTMLElement): void => {
+    if (visited.has(element)) return;
+    visited.add(element);
+    if (element.matches(FOCUSABLE_SELECTOR) && isFocusable(element)) result.push(element);
+    if (element.shadowRoot) visit(element.shadowRoot);
+
+    if (element instanceof HTMLSlotElement) {
+      const assigned = element.assignedElements({ flatten: true });
+      if (assigned.length > 0) {
+        for (const child of assigned) {
+          if (child instanceof HTMLElement) visitElement(child);
+        }
+        return;
+      }
+    }
+    visit(element);
+  };
 
   const visit = (parent: ParentNode): void => {
     for (const child of Array.from(parent.children)) {
       if (!(child instanceof HTMLElement)) continue;
-      if (child.matches(FOCUSABLE_SELECTOR) && isFocusable(child)) result.push(child);
-      if (child.shadowRoot) visit(child.shadowRoot);
-      visit(child);
+      visitElement(child);
     }
   };
 
@@ -61,8 +78,26 @@ export interface FocusScopeOptions {
   onRestoreFocus?: (() => void) | undefined;
 }
 
-const isFocusInside = (panel: HTMLElement, active: HTMLElement | null): boolean =>
-  Boolean(active && (active === panel || panel.contains(active)));
+/** Checks containment through assigned slots and nested shadow-host boundaries. */
+const isFocusInside = (panel: HTMLElement, active: HTMLElement | null): boolean => {
+  let current: Node | null = active;
+  const visited = new Set<Node>();
+  while (current && !visited.has(current)) {
+    if (current === panel) return true;
+    visited.add(current);
+    if (current instanceof Element && current.assignedSlot) {
+      current = current.assignedSlot;
+      continue;
+    }
+    if (current.parentNode) {
+      current = current.parentNode;
+      continue;
+    }
+    const root = current.getRootNode();
+    current = root instanceof ShadowRoot ? root.host : null;
+  }
+  return false;
+};
 
 /** Keeps Tab focus inside one panel, including focusable descendants in nested shadow roots. */
 export const trapFocus = (event: KeyboardEvent, panel: HTMLElement): boolean => {
@@ -75,17 +110,29 @@ export const trapFocus = (event: KeyboardEvent, panel: HTMLElement): boolean => 
     return true;
   }
 
-  const active = deepActiveElement();
+  const eventPath = event.composedPath();
+  const activeFromEvent = focusable.find((element) => eventPath.includes(element));
+  const activeFromRoot = focusable.find((element) => {
+    const root = element.getRootNode() as Document | ShadowRoot;
+    try {
+      return root.activeElement === element;
+    } catch {
+      // Happy DOM can expose a detached ShadowRoot while focus is moving between owners.
+      return false;
+    }
+  });
+  const active = activeFromEvent ?? activeFromRoot ?? deepActiveElement();
+  const activeIsInside = Boolean(activeFromEvent || activeFromRoot) || isFocusInside(panel, active);
   const first = focusable[0];
   const last = focusable[focusable.length - 1];
   if (!first || !last) return false;
 
-  if (event.shiftKey && (active === first || !isFocusInside(panel, active))) {
+  if (event.shiftKey && (active === first || !activeIsInside)) {
     event.preventDefault();
     last.focus({ preventScroll: true });
     return true;
   }
-  if (!event.shiftKey && (active === last || !isFocusInside(panel, active))) {
+  if (!event.shiftKey && (active === last || !activeIsInside)) {
     event.preventDefault();
     first.focus({ preventScroll: true });
     return true;
@@ -111,11 +158,12 @@ export const createFocusScope = (options: FocusScopeOptions): FocusScopeControll
       const panel = options.panel();
       if (!panel) return false;
       const focusable = collectFocusable(panel);
-      const target = focusable.find((element) =>
-        element.hasAttribute("autofocus") || element.hasAttribute("data-autofocus"),
-      )
-        ?? focusable[0]
-        ?? panel;
+      const target =
+        focusable.find(
+          (element) => element.hasAttribute("autofocus") || element.hasAttribute("data-autofocus"),
+        ) ??
+        focusable[0] ??
+        panel;
       target.focus({ preventScroll: true });
       options.onInitialFocus?.();
       return true;
@@ -132,6 +180,6 @@ export const createFocusScope = (options: FocusScopeOptions): FocusScopeControll
     trap: (event) => {
       const panel = options.panel();
       return panel ? trapFocus(event, panel) : false;
-    }
+    },
   };
 };
