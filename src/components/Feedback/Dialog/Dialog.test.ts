@@ -324,10 +324,22 @@ describe("elf-dialog", () => {
     trigger.focus();
 
     const el = document.createElement("elf-dialog") as DialogEl;
+    const content = document.createElement("button");
+    content.textContent = "继续";
+    let contentClicks = 0;
+    content.addEventListener("click", () => contentClicks++);
+    el.appendChild(content);
+    let openEvents = 0;
+    let openedEvents = 0;
+    el.addEventListener("open", () => openEvents++);
+    el.addEventListener("opened", () => openedEvents++);
     el.open = true;
     document.body.appendChild(el);
     await tick();
     await finishTransition();
+    expect(openEvents).toBe(1);
+    expect(openedEvents).toBe(1);
+    expect(document.body.querySelector(".elf-dialog-body button")).toBe(content);
 
     let closedEvents = 0;
     let restoreEvents = 0;
@@ -342,9 +354,19 @@ describe("elf-dialog", () => {
 
     await finishTransition(leavingRoot);
     expect(mask()).toBeTruthy();
+    expect(openEvents).toBe(2);
     expect(closedEvents).toBe(0);
     expect(restoreEvents).toBe(0);
-    expect(document.activeElement).not.toBe(trigger);
+    expect(document.activeElement).toBe(mask()?.querySelector(".elf-dialog-close"));
+    expect(document.body.style.overflow).toBe("hidden");
+
+    await finishTransition(mask());
+    expect(openedEvents).toBe(2);
+    const projectedButtons = document.body.querySelectorAll(".elf-dialog-body button");
+    expect(projectedButtons).toHaveLength(1);
+    expect(projectedButtons[0]).toBe(content);
+    (projectedButtons[0] as HTMLButtonElement).click();
+    expect(contentClicks).toBe(1);
 
     let lastOpen: unknown = true;
     el.addEventListener("update:open", (event) => {
@@ -359,6 +381,8 @@ describe("elf-dialog", () => {
     expect(closedEvents).toBe(1);
     expect(restoreEvents).toBe(1);
     expect(document.activeElement).toBe(trigger);
+    expect(document.body.style.overflow).toBe("");
+    expect(el.contains(content)).toBe(true);
   });
 
   it("卸载会取消 Transition 并释放投射、滚动锁和焦点资源", async () => {

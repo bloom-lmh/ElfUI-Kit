@@ -118,16 +118,14 @@ const overlay = useModalOverlay({
  * reopen inserts its replacement. Projection and focus must always target the replacement.
  */
 const onBeforeEnter = (element: Element): void => {
+  restoreContent();
   activeRoot = element as HTMLElement;
-  const isFreshOpen = !rendered.peek();
 
   closing.set(false);
   if (!overlay.isActive()) overlay.activate();
-  if (isFreshOpen) {
-    rendered.set(true);
-    emitOpenedAfterEnter = true;
-    emit("open");
-  }
+  rendered.set(true);
+  emitOpenedAfterEnter = true;
+  emit("open");
 
   projectContent();
   overlay.scheduleInitialFocus();

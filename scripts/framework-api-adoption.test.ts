@@ -85,6 +85,7 @@ describe("framework API adoption matrix", () => {
 
   it("locks the shared resource owners and prevents the removed duplicates", () => {
     const source = (path: string): string => readFileSync(join(repositoryRoot, path), "utf8");
+    const dialog = source("src/components/Feedback/Dialog/index.ts");
 
     expect(existsSync(join(repositoryRoot, "src/composables/useModalOverlay.ts"))).toBe(true);
     expect(existsSync(join(repositoryRoot, "src/composables/useDismissibleOverlay.ts"))).toBe(true);
@@ -100,6 +101,9 @@ describe("framework API adoption matrix", () => {
     expect(source("src/components/Feedback/Loading/service.ts")).not.toContain(
       "body.style.overflow",
     );
+    expect(dialog).toContain("<Transition");
+    expect(dialog).not.toContain("setTimeout");
+    expect(matrix).toContain("first verified Core `<Transition>` owner");
     expect(matrix).toContain("does not close `OP-04`, `OP-05`, `OP-06`, or `OP-07`");
   });
 });

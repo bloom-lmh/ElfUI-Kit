@@ -30,7 +30,7 @@ than the framework helper and the reason is recorded here.
 | **Focus**           | `E:\elfui-docs\en\composables\interaction-control.md`; `useFocusTrap` provides simple component-local Tab trapping.                                        | `src/components/Common/focus/focus-scope.ts` and modal overlay controller coordinate deep Shadow DOM focus, topmost stack ownership, callbacks, and restoration.                      | `adapter`    | Core focus trap does not own the Kit overlay stack or close/focus callbacks. Replacing the controller would lose topmost arbitration; consumers retain the shared focus owner.                                      |
 | **Form**            | `E:\elfui-docs\en\composables\form-controls.md`; form-associated elements use `defineOptions({ formControl: true })` and Runtime callbacks.                | `src/composables/form.ts`, Form/FormItem, and field components compose native form control context with validation and inherited field state.                                         | `adapter`    | Kit Form/FormItem owns aggregate rules, triggers, messages, and controlled priority. Core native association remains the platform boundary; no component creates a second validation registry.                      |
 | **Teleport**        | `E:\elfui-docs\en\built-ins\teleport.md`; physical placement changes without changing logical ownership or teardown.                                       | Core `<Teleport>` is used by `src/components/Feedback/Dialog/index.ts`, Drawer, Image, and Tour; overlay protocols keep positioning and focus ownership in Kit.                       | `native`     | Teleported nodes remain in the owner scope and are removed with the owner. No manual DOM move or detached cache is used as a replacement.                                                                           |
-| **Transition**      | `E:\elfui-docs\en\built-ins\transition.md`; individual conditional nodes own enter/leave classes and completion.                                           | `src/components` styles contain property feedback; structural picker, overlay, and content paths still require a component-by-component audit.                                        | `missing`    | `OP-04` must migrate applicable `v-if`/`v-show` enter/leave paths to Core `<Transition>` and preserve CSS-only hover/focus feedback. This matrix does not mark the audit complete.                                  |
+| **Transition**      | `E:\elfui-docs\en\built-ins\transition.md`; individual conditional nodes own enter/leave classes and completion.                                           | `src/components/Feedback/Dialog/index.ts` is the first verified Core `<Transition>` owner; remaining picker, overlay, and content paths still require component-by-component audit.   | `missing`    | Dialog now delegates enter/leave completion to Core without a close timer. `OP-04` must migrate the remaining applicable structural paths before this capability can leave `missing`.                               |
 | **TransitionGroup** | `E:\elfui-docs\en\built-ins\transition-group.md`; keyed lists own insertion, removal, and move transitions.                                                | `src/components/Data/Table/index.ts`, `src/components/Form/Upload/index.ts`, and other keyed collections retain local rendering protocols while lifecycle contracts are audited.      | `missing`    | `OP-04` owns keyed movement and rapid-toggle verification. Stable keys, reduced motion, leave completion, and unmount cleanup must be proven before migration.                                                      |
 
 ## Decisions
@@ -42,6 +42,8 @@ than the framework helper and the reason is recorded here.
   a registered component instance instead of maintaining a second counter.
 - `Transition` and `TransitionGroup` gaps are explicit work, not reasons to
   build manual mounting, DOM moves, polling, or lifecycle copies.
+- Dialog is the first verified structural `<Transition>` consumer; its rapid
+  reopen path preserves Light DOM identity, lifecycle events, focus, and overlay ownership.
 - This audit does not close `OP-04`, `OP-05`, `OP-06`, or `OP-07`; those packages
   own the remaining transition, directive, style, and overlay migrations.
 
@@ -56,6 +58,9 @@ than the framework helper and the reason is recorded here.
 - Architecture drift evidence: the framework matrix, Loading regression, and
   architecture boundary suites pass `3/3` files and `19/19` tests; lower-layer
   direct body overflow writers and Loading-specific lock counters are both zero.
+- Dialog Transition evidence: component, page, and framework-adoption suites
+  pass `3/3` files and `28/28` tests, including rapid reopen, Light DOM identity,
+  lifecycle events, reduced motion, focus restoration, and unmount cleanup.
 - Chromium static evidence: `/feedback/loading` at 1440x1000 Material Chinese
   and 390x844 Midnight English has no page-level horizontal overflow and emits
   `0` warnings / `0` errors. Screenshots are
