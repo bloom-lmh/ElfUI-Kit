@@ -1,6 +1,30 @@
 export type MessageType = "info" | "success" | "warning" | "danger" | "error";
 export type MessagePosition = "top" | "bottom";
 
+export interface MessageProps {
+  message: string;
+  type: MessageType;
+  position: MessagePosition;
+  closable: boolean;
+  action: string;
+}
+
+export interface MessageEmits {
+  close: [];
+  action: [];
+}
+
+export interface MessageSlots {
+  default?: unknown;
+}
+
+export interface MessageExpose {
+  /** Starts the leave transition. Repeated calls are ignored. */
+  close(): void;
+}
+
+export type MessageElement = HTMLElement & Partial<MessageProps> & MessageExpose;
+
 export interface MessageOptions {
   message: string;
   type?: MessageType;
@@ -23,6 +47,7 @@ export interface MessageOptions {
 }
 
 export interface MessageHandle {
+  /** Starts the leave transition. Repeated calls are ignored. */
   close(): void;
 }
 

@@ -1,5 +1,13 @@
 # Message Element Plus API 对标计划
 
+## 2026-07-31 Transition 生命周期批次
+
+- [x] 用 Core `<Transition name="elf-message" appear>` 接管 Message 的结构性进入与退场，删除 `data-closing`、退场 keyframes 和 `220ms` 结构销毁 timer。
+- [x] 保留 `duration` 自动关闭 timer 作为服务业务语义；组件公开 `close()` 只启动一次 leave，`after-leave` 发出唯一 `close`，service 随后统一完成栈移除、host 销毁与 `onClose`。
+- [x] 补齐 `MessageProps`、`MessageEmits`、`MessageSlots`、`MessageExpose`、`MessageElement` 公共类型；重复关闭、`closeAll()`、外部卸载、回调时序和 reduced motion 有回归覆盖。
+- [x] 聚焦矩阵：Message、MessagePage、service defaults、framework API adoption 共 4 个测试文件、25 项通过；Prettier、ESLint、CSpell 与 diff check 通过。
+- [ ] 浏览器完成 1440×1000、Material、英文页面布局与 Playground 居中检查，并成功命中“三条消息”交互；Chrome 控制连接在交互后截图和移动端复核时超时，本批不把未完成的堆叠退场、390px、Midnight 与中文矩阵记为通过。
+
 ## 2026-07-29 detached service locale
 
 - [x] Document-level Message hosts use the default locale context backed by `document.documentElement.lang`, while explicit LocaleProvider descendants continue to take priority.

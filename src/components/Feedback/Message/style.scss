@@ -9,34 +9,33 @@
   box-sizing: border-box;
   pointer-events: none;
   transform: translateX(-50%);
-  transition: top 220ms cubic-bezier(0.4, 0, 0.2, 1), bottom 220ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition:
+    top 220ms cubic-bezier(0.4, 0, 0.2, 1),
+    bottom 220ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 :host([position="top"]),
-:host(:not([position])) { top: var(--_offset, 20px); }
-:host([position="bottom"]) { bottom: var(--_offset, 20px); }
-
-@keyframes msg-in-top {
-  from { opacity: 0; transform: translateY(-10px) scale(0.98); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+:host(:not([position])) {
+  top: var(--_offset, 20px);
 }
-@keyframes msg-in-bottom {
-  from { opacity: 0; transform: translateY(10px) scale(0.98); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
-}
-@keyframes msg-out-top {
-  to { opacity: 0; transform: translateY(-8px) scale(0.98); }
-}
-@keyframes msg-out-bottom {
-  to { opacity: 0; transform: translateY(8px) scale(0.98); }
+:host([position="bottom"]) {
+  bottom: var(--_offset, 20px);
 }
 
 :host([type="info"]),
-:host(:not([type])) { --_tone: var(--elf-info, #1976d2); }
-:host([type="success"]) { --_tone: var(--elf-success, #2e7d32); }
-:host([type="warning"]) { --_tone: var(--elf-warning, #ed6c02); }
+:host(:not([type])) {
+  --_tone: var(--elf-info, #1976d2);
+}
+:host([type="success"]) {
+  --_tone: var(--elf-success, #2e7d32);
+}
+:host([type="warning"]) {
+  --_tone: var(--elf-warning, #ed6c02);
+}
 :host([type="danger"]),
-:host([type="error"]) { --_tone: var(--elf-danger, #d32f2f); }
+:host([type="error"]) {
+  --_tone: var(--elf-danger, #d32f2f);
+}
 
 .message {
   position: relative;
@@ -53,14 +52,37 @@
   border-radius: var(--elf-radius-sm, 6px);
   background: var(--elf-bg-paper, #fff);
   color: var(--elf-text-primary, #1f1f1f);
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.16), 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow:
+    0 8px 28px rgba(0, 0, 0, 0.16),
+    0 2px 8px rgba(0, 0, 0, 0.08);
   font-size: var(--elf-font-size-sm, 14px);
   line-height: 1.45;
   pointer-events: auto;
-  animation: msg-in-top 200ms cubic-bezier(0, 0, 0.2, 1) both;
 }
 
-:host([position="bottom"]) .message { animation-name: msg-in-bottom; }
+.elf-message-enter-active {
+  transition:
+    opacity 200ms cubic-bezier(0, 0, 0.2, 1),
+    transform 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.elf-message-leave-active {
+  pointer-events: none;
+  transition:
+    opacity 180ms cubic-bezier(0.4, 0, 1, 1),
+    transform 180ms cubic-bezier(0.4, 0, 1, 1);
+}
+
+.elf-message-enter-from,
+.elf-message-leave-to {
+  opacity: 0;
+  transform: translateY(-10px) scale(0.98);
+}
+
+:host([position="bottom"]) .elf-message-enter-from,
+:host([position="bottom"]) .elf-message-leave-to {
+  transform: translateY(10px) scale(0.98);
+}
 
 .accent {
   position: absolute;
@@ -99,7 +121,9 @@
   background: transparent;
   color: var(--_tone);
   cursor: pointer;
-  transition: background-color var(--elf-transition-fast, 150ms), opacity var(--elf-transition-fast, 150ms);
+  transition:
+    background-color var(--elf-transition-fast, 150ms),
+    opacity var(--elf-transition-fast, 150ms);
 }
 
 .action {
@@ -121,21 +145,40 @@
   opacity: 0.72;
 }
 
-.close svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-width: 2; }
+.close svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-width: 2;
+}
 .action:hover,
-.action:focus-visible { background: color-mix(in srgb, var(--_tone) 12%, transparent); }
+.action:focus-visible {
+  background: color-mix(in srgb, var(--_tone) 12%, transparent);
+}
 .close:hover,
-.close:focus-visible { background: color-mix(in srgb, currentColor 10%, transparent); opacity: 1; }
+.close:focus-visible {
+  background: color-mix(in srgb, currentColor 10%, transparent);
+  opacity: 1;
+}
 .action:focus-visible,
-.close:focus-visible { outline: 2px solid color-mix(in srgb, var(--_tone) 55%, transparent); outline-offset: 1px; }
-
-:host([data-closing]) .message { animation: msg-out-top 180ms cubic-bezier(0.4, 0, 1, 1) forwards; }
-:host([position="bottom"][data-closing]) .message { animation-name: msg-out-bottom; }
+.close:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--_tone) 55%, transparent);
+  outline-offset: 1px;
+}
 
 @media (max-width: 420px) {
-  .message { width: calc(100vw - 24px); min-width: 0; }
+  .message {
+    width: calc(100vw - 24px);
+    min-width: 0;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :host, .message { transition: none; animation-duration: 1ms; }
+  :host,
+  .elf-message-enter-active,
+  .elf-message-leave-active {
+    transition-duration: 0.01ms;
+  }
 }

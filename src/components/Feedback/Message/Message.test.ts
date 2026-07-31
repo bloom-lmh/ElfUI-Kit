@@ -1,12 +1,8 @@
 import { readFileSync } from "node:fs";
-import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { ElfMessage } from "./index";
 
-beforeAll(async () => {
-  await import("../../../components");
-});
-
-afterEach(async () => {
-  const { ElfMessage } = await import("../Message/index");
+afterEach(() => {
   ElfMessage.closeAll();
   document.body.innerHTML = "";
   delete document.documentElement.dataset.theme;
@@ -14,7 +10,23 @@ afterEach(async () => {
 });
 
 const tick = (): Promise<void> => new Promise((resolve) => queueMicrotask(resolve));
+const frame = (): Promise<void> => new Promise((resolve) => requestAnimationFrame(() => resolve()));
 const wait = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
+
+const finishTransitions = async (messages: readonly Element[]): Promise<void> => {
+  await frame();
+  await frame();
+  for (const message of messages) {
+    message.shadowRoot
+      ?.querySelector(".message")
+      ?.dispatchEvent(new Event("transitionend", { bubbles: true }));
+  }
+  await tick();
+};
+
+const finishTransition = async (message: Element | null): Promise<void> => {
+  await finishTransitions(message ? [message] : []);
+};
 
 describe("ElfMessage()", () => {
   it("supports a string shorthand", async () => {
@@ -34,7 +46,9 @@ describe("ElfMessage()", () => {
     await tick();
     await tick();
 
-    const content = document.body.querySelector("elf-message")!.shadowRoot!.querySelector(".content");
+    const content = document.body
+      .querySelector("elf-message")!
+      .shadowRoot!.querySelector(".content");
     expect(content).toBeTruthy();
     const cssText = readFileSync("src/components/Feedback/Message/style.scss", "utf8");
     expect(cssText).toContain("var(--elf-text-primary");
@@ -47,7 +61,7 @@ describe("ElfMessage()", () => {
     const { ElfMessage } = await import("../Message/index");
     ElfMessage.success("themed", {
       duration: 0,
-      themeTokens: { primary: "#80cbc4", bgPaper: "#172525", textPrimary: "#ffffff" }
+      themeTokens: { primary: "#80cbc4", bgPaper: "#172525", textPrimary: "#ffffff" },
     });
     await tick();
     await tick();
@@ -79,7 +93,7 @@ describe("ElfMessage()", () => {
     await wait(50);
     expect(document.body.querySelectorAll("elf-message").length).toBeGreaterThan(0);
     handle.close();
-    await wait(250);
+    await finishTransition(document.body.querySelector("elf-message"));
     expect(document.body.querySelectorAll("elf-message")).toHaveLength(0);
   });
 
@@ -88,7 +102,8 @@ describe("ElfMessage()", () => {
     ElfMessage({ message: "auto", duration: 50 });
     await tick();
     expect(document.body.querySelectorAll("elf-message").length).toBeGreaterThan(0);
-    await wait(300);
+    await wait(60);
+    await finishTransition(document.body.querySelector("elf-message"));
     expect(document.body.querySelectorAll("elf-message")).toHaveLength(0);
   });
 
@@ -104,14 +119,23 @@ describe("ElfMessage()", () => {
     expect(els[0]!.getAttribute("position")).toBe("bottom");
     expect((els[0] as HTMLElement).style.getPropertyValue("--_offset")).toBe("40px");
     expect((els[0] as HTMLElement).style.getPropertyValue("--_z-index")).toBe("3100");
-    expect(parseInt((els[1] as HTMLElement).style.getPropertyValue("--_offset"))).toBeGreaterThan(40);
+    expect(parseInt((els[1] as HTMLElement).style.getPropertyValue("--_offset"))).toBeGreaterThan(
+      40,
+    );
   });
 
   it("supports click, close and custom class", async () => {
     const { ElfMessage } = await import("../Message/index");
     const onClick = vi.fn();
     const onClose = vi.fn();
-    ElfMessage({ message: "clickable", duration: 0, closable: true, customClass: "qa-message", onClick, onClose });
+    ElfMessage({
+      message: "clickable",
+      duration: 0,
+      closable: true,
+      customClass: "qa-message",
+      onClick,
+      onClose,
+    });
     await tick();
     await tick();
 
@@ -120,7 +144,7 @@ describe("ElfMessage()", () => {
     (el.shadowRoot!.querySelector(".message") as HTMLElement).click();
     expect(onClick).toHaveBeenCalledTimes(1);
     (el.shadowRoot!.querySelector(".close") as HTMLButtonElement).click();
-    await wait(260);
+    await finishTransition(el);
     expect(onClose).toHaveBeenCalledTimes(1);
     expect(onClick).toHaveBeenCalledTimes(1);
     expect(document.body.querySelectorAll("elf-message")).toHaveLength(0);
@@ -149,9 +173,101 @@ describe("ElfMessage()", () => {
     await tick();
     await tick();
 
-    const close = document.body
-      .querySelector("elf-message")!
-      .shadowRoot!.querySelector(".close");
+    const close = document.body.querySelector("elf-message")!.shadowRoot!.querySelector(".close");
     expect(close?.getAttribute("aria-label")).toBe("Close message");
+  });
+
+  it("settles one close transaction after leave even when close repeats", async () => {
+    const { ElfMessage } = await import("../Message/index");
+    const onClose = vi.fn();
+    const handle = ElfMessage({ message: "one close", duration: 0, onClose });
+    await tick();
+    await tick();
+
+    const message = document.body.querySelector<HTMLElement>("elf-message")!;
+    const closeEvent = vi.fn();
+    message.addEventListener("close", closeEvent);
+
+    handle.close();
+    handle.close();
+    (message as HTMLElement & { close: () => void }).close();
+
+    expect(message.isConnected).toBe(true);
+    expect(onClose).not.toHaveBeenCalled();
+    await finishTransition(message);
+
+    expect(closeEvent).toHaveBeenCalledTimes(1);
+    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(message.isConnected).toBe(false);
+  });
+
+  it("closeAll completes every top and bottom leave exactly once", async () => {
+    const { ElfMessage } = await import("../Message/index");
+    const closed = [vi.fn(), vi.fn(), vi.fn()];
+    ElfMessage({ message: "top one", duration: 0, onClose: closed[0] });
+    ElfMessage({ message: "bottom", position: "bottom", duration: 0, onClose: closed[1] });
+    ElfMessage({ message: "top two", duration: 0, onClose: closed[2] });
+    await tick();
+    await tick();
+
+    const messages = Array.from(document.body.querySelectorAll("elf-message"));
+    ElfMessage.closeAll();
+    ElfMessage.closeAll();
+    await finishTransitions(messages);
+
+    expect(document.body.querySelectorAll("elf-message")).toHaveLength(0);
+    for (const callback of closed) expect(callback).toHaveBeenCalledTimes(1);
+  });
+
+  it("releases service ownership when its host is externally unmounted", async () => {
+    const { ElfMessage } = await import("../Message/index");
+    const onClose = vi.fn();
+    const handle = ElfMessage({ message: "external unmount", duration: 0, onClose });
+    await tick();
+    await tick();
+
+    document.body.querySelector("elf-message")!.remove();
+    await tick();
+    handle.close();
+
+    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(document.body.querySelectorAll("elf-message")).toHaveLength(0);
+  });
+
+  it("removes the host before invoking onClose after framework leave", async () => {
+    const { ElfMessage } = await import("../Message/index");
+    const observed: { message: HTMLElement | null } = { message: null };
+    let connectedAtCallback = true;
+    const handle = ElfMessage({
+      message: "ordered close",
+      duration: 0,
+      onClose: () => {
+        connectedAtCallback = Boolean(observed.message?.isConnected);
+      },
+    });
+    await tick();
+    await tick();
+    observed.message = document.body.querySelector<HTMLElement>("elf-message");
+
+    handle.close();
+    await finishTransition(observed.message);
+
+    expect(connectedAtCallback).toBe(false);
+  });
+
+  it("delegates structural motion to Core Transition with reduced-motion coverage", () => {
+    const componentSource = readFileSync("src/components/Feedback/Message/component.ts", "utf8");
+    const serviceSource = readFileSync("src/components/Feedback/Message/index.ts", "utf8");
+    const styleSource = readFileSync("src/components/Feedback/Message/style.scss", "utf8");
+
+    expect(componentSource).toContain('<Transition name="elf-message" appear');
+    expect(componentSource).toContain("@after-leave=${onAfterLeave}");
+    expect(componentSource).not.toContain("data-closing");
+    expect(serviceSource).not.toContain("data-closing");
+    expect(serviceSource).not.toContain("220");
+    expect(serviceSource).toContain("timer = setTimeout(requestClose, duration)");
+    expect(serviceSource).not.toContain("setTimeout(() =>");
+    expect(styleSource).toContain(".elf-message-leave-active");
+    expect(styleSource).toContain("@media (prefers-reduced-motion: reduce)");
   });
 });
