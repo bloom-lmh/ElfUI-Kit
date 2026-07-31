@@ -1,4 +1,4 @@
-<!-- cspell:words Sparkline -->
+<!-- cspell:words Sparkline VIEWBOX -->
 
 # ElfUI Kit 维护交接
 
@@ -326,10 +326,18 @@
 
 - `docs/architecture/2026-07-31-capability-ownership-and-reuse-inventory.md` 是当前共享能力权威入口。每个新任务先查该表，再决定复用 Core、directive、composable、Common controller、Provider 或现有组件。
 - 清单覆盖 121 个非测试宏组件、9 个 composable 源文件、11 类公开 directive 能力（8 个 owner 文件）、8 个 Common controller、15 个 Provider 源文件和 beta.20 Core authoring API，并记录每项的 owner、消费者与禁止重复边界。
-- Application Layout 与 Platform/Display/SSR 被明确记录为 `VU-02` / `VU-03` 缺口，没有建立临时 owner。beta.15 Core composable 矩阵已标为历史快照；Core beta.20 的并发 scroll lock 是唯一锁实现。
+- Application Layout 没有临时 owner；ConfigProvider display context 只是 Platform/Display/SSR 的部分 owner，完整缺口仍归 `VU-02` / `VU-03`。beta.15 Core composable 矩阵已标为历史快照；Core beta.20 `useScrollLock` 是目标锁 owner，但 Loading service 的遗留计数器仍待 `OP-03` / `OP-07` 迁移。
 - `scripts/capability-ownership.test.ts` 动态防止组件、共享源文件与 Core API 漏登记，聚焦测试 1 个文件、3 项通过。目标 Prettier、ESLint、CSpell（6 个文件、0 问题）和 `git diff --check` 通过；本批不改变 DOM 或视觉，浏览器截图不适用。
 - 全量测试为 235/236 个文件、1647/1648 项通过，唯一失败仍是并行 `OverviewPage/style.scss` 的渐变守卫。类型检查扫描 1098 个源码文件与 121 个宏组件，0 个 TypeScript 错误；唯一 2 个宏错误仍位于并行 `OverviewCard/index.ts:24`。应用构建通过 968 个模块，`build:lib` 被同一前置类型检查阻断，本批未修改这些并行文件。
 - OP-01 已完成。38 个总工作包现在为 1 个完成、37 个未完成；下一顶层工作包为 OP-02，之后是 EP-01 与 VU-01。
+
+### 2026-07-31 OP-02 分层设计与边界测试（验收待门禁）
+
+- `docs/architecture/2026-07-31-layering-and-state-ownership.md` 已覆盖 Overlay、Field/Form、Collection、Virtual Window、Date、Upload、Layout、Services 的当前 owner、目标依赖方向、状态/资源所有权、模式准入和迁移台账；没有把 Upload 拆分、Application Layout 或 Loading scroll lock 缺口写成已实现。
+- `scripts/architecture-boundaries.test.ts` 防止页面反向依赖、选定基础层循环、pure/Common owner 上行依赖、Provider service 资源越权和新增 body lock 副本。新测试 1 个文件、5 项通过；与 OP-01 测试合跑为 2 个文件、8 项通过。目标 Prettier、ESLint、CSpell 与 `git diff --check` 通过。
+- 仓库 ESLint 全量通过，本地化 strict 审计为 `535/535`。全量测试为 236/237 个文件、1654/1655 项通过，唯一失败是并行 `OverviewPage/style.scss`；类型检查为 0 个 TypeScript 错误、并行 `OverviewCard/index.ts:24` 的 2 个宏错误；应用构建通过 968 个模块，`build:lib` 被相同宏错误阻断。
+- 仓库格式棘轮另被 17 个并行修改文件阻断；仓库 CSpell 被并行 Sparkline 的 11 个文件、62 处未登记词阻断。本批没有修改或回退这些文件。
+- 本批不改变 DOM、ARIA、样式或视觉，浏览器截图不适用。按共同完成门禁，OP-02 暂不勾选；总进度仍为 1/38 完成、37 个未完成。
 
 ## 3. 未作的工作（将要做的）
 
@@ -344,7 +352,7 @@
 
 ### 执行顺序
 
-1. 先按当前所有权清单完成 OP-02 分层设计，再建立 EP-01 Element Plus 契约矩阵与 VU-01 Vuetify 能力矩阵。
+1. OP-02 分层设计与漂移测试已落地；先等待并行仓库门禁全绿并关闭其验收，再建立 EP-01 Element Plus 契约矩阵与 VU-01 Vuetify 能力矩阵。
 2. 继续剩余页面的中英文、双主题和桌面/移动端终审；helper strict 门禁已经启用，不再重复实现。
 3. 使用能够向嵌套 Shadow DOM 投递事件的独立 Chromium 会话或人工验收 Table 排序、选择、筛选、树展开与虚拟表格交互；不得用 DOM patch、脚本直接调用公开方法或框架 workaround 伪造通过。
 4. 每批同时处理页面入口、全部案例、Props/API、Template/Script、运行时状态和页面测试，并运行聚焦测试、审计与真实浏览器英文扫描。
@@ -368,6 +376,7 @@
 - Table 浏览器控制层限制已经在全新会话中确认：顶层原生按钮正常，嵌套 Shadow DOM 控件和案例 `elf-button` 均无法由当前控制通道触发；组件聚焦测试 90/90 通过且 Vite 编译产物存在正式监听。真实用户交互仍待独立 Chromium 或人工验收，不能外推为通过。
 - 390px 英文模式下全局 AppShell 固定 Footer 末尾截断，交由样式范围修复并补视觉回归。
 - 当前全量测试唯一失败是并行 `OverviewPage/style.scss` 的渐变守卫；类型检查与 `build:lib` 被并行 `OverviewCard/index.ts:24` 的两条宏模板类型错误阻断。
+- 当前格式棘轮被 17 个并行修改文件阻断；CSpell 被并行 Sparkline 的 11 个文件、62 处 `Sparkline/sparkline/VIEWBOX` 阻断。
 - 审计脚本目前检查 helper 参与度；浏览器可见文本、属性、源码示例与布局仍需逐页终审。
 - `src/components/Common/focus-scope.ts`、`overlay-protocol.ts` 等旧根路径已经迁入 `Common/focus/` 与 `Common/overlay/`；IDE 中仍打开的旧标签会显示删除状态，后续代码必须使用新路径。
 - beta.20 宏类型检查器的虚拟模板声明仍遗漏部分运行时类型/API，并可能把依赖文件诊断按行号映射到当前模板。TreeSelect 通过正常的全局自定义元素组合与显式本地类型保持组件代码干净；后续应在框架类型检查器中补齐 stub，并仅映射属于当前虚拟源文件的诊断。
