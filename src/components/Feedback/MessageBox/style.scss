@@ -22,7 +22,6 @@
   place-items: center;
   padding: 24px;
   background: transparent;
-  animation: message-box-mask-in 0.18s ease both;
 }
 
 .mask.has-backdrop {
@@ -38,7 +37,6 @@
   box-shadow: var(--elf-shadow-4, 0 20px 54px rgba(15, 23, 42, 0.22));
   outline: none;
   overflow: hidden;
-  animation: message-box-panel-in 0.2s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
 .header {
@@ -231,37 +229,47 @@
   justify-content: center;
 }
 
-.mask.is-closing {
-  animation: message-box-mask-out 0.2s ease both;
+.message-box-enter-active,
+.message-box-leave-active {
+  transition: opacity 0.2s ease;
+
+  .panel {
+    transition:
+      opacity 0.2s ease,
+      transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
 }
 
-.mask.is-closing .panel {
-  animation: message-box-panel-out 0.2s ease both;
+.message-box-leave-active {
+  pointer-events: none;
 }
 
-@keyframes message-box-mask-in {
-  from { opacity: 0; }
-}
+.message-box-enter-from,
+.message-box-leave-to {
+  opacity: 0;
 
-@keyframes message-box-mask-out {
-  to { opacity: 0; }
-}
-
-@keyframes message-box-panel-in {
-  from { opacity: 0; transform: translateY(-8px) scale(0.98); }
-}
-
-@keyframes message-box-panel-out {
-  to { opacity: 0; transform: translateY(-6px) scale(0.98); }
+  .panel {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
 }
 
 @keyframes message-box-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .mask,
-  .panel,
+  .message-box-enter-active,
+  .message-box-leave-active {
+    transition: none;
+
+    .panel {
+      transition: none;
+    }
+  }
+
   .spinner {
     animation-duration: 0.01ms;
   }

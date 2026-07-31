@@ -40,9 +40,7 @@ registerComponents(MessageBoxElement);
 const DEFAULT_Z_INDEX = 10000;
 const activeBoxes = new Set<MessageBoxHost>();
 
-const resolveAppendTarget = (
-  target: MessageBoxAppendTarget | undefined,
-): HTMLElement => {
+const resolveAppendTarget = (target: MessageBoxAppendTarget | undefined): HTMLElement => {
   if (target instanceof HTMLElement) return target;
   if (typeof target === "string") {
     try {
@@ -70,16 +68,10 @@ const contentNode = (content: MessageBoxContent | undefined): Node | null => {
   return content instanceof Node ? content : null;
 };
 
-const normalizeAction = (
-  action: MessageBoxAction,
-  distinguish: boolean,
-): MessageBoxAction =>
+const normalizeAction = (action: MessageBoxAction, distinguish: boolean): MessageBoxAction =>
   action === "close" && !distinguish ? "cancel" : action;
 
-const validateInput = async (
-  options: MessageBoxOptions,
-  value: string,
-): Promise<string> => {
+const validateInput = async (options: MessageBoxOptions, value: string): Promise<string> => {
   if (options.inputPattern) {
     options.inputPattern.lastIndex = 0;
   }
@@ -124,10 +116,7 @@ const createMessageBox = (
   host.inputValue = options.inputValue ?? "";
   host.inputType = options.inputType ?? "text";
   host.inputPlaceholder = options.inputPlaceholder ?? "";
-  host.style.setProperty(
-    "--_message-box-z-index",
-    String(options.zIndex ?? DEFAULT_Z_INDEX),
-  );
+  host.style.setProperty("--_message-box-z-index", String(options.zIndex ?? DEFAULT_Z_INDEX));
 
   if (options.customClass) {
     host.classList.add(...options.customClass.split(/\s+/).filter(Boolean));
@@ -154,10 +143,7 @@ const createMessageBox = (
       if (settled) return;
       settled = true;
       cleanup();
-      const finalAction = normalizeAction(
-        action,
-        Boolean(options.distinguishCancelAndClose),
-      );
+      const finalAction = normalizeAction(action, Boolean(options.distinguishCancelAndClose));
       options.callback?.(finalAction, value);
       if (finalAction === "confirm") {
         resolve({ action: "confirm", value });
@@ -167,9 +153,9 @@ const createMessageBox = (
     };
 
     const finish = (nextAction: MessageBoxAction, nextValue: string): void => {
+      if (!host.startClose(nextAction)) return;
       action = nextAction;
       value = nextValue;
-      host.startClose(nextAction);
     };
 
     const onAction = async (event: Event): Promise<void> => {
@@ -182,6 +168,7 @@ const createMessageBox = (
       if (detail.action === "confirm" && options.showInput) {
         host.setPending("confirm", true);
         const error = await validateInput(options, detail.value);
+        if (settled) return;
         host.setPending("confirm", false);
         if (error) {
           host.setInputError(error);
@@ -197,6 +184,7 @@ const createMessageBox = (
         } catch {
           allowed = false;
         }
+        if (settled) return;
         host.setPending(detail.action, false);
         if (!allowed) return;
       }
@@ -214,9 +202,7 @@ const createMessageBox = (
   });
 };
 
-const createMessageBoxApi = (
-  readDefaults?: ServiceDefaultsReader<"messageBox">,
-): MessageBoxApi => {
+const createMessageBoxApi = (readDefaults?: ServiceDefaultsReader<"messageBox">): MessageBoxApi => {
   const open = ((options: MessageBoxOptions): Promise<MessageBoxResult> =>
     createMessageBox(options, readDefaults?.())) as MessageBoxApi;
 

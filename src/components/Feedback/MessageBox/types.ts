@@ -92,12 +92,10 @@ export interface MessageBoxExpose {
   close: () => void;
   setInputError: (message: string) => void;
   setPending: (action: MessageBoxAction, pending: boolean) => void;
-  startClose: (action?: MessageBoxAction) => void;
+  startClose: (action?: MessageBoxAction) => boolean;
 }
 
-export type MessageBoxElement = HTMLElement &
-  MessageBoxExpose &
-  Partial<MessageBoxProps>;
+export type MessageBoxElement = HTMLElement & MessageBoxExpose & Partial<MessageBoxProps>;
 
 export interface MessageBoxApi {
   (options: MessageBoxOptions): Promise<MessageBoxResult>;

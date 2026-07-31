@@ -54,36 +54,36 @@ const props = defineProps<MessageBoxProps>({
   inputPlaceholder: { type: String, default: "" },
 });
 
-const emit = defineEmits<MessageBoxEmits>();
+const emit = defineEmits<MessageBoxEmits>(["action", "closed"]);
 const locale = useLocaleProvider();
 const panelRef = useTemplateRef<HTMLElement>("panelEl");
 const inputRef = useTemplateRef<HTMLInputElement>("inputEl");
 
+const open = useRef(true);
+const rendered = useRef(true);
 const closing = useRef(false);
 const value = useRef("");
 const inputError = useRef("");
 const confirmPending = useRef(false);
 const cancelPending = useRef(false);
-let closeTimer: number | null = null;
+let activeRoot: HTMLElement | null = null;
+let pendingCloseReason: "action" | "programmatic" = "programmatic";
+let closeCompleted = false;
 
 const normalizedType = (): MessageBoxType =>
   ["success", "warning", "error"].includes(String(props.type))
     ? (props.type as MessageBoxType)
     : "info";
 const icon = (): string => props.icon || TYPE_ICONS[normalizedType()];
-const confirmText = (): string =>
-  props.confirmButtonText || locale.t("common.confirm");
-const cancelText = (): string =>
-  props.cancelButtonText || locale.t("common.cancel");
+const confirmText = (): string => props.confirmButtonText || locale.t("common.confirm");
+const cancelText = (): string => props.cancelButtonText || locale.t("common.cancel");
 const panelClasses = (): Record<string, boolean> => ({
   panel: true,
   "is-center": props.center,
-  "is-closing": closing.value,
 });
 const maskClasses = (): Record<string, boolean> => ({
   mask: true,
   "has-backdrop": props.modal,
-  "is-closing": closing.value,
 });
 const pending = (): boolean => confirmPending.value || cancelPending.value;
 
@@ -98,11 +98,7 @@ const onCancel = (): void => requestAction("cancel");
 const onClose = (): void => requestAction("close");
 
 const onMaskClick = (event: MouseEvent): void => {
-  if (
-    event.target === event.currentTarget &&
-    props.closeOnClickModal &&
-    overlay.claim(event)
-  ) {
+  if (event.target === event.currentTarget && props.closeOnClickModal && overlay.claim(event)) {
     onClose();
   }
 };
@@ -118,24 +114,12 @@ const onInputKeydown = (event: KeyboardEvent): void => {
   onConfirm();
 };
 
-const cleanupTimer = (): void => {
-  if (closeTimer === null) return;
-  window.clearTimeout(closeTimer);
-  closeTimer = null;
-};
-
-const startClose = (action: MessageBoxAction = "close"): void => {
-  if (closing.peek()) return;
-  closing.set(true);
-  overlay.beginClose(
-    action === "confirm" ? "action" : action === "cancel" ? "action" : "programmatic",
-  );
-  cleanupTimer();
-  closeTimer = window.setTimeout(() => {
-    closeTimer = null;
-    emit("closed");
-    overlay.completeClose();
-  }, 200);
+/** Starts a structural leave transaction without guessing its CSS duration. */
+const startClose = (action: MessageBoxAction = "close"): boolean => {
+  if (closeCompleted || !open.peek() || closing.peek()) return false;
+  pendingCloseReason = action === "confirm" || action === "cancel" ? "action" : "programmatic";
+  open.set(false);
+  return true;
 };
 
 const setInputError = (message: string): void => {
@@ -151,12 +135,47 @@ const setPending = (action: MessageBoxAction, active: boolean): void => {
 const overlay = useModalOverlay({
   kind: "message-box",
   panel: () => panelRef.value,
-  rendered: () => true,
+  rendered: () => rendered.value,
   closing: () => closing.value,
   closeOnEscape: () => Boolean(props.closeOnPressEscape),
   lockScroll: () => Boolean(props.lockScroll),
   onRequestClose: onClose,
 });
+
+/** Activates the shared modal owner after Transition inserts the active root. */
+const onBeforeEnter = (element: Element): void => {
+  activeRoot = element as HTMLElement;
+  rendered.set(true);
+  closing.set(false);
+  if (!overlay.isActive()) overlay.activate();
+  if (props.autofocus) overlay.scheduleInitialFocus();
+};
+
+/** Releases stack ownership at leave start so the next modal can receive Escape. */
+const onBeforeLeave = (element: Element): void => {
+  if (activeRoot !== element || closing.peek()) return;
+  closing.set(true);
+  overlay.beginClose(pendingCloseReason);
+  pendingCloseReason = "programmatic";
+};
+
+/** Completes the modal transaction exactly once before the service removes its host. */
+const completeClose = (): void => {
+  if (closeCompleted) return;
+  closeCompleted = true;
+  if (overlay.state() === "active") overlay.beginClose(pendingCloseReason);
+  if (overlay.state() === "closing") overlay.completeClose();
+  activeRoot = null;
+  rendered.set(false);
+  closing.set(false);
+  emit("closed");
+};
+
+/** Restores focus and scroll before the service settles and removes its host. */
+const onAfterLeave = (element: Element): void => {
+  if (activeRoot !== element || open.peek()) return;
+  completeClose();
+};
 
 useHostAttr("type", normalizedType);
 useHostFlag("data-closing", () => closing.value);
@@ -164,11 +183,11 @@ useHostFlag("data-modal", () => props.modal);
 
 onMounted(() => {
   value.set(props.inputValue || "");
-  overlay.activate();
-  if (props.autofocus) overlay.scheduleInitialFocus();
 });
 
-onBeforeUnmount(cleanupTimer);
+onBeforeUnmount(() => {
+  completeClose();
+});
 
 defineExpose<MessageBoxExpose>({
   close: onClose,
@@ -179,7 +198,14 @@ defineExpose<MessageBoxExpose>({
 defineStyle(styles);
 
 const MessageBox = defineHtml<MessageBoxProps, MessageBoxEmits, MessageBoxSlots>(`
-  <div :class=${maskClasses()} part="mask" @click=${onMaskClick}>
+  <Transition
+    name="message-box"
+    appear
+    @before-enter=${onBeforeEnter}
+    @before-leave=${onBeforeLeave}
+    @after-leave=${onAfterLeave}
+  >
+  <div v-if=${open.value} :class=${maskClasses()} part="mask" @click=${onMaskClick}>
     <section
       ref="panelEl"
       class="panel"
@@ -256,6 +282,7 @@ const MessageBox = defineHtml<MessageBoxProps, MessageBoxEmits, MessageBoxSlots>
       </footer>
     </section>
   </div>
+  </Transition>
 `);
 
 export { MessageBox };
