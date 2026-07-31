@@ -195,4 +195,26 @@ describe("architecture boundaries", () => {
       "Core `useScrollLock` owns both declarative and service-created Loading locks",
     );
   });
+
+  it("keeps Parallax observers owned by Core and shared controllers", () => {
+    const source = readFileSync(
+      join(repositoryRoot, "src/components/Data/Parallax/index.ts"),
+      "utf8",
+    );
+    const rootObserver = readFileSync(
+      join(repositoryRoot, "src/components/Data/Parallax/root-observer.ts"),
+      "utf8",
+    );
+
+    expect(source).toContain("useResizeObserver(host, scheduleUpdate)");
+    expect(rootObserver).toMatch(
+      /import \{ createMutateController \} from "\.\.\/\.\.\/\.\.\/directives\/observers";/,
+    );
+    expect(source).toContain("subscribeRootMutations(root");
+    expect(rootObserver).toContain("createMutateController(root");
+    expect(source).toContain("mutationAffectsScrollOwnership");
+    expect(source).not.toContain("new ResizeObserver");
+    expect(source).not.toContain("new MutationObserver");
+    expect(rootObserver).not.toContain("new MutationObserver");
+  });
 });

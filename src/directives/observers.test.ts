@@ -2,6 +2,7 @@ import type { DirectiveBinding } from "@elfui/core";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
+  createMutateController,
   intersectDirective,
   mutateDirective,
   registerIntersectDirective,
@@ -10,20 +11,21 @@ import {
   resizeDirective,
   type IntersectDirectiveValue,
   type MutateDirectiveValue,
-  type ResizeDirectiveValue
+  type ResizeDirectiveValue,
 } from "./observers";
 
 const binding = <Value>(value: Value): DirectiveBinding<Value> => ({
   value,
   oldValue: undefined,
-  modifiers: {}
+  modifiers: {},
 });
 
-const hooks = <Value>(definition: unknown) => definition as {
-  mounted: (element: HTMLElement, binding: DirectiveBinding<Value>) => void;
-  updated: (element: HTMLElement, binding: DirectiveBinding<Value>) => void;
-  beforeUnmount: (element: HTMLElement) => void;
-};
+const hooks = <Value>(definition: unknown) =>
+  definition as {
+    mounted: (element: HTMLElement, binding: DirectiveBinding<Value>) => void;
+    updated: (element: HTMLElement, binding: DirectiveBinding<Value>) => void;
+    beforeUnmount: (element: HTMLElement) => void;
+  };
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -35,13 +37,16 @@ describe("observer directives", () => {
     const observe = vi.fn();
     const disconnect = vi.fn();
     let callback!: IntersectionObserverCallback;
-    vi.stubGlobal("IntersectionObserver", class {
-      constructor(next: IntersectionObserverCallback) {
-        callback = next;
-      }
-      observe = observe;
-      disconnect = disconnect;
-    });
+    vi.stubGlobal(
+      "IntersectionObserver",
+      class {
+        constructor(next: IntersectionObserverCallback) {
+          callback = next;
+        }
+        observe = observe;
+        disconnect = disconnect;
+      },
+    );
     const element = document.createElement("div");
     const directive = hooks<IntersectDirectiveValue>(intersectDirective);
     directive.mounted(element, binding({ handler, once: true }));
@@ -57,13 +62,16 @@ describe("observer directives", () => {
     const observe = vi.fn();
     const disconnect = vi.fn();
     const instances: MutationObserverCallback[] = [];
-    vi.stubGlobal("MutationObserver", class {
-      constructor(callback: MutationObserverCallback) {
-        instances.push(callback);
-      }
-      observe = observe;
-      disconnect = disconnect;
-    });
+    vi.stubGlobal(
+      "MutationObserver",
+      class {
+        constructor(callback: MutationObserverCallback) {
+          instances.push(callback);
+        }
+        observe = observe;
+        disconnect = disconnect;
+      },
+    );
     const element = document.createElement("div");
     const handler = vi.fn();
     const directive = hooks<MutateDirectiveValue>(mutateDirective);
@@ -77,17 +85,54 @@ describe("observer directives", () => {
     directive.beforeUnmount(element);
   });
 
+  it("supports document and shadow-root mutation targets", () => {
+    const observe = vi.fn();
+    const disconnect = vi.fn();
+    vi.stubGlobal(
+      "MutationObserver",
+      class {
+        observe = observe;
+        disconnect = disconnect;
+      },
+    );
+    const host = document.createElement("div");
+    const shadowRoot = host.attachShadow({ mode: "open" });
+
+    const documentController = createMutateController(document, vi.fn());
+    const shadowController = createMutateController(shadowRoot, vi.fn());
+
+    expect(observe).toHaveBeenNthCalledWith(1, document, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      characterData: true,
+    });
+    expect(observe).toHaveBeenNthCalledWith(2, shadowRoot, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      characterData: true,
+    });
+
+    documentController.dispose();
+    shadowController.dispose();
+    expect(disconnect).toHaveBeenCalledTimes(2);
+  });
+
   it("forwards resize entries and supports disabled updates", () => {
     const observe = vi.fn();
     const disconnect = vi.fn();
     let callback!: ResizeObserverCallback;
-    vi.stubGlobal("ResizeObserver", class {
-      constructor(next: ResizeObserverCallback) {
-        callback = next;
-      }
-      observe = observe;
-      disconnect = disconnect;
-    });
+    vi.stubGlobal(
+      "ResizeObserver",
+      class {
+        constructor(next: ResizeObserverCallback) {
+          callback = next;
+        }
+        observe = observe;
+        disconnect = disconnect;
+      },
+    );
     const element = document.createElement("div");
     const handler = vi.fn();
     const directive = hooks<ResizeDirectiveValue>(resizeDirective);
@@ -107,10 +152,6 @@ describe("observer directives", () => {
     registerIntersectDirective(app);
     registerMutateDirective(app);
     registerResizeDirective(app);
-    expect(directive.mock.calls.map(([name]) => name)).toEqual([
-      "intersect",
-      "mutate",
-      "resize"
-    ]);
+    expect(directive.mock.calls.map(([name]) => name)).toEqual(["intersect", "mutate", "resize"]);
   });
 });
