@@ -9,15 +9,13 @@ import {
   globalStyle,
   onBeforeUnmount,
   useEffect,
-  useEscapeKey,
   useEventListener,
   useHost,
   useHostFlag,
   useIntersectionObserver,
   useRef,
   useResizeObserver,
-  useScrollLock,
-  useTemplateRef
+  useTemplateRef,
 } from "@elfui/core";
 
 import styles from "./style.scss?inline";
@@ -26,6 +24,8 @@ import { useLocaleProvider } from "../../Providers/context";
 import { useGoTo } from "../../../composables/useGoTo";
 import { findScrollContainer } from "../../../composables/scroll";
 import type { GoToTask } from "../../../composables/goTo";
+import { useModalOverlay } from "../../../composables/useModalOverlay";
+import { createMutateController } from "../../../directives/observers";
 
 export type {
   TourChangeDetail,
@@ -35,7 +35,7 @@ export type {
   TourPlacement,
   TourProps,
   TourSlots,
-  TourStep
+  TourStep,
 } from "./types";
 
 let tourLayerId = 0;
@@ -68,7 +68,7 @@ const props = defineProps<TourProps>({
   contentStyle: { type: Object, default: () => ({}) },
 });
 
-const emit = defineEmits<TourEmits>();
+const emit = defineEmits<TourEmits>(["update:current", "change", "close", "finish"]);
 
 const locale = useLocaleProvider();
 const goTo = useGoTo();
@@ -78,17 +78,16 @@ const overlayRef = useTemplateRef<HTMLElement>("overlay");
 const panelRef = useTemplateRef<HTMLElement>("panel");
 const layerId = useRef(`elf-tour-layer-${++tourLayerId}`);
 const currentStep = useRef(0);
+const openState = useRef(false);
 const rendered = useRef(false);
 const closing = useRef(false);
 const targetBox = useRef<TargetBox | null>(null);
 const hostVisible = useRef(true);
 
-let closeTimer: ReturnType<typeof setTimeout> | null = null;
 let frameId = 0;
-let focusFrameId = 0;
-let previousActive: HTMLElement | null = null;
 let lastPropCurrent = 0;
-let targetObserver: MutationObserver | null = null;
+let activeRoot: HTMLElement | null = null;
+let targetObservers: Array<ReturnType<typeof createMutateController>> = [];
 let targetScrollTask: GoToTask | null = null;
 
 const steps = (): TourStep[] => (Array.isArray(props.steps) ? (props.steps as TourStep[]) : []);
@@ -105,13 +104,9 @@ const placement = (): TourPlacement => {
 const isFirstStep = (): boolean => currentStep.value <= 0;
 const isLastStep = (): boolean => currentStep.value >= stepCount() - 1;
 const currentNumber = (): number => currentStep.value + 1;
-const nextButtonText = (): string => activeStep()?.nextText || locale.t(isLastStep() ? "common.done" : "common.next");
+const nextButtonText = (): string =>
+  activeStep()?.nextText || locale.t(isLastStep() ? "common.done" : "common.next");
 const prevButtonText = (): string => activeStep()?.prevText || locale.t("common.previous");
-
-const clearCloseTimer = (): void => {
-  if (closeTimer) clearTimeout(closeTimer);
-  closeTimer = null;
-};
 
 const resolveTarget = (): Element | null => {
   const step = activeStep();
@@ -138,6 +133,7 @@ const updateTarget = (): void => {
 };
 
 const scheduleUpdate = (): void => {
+  if (!openState.peek() || closing.peek()) return;
   if (frameId) cancelAnimationFrame(frameId);
   frameId = requestAnimationFrame(() => {
     frameId = 0;
@@ -148,15 +144,14 @@ const scheduleUpdate = (): void => {
 const isTargetVisible = (
   target: Element,
   container: HTMLElement | null,
-  padding: number
+  padding: number,
 ): boolean => {
   const targetRect = target.getBoundingClientRect();
   const bounds = container?.getBoundingClientRect() ?? {
     top: 0,
     bottom: window.innerHeight,
   };
-  return targetRect.top >= bounds.top + padding
-    && targetRect.bottom <= bounds.bottom - padding;
+  return targetRect.top >= bounds.top + padding && targetRect.bottom <= bounds.bottom - padding;
 };
 
 const scrollToActiveTarget = (): void => {
@@ -187,90 +182,50 @@ const scrollToActiveTarget = (): void => {
 };
 
 const disconnectTargetObserver = (): void => {
-  targetObserver?.disconnect();
-  targetObserver = null;
+  for (const observer of targetObservers) observer.dispose();
+  targetObservers = [];
 };
 
+/** Connects the dynamic-target geometry resource for the active Tour transaction. */
 const connectTargetObserver = (): void => {
   disconnectTargetObserver();
-  if (typeof MutationObserver === "undefined") return;
-  targetObserver = new MutationObserver(scheduleUpdate);
   const root = host.getRootNode();
-  targetObserver.observe(root, {
-    childList: true,
-    subtree: true,
-    attributes: true,
-    attributeFilter: ["id", "hidden"]
-  });
+  targetObservers.push(
+    createMutateController(root, {
+      handler: scheduleUpdate,
+      observer: {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ["id", "hidden"],
+      },
+    }),
+  );
   if (root !== document && document.body) {
-    targetObserver.observe(document.body, { childList: true, subtree: true });
+    targetObservers.push(
+      createMutateController(document.body, {
+        handler: scheduleUpdate,
+        observer: { childList: true, subtree: true },
+      }),
+    );
   }
 };
 
-const cancelScheduledFocus = (): void => {
-  if (focusFrameId) cancelAnimationFrame(focusFrameId);
-  focusFrameId = 0;
-};
-
-const resolveOverlay = (): HTMLElement | null => overlayRef.peek() || document.getElementById(layerId.peek());
-
-const focusOverlay = (): void => {
-  cancelScheduledFocus();
-  queueMicrotask(() => {
-    if (!rendered.peek() || closing.peek()) return;
-    const overlay = resolveOverlay();
-    const close = overlay?.querySelector<HTMLElement>(".tour-close");
-    const focusTarget = close || overlay;
-    if (focusTarget) {
-      focusTarget.focus();
-      return;
-    }
-
-    focusFrameId = requestAnimationFrame(() => {
-      focusFrameId = 0;
-      if (!rendered.peek() || closing.peek()) return;
-      const nextOverlay = resolveOverlay();
-      const nextClose = nextOverlay?.querySelector<HTMLElement>(".tour-close");
-      (nextClose || nextOverlay)?.focus();
-    });
-  });
-};
-
-const restoreFocus = (): void => {
-  if (previousActive && typeof previousActive.focus === "function") {
-    previousActive.focus();
-  }
-  previousActive = null;
-};
+const resolveOverlay = (): HTMLElement | null =>
+  overlayRef.peek() || document.getElementById(layerId.peek());
+const resolvePanel = (): HTMLElement | null =>
+  panelRef.peek() || resolveOverlay()?.querySelector<HTMLElement>(".tour-panel") || null;
 
 const open = (): void => {
   if (stepCount() === 0) return;
-  clearCloseTimer();
-  previousActive = document.activeElement as HTMLElement | null;
   lastPropCurrent = clampIndex(Number(props.current) || 0);
   currentStep.set(lastPropCurrent);
-  rendered.set(true);
-  closing.set(false);
-  connectTargetObserver();
-  scheduleUpdate();
-  focusOverlay();
+  openState.set(true);
 };
 
 const close = (): void => {
-  if (!rendered.peek() || closing.peek()) return;
-  cancelScheduledFocus();
-  disconnectTargetObserver();
-  targetScrollTask?.cancel();
-  targetScrollTask = null;
-  closing.set(true);
-  clearCloseTimer();
-  closeTimer = setTimeout(() => {
-    rendered.set(false);
-    closing.set(false);
-    targetBox.set(null);
-    restoreFocus();
-    emit("close");
-  }, 180);
+  if (!openState.peek() || closing.peek()) return;
+  openState.set(false);
 };
 
 const setCurrent = (index: number): void => {
@@ -281,7 +236,7 @@ const setCurrent = (index: number): void => {
   emit("update:current", next);
   emit("change", { current: next, step });
   scheduleUpdate();
-  focusOverlay();
+  overlay.scheduleInitialFocus();
 };
 
 const prev = (): void => setCurrent(currentStep.value - 1);
@@ -302,11 +257,20 @@ const next = (): void => {
 const skip = (): void => close();
 
 const onLayerClick = (event: MouseEvent): void => {
-  if (props.maskClosable && event.target === event.currentTarget) close();
+  if (props.maskClosable && event.target === event.currentTarget && overlay.claim(event)) close();
 };
 
 const onKeydown = (event: KeyboardEvent): void => {
-  if (!props.keyboard || !rendered.value || event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey)
+  if (
+    !props.keyboard ||
+    !rendered.value ||
+    closing.value ||
+    !overlay.isTopmost() ||
+    event.defaultPrevented ||
+    event.altKey ||
+    event.ctrlKey ||
+    event.metaKey
+  )
     return;
   if (event.key === "ArrowRight" || event.key === "ArrowDown") {
     event.preventDefault();
@@ -415,15 +379,56 @@ const bubbleStyle = (): Record<string, string> => {
 
 const layerStyle = (): Record<string, string> => ({ zIndex: String(Number(props.zIndex) || 3000) });
 const hasTarget = (): boolean => Boolean(targetBox.value);
-const layerClass = (): Record<string, boolean> => ({ "is-closing": closing.value });
 const panelStyle = (): Record<string, string> => ({
   ...bubbleStyle(),
-  ...(props.contentStyle || {})
+  ...(props.contentStyle || {}),
 });
+
+const overlay = useModalOverlay({
+  kind: "tour",
+  panel: resolvePanel,
+  rendered: () => rendered.value,
+  closing: () => closing.value,
+  closeOnEscape: () => Boolean(props.keyboard && props.closeOnPressEscape),
+  lockScroll: () => Boolean(props.lockScroll),
+  onRequestClose: close,
+});
+
+/** Starts target tracking and the shared modal transaction for one inserted Tour root. */
+const onBeforeEnter = (element: Element): void => {
+  activeRoot = element as HTMLElement;
+  rendered.set(true);
+  closing.set(false);
+  if (!overlay.isActive()) overlay.activate();
+  connectTargetObserver();
+  scheduleUpdate();
+  overlay.scheduleInitialFocus();
+};
+
+/** Releases stack ownership while retaining scroll lock until the structural leave finishes. */
+const onBeforeLeave = (element: Element): void => {
+  if (activeRoot !== element || closing.peek()) return;
+  closing.set(true);
+  overlay.beginClose("programmatic");
+  disconnectTargetObserver();
+  targetScrollTask?.cancel();
+  targetScrollTask = null;
+};
+
+/** Completes focus, scroll, geometry, and event cleanup for the final active root. */
+const onAfterLeave = (element: Element): void => {
+  if (activeRoot !== element || openState.peek()) return;
+  activeRoot = null;
+  if (overlay.state() === "closing") overlay.completeClose();
+  rendered.set(false);
+  closing.set(false);
+  targetBox.set(null);
+  emit("close");
+};
 
 useEffect(() => {
   if (props.visible) open();
-  else if (rendered.peek()) close();
+  else if (openState.peek()) close();
 });
 
 useEffect(() => {
@@ -440,11 +445,7 @@ useEffect(() => {
   scrollToActiveTarget();
 });
 
-useEscapeKey(() => {
-  if (props.keyboard && props.closeOnPressEscape && rendered.value) close();
-});
 useEventListener(window, "keydown", onKeydown);
-useScrollLock(() => Boolean(props.lockScroll) && rendered.value && !closing.value);
 useEventListener(window, "scroll", scheduleUpdate, { passive: true });
 useEventListener(window, "resize", scheduleUpdate);
 useResizeObserver(host, scheduleUpdate);
@@ -452,21 +453,19 @@ useIntersectionObserver(host, (entry) => {
   hostVisible.set(entry.isIntersecting);
   scheduleUpdate();
 });
-useHostFlag("data-open", () => rendered.value);
+useHostFlag("data-open", () => openState.value);
 useHostFlag("data-visible", () => hostVisible.value);
 
 onBeforeUnmount(() => {
-  clearCloseTimer();
   disconnectTargetObserver();
   targetScrollTask?.cancel();
   targetScrollTask = null;
   if (frameId) cancelAnimationFrame(frameId);
-  cancelScheduledFocus();
-  resolveOverlay()?.remove();
+  activeRoot = null;
+  openState.set(false);
   rendered.set(false);
   closing.set(false);
   targetBox.set(null);
-  restoreFocus();
 });
 
 defineExpose<TourExpose>({ prev, next, skip, finish, close, open });
@@ -474,47 +473,61 @@ defineStyle(styles);
 
 const Tour = defineHtml<TourProps, TourEmits, TourSlots>(`
   <Teleport to="body">
-    <div
-      v-if=${rendered}
-      :id=${layerId}
-      ref="overlay"
-      class="tour-layer"
-      :class=${layerClass()}
-      :style=${layerStyle()}
-      role="dialog"
-      aria-modal="true"
-      tabindex="-1"
-      @click=${onLayerClick}
+    <Transition
+      name="elf-tour"
+      appear
+      @before-enter=${onBeforeEnter}
+      @before-leave=${onBeforeLeave}
+      @after-leave=${onAfterLeave}
     >
-      <div v-if=${props.mask && !hasTarget()} class="tour-backdrop"></div>
-      <div v-if=${hasTarget()} class="tour-highlight" :class=${{ "without-mask": !props.mask }} :style=${highlightStyle()}></div>
-      <section ref="panel" class="tour-panel" :class=${placement()} :style=${panelStyle()}>
-        <header class="tour-header">
-          <slot name="header">
-            <slot name="indicators">
-              <span class="tour-progress">${currentNumber()} / ${stepCount()}</span>
+      <div
+        v-if=${openState}
+        :id=${layerId}
+        ref="overlay"
+        class="tour-layer"
+        :style=${layerStyle()}
+        role="dialog"
+        aria-modal="true"
+        tabindex="-1"
+        @click=${onLayerClick}
+      >
+        <div v-if=${props.mask && !hasTarget()} class="tour-backdrop"></div>
+        <div v-if=${hasTarget()} class="tour-highlight" :class=${{ "without-mask": !props.mask }} :style=${highlightStyle()}></div>
+        <section ref="panel" class="tour-panel" :class=${placement()} :style=${panelStyle()}>
+          <header class="tour-header">
+            <slot name="header">
+              <slot name="indicators">
+                <span class="tour-progress">${currentNumber()} / ${stepCount()}</span>
+              </slot>
             </slot>
-          </slot>
-          <button v-if=${props.showClose} class="tour-close" type="button" :aria-label=${locale.t("tour.close")} @click=${skip}>
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M6 6l12 12M18 6L6 18"></path>
-            </svg>
-          </button>
-        </header>
-        <div class="tour-body">
-          <h3 class="tour-title">${activeStep()?.title}</h3>
-          <p class="tour-content">${activeStep()?.content}</p>
-        </div>
-        <footer class="tour-footer">
-          <button class="tour-button tour-button--text" type="button" @click=${skip}>${locale.t("common.skip")}</button>
-          <span class="tour-spacer"></span>
-          <button class="tour-button tour-button--text" type="button" :disabled=${isFirstStep()} @click=${prev}>
-            ${prevButtonText()}
-          </button>
-          <button class="tour-button tour-button--primary" type="button" @click=${next}>${nextButtonText()}</button>
-        </footer>
-      </section>
-    </div>
+            <button
+              v-if=${props.showClose}
+              class="tour-close"
+              type="button"
+              data-autofocus
+              :aria-label=${locale.t("tour.close")}
+              @click=${skip}
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M6 6l12 12M18 6L6 18"></path>
+              </svg>
+            </button>
+          </header>
+          <div class="tour-body">
+            <h3 class="tour-title">${activeStep()?.title}</h3>
+            <p class="tour-content">${activeStep()?.content}</p>
+          </div>
+          <footer class="tour-footer">
+            <button class="tour-button tour-button--text" type="button" @click=${skip}>${locale.t("common.skip")}</button>
+            <span class="tour-spacer"></span>
+            <button class="tour-button tour-button--text" type="button" :disabled=${isFirstStep()} @click=${prev}>
+              ${prevButtonText()}
+            </button>
+            <button class="tour-button tour-button--primary" type="button" @click=${next}>${nextButtonText()}</button>
+          </footer>
+        </section>
+      </div>
+    </Transition>
   </Teleport>
 `);
 

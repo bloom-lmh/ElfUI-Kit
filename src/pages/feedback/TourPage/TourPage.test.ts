@@ -1,16 +1,23 @@
-import { afterEach, beforeAll, describe, expect, it } from "vitest";
+import { ensureCustomElement } from "@elfui/core";
+import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { Button } from "../../../components/Basic/Button";
+import { Playground } from "../../../components/Common/Playground";
+import { PropsTable } from "../../../components/Common/PropsTable";
+import { Tour } from "../../../components/Feedback/Tour";
+import { Container } from "../../../components/Layout/Container";
+import { PageTourEx3 } from "./ex3";
+import { PageTour } from "./index";
 
 let exampleTag = "";
 let pageTag = "";
 
-beforeAll(async () => {
-  await import("../../../components");
-  const { ensureCustomElement } = await import("@elfui/core");
-  const { PageTourEx3 } = await import("./ex3");
-  const { PageTour } = await import("./index");
+beforeAll(() => {
+  for (const component of [Button, Playground, PropsTable, Tour, Container]) {
+    ensureCustomElement(component);
+  }
   exampleTag = ensureCustomElement(PageTourEx3);
   pageTag = ensureCustomElement(PageTour);
-}, 30_000);
+});
 
 afterEach(() => {
   document.body.innerHTML = "";
@@ -68,10 +75,15 @@ describe("TourPage", () => {
     await wait();
 
     page.shadowRoot!.querySelector<HTMLElement>("elf-button")!.click();
-    await wait(1050);
-
-    expect(page.shadowRoot!.textContent).toContain("目标已卸载 · 引导仍可继续");
-    expect(document.body.querySelector(".tour-highlight")).toBeNull();
-    expect(document.body.querySelector(".tour-backdrop")).toBeTruthy();
+    await vi.waitFor(
+      () => {
+        expect(page.shadowRoot!.textContent).toContain("目标已卸载 · 引导仍可继续");
+      },
+      { timeout: 2000, interval: 20 },
+    );
+    await vi.waitFor(() => {
+      expect(document.body.querySelector(".tour-highlight")).toBeNull();
+      expect(document.body.querySelector(".tour-backdrop")).toBeTruthy();
+    });
   });
 });
