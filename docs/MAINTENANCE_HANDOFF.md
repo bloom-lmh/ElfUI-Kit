@@ -308,7 +308,9 @@
 - 类型检查扫描 1098 个源文件、121 个宏组件；唯一 2 个错误均位于并行 `OverviewCard/index.ts:24`。`build:lib` 被同一前置类型检查阻断，本批没有修改这些文件。
 - Chromium 覆盖 1440x1000 中文 Material、1440x1000 英文 Midnight 与 390x844 英文 Midnight；22 个 Playground、22 个居中舞台和 12 个标题状态完整，英文可见文本扫描为 0，页面横向溢出为 `false`，控制台 0 warning / 0 error。
 - 截图为 `docs/screenshots/2026-07-31/table-desktop-zh-material.png`、`table-desktop-en-midnight.png` 与 `table-mobile-en-midnight.png`。
-- 浏览器交互未通过：Table Shadow DOM 内的排序、选择和筛选控件可定位、可聚焦，但普通点击、键盘、坐标点击与强制命中后状态不变；相同公开交互的聚焦测试通过。下一轮必须用全新 Chromium 会话建立最小复现，区分浏览器控制层限制与真实组件问题。
+- 全新 in-app Chromium 标签页已完成最小复现和责任归类：顶层原生语言按钮可正常切换，但 Table 基础选择、自定义排序、树展开、虚拟排序及案例外层 `elf-button` 均无法通过 Playwright、真实坐标或可见节点点击获得焦点或触发状态。Vite 实际编译产物已生成正式事件监听，聚焦测试 8 个文件、90 项通过，控制台 0 warning / 0 error，因此属于当前浏览器控制层对嵌套 Shadow DOM 的交互限制，不在 Kit 中增加 workaround。
+- 诊断截图为 `docs/screenshots/2026-07-31/table-shadow-dom-control-limitation.png` 与 `docs/screenshots/2026-07-31/table-virtual-control-limitation.png`。该结论只关闭“责任归类”，不代表真实用户交互已经通过；仍需换用可投递嵌套 Shadow DOM 事件的独立 Chromium 会话或人工验收。
+- 责任归类后重新执行：全量测试为 233/234 个文件、1641/1642 项，唯一失败仍为并行 `OverviewPage/style.scss`；类型检查扫描 1098 个源文件、121 个宏组件，唯一 2 个错误仍在并行 `OverviewCard/index.ts:24`；应用构建通过 968 个模块，`build:lib` 被同一前置类型检查阻断。
 - 移动端 Table 页面本身无重叠或页面级横向溢出；全局 AppShell 固定 Footer 的英文末尾在 390px 下被截断，属于并行样式范围，未在本批修改。
 
 ## 3. 未作的工作（将要做的）
@@ -320,12 +322,12 @@
 - Props/API：70/70 已接入，0 个待处理。
 - 总计：535/535 已接入，0 个待处理。
 
-“接入”只表示文件显式使用翻译 helper，不代表所有路由都通过中英文内容、交互与视觉终审。下一轮先复核 Table 浏览器交互，再启用 strict 门禁并继续剩余路由终审。
+“接入”只表示文件显式使用翻译 helper，不代表所有路由都通过中英文内容、交互与视觉终审。Table 的浏览器控制层责任已经确认，下一轮启用 strict 门禁并继续剩余路由终审；Table 真实交互由独立 Chromium 或人工验收补齐。
 
 ### 执行顺序
 
-1. 使用全新 Chromium 会话复核 Table 排序、选择、筛选、树展开与虚拟表格交互；若仍失败，建立最小复现并明确是浏览器控制层还是组件缺陷。
-2. 启用本地化 strict 门禁，再做剩余页面的中英文、双主题和桌面/移动端终审。
+1. 启用本地化 strict 门禁，再做剩余页面的中英文、双主题和桌面/移动端终审。
+2. 使用能够向嵌套 Shadow DOM 投递事件的独立 Chromium 会话或人工验收 Table 排序、选择、筛选、树展开与虚拟表格交互；不得用 DOM patch、脚本直接调用公开方法或框架 workaround 伪造通过。
 3. 每批同时处理页面入口、全部案例、Props/API、Template/Script、运行时状态和页面测试，并运行聚焦测试、审计与真实浏览器英文扫描。
 4. 由样式线程修复 390px AppShell 英文 Footer 截断并补截图回归。
 5. 继续按总计划推进 DateTimePicker、TimeSelect、metadata、单组件入口、resolver 和真实 tree-shaking 验证。
@@ -344,7 +346,7 @@
 - TableV2 性能基线旧中位数来自拆分前的 `/data/table`；脚本已改为 `/data/virtual-table`，后续需重新跑 5 次中位数再替换旧页面级计时。
 - 当前 authoring skill 的框架参考文件名仍为 `framework-beta15.md`，内容版本说明落后于仓库 beta.20；实际依赖以 `package.json` 为准。
 - 文档审计当前为 `535/535`；该数字只代表 helper 参与度，不能外推为全部路由已经完成严格视觉和交互终审。
-- Table 浏览器交互仍待新会话复核；当前聚焦测试 90/90 通过，但本轮浏览器控制未能改变 Table Shadow DOM 控件状态。
+- Table 浏览器控制层限制已经在全新会话中确认：顶层原生按钮正常，嵌套 Shadow DOM 控件和案例 `elf-button` 均无法由当前控制通道触发；组件聚焦测试 90/90 通过且 Vite 编译产物存在正式监听。真实用户交互仍待独立 Chromium 或人工验收，不能外推为通过。
 - 390px 英文模式下全局 AppShell 固定 Footer 末尾截断，交由样式范围修复并补视觉回归。
 - 当前全量测试唯一失败是并行 `OverviewPage/style.scss` 的渐变守卫；类型检查与 `build:lib` 被并行 `OverviewCard/index.ts:24` 的两条宏模板类型错误阻断。
 - 审计脚本目前检查 helper 参与度；浏览器可见文本、属性、源码示例与布局仍需逐页终审。
