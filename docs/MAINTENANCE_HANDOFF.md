@@ -423,3 +423,12 @@ pnpm build
 pnpm build:lib
 node C:\Users\13575\.codex\skills\elfui-kit-component-authoring\scripts\check-beta8-migration.mjs
 ```
+
+### 2026-07-31 OP-03 Observer 所有权子批次
+
+- DefaultsProvider 不再直接创建 `MutationObserver`，改用公开 `createMutateController`；组件聚焦测试 `8/8` 通过，DOM、公开 API、ARIA 与视觉均未改变。
+- Parallax 使用 Core `useResizeObserver` 管理稳定 host；动态滚动祖先使用模块级共享 root coordinator，每个 Document/ShadowRoot 只有一个 mutate controller，并按 mutation records 过滤 DOM move 与祖先 class/style 变化。
+- Parallax 相关聚焦验证合计 `16/16` 通过；目标 Prettier、ESLint、CSpell（8 文件、0 问题）与 `git diff --check` 通过。全组件入口冷转换曾在 30 秒 hook 上限超时，使用 90 秒门限独立复核后 DefaultsProvider `8/8`、ParallaxPage `2/2` 通过。
+- Chromium `/data/parallax`：1440x1000 Midnight 英文内部滚动 `520px`，首个 offset `-2.48px -> -54.72px`；390x844 Material 中文内部滚动 `480px`，首个 offset `9.4px -> -48.98px`。两端无横向溢出，控制台 `0 warning / 0 error`；截图只用于现场检查，未保存。
+- `pnpm build` 通过 1096 个模块，仅保留既有大 chunk 警告。类型检查扫描 1114 个源文件、123 个宏组件，本批 0 TypeScript 错误，仅被并行 `OverviewCard/index.ts:24` 的 2 条宏模板诊断阻断。
+- 提交必须保持 DefaultsProvider 与 Parallax 两个独立原子边界；本批只推进 OP-03，不能外推为该工作包或仓库总门禁完成。
