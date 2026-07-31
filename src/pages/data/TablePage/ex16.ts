@@ -1,155 +1,160 @@
-import { defineHtml, useHost, useRef, useTemplateRef } from "@elfui/core";
+import { defineHtml, defineStyle, useRef, useTemplateRef } from "@elfui/core";
 import type { TableColumn } from "../../../components/Data/Table";
+import { createDocsPicker, createDocsTranslator } from "../../docsLocale";
+import demoStyles from "./demo.scss?inline";
 
 interface TableElement extends HTMLElement {
   clearFilter(columnKeys?: string | string[]): void;
 }
+type Row = Record<string, unknown>;
 
+const t = createDocsTranslator({
+  title: { zh: "筛选与选择", en: "Filtering and selection" },
+  initial: { zh: "默认展示：进行中、待验收", en: "Default: In progress and Pending review" },
+  allOrders: { zh: "已显示全部订单", en: "Showing all orders" },
+  clearedStatus: { zh: "已清除状态筛选", en: "Status filter cleared" },
+  clearStatus: { zh: "清除状态筛选", en: "Clear status filter" },
+  clearAll: { zh: "清除全部筛选", en: "Clear all filters" },
+});
+const pick = createDocsPicker();
 const tableRef = useTemplateRef<TableElement>("table");
-const host = useHost();
-const filterState = useRef("默认展示：进行中、待验收");
-
-const data = [
-  { id: "1", order: "ELF-6101", customer: "星环科技", owner: "林舟", status: "进行中", amount: 12800 },
-  { id: "2", order: "ELF-6102", customer: "远山设计", owner: "周然", status: "待验收", amount: 8600 },
-  { id: "3", order: "ELF-6103", customer: "云图数据", owner: "林舟", status: "已完成", amount: 24500 },
-  { id: "4", order: "ELF-6104", customer: "青禾零售", owner: "许宁", status: "进行中", amount: 9600 },
-  { id: "5", order: "ELF-6105", customer: "深蓝制造", owner: "周然", status: "已暂停", amount: 17300 },
-  { id: "6", order: "ELF-6106", customer: "北辰物流", owner: "许宁", status: "待验收", amount: 11200 }
+const filterState = useRef(t("initial"));
+const data = () => [
+  {
+    id: "1",
+    order: "ELF-6101",
+    customer: pick("星环科技", "Starring Technology"),
+    owner: pick("林舟", "Lin Zhou"),
+    status: pick("进行中", "In progress"),
+    amount: 12800,
+  },
+  {
+    id: "2",
+    order: "ELF-6102",
+    customer: pick("远山设计", "Far Mountain Design"),
+    owner: pick("周然", "Zhou Ran"),
+    status: pick("待验收", "Pending review"),
+    amount: 8600,
+  },
+  {
+    id: "3",
+    order: "ELF-6103",
+    customer: pick("云图数据", "Cloud Atlas Data"),
+    owner: pick("林舟", "Lin Zhou"),
+    status: pick("已完成", "Completed"),
+    amount: 24500,
+  },
+  {
+    id: "4",
+    order: "ELF-6104",
+    customer: pick("青禾零售", "Greenfield Retail"),
+    owner: pick("许宁", "Xu Ning"),
+    status: pick("进行中", "In progress"),
+    amount: 9600,
+  },
+  {
+    id: "5",
+    order: "ELF-6105",
+    customer: pick("深蓝制造", "Deep Blue Manufacturing"),
+    owner: pick("周然", "Zhou Ran"),
+    status: pick("已暂停", "Paused"),
+    amount: 17300,
+  },
+  {
+    id: "6",
+    order: "ELF-6106",
+    customer: pick("北辰物流", "Northern Star Logistics"),
+    owner: pick("许宁", "Xu Ning"),
+    status: pick("待验收", "Pending review"),
+    amount: 11200,
+  },
 ];
-
-const matchColumnValue = (
-  value: unknown,
-  row: Record<string, unknown>,
-  column: Record<string, unknown>
-): boolean => row[String(column.prop)] === value;
-
-const columns = [
-  { prop: "order", label: "订单号", width: 120 },
-  { prop: "customer", label: "客户", minWidth: 150 },
-  {
-    prop: "owner",
-    columnKey: "owner",
-    label: "负责人",
-    width: 110,
-    filterMultiple: false,
-    filterPlacement: "bottom-end",
-    filters: ["林舟", "周然", "许宁"].map((value) => ({ text: value, value })),
-    filterMethod: matchColumnValue
-  },
-  {
-    prop: "status",
-    columnKey: "status",
-    label: "状态",
-    width: 120,
-    filters: ["进行中", "待验收", "已完成", "已暂停"].map((value) => ({ text: value, value })),
-    filteredValue: ["进行中", "待验收"],
-    filterMethod: matchColumnValue
-  },
-  {
-    prop: "amount",
-    label: "金额",
-    width: 120,
-    align: "right",
-    formatter: (row: Record<string, unknown>) => `¥${Number(row.amount).toLocaleString("zh-CN")}`
-  }
-] satisfies TableColumn[];
-
-const getTable = (): TableElement | null =>
-  tableRef.value ?? host.shadowRoot?.querySelector<TableElement>("elf-table") ?? null;
-
+const matchColumnValue = (value: unknown, row: Row, column: Row): boolean =>
+  row[String(column.prop)] === value;
+const ownerValues = () => [
+  pick("林舟", "Lin Zhou"),
+  pick("周然", "Zhou Ran"),
+  pick("许宁", "Xu Ning"),
+];
+const statusValues = () => [
+  pick("进行中", "In progress"),
+  pick("待验收", "Pending review"),
+  pick("已完成", "Completed"),
+  pick("已暂停", "Paused"),
+];
+const columns = () =>
+  [
+    { prop: "order", label: pick("订单号", "Order"), width: 120 },
+    { prop: "customer", label: pick("客户", "Customer"), minWidth: 150 },
+    {
+      prop: "owner",
+      columnKey: "owner",
+      label: pick("负责人", "Owner"),
+      width: 110,
+      filterMultiple: false,
+      filterPlacement: "bottom-end",
+      filters: ownerValues().map((value) => ({ text: value, value })),
+      filterMethod: matchColumnValue,
+    },
+    {
+      prop: "status",
+      columnKey: "status",
+      label: pick("状态", "Status"),
+      width: 120,
+      filters: statusValues().map((value) => ({ text: value, value })),
+      filteredValue: statusValues().slice(0, 2),
+      filterMethod: matchColumnValue,
+    },
+    {
+      prop: "amount",
+      label: pick("金额", "Amount"),
+      width: 120,
+      align: "right",
+      formatter: (row: Row) => `$${Number(row.amount).toLocaleString("en-US")}`,
+    },
+  ] satisfies TableColumn[];
 const onFilterChange = (event: Event): void => {
   const filters = (event as CustomEvent).detail as Record<string, unknown[]>;
   const active = Object.entries(filters)
     .filter(([, values]) => values.length > 0)
-    .map(([key, values]) => `${key}：${values.join("、")}`);
-  filterState.set(active.length > 0 ? active.join(" · ") : "已显示全部订单");
+    .map(([key, values]) => `${key}: ${values.join(", ")}`);
+  filterState.set(active.length > 0 ? active.join(" · ") : t("allOrders"));
 };
-
 const clearStatus = (): void => {
-  getTable()?.clearFilter("status");
-  filterState.set("已清除状态筛选");
+  tableRef.value?.clearFilter("status");
+  filterState.set(t("clearedStatus"));
 };
-
 const clearAll = (): void => {
-  getTable()?.clearFilter();
-  filterState.set("已显示全部订单");
+  tableRef.value?.clearFilter();
+  filterState.set(t("allOrders"));
 };
 
-const code = `<elf-table
-  :data.prop="data"
-  :columns.prop="columns"
-  border
-  @filter-change="onFilterChange"
-/>
+const code = `<elf-table :data.prop="data" :columns.prop="columns" border @filter-change="onFilterChange" />
 
 table.clearFilter("status");
 table.clearFilter();`;
+const script = (): string => `const filterState = useRef("${t("initial")}");
+const data = ${JSON.stringify(data(), null, 2)};
+const columns = ${JSON.stringify(
+  columns().map(({ filterMethod: _filterMethod, formatter: _formatter, ...column }) => column),
+  null,
+  2,
+)};`;
 
-const script = `const filterState = useRef("默认展示：进行中、待验收");
-const data = [
-    { id: "1", order: "ELF-6101", customer: "星环科技", owner: "林舟", status: "进行中", amount: 12800 },
-    { id: "2", order: "ELF-6102", customer: "远山设计", owner: "周然", status: "待验收", amount: 8600 },
-    { id: "3", order: "ELF-6103", customer: "云图数据", owner: "林舟", status: "已完成", amount: 24500 },
-    { id: "4", order: "ELF-6104", customer: "青禾零售", owner: "许宁", status: "进行中", amount: 9600 },
-    { id: "5", order: "ELF-6105", customer: "深蓝制造", owner: "周然", status: "已暂停", amount: 17300 },
-    { id: "6", order: "ELF-6106", customer: "北辰物流", owner: "许宁", status: "待验收", amount: 11200 }
-];
-const matchColumnValue = (value, row, column) => row[String(column.prop)] === value;
-const columns = [
-    { prop: "order", label: "订单号", width: 120 },
-    { prop: "customer", label: "客户", minWidth: 150 },
-    {
-        prop: "owner",
-        columnKey: "owner",
-        label: "负责人",
-        width: 110,
-        filterMultiple: false,
-        filterPlacement: "bottom-end",
-        filters: ["林舟", "周然", "许宁"].map((value) => ({ text: value, value })),
-        filterMethod: matchColumnValue
-    },
-    {
-        prop: "status",
-        columnKey: "status",
-        label: "状态",
-        width: 120,
-        filters: ["进行中", "待验收", "已完成", "已暂停"].map((value) => ({ text: value, value })),
-        filteredValue: ["进行中", "待验收"],
-        filterMethod: matchColumnValue
-    },
-    {
-        prop: "amount",
-        label: "金额",
-        width: 120,
-        align: "right",
-        formatter: (row) => \`¥\${Number(row.amount).toLocaleString("zh-CN")}\`
-    }
-];
-const onFilterChange = (event) => {
-    const filters = event.detail;
-    const active = Object.entries(filters)
-        .filter(([, values]) => values.length > 0)
-        .map(([key, values]) => \`\${key}：\${values.join("、")}\`);
-    filterState.set(active.length > 0 ? active.join(" · ") : "已显示全部订单");
-};`;
+defineStyle(demoStyles);
 
 const PageTableEx16 = defineHtml(`
-  <h2>筛选与选择</h2>
-  <elf-playground title="筛选与选择" :code="code" :script=${script}>
-    <span slot="status" class="demo-state">{{ filterState }}</span>
-    <div style="width: 100%; display: grid; gap: 12px">
-      <div style="display: flex; gap: 8px; flex-wrap: wrap">
-        <elf-button size="small" @click=${clearStatus}>清除状态筛选</elf-button>
-        <elf-button size="small" @click=${clearAll}>清除全部筛选</elf-button>
+  <h2>${t("title")}</h2>
+  <elf-playground :title=${t("title")} :code=${code} :script=${script()}>
+    <span slot="status" role="status" aria-live="polite">${filterState}</span>
+    <div class="table-demo-stage">
+      <div class="table-demo-stack">
+        <div class="table-demo-toolbar">
+          <elf-button size="small" @click=${clearStatus}>${t("clearStatus")}</elf-button>
+          <elf-button size="small" @click=${clearAll}>${t("clearAll")}</elf-button>
+        </div>
+        <elf-table ref="table" :data.prop=${data()} :columns.prop=${columns()} border @filter-change=${onFilterChange}></elf-table>
       </div>
-      <elf-table
-        ref="table"
-        :data.prop="data"
-        :columns.prop="columns"
-        border
-        @filter-change=${onFilterChange}
-      ></elf-table>
     </div>
   </elf-playground>
 `);

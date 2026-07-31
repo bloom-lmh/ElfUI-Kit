@@ -88,7 +88,7 @@ describe("TablePage", () => {
 
     const pagination = el.shadowRoot!.querySelector("elf-pagination")!;
     const next = pagination.shadowRoot!.querySelector<HTMLButtonElement>(
-      'button[aria-label="下一页"]'
+      'button[aria-label="下一页"]',
     )!;
     next.click();
     await tick();
@@ -126,7 +126,7 @@ describe("TablePage", () => {
 
     const table = el.shadowRoot!.querySelector("elf-table")!;
     const deleteButton = Array.from(
-      table.shadowRoot!.querySelectorAll<HTMLButtonElement>(".action-button")
+      table.shadowRoot!.querySelectorAll<HTMLButtonElement>(".action-button"),
     ).find((button) => button.textContent?.includes("删除"))!;
     deleteButton.click();
     await tick();
@@ -134,7 +134,7 @@ describe("TablePage", () => {
 
     expect(document.querySelector(".elf-dialog-mask")?.textContent).toContain("确认删除");
     const confirmButton = Array.from(
-      document.querySelectorAll<HTMLButtonElement>("elf-button")
+      document.querySelectorAll<HTMLButtonElement>("elf-button"),
     ).find((button) => button.textContent?.includes("确认删除"))!;
     confirmButton.click();
     await tick();
@@ -223,11 +223,13 @@ describe("TablePage", () => {
 
     const table = el.shadowRoot!.querySelector("elf-table")!;
     const handle = table.shadowRoot!.querySelector<HTMLElement>(".column-resizer")!;
-    handle.dispatchEvent(new KeyboardEvent("keydown", {
-      key: "ArrowRight",
-      shiftKey: true,
-      bubbles: true
-    }));
+    handle.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        key: "ArrowRight",
+        shiftKey: true,
+        bubbles: true,
+      }),
+    );
     await tick();
 
     expect(collectText(el)).toContain("商品：180px → 204px");
@@ -242,7 +244,9 @@ describe("TablePage", () => {
 
     const table = el.shadowRoot!.querySelector("elf-table")!;
     expect(table.shadowRoot!.querySelectorAll("tbody > tr")).toHaveLength(2);
-    table.shadowRoot!.querySelector<HTMLButtonElement>('.tree-toggle[data-tree-key="product"]')!.click();
+    table
+      .shadowRoot!.querySelector<HTMLButtonElement>('.tree-toggle[data-tree-key="product"]')!
+      .click();
     await tick();
 
     expect(table.shadowRoot!.querySelectorAll("tbody > tr")).toHaveLength(4);
@@ -265,7 +269,9 @@ describe("TablePage", () => {
     table.shadowRoot!.querySelector<HTMLButtonElement>(".expand-toggle")!.click();
     await tick();
     await tick();
-    expect(table.shadowRoot!.querySelector(".member-detail")?.textContent).toContain("设计系统负责人");
+    expect(table.shadowRoot!.querySelector(".member-detail")?.textContent).toContain(
+      "设计系统负责人",
+    );
 
     table.shadowRoot!.querySelector<HTMLButtonElement>(".profile-button")!.click();
     await tick();
@@ -286,7 +292,7 @@ describe("TablePage", () => {
     expect(table.tooltipOptions).toMatchObject({
       placement: "top-start",
       showAfter: 120,
-      maxWidth: 320
+      maxWidth: 320,
     });
     expect(el.shadowRoot!.querySelector('[slot="status"]')).toBeTruthy();
     expect(collectText(el)).toContain("悬停或使用 Tab 聚焦被截断的单元格");
@@ -300,7 +306,8 @@ describe("TablePage", () => {
 
     const table = el.shadowRoot!.querySelector("elf-table")!;
     expect(table.shadowRoot!.querySelector(".table-title")?.textContent).toContain("服务运行状态");
-    expect(table.shadowRoot!.querySelector(".table-root")?.classList.contains("title-primary")).toBe(true);
+    expect(
+      table.shadowRoot!.querySelector(".table-root")?.classList.contains("title-primary"),
+    ).toBe(true);
   });
-
 });

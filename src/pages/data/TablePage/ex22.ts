@@ -1,6 +1,7 @@
-import { defineHtml } from "@elfui/core";
+import { defineHtml, defineStyle } from "@elfui/core";
 import type { TableColumn, TableRow } from "../../../components/Data/Table";
 import { createDocsTranslator } from "../../docsLocale";
+import demoStyles from "./demo.scss?inline";
 
 const t = createDocsTranslator({
   section: { zh: "标题栏", en: "Header" },
@@ -14,20 +15,20 @@ const t = createDocsTranslator({
   tokens: { zh: "设计令牌服务", en: "Design token service" },
   pipeline: { zh: "发布流水线", en: "Release pipeline" },
   running: { zh: "运行中", en: "Running" },
-  pending: { zh: "待发布", en: "Pending" }
+  pending: { zh: "待发布", en: "Pending" },
 });
 
 const columns = (): TableColumn[] => [
   { prop: "service", label: t("service"), minWidth: 180 },
   { prop: "owner", label: t("owner"), width: 120 },
   { prop: "status", label: t("status"), width: 120 },
-  { prop: "latency", label: t("latency"), width: 120, align: "right" }
+  { prop: "latency", label: t("latency"), width: 120, align: "right" },
 ];
 
 const data = (): TableRow[] => [
   { id: 1, service: t("docs"), owner: "Lin Zhou", status: t("running"), latency: "38 ms" },
   { id: 2, service: t("tokens"), owner: "Zhou Ran", status: t("running"), latency: "24 ms" },
-  { id: 3, service: t("pipeline"), owner: "Xu Ning", status: t("pending"), latency: "--" }
+  { id: 3, service: t("pipeline"), owner: "Xu Ning", status: t("pending"), latency: "--" },
 ];
 
 const code = (): string => `<elf-table
@@ -38,11 +39,14 @@ const code = (): string => `<elf-table
   border
 />`;
 
+defineStyle(demoStyles);
+
 const PageTableEx22 = defineHtml(`
   <h2>${t("demo")}</h2>
   <elf-playground :title=${t("demo")} :code=${code()}>
-    <div style="width:100%;max-width:820px">
+    <div class="table-demo-stage">
       <elf-table
+        class="table-demo-surface"
         :title=${t("title")}
         title-variant="primary"
         :data.prop=${data()}

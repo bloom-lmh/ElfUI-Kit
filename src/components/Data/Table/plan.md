@@ -3,6 +3,7 @@
 - [x] 增加 `title` / `title-variant` 标题栏样式，API 文档表格统一复用 `elf-table` 渲染。
 
 ## 2026-07-19 表格质量回归
+
 - [x] 修复 Dialog 操作按钮尺寸、sticky header 透底与边框表格多余横向滚动
 - [x] 合并高频滚动更新，保持 10,000 行窗口化 DOM 有界
 
@@ -531,3 +532,14 @@ Table 与 TableV2 的渲染模型不同：前者使用原生表格语义，后�
 - [x] 响应式选择状态、乐观 DOM 更新、受控同步和事件发射继续由 Table 组件拥有。
 - [x] 增加纯逻辑测试，覆盖嵌套 key、异常 key 回退、禁用行、严格选择、树级联、不可见选择保留和行集合入口。
 - [x] beta.12 宏类型生成无法稳定展开 Table 新增的直接纯函数导入，因此组件保留窄小的 key 适配，复杂行选择规则仍只有一份权威实现。
+
+## 2026-07-31 EP-11 文档页面终审
+
+- [x] 页面入口、22 个案例、运行时状态、Template/Script 与 Props/Column/Events/Slots/Methods API 表完成双语；仓库文档审计达到 `535/535`。
+- [x] 22 个 Playground 复用共享 `.table-demo-stage` 水平/垂直居中；12 个动态状态均为 Playground 直接子节点，并提供 `role="status"` 与 `aria-live="polite"`。
+- [x] 文档案例继续通过 Table 公开方法和 `useTemplateRef` 组合，未查询或修改子组件 Shadow DOM；筛选浮层继续复用 `useDismissibleOverlay`，虚拟表格继续复用公共窗口算法。
+- [x] 新增独立英文文档回归，覆盖 22 个案例、居中舞台、标题状态、英文 Template/Script、可见文本和 5 张 API 表；Table 组件与页面聚焦测试 8 个文件、90 项通过。
+- [x] 目标 Prettier、ESLint、CSpell、`git diff --check` 与本地化审计通过；应用构建通过 968 个模块。
+- [x] Chromium 覆盖 1440x1000 中文 Material、1440x1000 英文 Midnight 与 390x844 英文 Midnight；三组均无页面横向溢出，英文可见文本扫描为 0，控制台 0 warning / 0 error。
+- [ ] 真实浏览器中的 Table Shadow DOM 控件在本轮自动化会话中未产生状态变化：排序、选择、筛选按钮均可定位和聚焦，但普通点击、键盘、坐标点击与强制命中后状态不变；聚焦测试中的相同公开交互通过。必须以新会话复现并区分浏览器控制层与真实组件问题，未复核前不得把浏览器交互记为通过。
+- [ ] 行排序、过滤、虚拟窗口、树展开与选择会共同改变 keyed rows；是否使用 `<TransitionGroup>` 继续归 `EP-05`，需先覆盖快速数据替换、虚拟换窗、树展开、焦点和 reduced motion，当前批次不添加手写动画或无测试迁移。

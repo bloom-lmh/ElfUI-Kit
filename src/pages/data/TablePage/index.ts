@@ -47,7 +47,7 @@ useComponents({
   "page-table-ex7": PageTableEx7,
   "page-table-ex8": PageTableEx8,
   "page-table-ex9": PageTableEx9,
-  "page-table-props": PageTableProps
+  "page-table-props": PageTableProps,
 });
 
 const t = createDocsTranslator({

@@ -1,37 +1,54 @@
-import { defineHtml } from "@elfui/core";
+import { defineHtml, defineStyle } from "@elfui/core";
+import { createDocsPicker, createDocsTranslator } from "../../docsLocale";
+import demoStyles from "./demo.scss?inline";
 
-const columns = [
-  { prop: "name", label: "任务", minWidth: 160 },
-  { prop: "owner", label: "负责人", width: 120 },
-  { prop: "state", label: "状态", width: 120 }
+const t = createDocsTranslator({ title: { zh: "斑马纹", en: "Striped rows" } });
+const pick = createDocsPicker();
+
+const columns = () => [
+  { prop: "name", label: pick("任务", "Task"), minWidth: 160 },
+  { prop: "owner", label: pick("负责人", "Owner"), width: 120 },
+  { prop: "state", label: pick("状态", "Status"), width: 120 },
 ];
 
-const data = [
-  { id: "1", name: "文档结构整理", owner: "林舟", state: "进行中" },
-  { id: "2", name: "表格交互回归", owner: "周然", state: "待验证" },
-  { id: "3", name: "主题变量审计", owner: "许宁", state: "已完成" },
-  { id: "4", name: "组件 API 梳理", owner: "陈立", state: "进行中" }
+const data = () => [
+  {
+    id: "1",
+    name: pick("文档结构整理", "Organize documentation"),
+    owner: pick("林舟", "Lin Zhou"),
+    state: pick("进行中", "In progress"),
+  },
+  {
+    id: "2",
+    name: pick("表格交互回归", "Table interaction regression"),
+    owner: pick("周然", "Zhou Ran"),
+    state: pick("待验证", "Pending verification"),
+  },
+  {
+    id: "3",
+    name: pick("主题变量审计", "Theme token audit"),
+    owner: pick("许宁", "Xu Ning"),
+    state: pick("已完成", "Completed"),
+  },
+  {
+    id: "4",
+    name: pick("组件 API 梳理", "Review component APIs"),
+    owner: pick("陈立", "Chen Li"),
+    state: pick("进行中", "In progress"),
+  },
 ];
 
 const code = `<elf-table :data.prop="data" :columns.prop="columns" stripe />`;
+const script = (): string => `const columns = ${JSON.stringify(columns(), null, 2)};
+const data = ${JSON.stringify(data(), null, 2)};`;
 
-const script = `const columns = [
-    { prop: "name", label: "任务", minWidth: 160 },
-    { prop: "owner", label: "负责人", width: 120 },
-    { prop: "state", label: "状态", width: 120 }
-];
-const data = [
-    { id: "1", name: "文档结构整理", owner: "林舟", state: "进行中" },
-    { id: "2", name: "表格交互回归", owner: "周然", state: "待验证" },
-    { id: "3", name: "主题变量审计", owner: "许宁", state: "已完成" },
-    { id: "4", name: "组件 API 梳理", owner: "陈立", state: "进行中" }
-];`;
+defineStyle(demoStyles);
 
 const PageTableEx4 = defineHtml(`
-  <h2>斑马纹</h2>
-  <elf-playground title="斑马纹" :code="code" :script=${script}>
-    <div style="width: 100%">
-      <elf-table :data.prop="data" :columns.prop="columns" stripe></elf-table>
+  <h2>${t("title")}</h2>
+  <elf-playground :title=${t("title")} :code=${code} :script=${script()}>
+    <div class="table-demo-stage">
+      <elf-table class="table-demo-surface" :data.prop=${data()} :columns.prop=${columns()} stripe></elf-table>
     </div>
   </elf-playground>
 `);

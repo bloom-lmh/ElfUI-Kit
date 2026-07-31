@@ -1,6 +1,8 @@
+<!-- cspell:words Sparkline -->
+
 # ElfUI Kit 维护交接
 
-更新时间：2026-07-29
+更新时间：2026-07-31
 
 本文件是持续更新的维护交接记录。每轮工作开始时先读取，完成一个阶段后立即更新，避免依赖对话上下文。
 
@@ -180,23 +182,152 @@
   - `output/playwright/tree-select-virtual-zh-beta20.png`
   - `output/playwright/tree-select-basic-en-beta20.png`
 
+### 2026-07-30 组件编写 Skill 与仓库质量门禁
+
+- 新建并实际调用 `C:\Users\13575\.codex\skills\elfui-kit-component-authoring`；Skill 以 beta.20 与当前 `elfui-docs` 为事实源，要求先复用 directive/composable/Common/Provider/现有组件，再决定新增实现。
+- Skill 已固化文档案例规则：状态变化放入 Playground 标题行的 `slot="status"`，预览水平与垂直居中，多变体案例必须提供可实时驱动状态的 `slot="controls"` 控制台。
+- Skill 已补充格式与注释边界：Prettier 负责外围 TypeScript/SCSS/Markdown 等文件；`defineHtml` / `defineStyle` 原始模板由 ElfUI Language Tools 格式化；公共契约、状态机、资源生命周期和非直观算法使用 TSDoc，不给自解释语句堆注释。Skill 重新校验结果为 `Skill is valid!`。
+- 仓库新增 Prettier、ESLint、CSpell、Commitizen、Commitlint、Husky 与 lint-staged 配置；Husky `core.hooksPath` 为 `.husky/_`，pre-commit 执行 lint-staged，commit-msg 执行 Commitlint。
+- ESLint 增加 ElfUI 宏模板变量识别规则，并修复原有 64 条错误；没有关闭全局未使用变量检查。Prettier 使用内容哈希棘轮，新文件或已修改旧文件必须格式化；哈希归一化 CRLF/LF，`.gitattributes` 固定文本 LF；全库严格终态仍有 1395 个未改动历史文件。
+- 修正两条已落后于现行信息架构的测试：安装页为首个导航项，Utilities 与 Accessibility 归 Guide，Quality 分组不存在；未修改路由实现。
+
+验证结果：
+
+- `pnpm format:check` 通过；人为加入坏格式探针时按预期失败并指出文件，删除探针后恢复通过。
+- `pnpm lint` 全量 0 错误；`pnpm spellcheck` 检查 1459 个文件，0 问题。
+- `pnpm typecheck` 通过：1077 个源文件禁用宏扫描 0 问题，119 个宏组件 0 宏错误、0 TypeScript 错误。
+- 信息架构聚焦测试 3 个文件、17 项通过；全量测试 226 个文件、1608 项通过。
+- `pnpm build` 通过，949 个模块；存在 1 条既有大 chunk 警告，主 chunk 约 1.45 MB，需在性能治理中继续拆分。
+- `pnpm build:lib` 通过，313 个模块，`elfui-kit.js` 约 2.03 MB。
+- Commitlint 合法消息 `chore(tooling): add repository quality gates` 通过；`bad message` 按预期以 `subject-empty`、`type-empty` 拒绝。
+- 本批只修改工具、测试断言和代码质量，不改变组件 DOM/视觉；截图验证不适用，未伪造截图或浏览器 0 warning/error 结论。
+- 30 号总计划仍为 38 个工作包，当前 38 个均未达到完整完成定义；`OP-13` 仅部分完成。
+
+### 2026-07-30 TimePicker EP-11 文档页面批次
+
+- 完成 `/picker/time` 页面入口、6 个 Playground、Template/Script、运行时状态和 Props/Events/Methods API 表双语；API 表按当前类型、默认值及 Provider 行为重写。
+- 状态统一放入 Playground 标题行的 `slot="status"`，增加 live region；全部示例复用共享居中舞台，没有改动 TimePicker 组件实现或复制 overlay、field、form 行为。
+- 文档审计为 `495/533`：pages `106/108`、examples `322/356`、props `67/69`，TimePicker 已从缺口清单移除，剩余 38 个文件位于 Table、Upload、Tabs、DatePicker。
+
+验证结果：
+
+- TimePicker 聚焦诊断测试在 `--hookTimeout=30000` 下 2 个文件、25 项通过；仓库标准 10 秒 hook 门限下，全组件入口冷加载超时，未修改测试代码或放宽仓库配置。
+- 全量测试为 224/229 个文件、1568 项通过、47 项因套件超时跳过；4 个 `beforeAll` 超时，另有 1 个 FormPage 测试超时。该结果明确记为未通过。
+- `pnpm lint` 全量 0 错误；`pnpm typecheck` 通过，1088 个源文件禁用宏扫描 0 问题，120 个宏组件 0 宏错误、0 TypeScript 错误。
+- `pnpm build` 通过，961 个模块，保留 1 条既有大 chunk 警告；`pnpm build:lib` 通过，315 个模块，`elfui-kit.js` 约 2.04 MB。
+- 仓库格式门禁被 Slider、Upload、Image、Splitter 及并行新增的数据组件等改动阻断；CSpell 被该新增数据组件的 11 个文件、55 处命名阻断。TimePicker 目标目录的 Prettier、ESLint、CSpell 均通过。
+- Chromium 覆盖 1440x1000 与 390x844、Material/Midnight、中英文；Enter/Escape 可打开/关闭钟面，390px 横向溢出为 `false`，最终控制台 0 warning / 0 error。
+- 截图保存在 `docs/screenshots/2026-07-30/time-picker-*.png`，包括中英文、Material/Midnight、桌面/移动端和打开浮层状态。
+
+### 2026-07-30 Image / Splitter / Badge / Upload / Slider / Sparkline 文档批次
+
+- Image 对象适配案例已改为带控制台的 Playground，使用本地真实图片 `/logo.png`；移除左上角 fit 文本，将星号说明移到适配方式下拉框下方。
+- Splitter 五个案例统一占满 Playground 中央区，水平布局左黑右白、垂直布局上黑下白，通过公开 part 去除案例边框和圆角；桌面与移动端中央区均无尺寸缺口。
+- Badge 的动态值、零值与 RTL 长状态标签已缩短文字到橙色标签的间距。
+- Upload 公开 `UploadSlots`、`UploadElement` 与 `dropzone` slot，新增 Vuetify file input 和 file upload 两个完整案例及页面测试。
+- Slider 公开 `tickLabels` 与三个 thumb label 插槽，新增四季刻度 range 案例；Sparkline 新增完整组件、Data 导出、路由、双语动画页面、周期切换与测试。
+
+验证结果：
+
+- 聚焦测试本批 8 个文件、32 项通过；Slider 组件另行复跑 `15/15`，合计 47 项通过。
+- `pnpm typecheck` 通过：1088 个源文件、120 个宏组件、0 宏错误、0 TypeScript 错误。
+- `pnpm build` 通过，961 个模块；`pnpm build:lib` 通过，315 个模块，`elfui-kit.js` 为 `2,041.66 kB`。
+- 全量 `pnpm test -- --maxWorkers=4` 未全绿：1600 项通过、14 项跳过、5 个文件因资源时限失败。失败位置为 MessageBox/FormPage/SparklinePage 的 `beforeAll` 10 秒超时，以及 SkeletonPage/TimelinePage 的测试 5 秒超时；没有把该结果记为通过。
+- Chromium 覆盖桌面 Material 中文与 `375 x 844` 移动端 Midnight 英文。Sparkline 桌面 SVG 为 `660 x 220`；移动端 card 为 `259px`，chart 与 segmented 均为 `230.265px`，周期标签无重叠，最终控制台 `0 warning / 0 error`。
+- 截图：`image-playground-desktop-light-zh.png`、`splitter-desktop-light-zh.png`、`upload-vuetify-showcase-desktop-light-zh.png`、`slider-season-desktop-light-zh.png`、`sparkline-desktop-light-zh.png`、`sparkline-mobile-midnight-en.png`，均位于 `docs/screenshots/2026-07-30/`。
+
+### 2026-07-30 DatePicker EP-11 文档页面批次
+
+- 完成 `/picker/date` 页面入口、8 个 Playground、Template/Script、运行时状态和 Props/Events/Slots/Methods API 表双语；API 表按当前 `DatePicker/types.ts` 与 `defineProps` 默认值重写。
+- 所有状态都是 Playground 直接子节点 `slot="status"`，预览复用共享水平/垂直居中舞台；双面板案例提供 3 个真实 `elf-switch` 控制，派生 `singlePanel` 复用框架 `useComputed`，Custom Element 布尔配置使用显式 property binding。
+- Dialog 案例继续复用 `elf-dialog`、DatePicker 与共享 overlay stack；Escape 回归从真实日期触发器发出，确认第一次只关闭 DatePicker、第二次关闭 Dialog，没有页面级浮层 workaround。
+- DatePicker 面板的结构性显隐是 `<Transition>` 候选，但它与原生 Popover Top Layer 的显示/隐藏时机耦合。本批不顺带改变共享生命周期；迁移留给 `EP-02`，并要求覆盖快速切换、leave、Popover 隐藏、焦点恢复和 reduced motion。
+- 文档审计为 `504/534`：pages `107/108`、examples `329/356`、props `68/70`；DatePicker 已移出缺口清单，剩余 30 个文件位于 Table、Upload、Tabs。
+
+验证结果：
+
+- DatePicker 组件与页面聚焦测试 2 个文件、25 项通过；单页面复跑 1 个文件、5 项通过；全量测试 229 个文件、1619 项全部通过。
+- `pnpm typecheck` 通过：1089 个源文件、120 个宏组件、0 宏错误、0 TypeScript 错误。
+- `pnpm build` 通过，962 个模块，保留 1 条既有大 chunk 警告；`pnpm build:lib` 通过，315 个模块，`elfui-kit.js` 为 `2,041.69 kB`。
+- DatePicker 目标范围的 Prettier、ESLint、CSpell 与 `git diff --check` 通过。全库格式检查被 18 个并行文件阻断；全库 CSpell 检查 1477 个文件，在 13 个 Sparkline 相关文件中报告 72 处问题，未修改并行文件或全局词典。
+- Chromium 覆盖 1440x1000 与 390x844、Material/Midnight、中英文、禁用日期浮层、双面板控制台、移动端纵向堆叠和 Dialog 嵌套；390px 横向溢出为 `false`，最终控制台 0 warning / 0 error。
+- 截图保存在 `docs/screenshots/2026-07-30/date-picker-*.png`，共 8 张。
+
+### 2026-07-30 Tabs EP-11 文档页面批次
+
+- 按当前 `Tabs/types.ts` 与 `defineProps` 重写 Props/Events/Slots/API 双语表，并终审 `/navigation/tabs` 的 10 个案例、13 个 Playground、Template/Script 与运行时状态；没有修改 Tabs 组件契约。
+- 13 个状态均为 Playground 直接子节点 `slot="status"`，预览复用共享水平/垂直居中舞台；操作台使用 5 个真实 `elf-select` 与 2 个 `elf-checkbox`，英文 Template/Script 不再混入中文。
+- 图片分类案例复用框架 `<Transition>` 并补 reduced motion。数据面板与 TabPane 的结构性显隐留给 `EP-03`；拖动列表仅在存在明确移动动画契约时使用 `<TransitionGroup>`。当前原生 section/slotted Custom Element 模型不适用 `<KeepAlive>`，禁止另建手写缓存。
+- 当前仓库文档审计为 `506/535`：pages `108/109`、examples `329/356`、props `69/70`。并行新增的文档页面使审计总数增加 1；Tabs 已移出缺口清单，剩余 29 个文件只位于 Table 与 Upload。
+
+验证结果：
+
+- Tabs 组件与页面聚焦测试 2 个文件、26 项通过；全量测试 231 个文件、1626 项全部通过。
+- `pnpm typecheck` 通过：1091 个源文件、120 个宏组件、0 错误；`pnpm build` 通过 962 个模块并保留 1 条既有大 chunk 警告；`pnpm build:lib` 通过 315 个模块，`elfui-kit.js` 为 `2,041.64 kB`。
+- Tabs 目标范围的 Prettier、ESLint、CSpell 与 `git diff --check` 通过；全量 ESLint 通过。全库格式检查被 19 个并行文件阻断；全库 CSpell 在 13 个 Sparkline 相关文件中报告 74 处问题，未修改并行文件或全局词典。
+- Chromium 覆盖 1440x1000 与 390x844、Material/Midnight、中英文、键盘切换、Gallery 状态、操作台布尔配置和移动端溢出；英文递归 Shadow DOM 汉字扫描为空，390px 横向溢出为 `false`，最终控制台 0 warning / 0 error。
+- 截图为 `docs/screenshots/2026-07-30/tabs-desktop-en-midnight.png`、`tabs-desktop-zh-material.png`、`tabs-mobile-en-midnight.png` 与 `tabs-mobile-zh-material.png`。
+
+### 2026-07-30 网图、配置说明与案例纯色治理批次
+
+- Image 对象适配控制台改用 Unsplash 真实网图，Template/Script 同步完整 URL；页面测试锁定 `images.unsplash.com` 来源。Material 中文下网图加载完成，自然尺寸为 `1200 x 1800`。
+- ConfigProvider 首个案例改为清晰的三层优先级：`blueprint` 是可复用基础预设，`config` 覆盖当前应用配置，组件显式属性优先级最高；示例真实展示 size/variant、color 与显式 props 的合并结果。
+- 清除 `src/pages` 内全部 45 处 CSS 渐变：首轮 18 处覆盖 Home、Directives、Utilities、Image、List、Carousel、Toolbar、Sticky 和布局图；并行新增的 Overview 缩略图 27 处改用纯色色块、边框、伪元素和阴影复制；Timeline 中轴改为 `var(--elf-divider)` 纯色。
+- 新增 `src/pages/__tests__/no-demo-gradients.test.ts`，扫描页面 `.ts`、`.scss`、`.css`、`.html` 并禁止 linear/radial/conic gradient。组件内部具备功能语义的数值填充、加载、棋盘格和媒体遮罩渐变保留。
+
+验证结果：
+
+- `rg -i "gradient\\s*\\(" src/pages` 为 0 结果；聚焦测试分两组共 12 个文件、50 项通过；移动端约束与 Overview 纯色补丁后再跑 3 个文件、10 项通过；全量测试 231 个文件、1626 项全部通过。
+- `pnpm typecheck` 通过：1091 个源文件、120 个宏组件、0 宏错误、0 TypeScript 错误；`pnpm build` 通过 962 个模块，仅保留既有大 chunk 警告。
+- Chromium 覆盖 `1440 x 1000` 与 `390 x 844`、Material 中文；移动端 Image 图片宽 `215px`、舞台宽 `259px`，完整包含且横向溢出为 `false`；Overview 9 类缩略图均为 `background-image: none` 且部件未越界；Timeline 连接线计算样式为 `background-image: none`、`background-color: rgba(0, 0, 0, 0.08)`，最终控制台 0 warning / 0 error。
+- 截图为 `docs/screenshots/2026-07-30/image-network-flat-desktop-material-zh.png`、`image-network-flat-mobile-material-zh.png`、`config-priority-flat-desktop-material-zh.png` 与 `timeline-flat-desktop-material-zh.png`。
+
+### 2026-07-31 Upload EP-11 文档页面终审
+
+- `/form/upload` 的页面入口、7 个旧案例、2 个 Vuetify 案例、Template/Script、运行时状态与 Props/Events/Slots/Methods API 表已完成双语终审；9 个状态位于 Playground 标题行，9 个预览复用共享水平/垂直居中舞台。
+- `UploadElement` 公开 Props 与 Expose；Vuetify “浏览文件”通过 `UploadElement.select()` 复用组件公开 API，并有原生 input 恰好触发一次的回归测试。文件列表的 `<TransitionGroup>` 生命周期迁移保留给 `EP-04`，本批没有手写动画替代。
+- 文档审计为 `514/535`：pages `109/109`、examples `336/356`、props `69/70`，剩余 21 个文件全部属于 Table。
+
+验证结果：
+
+- Upload 组件与页面聚焦测试 2 个文件、21 项通过；目标 Prettier、ESLint、CSpell（13 个文件、0 问题）与 `git diff --check` 通过。
+- `pnpm build` 通过 967 个模块，保留 1 条既有大 chunk 警告。全量测试 233 个文件中 232 个通过、1638 项中 1637 项通过；唯一失败为并行 `OverviewPage/style.scss` 的渐变守卫。`pnpm typecheck` 与 `pnpm build:lib` 被并行 `OverviewCard/index.ts` 的两条宏模板类型错误阻断，未修改并行文件。
+- Chromium 覆盖 1440x1000 与 390x844、Material/Midnight、中英文组合矩阵；英文递归 Shadow DOM 汉字扫描为 0，移动端 9 个 Playground、9 个舞台和 9 个状态完整，390px 横向溢出为 `false`，最终控制台 0 warning / 0 error。
+- 截图为 `docs/screenshots/2026-07-31/upload-desktop-zh-material.png`、`upload-desktop-en-midnight.png` 与 `upload-mobile-en-midnight.png`；另有 Vuetify 输入与 dropzone 细节图位于 `docs/screenshots/2026-07-30/`。
+
+### 2026-07-31 Table EP-11 文档页面终审
+
+- `/data/table` 的入口、22 个案例、Template/Script、运行时状态与 Props/Column/Events/Slots/Methods API 表完成双语；22 个预览使用共享居中舞台，12 个动态状态位于 Playground 标题行。
+- 案例通过 Table 公开 expose 和 `useTemplateRef` 组合，继续复用 `useDismissibleOverlay` 与公共虚拟窗口算法；没有查询子组件 Shadow DOM、复制指令或实现框架 workaround。行 `<TransitionGroup>` 迁移保留给 `EP-05` 的完整 keyed-row 生命周期回归。
+- 文档审计达到 pages `109/109`、examples `356/356`、props `70/70`，总计 `535/535`。独立英文文档测试覆盖可见文本、Template/Script、API 默认值与描述。
+
+验证结果：
+
+- Table 组件与页面聚焦测试 8 个文件、90 项通过；目标 Prettier、ESLint、CSpell、`git diff --check` 与本地化审计通过。
+- 应用构建通过 968 个模块并保留既有大 chunk 警告。全量测试 234 个文件中 233 个通过、1642 项中 1641 项通过，唯一失败为并行 `OverviewPage/style.scss` 的渐变守卫。
+- 类型检查扫描 1098 个源文件、121 个宏组件；唯一 2 个错误均位于并行 `OverviewCard/index.ts:24`。`build:lib` 被同一前置类型检查阻断，本批没有修改这些文件。
+- Chromium 覆盖 1440x1000 中文 Material、1440x1000 英文 Midnight 与 390x844 英文 Midnight；22 个 Playground、22 个居中舞台和 12 个标题状态完整，英文可见文本扫描为 0，页面横向溢出为 `false`，控制台 0 warning / 0 error。
+- 截图为 `docs/screenshots/2026-07-31/table-desktop-zh-material.png`、`table-desktop-en-midnight.png` 与 `table-mobile-en-midnight.png`。
+- 浏览器交互未通过：Table Shadow DOM 内的排序、选择和筛选控件可定位、可聚焦，但普通点击、键盘、坐标点击与强制命中后状态不变；相同公开交互的聚焦测试通过。下一轮必须用全新 Chromium 会话建立最小复现，区分浏览器控制层限制与真实组件问题。
+- 移动端 Table 页面本身无重叠或页面级横向溢出；全局 AppShell 固定 Footer 的英文末尾在 390px 下被截断，属于并行样式范围，未在本批修改。
+
 ## 3. 未作的工作（将要做的）
 
-仓库级中英文覆盖仍未完成。准确基线：
+仓库级翻译 helper 参与度已经清零。2026-07-31 Table 批次收尾时的当前仓库准确基线：
 
-- 页面入口：47/86 已接入，39 个待处理。
-- 案例：182/337 已接入，155 个待处理。
-- Props/API：30/64 已接入，34 个待处理。
-- 总计：259/487 已接入，228 个待处理。
+- 页面入口：109/109 已接入，0 个待处理。
+- 案例：356/356 已接入，0 个待处理。
+- Props/API：70/70 已接入，0 个待处理。
+- 总计：535/535 已接入，0 个待处理。
 
-“接入”只表示文件显式使用翻译 helper，不代表已经通过中英文内容终审。Providers、Message、MessageBox、Notification、Dialog、Drawer 和 Loading 批次已完成，后续按 Feedback 剩余 3 页、Form、Data、Picker/Navigation、Layout/Guide/Utilities 的整页批次推进；每页必须同时处理入口、全部案例、Props/API、Template/Script、运行时状态、测试和真实浏览器扫描。
+“接入”只表示文件显式使用翻译 helper，不代表所有路由都通过中英文内容、交互与视觉终审。下一轮先复核 Table 浏览器交互，再启用 strict 门禁并继续剩余路由终审。
 
 ### 执行顺序
 
-1. 按整页原子批次补齐剩余 228 个文件的中英文；下一批继续 Feedback 剩余 3 页。
-2. 每批同时处理页面入口、全部案例、Props/API、Template/Script、运行时状态和页面测试。
-3. 每批运行聚焦测试、`pnpm docs:locale-audit` 和真实浏览器英文可见文本扫描。
-4. 审计清零后启用 strict 门禁，再做 85 个页面的中英文、双主题和桌面/移动端终审。
+1. 使用全新 Chromium 会话复核 Table 排序、选择、筛选、树展开与虚拟表格交互；若仍失败，建立最小复现并明确是浏览器控制层还是组件缺陷。
+2. 启用本地化 strict 门禁，再做剩余页面的中英文、双主题和桌面/移动端终审。
+3. 每批同时处理页面入口、全部案例、Props/API、Template/Script、运行时状态和页面测试，并运行聚焦测试、审计与真实浏览器英文扫描。
+4. 由样式线程修复 390px AppShell 英文 Footer 截断并补截图回归。
 5. 继续按总计划推进 DateTimePicker、TimeSelect、metadata、单组件入口、resolver 和真实 tree-shaking 验证。
 6. 每个批次结束立即更新总计划、语言基线和本交接。
 
@@ -212,7 +343,10 @@
 - TableV2 完整性脚本仍按 `TableV2Page` 命名查找，不能识别实际的 `VirtualTablePage`，因此会给出 demo page false negative；实际页面和页面测试存在。
 - TableV2 性能基线旧中位数来自拆分前的 `/data/table`；脚本已改为 `/data/virtual-table`，后续需重新跑 5 次中位数再替换旧页面级计时。
 - 当前 authoring skill 的框架参考文件名仍为 `framework-beta15.md`，内容版本说明落后于仓库 beta.20；实际依赖以 `package.json` 为准。
-- 全站语言审计当前还有 228 个文件未接入，不能把已验收路由的严格扫描结果外推为全站完成。
+- 文档审计当前为 `535/535`；该数字只代表 helper 参与度，不能外推为全部路由已经完成严格视觉和交互终审。
+- Table 浏览器交互仍待新会话复核；当前聚焦测试 90/90 通过，但本轮浏览器控制未能改变 Table Shadow DOM 控件状态。
+- 390px 英文模式下全局 AppShell 固定 Footer 末尾截断，交由样式范围修复并补视觉回归。
+- 当前全量测试唯一失败是并行 `OverviewPage/style.scss` 的渐变守卫；类型检查与 `build:lib` 被并行 `OverviewCard/index.ts:24` 的两条宏模板类型错误阻断。
 - 审计脚本目前检查 helper 参与度；浏览器可见文本、属性、源码示例与布局仍需逐页终审。
 - `src/components/Common/focus-scope.ts`、`overlay-protocol.ts` 等旧根路径已经迁入 `Common/focus/` 与 `Common/overlay/`；IDE 中仍打开的旧标签会显示删除状态，后续代码必须使用新路径。
 - beta.20 宏类型检查器的虚拟模板声明仍遗漏部分运行时类型/API，并可能把依赖文件诊断按行号映射到当前模板。TreeSelect 通过正常的全局自定义元素组合与显式本地类型保持组件代码干净；后续应在框架类型检查器中补齐 stub，并仅映射属于当前虚拟源文件的诊断。
@@ -221,6 +355,11 @@
 ### 常用命令
 
 ```text
+pnpm check
+pnpm format:check
+pnpm format:check:all
+pnpm lint
+pnpm spellcheck
 pnpm typecheck
 pnpm test -- --maxWorkers=4
 pnpm build
