@@ -5,23 +5,31 @@ import {
   defineProps,
   defineStyle,
   onBeforeUnmount,
-  onMounted,
   useComputed,
   useHost,
   useHostAttr,
   useHostFlag,
   useRef,
-  useEffect
+  useEffect,
 } from "@elfui/core";
 
 import styles from "./style.scss?inline";
 import { normalizeFieldVariant } from "../../../types/field";
 import { useDisabled, useFormControl, useSize } from "../../../composables";
-import { computeAnchoredPosition, connectAnchoredOverlayLifecycle } from "../../Common/overlay/anchored-overlay";
+import {
+  computeAnchoredPosition,
+  connectAnchoredOverlayLifecycle,
+} from "../../Common/overlay/anchored-overlay";
 import { useLocaleProvider } from "../../Providers/context";
 import { useDismissibleOverlay } from "../../../composables/useDismissibleOverlay";
 import { useFieldValueDefaults } from "../../../composables/field-values";
-import type { TimePickerModelValue, TimePickerPlacement, TimePickerProps, TimePickerRole, TimeShortcut } from "./types";
+import type {
+  TimePickerModelValue,
+  TimePickerPlacement,
+  TimePickerProps,
+  TimePickerRole,
+  TimeShortcut,
+} from "./types";
 
 export type {
   DisabledHours,
@@ -99,7 +107,7 @@ const emit = defineEmits<{
 const fieldValues = useFieldValueDefaults();
 
 const ctl = useFormControl<TimePickerModelValue>(props, emit, {
-  ...(props.validateEvent === false ? { triggers: { change: false, blur: false } } : {})
+  ...(props.validateEvent === false ? { triggers: { change: false, blur: false } } : {}),
 });
 const isDisabled = useDisabled(() => Boolean(props.disabled));
 const resolvedSize = useSize(() => props.size);
@@ -114,6 +122,10 @@ const activeUnit = useRef<ClockUnit>("hour");
 const panelStyle = useRef<Record<string, string>>({});
 const host = useHost();
 let overlayFrame = 0;
+let activePanel: HTMLElement | null = null;
+let cleanupAnchoredOverlay = (): void => {};
+let focusPanelAfterEnter = false;
+let restoreFocusAfterLeave = false;
 
 const resolvedPanelStyle = useComputed((): Record<string, string> => ({
   ...(props.popperStyle || {}),
@@ -126,8 +138,7 @@ interface TimeParts {
   second: number;
 }
 
-const isEmptyValue = (value: unknown): boolean =>
-  fieldValues.isEmpty(value, props.emptyValues);
+const isEmptyValue = (value: unknown): boolean => fieldValues.isEmpty(value, props.emptyValues);
 
 const pad = (value: number): string => String(value).padStart(2, "0");
 
@@ -150,15 +161,20 @@ const formatTime = (value: TimeParts, pattern: string): string =>
     .replace(/ss/g, pad(value.second));
 
 const normalizeTime = (value: string): string => formatTime(parseTime(value), "HH:mm:ss");
-const externalValue = (value: string): string => formatTime(parseTime(value), props.valueFormat || "HH:mm");
+const externalValue = (value: string): string =>
+  formatTime(parseTime(value), props.valueFormat || "HH:mm");
 const displayValue = (value: string): string =>
   formatTime(parseTime(value), props.format || props.valueFormat || "HH:mm");
-const showsSeconds = (): boolean => /ss/.test(String(props.format || props.valueFormat || "")) || props.step < 60;
+const showsSeconds = (): boolean =>
+  /ss/.test(String(props.format || props.valueFormat || "")) || props.step < 60;
 
 const placeholderText = (): string => props.placeholder || locale.t("timePicker.placeholder");
-const startPlaceholderText = (): string => props.startPlaceholder || locale.t("timePicker.startPlaceholder");
-const endPlaceholderText = (): string => props.endPlaceholder || locale.t("timePicker.endPlaceholder");
-const rangeSeparatorText = (): string => props.rangeSeparator || locale.t("timePicker.rangeSeparator");
+const startPlaceholderText = (): string =>
+  props.startPlaceholder || locale.t("timePicker.startPlaceholder");
+const endPlaceholderText = (): string =>
+  props.endPlaceholder || locale.t("timePicker.endPlaceholder");
+const rangeSeparatorText = (): string =>
+  props.rangeSeparator || locale.t("timePicker.rangeSeparator");
 
 useEffect(() => {
   if (isEmptyValue(props.modelValue)) {
@@ -175,7 +191,8 @@ useEffect(() => {
   end.set(props.endValue ? normalizeTime(String(props.endValue)) : "");
 });
 
-const rangeMode = (): boolean => Boolean(props.range || props.isRange || Array.isArray(props.modelValue));
+const rangeMode = (): boolean =>
+  Boolean(props.range || props.isRange || Array.isArray(props.modelValue));
 
 const currentValue = (): TimePickerModelValue =>
   rangeMode()
@@ -184,7 +201,8 @@ const currentValue = (): TimePickerModelValue =>
       ? externalValue(start.value)
       : "";
 
-const emitChange = (value: TimePickerModelValue = currentValue()): void => ctl.dispatchChange(value);
+const emitChange = (value: TimePickerModelValue = currentValue()): void =>
+  ctl.dispatchChange(value);
 
 const isAllowed = (value: string): boolean => {
   const normalized = normalizeTime(value);
@@ -216,12 +234,17 @@ const setEditingValue = (value: string): void => {
 
 const defaultEditingValue = (): string => {
   const value = props.defaultValue;
-  if (Array.isArray(value)) return String(value[editingTarget.value === "end" ? 1 : 0] || value[0] || "00:00");
+  if (Array.isArray(value))
+    return String(value[editingTarget.value === "end" ? 1 : 0] || value[0] || "00:00");
   return String(value || "00:00");
 };
 
 const editingValue = (): string =>
-  normalizeTime(editingTarget.value === "end" ? end.value || start.value || defaultEditingValue() : start.value || defaultEditingValue());
+  normalizeTime(
+    editingTarget.value === "end"
+      ? end.value || start.value || defaultEditingValue()
+      : start.value || defaultEditingValue(),
+  );
 
 const editingHour = (): number => Number(editingValue().slice(0, 2));
 const editingMinute = (): number => Number(editingValue().slice(3, 5));
@@ -256,7 +279,9 @@ const hourItems = (): ClockItem[] =>
 
 const unitStep = (unit: "minute" | "second"): number => {
   const seconds = Math.max(1, Number(props.step) || 60);
-  return unit === "minute" ? Math.max(1, Math.min(30, Math.round(seconds / 60))) : Math.max(1, Math.min(30, seconds));
+  return unit === "minute"
+    ? Math.max(1, Math.min(30, Math.round(seconds / 60)))
+    : Math.max(1, Math.min(30, seconds));
 };
 
 const radialValues = (step: number): number[] => {
@@ -266,7 +291,8 @@ const radialValues = (step: number): number[] => {
 };
 
 const disabledHourValues = (): number[] => props.disabledHours?.(editingTarget.value) ?? [];
-const disabledMinuteValues = (): number[] => props.disabledMinutes?.(editingHour(), editingTarget.value) ?? [];
+const disabledMinuteValues = (): number[] =>
+  props.disabledMinutes?.(editingHour(), editingTarget.value) ?? [];
 const disabledSecondValues = (): number[] =>
   props.disabledSeconds?.(editingHour(), editingMinute(), editingTarget.value) ?? [];
 
@@ -303,15 +329,11 @@ const secondItems = (): ClockItem[] => {
 };
 
 const clockItems = () =>
-  activeUnit.value === "hour" ? hourItems() : activeUnit.value === "minute" ? minuteItems() : secondItems();
-
-const syncClockSelection = (value: number): void => {
-  host.shadowRoot?.querySelectorAll<HTMLButtonElement>(".clock-number").forEach((button) => {
-    const selected = Number(button.dataset.clockValue) === value;
-    button.classList.toggle("is-active", selected);
-    button.setAttribute("aria-pressed", selected ? "true" : "false");
-  });
-};
+  activeUnit.value === "hour"
+    ? hourItems()
+    : activeUnit.value === "minute"
+      ? minuteItems()
+      : secondItems();
 
 const selectClockValue = (event: Event): void => {
   const value = Number((event.currentTarget as HTMLElement).dataset.clockValue);
@@ -328,8 +350,6 @@ const selectClockValue = (event: Event): void => {
   } else {
     setEditingValue(`${pad(editingHour())}:${pad(editingMinute())}:${pad(value)}`);
   }
-  syncClockSelection(value);
-  queueMicrotask(() => syncClockSelection(value));
 };
 
 const setPeriod = (next: "AM" | "PM"): void => {
@@ -352,7 +372,8 @@ const applyShortcut = (shortcut: TimeShortcut): void => {
   emitChange(next);
 };
 
-const shortcutItems = (): TimeShortcut[] => (Array.isArray(props.shortcuts) ? (props.shortcuts as TimeShortcut[]) : []);
+const shortcutItems = (): TimeShortcut[] =>
+  Array.isArray(props.shortcuts) ? (props.shortcuts as TimeShortcut[]) : [];
 
 const shortcutEntries = (): Array<{ item: TimeShortcut; index: number; key: string }> =>
   shortcutItems().map((item, index) => ({ item, index, key: `${index}-${item.label}` }));
@@ -365,9 +386,8 @@ const onShortcutClick = (event: Event): void => {
 
 const clear = (): void => {
   if (isDisabled() || props.readonly) return;
-  const next = fieldValues.valueOnClear<TimePickerModelValue>(
-    props.valueOnClear,
-    () => rangeMode() ? ["", ""] : ""
+  const next = fieldValues.valueOnClear<TimePickerModelValue>(props.valueOnClear, () =>
+    rangeMode() ? ["", ""] : "",
   );
   if (Array.isArray(next)) {
     start.set(String(next[0] || ""));
@@ -388,27 +408,23 @@ const handleOpen = (target: EditingTarget = "start"): void => {
   if (isDisabled() || props.readonly) return;
   editingTarget.set(target);
   activeUnit.set("hour");
-  if (open.peek()) return;
-  dismissibleOverlay.activate();
+  if (open.peek()) {
+    requestPanelUpdate();
+    return;
+  }
+  restoreFocusAfterLeave = false;
   open.set(true);
   emit("visible-change", true);
-  queueMicrotask(syncPanelTopLayer);
 };
 
 const handleClose = (): void => {
   if (!open.peek()) return;
-  const panel = getPanelEl() as (HTMLElement & { hidePopover?: () => void }) | null;
-  try {
-    if (props.teleported) panel?.hidePopover?.();
-  } catch {
-    // Rapid conditional rendering can disconnect an already closed popover.
-  }
-  dismissibleOverlay.deactivate();
   open.set(false);
   emit("visible-change", false);
 };
 
-const getPanelEl = (): HTMLElement | null => host.shadowRoot?.querySelector<HTMLElement>(".panel") ?? null;
+const getPanelEl = (): HTMLElement | null =>
+  activePanel ?? host.shadowRoot?.querySelector<HTMLElement>(".panel") ?? null;
 
 const dismissibleOverlay = useDismissibleOverlay({
   kind: "time-picker",
@@ -418,8 +434,8 @@ const dismissibleOverlay = useDismissibleOverlay({
   outsideEvent: "pointerdown",
   outsideCapture: true,
   onRequestClose: (reason) => {
+    restoreFocusAfterLeave = reason === "escape";
     handleClose();
-    if (reason === "escape") queueMicrotask(() => focusInput(editingTarget.peek()));
   },
 });
 
@@ -428,7 +444,9 @@ const updatePanelPosition = (): void => {
     panelStyle.set({ ...(props.popperStyle || {}) });
     return;
   }
-  const trigger = host.shadowRoot?.querySelector<HTMLElement>(`.field-trigger[data-target="${editingTarget.peek()}"]`);
+  const trigger = host.shadowRoot?.querySelector<HTMLElement>(
+    `.field-trigger[data-target="${editingTarget.peek()}"]`,
+  );
   const panel = getPanelEl();
   if (!trigger || !panel) return;
 
@@ -467,8 +485,9 @@ const updatePanelPosition = (): void => {
 };
 
 const requestPanelUpdate = (): void => {
-  if (typeof window === "undefined") return;
-  if (overlayFrame && typeof cancelAnimationFrame === "function") cancelAnimationFrame(overlayFrame);
+  if (!open.peek() || typeof window === "undefined") return;
+  if (overlayFrame && typeof cancelAnimationFrame === "function")
+    cancelAnimationFrame(overlayFrame);
   if (typeof requestAnimationFrame === "function") {
     overlayFrame = requestAnimationFrame(() => {
       overlayFrame = 0;
@@ -479,21 +498,47 @@ const requestPanelUpdate = (): void => {
   }
 };
 
-const syncPanelTopLayer = (): void => {
-  const panel = getPanelEl() as (HTMLElement & { showPopover?: () => void }) | null;
+const syncPanelTopLayer = (element = getPanelEl()): void => {
+  const panel = element as
+    (HTMLElement & { showPopover?: () => void; hidePopover?: () => void }) | null;
   if (!panel || !open.peek()) return;
   try {
     if (props.teleported) panel.showPopover?.();
+    else panel.hidePopover?.();
   } catch {
     // A panel replaced during the same render cycle may already be in the top layer.
   }
   requestPanelUpdate();
 };
 
-let cleanupOverlayMotion = (): void => {};
+const hidePanelTopLayer = (element: Element): void => {
+  try {
+    (element as HTMLElement & { hidePopover?: () => void }).hidePopover?.();
+  } catch {
+    // A disconnected native popover is already equivalent to a hidden panel.
+  }
+};
+
+/** Connects positioning resources for the currently inserted panel root. */
+const connectPanelOverlay = (panel = getPanelEl()): void => {
+  cleanupAnchoredOverlay();
+  syncPanelTopLayer(panel);
+  if (!panel || !props.teleported || !open.peek()) return;
+  const trigger = host.shadowRoot?.querySelector<HTMLElement>(
+    `.field-trigger[data-target="${editingTarget.peek()}"]`,
+  );
+  cleanupAnchoredOverlay = connectAnchoredOverlayLifecycle({
+    resizeTargets: [trigger, panel],
+    motionContainers: () => [host, panel],
+    onResize: requestPanelUpdate,
+    onExternalMotion: handleClose,
+  });
+  requestPanelUpdate();
+};
 
 const onTriggerClick = (event: Event): void => {
   const target = ((event.currentTarget as HTMLElement).dataset.target || "start") as EditingTarget;
+  focusPanelAfterEnter = false;
   if (open.peek() && editingTarget.peek() === target) handleClose();
   else handleOpen(target);
 };
@@ -510,7 +555,11 @@ const adjustByKeyboard = (event: KeyboardEvent): void => {
   if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return;
   event.preventDefault();
   const direction = event.key === "ArrowUp" ? 1 : -1;
-  const total = editingHour() * 3600 + editingMinute() * 60 + editingSecond() + direction * Math.max(1, props.step);
+  const total =
+    editingHour() * 3600 +
+    editingMinute() * 60 +
+    editingSecond() +
+    direction * Math.max(1, props.step);
   const normalized = (total + 24 * 3600) % (24 * 3600);
   setEditingValue(
     `${pad(Math.floor(normalized / 3600))}:${pad(Math.floor((normalized % 3600) / 60))}:${pad(normalized % 60)}`,
@@ -520,8 +569,8 @@ const adjustByKeyboard = (event: KeyboardEvent): void => {
 const onTriggerKeydown = (event: KeyboardEvent): void => {
   if (["ArrowDown", "Enter", " "].includes(event.key) && !open.peek()) {
     event.preventDefault();
+    focusPanelAfterEnter = true;
     handleOpen(((event.currentTarget as HTMLElement).dataset.target || "start") as EditingTarget);
-    queueMicrotask(() => getPanelEl()?.querySelector<HTMLButtonElement>(".clock-number:not(:disabled)")?.focus());
     return;
   }
   if (event.key === "Escape") {
@@ -536,17 +585,21 @@ const onPanelKeydown = (event: KeyboardEvent): void => {
   if (event.key !== "Escape") return;
   event.preventDefault();
   if (dismissibleOverlay.claim(event)) {
+    restoreFocusAfterLeave = true;
     handleClose();
-    queueMicrotask(() => focusInput(editingTarget.peek()));
   }
 };
 
 const focusInput = (target: EditingTarget = "start"): void => {
-  host.shadowRoot?.querySelector<HTMLButtonElement>(`.field-trigger[data-target="${target}"]`)?.focus();
+  host.shadowRoot
+    ?.querySelector<HTMLButtonElement>(`.field-trigger[data-target="${target}"]`)
+    ?.focus();
 };
 
 const blurInput = (): void => {
-  host.shadowRoot?.querySelectorAll<HTMLButtonElement>(".field-trigger").forEach((field) => field.blur());
+  host.shadowRoot
+    ?.querySelectorAll<HTMLButtonElement>(".field-trigger")
+    .forEach((field) => field.blur());
 };
 
 useHostAttr("size", resolvedSize);
@@ -555,17 +608,60 @@ useHostFlag("disabled", isDisabled);
 useHostFlag("data-open", () => open.value);
 useHostFlag("data-dirty", hasValue);
 useHostFlag("data-has-label", () => Boolean(props.label));
-onMounted(() => {
-  cleanupOverlayMotion = connectAnchoredOverlayLifecycle({
-    resizeTargets: [],
-    motionContainers: () => [getPanelEl()],
-    onResize: requestPanelUpdate,
-    onExternalMotion: handleClose,
-  });
+
+useEffect(() => {
+  void open.value;
+  void editingTarget.value;
+  void props.teleported;
+  void props.placement;
+  void props.popperOptions;
+  if (activePanel && open.value) connectPanelOverlay(activePanel);
 });
+
+/** Starts one dismissible and positioned transaction for an inserted panel root. */
+const onBeforeEnter = (element: Element): void => {
+  const panel = element as HTMLElement;
+  activePanel = panel;
+  if (!dismissibleOverlay.isActive()) dismissibleOverlay.activate();
+  connectPanelOverlay(panel);
+};
+
+const onAfterEnter = (element: Element): void => {
+  if (activePanel !== element || !open.peek()) return;
+  requestPanelUpdate();
+  if (!focusPanelAfterEnter) return;
+  focusPanelAfterEnter = false;
+  (element as HTMLElement)
+    .querySelector<HTMLButtonElement>(".clock-number:not(:disabled)")
+    ?.focus();
+};
+
+/** Releases input ownership while Core retains the visual leave root. */
+const onBeforeLeave = (element: Element): void => {
+  if (activePanel !== element) return;
+  dismissibleOverlay.beginClose();
+  cleanupAnchoredOverlay();
+};
+
+/** Finalizes only the active leave so a stale root cannot tear down a rapid reopen. */
+const onAfterLeave = (element: Element): void => {
+  hidePanelTopLayer(element);
+  if (activePanel !== element || open.peek()) return;
+  if (!dismissibleOverlay.completeClose()) dismissibleOverlay.deactivate();
+  activePanel = null;
+  panelStyle.set({});
+  focusPanelAfterEnter = false;
+  if (restoreFocusAfterLeave) focusInput(editingTarget.peek());
+  restoreFocusAfterLeave = false;
+};
+
 onBeforeUnmount(() => {
-  cleanupOverlayMotion();
-  if (overlayFrame && typeof cancelAnimationFrame === "function") cancelAnimationFrame(overlayFrame);
+  if (activePanel) hidePanelTopLayer(activePanel);
+  activePanel = null;
+  dismissibleOverlay.deactivate();
+  cleanupAnchoredOverlay();
+  if (overlayFrame && typeof cancelAnimationFrame === "function")
+    cancelAnimationFrame(overlayFrame);
 });
 
 const isEditingTarget = (target: EditingTarget): boolean => editingTarget.value === target;
@@ -635,83 +731,94 @@ const TimePicker = defineHtml(`
       </button>
     </div>
 
-    <div
-      v-if=${open}
-      :class=${["panel", props.popperClass]}
-      :popover=${props.teleported ? "manual" : undefined}
-      :style=${resolvedPanelStyle}
-      @keydown=${onPanelKeydown}
+    <Transition
+      name="time-picker-panel"
+      appear
+      @before-enter=${onBeforeEnter}
+      @after-enter=${onAfterEnter}
+      @before-leave=${onBeforeLeave}
+      @after-leave=${onAfterLeave}
     >
-      <div :class=${["digital-header", { "has-seconds": showsSeconds() }]}>
-        <button
-          type="button"
-          :class=${["digital-part", { "is-active": isActiveUnit("hour") }]}
-          @click=${() => activeUnit.set("hour")}
-        >
-          ${String(editingHour()).padStart(2, "0")}
-        </button>
-        <span>:</span>
-        <button
-          type="button"
-          :class=${["digital-part", { "is-active": isActiveUnit("minute") }]}
-          @click=${() => activeUnit.set("minute")}
-        >
-          ${String(editingMinute()).padStart(2, "0")}
-        </button>
-        <template v-if=${showsSeconds()}>
+      <div
+        v-if=${open}
+        :class=${["panel", props.popperClass]}
+        :popover=${props.teleported ? "manual" : undefined}
+        :style=${resolvedPanelStyle}
+        role="dialog"
+        :aria-label=${editingTargetLabel()}
+        @keydown=${onPanelKeydown}
+      >
+        <div :class=${["digital-header", { "has-seconds": showsSeconds() }]}>
+          <button
+            type="button"
+            :class=${["digital-part", { "is-active": isActiveUnit("hour") }]}
+            @click=${() => activeUnit.set("hour")}
+          >
+            ${String(editingHour()).padStart(2, "0")}
+          </button>
           <span>:</span>
           <button
             type="button"
-            :class=${["digital-part", { "is-active": isActiveUnit("second") }]}
-            @click=${() => activeUnit.set("second")}
+            :class=${["digital-part", { "is-active": isActiveUnit("minute") }]}
+            @click=${() => activeUnit.set("minute")}
           >
-            ${String(editingSecond()).padStart(2, "0")}
+            ${String(editingMinute()).padStart(2, "0")}
           </button>
-        </template>
-        <div class="period-switch">
-          <button type="button" :class=${{ "is-active": period() === "AM" }} @click=${() => setPeriod("AM")}>AM</button>
-          <button type="button" :class=${{ "is-active": period() === "PM" }} @click=${() => setPeriod("PM")}>PM</button>
+          <template v-if=${showsSeconds()}>
+            <span>:</span>
+            <button
+              type="button"
+              :class=${["digital-part", { "is-active": isActiveUnit("second") }]}
+              @click=${() => activeUnit.set("second")}
+            >
+              ${String(editingSecond()).padStart(2, "0")}
+            </button>
+          </template>
+          <div class="period-switch">
+            <button type="button" :class=${{ "is-active": period() === "AM" }} @click=${() => setPeriod("AM")}>AM</button>
+            <button type="button" :class=${{ "is-active": period() === "PM" }} @click=${() => setPeriod("PM")}>PM</button>
+          </div>
+        </div>
+
+        <div
+          class="clock-face"
+          :aria-label=${activeUnitLabel()}
+        >
+          <span class="clock-center"></span>
+          <button
+            v-for="item in clockItems()"
+            :key="item.key"
+            type="button"
+            :class='["clock-number", { "is-active": item.active }]'
+            :style="item.style"
+            :data-clock-value="item.amount"
+            :aria-pressed="item.active ? 'true' : 'false'"
+            :disabled="item.disabled"
+            @click=${selectClockValue}
+          >
+            <span>{{ item.label }}</span>
+          </button>
+        </div>
+
+        <div v-if=${shortcutItems().length > 0} class="shortcuts">
+          <button
+            v-for="entry in shortcutEntries()"
+            :key="entry.key"
+            :data-index="entry.index"
+            type="button"
+            class="shortcut"
+            @click=${onShortcutClick}
+          >
+            {{ entry.item.label }}
+          </button>
+        </div>
+
+        <div class="panel-actions">
+          <span>${editingTargetLabel()}</span>
+          <button type="button" @click=${handleClose}>${locale.t("common.done")}</button>
         </div>
       </div>
-
-      <div
-        class="clock-face"
-        :aria-label=${activeUnitLabel()}
-      >
-        <span class="clock-center"></span>
-        <button
-          v-for="item in clockItems()"
-          :key="item.key"
-          type="button"
-          :class='["clock-number", { "is-active": item.active }]'
-          :style="item.style"
-          :data-clock-value="item.amount"
-          :aria-pressed="item.active ? 'true' : 'false'"
-          :disabled="item.disabled"
-          @click=${selectClockValue}
-        >
-          <span>{{ item.label }}</span>
-        </button>
-      </div>
-
-      <div v-if=${shortcutItems().length > 0} class="shortcuts">
-        <button
-          v-for="entry in shortcutEntries()"
-          :key="entry.key"
-          :data-index="entry.index"
-          type="button"
-          class="shortcut"
-          @click=${onShortcutClick}
-        >
-          {{ entry.item.label }}
-        </button>
-      </div>
-
-      <div class="panel-actions">
-        <span>${editingTargetLabel()}</span>
-        <button type="button" @click=${handleClose}>${locale.t("common.done")}</button>
-      </div>
-    </div>
+    </Transition>
   </div>
 `);
 

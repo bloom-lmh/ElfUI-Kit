@@ -1,7 +1,15 @@
+import { readFileSync } from "node:fs";
+import { ensureCustomElement } from "@elfui/core";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
-beforeAll(async () => {
-  await import("../../../components");
+import { Form } from "../../Form/Form/index";
+import { FormItem } from "../../Form/FormItem/index";
+import { TimePicker } from "./index";
+
+beforeAll(() => {
+  ensureCustomElement(Form);
+  ensureCustomElement(FormItem);
+  ensureCustomElement(TimePicker);
 });
 
 afterEach(() => {
@@ -9,6 +17,14 @@ afterEach(() => {
 });
 
 const tick = (): Promise<void> => new Promise((resolve) => queueMicrotask(resolve));
+const frame = (): Promise<void> => new Promise((resolve) => requestAnimationFrame(() => resolve()));
+
+const finishTransition = async (element: HTMLElement | null): Promise<void> => {
+  await frame();
+  await frame();
+  element?.dispatchEvent(new Event("transitionend", { bubbles: true }));
+  await tick();
+};
 
 interface TimePickerEl extends HTMLElement {
   modelValue?: string | [string, string];
@@ -30,6 +46,24 @@ interface TimePickerEl extends HTMLElement {
 }
 
 describe("elf-time-picker", () => {
+  it("uses Core Transition and reactive rendering as the only panel lifecycle", () => {
+    const source = readFileSync("src/components/Picker/TimePicker/index.ts", "utf8");
+    const cssText = readFileSync("src/components/Picker/TimePicker/style.scss", "utf8");
+
+    expect(source).toContain('<Transition\n      name="time-picker-panel"');
+    expect(source).toContain("@before-enter=${onBeforeEnter}");
+    expect(source).toContain("@after-leave=${onAfterLeave}");
+    expect(source).toContain("dismissibleOverlay.beginClose()");
+    expect(source).toContain("dismissibleOverlay.completeClose()");
+    expect(source).not.toContain("queueMicrotask");
+    expect(source).not.toContain("syncClockSelection");
+    expect(source).not.toContain("setTimeout");
+    expect(cssText).toContain(".time-picker-panel-enter-active");
+    expect(cssText).toContain(".time-picker-panel-leave-active");
+    expect(cssText).not.toContain("@keyframes time-panel-enter");
+    expect(cssText).toMatch(/prefers-reduced-motion[\s\S]*transition: none/);
+  });
+
   it("输入时间触发更新，清空触发 clear", async () => {
     const el = document.createElement("elf-time-picker") as TimePickerEl;
     el.modelValue = "09:30";
@@ -75,14 +109,36 @@ describe("elf-time-picker", () => {
     await tick();
     const hourButtons = el.shadowRoot!.querySelectorAll<HTMLButtonElement>(".clock-number");
     expect(Array.from(hourButtons, (button) => button.textContent?.trim())).toEqual([
-      "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+      "10",
+      "11",
+      "12",
     ]);
 
     hourButtons[9]!.click();
     await tick();
     const minuteButtons = el.shadowRoot!.querySelectorAll<HTMLButtonElement>(".clock-number");
     expect(Array.from(minuteButtons, (button) => button.textContent?.trim())).toEqual([
-      "00", "05", "10", "15", "20", "25", "30", "35", "40", "45", "50", "55"
+      "00",
+      "05",
+      "10",
+      "15",
+      "20",
+      "25",
+      "30",
+      "35",
+      "40",
+      "45",
+      "50",
+      "55",
     ]);
     expect(minuteButtons[6]!.getAttribute("aria-pressed")).toBe("true");
     expect(minuteButtons[6]!.style.getPropertyValue("--clock-angle")).toBe("180deg");
@@ -103,7 +159,9 @@ describe("elf-time-picker", () => {
     const trigger = el.shadowRoot!.querySelector(".field-trigger") as HTMLButtonElement;
     expect(trigger.classList.contains("has-label")).toBe(true);
     expect(el.shadowRoot!.querySelector(".field-label")?.textContent).toBe("开始时间");
-    expect(el.shadowRoot!.querySelector(".field-value")?.classList.contains("is-placeholder")).toBe(true);
+    expect(el.shadowRoot!.querySelector(".field-value")?.classList.contains("is-placeholder")).toBe(
+      true,
+    );
   });
 
   it("uses the configured second step for keyboard adjustment without opening the panel", async () => {
@@ -152,13 +210,19 @@ describe("elf-time-picker", () => {
 
     (el.shadowRoot!.querySelector(".field-trigger") as HTMLButtonElement).click();
     await tick();
-    expect((el.shadowRoot!.querySelector('[data-clock-value="10"]') as HTMLButtonElement).disabled).toBe(true);
+    expect(
+      (el.shadowRoot!.querySelector('[data-clock-value="10"]') as HTMLButtonElement).disabled,
+    ).toBe(true);
     (el.shadowRoot!.querySelectorAll(".digital-part")[1] as HTMLButtonElement).click();
     await tick();
-    expect((el.shadowRoot!.querySelector('[data-clock-value="45"]') as HTMLButtonElement).disabled).toBe(true);
+    expect(
+      (el.shadowRoot!.querySelector('[data-clock-value="45"]') as HTMLButtonElement).disabled,
+    ).toBe(true);
     (el.shadowRoot!.querySelectorAll(".digital-part")[2] as HTMLButtonElement).click();
     await tick();
-    expect((el.shadowRoot!.querySelector('[data-clock-value="30"]') as HTMLButtonElement).disabled).toBe(true);
+    expect(
+      (el.shadowRoot!.querySelector('[data-clock-value="30"]') as HTMLButtonElement).disabled,
+    ).toBe(true);
   });
 
   it("keeps a cross-day range in the selected order", async () => {
@@ -168,10 +232,11 @@ describe("elf-time-picker", () => {
     document.body.appendChild(el);
     await tick();
 
-    expect(Array.from(el.shadowRoot!.querySelectorAll(".field-value"), (node) => node.textContent?.trim())).toEqual([
-      "22:30",
-      "02:15",
-    ]);
+    expect(
+      Array.from(el.shadowRoot!.querySelectorAll(".field-value"), (node) =>
+        node.textContent?.trim(),
+      ),
+    ).toEqual(["22:30", "02:15"]);
   });
 
   it("opens with the keyboard and closes from the panel with Escape", async () => {
@@ -184,9 +249,55 @@ describe("elf-time-picker", () => {
     await tick();
     const panel = el.shadowRoot!.querySelector(".panel") as HTMLElement;
     expect(panel).not.toBeNull();
+    expect(panel.getAttribute("role")).toBe("dialog");
+    await finishTransition(panel);
+    expect(el.shadowRoot!.activeElement?.classList.contains("clock-number")).toBe(true);
     panel.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
     await tick();
+    expect(el.hasAttribute("data-open")).toBe(false);
+    expect(el.shadowRoot!.querySelector(".panel")).toBe(panel);
+    await finishTransition(panel);
     expect(el.shadowRoot!.querySelector(".panel")).toBeNull();
+    expect(el.shadowRoot!.activeElement).toBe(trigger);
+  });
+
+  it("isolates a stale leave when the panel rapidly reopens", async () => {
+    const el = document.createElement("elf-time-picker") as TimePickerEl;
+    const visibleChanges: boolean[] = [];
+    el.addEventListener("visible-change", (event) => {
+      visibleChanges.push(Boolean((event as CustomEvent).detail));
+    });
+    document.body.appendChild(el);
+    await tick();
+    const trigger = el.shadowRoot!.querySelector<HTMLButtonElement>(".field-trigger")!;
+
+    trigger.click();
+    await tick();
+    const firstPanel = el.shadowRoot!.querySelector<HTMLElement>(".panel")!;
+    await finishTransition(firstPanel);
+
+    trigger.click();
+    await tick();
+    const leavingPanel = el.shadowRoot!.querySelector<HTMLElement>(".panel")!;
+    trigger.click();
+    await tick();
+    await tick();
+
+    const panels = Array.from(el.shadowRoot!.querySelectorAll<HTMLElement>(".panel"));
+    const replacementPanel = panels.find((candidate) => candidate !== leavingPanel)!;
+    expect(replacementPanel).toBeTruthy();
+    expect(el.hasAttribute("data-open")).toBe(true);
+
+    await finishTransition(leavingPanel);
+    expect(el.shadowRoot!.querySelector(".panel")).toBe(replacementPanel);
+    expect(el.hasAttribute("data-open")).toBe(true);
+
+    document.body.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, composed: true }));
+    await tick();
+    expect(el.hasAttribute("data-open")).toBe(false);
+    await finishTransition(replacementPanel);
+    expect(el.shadowRoot!.querySelector(".panel")).toBeNull();
+    expect(visibleChanges).toEqual([true, false, true, false]);
   });
 
   it("isRange 支持数组 v-model 并输出数组", async () => {
@@ -264,7 +375,7 @@ describe("elf-time-picker", () => {
     el.clearable = true;
     el.shortcuts = [
       { label: "工作日", value: "09:00", endValue: "18:00" },
-      { label: "晚上", value: "19:00", endValue: "22:00" }
+      { label: "晚上", value: "19:00", endValue: "22:00" },
     ];
     const onUpdate = vi.fn();
     el.addEventListener("update:modelValue", onUpdate as EventListener);
@@ -282,10 +393,11 @@ describe("elf-time-picker", () => {
     (el.shadowRoot!.querySelector(".clear") as HTMLButtonElement).click();
     await tick();
     expect((onUpdate.mock.calls.at(-1)![0] as CustomEvent).detail).toEqual(["", ""]);
-    expect(Array.from(el.shadowRoot!.querySelectorAll(".field-value"), (field) => field.textContent?.trim())).toEqual([
-      "开始时间",
-      "结束时间"
-    ]);
+    expect(
+      Array.from(el.shadowRoot!.querySelectorAll(".field-value"), (field) =>
+        field.textContent?.trim(),
+      ),
+    ).toEqual(["开始时间", "结束时间"]);
 
     buttons[0]!.click();
     expect((onUpdate.mock.calls.at(-1)![0] as CustomEvent).detail).toEqual(["09:00", "18:00"]);
@@ -305,12 +417,19 @@ describe("elf-time-picker", () => {
     expect(el.shadowRoot!.querySelector(".panel")).not.toBeNull();
     document.body.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, composed: true }));
     await tick();
+    expect(el.hasAttribute("data-open")).toBe(false);
+    expect(el.shadowRoot!.querySelector(".panel")).toBe(panel);
+    await finishTransition(panel);
     expect(el.shadowRoot!.querySelector(".panel")).toBeNull();
 
     (el.shadowRoot!.querySelector(".field-trigger") as HTMLButtonElement).click();
     await tick();
+    const scrollingPanel = el.shadowRoot!.querySelector(".panel") as HTMLElement;
     window.dispatchEvent(new Event("scroll"));
     await tick();
+    expect(el.hasAttribute("data-open")).toBe(false);
+    expect(el.shadowRoot!.querySelector(".panel")).toBe(scrollingPanel);
+    await finishTransition(scrollingPanel);
     expect(el.shadowRoot!.querySelector(".panel")).toBeNull();
     expect(el.getAttribute("variant")).toBe("outlined");
     expect(el.shadowRoot!.querySelector(".field-label")?.textContent).toBe("Start time");
@@ -321,8 +440,14 @@ describe("elf-time-picker", () => {
     const originalHide = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "hidePopover");
     const showPopover = vi.fn();
     const hidePopover = vi.fn();
-    Object.defineProperty(HTMLElement.prototype, "showPopover", { configurable: true, value: showPopover });
-    Object.defineProperty(HTMLElement.prototype, "hidePopover", { configurable: true, value: hidePopover });
+    Object.defineProperty(HTMLElement.prototype, "showPopover", {
+      configurable: true,
+      value: showPopover,
+    });
+    Object.defineProperty(HTMLElement.prototype, "hidePopover", {
+      configurable: true,
+      value: hidePopover,
+    });
 
     try {
       const el = document.createElement("elf-time-picker") as TimePickerEl;
@@ -337,6 +462,8 @@ describe("elf-time-picker", () => {
       expect(showPopover).toHaveBeenCalledOnce();
 
       (panel.querySelector(".panel-actions button") as HTMLButtonElement).click();
+      expect(hidePopover).not.toHaveBeenCalled();
+      await finishTransition(panel);
       expect(hidePopover).toHaveBeenCalledOnce();
     } finally {
       if (originalShow) Object.defineProperty(HTMLElement.prototype, "showPopover", originalShow);
@@ -354,11 +481,14 @@ describe("elf-time-picker", () => {
       document.body.appendChild(el);
       await tick();
       expect(el.getAttribute("variant")).toBe(variant);
-    }
+    },
   );
 
   it("inherits Form state and applies overlay compatibility options", async () => {
-    const form = document.createElement("elf-form") as HTMLElement & { disabled?: boolean; size?: string };
+    const form = document.createElement("elf-form") as HTMLElement & {
+      disabled?: boolean;
+      size?: string;
+    };
     form.disabled = true;
     form.size = "lg";
     const item = document.createElement("elf-form-item");
@@ -378,7 +508,9 @@ describe("elf-time-picker", () => {
 
     expect(picker.getAttribute("size")).toBe("lg");
     expect(picker.hasAttribute("disabled")).toBe(true);
-    expect(picker.shadowRoot!.querySelector<HTMLButtonElement>(".field-trigger")!.disabled).toBe(true);
+    expect(picker.shadowRoot!.querySelector<HTMLButtonElement>(".field-trigger")!.disabled).toBe(
+      true,
+    );
 
     const overlayPicker = document.createElement("elf-time-picker") as typeof picker;
     overlayPicker.teleported = false;
@@ -407,7 +539,9 @@ describe("elf-time-picker", () => {
     await tick();
     await tick();
 
-    const parts = Array.from(el.shadowRoot!.querySelectorAll(".digital-part"), (part) => part.textContent?.trim());
+    const parts = Array.from(el.shadowRoot!.querySelectorAll(".digital-part"), (part) =>
+      part.textContent?.trim(),
+    );
     expect(parts.slice(0, 2)).toEqual(["09", "30"]);
     expect(el.shadowRoot!.querySelector(".panel")).toBeTruthy();
   });
