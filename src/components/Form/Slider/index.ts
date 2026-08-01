@@ -10,21 +10,31 @@ import {
   useHostAttr,
   useHostFlag,
   useRef,
-  defineHtml
+  defineHtml,
 } from "@elfui/core";
 
 import { useDisabled, useFormItem } from "../../../composables";
 import { FORM_ITEM_KEY } from "../context";
 import styles from "./style.scss?inline";
-import type { SliderInputSize, SliderMark, SliderModelValue, SliderSize } from "./types";
+import type {
+  SliderEmits,
+  SliderInputSize,
+  SliderMark,
+  SliderModelValue,
+  SliderProps,
+  SliderSize,
+  SliderSlots,
+} from "./types";
 
 export type {
+  SliderEmits,
   SliderInputSize,
   SliderMark,
   SliderMarks,
   SliderModelValue,
   SliderProps,
-  SliderSize
+  SliderSize,
+  SliderSlots,
 } from "./types";
 
 type SliderValue = number | [number, number];
@@ -66,6 +76,7 @@ const props = defineProps({
   showInputControls: { type: Boolean, default: true },
   inputSize: { type: String, default: "" },
   marks: { type: null, default: () => [] },
+  tickLabels: { type: Array, default: () => [] },
   color: { type: String, default: "" },
   size: { type: String, default: "" },
   formatTooltip: { type: Function, default: undefined },
@@ -78,10 +89,10 @@ const props = defineProps({
   placement: { type: String, default: "top" },
   persistent: { type: Boolean, default: true },
   label: { type: String, default: "" },
-  validateEvent: { type: Boolean, default: true }
+  validateEvent: { type: Boolean, default: true },
 });
 
-const emit = defineEmits(["update:modelValue", "input", "change"]);
+const emit = defineEmits<SliderEmits>();
 
 const fi = useFormItem(() => props.size as SliderSize);
 const formItem = inject(FORM_ITEM_KEY);
@@ -122,7 +133,7 @@ const snapSegment = (value: number): number => {
   const points = segmentBoundaries();
   if (points.length <= 1) return snapped;
   return points.reduce((best, point) =>
-    Math.abs(point - snapped) < Math.abs(best - snapped) ? point : best
+    Math.abs(point - snapped) < Math.abs(best - snapped) ? point : best,
   );
 };
 
@@ -249,7 +260,7 @@ const updateThumbFromPointer = (
   thumb: RangeThumb,
   event: PointerEvent,
   track: HTMLElement,
-  change = false
+  change = false,
 ): void => {
   updateRange(thumb, pointerValue(event, track), change);
 };
@@ -330,7 +341,12 @@ const rootStyle = useComputed(() => {
     "--slider-start": `${activeStart}%`,
     "--slider-end": `${activeEnd}%`,
     ...(props.color ? { "--slider-color": String(props.color) } : {}),
-    ...(props.height !== undefined && props.height !== null ? { "--slider-height": typeof props.height === "number" ? `${props.height}px` : String(props.height) } : {})
+    ...(props.height !== undefined && props.height !== null
+      ? {
+          "--slider-height":
+            typeof props.height === "number" ? `${props.height}px` : String(props.height),
+        }
+      : {}),
   };
 });
 
@@ -342,7 +358,7 @@ const itemPointStyle = (item: Pick<MarkView | StopView, "value">): Record<string
 
 const marks = (): MarkView[] => {
   const source = props.marks as unknown;
-  if (Array.isArray(source)) {
+  if (Array.isArray(source) && source.length > 0) {
     return source
       .map((mark) =>
         typeof mark === "number"
@@ -350,15 +366,27 @@ const marks = (): MarkView[] => {
           : {
               key: String((mark as SliderMark).value),
               value: readNumber((mark as SliderMark).value, min()),
-              label: String((mark as SliderMark).label ?? (mark as SliderMark).value ?? "")
-            }
+              label: String((mark as SliderMark).label ?? (mark as SliderMark).value ?? ""),
+            },
       )
       .filter((mark) => mark.value >= min() && mark.value <= max());
   }
-  if (source && typeof source === "object") {
+  if (source && !Array.isArray(source) && typeof source === "object") {
     return Object.entries(source as Record<string, string | number>)
-      .map(([value, label]) => ({ key: value, value: readNumber(value, min()), label: String(label) }))
+      .map(([value, label]) => ({
+        key: value,
+        value: readNumber(value, min()),
+        label: String(label),
+      }))
       .filter((mark) => mark.value >= min() && mark.value <= max());
+  }
+  const tickLabels = Array.isArray(props.tickLabels) ? props.tickLabels : [];
+  if (tickLabels.length > 0) {
+    const intervals = Math.max(1, tickLabels.length - 1);
+    return tickLabels.map((label, index) => {
+      const value = min() + ((max() - min()) * index) / intervals;
+      return { key: `tick-${index}`, value, label: String(label) };
+    });
   }
   return [];
 };
@@ -384,7 +412,7 @@ const segmentBoundaries = (): number[] => {
   const total = Math.floor((max() - min()) / step());
   if (total > 0 && total <= 20) {
     return Array.from({ length: total + 1 }, (_, index) =>
-      index === total ? max() : min() + index * step()
+      index === total ? max() : min() + index * step(),
     );
   }
 
@@ -397,7 +425,7 @@ const segments = (): SegmentView[] => {
   return boundaries.slice(0, -1).map((start, index) => ({
     key: `${start}-${boundaries[index + 1]}`,
     start,
-    end: boundaries[index + 1] ?? start
+    end: boundaries[index + 1] ?? start,
   }));
 };
 
@@ -410,13 +438,16 @@ const segmentStyle = (segment: SegmentView): Record<string, string> => {
   const segmentSize = Math.max(0, segment.end - segment.start);
   const filled = Math.max(
     0,
-    Math.min(1, (Math.min(activeEnd, segment.end) - Math.max(activeStart, segment.start)) / segmentSize)
+    Math.min(
+      1,
+      (Math.min(activeEnd, segment.end) - Math.max(activeStart, segment.start)) / segmentSize,
+    ),
   );
   return {
     "--segment-fill": `${filled * 100}%`,
     ...(props.vertical
       ? { bottom: `${start}%`, height: `calc(${size}% - 2px)` }
-      : { left: `${start}%`, width: `calc(${size}% - 2px)` })
+      : { left: `${start}%`, width: `calc(${size}% - 2px)` }),
   };
 };
 
@@ -438,7 +469,7 @@ defineExpose({ clear, setValue });
 
 defineStyle(styles);
 
-const Slider = defineHtml(`
+const Slider = defineHtml<SliderProps, SliderEmits, SliderSlots>(`
   <div
     :class=${[
       "slider",
@@ -448,8 +479,8 @@ const Slider = defineHtml(`
         "is-disabled": isDisabled(),
         "is-readonly": props.readonly,
         "has-input": props.showInput && !props.range,
-        "is-segmented": props.segmented
-      }
+        "is-segmented": props.segmented,
+      },
     ]}
     :style=${rootStyle}
   >
@@ -528,7 +559,7 @@ const Slider = defineHtml(`
         <span
           v-if=${props.showTooltip}
           :class=${["tooltip", `placement-${tooltipPlacement()}`, props.tooltipClass]}
-        >${formatValue(singleValue())}</span>
+        ><slot name="thumb-label" :value=${singleValue()}>${formatValue(singleValue())}</slot></span>
       </span>
       <template v-else>
         <span
@@ -538,7 +569,7 @@ const Slider = defineHtml(`
           <span
             v-if=${props.showTooltip}
             :class=${["tooltip", `placement-${tooltipPlacement()}`, props.tooltipClass]}
-          >${formatValue(values()[0])}</span>
+          ><slot name="thumb-label-start" :value=${values()[0]}><slot name="thumb-label" :value=${values()[0]}>${formatValue(values()[0])}</slot></slot></span>
         </span>
         <span
           :class=${["thumb", "thumb-end", { "is-active": isActiveThumb("end") }]}
@@ -547,7 +578,7 @@ const Slider = defineHtml(`
           <span
             v-if=${props.showTooltip}
             :class=${["tooltip", `placement-${tooltipPlacement()}`, props.tooltipClass]}
-          >${formatValue(values()[1])}</span>
+          ><slot name="thumb-label-end" :value=${values()[1]}><slot name="thumb-label" :value=${values()[1]}>${formatValue(values()[1])}</slot></slot></span>
         </span>
       </template>
 
@@ -580,7 +611,7 @@ const Slider = defineHtml(`
       :class=${[
         "number-input",
         { "without-controls": !props.showInputControls },
-        inputSize() ? `size-${inputSize()}` : ""
+        inputSize() ? `size-${inputSize()}` : "",
       ]}
       type="number"
       :min=${min()}

@@ -1,40 +1,51 @@
 import { defineHtml, defineStyle, useRef } from "@elfui/core";
-import styles from "./demo.scss?inline";
+
+import { createDocsTranslator } from "../../docsLocale";
+import demoStyles from "./demo.scss?inline";
 
 const dates = useRef<string[]>(["2026-06-10", "2026-06-14"]);
+const t = createDocsTranslator({
+  title: { zh: "多日期选择", en: "Multiple dates" },
+  selected: { zh: "已选日期", en: "Selected dates" },
+  empty: { zh: "暂无", en: "None" },
+});
 
-const readDetail = <T>(event: Event, fallback: T): T =>
-  ((event as CustomEvent).detail ?? fallback) as T;
-
-const updateDates = (event: Event): void => {
-  const detail = readDetail<unknown>(event, []);
-  dates.set(Array.isArray(detail) ? detail.map(String) : []);
+const updateDates = (event: CustomEvent<unknown>): void => {
+  dates.set(Array.isArray(event.detail) ? event.detail.map(String) : []);
 };
 
-const multipleCode = `<elf-date-picker
+const code = `<elf-date-picker
   multiple
   clearable
   :modelValue.prop="dates"
+  @update:modelValue="updateDates"
 />`;
 
-const multipleScript = `const dates = useRef(["2026-06-10", "2026-06-14"]);`;
+const script = `const dates = useRef(["2026-06-10", "2026-06-14"]);
 
-const selectedDates = (): string => dates.value.join("，") || "暂无";
+const updateDates = (event) => {
+  dates.set(Array.isArray(event.detail) ? event.detail : []);
+};`;
 
-defineStyle(styles);
+const selectedDates = (): string => dates.value.join(", ") || t("empty");
+
+defineStyle(demoStyles);
 
 const PageDatePickerEx4 = defineHtml(`
-<elf-playground title="多日期" :code=${multipleCode} :script=${multipleScript}>
-      <div style="display:grid;gap:12px;width:min(360px,100%)">
-        <elf-date-picker
-          multiple
-          clearable
-          :modelValue.prop=${dates}
-          @update:modelValue=${updateDates}
-        ></elf-date-picker>
-        <span slot="status" class="demo-state">已选：${selectedDates()}</span>
-      </div>
-    </elf-playground>
+  <elf-playground :title=${t("title")} :code=${code} :script=${script}>
+    <div class="date-picker-demo-stage">
+      <elf-date-picker
+        class="date-picker-demo-control"
+        multiple
+        clearable
+        :modelValue.prop=${dates}
+        @update:modelValue=${updateDates}
+      ></elf-date-picker>
+    </div>
+    <span slot="status" class="demo-state" role="status" aria-live="polite">
+      ${t("selected")} · ${selectedDates()}
+    </span>
+  </elf-playground>
 `);
 
 export { PageDatePickerEx4 };

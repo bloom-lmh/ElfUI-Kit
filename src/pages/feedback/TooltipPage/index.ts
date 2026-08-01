@@ -21,13 +21,12 @@ useComponents({
   "page-tooltip-ex3": PageTooltipEx3,
   "page-tooltip-ex4": PageTooltipEx4,
   "page-tooltip-ex5": PageTooltipEx5,
-  "page-tooltip-props": PageTooltipProps
+  "page-tooltip-props": PageTooltipProps,
 });
 
 const PageTooltip = defineHtml(`
   <elf-container>
-    <h1>${t("title")}</h1>
-    <p>${t("description")}</p>
+    <elf-docs-hero category="feedback" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
     <page-tooltip-ex1 />
     <page-tooltip-ex2 />
     <page-tooltip-ex3 />

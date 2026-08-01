@@ -40,6 +40,7 @@ describe("ProgressPage", () => {
     expect(text).toContain("自定义标签、数值与中心内容");
     expect(text).toContain("自动增长与状态反馈");
     expect(text).toContain("切换预览明暗");
+    expect(text).toContain("环形进度");
   });
 
   it("renders English examples without Chinese copy", async () => {

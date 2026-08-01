@@ -44,6 +44,7 @@ interface LoadingEl extends HTMLElement {
   loading?: boolean;
   fullscreen?: boolean;
   closable?: boolean;
+  plain?: boolean;
   variant?: string;
   svg?: string;
   svgViewBox?: string;
@@ -225,6 +226,23 @@ describe("elf-loading", () => {
     expect(svg.getAttribute("viewBox")).toBe("0 0 50 50");
     expect(svg.querySelector("path")!.getAttribute("d")).toBe("M25 5 A20 20 0 0 1 45 25");
     expect(el.shadowRoot!.querySelector(".spinner")).toBeNull();
+  });
+
+  it("supports a borderless custom indicator animation slot", async () => {
+    const el = document.createElement("elf-loading") as LoadingEl;
+    el.loading = true;
+    el.plain = true;
+    const indicator = document.createElement("span");
+    indicator.slot = "indicator";
+    indicator.className = "brand-animation";
+    el.appendChild(indicator);
+    document.body.appendChild(el);
+    await tick();
+
+    expect(el.hasAttribute("plain")).toBe(true);
+    const slot = el.shadowRoot!.querySelector<HTMLSlotElement>('slot[name="indicator"]')!;
+    expect(slot.assignedElements()).toEqual([indicator]);
+    expect(el.shadowRoot!.querySelector(".spinner")).toBeTruthy();
   });
 
   it("creates and closes a local service while restoring target and scroll state", async () => {

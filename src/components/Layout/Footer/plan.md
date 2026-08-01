@@ -110,3 +110,9 @@
 - [x] 默认值、attribute/property 更新和 slot 有单测覆盖。
 - [x] Playground Template / Script 与复制内容完整。
 - [x] `pnpm build` 通过；Footer 3/3 测试通过，浏览器验证默认 `60px`、动态 `40px` 和案例显式 `32px`。
+
+## 2026-07-31 Vuetify reference examples
+
+- [x] 靛蓝案例对齐居中社交图标、短分隔线、说明与版权布局；青绿案例对齐左右社交栏和内嵌深色版权栏。
+- [x] 两个案例继续继承全局 Provider，不创建局部主题，并使用 ElfUI Button 与 MDI IconProvider。
+- [x] 导航页面回归测试 11/11、应用构建 970 模块通过；桌面 Chromium 控制台 0 warning / 0 error。

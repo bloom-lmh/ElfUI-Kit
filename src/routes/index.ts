@@ -6,461 +6,495 @@ export const routes: RouteRecord[] = [
   {
     path: "/",
     name: "home",
-    component: () => import("../pages/HomePage/index")
+    component: () => import("../pages/HomePage/index"),
+  },
+  {
+    path: "/overview",
+    name: "overview",
+    component: () => import("../pages/OverviewPage/index"),
+  },
+  {
+    path: "/theme-studio",
+    name: "theme-studio",
+    component: () => import("../pages/ThemeStudioPage/index"),
   },
 
   // Getting started
   {
     path: "/getting-started/installation",
-    component: () => import("../pages/getting-started/InstallationPage/index")
+    component: () => import("../pages/getting-started/InstallationPage/index"),
   },
   {
     path: "/getting-started/upgrade-guide",
-    component: () => import("../pages/getting-started/UpgradeGuidePage/index")
+    component: () => import("../pages/getting-started/UpgradeGuidePage/index"),
   },
   {
     path: "/getting-started/browser-support",
-    component: () => import("../pages/getting-started/BrowserSupportPage/index")
+    component: () => import("../pages/getting-started/BrowserSupportPage/index"),
   },
   {
     path: "/getting-started/faq",
-    component: () => import("../pages/getting-started/FaqPage/index")
+    component: () => import("../pages/getting-started/FaqPage/index"),
   },
 
   // Guide
   {
     path: "/guide/accessibility",
-    component: () => import("../pages/guide/AccessibilityPage/index")
+    component: () => import("../pages/guide/AccessibilityPage/index"),
   },
   {
     path: "/guide/build",
-    component: () => import("../pages/guide/BuildStylesPage/index")
+    component: () => import("../pages/guide/BuildStylesPage/index"),
   },
   {
     path: "/directives/click-outside",
-    component: () => import("../pages/directives/ClickOutsidePage/index")
+    component: () => import("../pages/directives/ClickOutsidePage/index"),
   },
   {
     path: "/directives/intersect",
-    component: () => import("../pages/directives/IntersectPage/index")
+    component: () => import("../pages/directives/IntersectPage/index"),
   },
   {
     path: "/directives/mutate",
-    component: () => import("../pages/directives/MutatePage/index")
+    component: () => import("../pages/directives/MutatePage/index"),
   },
   {
     path: "/directives/resize",
-    component: () => import("../pages/directives/ResizePage/index")
+    component: () => import("../pages/directives/ResizePage/index"),
   },
   {
     path: "/directives/ripple",
-    component: () => import("../pages/directives/RipplePage/index")
+    component: () => import("../pages/directives/RipplePage/index"),
   },
   {
     path: "/directives/scroll",
-    component: () => import("../pages/directives/ScrollPage/index")
+    component: () => import("../pages/directives/ScrollPage/index"),
   },
   {
     path: "/directives/tooltip",
-    component: () => import("../pages/directives/TooltipPage/index")
+    component: () => import("../pages/directives/TooltipPage/index"),
   },
   {
     path: "/directives/touch",
-    component: () => import("../pages/directives/TouchPage/index")
+    component: () => import("../pages/directives/TouchPage/index"),
   },
   {
     path: "/labs/video",
-    component: () => import("../pages/labs/VideoPage/index")
+    component: () => import("../pages/labs/VideoPage/index"),
   },
   {
     path: "/labs/heatmap",
-    component: () => import("../pages/labs/HeatmapPage/index")
+    component: () => import("../pages/labs/HeatmapPage/index"),
+  },
+  {
+    path: "/labs/code-card",
+    component: () => import("../pages/labs/CodeCardPage/index"),
   },
 
   // Layout
   {
     path: "/layout/container",
-    component: () => import("../pages/layout/GridPage/index")
+    component: () => import("../pages/layout/GridPage/index"),
   },
   {
     path: "/layout/flex",
-    component: () => import("../pages/layout/FlexPage/index")
+    component: () => import("../pages/layout/FlexPage/index"),
   },
   {
     path: "/layout/space",
-    component: () => import("../pages/layout/FlexPage/index")
+    component: () => import("../pages/layout/FlexPage/index"),
   },
   {
     path: "/layout/grid",
-    component: () => import("../pages/layout/GridPage/index")
+    component: () => import("../pages/layout/GridPage/index"),
   },
   {
     path: "/layout/shell",
-    component: () => import("../pages/layout/LayoutShellPage/index")
+    component: () => import("../pages/layout/LayoutShellPage/index"),
   },
   {
     path: "/layout/sticky",
-    component: () => import("../pages/layout/StickyPage/index")
+    component: () => import("../pages/layout/StickyPage/index"),
   },
   {
     path: "/layout/splitter",
-    component: () => import("../pages/layout/SplitterPage/index")
+    component: () => import("../pages/layout/SplitterPage/index"),
   },
   {
     path: "/layout/scrollbar",
-    component: () => import("../pages/layout/ScrollbarPage/index")
+    component: () => import("../pages/layout/ScrollbarPage/index"),
   },
   {
     path: "/layout/masonry",
-    component: () => import("../pages/layout/MasonryPage/index")
+    component: () => import("../pages/layout/MasonryPage/index"),
   },
   {
     path: "/layout/toolbar",
-    component: () => import("../pages/layout/ToolbarPage/index")
+    component: () => import("../pages/layout/ToolbarPage/index"),
   },
 
   // Basic
   {
     path: "/basic/button",
-    component: () => import("../pages/basic/ButtonPage/index")
+    component: () => import("../pages/basic/ButtonPage/index"),
   },
   {
     path: "/basic/link",
-    component: () => import("../pages/basic/LinkPage/index")
+    component: () => import("../pages/basic/LinkPage/index"),
   },
   {
     path: "/basic/icon",
-    component: () => import("../pages/basic/IconPage/index")
+    component: () => import("../pages/basic/IconPage/index"),
   },
   {
     path: "/basic/text",
-    component: () => import("../pages/basic/TextPage/index")
+    component: () => import("../pages/basic/TextPage/index"),
+  },
+  {
+    path: "/basic/quote",
+    component: () => import("../pages/basic/QuotePage/index"),
   },
   {
     path: "/basic/tag",
-    component: () => import("../pages/basic/TagPage/index")
+    component: () => import("../pages/basic/TagPage/index"),
   },
   {
     path: "/basic/badge",
-    component: () => import("../pages/basic/BadgePage/index")
+    component: () => import("../pages/basic/BadgePage/index"),
   },
   {
     path: "/basic/avatar",
-    component: () => import("../pages/basic/AvatarPage/index")
+    component: () => import("../pages/basic/AvatarPage/index"),
   },
 
   // Form
   {
     path: "/form/input",
-    component: () => import("../pages/form/InputPage/index")
+    component: () => import("../pages/form/InputPage/index"),
   },
   {
     path: "/form/input-otp",
-    component: () => import("../pages/form/InputOtpPage/index")
+    component: () => import("../pages/form/InputOtpPage/index"),
   },
   {
     path: "/form/input-tag",
-    component: () => import("../pages/form/InputTagPage/index")
+    component: () => import("../pages/form/InputTagPage/index"),
   },
   {
     path: "/form/autocomplete",
-    component: () => import("../pages/form/AutocompletePage/index")
+    component: () => import("../pages/form/AutocompletePage/index"),
   },
   {
     path: "/form/mention",
-    component: () => import("../pages/form/MentionPage/index")
+    component: () => import("../pages/form/MentionPage/index"),
   },
   {
     path: "/form/input-number",
-    component: () => import("../pages/form/InputNumberPage/index")
+    component: () => import("../pages/form/InputNumberPage/index"),
   },
   {
     path: "/form/textarea",
-    component: () => import("../pages/form/TextareaPage/index")
+    component: () => import("../pages/form/TextareaPage/index"),
   },
   {
     path: "/form/switch",
-    component: () => import("../pages/form/SwitchPage/index")
+    component: () => import("../pages/form/SwitchPage/index"),
   },
   {
     path: "/form/checkbox",
-    component: () => import("../pages/form/CheckboxPage/index")
+    component: () => import("../pages/form/CheckboxPage/index"),
   },
   {
     path: "/form/radio",
-    component: () => import("../pages/form/RadioPage/index")
+    component: () => import("../pages/form/RadioPage/index"),
   },
   {
     path: "/form/select",
-    component: () => import("../pages/form/SelectPage/index")
+    component: () => import("../pages/form/SelectPage/index"),
   },
   {
     path: "/form/tree-select",
-    component: () => import("../pages/form/TreeSelectPage/index")
+    component: () => import("../pages/form/TreeSelectPage/index"),
   },
   {
     path: "/form/segmented",
-    component: () => import("../pages/form/SegmentedPage/index")
+    component: () => import("../pages/form/SegmentedPage/index"),
   },
   {
     path: "/form/cascader",
-    component: () => import("../pages/form/CascaderPage/index")
+    component: () => import("../pages/form/CascaderPage/index"),
   },
   {
     path: "/form/form",
-    component: () => import("../pages/form/FormPage/index")
+    component: () => import("../pages/form/FormPage/index"),
   },
   {
     path: "/form/upload",
-    component: () => import("../pages/form/UploadPage/index")
+    component: () => import("../pages/form/UploadPage/index"),
   },
   {
     path: "/form/rate",
-    component: () => import("../pages/form/RatePage/index")
+    component: () => import("../pages/form/RatePage/index"),
   },
   {
     path: "/form/slider",
-    component: () => import("../pages/form/SliderPage/index")
+    component: () => import("../pages/form/SliderPage/index"),
   },
   {
     path: "/form/debug",
-    component: () => import("../pages/form/DebugPage/index")
+    component: () => import("../pages/form/DebugPage/index"),
   },
 
   // Feedback
   {
     path: "/feedback/alert",
-    component: () => import("../pages/feedback/AlertPage/index")
+    component: () => import("../pages/feedback/AlertPage/index"),
   },
   {
     path: "/feedback/loading",
-    component: () => import("../pages/feedback/LoadingPage/index")
+    component: () => import("../pages/feedback/LoadingPage/index"),
   },
   {
     path: "/feedback/message",
-    component: () => import("../pages/feedback/MessagePage/index")
+    component: () => import("../pages/feedback/MessagePage/index"),
   },
   {
     path: "/feedback/message-box",
-    component: () => import("../pages/feedback/MessageBoxPage/index")
+    component: () => import("../pages/feedback/MessageBoxPage/index"),
   },
   {
     path: "/feedback/dialog",
-    component: () => import("../pages/feedback/DialogPage/index")
+    component: () => import("../pages/feedback/DialogPage/index"),
   },
   {
     path: "/feedback/drawer",
-    component: () => import("../pages/feedback/DrawerPage/index")
+    component: () => import("../pages/feedback/DrawerPage/index"),
   },
   {
     path: "/feedback/notification",
-    component: () => import("../pages/feedback/NotificationPage/index")
+    component: () => import("../pages/feedback/NotificationPage/index"),
   },
   {
     path: "/feedback/tooltip",
-    component: () => import("../pages/feedback/TooltipPage/index")
+    component: () => import("../pages/feedback/TooltipPage/index"),
   },
   {
     path: "/feedback/pop-confirm",
-    component: () => import("../pages/feedback/PopConfirmPage/index")
+    component: () => import("../pages/feedback/PopConfirmPage/index"),
   },
   {
     path: "/feedback/tour",
-    component: () => import("../pages/feedback/TourPage/index")
+    component: () => import("../pages/feedback/TourPage/index"),
   },
 
   // Data
   {
     path: "/data/divider",
-    component: () => import("../pages/data/DividerPage/index")
+    component: () => import("../pages/data/DividerPage/index"),
   },
   {
     path: "/data/empty",
-    component: () => import("../pages/data/EmptyPage/index")
+    component: () => import("../pages/data/EmptyPage/index"),
   },
   {
     path: "/data/result",
-    component: () => import("../pages/data/ResultPage/index")
+    component: () => import("../pages/data/ResultPage/index"),
   },
   {
     path: "/data/collapse",
-    component: () => import("../pages/data/CollapsePage/index")
+    component: () => import("../pages/data/CollapsePage/index"),
   },
   {
     path: "/data/descriptions",
-    component: () => import("../pages/data/DescriptionsPage/index")
+    component: () => import("../pages/data/DescriptionsPage/index"),
   },
   {
     path: "/data/statistic",
-    component: () => import("../pages/data/StatisticPage/index")
+    component: () => import("../pages/data/StatisticPage/index"),
   },
   {
     path: "/data/watermark",
-    component: () => import("../pages/data/WatermarkPage/index")
+    component: () => import("../pages/data/WatermarkPage/index"),
   },
   {
     path: "/data/infinite-scroll",
-    component: () => import("../pages/data/InfiniteScrollPage/index")
+    component: () => import("../pages/data/InfiniteScrollPage/index"),
   },
   {
     path: "/data/image",
-    component: () => import("../pages/data/ImagePage/index")
+    component: () => import("../pages/data/ImagePage/index"),
+  },
+  {
+    path: "/data/sparkline",
+    component: () => import("../pages/data/SparklinePage/index"),
   },
   {
     path: "/data/parallax",
-    component: () => import("../pages/data/ParallaxPage/index")
+    component: () => import("../pages/data/ParallaxPage/index"),
   },
   {
     path: "/data/transfer",
-    component: () => import("../pages/data/TransferPage/index")
+    component: () => import("../pages/data/TransferPage/index"),
   },
   {
     path: "/data/card",
-    component: () => import("../pages/data/CardPage/index")
+    component: () => import("../pages/data/CardPage/index"),
   },
   {
     path: "/data/pagination",
-    component: () => import("../pages/data/PaginationPage/index")
+    component: () => import("../pages/data/PaginationPage/index"),
   },
   {
     path: "/data/progress",
-    component: () => import("../pages/data/ProgressPage/index")
+    component: () => import("../pages/data/ProgressPage/index"),
   },
   {
     path: "/data/table",
-    component: () => import("../pages/data/TablePage/index")
+    component: () => import("../pages/data/TablePage/index"),
   },
   {
     path: "/data/virtual-table",
-    component: () => import("../pages/data/VirtualTablePage/index")
+    component: () => import("../pages/data/VirtualTablePage/index"),
   },
   {
     path: "/data/list",
-    component: () => import("../pages/data/ListPage/index")
+    component: () => import("../pages/data/ListPage/index"),
   },
   {
     path: "/data/virtual-list",
-    component: () => import("../pages/data/VirtualListPage/index")
+    component: () => import("../pages/data/VirtualListPage/index"),
   },
   {
     path: "/data/skeleton",
-    component: () => import("../pages/data/SkeletonPage/index")
+    component: () => import("../pages/data/SkeletonPage/index"),
   },
   {
     path: "/data/carousel",
-    component: () => import("../pages/data/CarouselPage/index")
+    component: () => import("../pages/data/CarouselPage/index"),
   },
   {
     path: "/data/timeline",
-    component: () => import("../pages/data/TimelinePage/index")
+    component: () => import("../pages/data/TimelinePage/index"),
   },
   {
     path: "/data/tree",
-    component: () => import("../pages/data/TreePage/index")
+    component: () => import("../pages/data/TreePage/index"),
   },
 
   // Navigation
   {
     path: "/navigation/anchor",
-    component: () => import("../pages/navigation/AnchorPage/index")
+    component: () => import("../pages/navigation/AnchorPage/index"),
   },
   {
     path: "/navigation/backtop",
-    component: () => import("../pages/navigation/BackTopPage/index")
+    component: () => import("../pages/navigation/BackTopPage/index"),
   },
   {
     path: "/navigation/breadcrumb",
-    component: () => import("../pages/navigation/BreadcrumbPage/index")
+    component: () => import("../pages/navigation/BreadcrumbPage/index"),
   },
   {
     path: "/navigation/dropdown",
-    component: () => import("../pages/navigation/DropdownPage/index")
+    component: () => import("../pages/navigation/DropdownPage/index"),
   },
   {
     path: "/navigation/menu",
-    component: () => import("../pages/navigation/MenuPage/index")
+    component: () => import("../pages/navigation/MenuPage/index"),
   },
   {
     path: "/navigation/tabs",
-    component: () => import("../pages/navigation/TabsPage/index")
+    component: () => import("../pages/navigation/TabsPage/index"),
   },
   {
     path: "/navigation/steps",
-    component: () => import("../pages/navigation/StepsPage/index")
+    component: () => import("../pages/navigation/StepsPage/index"),
   },
   {
     path: "/navigation/page-header",
-    component: () => import("../pages/navigation/PageHeaderPage/index")
+    component: () => import("../pages/navigation/PageHeaderPage/index"),
   },
   {
     path: "/navigation/app-bar",
-    component: () => import("../pages/navigation/AppBarPage/index")
+    component: () => import("../pages/navigation/AppBarPage/index"),
   },
   {
     path: "/navigation/bottom-navigation",
-    component: () => import("../pages/navigation/BottomNavigationPage/index")
+    component: () => import("../pages/navigation/BottomNavigationPage/index"),
   },
   {
     path: "/navigation/footer",
-    component: () => import("../pages/navigation/FooterPage/index")
+    component: () => import("../pages/navigation/FooterPage/index"),
   },
 
   // Picker
   {
     path: "/picker/color",
-    component: () => import("../pages/picker/ColorPickerPage/index")
+    component: () => import("../pages/picker/ColorPickerPage/index"),
   },
   {
     path: "/picker/date",
-    component: () => import("../pages/picker/DatePickerPage/index")
+    component: () => import("../pages/picker/DatePickerPage/index"),
   },
   {
     path: "/picker/date-time",
-    component: () => import("../pages/picker/DateTimePickerPage/index")
+    component: () => import("../pages/picker/DateTimePickerPage/index"),
   },
   {
     path: "/picker/time",
-    component: () => import("../pages/picker/TimePickerPage/index")
+    component: () => import("../pages/picker/TimePickerPage/index"),
   },
   {
     path: "/picker/time-select",
-    component: () => import("../pages/picker/TimeSelectPage/index")
+    component: () => import("../pages/picker/TimeSelectPage/index"),
   },
   {
     path: "/picker/calendar",
-    component: () => import("../pages/picker/CalendarPage/index")
+    component: () => import("../pages/picker/CalendarPage/index"),
   },
 
   // Providers
   {
     path: "/providers/config",
-    component: () => import("../pages/providers/ConfigProviderPage/index")
+    component: () => import("../pages/providers/ConfigProviderPage/index"),
   },
   {
     path: "/providers/defaults",
-    component: () => import("../pages/providers/DefaultsProviderPage/index")
+    component: () => import("../pages/providers/DefaultsProviderPage/index"),
   },
   {
     path: "/providers/locale",
-    component: () => import("../pages/providers/LocaleProviderPage/index")
+    component: () => import("../pages/providers/LocaleProviderPage/index"),
   },
   {
     path: "/providers/theme",
-    component: () => import("../pages/providers/ThemeProviderPage/index")
+    component: () => import("../pages/providers/ThemeProviderPage/index"),
   },
 
   // Utilities
   {
     path: "/utilities",
-    component: () => import("../pages/utilities/UtilitiesPage/index")
+    component: () => import("../pages/utilities/UtilitiesPage/index"),
   },
   ...[
-    "borders", "border-radius", "content", "cursor", "display", "elevation", "flex",
-    "float", "opacity", "overflow", "position", "sizing", "spacing", "typography"
+    "borders",
+    "border-radius",
+    "content",
+    "cursor",
+    "display",
+    "elevation",
+    "flex",
+    "float",
+    "opacity",
+    "overflow",
+    "position",
+    "sizing",
+    "spacing",
+    "typography",
   ].map((section) => ({
     path: `/utilities/${section}`,
-    component: () => import("../pages/utilities/UtilitiesPage/index")
-  }))
+    component: () => import("../pages/utilities/UtilitiesPage/index"),
+  })),
 ];
 
 export interface NavItem {
@@ -470,13 +504,27 @@ export interface NavItem {
 }
 
 export const navItems: NavItem[] = [
-  { to: "/getting-started/installation", text: "Installation 安装", group: "Getting started 快速入门" },
-  { to: "/getting-started/upgrade-guide", text: "Upgrade guide 升级指南", group: "Getting started 快速入门" },
-  { to: "/getting-started/browser-support", text: "Browser support 浏览器支持", group: "Getting started 快速入门" },
+  { to: "/overview", text: "Overview 组件总览" },
+  {
+    to: "/getting-started/installation",
+    text: "Installation 安装",
+    group: "Getting started 快速入门",
+  },
+  {
+    to: "/getting-started/upgrade-guide",
+    text: "Upgrade guide 升级指南",
+    group: "Getting started 快速入门",
+  },
+  {
+    to: "/getting-started/browser-support",
+    text: "Browser support 浏览器支持",
+    group: "Getting started 快速入门",
+  },
   { to: "/getting-started/faq", text: "FAQ 常见问题", group: "Getting started 快速入门" },
 
   { to: "/providers/config", text: "Global configuration 全局配置", group: "Guide 指南" },
   { to: "/providers/theme", text: "Theme & customization 主题与个性化", group: "Guide 指南" },
+  { to: "/theme-studio", text: "Theme Studio 主题调色板", group: "Guide 指南" },
   { to: "/basic/icon", text: "Icons 图标配置", group: "Guide 指南" },
   { to: "/providers/locale", text: "Internationalization 国际化", group: "Guide 指南" },
   { to: "/guide/accessibility", text: "Accessibility 无障碍", group: "Guide 指南" },
@@ -495,6 +543,7 @@ export const navItems: NavItem[] = [
   { to: "/basic/button", text: "Button 按钮", group: "Basic 基础" },
   { to: "/basic/link", text: "Link 链接", group: "Basic 基础" },
   { to: "/basic/text", text: "Text 文本", group: "Basic 基础" },
+  { to: "/basic/quote", text: "Quote 引用", group: "Basic 基础" },
   { to: "/basic/tag", text: "Tag 标签", group: "Basic 基础" },
   { to: "/basic/badge", text: "Badge 徽章", group: "Basic 基础" },
   { to: "/basic/avatar", text: "Avatar 头像", group: "Basic 基础" },
@@ -538,6 +587,7 @@ export const navItems: NavItem[] = [
   { to: "/data/watermark", text: "Watermark 水印", group: "Data 数据展示" },
   { to: "/data/infinite-scroll", text: "InfiniteScroll 无限滚动", group: "Data 数据展示" },
   { to: "/data/image", text: "Image 图片", group: "Data 数据展示" },
+  { to: "/data/sparkline", text: "Sparkline 迷你图表", group: "Data 数据展示" },
   { to: "/data/parallax", text: "Parallax 视差滚动", group: "Data 数据展示" },
   { to: "/data/transfer", text: "Transfer 穿梭框", group: "Data 数据展示" },
   { to: "/data/card", text: "Card 卡片", group: "Data 数据展示" },
@@ -561,7 +611,11 @@ export const navItems: NavItem[] = [
   { to: "/navigation/steps", text: "Steps 步骤条", group: "Navigation 导航" },
   { to: "/navigation/page-header", text: "PageHeader 页头", group: "Navigation 导航" },
   { to: "/navigation/app-bar", text: "AppBar 应用栏", group: "Navigation 导航" },
-  { to: "/navigation/bottom-navigation", text: "BottomNavigation 底部导航栏", group: "Navigation 导航" },
+  {
+    to: "/navigation/bottom-navigation",
+    text: "BottomNavigation 底部导航栏",
+    group: "Navigation 导航",
+  },
   { to: "/navigation/footer", text: "Footer 页脚", group: "Navigation 导航" },
 
   { to: "/picker/color", text: "ColorPicker 颜色", group: "Picker 选择器" },
@@ -582,4 +636,5 @@ export const navItems: NavItem[] = [
 
   { to: "/labs/video", text: "Video 视频", group: "Labs 实验室" },
   { to: "/labs/heatmap", text: "Heatmap 热力图", group: "Labs 实验室" },
+  { to: "/labs/code-card", text: "Code Card 代码卡片", group: "Labs 实验室" },
 ];

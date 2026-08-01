@@ -11,8 +11,8 @@ const t = createDocsTranslator({
   title: { zh: "栅格布局", en: "Grid layout" },
   description: {
     zh: "一个页面覆盖页面容器、栅格与栅格项，以统一编号结构图展示列宽、偏移和响应式关系。",
-    en: "One page covers Container, Grid, and GridItem with consistent numbered diagrams for spans, offsets, and responsive behavior."
-  }
+    en: "One page covers Container, Grid, and GridItem with consistent numbered diagrams for spans, offsets, and responsive behavior.",
+  },
 });
 
 useComponents({
@@ -20,13 +20,12 @@ useComponents({
   "page-grid-ex2": PageGridEx2,
   "page-grid-ex3": PageGridEx3,
   "page-grid-ex4": PageGridEx4,
-  "page-grid-props": PageGridProps
+  "page-grid-props": PageGridProps,
 });
 
 const PageGrid = defineHtml(`
   <elf-container>
-    <h1>${t("title")}</h1>
-    <p>${t("description")}</p>
+    <elf-docs-hero category="layout" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
     <page-grid-ex1 />
     <page-grid-ex2 />
     <page-grid-ex3 />

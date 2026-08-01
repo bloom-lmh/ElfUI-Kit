@@ -8,14 +8,15 @@ import { PageSliderEx5 } from "./ex5";
 import { PageSliderEx6 } from "./ex6";
 import { PageSliderEx7 } from "./ex7";
 import { PageSliderEx8 } from "./ex8";
+import { PageSliderEx9 } from "./ex9";
 import { PageSliderProps } from "./props";
 
 const t = createDocsTranslator({
   title: { zh: "滑块", en: "Slider" },
   description: {
     zh: "用于连续或区间数值选择，支持步进、刻度、输入框、纵向模式与自定义提示。",
-    en: "Select a continuous value or range with steps, marks, numeric input, vertical orientation, and custom tooltips."
-  }
+    en: "Select a continuous value or range with steps, marks, numeric input, vertical orientation, and custom tooltips.",
+  },
 });
 
 useComponents({
@@ -27,13 +28,13 @@ useComponents({
   "page-slider-ex6": PageSliderEx6,
   "page-slider-ex7": PageSliderEx7,
   "page-slider-ex8": PageSliderEx8,
-  "page-slider-props": PageSliderProps
+  "page-slider-ex9": PageSliderEx9,
+  "page-slider-props": PageSliderProps,
 });
 
 const PageSlider = defineHtml(`
   <elf-container>
-    <h1>${t("title")}</h1>
-    <p>${t("description")}</p>
+    <elf-docs-hero category="form" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
     <page-slider-ex1></page-slider-ex1>
     <page-slider-ex2></page-slider-ex2>
     <page-slider-ex3></page-slider-ex3>
@@ -42,6 +43,7 @@ const PageSlider = defineHtml(`
     <page-slider-ex6></page-slider-ex6>
     <page-slider-ex7></page-slider-ex7>
     <page-slider-ex8></page-slider-ex8>
+    <page-slider-ex9></page-slider-ex9>
     <page-slider-props></page-slider-props>
   </elf-container>
 `);

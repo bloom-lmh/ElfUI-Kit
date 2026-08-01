@@ -34,7 +34,9 @@ describe("elf-video", () => {
     const video = el.getMediaElement!()!;
     expect(video.getAttribute("src")).toBe("demo.mp4");
     expect(el.shadowRoot!.querySelector(".center-action")?.getAttribute("aria-label")).toBe("Play");
-    expect(el.shadowRoot!.querySelector(".video-shell")?.getAttribute("aria-label")).toBe("Product overview");
+    expect(el.shadowRoot!.querySelector(".video-shell")?.getAttribute("aria-label")).toBe(
+      "Product overview",
+    );
     expect(el.shadowRoot!.querySelector<HTMLButtonElement>(".rate")?.textContent).toContain("1x");
     expect(el.shadowRoot!.querySelector(".fullscreen-icon")).toBeTruthy();
   });
@@ -64,7 +66,12 @@ describe("elf-video", () => {
     const volumeInput = root.querySelector<HTMLInputElement>(".volume-slider")!;
     volumeInput.value = "0.4";
     volumeInput.dispatchEvent(new Event("input", { bubbles: true }));
+    await tick();
     expect(el.getMediaElement!()!.volume).toBeCloseTo(0.4);
+    expect(root.querySelector(".volume-popover output")?.textContent).toBe("40%");
+    expect(root.querySelectorAll(".volume-meter i.active")).toHaveLength(2);
+    expect(root.querySelectorAll(".volume-icon i.active")).toHaveLength(2);
+    expect(el.style.getPropertyValue("--_video-volume")).toBe("40%");
 
     root.querySelector<HTMLButtonElement>(".rate")!.click();
     await tick();

@@ -4,5 +4,6 @@ import { registerComponents } from "@elfui/core";
 import { Playground } from "./Playground/index";
 import { PropsTable } from "./PropsTable/index";
 import { DocsToc } from "./DocsToc/index";
+import { DocsHero } from "./DocsHero/index";
 
-registerComponents(Playground, PropsTable, DocsToc);
+registerComponents(Playground, PropsTable, DocsToc, DocsHero);

@@ -14,9 +14,11 @@ import {
   useEventListener,
   useHost,
   useHostAttr,
+  useHostCssVar,
   useHostFlag,
   useRef,
 } from "@elfui/core";
+import { mdiChevronDown } from "@mdi/js";
 
 import styles from "./style.scss?inline";
 import {
@@ -25,6 +27,7 @@ import {
   readOverlayViewport,
 } from "../../Common/overlay/anchored-overlay";
 import { useDismissibleOverlay } from "../../../composables/useDismissibleOverlay";
+import { normalizeFieldVariant } from "../../../types/field";
 import { useLocaleProvider } from "../../Providers/context";
 import {
   asStringList,
@@ -76,6 +79,7 @@ export type {
   DropdownSlots,
   DropdownTrigger,
   DropdownTriggerMode,
+  DropdownVariant,
   DropdownVirtualRef,
 } from "./types";
 
@@ -89,6 +93,8 @@ const props = defineProps<DropdownProps>({
   trigger: { type: [String, Array], default: "click" },
   placement: { type: String, default: "bottom-start" },
   size: { type: String, default: "md" },
+  variant: { type: String, default: "filled" },
+  backgroundColor: { type: String, default: "" },
   type: { type: String, default: "default" },
   buttonProps: { type: Object, default: () => ({}) },
   effect: { type: String, default: "light" },
@@ -161,14 +167,20 @@ const size = useComputed(() => resolveSize(props.size));
 
 const buttonType = useComputed(() => resolveButtonType(props.type));
 
-const fieldNames = useComputed(() => resolveFieldNames(props.props as DropdownFieldNames | undefined));
+const fieldNames = useComputed(() =>
+  resolveFieldNames(props.props as DropdownFieldNames | undefined),
+);
 
-const viewItems = useComputed(() => normalizeItems(Array.isArray(props.items) ? props.items : [], fieldNames.value));
+const viewItems = useComputed(() =>
+  normalizeItems(Array.isArray(props.items) ? props.items : [], fieldNames.value),
+);
 
 const triggerKeys = useComputed(() => asStringList(props.triggerKeys, DEFAULT_TRIGGER_KEYS));
 
 const buttonPropsMap = useComputed<Record<string, unknown>>(() =>
-  props.buttonProps && typeof props.buttonProps === "object" ? (props.buttonProps as Record<string, unknown>) : {},
+  props.buttonProps && typeof props.buttonProps === "object"
+    ? (props.buttonProps as Record<string, unknown>)
+    : {},
 );
 
 const buttonDisabled = useComputed(() => isDisabled() || Boolean(buttonPropsMap.value.disabled));
@@ -205,19 +217,30 @@ const shouldRenderTrigger = useComputed(() => !props.virtualTriggering);
 
 const isSplitButton = useComputed(() => Boolean(props.splitButton));
 
+const splitFieldClass = useComputed<unknown[]>(() => [
+  "split-field",
+  `is-${buttonType.value}`,
+  String(buttonPropsMap.value.class || ""),
+]);
+
 const triggerTabindex = useComputed(() => Number(props.tabindex) || 0);
 
 const showsArrow = useComputed(() => Boolean(props.showArrow));
 
 const popoverMode = useComputed(() => (props.teleported ? "manual" : undefined));
 
-const appendTargetLabel = useComputed(() => (typeof props.appendTo === "string" ? props.appendTo : "element"));
+const appendTargetLabel = useComputed(() =>
+  typeof props.appendTo === "string" ? props.appendTo : "element",
+);
 
 const hasCompositionalMenu = (): boolean => Boolean(host.querySelector("elf-dropdown-menu"));
 
-const menuRole = (): string => (hasCompositionalMenu() ? "presentation" : String(props.role || "menu"));
+const menuRole = (): string =>
+  hasCompositionalMenu() ? "presentation" : String(props.role || "menu");
 
-const triggerLabel = useComputed(() => selectedLabel.value || String(props.label || locale.t("menu.label")));
+const triggerLabel = useComputed(
+  () => selectedLabel.value || String(props.label || locale.t("menu.label")),
+);
 
 const isSelected = (item: DropdownViewItem): boolean =>
   selectedCommand.value !== null && item.command === selectedCommand.value;
@@ -240,8 +263,12 @@ const getMenuEl = (): HTMLElement | null => host.shadowRoot?.querySelector(".men
 const getFocusableItems = (): HTMLElement[] => {
   const menu = getMenuEl();
   if (!menu) return [];
-  const dataItems = Array.from(menu.querySelectorAll<HTMLElement>(".item:not(:disabled), .sub-trigger:not(:disabled)"));
-  const composedItems = Array.from(host.querySelectorAll<HTMLElement>("elf-dropdown-item:not([disabled])"))
+  const dataItems = Array.from(
+    menu.querySelectorAll<HTMLElement>(".item:not(:disabled), .sub-trigger:not(:disabled)"),
+  );
+  const composedItems = Array.from(
+    host.querySelectorAll<HTMLElement>("elf-dropdown-item:not([disabled])"),
+  )
     .map((item) => item.shadowRoot?.querySelector<HTMLElement>(".dropdown-item") ?? null)
     .filter((item): item is HTMLElement => Boolean(item));
   return [...dataItems, ...composedItems];
@@ -350,7 +377,8 @@ const deepestActiveElement = (): HTMLElement | null => {
 const restoreFocusBeforeClose = (): void => {
   const activeElement = deepestActiveElement();
   const focusIsInMenu =
-    activeElement && getFocusableItems().some((item) => item === activeElement || item.contains(activeElement));
+    activeElement &&
+    getFocusableItems().some((item) => item === activeElement || item.contains(activeElement));
   if (!focusIsInMenu) return;
 
   const target = anchorReference();
@@ -493,7 +521,9 @@ const onCompositionalCommand = (
   selectedCommand.set(detail.command);
   selectedLabel.set(detail.label);
   Array.from(
-    host.querySelectorAll<HTMLElement & { command?: DropdownCommand; selected?: boolean }>("elf-dropdown-item"),
+    host.querySelectorAll<HTMLElement & { command?: DropdownCommand; selected?: boolean }>(
+      "elf-dropdown-item",
+    ),
   ).forEach((item) => {
     item.selected = item.command === detail.command;
   });
@@ -508,7 +538,8 @@ const resolveFocusedIndex = (items: HTMLElement[], event?: KeyboardEvent): numbe
   );
   if (pathIndex >= 0) return pathIndex;
   const root = host.shadowRoot;
-  const current = (root?.activeElement as HTMLElement | null) || (document.activeElement as HTMLElement | null);
+  const current =
+    (root?.activeElement as HTMLElement | null) || (document.activeElement as HTMLElement | null);
   if (!current) return -1;
   const direct = items.indexOf(current);
   if (direct >= 0) return direct;
@@ -562,7 +593,11 @@ const onMenuKeydown = (event: KeyboardEvent): void => {
 
 const dismissibleOverlay = useDismissibleOverlay({
   kind: "dropdown",
-  containers: () => [host, getMenuEl(), anchorReference() instanceof Element ? (anchorReference() as Element) : null],
+  containers: () => [
+    host,
+    getMenuEl(),
+    anchorReference() instanceof Element ? (anchorReference() as Element) : null,
+  ],
   closeOnEscape: () => true,
   closeOnOutside: () => props.closeOnClickOutside !== false,
   onRequestClose: () => hide(),
@@ -573,7 +608,9 @@ useEventListener(host, "keydown", (event) => {
   const keyboardEvent = event as KeyboardEvent;
   const fromItem = keyboardEvent
     .composedPath()
-    .some((node) => node instanceof HTMLElement && node.tagName.toLowerCase() === "elf-dropdown-item");
+    .some(
+      (node) => node instanceof HTMLElement && node.tagName.toLowerCase() === "elf-dropdown-item",
+    );
   if (fromItem) onMenuKeydown(keyboardEvent);
 });
 
@@ -582,7 +619,9 @@ const connectVirtualTrigger = (): void => {
   if (!props.virtualTriggering || typeof window === "undefined") return;
   const target = virtualRef();
   const canListen =
-    target && typeof target.addEventListener === "function" && typeof target.removeEventListener === "function";
+    target &&
+    typeof target.addEventListener === "function" &&
+    typeof target.removeEventListener === "function";
   if (canListen) {
     target.addEventListener!("click", onTriggerClick as EventListener);
     target.addEventListener!("keydown", onTriggerKeydown as EventListener);
@@ -623,9 +662,11 @@ useHostFlag("data-open", () => open.value);
 useHostFlag("data-virtual-triggering", () => Boolean(props.virtualTriggering));
 useHostFlag("disabled", isDisabled);
 useHostAttr("size", () => size.value);
+useHostAttr("variant", () => normalizeFieldVariant(props.variant));
 useHostAttr("type", () => buttonType.value);
 useHostAttr("effect", () => String(props.effect || "light"));
 useHostAttr("placement", placement);
+useHostCssVar("--elf-field-custom-bg", () => props.backgroundColor || "");
 
 useEventListener<CustomEvent<HTMLElement>>(document, DROPDOWN_OPEN_EVENT, (event) => {
   if (event.detail !== host) closeDropdown();
@@ -691,26 +732,29 @@ const Dropdown = defineHtml<DropdownProps, DropdownEmits, DropdownSlots>(`
     <button v-if=${shouldRenderTrigger && !isSplitButton} :class=${buttonClass("trigger")} :style=${buttonStyle} part="trigger"
       type="button" :disabled=${buttonDisabled} :aria-expanded=${open ? "true" : "false"} aria-haspopup="menu"
       :tabindex=${triggerTabindex} @click=${onTriggerClick} @keydown=${onTriggerKeydown}>
+      <fieldset class="field-outline" aria-hidden="true"></fieldset>
       <slot>
         <slot name="trigger">
           <span class="label">${triggerLabel}</span>
-          <span class="arrow" v-if=${showsArrow} aria-hidden="true">▼</span>
+          <svg class="arrow" v-if=${showsArrow} viewBox="0 0 24 24" aria-hidden="true"><path :d=${mdiChevronDown}></path></svg>
         </slot>
       </slot>
     </button>
 
     <template v-if=${shouldRenderTrigger && isSplitButton}>
-      <button :class=${buttonClass("split-main")} :style=${buttonStyle} part="main" type="button" :disabled=${buttonDisabled}
-        @click=${onMainClick}>
-        <slot>
-          <slot name="main">${triggerLabel}</slot>
-        </slot>
-      </button>
-      <button :class=${buttonClass("split-toggle")} part="trigger" type="button" :disabled=${buttonDisabled}
-        :aria-expanded=${open ? "true" : "false"} aria-haspopup="menu" :tabindex=${triggerTabindex} @click=${onTriggerClick}
-        @keydown=${onTriggerKeydown} :aria-label=${locale.t("menu.expand")}>
-        <span class="arrow" v-if=${showsArrow} aria-hidden="true">▼</span>
-      </button>
+      <div :class=${splitFieldClass} :style=${buttonStyle}>
+        <fieldset class="field-outline" aria-hidden="true"></fieldset>
+        <button class="split-main" part="main" type="button" :disabled=${buttonDisabled} @click=${onMainClick}>
+          <slot>
+            <slot name="main">${triggerLabel}</slot>
+          </slot>
+        </button>
+        <button class="split-toggle" part="trigger" type="button" :disabled=${buttonDisabled}
+          :aria-expanded=${open ? "true" : "false"} aria-haspopup="menu" :tabindex=${triggerTabindex} @click=${onTriggerClick}
+          @keydown=${onTriggerKeydown} :aria-label=${locale.t("menu.expand")}>
+          <svg class="arrow" v-if=${showsArrow} viewBox="0 0 24 24" aria-hidden="true"><path :d=${mdiChevronDown}></path></svg>
+        </button>
+      </div>
     </template>
 
     <div v-if=${shouldRenderMenu} :class=${menuClass} :style=${menuStyle} part="menu" :popover=${popoverMode}

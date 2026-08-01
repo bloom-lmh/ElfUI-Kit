@@ -1,8 +1,8 @@
-<!-- cspell:words Sparkline VIEWBOX -->
+<!-- cspell:words CodeCard Shiki Sparkline VIEWBOX -->
 
 # ElfUI Kit 维护交接
 
-更新时间：2026-07-31
+更新时间：2026-08-01
 
 本文件是持续更新的维护交接记录。每轮工作开始时先读取，完成一个阶段后立即更新，避免依赖对话上下文。
 
@@ -23,6 +23,17 @@
 - 工作树包含多批尚未提交的维护改动。不得回退不属于当前任务的文件。
 
 ## 2. 已经做的工作
+
+### 2026-08-01 组件文档视觉与交互统一批次
+
+- Select、Cascader、TreeSelect 与 Dropdown 的基础案例统一提供 Input 六种字段外观控制；前三者复用已有共享字段表面，Dropdown 补齐相同公开契约、分裂按钮结构、自定义背景和 Material 菜单表面。
+- 新增内部 DocsHero 并迁移 92 个公开组件页，统一 PageHeader banner、分类、标签、描述与版本信息；DocsHero、Playground、PropsTable 使用 `max(85%, min(100%, 900px))` 同一响应式宽度规则。
+- PropsTable 会把前置 API 标题提升到自身容器，解决标题左贴页面、表格居中的错位；语言切换和卸载恢复均有回归覆盖。
+- Playground 暗色模式重新区分标题、预览、控制台和源码层级；Video 增加五段音量图标、百分比、弹层音量计与进度变量；AppBar 引入 4px 方向容差和 collapse release hysteresis，消除 prominent 高度变化导致的阈值闪动。
+- Dropdown、AppBar 与 Sticky 示例升级为真实 Material 业务场景；Sticky disabled 不再是一条孤立说明条。
+- 已通过 TreeSelect 18 项、Common 25 项、Dropdown 文档页 1 项、Sticky 页面 2 项及 Dropdown/Video/AppBar/Sticky 其余聚焦回归。路由套件 19 项中 18 项通过，剩余 1 项为 Loading 离场过渡节点仍在 DOM 的时序断言，需作为独立既有问题继续核验。
+- 文档本地化审计 `540/540`、页面纯色案例守卫、目标 `git diff --check` 和应用构建通过；构建转换 1111 个模块，仅保留既有的大 chunk 警告。
+- `pnpm typecheck` 的 unsupported macro 扫描为 0 findings；后续仅被既有 OverviewCard、MessageBox 与 CodeCard 诊断阻断，本批文件未进入诊断清单。
 
 ### 2026-07-29 TableV2 层级展开
 
@@ -357,6 +368,23 @@
 - 当前仓库 ESLint 与本地化 strict 审计 `535/535` 通过；全量测试为 238/239 个文件、1666/1667 项通过，唯一失败是并行 `OverviewPage/style.scss` 渐变守卫。类型检查为 0 个 TypeScript 错误、并行 `OverviewCard/index.ts:24` 的 2 个宏错误；应用构建通过 969 个模块，`build:lib` 被同一前置错误阻断。
 - 格式棘轮被 24 个并行修改文件阻断，`format:check:all` 报告 1286 个历史或当前文件；CSpell 被并行 Sparkline 的 11 个文件、62 处词阻断。本批没有修改或回退这些文件。EP-01 暂不勾选，总进度仍为 `1/38`。
 
+### 2026-07-31 Image 案例外框修正
+
+- 根据浏览器标注移除对象适配案例 `elf-image` 宿主的外框边线；保留控制台舞台外框，不改变 Image 组件公共 API。
+- Image 页面聚焦测试 1 个文件、5 项通过；`git diff --check` 通过。
+- Chromium 复核 `/data/image`、`1048 x 856`、Midnight 英文，图片正常加载，控制台 0 warning / 0 error。
+- 截图：`docs/screenshots/2026-07-31/image-no-frame-comment.png`。
+
+### 2026-07-31 路由懒加载反馈与 List 图标
+
+- AppShell 通过 Router `beforeEach` / `afterEach` / `onError` 统一管理导航加载态；懒模块解析期间使用 `elf-progress` 显示顶部蓝色不确定进度条，并用 `elf-loading` 在内容区显示环形加载，不增加最短展示计时器。
+- 路由聚焦测试与 List 页面测试合跑为 2 个文件、15 项通过；目标 ESLint 与 `git diff --check` 通过，应用构建通过 969 个模块。类型检查仍只被既有 `OverviewCard/index.ts:24` 两条宏模板错误阻断。
+- List 受控选择案例改用 MDI IconProvider，4 个图标均渲染真实 SVG path，旧 `◇` 字符已移除；案例 Template / Script 同步展示第三方图标配置。
+- Chromium 复核加载开始时顶部进度与内容区遮罩同时存在，完成后同时移除；1440 x 900 List 与 390 x 844 Empty 页面无横向溢出，控制台 0 warning / 0 error。
+- 截图：`docs/screenshots/2026-07-31/route-loading-layout-desktop.png`、`docs/screenshots/2026-07-31/route-loading-layout-mobile.png`。
+- 后续修复 `elf-loading` 包裹导致案例页滚动失效的问题：通过公开 `part="loading"` 约束内部高度，让 `.docs-scroll` 独立承担垂直滚动；虚拟表格桌面实测 `scrollTop=520`，移动端 `scrollTop=402`，控制台 0 warning / 0 error。
+- 截图：`docs/screenshots/2026-07-31/virtual-table-scroll-desktop.png`、`docs/screenshots/2026-07-31/virtual-table-scroll-mobile.png`。
+
 ### 2026-07-31 OP-03 框架 API 收敛首批（验收待交互与门禁）
 
 - 新增框架 API 采用矩阵；Loading 声明式与命令式实例统一由 Core beta.20 `useScrollLock` 管理 body 锁，service 不再维护 `bodyLockCount` 或直接写 overflow。稳定 document 监听迁移到 Core `useEventListener`，动态事务和深 Shadow DOM 焦点保留现有 adapter 并记录原因。
@@ -424,6 +452,32 @@ pnpm build:lib
 node C:\Users\13575\.codex\skills\elfui-kit-component-authoring\scripts\check-beta8-migration.mjs
 ```
 
+### 2026-07-31 Footer 参考案例与 Bottom Navigation Shift 稳定性
+
+- Footer 的靛蓝、青绿案例已按本轮 Vuetify 参考图重做，保留全局主题继承并复用 ElfUI Button 与 MDI IconProvider；截图为 `docs/screenshots/2026-07-31/footer-vuetify-reference-cases.png`、`footer-teal-vuetify-reference.png`。
+- Bottom Navigation 的 base、grow、horizontal、shift、visibility 已拆分状态；Shift 不再改变图标 transform 或选中项宽度。移动端截图为 `docs/screenshots/2026-07-31/bottom-navigation-shift-stable-mobile.png`。
+- 聚焦测试 2 文件 15 项通过，Vite build 970 模块通过，浏览器控制台 0 warning / 0 error。`pnpm typecheck` 仍仅被并行 `src/components/Common/OverviewCard/index.ts:24` 的 2 条既有宏模板错误阻塞。
+
+### 2026-07-31 Alert 说明块并入现有组件
+
+- `elf-alert` 新增 `type="tip"` 和 `variant="soft"`，用于低强调静态说明块；默认值及已有 Alert 行为保持不变。页面新增双语案例和 Props API，推荐配合 `show-icon="false"`。
+- Alert 聚焦测试 1 个文件、14 项通过；文档国际化审计 `537/537`，目标 ESLint、CSpell、Prettier 与 `git diff --check` 通过；`pnpm build` 通过 1094 个模块，仅保留既有大 chunk 警告。
+- `pnpm typecheck` 两次在 184 秒外层时限内无输出而超时，未记为通过，也未终止不属于本批的 Node/Vitest 进程。
+- Chromium `/feedback/alert` 覆盖 1440x1000 Material 中文与 390x844 Midnight 英文：四块宽度与间距稳定，无图标、无文字或页面横向溢出，语义底色可区分，控制台 `0 warning / 0 error`。
+- 截图：`docs/screenshots/2026-07-31/alert-soft-desktop-material-zh.png`、`docs/screenshots/2026-07-31/alert-soft-mobile-midnight-en.png`。
+- 根据页面反馈将 Alert 表面圆角从 `--elf-radius-md`（8px）收敛到 `--elf-radius-sm`（4px）；1440x1000 与 390x844 下 27 个实例均为 4px，无横向溢出，控制台 `0 warning / 0 error`。Alert 聚焦测试 14/14、生产构建 1094 个模块通过。
+
+### 2026-07-31 Timeline、文档案例与 Quote 批次
+
+- Timeline 页面改为 Vuetify 风格的居中轴、38px 抬升节点和平面内容布局，并提供移动端单轴回退；移动端右侧项与双侧项现在会把实际内容正确归入单轴内容列；Sticky 首个案例改为 58px 结构化列表项。
+- Slider 四季范围统一为 `0..3` 离散刻度并修正双滑块起点；BackTop 与 Anchor 内容区重做，Anchor 在 390px 下单列且移除原生 range 滚动条。
+- Dropdown 触发器统一为输入框外观，虚拟触发器复用 `elf-input`；Skeleton 案例缩小并使用纯色 pulse，未保留渐变 shimmer。
+- 新增公开 `elf-quote`，覆盖 6 种语义色和 `soft`、`outlined`、`filled` 三种样式；本批页面标题说明已迁移为 Quote。
+- Click Outside 案例把排除触发器移到 Playground title/status，并解释其用途。控制器收敛为所属文档的单一监听源，修复真实 Shadow DOM 中同树外部点击漏报；模板状态使用响应式 ref 直接插值。
+- 最终 Click Outside 聚焦回归为 2 个文件、7 项通过；本批此前目标回归为 12 个文件、95 项通过。目标 `git diff --check` 通过。
+- Chromium `/directives/click-outside`、1440x1000、Material 中文：外部区域点击将计数从 0 更新到 1，随后点击排除触发器仍为 1；页面控制台 0 warning / 0 error。截图为 `docs/screenshots/2026-07-31/click-outside-interaction-desktop.png`。其余截图包括 `timeline-vuetify-desktop.png`、`sticky-list-desktop.png`、`slider-season-mobile.png`、`anchor-responsive-mobile.png` 与 `skeleton-compact-mobile.png`。
+- 并行资源争用曾使一次 `pnpm build` 无输出超时；释放资源后单独重跑最终通过，Vite 构建 `1096` 个模块，仅保留既有大 chunk 警告。`pnpm typecheck` 仍仅有既有 `OverviewCard` 与 `CodeCard` 宏模板诊断。
+
 ### 2026-07-31 OP-03 Observer 所有权子批次
 
 - DefaultsProvider 不再直接创建 `MutationObserver`，改用公开 `createMutateController`；组件聚焦测试 `8/8` 通过，DOM、公开 API、ARIA 与视觉均未改变。
@@ -432,3 +486,67 @@ node C:\Users\13575\.codex\skills\elfui-kit-component-authoring\scripts\check-be
 - Chromium `/data/parallax`：1440x1000 Midnight 英文内部滚动 `520px`，首个 offset `-2.48px -> -54.72px`；390x844 Material 中文内部滚动 `480px`，首个 offset `9.4px -> -48.98px`。两端无横向溢出，控制台 `0 warning / 0 error`；截图只用于现场检查，未保存。
 - `pnpm build` 通过 1096 个模块，仅保留既有大 chunk 警告。类型检查扫描 1114 个源文件、123 个宏组件，本批 0 TypeScript 错误，仅被并行 `OverviewCard/index.ts:24` 的 2 条宏模板诊断阻断。
 - 提交必须保持 DefaultsProvider 与 Parallax 两个独立原子边界；本批只推进 OP-03，不能外推为该工作包或仓库总门禁完成。
+
+### 2026-07-31 Overview catalog preview maintenance
+
+- `OverviewPage` now renders 98 route-aware cards using 23 preview kinds and 97 specific `data-detail` values. Link, Tag, Badge, Upload, Watermark, Empty, Result, Carousel, Transfer, PopConfirm, navigation surfaces, virtual data views, picker variants, directives, and Labs examples were corrected where their prior thumbnail was ambiguous.
+- Focused Vitest passed 3 files / 8 tests. Target ESLint, CSpell, Prettier, and `git diff --check` passed. `pnpm build` produced no output and timed out after 244 seconds; typecheck, full tests, and `build:lib` are not recorded as passing for this batch.
+- Browser matrix: 1440x1000 Material Chinese and 390x844 Midnight English. Audits reported 98 cards, 0 unknown details, 0 card overflow, 0 page overflow, 0 gradients, and 0 console warnings/errors.
+- Screenshots: `docs/screenshots/2026-07-31/overview-previews-desktop-material-zh.png` and `docs/screenshots/2026-07-31/overview-previews-mobile-midnight-en.png`.
+
+### 2026-07-31 Labs CodeCard
+
+- 新增 Labs `elf-code-card` 与 `/labs/code-card`：统一支持 workbench、window、minimal 三种外观，Shiki 多语言高亮，Prettier 分语言格式化，明暗与代码主题，展开/折叠，行号，复制，重点/聚焦/增删差异行，以及带可访问标签的代码组。
+- Clipboard API 被浏览器策略拒绝时会回退到兼容复制路径，并新增拒绝场景测试；390px 下语言选择器作为唯一可收缩项，三个操作按钮继续保持 44px 触控尺寸。最终实测卡片工具栏 `clientWidth = scrollWidth = 274px`，不再裁剪复制按钮。
+- 聚焦回归最终为 6 个文件、28 项通过；目标 Prettier、ESLint、CSpell 通过，`git diff --check` 仅报告并行文件的行尾转换提示。共享 `src/library.ts` 仍有并行格式差异，共享路由仍有 Sparkline 拼写词，本批没有修改这些无关内容。
+- `pnpm build` 通过 1099 个模块；库 Vite 构建通过 438 个模块，`tsc -p tsconfig.lib.json` 与 `scripts/prepare-package.mjs` 通过。`pnpm typecheck` 在 244 秒内无输出后超时，未记为通过。
+- Chromium `/labs/code-card` 覆盖 1440x1000 Material 中文与 390x844 Midnight 英文：两端页面横向溢出均为 0，控制台均为 `0 warning / 0 error`。截图为 `docs/screenshots/2026-07-31/code-card-desktop-material-zh.png` 与 `code-card-mobile-midnight-en.png`。
+- 浏览器中格式化按钮已真实生效；当前控制通道仍不能向嵌套 Shadow DOM 的代码组标签投递点击/键盘事件，且页面剪贴板权限不可授予。代码组方向键/Home/End 与 Clipboard 拒绝回退由组件测试覆盖，仍需独立 Chromium 或人工补充真实交互证据，不能标记为浏览器通过。
+- 图 1 视觉改进补充：`CodeCardLineSelection` 现在接受单行、`[start, end]` 与 `{ start, end }`，并新增错误/警告行及 `×`/`!` 非颜色标记；工具台采用文件标题栏，页面配置台与卡片底部语言菜单均改用 `elf-select`。`<pre><code>` 外层缩进产生的可见空白已移除，1440x1000 实测上下留白从 `58/68px` 降至 `10/20px`；390x844 页面、标题栏与操作区溢出均为 0，控制台 0 warning/error。最新聚焦回归为 6 文件、29 项通过；最终应用构建通过 1106 个模块、库构建通过 440 个模块，声明生成与包整理通过。
+- 2026-08-01 参考图对齐补充：语言 `elf-select` 已从底部迁入 workbench 标题栏并使用下划线样式，冗余底栏删除；显式 light/dark 表面 Token 修复暗色标题栏、编辑区和控件混色。页面示例现在分别展示 VitePress Vue、单行 focus 与其余行弱化、error/warning/remove/add/highlight 完整行颜色、JS/TS 代码组，并在 Playground 源码区展示实际范围配置。CodeCard 组件与页面测试 10/10 通过；六文件套件 35/36，唯一失败为无关的路由 loading-overlay 退场过渡。目标 Prettier、ESLint、CSpell 通过，应用构建 1108 个模块、库构建 441 个模块、声明生成与包整理通过；浏览器两档均无页面横向溢出且控制台 0 warning/error。截图位于 `docs/screenshots/2026-08-01/code-card-desktop-material-zh.png`、`code-card-dark-desktop-material-zh.png`、`code-card-diagnostics-desktop-material-zh.png` 与 `code-card-mobile-midnight-en.png`。
+- 2026-08-01 首例紧凑化补充：Workbench 改为直接展示 `@elfui/kit` 的 `<elf-button>` HTML 用法，六项 `elf-select` 配置在桌面为 2×3，并与其它 Playground 统一 24px 水平边距。1440x1000 Material 中文下首例 530px、不大于后续案例；390x844 Midnight 英文下五例均为 274px。页面、标题栏与代码滚动溢出均为 0，首例下方只有 24px 正常内边距，控制台 0 warning/error。聚焦测试 3 文件 15 项、目标 Prettier/ESLint/CSpell 与 1111 模块应用构建通过；最终桌面截图为 `docs/screenshots/2026-08-01/code-card-elfui-compact-desktop-zh.png`，最终移动端状态以浏览器尺寸审计记录。
+
+### 2026-07-31 Theme Studio
+
+- 新增顶级 `/theme-studio` 页面和五套统一主题预设。预设事实源位于 `src/components/Providers/ThemeProvider/presets.ts`；站点皮肤、ThemeProvider 与 ConfigProvider 的公开出口应继续复用这里，禁止另建页面私有预设表。
+- 用户可在基础/高级模式编辑 Token，获得真实组件预览、WCAG AA 提示、本地草稿、JSON 导入，以及 TypeScript、JSON、CSS Variables 导出。移动端使用编辑/预览切换，页面不套用普通案例 Playground。
+- 直接相关回归分别通过 9 个文件 / 47 项测试；目标 ESLint、CSpell、Prettier、`git diff --check`、本地化审计 `540/540` 与应用构建通过。浏览器覆盖桌面 Midnight 中文和移动 Material 中英文，页面无横向溢出，控制台 `0 warning / 0 error`。
+- 截图：`docs/screenshots/2026-07-31/theme-studio-desktop-midnight-zh.png`、`theme-studio-mobile-material-zh.png`、`theme-studio-mobile-preview-material-zh.png`。
+- 主题配置入口已统一，但 Notification、Loading 等 document 级服务尚未全部自动读取 ThemeProvider，遗留固定色也未完成全量 Token 化；不要据此把 `VU-04` 标为完成。`typecheck` 被 `OverviewCard`、`CodeCard` 的并行诊断阻断；`build:lib` 在串行门禁中运行至 244 秒外层时限且无新增输出，两项均未记为通过。
+
+### 2026-07-31 Theme Studio Material 色板库
+
+- 新增 `ThemeProvider/material-colors.ts`，公开 19 个 Material 颜色家族、稳定色阶顺序和查找函数；色值参考 Vuetify 官方颜色包。页面和外部消费者必须复用该 owner，不得另建色板副本。
+- Theme Studio 保留五套完整主题，并把 Material 数据作为 Token 取色库呈现：支持搜索、颜色家族预览、完整 50–900 / A100–A700 色阶，以及 Primary、Secondary、Success、Warning、Danger、Info 六个应用目标。
+- 聚焦回归 5 个文件、14 项通过；目标 ESLint、CSpell、Prettier、能力清单和无渐变守卫通过；本地化审计 `540/540`，应用构建 1106 个模块通过。
+- Chrome 英文真实交互验证搜索 `grey` 为 2 个家族，Deep orange → Danger → 700 将 `#E64A19` 写入导出配置。1440x1000 Midnight 中文和 390x844 Midnight 中文均无页面横向溢出；浏览器控制台 `0 warning / 0 error`。in-app 浏览器仍无法投递嵌套 Shadow DOM 点击，未在组件中增加 workaround。
+- 截图：`docs/screenshots/2026-07-31/theme-studio-material-palette-desktop-midnight-zh.png`、`theme-studio-material-palette-mobile-midnight-zh.png`、`theme-studio-material-palette-mobile-detail-midnight-zh.png`。
+- `typecheck` 与 `build:lib` 都被非本批 `OverviewCard`、`MessageBox`、`CodeCard` 的 4 条宏诊断和 6 条 TypeScript 诊断阻断；unsupported macro 扫描为 1125 个源文件、0 findings，本批文件未出现在诊断中。
+
+### 2026-07-31 Theme Studio Material 内置预设
+
+- `ThemeProvider/presets.ts` 现在直接消费 `material-colors.ts`：内置方案为 Material Blue 700、Indigo 300、Teal 700、Deep Purple 500、Deep Orange 700；不要在页面或应用皮肤中另建色值副本。
+- `material`、`midnight`、`forest`、`violet`、`sunset` ID 保持不变，已有持久化选择无需迁移；显示名已统一为 Material 系列。
+- `_tokens.scss` 的 Light/Dark 首屏主色与 Provider 默认值同步，测试会同时锁定 Material 来源、旧 ID 和 CSS 首屏变量。
+- 聚焦回归 5 个文件、18 项通过；目标 Prettier、ESLint、CSpell、能力所有权和本地化审计 `540/540` 通过；应用构建通过 1107 个模块。
+- Chromium `/theme-studio` 覆盖 1440x1000 与 390x844 中文，页面/工作台横向溢出均为 0，控制台 `0 warning / 0 error`。截图：`docs/screenshots/2026-07-31/theme-studio-material-presets-desktop-zh.png`、`theme-studio-material-presets-mobile-zh.png`。
+- `typecheck` 仍只被非本批 `OverviewCard`、`MessageBox`、`CodeCard` 的 4 条宏诊断和 6 条 TypeScript 诊断阻断；本批文件未出现在诊断中。
+
+# 2026-08-01 CodeCard、快速入门与工作台收尾
+
+- CodeCard 统一去除模板公共缩进与外层空行；无诊断行不再占用 marker 列，短命令左侧留白缩小。安装页改为 Markdown 式单列结构，6 个 CodeCard 均带 footer。
+- AppShell 二级菜单项现在都有稳定字母图标；升级指南改为版本记录流；浏览器支持继续使用两个 `elf-table`；Progress 首例使用正式 Playground 操作台并移除内缩卡片；Dropdown 默认面板间距为 0。
+- 聚焦验证为 7 文件 / 68 项及路由相关 2 项通过；文档本地化 `540/540`、unsupported macro `0`、目标 Prettier 与 1111 模块生产构建通过。用户明确接手浏览器验证，本批未记录新的浏览器证据。
+- 桌面新增经官方校验的 `C:\Users\13575\Desktop\elfui-kit` skill，沉淀当前组件、案例、Material 视觉与门禁实践。
+
+### 2026-08-01 CodeCard source indentation follow-up
+
+- The CodeCard example source no longer passes through a multiline macro literal that re-indents later lines. Its rendered code loop also contains no whitespace text nodes.
+- Installation uses six workbench CodeCards with visible filename headers and footer notes. Exact source lines and header presence are protected by focused tests.
+- Focused verification passes 4 files / 19 tests. Browser acceptance remains with the user as requested.
+
+### 2026-08-01 Material navigation icons
+
+- AppShell letter placeholders were replaced with semantic `@mdi/js` paths for every route and navigation group. `src/app/menu-icons.ts` is the route-to-icon authority and has completeness tests against `navItems`.
+- Menu renders SVG path strings as decorative 24x24 Material icons and preserves text-icon compatibility for existing consumers.
+- Focused Menu/icon tests pass 2 files / 26 tests, the targeted AppShell route assertion passes, ESLint and the 1112-module production build pass. The unrelated route-loading leave-transition assertion remains flaky when the full routing file runs; browser visual acceptance remains with the user.

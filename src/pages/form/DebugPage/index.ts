@@ -9,10 +9,10 @@ const t = createDocsTranslator({
 });
 
 const myId = (() => {
-    const key = "__elfDebugPageId";
-    const next = Number((globalThis as Record<string, unknown>)[key] ?? 1);
-    (globalThis as Record<string, unknown>)[key] = next + 1;
-    return next;
+  const key = "__elfDebugPageId";
+  const next = Number((globalThis as Record<string, unknown>)[key] ?? 1);
+  (globalThis as Record<string, unknown>)[key] = next + 1;
+  return next;
 })();
 
 const data = useReactive({ val1: false, val2: false });

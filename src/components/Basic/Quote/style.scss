@@ -1,0 +1,125 @@
+@use "../../../styles/reset";
+
+:host {
+  --_quote-color: var(--elf-text-secondary);
+  --_quote-bg: var(--elf-bg-overlay);
+  display: block;
+  width: 100%;
+  color: var(--elf-text-primary);
+}
+
+:host([type="primary"]) {
+  --_quote-color: var(--elf-primary);
+  --_quote-bg: color-mix(in srgb, var(--elf-primary) 9%, var(--elf-bg-paper));
+}
+
+:host([type="success"]) {
+  --_quote-color: var(--elf-success);
+  --_quote-bg: color-mix(in srgb, var(--elf-success) 9%, var(--elf-bg-paper));
+}
+
+:host([type="warning"]) {
+  --_quote-color: var(--elf-warning);
+  --_quote-bg: color-mix(in srgb, var(--elf-warning) 11%, var(--elf-bg-paper));
+}
+
+:host([type="danger"]) {
+  --_quote-color: var(--elf-danger);
+  --_quote-bg: color-mix(in srgb, var(--elf-danger) 9%, var(--elf-bg-paper));
+}
+
+:host([type="info"]) {
+  --_quote-color: var(--elf-info);
+  --_quote-bg: color-mix(in srgb, var(--elf-info) 9%, var(--elf-bg-paper));
+}
+
+.quote {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--elf-space-3);
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding: 16px 18px 16px 20px;
+  border: 0;
+  border-radius: var(--elf-radius-sm);
+  background: var(--_quote-bg);
+}
+
+.accent {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  border-radius: var(--elf-radius-sm) 0 0 var(--elf-radius-sm);
+  background: var(--_quote-color);
+}
+
+.icon:empty {
+  display: none;
+}
+
+.icon {
+  display: inline-grid;
+  min-height: 22px;
+  place-items: center;
+  color: var(--_quote-color);
+}
+
+.content {
+  min-width: 0;
+}
+
+.title {
+  margin-bottom: 4px;
+  color: var(--elf-text-primary);
+  font-size: var(--elf-font-size-sm);
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.is-empty {
+  display: none;
+}
+
+.body {
+  color: var(--elf-text-secondary);
+  font-size: var(--elf-font-size-sm);
+  line-height: 1.75;
+}
+
+.cite {
+  margin-top: 8px;
+  color: var(--_quote-color);
+  font-size: var(--elf-font-size-xs);
+  font-weight: 600;
+}
+
+.cite cite {
+  font-style: normal;
+}
+
+:host([variant="outlined"]) .quote {
+  border: 1px solid color-mix(in srgb, var(--_quote-color) 42%, var(--elf-border));
+  background: var(--elf-bg-paper);
+}
+
+:host([variant="filled"]) .quote {
+  background: var(--_quote-color);
+}
+
+:host([variant="filled"]) .accent {
+  background: color-mix(in srgb, #fff 72%, transparent);
+}
+
+:host([variant="filled"]) .title,
+:host([variant="filled"]) .body,
+:host([variant="filled"]) .cite,
+:host([variant="filled"]) .icon {
+  color: #fff;
+}
+
+:host([compact]) .quote {
+  gap: var(--elf-space-2);
+  padding: 10px 14px 10px 16px;
+}

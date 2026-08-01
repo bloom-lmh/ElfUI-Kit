@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts-nocheck -- Legacy custom-element fixture requires runtime-only properties.
 // elf-checkbox / elf-checkbox-group 单元测试
 
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";

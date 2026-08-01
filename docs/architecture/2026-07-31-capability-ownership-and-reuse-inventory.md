@@ -102,7 +102,7 @@ src/components/Common/overlay/overlay-stack.ts
 src/components/Common/index.ts
 ```
 
-### Providers (15 source files)
+### Providers (17 source files)
 
 ```text
 src/components/Providers/config.ts
@@ -119,10 +119,12 @@ src/components/Providers/LocaleProvider/index.ts
 src/components/Providers/LocaleProvider/types.ts
 src/components/Providers/service-defaults.ts
 src/components/Providers/ThemeProvider/index.ts
+src/components/Providers/ThemeProvider/material-colors.ts
+src/components/Providers/ThemeProvider/presets.ts
 src/components/Providers/ThemeProvider/types.ts
 ```
 
-## Macro Component Inventory (121)
+## Macro Component Inventory (123)
 
 The inventory includes public components and internal macro components that own rendering, such as service bodies and panel renderers. Test probes are excluded.
 
@@ -133,6 +135,7 @@ src/components/Basic/Badge/index.ts
 src/components/Basic/Button/index.ts
 src/components/Basic/Icon/index.ts
 src/components/Basic/Link/index.ts
+src/components/Basic/Quote/index.ts
 src/components/Basic/Tag/index.ts
 src/components/Basic/Text/index.ts
 src/components/Common/DocsToc/index.ts
@@ -199,6 +202,7 @@ src/components/Form/Switch/index.ts
 src/components/Form/Textarea/index.ts
 src/components/Form/TreeSelect/index.ts
 src/components/Form/Upload/index.ts
+src/components/Labs/CodeCard/index.ts
 src/components/Labs/Heatmap/index.ts
 src/components/Labs/Video/index.ts
 src/components/Layout/Aside/index.ts

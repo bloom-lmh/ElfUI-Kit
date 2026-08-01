@@ -10,8 +10,8 @@ const t = createDocsTranslator({
   title: { zh: "Layout 应用骨架", en: "Application layout" },
   description: {
     zh: "八种不重复的应用结构使用统一语义区域图展示，目录保持单层平铺。",
-    en: "Eight distinct application structures use one semantic diagram style and a flat table of contents."
-  }
+    en: "Eight distinct application structures use one semantic diagram style and a flat table of contents.",
+  },
 });
 
 useComponents({
@@ -19,13 +19,12 @@ useComponents({
   "page-layout-shell-ex2": PageLayoutShellEx2,
   "page-layout-shell-ex3": PageLayoutShellEx3,
   "page-layout-shell-ex4": PageLayoutShellEx4,
-  "page-layout-shell-props": PageLayoutShellProps
+  "page-layout-shell-props": PageLayoutShellProps,
 });
 
 const PageLayoutShell = defineHtml(`
   <elf-container>
-    <h1>${t("title")}</h1>
-    <p>${t("description")}</p>
+    <elf-docs-hero category="layout" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
     <page-layout-shell-ex1 />
     <page-layout-shell-ex2 />
     <page-layout-shell-ex3 />

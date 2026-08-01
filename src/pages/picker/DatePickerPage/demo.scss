@@ -9,3 +9,104 @@
 :host(:focus-within) {
   z-index: var(--elf-picker-demo-z-index, 120);
 }
+
+.date-picker-demo-stage {
+  display: grid;
+  width: min(100%, 820px);
+  min-height: 220px;
+  margin-inline: auto;
+  place-items: center;
+}
+
+.date-picker-demo-control {
+  width: min(100%, 360px);
+}
+
+.date-picker-demo-control--range {
+  width: min(100%, 520px);
+}
+
+.date-picker-demo-control--dual {
+  width: min(100%, 640px);
+}
+
+.date-picker-demo-boundary {
+  display: grid;
+  grid-template-columns: minmax(240px, 340px) minmax(0, 1fr);
+  gap: var(--elf-space-6);
+  width: min(100%, 760px);
+  padding: var(--elf-space-6);
+  border: 1px solid var(--elf-divider);
+  border-radius: var(--elf-radius-lg);
+  background: color-mix(in srgb, var(--elf-bg-paper) 95%, var(--elf-primary) 5%);
+}
+
+.date-picker-demo-boundary elf-date-picker {
+  width: 100%;
+}
+
+.date-picker-demo-notes,
+.date-picker-demo-controls {
+  display: grid;
+  gap: var(--elf-space-3);
+}
+
+.date-picker-demo-notes {
+  color: var(--elf-text-secondary);
+  line-height: 1.6;
+}
+
+.date-picker-demo-notes strong {
+  color: var(--elf-text-primary);
+  font-size: var(--elf-font-size-md);
+}
+
+.date-picker-demo-notes kbd {
+  padding: 2px 6px;
+  border: 1px solid var(--elf-divider);
+  border-radius: var(--elf-radius-sm);
+  background: var(--elf-bg-paper);
+  color: var(--elf-text-primary);
+  font: inherit;
+  font-size: var(--elf-font-size-xs);
+}
+
+.date-picker-demo-controls {
+  align-content: start;
+}
+
+.date-picker-demo-controls label {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--elf-space-4);
+}
+
+.date-picker-demo-modal {
+  display: grid;
+  min-width: min(420px, 70vw);
+  gap: var(--elf-space-4);
+}
+
+.date-picker-demo-modal p,
+.demo-state {
+  color: var(--elf-text-secondary);
+  font-size: var(--elf-font-size-xs);
+  line-height: 1.5;
+}
+
+.date-picker-demo-modal p {
+  margin: 0;
+}
+
+@media (max-width: 680px) {
+  .date-picker-demo-stage {
+    min-height: 200px;
+  }
+
+  .date-picker-demo-boundary {
+    grid-template-columns: 1fr;
+    padding: var(--elf-space-4);
+  }
+}

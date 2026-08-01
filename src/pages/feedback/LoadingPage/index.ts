@@ -28,13 +28,12 @@ useComponents({
   "page-loading-ex6": PageLoadingEx6,
   "page-loading-ex7": PageLoadingEx7,
   "page-loading-ex8": PageLoadingEx8,
-  "page-loading-props": PageLoadingProps
+  "page-loading-props": PageLoadingProps,
 });
 
 const PageLoading = defineHtml(`
   <elf-container>
-    <h1>${t("title")}</h1>
-    <p>${t("description")}</p>
+    <elf-docs-hero category="feedback" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
 
     <page-loading-ex1 />
 

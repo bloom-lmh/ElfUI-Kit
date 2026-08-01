@@ -21,13 +21,12 @@ useComponents({
   "page-dialog-ex3": PageDialogEx3,
   "page-dialog-ex4": PageDialogEx4,
   "page-dialog-ex5": PageDialogEx5,
-  "page-dialog-props": PageDialogProps
+  "page-dialog-props": PageDialogProps,
 });
 
 const PageDialog = defineHtml(`
   <elf-container>
-    <h1>${t("title")}</h1>
-    <p>${t("description")}</p>
+    <elf-docs-hero category="feedback" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
     <page-dialog-ex1></page-dialog-ex1>
     <page-dialog-ex2></page-dialog-ex2>
     <page-dialog-ex3></page-dialog-ex3>

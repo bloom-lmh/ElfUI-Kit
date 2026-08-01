@@ -6,7 +6,7 @@ import {
   onMounted,
   onUnmounted,
   useRef,
-  useEffect
+  useEffect,
 } from "@elfui/core";
 
 import styles from "./style.scss?inline";
@@ -21,7 +21,7 @@ const props = defineProps<CountdownProps>({
   prefix: { type: String, default: "" },
   suffix: { type: String, default: "" },
   valueStyle: { type: Object, default: () => ({}) },
-  ariaLabel: { type: String, default: "Countdown" }
+  ariaLabel: { type: String, default: "Countdown" },
 });
 
 const emit = defineEmits(["change", "finish"]);
@@ -36,7 +36,8 @@ const targetTime = (value: CountdownValue): number => {
   return Number.isFinite(parsed) ? parsed : 0;
 };
 
-const pad = (value: number, digits = 2): string => String(Math.max(0, Math.floor(value))).padStart(digits, "0");
+const pad = (value: number, digits = 2): string =>
+  String(Math.max(0, Math.floor(value))).padStart(digits, "0");
 
 const formatted = (): string => {
   let rest = remaining.value;
@@ -57,13 +58,16 @@ const formatted = (): string => {
     D: String(days),
     H: String(hours),
     m: String(minutes),
-    s: String(seconds)
+    s: String(seconds),
   };
   const literals: string[] = [];
-  const template = String(props.format || "HH:mm:ss").replace(/\[([^\]]*)\]/g, (_, literal: string) => {
-    const index = literals.push(literal) - 1;
-    return `__literal_${index}__`;
-  });
+  const template = String(props.format || "HH:mm:ss").replace(
+    /\[([^\]]*)\]/g,
+    (_, literal: string) => {
+      const index = literals.push(literal) - 1;
+      return `__literal_${index}__`;
+    },
+  );
   return template
     .replace(/SSS|DD|HH|mm|ss|D|H|m|s/g, (token) => values[token] ?? token)
     .replace(/__literal_(\d+)__/g, (_, index: string) => literals[Number(index)] ?? "");
@@ -85,7 +89,7 @@ const refresh = (notify = false): void => {
 };
 
 useEffect(() => {
-  props.value;
+  void props.value;
   refresh();
 });
 

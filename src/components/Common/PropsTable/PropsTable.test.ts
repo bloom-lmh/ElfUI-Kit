@@ -31,19 +31,39 @@ const mount = async (setup?: (element: PropsTableElement) => void): Promise<Prop
 const dataTable = (element: PropsTableElement): HTMLElement => {
   const table = Array.from(element.shadowRoot?.children ?? []).find(
     (child): child is HTMLElement =>
-      child instanceof HTMLElement && Boolean(child.shadowRoot?.querySelector(".table-root"))
+      child instanceof HTMLElement && Boolean(child.shadowRoot?.querySelector(".table-root")),
   );
   if (!table?.shadowRoot) throw new Error("PropsTable data table was not rendered");
   return table;
 };
 
 describe("elf-props-table", () => {
+  it("promotes an adjacent API heading into the aligned table column", async () => {
+    const heading = document.createElement("h2");
+    heading.textContent = "API";
+    document.body.appendChild(heading);
+    const element = await mount();
+
+    expect(heading.hidden).toBe(true);
+    expect(heading.hasAttribute("data-promoted-to-props-table")).toBe(true);
+    expect(element.shadowRoot!.querySelector(".section-title")?.textContent).toBe("API");
+
+    element.remove();
+    await tick();
+    expect(heading.hidden).toBe(false);
+  });
+
   it("uses the ElfUI Table title surface", async () => {
     const element = await mount();
     const table = dataTable(element);
 
     expect(table.shadowRoot!.querySelector(".table-title")?.textContent).toBe("Props");
-    expect(table.shadowRoot!.querySelector(".table-root")?.classList.contains("title-muted")).toBe(true);
+    expect(table.shadowRoot!.querySelector(".table-root")?.classList.contains("title-muted")).toBe(
+      true,
+    );
+    expect(table.shadowRoot!.querySelector(".table-root")?.classList.contains("is-small")).toBe(
+      false,
+    );
   });
 
   it("renders API rows through ElfUI Table", async () => {
@@ -53,7 +73,7 @@ describe("elf-props-table", () => {
 
     const cells = Array.from(
       dataTable(element).shadowRoot!.querySelectorAll("tbody tr:not(.empty-row) td"),
-      (cell) => cell.textContent?.trim()
+      (cell) => cell.textContent?.trim(),
     );
     expect(cells).toEqual(["size", "string", "md", "尺寸"]);
   });
@@ -62,13 +82,13 @@ describe("elf-props-table", () => {
     const element = await mount((target) => {
       target.rows = [
         { name: "count", type: "number", default: 0 },
-        { name: "disabled", type: "boolean", default: false }
+        { name: "disabled", type: "boolean", default: false },
       ];
     });
 
     const defaults = Array.from(
       dataTable(element).shadowRoot!.querySelectorAll("tbody tr:not(.empty-row) td:nth-child(3)"),
-      (cell) => cell.textContent?.trim()
+      (cell) => cell.textContent?.trim(),
     );
     expect(defaults).toEqual(["0", "false"]);
   });

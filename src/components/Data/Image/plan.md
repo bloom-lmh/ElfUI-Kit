@@ -42,3 +42,21 @@
 - [x] 预览控件接入 LocaleProvider，补齐中英文无障碍名称，并支持 Teleport 与动态空列表安全关闭。
 - [x] 将案例收敛为对象适配矩阵、失败重试、响应式懒加载、预览组键盘 4 个完整场景，补齐双语 Template、Script 与完整 API。
 - [x] 组件与页面共 21 项测试、beta 迁移扫描、宏类型检查、应用/发布库构建、完整度检查和真实浏览器截图均通过。
+
+## 2026-07-30 Vuetify documentation batch
+
+- [x] 对象适配案例改为带实时控制台的 Playground，并使用 Unsplash 真实网图。
+- [x] 移除预览左上角的 fit 文本，将星号说明放到适配方式下拉框下方。
+- [x] Chromium 桌面 Material 中文验收：图片自然尺寸 `1024 x 1024`，加载完成，无左上角说明；截图为 `docs/screenshots/2026-07-30/image-playground-desktop-light-zh.png`。
+
+## 2026-07-30 网图与纯色案例复核
+
+- [x] 对象适配控制台改用 `images.unsplash.com` 的 `1200 x 1800` 真实网图，Template 与 Script 展示同一完整 URL，并用页面测试锁定网图来源。
+- [x] 在 Material 中文主题下复核 `1440 x 1000` 桌面与 `390 x 844` 移动端；图片加载完成，移动端图片宽 `215px`、舞台宽 `259px`，完整收进舞台且无横向溢出，控制台 0 warning / 0 error。
+- [x] 截图为 `docs/screenshots/2026-07-30/image-network-flat-desktop-material-zh.png` 与 `docs/screenshots/2026-07-30/image-network-flat-mobile-material-zh.png`。
+
+## 2026-07-31 图片案例外框修正
+
+- [x] 移除对象适配案例中 `elf-image` 宿主的外框边线，保留 Playground 舞台外框、圆角和控制台层级。
+- [x] Chromium 当前页面复核：`/data/image`、`1048 x 856`、Midnight 英文，图片正常加载，控制台 0 warning / 0 error。
+- [x] 截图为 `docs/screenshots/2026-07-31/image-no-frame-comment.png`。

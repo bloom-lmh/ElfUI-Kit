@@ -89,7 +89,9 @@ describe("Anchor documentation", () => {
     await tick();
     await tick();
 
-    const anchor = page.shadowRoot!.querySelector<HTMLElement>('elf-anchor[direction="horizontal"]')!;
+    const anchor = page.shadowRoot!.querySelector<HTMLElement>(
+      'elf-anchor[direction="horizontal"]',
+    )!;
     const container = page.shadowRoot!.querySelector<HTMLElement>("#anchor-horizontal-scroll")!;
     expect(anchor.style.width).toBe("100%");
     (anchor as HTMLElement & { smooth?: boolean }).smooth = false;
@@ -97,35 +99,53 @@ describe("Anchor documentation", () => {
     Object.defineProperties(container, {
       clientWidth: { configurable: true, value: 640 },
       scrollWidth: { configurable: true, value: 4480 },
-      scrollLeft: { configurable: true, value: 0, writable: true }
+      scrollLeft: { configurable: true, value: 0, writable: true },
     });
     container.getBoundingClientRect = vi.fn(() => ({
-      top: 0, left: 0, right: 640, bottom: 300, width: 640, height: 300, x: 0, y: 0, toJSON: () => ({})
+      top: 0,
+      left: 0,
+      right: 640,
+      bottom: 300,
+      width: 640,
+      height: 300,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
     })) as unknown as Element["getBoundingClientRect"];
     const sections = Array.from(container.querySelectorAll<HTMLElement>("section"));
     sections.forEach((section, index) => {
       section.getBoundingClientRect = vi.fn(() => ({
-        top: 0, left: index * 640, right: index * 640 + 640, bottom: 340,
-        width: 640, height: 340, x: index * 640, y: 0, toJSON: () => ({})
+        top: 0,
+        left: index * 640,
+        right: index * 640 + 640,
+        bottom: 340,
+        width: 640,
+        height: 340,
+        x: index * 640,
+        y: 0,
+        toJSON: () => ({}),
       })) as unknown as Element["getBoundingClientRect"];
     });
     const scrollTo = vi.fn();
     Object.defineProperty(container, "scrollTo", { configurable: true, value: scrollTo });
 
-    const release = anchor.shadowRoot!.querySelector<HTMLAnchorElement>('a[href="#anchor-horizontal-release"]')!;
+    const release = anchor.shadowRoot!.querySelector<HTMLAnchorElement>(
+      'a[href="#anchor-horizontal-release"]',
+    )!;
     release.click();
     await tick();
     await tick();
 
     expect(scrollTo).toHaveBeenCalledWith({ left: 3840, behavior: "auto" });
-    expect(sections.every((section) => section.classList.contains("horizontal-section"))).toBe(true);
-    const scrollbar = page.shadowRoot!.querySelector<HTMLInputElement>('.horizontal-scrollbar[type="range"]')!;
-    expect(scrollbar).toBeTruthy();
-    scrollbar.value = "500";
-    scrollbar.dispatchEvent(new Event("input", { bubbles: true }));
-    await tick();
-    expect(container.scrollLeft).toBe(1920);
-    expect(anchor.shadowRoot!.querySelector(".item.is-active")?.textContent).toMatch(/Release notes|发布说明/);
-    expect(page.shadowRoot!.querySelector('[slot="status"]')?.textContent).toContain("#anchor-horizontal-release");
+    expect(sections.every((section) => section.classList.contains("horizontal-section"))).toBe(
+      true,
+    );
+    expect(page.shadowRoot!.querySelector('input[type="range"]')).toBeNull();
+    expect(anchor.shadowRoot!.querySelector(".item.is-active")?.textContent).toMatch(
+      /Release notes|发布说明/,
+    );
+    expect(page.shadowRoot!.querySelector('[slot="status"]')?.textContent).toContain(
+      "#anchor-horizontal-release",
+    );
   });
 });

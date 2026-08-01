@@ -20,35 +20,65 @@ const propsRows = [
     name: "theme",
     type: "light | dark | system | custom | string",
     default: "light",
-    desc: pick("内置主题、系统主题或命名主题", "Built-in, system, or named theme.")
+    desc: pick("内置主题、系统主题或命名主题", "Built-in, system, or named theme."),
   },
   {
     name: "primary / secondary / surface",
     type: "string",
     default: "",
-    desc: pick("常用 token 快捷覆盖", "Shorthand overrides for common tokens.")
+    desc: pick("常用 token 快捷覆盖", "Shorthand overrides for common tokens."),
   },
-  { name: "themes", type: "Record<string, ThemeDefinition>", default: "{}", desc: pick("命名主题定义", "Named theme definitions.") },
-  { name: "tokens", type: "ThemeTokens", default: "{}", desc: pick("完整局部 CSS 变量覆盖", "Complete local token overrides.") },
-  { name: "inherit", type: "boolean", default: "true", desc: pick("自定义主题是否继承外层 token 与暗色语义", "Whether custom themes inherit outer tokens and dark semantics.") }
+  {
+    name: "themes",
+    type: "Record<string, ThemeDefinition>",
+    default: "{}",
+    desc: pick("命名主题定义", "Named theme definitions."),
+  },
+  {
+    name: "tokens",
+    type: "ThemeTokens",
+    default: "{}",
+    desc: pick("完整局部 CSS 变量覆盖", "Complete local token overrides."),
+  },
+  {
+    name: "inherit",
+    type: "boolean",
+    default: "true",
+    desc: pick(
+      "自定义主题是否继承外层 token 与暗色语义",
+      "Whether custom themes inherit outer tokens and dark semantics.",
+    ),
+  },
 ];
 
 const contextRows = [
-  { name: "theme / isDark / tokens", type: "readonly", default: "-", desc: pick("当前合并后的主题上下文", "Current merged theme context.") },
-  { name: "applyTo", type: "(target: HTMLElement) => void", default: "-", desc: pick("把主题转发给 document 级服务浮层", "Apply the theme to document-level service overlays.") }
+  {
+    name: "theme / isDark / tokens",
+    type: "readonly",
+    default: "-",
+    desc: pick("当前合并后的主题上下文", "Current merged theme context."),
+  },
+  {
+    name: "applyTo",
+    type: "(target: HTMLElement) => void",
+    default: "-",
+    desc: pick(
+      "把主题转发给 document 级服务浮层",
+      "Apply the theme to document-level service overlays.",
+    ),
+  },
 ];
 
 useComponents({
   "page-theme-provider-ex1": PageThemeProviderEx1,
   "page-theme-provider-ex2": PageThemeProviderEx2,
   "page-theme-provider-ex3": PageThemeProviderEx3,
-  "page-theme-provider-ex4": PageThemeProviderEx4
+  "page-theme-provider-ex4": PageThemeProviderEx4,
 });
 
 const PageThemeProvider = defineHtml(`
   <elf-container>
-    <h1>${t("title")}</h1>
-    <p>${t("description")}</p>
+    <elf-docs-hero category="providers" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
 
     <page-theme-provider-ex1 />
 

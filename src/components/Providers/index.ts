@@ -20,11 +20,13 @@ export { LocaleProvider } from "./LocaleProvider/index";
 export type { LocaleAdapter, LocaleProviderProps } from "./LocaleProvider/types";
 export { ThemeProvider } from "./ThemeProvider/index";
 export type { ThemeDefinition, ThemeProviderProps } from "./ThemeProvider/types";
+export { THEME_PRESETS, getThemePreset } from "./ThemeProvider/presets";
+export type { ThemePreset, ThemePresetId } from "./ThemeProvider/presets";
+export {
+  MATERIAL_COLOR_PALETTES,
+  MATERIAL_COLOR_TONES,
+  getMaterialColorPalette,
+} from "./ThemeProvider/material-colors";
+export type { MaterialColorFamily, MaterialColorTone } from "./ThemeProvider/material-colors";
 
-registerComponents(
-  ConfigProvider,
-  DefaultsProvider,
-  IconProvider,
-  LocaleProvider,
-  ThemeProvider,
-);
+registerComponents(ConfigProvider, DefaultsProvider, IconProvider, LocaleProvider, ThemeProvider);

@@ -23,12 +23,12 @@ const PageHome = defineHtml(`
         <p class="hero-description">${t("description")}</p>
 
         <div class="hero-actions">
-          <a class="action action-primary" href="#/basic/button">
+          <elf-link class="action action-primary" to="/overview" .underline=${false}>
             ${t("primaryAction")}<span aria-hidden="true">→</span>
-          </a>
-          <a class="action action-secondary" href="#/providers/theme">
+          </elf-link>
+          <elf-link class="action action-secondary" to="/providers/theme" .underline=${false}>
             ${t("secondaryAction")}<span aria-hidden="true">↗</span>
-          </a>
+          </elf-link>
         </div>
 
         <div class="proof" :aria-label=${t("proofLabel")}>

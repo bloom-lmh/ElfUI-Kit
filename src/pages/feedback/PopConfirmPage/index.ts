@@ -17,13 +17,12 @@ useComponents({
   "page-pop-confirm-ex1": PagePopConfirmEx1,
   "page-pop-confirm-ex2": PagePopConfirmEx2,
   "page-pop-confirm-ex3": PagePopConfirmEx3,
-  "page-pop-confirm-props": PagePopConfirmProps
+  "page-pop-confirm-props": PagePopConfirmProps,
 });
 
 const PagePopConfirm = defineHtml(`
   <elf-container>
-    <h1>${t("title")}</h1>
-    <p>${t("description")}</p>
+    <elf-docs-hero category="feedback" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
     <page-pop-confirm-ex1 />
     <page-pop-confirm-ex2 />
     <page-pop-confirm-ex3 />

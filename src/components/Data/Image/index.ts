@@ -13,28 +13,16 @@ import {
   useHostCssVar,
   useHostFlag,
   useRef,
-  useScrollLock
+  useScrollLock,
 } from "@elfui/core";
 
 import { collectFocusable, deepActiveElement } from "../../Common/focus/focus-scope";
 import { useLocaleProvider } from "../../Providers/context";
 import previewStyles from "./preview.scss?inline";
 import styles from "./style.scss?inline";
-import type {
-  ImageEmits,
-  ImageExposes,
-  ImageFit,
-  ImageProps,
-  ImageSlots
-} from "./types";
+import type { ImageEmits, ImageExposes, ImageFit, ImageProps, ImageSlots } from "./types";
 
-export type {
-  ImageEmits,
-  ImageExposes,
-  ImageFit,
-  ImageProps,
-  ImageSlots
-} from "./types";
+export type { ImageEmits, ImageExposes, ImageFit, ImageProps, ImageSlots } from "./types";
 
 const IMAGE_FITS = new Set<ImageFit>(["fill", "contain", "cover", "none", "scale-down"]);
 
@@ -57,7 +45,7 @@ const props = defineProps<ImageProps>({
   initialIndex: { type: Number, default: 0 },
   previewTeleported: { type: Boolean, default: false },
   zoomRate: { type: Number, default: 1.2 },
-  toolbar: { type: Boolean, default: true }
+  toolbar: { type: Boolean, default: true },
 });
 
 const emit = defineEmits<ImageEmits>([
@@ -65,7 +53,7 @@ const emit = defineEmits<ImageEmits>([
   "error",
   "preview-open",
   "preview-close",
-  "preview-change"
+  "preview-change",
 ]);
 
 const locale = useLocaleProvider();
@@ -89,9 +77,7 @@ const cssSize = (value: number | string): string => {
     return `${Math.max(0, Number.isFinite(value) ? value : 0)}px`;
   }
   const normalized = String(value || "auto").trim();
-  return /^-?\d+(?:\.\d+)?$/.test(normalized)
-    ? `${Math.max(0, Number(normalized))}px`
-    : normalized;
+  return /^-?\d+(?:\.\d+)?$/.test(normalized) ? `${Math.max(0, Number(normalized))}px` : normalized;
 };
 
 const normalizedFit = (): ImageFit => {
@@ -100,8 +86,9 @@ const normalizedFit = (): ImageFit => {
 };
 
 const previewSources = (): string[] =>
-  (Array.isArray(props.previewSrcList) ? props.previewSrcList : [])
-    .filter((source): source is string => typeof source === "string" && source.trim().length > 0);
+  (Array.isArray(props.previewSrcList) ? props.previewSrcList : []).filter(
+    (source): source is string => typeof source === "string" && source.trim().length > 0,
+  );
 
 const normalizedIndex = (index: number): number => {
   const total = previewSources().length;
@@ -110,7 +97,7 @@ const normalizedIndex = (index: number): number => {
 };
 
 const isEnglish = (): boolean => locale.name.toLowerCase().startsWith("en");
-const previewLabel = (): string => isEnglish() ? "Image preview" : "图片预览";
+const previewLabel = (): string => (isEnglish() ? "Image preview" : "图片预览");
 const previewTriggerLabel = (): string => {
   const action = isEnglish() ? "Preview image" : "预览图片";
   return props.alt ? `${action}：${props.alt}` : action;
@@ -120,36 +107,34 @@ const nextLabel = (): string => locale.t("common.next");
 const closeLabel = (): string => locale.t("common.close");
 const resetLabel = (): string => locale.t("common.reset");
 const retryLabel = (): string => locale.t("common.retry");
-const loadFailedLabel = (): string => isEnglish() ? "Image failed to load" : "图片加载失败";
-const zoomOutLabel = (): string => isEnglish() ? "Zoom out" : "缩小";
-const zoomInLabel = (): string => isEnglish() ? "Zoom in" : "放大";
-const toolbarLabel = (): string => isEnglish() ? "Preview controls" : "预览控制";
+const loadFailedLabel = (): string => (isEnglish() ? "Image failed to load" : "图片加载失败");
+const zoomOutLabel = (): string => (isEnglish() ? "Zoom out" : "缩小");
+const zoomInLabel = (): string => (isEnglish() ? "Zoom in" : "放大");
+const toolbarLabel = (): string => (isEnglish() ? "Preview controls" : "预览控制");
 
 const imageClass = useComputed(() => `fit-${normalizedFit()}`);
 const previewable = useComputed(() => previewSources().length > 0);
 const canOpenPreview = (): boolean => previewable.value && loaded.value && !error.value;
 const activeSource = useComputed(
-  () => previewSources()[normalizedIndex(activeIndex.value)] || props.src
+  () => previewSources()[normalizedIndex(activeIndex.value)] || props.src,
 );
 const previewCounter = useComputed(
-  () => `${normalizedIndex(activeIndex.value) + 1} / ${previewSources().length}`
+  () => `${normalizedIndex(activeIndex.value) + 1} / ${previewSources().length}`,
 );
 const zoomStep = (): number => Math.max(1.05, Number(props.zoomRate) || 1.2);
 const imageTransform = useComputed(() => `scale(${scale.value})`);
 const showNavigation = useComputed(() => previewSources().length > 1);
 const resolvedSrcset = (): string | null =>
   resolvedSrc.value && props.srcset ? props.srcset : null;
-const resolvedSizes = (): string | null =>
-  resolvedSrc.value && props.sizes ? props.sizes : null;
-const triggerRole = (): string | null => canOpenPreview() ? "button" : null;
-const triggerTabIndex = (): string | null => canOpenPreview() ? "0" : null;
-const triggerLabel = (): string | null => canOpenPreview() ? previewTriggerLabel() : null;
-const triggerControls = (): string | null => canOpenPreview() ? previewId : null;
-const triggerExpanded = (): string | null =>
-  canOpenPreview() ? String(previewOpen.value) : null;
+const resolvedSizes = (): string | null => (resolvedSrc.value && props.sizes ? props.sizes : null);
+const triggerRole = (): string | null => (canOpenPreview() ? "button" : null);
+const triggerTabIndex = (): string | null => (canOpenPreview() ? "0" : null);
+const triggerLabel = (): string | null => (canOpenPreview() ? previewTriggerLabel() : null);
+const triggerControls = (): string | null => (canOpenPreview() ? previewId : null);
+const triggerExpanded = (): string | null => (canOpenPreview() ? String(previewOpen.value) : null);
 const previewRoot = (): HTMLElement | null =>
-  host.shadowRoot?.querySelector<HTMLElement>(`[data-elf-image-preview="${previewId}"]`)
-  ?? document.querySelector<HTMLElement>(`[data-elf-image-preview="${previewId}"]`);
+  host.shadowRoot?.querySelector<HTMLElement>(`[data-elf-image-preview="${previewId}"]`) ??
+  document.querySelector<HTMLElement>(`[data-elf-image-preview="${previewId}"]`);
 
 // Methods
 const onLoad = (event: Event): void => {
@@ -286,7 +271,7 @@ const onDocumentKeydown = (event: KeyboardEvent): void => {
     "+": () => zoom(1),
     "=": () => zoom(1),
     "-": () => zoom(-1),
-    "0": resetZoom
+    "0": resetZoom,
   };
   const action = actions[event.key];
   if (!action) return;
@@ -299,17 +284,20 @@ const setupVisibility = (): void => {
     visible.set(true);
     return;
   }
-  observer = new IntersectionObserver((entries) => {
-    if (!entries.some((entry) => entry.isIntersecting)) return;
-    visible.set(true);
-    observer?.disconnect();
-    observer = undefined;
-  }, { rootMargin: "120px 0px" });
+  observer = new IntersectionObserver(
+    (entries) => {
+      if (!entries.some((entry) => entry.isIntersecting)) return;
+      visible.set(true);
+      observer?.disconnect();
+      observer = undefined;
+    },
+    { rootMargin: "120px 0px" },
+  );
   observer.observe(host);
 };
 
 useEffect(() => {
-  props.src;
+  void props.src;
   error.set(false);
   loaded.set(false);
 });

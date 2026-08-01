@@ -12,10 +12,14 @@ const t = createDocsTranslator({
   failedTitle: { zh: "封面加载失败", en: "Cover failed to load" },
   failedHint: {
     zh: "刷新签名地址后可再次请求原资源。",
-    en: "Refresh the signed URL before requesting the resource again."
+    en: "Refresh the signed URL before requesting the resource again.",
   },
   retry: { zh: "重试加载", en: "Retry loading" },
-  alt: { zh: "恢复后的项目封面", en: "Recovered project cover" }
+  controls: { zh: "资源控制", en: "Source controls" },
+  sourceState: { zh: "资源状态", en: "Source state" },
+  errorSource: { zh: "加载失败", en: "Load error" },
+  validSource: { zh: "恢复成功", en: "Recovered" },
+  alt: { zh: "恢复后的项目封面", en: "Recovered project cover" },
 });
 
 const recoveredSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="720" height="420" viewBox="0 0 720 420">
@@ -32,13 +36,11 @@ const source = useRef("/missing-image-retry.svg");
 const failed = useRef(false);
 const loaded = useRef(false);
 const attempt = useRef(0);
+const sourceState = useRef("error");
 
 // Derived state
-const statusText = (): string => loaded.value
-  ? t("recovered")
-  : failed.value
-    ? t("failed")
-    : t("waiting");
+const statusText = (): string =>
+  loaded.value ? t("recovered") : failed.value ? t("failed") : t("waiting");
 
 // Methods
 const onError = (): void => {
@@ -56,6 +58,7 @@ const retryImage = (): void => {
   failed.set(false);
   loaded.set(false);
   source.set(`${recoveredSource}#retry-${attempt.value}`);
+  sourceState.set("recovered");
 };
 
 const resetFailure = (): void => {
@@ -63,6 +66,17 @@ const resetFailure = (): void => {
   failed.set(false);
   loaded.set(false);
   source.set(`/missing-image-retry.svg?attempt=${attempt.value}`);
+  sourceState.set("error");
+};
+
+const sourceOptions = () => [
+  { label: t("errorSource"), value: "error" },
+  { label: t("validSource"), value: "recovered" },
+];
+const onSourceState = (event: CustomEvent): void => {
+  const value = String(Array.isArray(event.detail) ? event.detail[0] : event.detail);
+  if (value === "recovered") retryImage();
+  else resetFailure();
 };
 
 const retryCode = `<elf-image
@@ -122,6 +136,12 @@ const PageImageEx2 = defineHtml(`
         </div>
       </elf-image>
     </div>
+    <aside slot="controls" class="image-demo-controls" :aria-label=${t("controls")}>
+      <strong>${t("controls")}</strong>
+      <label><span>${t("sourceState")}</span><elf-select variant="outlined" :options.prop=${sourceOptions()} :modelValue.prop=${sourceState.value} @update:modelValue=${onSourceState}></elf-select></label>
+      <elf-button size="sm" variant="outlined" @click=${resetFailure}>${t("reset")}</elf-button>
+      <elf-button size="sm" @click=${retryImage}>${t("retry")}</elf-button>
+    </aside>
   </elf-playground>
 `);
 

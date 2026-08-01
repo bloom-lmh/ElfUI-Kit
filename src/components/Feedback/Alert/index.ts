@@ -5,13 +5,28 @@
 //   <elf-alert type="success" title="操作成功" closable />
 //   <elf-alert type="danger" title="错误" description="详情..." />
 
-import { defineEmits, defineHtml, defineProps, defineStyle, useHostAttr, useHostFlag, useRef } from "@elfui/core";
+import {
+  defineEmits,
+  defineHtml,
+  defineProps,
+  defineStyle,
+  useHostAttr,
+  useHostFlag,
+  useRef,
+} from "@elfui/core";
 
 import styles from "./style.scss?inline";
-import type { AlertEmits, AlertProps, AlertSlots } from "./types";
+import type { AlertEmits, AlertProps } from "./types";
 import { useLocaleProvider } from "../../Providers/context";
 
-export type { AlertDensity, AlertEmits, AlertProps, AlertSlots, AlertType, AlertVariant } from "./types";
+export type {
+  AlertDensity,
+  AlertEmits,
+  AlertProps,
+  AlertSlots,
+  AlertType,
+  AlertVariant,
+} from "./types";
 
 const props = defineProps({
   type: { type: String, default: "info" },
@@ -54,8 +69,17 @@ const onClose = (): void => {
 defineStyle(styles);
 
 const Alert = defineHtml(`
-  <div v-if=${!closed} class="alert" part="alert" role="alert">
-    <span v-if=${props.showIcon} class="icon" aria-hidden="true">
+  <div
+    v-if=${!closed}
+    class="alert"
+    part="alert"
+    role="alert"
+  >
+    <span
+      v-if=${props.showIcon}
+      class="icon"
+      aria-hidden="true"
+    >
       <slot name="icon">
         <svg
           v-if=${props.type === "info"}
@@ -66,9 +90,36 @@ const Alert = defineHtml(`
           stroke-linecap="round"
           stroke-linejoin="round"
         >
-          <circle cx="12" cy="12" r="10" />
-          <line x1="12" y1="16" x2="12" y2="12" />
-          <line x1="12" y1="8" x2="12.01" y2="8" />
+          <circle
+            cx="12"
+            cy="12"
+            r="10"
+          />
+          <line
+            x1="12"
+            y1="16"
+            x2="12"
+            y2="12"
+          />
+          <line
+            x1="12"
+            y1="8"
+            x2="12.01"
+            y2="8"
+          />
+        </svg>
+        <svg
+          v-else-if=${props.type === "tip"}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M9 18h6" />
+          <path d="M10 22h4" />
+          <path d="M8.5 15.5a6 6 0 1 1 7 0C14.5 16.3 14 17 14 18h-4c0-1-.5-1.7-1.5-2.5z" />
         </svg>
         <svg
           v-else-if=${props.type === "success"}
@@ -79,7 +130,11 @@ const Alert = defineHtml(`
           stroke-linecap="round"
           stroke-linejoin="round"
         >
-          <circle cx="12" cy="12" r="10" />
+          <circle
+            cx="12"
+            cy="12"
+            r="10"
+          />
           <polyline points="8 12 11 15 16 9" />
         </svg>
         <svg
@@ -91,9 +146,21 @@ const Alert = defineHtml(`
           stroke-linecap="round"
           stroke-linejoin="round"
         >
-          <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-          <line x1="12" y1="9" x2="12" y2="13" />
-          <line x1="12" y1="17" x2="12.01" y2="17" />
+          <path
+            d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+          />
+          <line
+            x1="12"
+            y1="9"
+            x2="12"
+            y2="13"
+          />
+          <line
+            x1="12"
+            y1="17"
+            x2="12.01"
+            y2="17"
+          />
         </svg>
         <svg
           v-else
@@ -104,9 +171,23 @@ const Alert = defineHtml(`
           stroke-linecap="round"
           stroke-linejoin="round"
         >
-          <circle cx="12" cy="12" r="10" />
-          <line x1="15" y1="9" x2="9" y2="15" />
-          <line x1="9" y1="9" x2="15" y2="15" />
+          <circle
+            cx="12"
+            cy="12"
+            r="10"
+          />
+          <line
+            x1="15"
+            y1="9"
+            x2="9"
+            y2="15"
+          />
+          <line
+            x1="9"
+            y1="9"
+            x2="15"
+            y2="15"
+          />
         </svg>
       </slot>
     </span>
@@ -136,8 +217,18 @@ const Alert = defineHtml(`
         stroke-linecap="round"
         stroke-linejoin="round"
       >
-        <line x1="18" y1="6" x2="6" y2="18" />
-        <line x1="6" y1="6" x2="18" y2="18" />
+        <line
+          x1="18"
+          y1="6"
+          x2="6"
+          y2="18"
+        />
+        <line
+          x1="6"
+          y1="6"
+          x2="18"
+          y2="18"
+        />
       </svg>
     </button>
   </div>

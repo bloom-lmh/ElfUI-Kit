@@ -38,6 +38,17 @@
   font-size: var(--elf-font-size-xs);
 }
 
+.demo-controls,
+.demo-controls label {
+  display: grid;
+  gap: var(--elf-space-3);
+}
+
+.demo-controls label > span {
+  color: var(--elf-text-secondary);
+  font-size: var(--elf-font-size-sm);
+}
+
 .form-card {
   box-sizing: border-box;
   width: min(100%, 520px);

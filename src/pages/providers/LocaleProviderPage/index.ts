@@ -15,18 +15,61 @@ const t = createDocsTranslator({
 });
 
 const propsRows = [
-  { name: "name", type: "string", default: "zh-CN", desc: pick("语言名称，同时反射为 lang", "Locale name, also reflected to lang.") },
+  {
+    name: "name",
+    type: "string",
+    default: "zh-CN",
+    desc: pick("语言名称，同时反射为 lang", "Locale name, also reflected to lang."),
+  },
   { name: "dir", type: "ltr | rtl", default: "ltr", desc: pick("文本方向", "Text direction.") },
-  { name: "rtl", type: "boolean", default: "false", desc: pick("快捷切换为 rtl", "Shortcut for RTL direction.") },
-  { name: "messages", type: "object", default: "{}", desc: pick("与默认文案合并的本地化消息", "Localized messages merged with the defaults.") },
-  { name: "time-zone", type: "string", default: "''", desc: pick("日期格式化默认时区", "Default time zone for date formatting.") },
-  { name: "adapter", type: "LocaleAdapter", default: "—", desc: pick("接入外部翻译与数字、日期格式化策略", "Connect external translation, number, and date formatting strategies.") },
+  {
+    name: "rtl",
+    type: "boolean",
+    default: "false",
+    desc: pick("快捷切换为 rtl", "Shortcut for RTL direction."),
+  },
+  {
+    name: "messages",
+    type: "object",
+    default: "{}",
+    desc: pick("与默认文案合并的本地化消息", "Localized messages merged with the defaults."),
+  },
+  {
+    name: "time-zone",
+    type: "string",
+    default: "''",
+    desc: pick("日期格式化默认时区", "Default time zone for date formatting."),
+  },
+  {
+    name: "adapter",
+    type: "LocaleAdapter",
+    default: "—",
+    desc: pick(
+      "接入外部翻译与数字、日期格式化策略",
+      "Connect external translation, number, and date formatting strategies.",
+    ),
+  },
 ];
 
 const contextRows = [
-  { name: "t", type: "(path, params?) => string", default: "-", desc: pick("翻译并插入命名参数", "Translate a path and interpolate named parameters.") },
-  { name: "formatNumber", type: "(value, options?) => string", default: "-", desc: pick("按当前语言格式化数字", "Format numbers with the active locale.") },
-  { name: "formatDate", type: "(value, options?) => string", default: "-", desc: pick("按当前语言与时区格式化日期", "Format dates with the active locale and time zone.") }
+  {
+    name: "t",
+    type: "(path, params?) => string",
+    default: "-",
+    desc: pick("翻译并插入命名参数", "Translate a path and interpolate named parameters."),
+  },
+  {
+    name: "formatNumber",
+    type: "(value, options?) => string",
+    default: "-",
+    desc: pick("按当前语言格式化数字", "Format numbers with the active locale."),
+  },
+  {
+    name: "formatDate",
+    type: "(value, options?) => string",
+    default: "-",
+    desc: pick("按当前语言与时区格式化日期", "Format dates with the active locale and time zone."),
+  },
 ];
 
 useComponents({
@@ -38,8 +81,7 @@ useComponents({
 
 const PageLocaleProvider = defineHtml(`
   <elf-container>
-    <h1>${t("title")}</h1>
-    <p>${t("description")}</p>
+    <elf-docs-hero category="providers" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
 
     <page-locale-provider-ex1 />
     <page-locale-provider-ex2 />

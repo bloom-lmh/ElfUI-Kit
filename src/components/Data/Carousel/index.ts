@@ -10,7 +10,7 @@ import {
   useHost,
   useHostAttr,
   useHostFlag,
-  useRef
+  useRef,
 } from "@elfui/core";
 
 import { useLocaleProvider } from "../../Providers/context";
@@ -23,10 +23,9 @@ import type {
   CarouselEmits,
   CarouselIndicatorPosition,
   CarouselIndicatorType,
-  CarouselItemProps,
   CarouselProps,
   CarouselTrigger,
-  CarouselType
+  CarouselType,
 } from "./types";
 
 export type {
@@ -41,7 +40,7 @@ export type {
   CarouselItemProps,
   CarouselProps,
   CarouselTrigger,
-  CarouselType
+  CarouselType,
 } from "./types";
 
 const CAROUSEL_EFFECTS: readonly CarouselEffect[] = ["slide", "fade"];
@@ -76,7 +75,7 @@ const props = defineProps<CarouselProps>({
   arrow: { type: String, default: "hover" },
   indicatorPosition: { type: String, default: "" },
   direction: { type: String, default: "horizontal" },
-  ariaLabel: { type: String, default: "Carousel" }
+  ariaLabel: { type: String, default: "Carousel" },
 });
 
 const emit = defineEmits<CarouselEmits>();
@@ -188,21 +187,20 @@ const canAutoplay = (): boolean =>
   !pageHidden.value &&
   !reducedMotionBlocksAutoplay();
 
-const canGoPrevious = (): boolean =>
-  total.value > 1 && (Boolean(props.loop) || active.value > 0);
+const canGoPrevious = (): boolean => total.value > 1 && (Boolean(props.loop) || active.value > 0);
 
 const canGoNext = (): boolean =>
   total.value > 1 && (Boolean(props.loop) || active.value < total.value - 1);
 
 const dots = useComputed(() => Array.from({ length: total.value }, (_, index) => index));
 const showArrows = useComputed(
-  () => normalizedArrow() !== "never" && normalizedArrowStyle() !== "false" && total.value > 1
+  () => normalizedArrow() !== "never" && normalizedArrowStyle() !== "false" && total.value > 1,
 );
 const showIndicators = useComputed(
-  () => Boolean(props.showIndicator) && normalizedIndicatorPosition() !== "none" && total.value > 1
+  () => Boolean(props.showIndicator) && normalizedIndicatorPosition() !== "none" && total.value > 1,
 );
 const showPlaybackControl = useComputed(
-  () => Boolean(props.showPlayControl) && Boolean(props.autoplay) && total.value > 1
+  () => Boolean(props.showPlayControl) && Boolean(props.autoplay) && total.value > 1,
 );
 
 const trackTransform = (): string => {
@@ -447,7 +445,7 @@ const setActiveItem = (item: number | string): void => {
     return;
   }
   const index = slides().findIndex(
-    (child) => child.getAttribute("label") === item || child.getAttribute("name") === item
+    (child) => child.getAttribute("label") === item || child.getAttribute("name") === item,
   );
   if (index >= 0) goTo(index);
 };
@@ -607,7 +605,7 @@ defineExpose({
   prev: doPrevious,
   next: doNext,
   pause,
-  play
+  play,
 });
 
 defineStyle(styles);
@@ -618,7 +616,7 @@ const Carousel = defineHtml<CarouselProps, CarouselEmits>(`
     :style=${{
       height: props.height,
       borderRadius: props.radius,
-      "--_dur": props.duration
+      "--_dur": props.duration,
     }}
     role="region"
     aria-roledescription="carousel"

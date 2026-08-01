@@ -6,6 +6,8 @@ export interface LoadingProps {
   fullscreen: boolean;
   background: string;
   closable: boolean;
+  /** Removes the indicator card surface while retaining the overlay. */
+  plain: boolean;
   variant: LoadingVariant;
   svg: string;
   svgViewBox: string;
@@ -19,6 +21,8 @@ export interface LoadingOptions {
   body?: boolean;
   fullscreen?: boolean;
   closable?: boolean;
+  /** Removes the indicator card surface while retaining the overlay. */
+  plain?: boolean;
   lock?: boolean;
   text?: string;
   background?: string;
@@ -50,4 +54,6 @@ export interface LoadingEmits {
 
 export interface LoadingSlots {
   default?: () => unknown;
+  /** Custom loading icon or animation. */
+  indicator?: () => unknown;
 }

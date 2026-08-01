@@ -4,13 +4,19 @@ import { createDocsTranslator } from "../../docsLocale";
 
 const t = createDocsTranslator({
   title: { zh: "Space 间距", en: "Space" },
-  description: { zh: "为一组元素提供统一间距、方向、换行、填充和字符分隔。", en: "Apply consistent spacing, direction, wrapping, filling, and text separators to sibling items." },
+  description: {
+    zh: "为一组元素提供统一间距、方向、换行、填充和字符分隔。",
+    en: "Apply consistent spacing, direction, wrapping, filling, and text separators to sibling items.",
+  },
   basic: { zh: "水平、垂直与换行", en: "Horizontal, vertical, and wrapping" },
   size: { zh: "间距尺寸", en: "Spacing sizes" },
   spacer: { zh: "字符分隔与填充", en: "Text spacer and fill" },
   item: { zh: "项目", en: "Item" },
-  staticScript: { zh: "静态布局案例无需额外状态。", en: "The static layout examples require no additional state." },
-  defaultSlot: { zh: "参与间距布局的元素", en: "Elements participating in the spacing layout" }
+  staticScript: {
+    zh: "静态布局案例无需额外状态。",
+    en: "The static layout examples require no additional state.",
+  },
+  defaultSlot: { zh: "参与间距布局的元素", en: "Elements participating in the spacing layout" },
 });
 
 const basicCode = (): string => `<elf-space size="default">
@@ -42,19 +48,23 @@ defineStyle(`
 `);
 
 const propsRows = () => [
-  { name: "direction", type: "horizontal | vertical", default: "horizontal", desc: t("description") },
+  {
+    name: "direction",
+    type: "horizontal | vertical",
+    default: "horizontal",
+    desc: t("description"),
+  },
   { name: "alignment", type: "CSS align-items", default: "center" },
   { name: "size", type: "small | default | large | number | [number, number]", default: "small" },
   { name: "spacer", type: "string | number", default: "''" },
   { name: "wrap", type: "boolean", default: "false" },
   { name: "fill", type: "boolean", default: "false" },
-  { name: "fill-ratio", type: "number", default: "100" }
+  { name: "fill-ratio", type: "number", default: "100" },
 ];
 
 const PageSpace = defineHtml(`
   <elf-container>
-    <h1>${t("title")}</h1>
-    <p>${t("description")}</p>
+    <elf-docs-hero category="layout" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
 
     <h2>${t("basic")}</h2>
     <elf-playground :title=${t("basic")} :code=${basicCode()} :script=${script()}>

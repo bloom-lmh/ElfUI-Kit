@@ -1,5 +1,8 @@
-import { defineHtml, useRef } from "@elfui/core";
+import { defineHtml, defineStyle, useRef } from "@elfui/core";
 import { createDocsTranslator } from "../../docsLocale";
+import styles from "./demo.scss?inline";
+
+defineStyle(styles);
 
 const t = createDocsTranslator({
   section: { zh: "组合式链接", en: "Compositional links" },
@@ -47,9 +50,7 @@ const onChange = (event) => {
 const PageAnchorEx3 = defineHtml(`
   <h2>${t("section")}</h2>
   <elf-playground :title=${t("title")} :code=${code} :script=${script}>
-    <div
-      style="display:grid;grid-template-columns:minmax(160px,220px) 1fr;gap:20px;width:100%;max-width:860px"
-    >
+    <div class="anchor-demo-layout">
       <elf-anchor
         container="#anchor-links-scroll"
         :modelValue.prop=${active.value}
@@ -64,24 +65,21 @@ const PageAnchorEx3 = defineHtml(`
           ></elf-anchor-link>
         </elf-anchor-link>
       </elf-anchor>
-      <div
-        id="anchor-links-scroll"
-        style="height:280px;overflow:auto;border:1px solid var(--elf-border);border-radius:8px;background:var(--elf-bg-paper)"
-      >
-        <section id="anchor-links-overview" style="min-height:220px;padding:20px">
+      <div id="anchor-links-scroll" class="anchor-document">
+        <section id="anchor-links-overview" class="anchor-section">
           <h3>${t("overview")}</h3>
           <p>${t("overviewBody")}</p>
         </section>
         <section
           id="anchor-links-guide"
-          style="min-height:220px;padding:20px;border-top:1px solid var(--elf-border)"
+          class="anchor-section"
         >
           <h3>${t("guide")}</h3>
           <p>${t("guideBody")}</p>
         </section>
         <section
           id="anchor-links-api"
-          style="min-height:220px;padding:20px;border-top:1px solid var(--elf-border)"
+          class="anchor-section"
         >
           <h3>${t("api")}</h3>
           <p>${t("apiBody")}</p>

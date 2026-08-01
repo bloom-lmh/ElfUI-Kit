@@ -3,275 +3,88 @@ import { createDocsTranslator } from "../../docsLocale";
 
 const t = createDocsTranslator({
   cardTitle: { zh: "卡片骨架", en: "Card skeleton" },
-  cardPlayground: { zh: "图片、标题、正文与按钮占位", en: "Placeholders for image, heading, body, and actions" },
+  cardPlayground: {
+    zh: "紧凑图片、正文与操作占位",
+    en: "Compact image, body, and action placeholders",
+  },
   listTitle: { zh: "列表骨架", en: "List skeleton" },
-  listPlayground: { zh: "头像与两行文字，共三项", en: "Three avatar-and-two-line items" },
+  listPlayground: { zh: "紧凑头像与两行文字", en: "Compact avatar and two-line items" },
   dashboardTitle: { zh: "仪表盘骨架", en: "Dashboard skeleton" },
-  dashboardPlayground: { zh: "2×2 卡片网格", en: "A 2×2 card grid" }
+  dashboardPlayground: { zh: "自适应迷你数据卡片", en: "Responsive mini data cards" },
 });
-const code1 = `<elf-card style="max-width:480px;width:100%">
-  <elf-skeleton loading variant="image" width="100%" height="180px" />
-  <div style="padding:20px 20px 0">
-    <elf-skeleton loading variant="text" width="60%" height="20px" />
-    <div style="height:6px"></div>
-    <elf-skeleton loading variant="text" width="40%" height="14px" />
-  </div>
-  <div style="padding:20px">
-    <elf-skeleton loading variant="text" count="3" gap="8px" />
-  </div>
-  <div style="padding:0 20px 16px;display:flex;gap:8px;justify-content:flex-end">
-    <elf-skeleton loading variant="rect" width="60px" height="32px" />
-    <elf-skeleton loading variant="rect" width="60px" height="32px" />
+
+const listRows = [52, 44, 58];
+const dashboardCards = [1, 2, 3, 4];
+const barHeights = [28, 42, 24, 50, 34, 40];
+
+const cardCode = `<elf-card style="max-width:360px;width:100%">
+  <elf-skeleton loading variant="image" width="100%" height="132px" />
+  <div style="padding:14px">
+    <elf-skeleton loading variant="text" width="60%" height="18px" />
+    <elf-skeleton loading variant="text" count="2" gap="7px" />
   </div>
 </elf-card>`;
 
-const code2 = `<div style="display:flex;flex-direction:column;gap:16px;width:360px">
-  <div style="display:flex;gap:12px;align-items:center">
-    <elf-skeleton loading variant="circle" width="48px" height="48px" />
-    <div style="flex:1;display:flex;flex-direction:column;gap:6px">
-      <elf-skeleton loading variant="text" width="50%" height="14px" />
-      <elf-skeleton loading variant="text" width="70%" height="12px" />
-    </div>
-  </div>
-  <div style="display:flex;gap:12px;align-items:center">
-    <elf-skeleton loading variant="circle" width="48px" height="48px" />
-    <div style="flex:1;display:flex;flex-direction:column;gap:6px">
-      <elf-skeleton loading variant="text" width="40%" height="14px" />
-      <elf-skeleton loading variant="text" width="60%" height="12px" />
-    </div>
-  </div>
-  <div style="display:flex;gap:12px;align-items:center">
-    <elf-skeleton loading variant="circle" width="48px" height="48px" />
-    <div style="flex:1;display:flex;flex-direction:column;gap:6px">
-      <elf-skeleton loading variant="text" width="55%" height="14px" />
-      <elf-skeleton loading variant="text" width="65%" height="12px" />
-    </div>
+const listCode = `<div style="width:300px">
+  <div v-for="row in rows" style="display:flex;gap:12px;align-items:center">
+    <elf-skeleton loading variant="circle" width="40px" height="40px" />
+    <elf-skeleton loading variant="text" count="2" gap="6px" />
   </div>
 </div>`;
 
-const code3 = `<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;width:100%;max-width:720px">
-  <elf-card>
-    <div style="padding:20px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
-        <elf-skeleton loading variant="text" width="55%" height="16px" />
-        <elf-skeleton loading variant="circle" width="28px" height="28px" />
-      </div>
-      <div style="display:flex;align-items:flex-end;gap:6px;height:70px">
-        <elf-skeleton loading variant="rect" width="14%" height="38px" /><elf-skeleton loading variant="rect" width="14%" height="55px" /><elf-skeleton loading variant="rect" width="14%" height="32px" /><elf-skeleton loading variant="rect" width="14%" height="68px" /><elf-skeleton loading variant="rect" width="14%" height="44px" /><elf-skeleton loading variant="rect" width="14%" height="52px" />
-      </div>
-      <div style="margin:8px 0 14px 0;border-bottom:1px solid var(--elf-border)"></div>
-      <elf-skeleton loading variant="text" width="72%" height="16px" /><div style="height:6px"></div>
-      <elf-skeleton loading variant="text" width="48%" />
-    </div>
-  </elf-card>
-  <elf-card>
-    <div style="padding:20px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
-        <elf-skeleton loading variant="text" width="45%" height="16px" />
-        <elf-skeleton loading variant="circle" width="28px" height="28px" />
-      </div>
-      <div style="display:flex;align-items:flex-end;gap:6px;height:70px">
-        <elf-skeleton loading variant="rect" width="14%" height="50px" /><elf-skeleton loading variant="rect" width="14%" height="35px" /><elf-skeleton loading variant="rect" width="14%" height="62px" /><elf-skeleton loading variant="rect" width="14%" height="28px" /><elf-skeleton loading variant="rect" width="14%" height="58px" /><elf-skeleton loading variant="rect" width="14%" height="42px" />
-      </div>
-      <div style="margin:8px 0 14px 0;border-bottom:1px solid var(--elf-border)"></div>
-      <elf-skeleton loading variant="text" width="60%" height="16px" /><div style="height:6px"></div>
-      <elf-skeleton loading variant="text" width="42%" />
-    </div>
-  </elf-card>
-  <elf-card>
-    <div style="padding:20px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
-        <elf-skeleton loading variant="text" width="62%" height="16px" />
-        <elf-skeleton loading variant="circle" width="28px" height="28px" />
-      </div>
-      <div style="display:flex;align-items:flex-end;gap:6px;height:70px">
-        <elf-skeleton loading variant="rect" width="14%" height="42px" /><elf-skeleton loading variant="rect" width="14%" height="60px" /><elf-skeleton loading variant="rect" width="14%" height="36px" /><elf-skeleton loading variant="rect" width="14%" height="70px" /><elf-skeleton loading variant="rect" width="14%" height="48px" /><elf-skeleton loading variant="rect" width="14%" height="56px" />
-      </div>
-      <div style="margin:8px 0 14px 0;border-bottom:1px solid var(--elf-border)"></div>
-      <elf-skeleton loading variant="text" width="68%" height="16px" /><div style="height:6px"></div>
-      <elf-skeleton loading variant="text" width="52%" />
-    </div>
-  </elf-card>
-  <elf-card>
-    <div style="padding:20px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
-        <elf-skeleton loading variant="text" width="50%" height="16px" />
-        <elf-skeleton loading variant="circle" width="28px" height="28px" />
-      </div>
-      <div style="display:flex;align-items:flex-end;gap:6px;height:70px">
-        <elf-skeleton loading variant="rect" width="14%" height="48px" /><elf-skeleton loading variant="rect" width="14%" height="64px" /><elf-skeleton loading variant="rect" width="14%" height="30px" /><elf-skeleton loading variant="rect" width="14%" height="58px" /><elf-skeleton loading variant="rect" width="14%" height="40px" /><elf-skeleton loading variant="rect" width="14%" height="66px" />
-      </div>
-      <div style="margin:8px 0 14px 0;border-bottom:1px solid var(--elf-border)"></div>
-      <elf-skeleton loading variant="text" width="65%" height="16px" /><div style="height:6px"></div>
-      <elf-skeleton loading variant="text" width="44%" />
-    </div>
+const dashboardCode = `<div class="dashboard-grid">
+  <elf-card v-for="card in cards">
+    <elf-skeleton loading variant="text" width="55%" />
+    <div class="mini-bars">...</div>
   </elf-card>
 </div>`;
 
 const PageSkeletonEx2 = defineHtml(`
   <h2>${t("cardTitle")}</h2>
-  <elf-playground :title=${t("cardPlayground")} :code="code1">
-    <elf-card style="max-width:480px;width:100%;pointer-events:none">
-      <elf-skeleton loading variant="image" width="100%" height="180px" />
-      <div style="padding:20px 20px 0">
-        <elf-skeleton loading variant="text" width="60%" height="20px" />
-        <div style="height:6px"></div>
-        <elf-skeleton loading variant="text" width="40%" height="14px" />
+  <elf-playground :title=${t("cardPlayground")} :code=${cardCode}>
+    <elf-card style="max-width:360px;width:100%;pointer-events:none">
+      <elf-skeleton loading variant="image" width="100%" height="132px"></elf-skeleton>
+      <div style="padding:14px 14px 0">
+        <elf-skeleton loading variant="text" width="60%" height="18px"></elf-skeleton>
+        <elf-skeleton loading variant="text" width="42%" height="12px" style="margin-top:7px"></elf-skeleton>
       </div>
-      <div style="padding:20px">
-        <elf-skeleton loading variant="text" count="3" gap="8px" />
+      <div style="padding:14px">
+        <elf-skeleton loading variant="text" count="2" gap="7px"></elf-skeleton>
       </div>
-      <div style="padding:0 20px 16px;display:flex;gap:8px;justify-content:flex-end">
-        <elf-skeleton loading variant="rect" width="60px" height="32px" />
-        <elf-skeleton loading variant="rect" width="60px" height="32px" />
+      <div style="display:flex;justify-content:flex-end;gap:8px;padding:0 14px 12px">
+        <elf-skeleton loading variant="rect" width="54px" height="28px"></elf-skeleton>
+        <elf-skeleton loading variant="rect" width="54px" height="28px"></elf-skeleton>
       </div>
     </elf-card>
   </elf-playground>
 
   <h2>${t("listTitle")}</h2>
-  <elf-playground :title=${t("listPlayground")} :code="code2">
-    <div style="display:flex;flex-direction:column;gap:16px;width:360px">
-      <div style="display:flex;gap:12px;align-items:center">
-        <elf-skeleton loading variant="circle" width="48px" height="48px" />
-        <div style="flex:1;display:flex;flex-direction:column;gap:6px">
-          <elf-skeleton loading variant="text" width="50%" height="14px" />
-          <elf-skeleton loading variant="text" width="70%" height="12px" />
-        </div>
-      </div>
-      <div style="display:flex;gap:12px;align-items:center">
-        <elf-skeleton loading variant="circle" width="48px" height="48px" />
-        <div style="flex:1;display:flex;flex-direction:column;gap:6px">
-          <elf-skeleton loading variant="text" width="40%" height="14px" />
-          <elf-skeleton loading variant="text" width="60%" height="12px" />
-        </div>
-      </div>
-      <div style="display:flex;gap:12px;align-items:center">
-        <elf-skeleton loading variant="circle" width="48px" height="48px" />
-        <div style="flex:1;display:flex;flex-direction:column;gap:6px">
-          <elf-skeleton loading variant="text" width="55%" height="14px" />
-          <elf-skeleton loading variant="text" width="65%" height="12px" />
+  <elf-playground :title=${t("listPlayground")} :code=${listCode}>
+    <div style="display:grid;gap:12px;width:min(100%,300px)">
+      <div v-for="width in listRows" :key="width" style="display:flex;gap:12px;align-items:center">
+        <elf-skeleton loading variant="circle" width="40px" height="40px"></elf-skeleton>
+        <div style="display:grid;flex:1;gap:6px">
+          <elf-skeleton loading variant="text" :width="width + '%'" height="13px"></elf-skeleton>
+          <elf-skeleton loading variant="text" :width="(width + 20) + '%'" height="11px"></elf-skeleton>
         </div>
       </div>
     </div>
   </elf-playground>
 
   <h2>${t("dashboardTitle")}</h2>
-  <elf-playground :title=${t("dashboardPlayground")} :code="code3">
-    <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;width:100%;max-width:720px">
-      <elf-card style="pointer-events:none">
-        <div style="padding:20px">
-          <div
-            style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px"
-          >
-            <elf-skeleton loading variant="text" width="55%" height="16px" />
-            <elf-skeleton loading variant="circle" width="28px" height="28px" />
+  <elf-playground :title=${t("dashboardPlayground")} :code=${dashboardCode}>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;width:100%;max-width:540px">
+      <elf-card v-for="card in dashboardCards" :key="card" style="pointer-events:none">
+        <div style="padding:14px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+            <elf-skeleton loading variant="text" :width="(42 + card * 4) + '%'" height="14px"></elf-skeleton>
+            <elf-skeleton loading variant="circle" width="24px" height="24px"></elf-skeleton>
           </div>
-          <div style="display:flex;align-items:flex-end;gap:6px;height:70px">
-            <elf-skeleton loading variant="rect" width="14%" height="38px" /><elf-skeleton loading
-              variant="rect"
-              width="14%"
-              height="55px"
-            /><elf-skeleton loading variant="rect" width="14%" height="32px" /><elf-skeleton loading
-              variant="rect"
-              width="14%"
-              height="68px"
-            /><elf-skeleton loading variant="rect" width="14%" height="44px" /><elf-skeleton loading
-              variant="rect"
-              width="14%"
-              height="52px"
-            />
+          <div style="display:flex;align-items:flex-end;gap:5px;height:50px">
+            <elf-skeleton v-for="(height, index) in barHeights" :key="index" loading variant="rect" width="14%" :height="height + 'px'"></elf-skeleton>
           </div>
-          <div style="margin:8px 0 14px 0;border-bottom:1px solid var(--elf-border)"></div>
-          <elf-skeleton loading variant="text" width="72%" height="16px" />
-          <div style="height:6px"></div>
-          <elf-skeleton loading variant="text" width="48%" />
-        </div>
-      </elf-card>
-      <elf-card style="pointer-events:none">
-        <div style="padding:20px">
-          <div
-            style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px"
-          >
-            <elf-skeleton loading variant="text" width="45%" height="16px" />
-            <elf-skeleton loading variant="circle" width="28px" height="28px" />
-          </div>
-          <div style="display:flex;align-items:flex-end;gap:6px;height:70px">
-            <elf-skeleton loading variant="rect" width="14%" height="50px" /><elf-skeleton loading
-              variant="rect"
-              width="14%"
-              height="35px"
-            /><elf-skeleton loading variant="rect" width="14%" height="62px" /><elf-skeleton loading
-              variant="rect"
-              width="14%"
-              height="28px"
-            /><elf-skeleton loading variant="rect" width="14%" height="58px" /><elf-skeleton loading
-              variant="rect"
-              width="14%"
-              height="42px"
-            />
-          </div>
-          <div style="margin:8px 0 14px 0;border-bottom:1px solid var(--elf-border)"></div>
-          <elf-skeleton loading variant="text" width="60%" height="16px" />
-          <div style="height:6px"></div>
-          <elf-skeleton loading variant="text" width="42%" />
-        </div>
-      </elf-card>
-      <elf-card style="pointer-events:none">
-        <div style="padding:20px">
-          <div
-            style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px"
-          >
-            <elf-skeleton loading variant="text" width="62%" height="16px" />
-            <elf-skeleton loading variant="circle" width="28px" height="28px" />
-          </div>
-          <div style="display:flex;align-items:flex-end;gap:6px;height:70px">
-            <elf-skeleton loading variant="rect" width="14%" height="42px" /><elf-skeleton loading
-              variant="rect"
-              width="14%"
-              height="60px"
-            /><elf-skeleton loading variant="rect" width="14%" height="36px" /><elf-skeleton loading
-              variant="rect"
-              width="14%"
-              height="70px"
-            /><elf-skeleton loading variant="rect" width="14%" height="48px" /><elf-skeleton loading
-              variant="rect"
-              width="14%"
-              height="56px"
-            />
-          </div>
-          <div style="margin:8px 0 14px 0;border-bottom:1px solid var(--elf-border)"></div>
-          <elf-skeleton loading variant="text" width="68%" height="16px" />
-          <div style="height:6px"></div>
-          <elf-skeleton loading variant="text" width="52%" />
-        </div>
-      </elf-card>
-      <elf-card style="pointer-events:none">
-        <div style="padding:20px">
-          <div
-            style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px"
-          >
-            <elf-skeleton loading variant="text" width="50%" height="16px" />
-            <elf-skeleton loading variant="circle" width="28px" height="28px" />
-          </div>
-          <div style="display:flex;align-items:flex-end;gap:6px;height:70px">
-            <elf-skeleton loading variant="rect" width="14%" height="48px" /><elf-skeleton loading
-              variant="rect"
-              width="14%"
-              height="64px"
-            /><elf-skeleton loading variant="rect" width="14%" height="30px" /><elf-skeleton loading
-              variant="rect"
-              width="14%"
-              height="58px"
-            /><elf-skeleton loading variant="rect" width="14%" height="40px" /><elf-skeleton loading
-              variant="rect"
-              width="14%"
-              height="66px"
-            />
-          </div>
-          <div style="margin:8px 0 14px 0;border-bottom:1px solid var(--elf-border)"></div>
-          <elf-skeleton loading variant="text" width="65%" height="16px" />
-          <div style="height:6px"></div>
-          <elf-skeleton loading variant="text" width="44%" />
+          <div style="height:1px;margin:10px 0;background:var(--elf-divider)"></div>
+          <elf-skeleton loading variant="text" width="64%" height="13px"></elf-skeleton>
         </div>
       </elf-card>
     </div>

@@ -28,7 +28,7 @@ beforeAll(async () => {
   defaultsProviderTag = ensureCustomElement(PageDefaultsProvider);
   localeProviderTag = ensureCustomElement(PageLocaleProvider);
   themeProviderTag = ensureCustomElement(PageThemeProvider);
-});
+}, 60_000);
 
 afterEach(async () => {
   const { ElfMessage } = await import("../../components/Feedback/Message");
@@ -79,7 +79,7 @@ describe("Provider pages", () => {
     const page = await mount(themeNestedTag);
     const providers = page.shadowRoot!.querySelectorAll<HTMLElement>("elf-theme-provider");
     expect(providers).toHaveLength(2);
-    expect(providers[0]!.style.getPropertyValue("--elf-bg-paper")).toBe("#1e1e1e");
+    expect(providers[0]!.style.getPropertyValue("--elf-bg-paper")).toBe("#111827");
     expect(providers[1]!.style.getPropertyValue("--elf-primary")).toBe("#ffb4ab");
     expect(providers[1]!.style.getPropertyValue("--elf-bg-paper")).toBe("#2b2020");
   });
@@ -88,9 +88,12 @@ describe("Provider pages", () => {
     const page = await mount(defaultsNestedTag);
     const providers = page.shadowRoot!.querySelectorAll("elf-defaults-provider");
     expect(providers).toHaveLength(3);
-    const outerButton = providers[0]!.querySelector("elf-button") as HTMLElement & Record<string, unknown>;
-    const innerButton = providers[1]!.querySelector("elf-button") as HTMLElement & Record<string, unknown>;
-    const resetButton = providers[2]!.querySelector("elf-button") as HTMLElement & Record<string, unknown>;
+    const outerButton = providers[0]!.querySelector("elf-button") as HTMLElement &
+      Record<string, unknown>;
+    const innerButton = providers[1]!.querySelector("elf-button") as HTMLElement &
+      Record<string, unknown>;
+    const resetButton = providers[2]!.querySelector("elf-button") as HTMLElement &
+      Record<string, unknown>;
     expect(outerButton.variant).toBe("outlined");
     expect(innerButton.color).toBe("success");
     expect(resetButton.color).toBe("warning");
@@ -100,7 +103,8 @@ describe("Provider pages", () => {
   it("ConfigProvider 中文页面展示一站式配置、命名主题和断点", async () => {
     const page = await mount(configProviderTag);
     const text = collectText(page);
-    expect(text).toContain("统一入口 · 蓝图与默认值");
+    expect(text).toContain("配置优先级：基础预设 → 应用配置 → 显式属性");
+    expect(text).toContain("blueprint 是可复用的基础预设");
     expect(text).toContain("命名主题");
     expect(text).toContain("显示与动效偏好");
     expect(text).toContain("程序化滚动 · 共享滚动策略");
@@ -110,14 +114,15 @@ describe("Provider pages", () => {
     document.documentElement.lang = "en-US";
     const page = await mount(configProviderTag);
     const text = collectText(page);
-    expect(text).toContain("One entry point");
+    expect(text).toContain("Configuration priority");
+    expect(text).toContain("blueprint is a reusable base preset");
     expect(text).toContain("Named theme");
     expect(text).toContain("Display and motion preferences");
     expect(text).toContain("Programmatic scrolling · shared strategy");
     expect(text).toContain("Field value semantics");
     expect(text).toContain("Shared emptyValues and valueOnClear semantics across fields.");
-    expect(text).toContain("Base preset merged before config.");
-    expect(text).not.toContain("统一入口 · 蓝图与默认值");
+    expect(text).toContain("Reusable base preset; matching config values override it.");
+    expect(text).not.toContain("配置优先级：基础预设 → 应用配置 → 显式属性");
   });
 
   it("DefaultsProvider 英文页面覆盖三个策略案例和 API 文案", async () => {

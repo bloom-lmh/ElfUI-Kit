@@ -19,24 +19,43 @@ const propsRows = [
     name: "defaults",
     type: "Record<string, object>",
     default: "{}",
-    desc: pick("按组件名匹配默认属性", "Default props keyed by component name.")
+    desc: pick("按组件名匹配默认属性", "Default props keyed by component name."),
   },
-  { name: "strategy", type: "missing | overwrite", default: "missing", desc: pick("默认值写入策略", "Default-value application strategy.") },
-  { name: "deep", type: "boolean", default: "true", desc: pick("是否递归作用于所有后代", "Apply recursively to descendants.") },
-  { name: "disabled", type: "boolean", default: "false", desc: pick("禁用默认值下发", "Disable default propagation.") },
-  { name: "reset", type: "boolean", default: "false", desc: pick("停止继承外层 DefaultsProvider", "Stop inheriting the outer DefaultsProvider.") }
+  {
+    name: "strategy",
+    type: "missing | overwrite",
+    default: "missing",
+    desc: pick("默认值写入策略", "Default-value application strategy."),
+  },
+  {
+    name: "deep",
+    type: "boolean",
+    default: "true",
+    desc: pick("是否递归作用于所有后代", "Apply recursively to descendants."),
+  },
+  {
+    name: "disabled",
+    type: "boolean",
+    default: "false",
+    desc: pick("禁用默认值下发", "Disable default propagation."),
+  },
+  {
+    name: "reset",
+    type: "boolean",
+    default: "false",
+    desc: pick("停止继承外层 DefaultsProvider", "Stop inheriting the outer DefaultsProvider."),
+  },
 ];
 
 useComponents({
   "page-defaults-provider-ex1": PageDefaultsProviderEx1,
   "page-defaults-provider-ex2": PageDefaultsProviderEx2,
-  "page-defaults-provider-ex3": PageDefaultsProviderEx3
+  "page-defaults-provider-ex3": PageDefaultsProviderEx3,
 });
 
 const PageDefaultsProvider = defineHtml(`
   <elf-container>
-    <h1>${t("title")}</h1>
-    <p>${t("description")}</p>
+    <elf-docs-hero category="providers" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
 
     <page-defaults-provider-ex1 />
 

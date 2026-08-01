@@ -1,7 +1,7 @@
 :host {
   display: block;
   width: 100%;
-  color: var(--elf-text-on-primary, #fff);
+  color: #fff;
   font-family: var(--elf-font-family, sans-serif);
 }
 
@@ -129,7 +129,11 @@ video {
 .timeline::-webkit-slider-runnable-track {
   height: 4px;
   border-radius: 999px;
-  background: rgb(255 255 255 / 58%);
+  background: linear-gradient(
+    to right,
+    var(--elf-primary, #409eff) 0 var(--_video-progress, 0%),
+    rgb(255 255 255 / 52%) var(--_video-progress, 0%) 100%
+  );
 }
 
 .timeline::-webkit-slider-thumb {
@@ -146,7 +150,11 @@ video {
 .timeline::-moz-range-track {
   height: 4px;
   border-radius: 999px;
-  background: rgb(255 255 255 / 58%);
+  background: linear-gradient(
+    to right,
+    var(--elf-primary, #409eff) 0 var(--_video-progress, 0%),
+    rgb(255 255 255 / 52%) var(--_video-progress, 0%) 100%
+  );
 }
 
 .timeline::-moz-range-thumb {
@@ -160,7 +168,11 @@ video {
 .time {
   min-width: 80px;
   color: rgb(255 255 255 / 86%);
-  font: 500 12px/1 ui-monospace, SFMono-Regular, Consolas, monospace;
+  font:
+    500 12px/1 ui-monospace,
+    SFMono-Regular,
+    Consolas,
+    monospace;
   text-align: center;
 }
 
@@ -206,9 +218,54 @@ video {
 }
 
 .volume-popover {
-  gap: 8px;
-  min-width: 58px;
+  gap: 10px;
+  min-width: 64px;
   padding: 12px 9px 10px;
+}
+
+.volume-meter {
+  display: flex;
+  height: 22px;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 3px;
+}
+
+.volume-meter i,
+.volume-icon i {
+  display: block;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 28%);
+  transition:
+    height 120ms ease,
+    background-color 120ms ease,
+    box-shadow 120ms ease;
+}
+
+.volume-meter i {
+  width: 4px;
+}
+
+.volume-meter i:nth-child(1) {
+  height: 6px;
+}
+.volume-meter i:nth-child(2) {
+  height: 9px;
+}
+.volume-meter i:nth-child(3) {
+  height: 13px;
+}
+.volume-meter i:nth-child(4) {
+  height: 17px;
+}
+.volume-meter i:nth-child(5) {
+  height: 21px;
+}
+
+.volume-meter i.active,
+.volume-icon i.active {
+  background: var(--elf-primary, #409eff);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--elf-primary, #409eff) 62%, transparent);
 }
 
 .volume-popover::after,
@@ -239,7 +296,11 @@ video {
 .volume-slider::-webkit-slider-runnable-track {
   height: 4px;
   border-radius: 999px;
-  background: rgb(255 255 255 / 42%);
+  background: linear-gradient(
+    to right,
+    var(--elf-primary, #409eff) 0 var(--_video-volume, 100%),
+    rgb(255 255 255 / 36%) var(--_video-volume, 100%) 100%
+  );
 }
 
 .volume-slider::-webkit-slider-thumb {
@@ -255,7 +316,11 @@ video {
 .volume-slider::-moz-range-track {
   height: 4px;
   border-radius: 999px;
-  background: rgb(255 255 255 / 42%);
+  background: linear-gradient(
+    to right,
+    var(--elf-primary, #409eff) 0 var(--_video-volume, 100%),
+    rgb(255 255 255 / 36%) var(--_video-volume, 100%) 100%
+  );
 }
 
 .volume-slider::-moz-range-thumb {
@@ -268,7 +333,11 @@ video {
 
 .volume-popover output {
   color: rgb(255 255 255 / 82%);
-  font: 600 11px/1 ui-monospace, SFMono-Regular, Consolas, monospace;
+  font:
+    600 11px/1 ui-monospace,
+    SFMono-Regular,
+    Consolas,
+    monospace;
 }
 
 .rate-popover {
@@ -296,45 +365,35 @@ video {
 }
 
 .volume-icon {
-  position: relative;
-  display: block;
-  width: 18px;
+  display: flex;
+  width: 21px;
+  height: 16px;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 2px;
+}
+
+.volume-icon i {
+  width: 2px;
+}
+.volume-icon i:nth-child(1) {
+  height: 4px;
+}
+.volume-icon i:nth-child(2) {
+  height: 7px;
+}
+.volume-icon i:nth-child(3) {
+  height: 10px;
+}
+.volume-icon i:nth-child(4) {
+  height: 13px;
+}
+.volume-icon i:nth-child(5) {
   height: 16px;
 }
 
-.volume-icon::before {
-  position: absolute;
-  top: 4px;
-  left: 1px;
-  width: 7px;
-  height: 8px;
-  border-radius: 2px 0 0 2px;
-  background: currentColor;
-  box-shadow: 4px 0 0 -1px currentColor;
-  clip-path: polygon(0 25%, 45% 25%, 100% 0, 100% 100%, 45% 75%, 0 75%);
-  content: "";
-}
-
-.volume-icon::after {
-  position: absolute;
-  top: 3px;
-  right: 0;
-  width: 7px;
-  height: 10px;
-  border-right: 2px solid currentColor;
-  border-radius: 0 50% 50% 0;
-  content: "";
-}
-
-.volume-icon.muted::after {
-  top: 7px;
-  right: -1px;
-  width: 8px;
-  height: 2px;
-  border: 0;
-  border-radius: 999px;
-  background: currentColor;
-  transform: rotate(-45deg);
+.volume-icon.muted {
+  opacity: 0.62;
 }
 
 .pip-icon {

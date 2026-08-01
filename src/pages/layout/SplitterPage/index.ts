@@ -11,8 +11,8 @@ const t = createDocsTranslator({
   title: { zh: "分割面板", en: "Splitter" },
   description: {
     zh: "通过拖动分隔条调整两个区域的比例，并支持面板折叠、延迟渲染、尺寸持久化和键盘操作。",
-    en: "Resize two regions by dragging their separator, with panel collapsing, lazy rendering, size persistence, and keyboard controls."
-  }
+    en: "Resize two regions by dragging their separator, with panel collapsing, lazy rendering, size persistence, and keyboard controls.",
+  },
 });
 
 useComponents({
@@ -21,13 +21,12 @@ useComponents({
   "page-splitter-ex3": PageSplitterEx3,
   "page-splitter-ex4": PageSplitterEx4,
   "page-splitter-ex5": PageSplitterEx5,
-  "page-splitter-props": PageSplitterProps
+  "page-splitter-props": PageSplitterProps,
 });
 
 const PageSplitter = defineHtml(`
   <elf-container>
-    <h1>${t("title")}</h1>
-    <p>${t("description")}</p>
+    <elf-docs-hero category="layout" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
     <page-splitter-ex1></page-splitter-ex1>
     <page-splitter-ex2></page-splitter-ex2>
     <page-splitter-ex3></page-splitter-ex3>

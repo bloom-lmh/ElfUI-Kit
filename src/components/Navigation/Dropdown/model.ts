@@ -41,7 +41,13 @@ const DEFAULT_FIELDS: Required<DropdownFieldNames> = {
   children: "children",
 };
 
-const BUTTON_TYPES = new Set<DropdownButtonType>(["primary", "success", "warning", "danger", "info"]);
+const BUTTON_TYPES = new Set<DropdownButtonType>([
+  "primary",
+  "success",
+  "warning",
+  "danger",
+  "info",
+]);
 const TRIGGER_MODES = new Set<DropdownTriggerMode>(["click", "hover", "contextmenu"]);
 const PLACEMENTS = new Set<DropdownPlacement>([
   "bottom",
@@ -136,8 +142,7 @@ export const resolveSize = (value: unknown): DropdownSize => {
 export const asStringList = (value: unknown, fallback: string[]): string[] =>
   Array.isArray(value) ? value.map((key) => String(key)) : fallback;
 
-export const positiveDelay = (value: unknown): number =>
-  Math.max(0, Number(value) || 0);
+export const positiveDelay = (value: unknown): number => Math.max(0, Number(value) || 0);
 
 export const cssSize = (value: unknown, fallback: string): string => {
   if (value == null || value === "") return fallback;
@@ -156,16 +161,13 @@ export const resolvePopperConfig = (
   value: unknown,
   fallbackPlacement: unknown,
 ): DropdownPopperConfig => {
-  const options =
-    value && typeof value === "object"
-      ? (value as DropdownPopperOptions)
-      : {};
+  const options = value && typeof value === "object" ? (value as DropdownPopperOptions) : {};
   const placement = resolvePlacement(options.placement || fallbackPlacement);
   const offsetValue = findModifier(options, "offset")?.options?.offset;
   const offset: [number, number] =
     Array.isArray(offsetValue) && offsetValue.length >= 2
       ? [Number(offsetValue[0]) || 0, Number(offsetValue[1]) || 0]
-      : [0, 6];
+      : [0, 0];
 
   return {
     options,

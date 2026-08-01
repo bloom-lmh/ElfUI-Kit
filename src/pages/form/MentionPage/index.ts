@@ -11,13 +11,12 @@ useComponents({
   "page-mention-ex1": PageMentionEx1,
   "page-mention-ex2": PageMentionEx2,
   "page-mention-ex3": PageMentionEx3,
-  "page-mention-props": PageMentionProps
+  "page-mention-props": PageMentionProps,
 });
 
 const PageMention = defineHtml(`
   <elf-container>
-    <h1>${p("提及", "Mention")}</h1>
-    <p>${p("在文本输入中通过前缀触发候选面板，适合选择成员、话题或其它实体。", "Trigger a suggestion panel from text prefixes to select members, topics, or other entities.")}</p>
+    <elf-docs-hero category="form" tag="Mention" :title=${p("提及", "Mention")} :description=${p("在文本输入中通过前缀触发候选面板，适合选择成员、话题或其它实体。", "Trigger a suggestion panel from text prefixes to select members, topics, or other entities.")}></elf-docs-hero>
 
     <page-mention-ex1 />
 

@@ -1,8 +1,15 @@
-import { defineEmits, defineHtml, defineProps, defineStyle, useHostAttr, useHostFlag } from "@elfui/core";
+import {
+  defineEmits,
+  defineHtml,
+  defineProps,
+  defineStyle,
+  useHostAttr,
+  useHostFlag,
+} from "@elfui/core";
 
 import styles from "./style.scss?inline";
 import { useFormControl } from "../../../composables";
-import type { SegmentedFieldNames, SegmentedOption, SegmentedProps, SegmentedSize, SegmentedValue } from "./types";
+import type { SegmentedFieldNames, SegmentedProps, SegmentedSize, SegmentedValue } from "./types";
 
 export type {
   SegmentedFieldNames,
@@ -40,7 +47,9 @@ const props = defineProps<SegmentedProps>({
 const emit = defineEmits(["update:modelValue", "change"]);
 const ctl = useFormControl<SegmentedValue>(props, emit, {
   triggers:
-    props.validateEvent === false ? { change: false, input: false, blur: false } : { input: false, blur: false },
+    props.validateEvent === false
+      ? { change: false, input: false, blur: false }
+      : { input: false, blur: false },
 });
 
 const fields = (): Required<SegmentedFieldNames> => {
@@ -96,7 +105,8 @@ const optionIndexFromEvent = (event: Event): number => {
 };
 
 const onOptionKeyDown = (event: KeyboardEvent): void => {
-  if (!["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp", "Home", "End"].includes(event.key)) return;
+  if (!["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp", "Home", "End"].includes(event.key))
+    return;
   const source = options();
   const enabled = source.filter((option) => !props.disabled && !option.disabled);
   if (!enabled.length) return;
@@ -112,9 +122,9 @@ const onOptionKeyDown = (event: KeyboardEvent): void => {
         : enabled[(currentIndex + (backwards ? -1 : 1) + enabled.length) % enabled.length];
   if (!next) return;
   select(next);
-  const target = (event.currentTarget as HTMLElement | null)?.parentElement?.querySelector<HTMLElement>(
-    `.option[data-index="${next.key}"]`,
-  );
+  const target = (
+    event.currentTarget as HTMLElement | null
+  )?.parentElement?.querySelector<HTMLElement>(`.option[data-index="${next.key}"]`);
   target?.focus();
 };
 

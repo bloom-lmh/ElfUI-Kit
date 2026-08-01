@@ -1,9 +1,4 @@
-import {
-  defineDirective,
-  defineHtml,
-  defineStyle,
-  useRef
-} from "@elfui/core";
+import { defineDirective, defineHtml, defineStyle, useRef } from "@elfui/core";
 
 import { clickOutsideDirective } from "../../../directives";
 import { createDocsTranslator } from "../../docsLocale";
@@ -14,42 +9,50 @@ const t = createDocsTranslator({
   title: { zh: "外部点击", en: "Click outside" },
   description: {
     zh: "当指针事件发生在目标和排除元素之外时执行回调，适合菜单、建议面板和轻量浮层。",
-    en: "Run a callback when a pointer event occurs outside the target and excluded elements, ideal for menus, suggestion panels, and lightweight overlays."
+    en: "Run a callback when a pointer event occurs outside the target and excluded elements, ideal for menus, suggestion panels, and lightweight overlays.",
   },
-  demoTitle: { zh: "目标与排除区域", en: "Target and excluded areas" },
-  inside: { zh: "目标区域：点击这里不会触发", en: "Target area: clicks here are ignored" },
-  excluded: { zh: "排除按钮", en: "Excluded button" },
-  outside: { zh: "外部区域", en: "Outside area" },
+  demoTitle: { zh: "目标、触发器与外部区域", en: "Target, activator, and outside area" },
+  inside: { zh: "目标区域：不执行回调", en: "Target area: no callback" },
+  excluded: { zh: "触发按钮（已排除）", en: "Activator (excluded)" },
+  outside: { zh: "外部区域：执行回调", en: "Outside area: runs callback" },
   count: { zh: "外部触发", en: "Outside triggers" },
+  excludeNoteTitle: { zh: "为什么排除触发按钮？", en: "Why exclude the activator?" },
+  excludeNoteBody: {
+    zh: "触发按钮通常位于菜单或浮层目标之外。把它加入 exclude 后，点击按钮只负责开关浮层，不会同时被当作一次外部点击。",
+    en: "An activator usually sits outside its menu or overlay target. Adding it to exclude lets the button toggle the overlay without also counting as an outside click.",
+  },
   options: { zh: "配置", en: "Options" },
   handlerDescription: { zh: "外部事件回调。", en: "Callback for outside events." },
-  disabledDescription: { zh: "暂停触发而不卸载指令。", en: "Pauses handling without unmounting the directive." },
+  disabledDescription: {
+    zh: "暂停触发而不卸载指令。",
+    en: "Pauses handling without unmounting the directive.",
+  },
   eventDescription: { zh: "监听 pointerdown 或 click。", en: "Listens for pointerdown or click." },
   excludeDescription: {
-    zh: "排除元素、选择器、元素数组或元素解析函数。",
-    en: "Excludes an element, selector, element array, or element resolver."
+    zh: "位于目标之外、但不应触发回调的元素；支持选择器、元素、元素数组或解析函数。",
+    en: "Elements outside the target that must not trigger the callback; accepts a selector, element, element array, or resolver.",
   },
   a11yTitle: { zh: "焦点提示", en: "Focus note" },
   a11yBody: {
     zh: "隐藏浮层前应先把焦点恢复到触发器，避免焦点停留在即将隐藏的内容中。",
-    en: "Restore focus to the activator before hiding an overlay so focus is never retained inside hidden content."
-  }
+    en: "Restore focus to the activator before hiding an overlay so focus is never retained inside hidden content.",
+  },
 });
 
 defineStyle(
   articleStyles,
   `
-    .outside-actions {
-      display: flex;
-      align-items: center;
-      margin-bottom: var(--elf-space-3);
-    }
-
     .outside-demo {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(180px, .45fr);
+      grid-template-columns: minmax(260px, 1fr) minmax(200px, .72fr);
       gap: var(--elf-space-3);
       width: min(720px, 100%);
+    }
+
+    .outside-status {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--elf-space-2);
     }
 
     .outside-target,
@@ -77,7 +80,7 @@ defineStyle(
     @media (max-width: 640px) {
       .outside-demo { grid-template-columns: 1fr; }
     }
-  `
+  `,
 );
 
 const clickOutside = defineDirective(clickOutsideDirective);
@@ -89,14 +92,25 @@ const onOutside = (): void => {
 
 const directiveOptions = () => ({
   handler: onOutside,
-  exclude: ".outside-trigger"
+  event: "click" as const,
+  exclude: ".outside-trigger",
 });
 
 const optionRows = () => [
   { name: "handler", type: "(event) => void", default: "—", desc: t("handlerDescription") },
   { name: "disabled", type: "boolean", default: "false", desc: t("disabledDescription") },
-  { name: "event", type: "'pointerdown' | 'click'", default: "pointerdown", desc: t("eventDescription") },
-  { name: "exclude", type: "Element | string | Element[] | Function", default: "—", desc: t("excludeDescription") }
+  {
+    name: "event",
+    type: "'pointerdown' | 'click'",
+    default: "pointerdown",
+    desc: t("eventDescription"),
+  },
+  {
+    name: "exclude",
+    type: "Element | string | Element[] | Function",
+    default: "—",
+    desc: t("excludeDescription"),
+  },
 ];
 
 const code = `<elf-button class="outside-trigger">${t("excluded")}</elf-button>
@@ -115,6 +129,7 @@ const outsideCount = useRef(0);
 const onOutside = () => outsideCount.set(outsideCount.value + 1);
 const directiveOptions = () => ({
   handler: onOutside,
+  event: "click",
   exclude: ".outside-trigger"
 });`;
 
@@ -122,13 +137,13 @@ const PageClickOutside = defineHtml(`
   <elf-container class="docs-article">
     <span class="docs-kicker">${t("kicker")}</span>
     <h1>${t("title")}</h1>
-    <p class="page-lead">${t("description")}</p>
+    <elf-quote class="page-lead" type="primary">${t("description")}</elf-quote>
 
     <elf-playground :title=${t("demoTitle")} :code=${code} :script=${script}>
-      <span slot="status">${t("count")}: ${outsideCount}</span>
-      <div class="outside-actions">
-        <elf-button class="outside-trigger">${t("excluded")}</elf-button>
-      </div>
+      <span slot="status" class="outside-status">
+        <elf-button class="outside-trigger" size="sm">${t("excluded")}</elf-button>
+        <span role="status" aria-live="polite">${t("count")}: ${outsideCount}</span>
+      </span>
       <div class="outside-demo">
         <section v-click-outside=${directiveOptions()} class="outside-target">
           ${t("inside")}
@@ -136,6 +151,8 @@ const PageClickOutside = defineHtml(`
         <button class="outside-zone" type="button">${t("outside")}</button>
       </div>
     </elf-playground>
+
+    <elf-quote type="info" :title=${t("excludeNoteTitle")}>${t("excludeNoteBody")}</elf-quote>
 
     <section class="docs-section">
       <h2>API</h2>

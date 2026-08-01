@@ -77,11 +77,16 @@
   transition: background var(--elf-transition-fast);
 
   &.is-active {
-    background: linear-gradient(
-      to right,
-      color-mix(in srgb, var(--slider-color), white 20%) 0 var(--segment-fill, 100%),
-      color-mix(in srgb, var(--elf-border-strong), transparent 28%) var(--segment-fill, 100%) 100%
-    );
+    background: color-mix(in srgb, var(--elf-border-strong), transparent 28%);
+  }
+
+  &.is-active::after {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: var(--segment-fill, 100%);
+    border-radius: inherit;
+    background: var(--slider-color);
+    content: "";
   }
 }
 
@@ -352,11 +357,13 @@
   }
 
   .segment.is-active {
-    background: linear-gradient(
-      to top,
-      color-mix(in srgb, var(--slider-color), white 20%) 0 var(--segment-fill, 100%),
-      color-mix(in srgb, var(--elf-border-strong), transparent 28%) var(--segment-fill, 100%) 100%
-    );
+    background: color-mix(in srgb, var(--elf-border-strong), transparent 28%);
+  }
+
+  .segment.is-active::after {
+    inset: auto 0 0;
+    width: auto;
+    height: var(--segment-fill, 100%);
   }
 
   .tooltip.placement-top {

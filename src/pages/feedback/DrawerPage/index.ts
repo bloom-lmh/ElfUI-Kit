@@ -19,13 +19,12 @@ useComponents({
   "page-drawer-ex2": PageDrawerEx2,
   "page-drawer-ex3": PageDrawerEx3,
   "page-drawer-ex4": PageDrawerEx4,
-  "page-drawer-props": PageDrawerProps
+  "page-drawer-props": PageDrawerProps,
 });
 
 const PageDrawer = defineHtml(`
   <elf-container>
-    <h1>${t("title")}</h1>
-    <p>${t("description")}</p>
+    <elf-docs-hero category="feedback" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
     <page-drawer-ex1></page-drawer-ex1>
     <page-drawer-ex2></page-drawer-ex2>
     <page-drawer-ex3></page-drawer-ex3>

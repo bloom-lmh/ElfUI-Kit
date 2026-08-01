@@ -14,7 +14,6 @@ import { normalizeFieldVariant } from "../../../types/field";
 import { createTimeOptions } from "../time-options";
 import styles from "./style.scss?inline";
 import type {
-  TimeSelectElement,
   TimeSelectEmits,
   TimeSelectExpose,
   TimeSelectInnerElement,
@@ -62,9 +61,7 @@ const props = defineProps<TimeSelectProps>({
 
 const emit = defineEmits<TimeSelectEmits>();
 const control = useFormControl<string>(props, emit, {
-  ...(props.validateEvent === false
-    ? { triggers: { change: false, blur: false } }
-    : {}),
+  ...(props.validateEvent === false ? { triggers: { change: false, blur: false } } : {}),
 });
 const isDisabled = useDisabled(() => Boolean(props.disabled));
 const resolvedSize = useSize(() => props.size);
@@ -82,17 +79,13 @@ const options = () =>
   });
 
 const resolveSelect = (): TimeSelectInnerElement | null =>
-  host.shadowRoot?.querySelector(
-    "elf-select",
-  ) as TimeSelectInnerElement | null;
+  host.shadowRoot?.querySelector("elf-select") as TimeSelectInnerElement | null;
 
 const eventValue = (event: CustomEvent<unknown>): string =>
   typeof event.detail === "string" ? event.detail : "";
 
-const onUpdate = (event: CustomEvent<unknown>): void =>
-  control.setValue(eventValue(event));
-const onChange = (event: CustomEvent<unknown>): void =>
-  control.dispatchChange(eventValue(event));
+const onUpdate = (event: CustomEvent<unknown>): void => control.setValue(eventValue(event));
+const onChange = (event: CustomEvent<unknown>): void => control.dispatchChange(eventValue(event));
 const onClear = (): void => {
   emit("clear");
 };
@@ -111,10 +104,7 @@ useHostAttr("size", resolvedSize);
 useHostAttr("variant", () => normalizeFieldVariant(props.variant));
 useHostFlag("disabled", isDisabled);
 
-defineExpose<TimeSelectExpose>(
-  { open, close, focus, blur },
-  { overrideNative: ["focus", "blur"] },
-);
+defineExpose<TimeSelectExpose>({ open, close, focus, blur }, { overrideNative: ["focus", "blur"] });
 defineStyle(styles);
 
 const TimeSelect = defineHtml<TimeSelectProps>(`

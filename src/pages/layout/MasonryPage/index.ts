@@ -29,17 +29,55 @@ const t = createDocsTranslator({
     en: "Minimum column width used when reducing the column count automatically.",
   },
   gapDescription: { zh: "列与卡片之间的间距", en: "Spacing between columns and cards." },
-  slotDescription: { zh: "参与瀑布流排布的卡片内容", en: "Card content arranged by the masonry layout." },
+  slotDescription: {
+    zh: "参与瀑布流排布的卡片内容",
+    en: "Card content arranged by the masonry layout.",
+  },
 });
 
 const cards = [
-  { title: t("mountainTitle"), meta: t("mountainMeta"), image: "https://picsum.photos/seed/elf-mountain/640/440", imageHeight: 220 },
-  { title: t("architectureTitle"), meta: t("architectureMeta"), image: "https://picsum.photos/seed/elf-architecture/640/520", imageHeight: 260 },
-  { title: t("coastTitle"), meta: t("coastMeta"), image: "https://picsum.photos/seed/elf-coast/640/360", imageHeight: 180 },
-  { title: t("forestTitle"), meta: t("forestMeta"), image: "https://picsum.photos/seed/elf-forest/640/480", imageHeight: 240 },
-  { title: t("cityTitle"), meta: t("cityMeta"), image: "https://picsum.photos/seed/elf-city/640/400", imageHeight: 200 },
-  { title: t("desertTitle"), meta: t("desertMeta"), image: "https://picsum.photos/seed/elf-desert/640/560", imageHeight: 280 },
-  { title: t("lakeTitle"), meta: t("lakeMeta"), image: "https://picsum.photos/seed/elf-lake/640/420", imageHeight: 210 },
+  {
+    title: t("mountainTitle"),
+    meta: t("mountainMeta"),
+    image: "https://picsum.photos/seed/elf-mountain/640/440",
+    imageHeight: 220,
+  },
+  {
+    title: t("architectureTitle"),
+    meta: t("architectureMeta"),
+    image: "https://picsum.photos/seed/elf-architecture/640/520",
+    imageHeight: 260,
+  },
+  {
+    title: t("coastTitle"),
+    meta: t("coastMeta"),
+    image: "https://picsum.photos/seed/elf-coast/640/360",
+    imageHeight: 180,
+  },
+  {
+    title: t("forestTitle"),
+    meta: t("forestMeta"),
+    image: "https://picsum.photos/seed/elf-forest/640/480",
+    imageHeight: 240,
+  },
+  {
+    title: t("cityTitle"),
+    meta: t("cityMeta"),
+    image: "https://picsum.photos/seed/elf-city/640/400",
+    imageHeight: 200,
+  },
+  {
+    title: t("desertTitle"),
+    meta: t("desertMeta"),
+    image: "https://picsum.photos/seed/elf-desert/640/560",
+    imageHeight: 280,
+  },
+  {
+    title: t("lakeTitle"),
+    meta: t("lakeMeta"),
+    image: "https://picsum.photos/seed/elf-lake/640/420",
+    imageHeight: 210,
+  },
 ];
 
 const code = `<elf-masonry columns="4" min-column-width="230" gap="lg">
@@ -69,8 +107,7 @@ defineStyle(`
 
 const PageMasonry = defineHtml(`
   <elf-container>
-    <h1>${t("title")}</h1>
-    <p>${t("description")}</p>
+    <elf-docs-hero category="layout" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
     <elf-playground :title=${t("exampleTitle")} :code=${code} :script=${script}>
       <span slot="status" class="demo-state">${t("status")}</span>
       <elf-masonry columns="4" min-column-width="230" gap="lg" style="width:100%">
@@ -83,11 +120,16 @@ const PageMasonry = defineHtml(`
     <h2>API</h2>
     <elf-props-table title="Masonry Props" :rows=${[
       { name: "columns", type: "number", default: "3", desc: t("columnsDescription") },
-      { name: "min-column-width", type: "string | number", default: "240", desc: t("widthDescription") },
-      { name: "gap", type: "token | CSS length", default: "md", desc: t("gapDescription") }
+      {
+        name: "min-column-width",
+        type: "string | number",
+        default: "240",
+        desc: t("widthDescription"),
+      },
+      { name: "gap", type: "token | CSS length", default: "md", desc: t("gapDescription") },
     ]}></elf-props-table>
     <elf-props-table title="Slots" :rows=${[
-      { name: "default", type: "—", default: "—", desc: t("slotDescription") }
+      { name: "default", type: "—", default: "—", desc: t("slotDescription") },
     ]}></elf-props-table>
   </elf-container>
 `);

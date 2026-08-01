@@ -10,7 +10,10 @@ import { PageFormProps } from "./props";
 
 const t = createDocsTranslator({
   title: { zh: "表单", en: "Form" },
-  description: { zh: "对齐 Element Plus 的 model 与 rules 校验联动，并提供完整字段和命令方法。", en: "Align model and rules validation with Element Plus while exposing complete field and command APIs." }
+  description: {
+    zh: "对齐 Element Plus 的 model 与 rules 校验联动，并提供完整字段和命令方法。",
+    en: "Align model and rules validation with Element Plus while exposing complete field and command APIs.",
+  },
 });
 
 useComponents({
@@ -20,13 +23,12 @@ useComponents({
   "page-form-ex4": PageFormEx4,
   "page-form-ex5": PageFormEx5,
   "page-form-ex6": PageFormEx6,
-  "page-form-props": PageFormProps
+  "page-form-props": PageFormProps,
 });
 
 const PageForm = defineHtml(`
   <elf-container>
-    <h1>${t("title")}</h1>
-    <p>${t("description")}</p>
+    <elf-docs-hero category="form" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
     <page-form-ex1 />
     <page-form-ex2 />
     <page-form-ex3 />

@@ -1,8 +1,5 @@
-import type { TableRow, TableTreeProps } from "./types";
-import {
-  createTableRowCollection,
-  type TableRowCollection,
-} from "./selection-model";
+import type { TableTreeProps } from "./types";
+import { createTableRowCollection, type TableRowCollection } from "./selection-model";
 import {
   buildTableTreeRows,
   type BuildTableTreeOptions,

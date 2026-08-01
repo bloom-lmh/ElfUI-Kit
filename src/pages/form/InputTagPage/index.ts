@@ -9,13 +9,12 @@ const p = createDocsPicker();
 useComponents({
   "page-input-tag-ex1": PageInputTagEx1,
   "page-input-tag-ex2": PageInputTagEx2,
-  "page-input-tag-props": PageInputTagProps
+  "page-input-tag-props": PageInputTagProps,
 });
 
 const PageInputTag = defineHtml(`
   <elf-container>
-    <h1>${p("标签输入", "Input tag")}</h1>
-    <p>${p("把输入内容转换成标签；内容较多时自动换行，并保持每个标签可操作。", "Turn typed content into tags that wrap automatically while each item remains operable.")}</p>
+    <elf-docs-hero category="form" tag="InputTag" :title=${p("标签输入", "Input tag")} :description=${p("把输入内容转换成标签；内容较多时自动换行，并保持每个标签可操作。", "Turn typed content into tags that wrap automatically while each item remains operable.")}></elf-docs-hero>
 
     <page-input-tag-ex1 />
 

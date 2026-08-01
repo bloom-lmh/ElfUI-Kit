@@ -1,4 +1,7 @@
 import { defineHtml, defineStyle, useRef } from "@elfui/core";
+import { mdiFacebook, mdiInstagram, mdiLinkedin, mdiTwitter } from "@mdi/js";
+
+import { createSvgIconSet } from "../../../components/Basic/Icon";
 
 import { createDocsPicker, createDocsTranslator } from "../../docsLocale";
 import articleStyles from "../../shared/article.scss?inline";
@@ -6,104 +9,168 @@ import articleStyles from "../../shared/article.scss?inline";
 const t = createDocsTranslator({
   kicker: { zh: "导航组件", en: "Navigation" },
   title: { zh: "页脚", en: "Footer" },
-  description: { zh: "组织站点级导航、品牌说明、社交入口与版权信息，支持多行内容和定位布局。", en: "Organize site navigation, brand context, social entry points, and copyright information with multi-row and positioned layouts." },
+  description: {
+    zh: "组织站点级导航、品牌说明、社交入口与版权信息，支持多行内容和定位布局。",
+    en: "Organize site navigation, brand context, social entry points, and copyright information with multi-row and positioned layouts.",
+  },
   company: { zh: "公司页脚", en: "Company footer" },
-  socialFooter: { zh: "品牌社交页脚", en: "Brand social footer" },
-  connected: { zh: "连接型页脚", en: "Connected footer" },
+  indigoFooter: { zh: "靛蓝页脚", en: "Indigo footer" },
+  tealFooter: { zh: "青绿页脚", en: "Teal footer" },
   home: { zh: "首页", en: "Home" },
   about: { zh: "关于我们", en: "About us" },
   team: { zh: "团队", en: "Team" },
   services: { zh: "服务", en: "Services" },
   journal: { zh: "日志", en: "Journal" },
   contact: { zh: "联系我们", en: "Contact us" },
-  social: { zh: "在社交网络上与 ElfUI 保持联系", en: "Stay connected with ElfUI across social channels" },
-  body: { zh: "组件、设计令牌和工程实践集中在一个清晰的界面体系中。", en: "Components, design tokens, and engineering practices in one coherent interface system." },
-  newsletter: { zh: "产品更新", en: "Product updates" },
-  newsletterDesc: { zh: "每月一封，包含新组件、迁移说明和案例。", en: "A monthly note with components, migration guidance, and examples." },
-  subscribe: { zh: "订阅", en: "Subscribe" },
+  social: { zh: "在社交网络上与我们保持联系！", en: "Get connected with us on social networks!" },
+  body: {
+    zh: "ElfUI 提供跨框架的 Web Components、设计令牌和可组合交互能力。从常用组件到复杂布局，每个界面都能保持统一、清晰且易于维护。组件状态与主题令牌保持同步，让桌面端和移动端都拥有可靠的响应式体验。",
+    en: "ElfUI provides cross-framework Web Components, design tokens, and composable interactions. Build consistent, accessible interfaces from everyday controls to complete application layouts, with responsive behavior that stays reliable across desktop and mobile.",
+  },
+  companyName: { zh: "ElfUI 组件库", en: "ElfUI Kit" },
+  products: { zh: "产品", en: "Products" },
+  usefulLinks: { zh: "常用链接", en: "Useful links" },
+  resources: { zh: "资源", en: "Resources" },
+  help: { zh: "帮助", en: "Help" },
+  pricing: { zh: "定价", en: "Pricing" },
+  settings: { zh: "设置", en: "Settings" },
+  orders: { zh: "订单", en: "Orders" },
+  docs: { zh: "文档", en: "Documentation" },
+  examples: { zh: "案例", en: "Examples" },
+  themes: { zh: "主题", en: "Themes" },
+  support: { zh: "支持", en: "Support" },
   status: { zh: "最近操作", en: "Last action" },
   none: { zh: "尚未操作", en: "No action yet" },
-  toggleTheme: { zh: "切换预览明暗", en: "Toggle preview theme" },
   api: { zh: "API", en: "API" },
-  slots: { zh: "插槽", en: "Slots" }
+  slots: { zh: "插槽", en: "Slots" },
 });
 const pick = createDocsPicker();
 
-const dark = useRef(false);
 const lastAction = useRef("");
-const demoTheme = (): string => dark.value ? "dark" : "light";
-const toggleTheme = (): void => dark.set(!dark.value);
+const footerIconOptions = {
+  defaultSet: "mdi",
+  sets: {
+    mdi: createSvgIconSet({
+      facebook: mdiFacebook,
+      twitter: mdiTwitter,
+      linkedin: mdiLinkedin,
+      instagram: mdiInstagram,
+    }),
+  },
+};
 const links = () => [t("home"), t("about"), t("team"), t("services"), t("journal"), t("contact")];
 const onLink = (event: MouseEvent): void => {
   event.preventDefault();
   lastAction.set((event.currentTarget as HTMLElement).textContent?.trim() || "");
 };
-const onSocial = (event: MouseEvent): void => lastAction.set((event.currentTarget as HTMLElement).getAttribute("aria-label") || "");
-const onSubscribe = (): void => lastAction.set(t("subscribe"));
+const onSocial = (event: MouseEvent): void =>
+  lastAction.set((event.currentTarget as HTMLElement).getAttribute("aria-label") || "");
 
 const propsRows = () => [
-  { name: "height / width / maxWidth", type: "string | number", default: "60px / 100% / auto", desc: pick("兼容布局高度并约束页脚宽度", "Layout-compatible height and footer width constraints.") },
-  { name: "ariaLabel", type: "string", default: "''", desc: pick("页脚地标的无障碍名称", "Accessible name for the footer landmark.") },
-  { name: "color / elevation", type: "string / number", default: "surface / 0", desc: pick("自动对比前景色和阴影层级", "Automatic foreground contrast and elevation.") },
-  { name: "border / rounded / padless", type: "boolean", default: "false", desc: pick("边框、圆角与无内边距表面", "Bordered, rounded, and padless surfaces.") },
-  { name: "fixed / absolute / inset", type: "boolean", default: "false", desc: pick("底部定位和内嵌边距", "Bottom positioning and inset spacing.") }
+  {
+    name: "height / width / maxWidth",
+    type: "string | number",
+    default: "60px / 100% / auto",
+    desc: pick(
+      "兼容布局高度并约束页脚宽度",
+      "Layout-compatible height and footer width constraints.",
+    ),
+  },
+  {
+    name: "ariaLabel",
+    type: "string",
+    default: "''",
+    desc: pick("页脚地标的无障碍名称", "Accessible name for the footer landmark."),
+  },
+  {
+    name: "color / elevation",
+    type: "string / number",
+    default: "surface / 0",
+    desc: pick("自动对比前景色和阴影层级", "Automatic foreground contrast and elevation."),
+  },
+  {
+    name: "border / rounded / padless",
+    type: "boolean",
+    default: "false",
+    desc: pick("边框、圆角与无内边距表面", "Bordered, rounded, and padless surfaces."),
+  },
+  {
+    name: "fixed / absolute / inset",
+    type: "boolean",
+    default: "false",
+    desc: pick("底部定位和内嵌边距", "Bottom positioning and inset spacing."),
+  },
 ];
-const slotRows = () => ["top", "default", "bottom"].map((name) => ({ name, desc: pick(`${name} 内容区域`, `${name} content region.`) }));
+const slotRows = () =>
+  ["top", "default", "bottom"].map((name) => ({
+    name,
+    desc: pick(`${name} 内容区域`, `${name} content region.`),
+  }));
 const companyCode = `<elf-footer height="auto" border rounded>
   <nav>Home About Team Services Journal Contact</nav>
   <span>2026 / ElfUI</span>
 </elf-footer>`;
-const socialCode = `<elf-footer height="auto" color="#365c88" rounded>...</elf-footer>`;
-const connectedCode = `<elf-footer height="auto" color="#087f72" rounded padless>...</elf-footer>`;
+const indigoCode = `<elf-footer height="auto" color="primary" padless>
+  <nav>Facebook · X · LinkedIn · Instagram</nav>
+  <p>Company summary</p>
+  <small>2026 — ElfUI</small>
+</elf-footer>`;
+const tealCode = `<elf-footer height="auto" color="secondary" padless>
+  <section>Get connected with us on social networks!</section>
+  <small>2026 — ElfUI</small>
+</elf-footer>`;
 
-defineStyle(articleStyles, `
+defineStyle(
+  articleStyles,
+  `
   .demo-toolbar { display: flex; flex-wrap: wrap; gap: 8px; }
   .demo-stack { display: grid; width: 100%; gap: 12px; }
-  .footer-stage { width: min(900px, 100%); padding: 12px; background: var(--elf-bg-default); }
+  .footer-stage { display: grid; place-items: center; width: min(900px, 100%); padding: 8px; background: var(--elf-bg-default); }
   .company-footer { display: grid; width: 100%; gap: 22px; padding: 26px 22px; text-align: center; }
   .footer-links { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px 28px; }
   .footer-links a { position: relative; color: inherit; font-size: 13px; font-weight: 700; text-decoration: none; }
   .footer-links a::after { position: absolute; right: 0; bottom: -5px; left: 0; height: 2px; background: currentColor; content: ""; opacity: 0; transform: scaleX(.4); transition: opacity var(--elf-transition-fast), transform var(--elf-transition-fast); }
   .footer-links a:hover::after, .footer-links a:focus-visible::after { opacity: 1; transform: scaleX(1); }
   .footer-links a:focus-visible { outline: 2px solid currentColor; outline-offset: 5px; }
-  .brand-footer { display: grid; width: 100%; gap: 22px; padding: 30px; text-align: center; }
   .social-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px; }
-  .social-actions button { display: inline-grid; width: 38px; height: 38px; place-items: center; border: 1px solid rgb(255 255 255 / 28%); border-radius: 50%; background: rgb(255 255 255 / 10%); color: inherit; cursor: pointer; font: inherit; font-size: 12px; font-weight: 800; transition: background-color var(--elf-transition-fast), transform var(--elf-transition-fast); }
-  .social-actions button:hover { background: rgb(255 255 255 / 20%); }
-  .social-actions button:active { transform: scale(.92); }
-  .social-actions button:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
-  .brand-copy { max-width: 620px; margin: 0 auto; opacity: .82; line-height: 1.65; }
-  .connected-top { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 18px; padding: 22px 26px; }
-  .connected-top strong, .connected-top span { display: block; }
-  .connected-top span { margin-top: 5px; opacity: .78; font-size: 12px; }
-  .connected-bottom { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 14px 20px; background: rgb(12 32 36 / 54%); }
-  .status-line { margin: 10px 0 0; color: var(--elf-text-secondary); font-size: 12px; text-align: right; }
+  .social-actions elf-button { --elf-button-size: 38px; --_color: #fff; --_hover: #fff; --_active: #fff; --_overlay: rgb(255 255 255 / 10%); color: inherit; opacity: .86; }
+  .social-actions elf-icon { color: #fff; }
+  .reference-footer { display: grid; width: 100%; }
+  .indigo-footer { min-height: 208px; justify-items: center; align-content: center; padding: 18px; text-align: center; box-sizing: border-box; }
+  .indigo-footer .social-actions { gap: 4px; }
+  .indigo-divider { width: 50px; height: 2px; margin: 4px 0 16px; background: rgb(255 255 255 / 16%); }
+  .indigo-summary { max-width: 840px; margin: 0; opacity: .72; font-size: 12px; line-height: 1.4; }
+  .indigo-copyright { margin-top: 16px; font-size: 14px; }
+  .teal-footer { padding: 0 16px 8px; box-sizing: border-box; }
+  .teal-social-band { display: flex; min-height: 64px; align-items: center; justify-content: space-between; gap: 20px; padding: 8px 16px; box-sizing: border-box; }
+  .teal-copyright { display: flex; min-height: 40px; align-items: center; justify-content: center; padding: 8px 20px; border-radius: 8px; background: #424242; color: #fff; font-size: 14px; box-sizing: border-box; }
+  .status-line { margin: 0; color: var(--elf-text-secondary); font-size: 12px; text-align: right; }
   @media (max-width: 620px) {
-    .connected-top { grid-template-columns: 1fr; }
-    .connected-top .social-actions { justify-content: flex-start; }
-    .connected-bottom { align-items: flex-start; flex-direction: column; }
-    .brand-footer { padding: 24px 18px; }
+    .teal-social-band { align-items: flex-start; flex-direction: column; padding-block: 16px; }
   }
-`);
+  @media (max-width: 480px) {
+    .footer-stage { padding: 4px; }
+    .indigo-footer { padding-inline: 14px; }
+    .teal-footer { padding-inline: 8px; }
+  }
+`,
+);
 
 const PageFooter = defineHtml(`
   <elf-container class="docs-article">
-    <span class="docs-kicker">${t("kicker")}</span>
-    <h1>${t("title")}</h1>
-    <p class="page-lead">${t("description")}</p>
+    <elf-docs-hero category="navigation" tag="Footer" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
 
     <elf-playground :title=${t("company")} :code=${companyCode}>
-      <elf-theme-provider :theme=${demoTheme()}>
-        <div class="demo-stack"><div class="demo-toolbar"><elf-button size="sm" variant="outlined" @click=${toggleTheme}>${t("toggleTheme")}</elf-button></div><div class="footer-stage"><elf-footer height="auto" border rounded aria-label="ElfUI"><div class="company-footer"><nav class="footer-links"><a v-for="link in links()" :key="link" href="#" @click=${onLink}>{{ link }}</a></nav><span>2026 / <strong>ElfUI</strong></span></div></elf-footer><p class="status-line">${t("status")}: ${lastAction.value || t("none")}</p></div></div>
-      </elf-theme-provider>
+      <span slot="status" role="status" aria-live="polite">${t("status")}: ${lastAction.value || t("none")}</span>
+      <div class="footer-stage"><elf-footer height="auto" border rounded aria-label="ElfUI"><div class="company-footer"><nav class="footer-links"><a v-for="link in links()" :key="link" href="#" @click=${onLink}>{{ link }}</a></nav><span>2026 / <strong>ElfUI</strong></span></div></elf-footer></div>
     </elf-playground>
 
-    <elf-playground :title=${t("socialFooter")} :code=${socialCode}>
-      <div class="footer-stage"><elf-footer height="auto" color="#365c88" rounded elevation="2"><div class="brand-footer"><div class="social-actions"><button aria-label="GitHub" @click=${onSocial}>GH</button><button aria-label="X" @click=${onSocial}>X</button><button aria-label="LinkedIn" @click=${onSocial}>IN</button><button aria-label="YouTube" @click=${onSocial}>YT</button></div><p class="brand-copy">${t("body")}</p><span>2026 / <strong>ElfUI</strong></span></div></elf-footer></div>
+    <elf-playground :title=${t("indigoFooter")} :code=${indigoCode}>
+      <span slot="status" role="status" aria-live="polite">${t("status")}: ${lastAction.value || t("none")}</span><elf-icon-provider :options.prop=${footerIconOptions}><div class="footer-stage"><elf-footer height="auto" color="#5c6bc0" padless><div class="reference-footer indigo-footer"><div class="social-actions"><elf-button circle variant="text" aria-label="Facebook" @click=${onSocial}><elf-icon name="facebook" size="20"></elf-icon></elf-button><elf-button circle variant="text" aria-label="X" @click=${onSocial}><elf-icon name="twitter" size="20"></elf-icon></elf-button><elf-button circle variant="text" aria-label="LinkedIn" @click=${onSocial}><elf-icon name="linkedin" size="20"></elf-icon></elf-button><elf-button circle variant="text" aria-label="Instagram" @click=${onSocial}><elf-icon name="instagram" size="20"></elf-icon></elf-button></div><span class="indigo-divider" aria-hidden="true"></span><p class="indigo-summary">${t("body")}</p><span class="indigo-copyright">2026 — <strong>ElfUI</strong></span></div></elf-footer></div></elf-icon-provider>
     </elf-playground>
 
-    <elf-playground :title=${t("connected")} :code=${connectedCode}>
-      <div class="footer-stage"><elf-footer height="auto" color="#087f72" rounded padless><div class="connected-top"><div><strong>${t("social")}</strong><span>${t("newsletterDesc")}</span></div><div class="social-actions"><button aria-label="GitHub" @click=${onSocial}>GH</button><button aria-label="X" @click=${onSocial}>X</button><button aria-label="LinkedIn" @click=${onSocial}>IN</button><button aria-label="Instagram" @click=${onSocial}>IG</button></div></div><div class="connected-bottom"><span>2026 / <strong>ElfUI</strong></span><elf-button size="sm" variant="outlined" dark @click=${onSubscribe}>${t("subscribe")}</elf-button></div></elf-footer></div>
+    <elf-playground :title=${t("tealFooter")} :code=${tealCode}>
+      <span slot="status" role="status" aria-live="polite">${t("status")}: ${lastAction.value || t("none")}</span><elf-icon-provider :options.prop=${footerIconOptions}><div class="footer-stage"><elf-footer height="auto" color="#009688" rounded padless><div class="reference-footer teal-footer"><div class="teal-social-band"><strong>${t("social")}</strong><div class="social-actions"><elf-button circle variant="text" aria-label="Facebook" @click=${onSocial}><elf-icon name="facebook" size="18"></elf-icon></elf-button><elf-button circle variant="text" aria-label="X" @click=${onSocial}><elf-icon name="twitter" size="18"></elf-icon></elf-button><elf-button circle variant="text" aria-label="LinkedIn" @click=${onSocial}><elf-icon name="linkedin" size="18"></elf-icon></elf-button><elf-button circle variant="text" aria-label="Instagram" @click=${onSocial}><elf-icon name="instagram" size="18"></elf-icon></elf-button></div></div><div class="teal-copyright"><span>2026 — <strong>ElfUI</strong></span></div></div></elf-footer></div></elf-icon-provider>
     </elf-playground>
 
     <section class="docs-section"><h2>${t("api")}</h2><elf-props-table title="Props" :rows=${propsRows()} /><elf-props-table :title=${t("slots")} :rows=${slotRows()} /></section>

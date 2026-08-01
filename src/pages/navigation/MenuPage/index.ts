@@ -19,21 +19,20 @@ useComponents({
   "page-menu-ex6": PageMenuEx6,
   "page-menu-ex7": PageMenuEx7,
   "page-menu-ex8": PageMenuEx8,
-  "page-menu-props": PageMenuProps
+  "page-menu-props": PageMenuProps,
 });
 
 const t = createDocsTranslator({
   title: { zh: "Menu 导航菜单", en: "Menu" },
   description: {
     zh: "用于侧边栏、顶部导航和多级功能入口，对标 Element Plus Menu，采用 Material Design 视觉。",
-    en: "Navigation for sidebars, top bars, and nested application sections with Element Plus compatible semantics and Material styling."
-  }
+    en: "Navigation for sidebars, top bars, and nested application sections with Element Plus compatible semantics and Material styling.",
+  },
 });
 
 const PageMenu = defineHtml(`
   <elf-container>
-    <h1>${t("title")}</h1>
-    <p>${t("description")}</p>
+    <elf-docs-hero category="navigation" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
     <page-menu-ex1></page-menu-ex1>
     <page-menu-ex2></page-menu-ex2>
     <page-menu-ex3></page-menu-ex3>

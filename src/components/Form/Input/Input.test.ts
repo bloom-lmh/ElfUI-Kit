@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts-nocheck -- Legacy custom-element fixture requires runtime-only properties.
 // elf-input 单元测试
 
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
@@ -133,7 +133,7 @@ describe("elf-input", () => {
       await flush();
 
       expect(el.getAttribute("variant")).toBe(variant);
-    }
+    },
   );
 
   it("falls back to the compatible filled surface for an unknown variant", async () => {
@@ -213,7 +213,7 @@ describe("elf-input", () => {
     ["default", "default"],
     ["comfortable", "comfortable"],
     ["compact", "compact"],
-    ["unknown", "default"]
+    ["unknown", "default"],
   ])("normalizes density %s to %s", async (density, expected) => {
     const el = mount((node) => {
       node.density = density;
@@ -332,7 +332,7 @@ describe("elf-input", () => {
     el.addEventListener("mouseleave", onMouseleave as unknown as EventListener);
 
     el.shadowRoot!.querySelector("input")!.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "Enter" })
+      new KeyboardEvent("keydown", { key: "Enter" }),
     );
     const group = el.shadowRoot!.querySelector(".group")!;
     group.dispatchEvent(new MouseEvent("mouseenter"));

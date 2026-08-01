@@ -62,7 +62,7 @@ describe("elf-autocomplete", () => {
     await tick();
 
     (el.shadowRoot!.querySelector(".option") as HTMLButtonElement).dispatchEvent(
-      new MouseEvent("mousedown", { bubbles: true })
+      new MouseEvent("mousedown", { bubbles: true }),
     );
     expect(onSelect).toHaveBeenCalled();
   });
@@ -96,7 +96,7 @@ describe("elf-autocomplete", () => {
     input.dispatchEvent(new Event("input", { bubbles: true }));
     await tick();
     (el.shadowRoot!.querySelector(".option") as HTMLButtonElement).dispatchEvent(
-      new MouseEvent("mousedown", { bubbles: true })
+      new MouseEvent("mousedown", { bubbles: true }),
     );
     await tick();
 
@@ -105,7 +105,7 @@ describe("elf-autocomplete", () => {
     await tick();
     expect(el.shadowRoot!.querySelector(".option")?.textContent).toContain("React");
     (el.shadowRoot!.querySelector(".option") as HTMLButtonElement).dispatchEvent(
-      new MouseEvent("mousedown", { bubbles: true })
+      new MouseEvent("mousedown", { bubbles: true }),
     );
 
     expect((onSelect.mock.calls.at(-1)![0] as CustomEvent).detail.value).toBe("React");
@@ -188,7 +188,10 @@ describe("elf-autocomplete", () => {
     input.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
     await tick();
     expect(onCreate).toHaveBeenCalledTimes(1);
-    expect((onCreate.mock.calls[0]![0] as CustomEvent).detail).toEqual({ label: "Svelte", value: "Svelte" });
+    expect((onCreate.mock.calls[0]![0] as CustomEvent).detail).toEqual({
+      label: "Svelte",
+      value: "Svelte",
+    });
     expect(onSelect).toHaveBeenCalledTimes(1);
     expect(onDocumentKeydown).not.toHaveBeenCalled();
     document.removeEventListener("keydown", onDocumentKeydown);
@@ -198,7 +201,7 @@ describe("elf-autocomplete", () => {
     const el = document.createElement("elf-autocomplete") as AutocompleteEl;
     el.options = Array.from({ length: 100 }, (_, index) => ({
       label: `成员 ${String(index + 1).padStart(3, "0")}`,
-      value: `member-${index + 1}`
+      value: `member-${index + 1}`,
     }));
     el.virtual = true;
     el.itemHeight = 32;
@@ -215,7 +218,9 @@ describe("elf-autocomplete", () => {
     const viewport = el.shadowRoot!.querySelector<HTMLElement>(".options-viewport")!;
     expect(viewport.dataset.virtualized).toBe("true");
     expect(el.shadowRoot!.querySelectorAll(".option").length).toBeLessThan(20);
-    expect(el.shadowRoot!.querySelector<HTMLElement>(".options-track")!.style.height).toBe("3200px");
+    expect(el.shadowRoot!.querySelector<HTMLElement>(".options-track")!.style.height).toBe(
+      "3200px",
+    );
 
     for (let index = 0; index < 15; index += 1) {
       input.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }));
@@ -231,7 +236,12 @@ describe("elf-autocomplete", () => {
     let resolveFirst: ((value: unknown[]) => void) | undefined;
     const fetchSuggestions = vi
       .fn()
-      .mockImplementationOnce(() => new Promise<unknown[]>((resolve) => { resolveFirst = resolve; }))
+      .mockImplementationOnce(
+        () =>
+          new Promise<unknown[]>((resolve) => {
+            resolveFirst = resolve;
+          }),
+      )
       .mockResolvedValueOnce([{ value: "new" }]);
     const el = document.createElement("elf-autocomplete") as AutocompleteEl;
     el.fetchSuggestions = fetchSuggestions;
@@ -332,26 +342,32 @@ describe("elf-autocomplete", () => {
     document.body.append(first, second);
     await tick();
 
-    first.shadowRoot!.querySelector<HTMLInputElement>("input")!
+    first
+      .shadowRoot!.querySelector<HTMLInputElement>("input")!
       .dispatchEvent(new FocusEvent("focus", { bubbles: true }));
-    second.shadowRoot!.querySelector<HTMLInputElement>("input")!
+    second
+      .shadowRoot!.querySelector<HTMLInputElement>("input")!
       .dispatchEvent(new FocusEvent("focus", { bubbles: true }));
     await tick();
     expect(first.shadowRoot!.querySelector(".panel")).toBeTruthy();
     expect(second.shadowRoot!.querySelector(".panel")).toBeTruthy();
 
-    document.dispatchEvent(new KeyboardEvent("keydown", {
-      key: "Escape",
-      bubbles: true
-    }));
+    document.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        key: "Escape",
+        bubbles: true,
+      }),
+    );
     await tick();
     expect(first.shadowRoot!.querySelector(".panel")).toBeTruthy();
     expect(second.shadowRoot!.querySelector(".panel")).toBeNull();
 
-    document.dispatchEvent(new KeyboardEvent("keydown", {
-      key: "Escape",
-      bubbles: true
-    }));
+    document.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        key: "Escape",
+        bubbles: true,
+      }),
+    );
     await tick();
     expect(first.shadowRoot!.querySelector(".panel")).toBeNull();
   });
@@ -361,8 +377,14 @@ describe("elf-autocomplete", () => {
     const originalHide = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "hidePopover");
     const showPopover = vi.fn();
     const hidePopover = vi.fn();
-    Object.defineProperty(HTMLElement.prototype, "showPopover", { configurable: true, value: showPopover });
-    Object.defineProperty(HTMLElement.prototype, "hidePopover", { configurable: true, value: hidePopover });
+    Object.defineProperty(HTMLElement.prototype, "showPopover", {
+      configurable: true,
+      value: showPopover,
+    });
+    Object.defineProperty(HTMLElement.prototype, "hidePopover", {
+      configurable: true,
+      value: hidePopover,
+    });
 
     try {
       const el = document.createElement("elf-autocomplete") as AutocompleteEl;
@@ -372,14 +394,14 @@ describe("elf-autocomplete", () => {
       el.popperOptions = {
         modifiers: [
           { name: "offset", options: { offset: [12, 18] } },
-          { name: "preventOverflow", options: { padding: 10 } }
-        ]
+          { name: "preventOverflow", options: { padding: 10 } },
+        ],
       };
       document.body.appendChild(el);
       await tick();
 
       const input = el.shadowRoot!.querySelector("input") as HTMLInputElement;
-      let anchorLeft = 100;
+      const anchorLeft = 100;
       input.getBoundingClientRect = vi.fn(() => ({
         left: anchorLeft,
         top: 100,
@@ -389,7 +411,7 @@ describe("elf-autocomplete", () => {
         height: 34,
         x: anchorLeft,
         y: 100,
-        toJSON: () => ({})
+        toJSON: () => ({}),
       })) as unknown as Element["getBoundingClientRect"];
       input.dispatchEvent(new FocusEvent("focus", { bubbles: true }));
       await tick();
@@ -404,7 +426,7 @@ describe("elf-autocomplete", () => {
         height: 96,
         x: 0,
         y: 0,
-        toJSON: () => ({})
+        toJSON: () => ({}),
       })) as unknown as Element["getBoundingClientRect"];
       window.dispatchEvent(new Event("resize"));
       await frame();
@@ -463,6 +485,6 @@ describe("elf-autocomplete", () => {
       document.body.appendChild(el);
       await tick();
       expect(el.getAttribute("variant")).toBe(variant);
-    }
+    },
   );
 });

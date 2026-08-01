@@ -1,11 +1,14 @@
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
 let exampleTag = "";
+let iconExampleTag = "";
 
 beforeAll(async () => {
   await import("../../../components");
   const { ensureCustomElement } = await import("@elfui/core");
+  const { PageButtonEx2 } = await import("./ex2");
   const { PageButtonEx3 } = await import("./ex3");
+  iconExampleTag = ensureCustomElement(PageButtonEx2);
   exampleTag = ensureCustomElement(PageButtonEx3);
 });
 
@@ -20,14 +23,32 @@ const tick = async (): Promise<void> => {
 };
 
 describe("Button documentation", () => {
+  it("renders third-party MDI icons through IconProvider slots", async () => {
+    const page = document.createElement(iconExampleTag);
+    document.body.appendChild(page);
+    await tick();
+
+    const icons = page.shadowRoot!.querySelectorAll<HTMLElement>("elf-icon");
+    expect(icons).toHaveLength(5);
+    expect(page.shadowRoot!.querySelectorAll("elf-button[icon]")).toHaveLength(0);
+    icons.forEach((icon) => {
+      expect(icon.shadowRoot?.querySelector("svg path")?.getAttribute("d")).toBeTruthy();
+    });
+    const sendButton = Array.from(
+      page.shadowRoot!.querySelectorAll<HTMLElement>("elf-button"),
+    ).find((button) => button.textContent?.includes("发送"));
+    expect(sendButton?.querySelector('elf-icon[slot="suffix-icon"][name="send"]')).toBeTruthy();
+  });
+
   it("locks an async action until it completes", async () => {
     vi.useFakeTimers();
     const page = document.createElement(exampleTag);
     document.body.appendChild(page);
     await tick();
 
-    const saveButton = Array.from(page.shadowRoot!.querySelectorAll<HTMLElement>("elf-button"))
-      .find((button) => button.textContent?.includes("保存设置"))!;
+    const saveButton = Array.from(
+      page.shadowRoot!.querySelectorAll<HTMLElement>("elf-button"),
+    ).find((button) => button.textContent?.includes("保存设置"))!;
 
     saveButton.click();
     await tick();

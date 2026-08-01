@@ -15,13 +15,12 @@ const t = createDocsTranslator({
 useComponents({
   "page-container-ex1": PageContainerEx1,
   "page-container-ex2": PageContainerEx2,
-  "page-container-props": PageContainerProps
+  "page-container-props": PageContainerProps,
 });
 
 const PageContainer = defineHtml(`
   <elf-container>
-    <h1>${t("title")}</h1>
-    <p>${t("description")}</p>
+    <elf-docs-hero category="layout" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
     <page-container-ex1 />
     <page-container-ex2 />
     <page-container-props />

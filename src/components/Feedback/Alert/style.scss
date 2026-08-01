@@ -4,89 +4,117 @@
 // Keyframes
 // ==============================================
 @keyframes alert-in {
-    from {
-        opacity: 0;
-        transform: translateY(-6px) scale(0.98);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 @keyframes alert-out {
-    from {
-        opacity: 1;
-        transform: scale(1);
-        max-height: 200px;
-        margin-bottom: var(--elf-space-4, 16px);
-    }
-    to {
-        opacity: 0;
-        transform: scale(0.96);
-        max-height: 0;
-        margin-bottom: 0;
-        padding-top: 0;
-        padding-bottom: 0;
-    }
+  from {
+    opacity: 1;
+    transform: scale(1);
+    max-height: 200px;
+    margin-bottom: var(--elf-space-4, 16px);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.96);
+    max-height: 0;
+    margin-bottom: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
 }
 
 :host {
-    display: block;
-    margin-bottom: var(--elf-space-4, 16px);
-    line-height: var(--elf-line-height-md, 1.5);
-    font-family: var(--elf-font-family, inherit);
-    font-size: var(--elf-font-size-sm, 14px);
+  display: block;
+  margin-bottom: var(--elf-space-4, 16px);
+  line-height: var(--elf-line-height-md, 1.5);
+  font-family: var(--elf-font-family, inherit);
+  font-size: var(--elf-font-size-sm, 14px);
 }
 
 .alert {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    width: 100%;
-    padding: 14px 14px 14px 18px;
-    border-radius: var(--elf-radius-md, 8px);
-    font-size: inherit;
-    line-height: inherit;
-    animation: alert-in 0.25s cubic-bezier(0.2, 0, 0.2, 1);
-    position: relative;
-    overflow: hidden;
-    box-sizing: border-box;
-    transition:
-        background-color 0.2s ease,
-        border-color 0.2s ease,
-        box-shadow 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 14px 14px 18px;
+  border-radius: var(--elf-radius-sm, 4px);
+  font-size: inherit;
+  line-height: inherit;
+  animation: alert-in 0.25s cubic-bezier(0.2, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 // ==============================================
 // Per-type color tokens
 // ==============================================
 :host([type="info"]) .alert {
-    --alert-color: var(--elf-primary, #1976d2);
-    --alert-color-soft: color-mix(in srgb, var(--elf-primary, #1976d2) 7%, transparent);
-    --alert-color-border: color-mix(in srgb, var(--elf-primary, #1976d2) 28%, transparent);
-    --alert-color-text: color-mix(in srgb, var(--elf-primary, #1976d2) 40%, #212121);
-    --alert-color-icon-bg: color-mix(in srgb, var(--elf-primary, #1976d2) 12%, transparent);
+  --alert-color: var(--elf-primary, #1976d2);
+  --alert-color-soft: color-mix(in srgb, var(--elf-primary, #1976d2) 7%, transparent);
+  --alert-color-border: color-mix(in srgb, var(--elf-primary, #1976d2) 28%, transparent);
+  --alert-color-text: color-mix(in srgb, var(--elf-primary, #1976d2) 40%, #212121);
+  --alert-color-icon-bg: color-mix(in srgb, var(--elf-primary, #1976d2) 12%, transparent);
+  --alert-callout-bg: color-mix(
+    in srgb,
+    var(--elf-text-primary, #212121) 6%,
+    var(--elf-bg-paper, #fff)
+  );
+}
+:host([type="tip"]) .alert {
+  --alert-color: var(--elf-primary, #6366f1);
+  --alert-color-soft: color-mix(in srgb, var(--elf-primary, #6366f1) 9%, transparent);
+  --alert-color-border: color-mix(in srgb, var(--elf-primary, #6366f1) 28%, transparent);
+  --alert-color-text: color-mix(in srgb, var(--elf-primary, #6366f1) 40%, #212121);
+  --alert-color-icon-bg: color-mix(in srgb, var(--elf-primary, #6366f1) 13%, transparent);
+  --alert-callout-bg: color-mix(
+    in srgb,
+    var(--elf-primary, #6366f1) 12%,
+    var(--elf-bg-paper, #fff)
+  );
 }
 :host([type="success"]) .alert {
-    --alert-color: var(--elf-success, #2e7d32);
-    --alert-color-soft: color-mix(in srgb, var(--elf-success, #2e7d32) 8%, transparent);
-    --alert-color-border: color-mix(in srgb, var(--elf-success, #2e7d32) 28%, transparent);
-    --alert-color-text: color-mix(in srgb, var(--elf-success, #2e7d32) 38%, #212121);
-    --alert-color-icon-bg: color-mix(in srgb, var(--elf-success, #2e7d32) 13%, transparent);
+  --alert-color: var(--elf-success, #2e7d32);
+  --alert-color-soft: color-mix(in srgb, var(--elf-success, #2e7d32) 8%, transparent);
+  --alert-color-border: color-mix(in srgb, var(--elf-success, #2e7d32) 28%, transparent);
+  --alert-color-text: color-mix(in srgb, var(--elf-success, #2e7d32) 38%, #212121);
+  --alert-color-icon-bg: color-mix(in srgb, var(--elf-success, #2e7d32) 13%, transparent);
+  --alert-callout-bg: color-mix(
+    in srgb,
+    var(--elf-success, #2e7d32) 10%,
+    var(--elf-bg-paper, #fff)
+  );
 }
 :host([type="warning"]) .alert {
-    --alert-color: var(--elf-warning, #ed6c02);
-    --alert-color-soft: color-mix(in srgb, var(--elf-warning, #ed6c02) 9%, transparent);
-    --alert-color-border: color-mix(in srgb, var(--elf-warning, #ed6c02) 30%, transparent);
-    --alert-color-text: color-mix(in srgb, var(--elf-warning, #ed6c02) 42%, #212121);
-    --alert-color-icon-bg: color-mix(in srgb, var(--elf-warning, #ed6c02) 14%, transparent);
+  --alert-color: var(--elf-warning, #ed6c02);
+  --alert-color-soft: color-mix(in srgb, var(--elf-warning, #ed6c02) 9%, transparent);
+  --alert-color-border: color-mix(in srgb, var(--elf-warning, #ed6c02) 30%, transparent);
+  --alert-color-text: color-mix(in srgb, var(--elf-warning, #ed6c02) 42%, #212121);
+  --alert-color-icon-bg: color-mix(in srgb, var(--elf-warning, #ed6c02) 14%, transparent);
+  --alert-callout-bg: color-mix(
+    in srgb,
+    var(--elf-warning, #ed6c02) 13%,
+    var(--elf-bg-paper, #fff)
+  );
 }
 :host([type="danger"]) .alert {
-    --alert-color: var(--elf-danger, #d32f2f);
-    --alert-color-soft: color-mix(in srgb, var(--elf-danger, #d32f2f) 7%, transparent);
-    --alert-color-border: color-mix(in srgb, var(--elf-danger, #d32f2f) 26%, transparent);
-    --alert-color-text: color-mix(in srgb, var(--elf-danger, #d32f2f) 38%, #212121);
-    --alert-color-icon-bg: color-mix(in srgb, var(--elf-danger, #d32f2f) 12%, transparent);
+  --alert-color: var(--elf-danger, #d32f2f);
+  --alert-color-soft: color-mix(in srgb, var(--elf-danger, #d32f2f) 7%, transparent);
+  --alert-color-border: color-mix(in srgb, var(--elf-danger, #d32f2f) 26%, transparent);
+  --alert-color-text: color-mix(in srgb, var(--elf-danger, #d32f2f) 38%, #212121);
+  --alert-color-icon-bg: color-mix(in srgb, var(--elf-danger, #d32f2f) 12%, transparent);
+  --alert-callout-bg: color-mix(in srgb, var(--elf-danger, #d32f2f) 10%, var(--elf-bg-paper, #fff));
 }
 
 // ==============================================
@@ -94,70 +122,91 @@
 // ==============================================
 :host([variant="tonal"]) .alert,
 :host(:not([variant])) .alert {
-    background: var(--alert-color-soft);
-    border: 1px solid var(--alert-color-border);
-    color: var(--alert-color-text);
+  background: var(--alert-color-soft);
+  border: 1px solid var(--alert-color-border);
+  color: var(--alert-color-text);
+}
+
+// ==============================================
+// Soft variant — static guidance and documentation callouts
+// ==============================================
+:host([variant="soft"]) .alert {
+  align-items: flex-start;
+  padding: 16px 18px;
+  border: 1px solid transparent;
+  background: var(--alert-callout-bg);
+  color: var(--elf-text-primary, #212121);
+}
+
+:host([variant="soft"]) .title,
+:host([variant="soft"]) .description {
+  color: var(--elf-text-primary, #212121);
+}
+
+:host([variant="soft"]) .description {
+  margin-top: 8px;
 }
 
 // ==============================================
 // Elevated variant
 // ==============================================
 :host([variant="elevated"]) .alert {
-    background: var(--alert-color-soft);
-    border: 1px solid var(--alert-color-border);
-    color: var(--alert-color-text);
-    box-shadow: 0 2px 8px color-mix(in srgb, var(--alert-color) 14%, transparent),
-        0 1px 2px color-mix(in srgb, var(--alert-color) 10%, transparent);
+  background: var(--alert-color-soft);
+  border: 1px solid var(--alert-color-border);
+  color: var(--alert-color-text);
+  box-shadow:
+    0 2px 8px color-mix(in srgb, var(--alert-color) 14%, transparent),
+    0 1px 2px color-mix(in srgb, var(--alert-color) 10%, transparent);
 }
 
 // ==============================================
 // Outlined variant
 // ==============================================
 :host([variant="outlined"]) .alert {
-    background: var(--elf-bg-paper, #fff);
-    border: 1px solid var(--alert-color);
-    color: var(--alert-color-text);
+  background: var(--elf-bg-paper, #fff);
+  border: 1px solid var(--alert-color);
+  color: var(--alert-color-text);
 }
 
 // ==============================================
 // Plain variant — no background, no border, just colored text
 // ==============================================
 :host([variant="plain"]) .alert {
-    background: transparent;
-    border: 1px solid transparent;
-    color: var(--alert-color-text);
-    padding-left: 14px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--alert-color-text);
+  padding-left: 14px;
 }
 
 // ==============================================
 // Filled variant
 // ==============================================
 :host([variant="filled"]) .alert {
-    background: var(--alert-color);
-    color: #fff;
-    border: 1px solid transparent;
+  background: var(--alert-color);
+  color: #fff;
+  border: 1px solid transparent;
 
-    .title,
-    .description {
-        color: inherit;
+  .title,
+  .description {
+    color: inherit;
+  }
+  .title {
+    color: #fff;
+  }
+  .description {
+    color: rgba(255, 255, 255, 0.8);
+  }
+  .icon {
+    background: rgba(255, 255, 255, 0.18);
+    color: #fff;
+  }
+  .close {
+    color: rgba(255, 255, 255, 0.7);
+    &:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.18);
     }
-    .title {
-        color: #fff;
-    }
-    .description {
-        color: rgba(255, 255, 255, 0.8);
-    }
-    .icon {
-        background: rgba(255, 255, 255, 0.18);
-        color: #fff;
-    }
-    .close {
-        color: rgba(255, 255, 255, 0.7);
-        &:hover {
-            color: #fff;
-            background: rgba(255, 255, 255, 0.18);
-        }
-    }
+  }
 }
 
 // ==============================================
@@ -166,172 +215,172 @@
 :host([variant="tonal"]) .alert,
 :host([variant="elevated"]) .alert,
 :host([variant="filled"]) .alert {
-    border-left: 4px solid var(--alert-color);
+  border-left: 4px solid var(--alert-color);
 }
 
 :host([prominent]) .alert {
-    border-left-width: 8px;
+  border-left-width: 8px;
 }
 
 // ==============================================
 // Icon
 // ==============================================
 .icon {
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    color: var(--alert-color);
-    background: var(--alert-color-icon-bg);
-    margin-top: 0;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: var(--alert-color);
+  background: var(--alert-color-icon-bg);
+  margin-top: 0;
 
-    svg {
-        width: 20px;
-        height: 20px;
-    }
+  svg {
+    width: 20px;
+    height: 20px;
+  }
 }
 
 :host([variant="filled"]) .icon {
-    background: rgba(255, 255, 255, 0.18);
-    color: #fff;
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
 }
 
 :host([variant="plain"]) .icon {
-    background: transparent;
-    width: auto;
-    height: auto;
-    margin-top: 1px;
+  background: transparent;
+  width: auto;
+  height: auto;
+  margin-top: 1px;
 }
 
 // ==============================================
 // Body
 // ==============================================
 .body {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .title {
-    font-weight: 600;
-    font-size: var(--elf-font-size-sm, 14px);
-    color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
-    line-height: 1.5;
-    letter-spacing: 0.01em;
+  font-weight: 600;
+  font-size: var(--elf-font-size-sm, 14px);
+  color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
+  line-height: 1.5;
+  letter-spacing: 0.01em;
 }
 
 .description {
-    color: var(--elf-text-secondary, rgba(0, 0, 0, 0.6));
-    font-size: var(--elf-font-size-xs, 13px);
-    line-height: 1.6;
-    margin-top: 4px;
+  color: var(--elf-text-secondary, rgba(0, 0, 0, 0.6));
+  font-size: var(--elf-font-size-xs, 13px);
+  line-height: 1.6;
+  margin-top: 4px;
 }
 
 :host([variant="plain"]) .title {
-    color: var(--alert-color-text);
+  color: var(--alert-color-text);
 }
 
 // ==============================================
 // Center
 // ==============================================
 :host([center]) .alert {
-    align-items: center;
-    text-align: center;
-    justify-content: center;
+  align-items: center;
+  text-align: center;
+  justify-content: center;
 
-    .body {
-        flex: 0 1 auto;
-    }
+  .body {
+    flex: 0 1 auto;
+  }
 }
 
 // ==============================================
 // Close button
 // ==============================================
 .close {
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    border: none;
-    background: none;
-    cursor: pointer;
-    padding: 0;
-    color: var(--elf-text-disabled, rgba(0, 0, 0, 0.38));
-    border-radius: 50%;
-    transition:
-        color 0.15s ease,
-        background 0.15s ease;
-    margin-right: -4px;
-    margin-top: -2px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 0;
+  color: var(--elf-text-disabled, rgba(0, 0, 0, 0.38));
+  border-radius: 50%;
+  transition:
+    color 0.15s ease,
+    background 0.15s ease;
+  margin-right: -4px;
+  margin-top: -2px;
 
-    svg {
-        width: 16px;
-        height: 16px;
-    }
+  svg {
+    width: 16px;
+    height: 16px;
+  }
 
-    &:hover {
-        color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
-        background: rgba(0, 0, 0, 0.06);
-    }
+  &:hover {
+    color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
+    background: rgba(0, 0, 0, 0.06);
+  }
 
-    &:active {
-        background: rgba(0, 0, 0, 0.1);
-    }
+  &:active {
+    background: rgba(0, 0, 0, 0.1);
+  }
 }
 
 // ==============================================
 // Density: compact
 // ==============================================
 :host([density="compact"]) .alert {
-    padding: 8px 10px 8px 14px;
-    gap: 8px;
-    border-radius: var(--elf-radius-sm, 6px);
+  padding: 8px 10px 8px 14px;
+  gap: 8px;
+  border-radius: var(--elf-radius-sm, 6px);
 }
 
 :host([density="compact"]) .icon {
-    width: 28px;
-    height: 28px;
+  width: 28px;
+  height: 28px;
 
-    svg {
-        width: 15px;
-        height: 15px;
-    }
+  svg {
+    width: 15px;
+    height: 15px;
+  }
 }
 
 :host([density="compact"]) .title {
-    font-size: var(--elf-font-size-xs, 13px);
+  font-size: var(--elf-font-size-xs, 13px);
 }
 
 :host([density="compact"]) .description {
-    font-size: 12px;
-    margin-top: 2px;
+  font-size: 12px;
+  margin-top: 2px;
 }
 
 :host([density="compact"]) .close {
-    width: 24px;
-    height: 24px;
+  width: 24px;
+  height: 24px;
 
-    svg {
-        width: 14px;
-        height: 14px;
-    }
+  svg {
+    width: 14px;
+    height: 14px;
+  }
 }
 
 // ==============================================
 // Animations
 // ==============================================
 :host([data-closing]) .alert {
-    animation: alert-out 0.25s ease forwards;
+  animation: alert-out 0.25s ease forwards;
 }
 
 :host([data-closed]) {
-    display: none;
-    margin-bottom: 0;
+  display: none;
+  margin-bottom: 0;
 }

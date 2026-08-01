@@ -57,6 +57,7 @@ describe("LoadingPage", () => {
     expect(text).toContain("局部加载与受控状态");
     expect(text).toContain("四种加载动效");
     expect(text).toContain("命令式服务");
+    expect(text).toContain("无边框自定义图标与动画");
     expect(text).toContain("被加载遮罩覆盖的内容");
     expect(text).toContain("遮罩退场并释放资源后触发");
   });
@@ -68,6 +69,7 @@ describe("LoadingPage", () => {
     expect(text).toContain("Local loading and controlled state");
     expect(text).toContain("Four loading variants");
     expect(text).toContain("Imperative service");
+    expect(text).toContain("Borderless custom icon and animation");
     expect(text).toContain("Content covered by the loading overlay.");
     expect(text).toContain("Emitted after the overlay leaves and releases its resources.");
     expect(text).not.toMatch(/[\u3400-\u9fff]/u);

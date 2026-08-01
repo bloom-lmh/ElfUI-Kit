@@ -7,7 +7,7 @@ import {
   useHost,
   useHostCssVar,
   useHostFlag,
-  useRef
+  useRef,
 } from "@elfui/core";
 
 import { cssSize, surfaceColor, surfaceForeground, surfaceShadow } from "../../surface";
@@ -17,7 +17,7 @@ import type {
   BottomNavigationItem,
   BottomNavigationProps,
   BottomNavigationSlots,
-  BottomNavigationValue
+  BottomNavigationValue,
 } from "./types";
 
 export type {
@@ -25,10 +25,12 @@ export type {
   BottomNavigationItem,
   BottomNavigationProps,
   BottomNavigationSlots,
-  BottomNavigationValue
+  BottomNavigationValue,
 } from "./types";
 
-interface NavigationViewItem extends BottomNavigationItem { key: string; }
+interface NavigationViewItem extends BottomNavigationItem {
+  key: string;
+}
 
 const props = defineProps<BottomNavigationProps>({
   items: { type: Array, default: () => [] },
@@ -47,7 +49,7 @@ const props = defineProps<BottomNavigationProps>({
   fixed: { type: Boolean, default: false },
   safeArea: { type: Boolean, default: true },
   mandatory: { type: Boolean, default: false },
-  elevation: { type: Number, default: 2 }
+  elevation: { type: Number, default: 2 },
 });
 
 const emit = defineEmits<BottomNavigationEmits>(["update:modelValue", "change"]);
@@ -55,10 +57,11 @@ const host = useHost();
 const selected = useRef<BottomNavigationValue | null>(props.modelValue ?? props.defaultValue);
 
 const itemKey = (value: BottomNavigationValue): string => String(value);
-const viewItems = (): NavigationViewItem[] => (props.items || []).map((item, index) => ({
-  ...item,
-  key: itemKey(item.value ?? index)
-}));
+const viewItems = (): NavigationViewItem[] =>
+  (props.items || []).map((item, index) => ({
+    ...item,
+    key: itemKey(item.value ?? index),
+  }));
 const selectedKey = (): string => {
   if (selected.value !== null && selected.value !== undefined) return itemKey(selected.value);
   if (!props.mandatory) return "";
@@ -68,7 +71,7 @@ const isSelected = (item: NavigationViewItem): boolean => selectedKey() === item
 const itemClass = (item: NavigationViewItem): Record<string, boolean> => ({
   item: true,
   "is-selected": isSelected(item),
-  "is-disabled": Boolean(item.disabled)
+  "is-disabled": Boolean(item.disabled),
 });
 
 const selectItem = (item: NavigationViewItem): void => {
@@ -79,7 +82,9 @@ const selectItem = (item: NavigationViewItem): void => {
 };
 
 const focusItem = (item: NavigationViewItem): void => {
-  const buttons = Array.from(host.shadowRoot?.querySelectorAll<HTMLButtonElement>("button.item") ?? []);
+  const buttons = Array.from(
+    host.shadowRoot?.querySelectorAll<HTMLButtonElement>("button.item") ?? [],
+  );
   buttons.find((button) => button.dataset.navKey === item.key)?.focus();
 };
 
@@ -88,8 +93,10 @@ const onItemKeydown = (item: NavigationViewItem, event: KeyboardEvent): void => 
   const index = enabled.findIndex((entry) => entry.key === item.key);
   if (index < 0) return;
   let nextIndex = index;
-  if (event.key === "ArrowRight" || event.key === "ArrowDown") nextIndex = (index + 1) % enabled.length;
-  else if (event.key === "ArrowLeft" || event.key === "ArrowUp") nextIndex = (index - 1 + enabled.length) % enabled.length;
+  if (event.key === "ArrowRight" || event.key === "ArrowDown")
+    nextIndex = (index + 1) % enabled.length;
+  else if (event.key === "ArrowLeft" || event.key === "ArrowUp")
+    nextIndex = (index - 1 + enabled.length) % enabled.length;
   else if (event.key === "Home") nextIndex = 0;
   else if (event.key === "End") nextIndex = enabled.length - 1;
   else if (event.key === "Enter" || event.key === " ") {
@@ -128,7 +135,11 @@ useHostCssVar("--_bottom-nav-shadow", () => surfaceShadow(props.elevation));
 
 defineStyle(styles);
 
-const BottomNavigation = defineHtml<BottomNavigationProps, BottomNavigationEmits, BottomNavigationSlots>(`
+const BottomNavigation = defineHtml<
+  BottomNavigationProps,
+  BottomNavigationEmits,
+  BottomNavigationSlots
+>(`
   <nav class="navigation" part="navigation" :aria-label=${props.ariaLabel}>
     <slot name="prepend"></slot>
     <button
@@ -144,7 +155,7 @@ const BottomNavigation = defineHtml<BottomNavigationProps, BottomNavigationEmits
       @click="selectItem(item)"
       @keydown="onItemKeydown(item, $event)"
     >
-      <span v-if="item.icon" class="icon" aria-hidden="true">{{ item.icon }}</span>
+      <elf-icon v-if="item.icon" class="icon" :name="item.icon" size="24" aria-hidden="true"></elf-icon>
       <span v-if="item.badge !== undefined && item.badge !== null" class="badge" aria-hidden="true">{{ item.badge }}</span>
       <span class="label">{{ item.label }}</span>
     </button>

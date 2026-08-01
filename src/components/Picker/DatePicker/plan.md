@@ -380,3 +380,12 @@
 - [x] 接入进程级 Overlay Stack 与 `useDismissibleOverlay`，保留捕获阶段 pointerdown 和组件自身定位策略。
 - [x] Escape 由最上层日期面板独占，并把焦点恢复到触发器；同一次事件不会继续关闭外层 Dialog。
 - [x] 新增 Dialog 内日期选择案例及关闭顺序页面回归。
+
+## 2026-07-30 EP-11 文档页面收口
+
+- [x] 完成页面入口、8 个 Playground、运行时状态、Template/Script 与 Props/Events/Slots/Methods API 表中英文；API 表以当前类型与默认值为事实源。
+- [x] 状态统一放在 Playground 标题行，预览统一水平/垂直居中；双面板案例使用 3 个真实 `elf-switch` 控制配置，派生状态复用框架 `useComputed`。
+- [x] 复用 `elf-dialog`、DatePicker 和共享 overlay stack 验证嵌套关闭顺序，没有复制 Dialog、日期或浮层行为。
+- [x] 聚焦测试 2 个文件、25 项和单页面 5 项通过；全量测试 229 个文件、1619 项通过；typecheck、应用构建与库构建通过。
+- [x] Chromium 完成 1440x1000/390x844、Material/Midnight、中英文、禁用日期、双面板、移动堆叠和 Dialog 嵌套验收；控制台 0 warning / 0 error，截图保存于 `docs/screenshots/2026-07-30/date-picker-*.png`。
+- [ ] 将面板结构性显隐迁移到框架 `<Transition>`。当前 `v-if` 与原生 Popover Top Layer 的 `showPopover()` / `hidePopover()` 时机耦合；该项并入 `EP-02`，必须同时覆盖 rapid toggle、leave、Popover 隐藏、焦点恢复和 reduced motion。

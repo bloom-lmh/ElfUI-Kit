@@ -10,7 +10,7 @@ import {
   useHostFlag,
   useRef,
   useTemplateRef,
-  defineHtml
+  defineHtml,
 } from "@elfui/core";
 
 import styles from "./style.scss?inline";
@@ -22,12 +22,13 @@ import type {
   UploadExpose,
   UploadFileItem,
   UploadInvalidPayload,
-  UploadInvalidReason,
   UploadListType,
+  UploadProps,
   UploadRequestHandle,
   UploadRequestOptions,
   UploadRequestResult,
-  UploadStatus
+  UploadSlots,
+  UploadStatus,
 } from "./types";
 import { useLocaleProvider } from "../../Providers/context";
 
@@ -44,7 +45,8 @@ export type {
   UploadRequestOptions,
   UploadRequestHandle,
   UploadRequestResult,
-  UploadStatus
+  UploadSlots,
+  UploadStatus,
 } from "./types";
 
 const props = defineProps({
@@ -83,7 +85,7 @@ const props = defineProps({
   onProgress: { type: Function, default: undefined },
   onChange: { type: Function, default: undefined },
   onExceed: { type: Function, default: undefined },
-  chunkRequest: { type: Function, default: undefined }
+  chunkRequest: { type: Function, default: undefined },
 });
 
 const locale = useLocaleProvider();
@@ -150,7 +152,7 @@ const createItem = (file: File): UploadFileItem => {
     status: "ready",
     percentage: 0,
     raw: file,
-    ...(url ? { url } : {})
+    ...(url ? { url } : {}),
   };
 };
 
@@ -160,12 +162,12 @@ const canAdd = (incoming: File[]): boolean => {
     setInvalid({
       files: incoming,
       reason: "limit",
-      message: locale.t("upload.limit", { limit })
+      message: locale.t("upload.limit", { limit }),
     });
     emit("exceed", incoming, [...files.value]);
     (props.onExceed as ((files: File[], uploadFiles: UploadFileItem[]) => void) | undefined)?.(
       incoming,
-      [...files.value]
+      [...files.value],
     );
     return false;
   }
@@ -196,13 +198,21 @@ const matchesAccept = (file: File): boolean => {
 
 const validateFile = async (file: File): Promise<boolean> => {
   if (!matchesAccept(file)) {
-    setInvalid({ file, reason: "accept", message: locale.t("upload.invalidType", { name: file.name }) });
+    setInvalid({
+      file,
+      reason: "accept",
+      message: locale.t("upload.invalidType", { name: file.name }),
+    });
     return false;
   }
 
   const maxSize = Number(props.maxSize || 0);
   if (maxSize > 0 && file.size > maxSize) {
-    setInvalid({ file, reason: "size", message: locale.t("upload.sizeExceeded", { name: file.name }) });
+    setInvalid({
+      file,
+      reason: "size",
+      message: locale.t("upload.sizeExceeded", { name: file.name }),
+    });
     return false;
   }
 
@@ -216,7 +226,11 @@ const validateFile = async (file: File): Promise<boolean> => {
       return false;
     }
     if (!regexp.test(file.name)) {
-      setInvalid({ file, reason: "name", message: locale.t("upload.invalidName", { name: file.name }) });
+      setInvalid({
+        file,
+        reason: "name",
+        message: locale.t("upload.invalidName", { name: file.name }),
+      });
       return false;
     }
   }
@@ -225,7 +239,11 @@ const validateFile = async (file: File): Promise<boolean> => {
   if (!guard) return true;
   const result = await guard(file);
   if (result === false) {
-    setInvalid({ file, reason: "before-upload", message: locale.t("upload.rejected", { name: file.name }) });
+    setInvalid({
+      file,
+      reason: "before-upload",
+      message: locale.t("upload.rejected", { name: file.name }),
+    });
     return false;
   }
   return true;
@@ -303,8 +321,7 @@ const uploadFile = async (file: UploadFileItem): Promise<void> => {
     emit("progress", value, file, [...files.value]);
     (
       props.onProgress as
-        | ((percentage: number, file: UploadFileItem, files: UploadFileItem[]) => void)
-        | undefined
+        ((percentage: number, file: UploadFileItem, files: UploadFileItem[]) => void) | undefined
     )?.(value, file, [...files.value]);
   };
   const onSuccess = (response?: unknown): void => {
@@ -313,21 +330,20 @@ const uploadFile = async (file: UploadFileItem): Promise<void> => {
     emit("success", response, file, [...files.value]);
     (
       props.onSuccess as
-        | ((response: unknown, file: UploadFileItem, files: UploadFileItem[]) => void)
-        | undefined
+        ((response: unknown, file: UploadFileItem, files: UploadFileItem[]) => void) | undefined
     )?.(response, file, [...files.value]);
     notifyChange(file);
   };
   const onError = (error: unknown): void => {
     activeRequests.delete(file.uid);
-    const message = error instanceof Error ? error.message : String(error || locale.t("upload.failed"));
+    const message =
+      error instanceof Error ? error.message : String(error || locale.t("upload.failed"));
     updateFile(file.uid, { status: "error", error, message });
     notice.set(message);
     emit("error", error, file, [...files.value]);
     (
       props.onError as
-        | ((error: unknown, file: UploadFileItem, files: UploadFileItem[]) => void)
-        | undefined
+        ((error: unknown, file: UploadFileItem, files: UploadFileItem[]) => void) | undefined
     )?.(error, file, [...files.value]);
     notifyChange(file);
   };
@@ -342,12 +358,11 @@ const uploadFile = async (file: UploadFileItem): Promise<void> => {
     withCredentials: Boolean(props.withCredentials),
     onProgress,
     onSuccess,
-    onError
+    onError,
   };
 
   const customRequest = (props.httpRequest || props.customRequest) as
-    | ((options: UploadRequestOptions) => UploadRequestResult)
-    | undefined;
+    ((options: UploadRequestOptions) => UploadRequestResult) | undefined;
   if (customRequest) {
     try {
       const result = await customRequest(requestOptions);
@@ -444,7 +459,7 @@ const uploadChunks = async (
   file: UploadFileItem,
   onProgress: (percentage: number) => void,
   onSuccess: (response?: unknown) => void,
-  onError: (error: unknown) => void
+  onError: (error: unknown) => void,
 ): Promise<void> => {
   const raw = file.raw;
   if (!raw) {
@@ -455,8 +470,7 @@ const uploadChunks = async (
   const chunkSize = Math.max(1, Number(props.chunkSize || 0));
   const total = Math.max(1, Math.ceil(raw.size / chunkSize));
   const chunkRequest = props.chunkRequest as
-    | ((options: UploadChunkRequestOptions) => void | Promise<void>)
-    | undefined;
+    ((options: UploadChunkRequestOptions) => void | Promise<void>) | undefined;
 
   try {
     for (let index = 0; index < total; index += 1) {
@@ -471,7 +485,7 @@ const uploadChunks = async (
           total,
           start,
           end,
-          onProgress
+          onProgress,
         });
       } else {
         await Promise.resolve();
@@ -492,8 +506,7 @@ const submit = (): void => {
 
 const removeFile = async (file: UploadFileItem): Promise<void> => {
   const guard = props.beforeRemove as
-    | ((file: UploadFileItem) => boolean | Promise<boolean>)
-    | undefined;
+    ((file: UploadFileItem) => boolean | Promise<boolean>) | undefined;
   if (guard && (await guard(file)) === false) return;
   cancelTransfer(file.uid, false);
   releaseObjectUrl(file.uid);
@@ -501,7 +514,7 @@ const removeFile = async (file: UploadFileItem): Promise<void> => {
   emit("remove", file, [...files.value]);
   (props.onRemove as ((file: UploadFileItem, files: UploadFileItem[]) => void) | undefined)?.(
     file,
-    [...files.value]
+    [...files.value],
   );
   emitModel();
   notifyChange(file);
@@ -513,9 +526,10 @@ const previewFile = (file: UploadFileItem): void => {
 };
 
 const clearFiles = (statuses?: UploadStatus[]): void => {
-  const removed = !Array.isArray(statuses) || statuses.length === 0
-    ? [...files.value]
-    : files.value.filter((file) => statuses.includes(file.status));
+  const removed =
+    !Array.isArray(statuses) || statuses.length === 0
+      ? [...files.value]
+      : files.value.filter((file) => statuses.includes(file.status));
   for (const file of removed) {
     cancelTransfer(file.uid, false);
     releaseObjectUrl(file.uid);
@@ -547,7 +561,7 @@ const abort = (file?: UploadFileItem): void => {
     updateFile(item.uid, {
       status: "error",
       error: new Error(locale.t("upload.cancelled")),
-      message: locale.t("upload.cancelled")
+      message: locale.t("upload.cancelled"),
     });
   }
 };
@@ -613,7 +627,7 @@ defineExpose<UploadExpose>({ select, submit, clearFiles, abort, handleStart, han
 
 defineStyle(styles);
 
-const Upload = defineHtml(`
+const Upload = defineHtml<UploadProps, UploadEmits, UploadSlots>(`
   <div class="upload">
     <input
       ref="inputEl"
@@ -643,12 +657,14 @@ const Upload = defineHtml(`
       @drop=${onDrop}
       @dragover=${onDragOver}
     >
-      <span class="drop-icon" aria-hidden="true">
-        <svg viewBox="0 0 24 24" focusable="false">
-          <path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 14v5h14v-5"></path>
-        </svg>
-      </span>
-      <span>${locale.t("upload.drop")}</span>
+      <slot name="dropzone" :select=${select} :disabled=${isDisabled()}>
+        <span class="drop-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false">
+            <path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 14v5h14v-5"></path>
+          </svg>
+        </span>
+        <span>${locale.t("upload.drop")}</span>
+      </slot>
     </div>
     <div v-if=${props.directory} class="directory-note" role="note">
       ${locale.t("upload.directoryHint")}

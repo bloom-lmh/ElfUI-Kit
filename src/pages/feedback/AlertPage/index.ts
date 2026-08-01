@@ -3,6 +3,7 @@ import { createDocsTranslator } from "../../docsLocale";
 import { PageAlertEx1 } from "./ex1";
 import { PageAlertEx2 } from "./ex2";
 import { PageAlertEx3 } from "./ex3";
+import { PageAlertEx4 } from "./ex4";
 import { PageAlertProps } from "./props";
 
 const t = createDocsTranslator({
@@ -17,14 +18,14 @@ useComponents({
   "page-alert-ex1": PageAlertEx1,
   "page-alert-ex2": PageAlertEx2,
   "page-alert-ex3": PageAlertEx3,
-  "page-alert-props": PageAlertProps
+  "page-alert-ex4": PageAlertEx4,
+  "page-alert-props": PageAlertProps,
 });
 
 const PageAlert = defineHtml(`
   <elf-container
-    ><h1>${t("title")}</h1>
-    <p>${t("description")}</p>
-    <page-alert-ex1 /><page-alert-ex2 /><page-alert-ex3 /><page-alert-props
+    ><elf-docs-hero category="feedback" tag="Alert" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
+    <page-alert-ex1 /><page-alert-ex2 /><page-alert-ex3 /><page-alert-ex4 /><page-alert-props
   /></elf-container>
 `);
 

@@ -25,8 +25,7 @@ const t = createDocsTranslator({
 
 const PageDateTimePicker = defineHtml(`
   <elf-container>
-    <h1>${t("title")}</h1>
-    <p>${t("description")}</p>
+    <elf-docs-hero category="picker" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
     <page-date-time-picker-ex1 />
     <page-date-time-picker-ex2 />
     <page-date-time-picker-ex3 />

@@ -19,13 +19,12 @@ const t = createDocsTranslator({
 useComponents({
   "page-segmented-ex1": PageSegmentedEx1,
   "page-segmented-ex2": PageSegmentedEx2,
-  "page-segmented-props": PageSegmentedProps
+  "page-segmented-props": PageSegmentedProps,
 });
 
 const PageSegmented = defineHtml(`
     <elf-container>
-        <h1>${t("title")}</h1>
-        <p>${t("description")}</p>
+        <elf-docs-hero category="form" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
         <page-segmented-ex1 />
         <page-segmented-ex2 />
         <p>${t("keyboard")}</p>

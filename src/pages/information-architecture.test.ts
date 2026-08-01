@@ -37,7 +37,8 @@ beforeAll(async () => {
     { PageTooltipDirective },
     { PageTouch },
     { PageLabsVideo },
-    { PageLabsHeatmap }
+    { PageLabsHeatmap },
+    { PageLabsCodeCard },
   ] = await Promise.all([
     import("./getting-started/InstallationPage/index"),
     import("./getting-started/UpgradeGuidePage/index"),
@@ -52,7 +53,8 @@ beforeAll(async () => {
     import("./directives/TooltipPage/index"),
     import("./directives/TouchPage/index"),
     import("./labs/VideoPage/index"),
-    import("./labs/HeatmapPage/index")
+    import("./labs/HeatmapPage/index"),
+    import("./labs/CodeCardPage/index"),
   ]);
 
   pages.push(
@@ -69,7 +71,8 @@ beforeAll(async () => {
     { tag: ensureCustomElement(PageTooltipDirective), title: "Tooltip" },
     { tag: ensureCustomElement(PageTouch), title: "Touch" },
     { tag: ensureCustomElement(PageLabsVideo), title: "Video" },
-    { tag: ensureCustomElement(PageLabsHeatmap), title: "Heatmap" }
+    { tag: ensureCustomElement(PageLabsHeatmap), title: "Heatmap" },
+    { tag: ensureCustomElement(PageLabsCodeCard), title: "Code Card" },
   );
 }, 30_000);
 
@@ -95,20 +98,118 @@ describe("新文档领域页面", () => {
 
   it("为不同文档领域提供完整且差异化的学习结构", async () => {
     const expectations = new Map<string, ReadonlyArray<readonly [string, number]>>([
-      ["Install ElfUI Kit", [[".docs-step", 3], [".docs-checklist li", 4]]],
-      ["Upgrade guide", [[".docs-flow-item", 3], [".docs-matrix", 1]]],
-      ["Browser support", [[".docs-matrix", 2], [".docs-checklist li", 4]]],
-      ["Frequently asked questions", [["details", 10], [".docs-section", 4]]],
-      ["Click outside", [["elf-playground", 1], ["elf-props-table", 1]]],
-      ["Intersect", [["elf-playground", 1], ["elf-props-table", 1]]],
-      ["Mutate", [["elf-playground", 1], ["elf-props-table", 1]]],
-      ["Resize", [["elf-playground", 1], ["elf-props-table", 1]]],
-      ["Ripple", [["elf-playground", 1], ["elf-props-table", 1]]],
-      ["Scroll", [["elf-playground", 1], ["elf-props-table", 1]]],
-      ["Tooltip", [["elf-playground", 1], ["elf-props-table", 1]]],
-      ["Touch", [["elf-playground", 1], ["elf-props-table", 1]]],
-      ["Video", [["elf-playground", 1], ["elf-props-table", 2]]],
-      ["Heatmap", [["elf-playground", 1], ["elf-props-table", 2]]],
+      [
+        "Install ElfUI Kit",
+        [
+          [".docs-checklist li", 4],
+          ["elf-code-card", 6],
+          ['elf-code-card[variant="workbench"]', 6],
+          ['[slot="footer"]', 6],
+          [".guide-content", 1],
+        ],
+      ],
+      [
+        "Upgrade guide",
+        [
+          [".release-entry", 3],
+          ["elf-table", 1],
+          ["elf-code-card", 1],
+          [".guide-content", 1],
+        ],
+      ],
+      [
+        "Browser support",
+        [
+          ["elf-table", 2],
+          [".docs-checklist li", 4],
+          [".guide-content", 1],
+        ],
+      ],
+      [
+        "Frequently asked questions",
+        [
+          ["elf-collapse", 4],
+          [".docs-section", 4],
+          [".guide-content", 1],
+        ],
+      ],
+      [
+        "Click outside",
+        [
+          ["elf-playground", 1],
+          ["elf-props-table", 1],
+        ],
+      ],
+      [
+        "Intersect",
+        [
+          ["elf-playground", 1],
+          ["elf-props-table", 1],
+        ],
+      ],
+      [
+        "Mutate",
+        [
+          ["elf-playground", 1],
+          ["elf-props-table", 1],
+        ],
+      ],
+      [
+        "Resize",
+        [
+          ["elf-playground", 1],
+          ["elf-props-table", 1],
+        ],
+      ],
+      [
+        "Ripple",
+        [
+          ["elf-playground", 1],
+          ["elf-props-table", 1],
+        ],
+      ],
+      [
+        "Scroll",
+        [
+          ["elf-playground", 1],
+          ["elf-props-table", 1],
+        ],
+      ],
+      [
+        "Tooltip",
+        [
+          ["elf-playground", 1],
+          ["elf-props-table", 1],
+        ],
+      ],
+      [
+        "Touch",
+        [
+          ["elf-playground", 1],
+          ["elf-props-table", 1],
+        ],
+      ],
+      [
+        "Video",
+        [
+          ["elf-playground", 1],
+          ["elf-props-table", 2],
+        ],
+      ],
+      [
+        "Heatmap",
+        [
+          ["elf-playground", 1],
+          ["elf-props-table", 2],
+        ],
+      ],
+      [
+        "Code Card",
+        [
+          ["elf-playground", 5],
+          ["elf-props-table", 3],
+        ],
+      ],
     ]);
 
     for (const pageCase of pages) {
@@ -121,7 +222,43 @@ describe("新文档领域页面", () => {
           `${pageCase.title}: ${selector}`,
         ).toBeGreaterThanOrEqual(minimum);
       }
+      if (pageCase.title === "Install ElfUI Kit") {
+        const cards = Array.from(page.shadowRoot?.querySelectorAll("elf-code-card") || []) as Array<
+          HTMLElement & { code: string }
+        >;
+        expect(cards).toHaveLength(6);
+        expect(cards.every((card) => Boolean(card.shadowRoot?.querySelector(".card-header")))).toBe(
+          true,
+        );
+        expect(
+          cards.every((card) =>
+            Boolean(card.shadowRoot?.querySelector(".card-title")?.textContent),
+          ),
+        ).toBe(true);
+        expect(cards[0]?.code.split("\n")).toEqual([
+          "pnpm create elfui@beta my-app --install --router",
+          "cd my-app",
+          "pnpm dev",
+        ]);
+      }
       page.remove();
     }
+  });
+
+  it("解释 DOM 变更监听与外部点击排除目标的用途", async () => {
+    const clickOutsideCase = pages.find(({ title }) => title === "Click outside");
+    const mutateCase = pages.find(({ title }) => title === "Mutate");
+    expect(clickOutsideCase).toBeDefined();
+    expect(mutateCase).toBeDefined();
+
+    const clickOutsidePage = document.createElement(clickOutsideCase!.tag);
+    const mutatePage = document.createElement(mutateCase!.tag);
+    document.body.append(clickOutsidePage, mutatePage);
+    await wait();
+
+    expect(collectText(clickOutsidePage)).toContain("触发按钮（已排除）");
+    expect(collectText(clickOutsidePage)).toContain("不会同时被当作一次外部点击");
+    expect(collectText(mutatePage)).toContain("它不监听业务变量");
+    expect(collectText(mutatePage)).toContain("普通界面状态继续使用 ref、computed 或 watch");
   });
 });

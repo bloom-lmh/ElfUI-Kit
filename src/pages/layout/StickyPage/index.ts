@@ -10,8 +10,8 @@ const t = createDocsTranslator({
   title: { zh: "吸附", en: "Sticky" },
   description: {
     zh: "让工具栏、操作栏或分组标题在滚动容器内保持可见，并支持目标边界、内容投放和实时滚动状态。",
-    en: "Keep toolbars, action bars, or section headings visible inside scroll containers with target boundaries, teleported content, and live scroll state."
-  }
+    en: "Keep toolbars, action bars, or section headings visible inside scroll containers with target boundaries, teleported content, and live scroll state.",
+  },
 });
 
 useComponents({
@@ -19,13 +19,12 @@ useComponents({
   "page-sticky-ex2": PageStickyEx2,
   "page-sticky-ex3": PageStickyEx3,
   "page-sticky-ex4": PageStickyEx4,
-  "page-sticky-props": PageStickyProps
+  "page-sticky-props": PageStickyProps,
 });
 
 const PageSticky = defineHtml(`
   <elf-container>
-    <h1>${t("title")}</h1>
-    <p>${t("description")}</p>
+    <elf-docs-hero category="layout" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
     <page-sticky-ex1></page-sticky-ex1>
     <page-sticky-ex2></page-sticky-ex2>
     <page-sticky-ex3></page-sticky-ex3>

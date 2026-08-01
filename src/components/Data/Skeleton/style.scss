@@ -17,19 +17,17 @@
 }
 
 .placeholder {
-  gap: var(--elf-space-4);
-  min-width: min(100%, 320px);
+  gap: var(--elf-space-3);
+  min-width: min(100%, 280px);
 }
 
-// ───── 公共 ──────────────────────────────────────
 .skeleton {
-  background: var(--elf-bg-overlay);
   position: relative;
   overflow: hidden;
   flex-shrink: 0;
+  background: var(--elf-bg-overlay);
 }
 
-// ───── 变体圆角 ──────────────────────────────────
 :host([variant="text"]),
 :host(:not([variant])) {
   .skeleton {
@@ -44,41 +42,33 @@
 :host([variant="rect"]),
 :host([variant="image"]) {
   .skeleton {
-    border-radius: var(--elf-radius-md);
+    border-radius: var(--elf-radius-sm);
   }
 }
 
-// ───── shimmer 动画 ──────────────────────────────
-:host([animated]) .skeleton {
-  &::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      rgba(255, 255, 255, 0.5) 50%,
-      transparent 100%
-    );
-    animation: shimmer 1.6s ease-in-out infinite;
+:host([animated]) .skeleton::after {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--elf-bg-paper) 42%, transparent);
+  content: "";
+  animation: skeleton-pulse 1.35s ease-in-out infinite alternate;
+}
+
+@keyframes skeleton-pulse {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 0.72;
   }
 }
 
-@keyframes shimmer {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
-}
-
-// ───── dark 适配 ─────────────────────────────────
 :root[data-theme="dark"] :host([animated]) .skeleton::after {
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.08) 50%,
-    transparent 100%
-  );
+  background: color-mix(in srgb, #fff 8%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :host([animated]) .skeleton::after {
+    animation: none;
+  }
 }

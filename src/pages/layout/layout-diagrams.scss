@@ -142,12 +142,7 @@ elf-playground {
   width: 100%;
   min-width: 0;
   padding-block: 12px;
-  background:
-    linear-gradient(
-      to right,
-      color-mix(in srgb, var(--elf-primary) 7%, transparent),
-      color-mix(in srgb, var(--elf-primary) 7%, transparent)
-    ) center / 100% 1px no-repeat;
+  background: color-mix(in srgb, var(--elf-primary) 4%, var(--elf-bg-paper));
 }
 
 .container-frame {
@@ -214,9 +209,15 @@ elf-playground {
   font-size: 8px;
 }
 
-.flex-demo.align-demo .diagram-item:nth-child(1) { min-height: 72px; }
-.flex-demo.align-demo .diagram-item:nth-child(2) { min-height: 104px; }
-.flex-demo.align-demo .diagram-item:nth-child(3) { min-height: 136px; }
+.flex-demo.align-demo .diagram-item:nth-child(1) {
+  min-height: 72px;
+}
+.flex-demo.align-demo .diagram-item:nth-child(2) {
+  min-height: 104px;
+}
+.flex-demo.align-demo .diagram-item:nth-child(3) {
+  min-height: 136px;
+}
 
 .container-demo {
   display: grid;

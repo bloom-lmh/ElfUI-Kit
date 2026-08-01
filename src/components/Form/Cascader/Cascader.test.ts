@@ -64,14 +64,14 @@ const options: CascaderOption[] = [
     value: "zhejiang",
     children: [
       { label: "杭州", value: "hangzhou" },
-      { label: "宁波", value: "ningbo" }
-    ]
+      { label: "宁波", value: "ningbo" },
+    ],
   },
   {
     label: "江苏",
     value: "jiangsu",
-    children: [{ label: "南京", value: "nanjing", disabled: true }]
-  }
+    children: [{ label: "南京", value: "nanjing", disabled: true }],
+  },
 ];
 
 const mount = async (patch: Partial<CascaderEl> = {}): Promise<CascaderEl> => {
@@ -97,7 +97,10 @@ describe("elf-cascader", () => {
     const el = await mount({
       multiple: true,
       collapseTags: true,
-      modelValue: [["zhejiang", "hangzhou"], ["zhejiang", "ningbo"]]
+      modelValue: [
+        ["zhejiang", "hangzhou"],
+        ["zhejiang", "ningbo"],
+      ],
     });
 
     expect(el.shadowRoot!.querySelector(".tag-label")?.textContent?.trim()).toBe("浙江 / 杭州");
@@ -128,12 +131,12 @@ describe("elf-cascader", () => {
               {
                 label: "组件库",
                 value: "components",
-                children: [{ label: "稳定版", value: "stable" }]
-              }
-            ]
-          }
-        ]
-      }
+                children: [{ label: "稳定版", value: "stable" }],
+              },
+            ],
+          },
+        ],
+      },
     ];
     const el = await mount({ options: deepOptions, teleported: false });
     const onUpdate = vi.fn();
@@ -154,16 +157,24 @@ describe("elf-cascader", () => {
       "product",
       "platform",
       "components",
-      "stable"
+      "stable",
     ]);
   });
 
   it("supports explicitly forcing the columns or tree panel", async () => {
-    const deepOptions: CascaderOption[] = [{
-      label: "A",
-      value: "a",
-      children: [{ label: "B", value: "b", children: [{ label: "C", value: "c", children: [{ label: "D", value: "d" }] }] }]
-    }];
+    const deepOptions: CascaderOption[] = [
+      {
+        label: "A",
+        value: "a",
+        children: [
+          {
+            label: "B",
+            value: "b",
+            children: [{ label: "C", value: "c", children: [{ label: "D", value: "d" }] }],
+          },
+        ],
+      },
+    ];
     const columns = await mount({ options: deepOptions, panelMode: "columns", teleported: false });
     columns.shadowRoot!.querySelector<HTMLElement>(".trigger")!.click();
     await tick();
@@ -203,64 +214,98 @@ describe("elf-cascader", () => {
   });
 
   it("supports optional linked checkboxes and indeterminate state in tree mode", async () => {
-    const deepOptions: CascaderOption[] = [{
-      label: "产品",
-      value: "product",
-      children: [{
-        label: "平台",
-        value: "platform",
-        children: [{
-          label: "组件库",
-          value: "components",
-          children: [
-            { label: "稳定版", value: "stable" },
-            { label: "预览版", value: "preview" }
-          ]
-        }]
-      }]
-    }];
-    const el = await mount({ options: deepOptions, panelMode: "tree", checkable: true, teleported: false });
+    const deepOptions: CascaderOption[] = [
+      {
+        label: "产品",
+        value: "product",
+        children: [
+          {
+            label: "平台",
+            value: "platform",
+            children: [
+              {
+                label: "组件库",
+                value: "components",
+                children: [
+                  { label: "稳定版", value: "stable" },
+                  { label: "预览版", value: "preview" },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ];
+    const el = await mount({
+      options: deepOptions,
+      panelMode: "tree",
+      checkable: true,
+      teleported: false,
+    });
     const onUpdate = vi.fn();
     el.addEventListener("update:modelValue", onUpdate as EventListener);
 
     el.shadowRoot!.querySelector<HTMLElement>(".trigger")!.click();
     await tick();
-    el.shadowRoot!.querySelector<HTMLElement>('.tree-option[aria-level="1"] .option-checkbox')!.click();
+    el.shadowRoot!.querySelector<HTMLElement>(
+      '.tree-option[aria-level="1"] .option-checkbox',
+    )!.click();
     await tick();
 
     expect((onUpdate.mock.calls.at(-1)![0] as CustomEvent).detail).toEqual([
       ["product", "platform", "components", "stable"],
-      ["product", "platform", "components", "preview"]
+      ["product", "platform", "components", "preview"],
     ]);
-    expect(el.shadowRoot!.querySelector('.tree-option[aria-level="1"] .option-checkbox.is-checked')).toBeTruthy();
+    expect(
+      el.shadowRoot!.querySelector('.tree-option[aria-level="1"] .option-checkbox.is-checked'),
+    ).toBeTruthy();
 
-    el.shadowRoot!.querySelector<HTMLElement>('.tree-option[aria-level="2"] .option-checkbox')!.click();
+    el.shadowRoot!.querySelector<HTMLElement>(
+      '.tree-option[aria-level="2"] .option-checkbox',
+    )!.click();
     await tick();
-    el.shadowRoot!.querySelector<HTMLElement>('.tree-option[aria-level="3"] .option-checkbox')!.click();
+    el.shadowRoot!.querySelector<HTMLElement>(
+      '.tree-option[aria-level="3"] .option-checkbox',
+    )!.click();
     await tick();
-    el.shadowRoot!.querySelector<HTMLElement>('.tree-option[aria-level="4"] .option-checkbox')!.click();
+    el.shadowRoot!.querySelector<HTMLElement>(
+      '.tree-option[aria-level="4"] .option-checkbox',
+    )!.click();
     await tick();
 
-    expect(el.shadowRoot!.querySelector('.tree-option[aria-level="1"] .option-checkbox.is-indeterminate')).toBeTruthy();
+    expect(
+      el.shadowRoot!.querySelector(
+        '.tree-option[aria-level="1"] .option-checkbox.is-indeterminate',
+      ),
+    ).toBeTruthy();
     el.shadowRoot!.querySelector<HTMLButtonElement>('.tree-option[aria-level="1"]')!.click();
     await tick();
     expect(el.shadowRoot!.querySelector('.tree-option[aria-level="4"]')).toBeTruthy();
   });
 
   it("lets a checkable tree parent row select all descendant leaves", async () => {
-    const deepOptions: CascaderOption[] = [{
-      label: "产品",
-      value: "product",
-      children: [{
-        label: "平台",
-        value: "platform",
+    const deepOptions: CascaderOption[] = [
+      {
+        label: "产品",
+        value: "product",
         children: [
-          { label: "稳定版", value: "stable" },
-          { label: "预览版", value: "preview" }
-        ]
-      }]
-    }];
-    const el = await mount({ options: deepOptions, panelMode: "tree", checkable: true, teleported: false });
+          {
+            label: "平台",
+            value: "platform",
+            children: [
+              { label: "稳定版", value: "stable" },
+              { label: "预览版", value: "preview" },
+            ],
+          },
+        ],
+      },
+    ];
+    const el = await mount({
+      options: deepOptions,
+      panelMode: "tree",
+      checkable: true,
+      teleported: false,
+    });
     const onUpdate = vi.fn();
     el.addEventListener("update:modelValue", onUpdate as EventListener);
 
@@ -271,9 +316,11 @@ describe("elf-cascader", () => {
 
     expect((onUpdate.mock.calls.at(-1)![0] as CustomEvent).detail).toEqual([
       ["product", "platform", "stable"],
-      ["product", "platform", "preview"]
+      ["product", "platform", "preview"],
     ]);
-    expect(el.shadowRoot!.querySelector('.tree-option[aria-level="1"] .option-checkbox.is-checked')).toBeTruthy();
+    expect(
+      el.shadowRoot!.querySelector('.tree-option[aria-level="1"] .option-checkbox.is-checked'),
+    ).toBeTruthy();
   });
 
   it("maps item size and panel height to the public CSS variables", async () => {
@@ -287,7 +334,7 @@ describe("elf-cascader", () => {
     const el = await mount({
       multiple: true,
       modelValue: [["zhejiang", "hangzhou"]],
-      teleported: false
+      teleported: false,
     });
 
     (el.shadowRoot!.querySelector(".trigger") as HTMLElement).click();
@@ -326,7 +373,7 @@ describe("elf-cascader", () => {
     const el = await mount({
       multiple: true,
       modelValue: [["zhejiang", "hangzhou"]],
-      teleported: false
+      teleported: false,
     });
     const onUpdate = vi.fn();
     el.addEventListener("update:modelValue", onUpdate as EventListener);
@@ -346,7 +393,9 @@ describe("elf-cascader", () => {
     expect(columns).toHaveLength(2);
     expect(el.shadowRoot!.activeElement).toBe(childOptions[0]);
 
-    childOptions[0].dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }));
+    childOptions[0].dispatchEvent(
+      new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }),
+    );
     expect(el.shadowRoot!.activeElement).toBe(childOptions[1]);
     expect(childOptions[0].classList.contains("is-selected")).toBe(true);
     expect(childOptions[1].classList.contains("is-selected")).toBe(false);
@@ -355,10 +404,12 @@ describe("elf-cascader", () => {
     await tick();
     expect((onUpdate.mock.calls.at(-1)![0] as CustomEvent).detail).toEqual([
       ["zhejiang", "hangzhou"],
-      ["zhejiang", "ningbo"]
+      ["zhejiang", "ningbo"],
     ]);
 
-    childOptions[1].dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowLeft", bubbles: true }));
+    childOptions[1].dispatchEvent(
+      new KeyboardEvent("keydown", { key: "ArrowLeft", bubbles: true }),
+    );
     await tick();
     expect(el.shadowRoot!.activeElement).toBe(rootOption);
   });
@@ -434,7 +485,7 @@ describe("elf-cascader", () => {
       modelValue: ["zhejiang", "hangzhou"],
       clearable: true,
       clearIcon: "clear",
-      valueOnClear: () => 0
+      valueOnClear: () => 0,
     });
     const onUpdate = vi.fn();
     el.addEventListener("update:modelValue", onUpdate as EventListener);
@@ -465,7 +516,7 @@ describe("elf-cascader", () => {
 
     expect((onUpdate.mock.calls.at(-1)![0] as CustomEvent).detail).toEqual([
       ["zhejiang", "hangzhou"],
-      ["zhejiang", "ningbo"]
+      ["zhejiang", "ningbo"],
     ]);
     expect(el.hasAttribute("data-open")).toBe(true);
     expect(el.shadowRoot!.querySelector(".value")?.textContent).toContain("浙江 / 杭州");
@@ -488,7 +539,7 @@ describe("elf-cascader", () => {
 
     expect(el.shadowRoot!.querySelector(".option-checkbox")).toBeTruthy();
     expect((onUpdate.mock.calls.at(-1)![0] as CustomEvent).detail).toEqual([
-      ["zhejiang", "hangzhou"]
+      ["zhejiang", "hangzhou"],
     ]);
   });
 
@@ -521,7 +572,7 @@ describe("elf-cascader", () => {
 
     expect((onUpdate.mock.calls[0]![0] as CustomEvent).detail).toEqual([
       ["zhejiang", "hangzhou"],
-      ["zhejiang", "ningbo"]
+      ["zhejiang", "ningbo"],
     ]);
     expect(el.shadowRoot!.querySelector(".option-checkbox.is-checked")).toBeTruthy();
 
@@ -531,7 +582,7 @@ describe("elf-cascader", () => {
     await tick();
 
     expect((onUpdate.mock.calls.at(-1)![0] as CustomEvent).detail).toEqual([
-      ["zhejiang", "ningbo"]
+      ["zhejiang", "ningbo"],
     ]);
     expect(el.shadowRoot!.querySelector(".option-checkbox.is-indeterminate")).toBeTruthy();
   });
@@ -553,7 +604,7 @@ describe("elf-cascader", () => {
     expect((onUpdate.mock.calls[0]![0] as CustomEvent).detail).toEqual(["zhejiang", "hangzhou"]);
     expect(el.getCheckedNodes?.()[0]).toMatchObject({
       label: "杭州",
-      pathLabels: ["浙江", "杭州"]
+      pathLabels: ["浙江", "杭州"],
     });
   });
 
@@ -573,7 +624,7 @@ describe("elf-cascader", () => {
   it("cascader-panel 切换父项时保留新的活动面板", async () => {
     const el = await mountPanel({
       checkable: true,
-      modelValue: [["zhejiang", "ningbo"]]
+      modelValue: [["zhejiang", "ningbo"]],
     });
     const rootOptions = el.shadowRoot!.querySelectorAll(".column:first-child .option");
 
@@ -614,7 +665,9 @@ describe("elf-cascader", () => {
 
   it("honors custom and asynchronous pre-filter hooks", async () => {
     const beforeFilter = vi.fn(async (keyword: string) => keyword !== "blocked");
-    const filterMethod = vi.fn((node: { label: string }, keyword: string) => node.label === "宁波" && keyword === "city");
+    const filterMethod = vi.fn(
+      (node: { label: string }, keyword: string) => node.label === "宁波" && keyword === "city",
+    );
     const el = await mount({ filterable: true, debounce: 0, beforeFilter, filterMethod });
     const input = el.shadowRoot!.querySelector<HTMLInputElement>(".filter-input")!;
 
@@ -638,7 +691,7 @@ describe("elf-cascader", () => {
     });
     const el = await mount({
       options: [{ label: "动态节点", value: "dynamic" }],
-      props: { lazy: true, lazyLoad: resolveLoader }
+      props: { lazy: true, lazyLoad: resolveLoader },
     });
     const onUpdate = vi.fn();
     el.addEventListener("update:modelValue", onUpdate as EventListener);
@@ -650,13 +703,15 @@ describe("elf-cascader", () => {
     expect(resolveLoader).toHaveBeenCalledTimes(1);
     expect(el.shadowRoot!.querySelectorAll(".column")).toHaveLength(2);
     expect(el.shadowRoot!.textContent).toContain("动态子项");
-    (el.shadowRoot!.querySelectorAll(".column")[1]!.querySelector(".option") as HTMLButtonElement).click();
+    (
+      el.shadowRoot!.querySelectorAll(".column")[1]!.querySelector(".option") as HTMLButtonElement
+    ).click();
     expect((onUpdate.mock.calls[0]![0] as CustomEvent).detail).toEqual(["dynamic", "child"]);
 
     const rejectLoader = vi.fn((_node: unknown, _resolve: unknown, reject: () => void) => reject());
     const rejected = await mount({
       options: [{ label: "失败节点", value: "failed" }],
-      props: { lazy: true, lazyLoad: rejectLoader }
+      props: { lazy: true, lazyLoad: rejectLoader },
     });
     (rejected.shadowRoot!.querySelector(".trigger") as HTMLElement).click();
     await tick();
@@ -670,7 +725,10 @@ describe("elf-cascader", () => {
     const el = await mount({
       multiple: true,
       clearable: true,
-      modelValue: [["zhejiang", "hangzhou"], ["zhejiang", "ningbo"]]
+      modelValue: [
+        ["zhejiang", "hangzhou"],
+        ["zhejiang", "ningbo"],
+      ],
     });
     const onRemove = vi.fn();
     const onUpdate = vi.fn();
@@ -693,7 +751,10 @@ describe("elf-cascader", () => {
       collapseTags: true,
       collapseTagsTooltip: true,
       maxCollapseTags: 1,
-      modelValue: [["zhejiang", "hangzhou"], ["zhejiang", "ningbo"]]
+      modelValue: [
+        ["zhejiang", "hangzhou"],
+        ["zhejiang", "ningbo"],
+      ],
     });
 
     const collapsed = el.shadowRoot!.querySelector<HTMLElement>(".collapsed-tag")!;
@@ -708,16 +769,16 @@ describe("elf-cascader", () => {
       popperOptions: {
         modifiers: [
           { name: "offset", options: { offset: [10, 14] } },
-          { name: "preventOverflow", options: { padding: 8 } }
-        ]
-      }
+          { name: "preventOverflow", options: { padding: 8 } },
+        ],
+      },
     });
     const trigger = el.shadowRoot!.querySelector<HTMLElement>(".trigger")!;
     const dropdown = el.shadowRoot!.querySelector<HTMLElement>(".dropdown")! as HTMLElement & {
       showPopover: () => void;
       hidePopover: () => void;
     };
-    let anchorLeft = 80;
+    const anchorLeft = 80;
     trigger.getBoundingClientRect = vi.fn(() => ({
       left: anchorLeft,
       top: 60,
@@ -727,7 +788,7 @@ describe("elf-cascader", () => {
       height: 36,
       x: anchorLeft,
       y: 60,
-      toJSON: () => ({})
+      toJSON: () => ({}),
     })) as unknown as Element["getBoundingClientRect"];
     dropdown.getBoundingClientRect = vi.fn(() => ({
       left: 0,
@@ -738,7 +799,7 @@ describe("elf-cascader", () => {
       height: 212,
       x: 0,
       y: 0,
-      toJSON: () => ({})
+      toJSON: () => ({}),
     })) as unknown as Element["getBoundingClientRect"];
     dropdown.showPopover = vi.fn();
     dropdown.hidePopover = vi.fn();
@@ -784,7 +845,7 @@ describe("elf-cascader", () => {
       height: 36,
       x: 80,
       y: 60,
-      toJSON: () => ({})
+      toJSON: () => ({}),
     })) as unknown as Element["getBoundingClientRect"];
     dropdown.getBoundingClientRect = vi.fn(() => ({
       left: 0,
@@ -795,7 +856,7 @@ describe("elf-cascader", () => {
       height: 212,
       x: 0,
       y: 0,
-      toJSON: () => ({})
+      toJSON: () => ({}),
     })) as unknown as Element["getBoundingClientRect"];
     dropdown.showPopover = vi.fn();
     dropdown.hidePopover = vi.fn();
@@ -829,7 +890,7 @@ describe("elf-cascader", () => {
       el.setAttribute("variant", variant);
       await tick();
       expect(el.getAttribute("variant")).toBe(variant);
-    }
+    },
   );
 
   it("chooses the best configured fallback placement", () => {
@@ -841,8 +902,8 @@ describe("elf-cascader", () => {
         placement: "bottom-start",
         fallbackPlacements: ["top-end"],
         padding: 8,
-        flip: true
-      }
+        flip: true,
+      },
     );
 
     expect(result.placement).toBe("top-end");

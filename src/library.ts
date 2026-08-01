@@ -12,7 +12,7 @@ export {
   ICON_PROVIDER_KEY,
   mergeIconOptions,
   resetIcons,
-  resolveIcon
+  resolveIcon,
 } from "./components/Basic/Icon";
 export type {
   ClassIconValue,
@@ -22,8 +22,9 @@ export type {
   IconSetKind,
   IconValue,
   ResolvedIcon,
-  SvgIconValue
+  SvgIconValue,
 } from "./components/Basic/Icon";
+export * from "./components/Basic/Quote";
 export * from "./components/Data";
 export * from "./components/Feedback";
 export * from "./components/Form";

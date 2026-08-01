@@ -17,13 +17,12 @@ useComponents({
   "page-breadcrumb-ex1": PageBreadcrumbEx1,
   "page-breadcrumb-ex2": PageBreadcrumbEx2,
   "page-breadcrumb-ex3": PageBreadcrumbEx3,
-  "page-breadcrumb-props": PageBreadcrumbProps
+  "page-breadcrumb-props": PageBreadcrumbProps,
 });
 
 const PageBreadcrumb = defineHtml(`
   <elf-container>
-    <h1>${t("title")}</h1>
-    <p>${t("description")}</p>
+    <elf-docs-hero category="navigation" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
     <page-breadcrumb-ex1></page-breadcrumb-ex1>
     <page-breadcrumb-ex2></page-breadcrumb-ex2>
     <page-breadcrumb-ex3></page-breadcrumb-ex3>

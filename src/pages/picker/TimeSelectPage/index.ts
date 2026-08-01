@@ -25,8 +25,7 @@ const t = createDocsTranslator({
 
 const PageTimeSelect = defineHtml(`
   <elf-container>
-    <h1>${t("title")}</h1>
-    <p>${t("description")}</p>
+    <elf-docs-hero category="picker" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
     <page-time-select-ex1 />
     <page-time-select-ex2 />
     <page-time-select-ex3 />

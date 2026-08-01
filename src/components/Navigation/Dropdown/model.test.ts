@@ -45,10 +45,7 @@ describe("Dropdown model", () => {
   });
 
   it("deduplicates supported triggers and falls back to click", () => {
-    expect(resolveTriggers(["hover", "hover", "contextmenu"])).toEqual([
-      "hover",
-      "contextmenu",
-    ]);
+    expect(resolveTriggers(["hover", "hover", "contextmenu"])).toEqual(["hover", "contextmenu"]);
     expect(resolveTriggers(["invalid"])).toEqual(["click"]);
     expect(resolveTriggers(undefined)).toEqual(["click"]);
     expect(DEFAULT_TRIGGER_KEYS).toContain("ArrowDown");
@@ -63,6 +60,7 @@ describe("Dropdown model", () => {
   });
 
   it("resolves popper modifiers once into a stable positioning config", () => {
+    expect(resolvePopperConfig(undefined, "bottom-start").offset).toEqual([0, 0]);
     expect(
       resolvePopperConfig(
         {

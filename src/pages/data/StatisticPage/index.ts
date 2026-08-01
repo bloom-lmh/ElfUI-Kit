@@ -11,8 +11,8 @@ const t = createDocsTranslator({
   title: { zh: "统计数值", en: "Statistic" },
   description: {
     zh: "突出展示关键数字，并提供独立倒计时组件处理目标时间、格式化和结束通知。",
-    en: "Highlight key figures and use the standalone countdown for deadlines, formatting, and completion events."
-  }
+    en: "Highlight key figures and use the standalone countdown for deadlines, formatting, and completion events.",
+  },
 });
 
 useComponents({
@@ -21,13 +21,12 @@ useComponents({
   "page-statistic-ex3": PageStatisticEx3,
   "page-statistic-ex4": PageStatisticEx4,
   "page-statistic-ex5": PageStatisticEx5,
-  "page-statistic-props": PageStatisticProps
+  "page-statistic-props": PageStatisticProps,
 });
 
 const PageStatistic = defineHtml(`
   <elf-container>
-    <h1>${t("title")}</h1>
-    <p>${t("description")}</p>
+    <elf-docs-hero category="data" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
     <page-statistic-ex1 />
     <page-statistic-ex2 />
     <page-statistic-ex3 />

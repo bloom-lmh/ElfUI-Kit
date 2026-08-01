@@ -34,7 +34,7 @@
   min-height: 520px;
   align-content: end;
   padding: 18px;
-  background: linear-gradient(180deg, color-mix(in srgb, var(--elf-primary, #409eff) 8%, transparent), transparent 52%);
+  background: color-mix(in srgb, var(--elf-primary, #409eff) 5%, var(--elf-bg-paper));
 }
 
 .directive-observer-target,
@@ -43,7 +43,8 @@
   min-height: 92px;
   place-items: center;
   padding: 16px;
-  border: 1px dashed color-mix(in srgb, var(--elf-primary, #409eff) 54%, var(--elf-border-color, #dcdfe6));
+  border: 1px dashed
+    color-mix(in srgb, var(--elf-primary, #409eff) 54%, var(--elf-border-color, #dcdfe6));
   border-radius: var(--elf-radius-sm, 4px);
   color: var(--elf-primary, #409eff);
   text-align: center;
@@ -55,7 +56,8 @@
   min-width: 180px;
   min-height: 110px;
   padding: 16px;
-  border: 1px solid color-mix(in srgb, var(--elf-primary, #409eff) 48%, var(--elf-border-color, #dcdfe6));
+  border: 1px solid
+    color-mix(in srgb, var(--elf-primary, #409eff) 48%, var(--elf-border-color, #dcdfe6));
   border-radius: var(--elf-radius-sm, 4px);
   background: var(--elf-bg-color, #fff);
   resize: both;

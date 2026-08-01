@@ -17,21 +17,20 @@ useComponents({
   "page-tree-ex5": PageTreeEx5,
   "page-tree-ex6": PageTreeEx6,
   "page-tree-ex7": PageTreeEx7,
-  "page-tree-props": PageTreeProps
+  "page-tree-props": PageTreeProps,
 });
 
 const t = createDocsTranslator({
   title: { zh: "Tree 树", en: "Tree" },
   description: {
     zh: "展示和操作层级数据，覆盖选择、级联勾选、过滤、懒加载、虚拟化与无障碍拖拽。",
-    en: "Present and manage hierarchical data with selection, cascading checks, filtering, lazy loading, virtualization, and accessible drag and drop."
-  }
+    en: "Present and manage hierarchical data with selection, cascading checks, filtering, lazy loading, virtualization, and accessible drag and drop.",
+  },
 });
 
 const PageTree = defineHtml(`
   <elf-container>
-    <h1>${t("title")}</h1>
-    <p>${t("description")}</p>
+    <elf-docs-hero category="data" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
     <page-tree-ex1 />
     <page-tree-ex2 />
     <page-tree-ex3 />

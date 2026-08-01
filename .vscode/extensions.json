@@ -1,0 +1,8 @@
+{
+  "recommendations": [
+    "SWUST-WEBLAB-LMH.elfui-language-features",
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "streetsidesoftware.code-spell-checker"
+  ]
+}

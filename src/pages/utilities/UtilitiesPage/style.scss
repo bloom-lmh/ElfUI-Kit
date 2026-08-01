@@ -118,7 +118,7 @@ h1 {
   color: var(--elf-primary);
   font-size: 11px;
   font-weight: 800;
-  letter-spacing: .14em;
+  letter-spacing: 0.14em;
 }
 
 .shape-row,
@@ -209,11 +209,7 @@ h1 {
   overflow: hidden;
   border: 1px solid var(--elf-border);
   border-radius: 10px;
-  background: repeating-linear-gradient(
-    -45deg,
-    color-mix(in srgb, var(--elf-primary) 4%, var(--elf-bg-paper)) 0 10px,
-    var(--elf-bg-paper) 10px 20px
-  );
+  background: color-mix(in srgb, var(--elf-primary) 4%, var(--elf-bg-paper));
 }
 
 .pointer-scene button {
@@ -337,9 +333,16 @@ h1 {
   background: color-mix(in srgb, var(--elf-primary) 12%, var(--elf-bg-paper));
 }
 
-.device.phone { width: 60px; }
-.device.tablet { width: 128px; border-color: var(--elf-primary); }
-.device.desktop { width: 128px; }
+.device.phone {
+  width: 60px;
+}
+.device.tablet {
+  width: 128px;
+  border-color: var(--elf-primary);
+}
+.device.desktop {
+  width: 128px;
+}
 
 .device-row {
   gap: 12px;
@@ -408,7 +411,7 @@ h1 {
   color: var(--elf-primary);
   font-size: 10px;
   font-weight: 800;
-  letter-spacing: .12em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
@@ -545,8 +548,12 @@ h1 {
   background: var(--elf-text-secondary);
 }
 
-.status-line.active i { background: var(--elf-primary); }
-.status-line.muted { opacity: .45; }
+.status-line.active i {
+  background: var(--elf-primary);
+}
+.status-line.muted {
+  opacity: 0.45;
+}
 
 .terminal-frame {
   width: min(500px, 100%);
@@ -560,7 +567,7 @@ h1 {
   display: flex;
   gap: 6px;
   padding: 11px 14px;
-  border-bottom: 1px solid rgb(255 255 255 / .1);
+  border-bottom: 1px solid rgb(255 255 255 / 0.1);
 }
 
 .terminal-toolbar i {
@@ -738,7 +745,7 @@ h1 {
   color: var(--elf-primary);
   font-size: 10px;
   font-weight: 800;
-  letter-spacing: .16em;
+  letter-spacing: 0.16em;
 }
 
 .type-specimen h2,

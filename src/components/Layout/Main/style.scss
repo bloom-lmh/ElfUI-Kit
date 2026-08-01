@@ -7,9 +7,6 @@
   min-height: 0;
   overflow-y: auto;
   padding: var(--elf-space-4) var(--elf-space-6);
-  background: var(
-    --elf-layout-main-bg,
-    color-mix(in srgb, var(--elf-primary) 5%, var(--elf-bg-paper))
-  );
+  background: var(--elf-layout-main-bg, transparent);
   box-sizing: border-box;
 }

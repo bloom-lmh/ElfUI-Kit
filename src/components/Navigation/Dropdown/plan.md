@@ -32,3 +32,15 @@
 - [x] 保留 DOM 顺序、class、part、ARIA、事件、稳定 key 和现有样式。
 - [x] 页面标题、6 个案例文件、7 个 Playground、运行时数据、Template / Script 和 API 表完整适配英文。
 - [x] 组件测试、宏类型检查、应用构建、库构建和真实浏览器视觉回归通过；覆盖桌面/移动端、浅色/Midnight、中英文、键盘、嵌套菜单、分裂按钮、虚拟触发和 top layer，控制台 0 warning / 0 error。
+
+## 2026-08-01 Material 字段外观与案例
+
+- [x] 与 Input 共用 `filled / outlined / underlined / solo / solo-filled / solo-inverted` 六种字段表面，普通与分裂触发器使用同一契约。
+- [x] 新增 `backgroundColor`，并通过宿主 CSS 变量保持自定义背景与状态样式一致。
+- [x] 下拉面板改为 Material 菜单表面、行高、选中态、阴影和暗色 token；基础案例升级为真实命令菜单及实时外观控制台。
+- [x] Dropdown 与文档页聚焦回归通过，共 45 项；英文文档测试适配统一 DocsHero 的嵌套结构。
+
+## 2026-08-01 触发器与面板连接
+
+- [x] 本地与 Teleport 定位的默认 offset 从 6px 收敛为 0，顶部/底部面板与输入式触发器直接相接；显式 Popper offset 仍保持调用方优先。
+- [x] Dropdown 模型、组件与页面回归进入当前 7 文件 / 68 项通过批次。

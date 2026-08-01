@@ -20,6 +20,7 @@ import { Pagination } from "./Pagination/index";
 import { Progress } from "./Progress/index";
 import { Result } from "./Result/index";
 import { Skeleton } from "./Skeleton/index";
+import { Sparkline } from "./Sparkline/index";
 import { Statistic } from "./Statistic/index";
 import { Table } from "./Table/index";
 import { TableV2 } from "./TableV2/index";
@@ -49,6 +50,7 @@ registerComponents(
   Progress,
   Result,
   Skeleton,
+  Sparkline,
   Statistic,
   Table,
   TableV2,
@@ -56,10 +58,13 @@ registerComponents(
   Transfer,
   Tree,
   VirtualList,
-  Watermark
+  Watermark,
 );
 
-export { infiniteScrollDirective, registerInfiniteScrollDirective } from "./InfiniteScroll/directive";
+export {
+  infiniteScrollDirective,
+  registerInfiniteScrollDirective,
+} from "./InfiniteScroll/directive";
 export type {
   InfiniteScrollContainer,
   InfiniteScrollDirectiveHandler,
@@ -68,7 +73,7 @@ export type {
   InfiniteScrollEmits,
   InfiniteScrollExposes,
   InfiniteScrollProps,
-  InfiniteScrollSlots
+  InfiniteScrollSlots,
 } from "./InfiniteScroll/types";
 
 export { List } from "./List/index";
@@ -77,20 +82,22 @@ export type {
   ListItemKey,
   ListItemRenderer,
   ListProps,
-  ListSlots
+  ListSlots,
 } from "./List/types";
 export { ListItem } from "./ListItem/index";
 export type {
   ListItemEmits,
   ListItemExposes,
   ListItemProps,
-  ListItemSlots
+  ListItemSlots,
 } from "./ListItem/types";
 export { VirtualList } from "./VirtualList/index";
 export type { VirtualListExpose, VirtualListProps } from "./VirtualList/types";
 export { Parallax } from "./Parallax/index";
 export type { ParallaxExpose, ParallaxProps } from "./Parallax/types";
 export { Progress } from "./Progress/index";
+export { Sparkline } from "./Sparkline/index";
+export type { SparklineAutoDraw, SparklineProps, SparklineStrokeLinecap } from "./Sparkline/types";
 export type {
   ProgressLabelPosition,
   ProgressProps,
@@ -98,10 +105,14 @@ export type {
   ProgressStatus,
   ProgressType,
   ProgressValueFormatter,
-  ProgressVariant
+  ProgressVariant,
 } from "./Progress/types";
 export { computeVariableVirtualWindow, computeVirtualWindow } from "./virtual-window";
-export type { VariableVirtualWindowOptions, VirtualWindow, VirtualWindowOptions } from "./virtual-window";
+export type {
+  VariableVirtualWindowOptions,
+  VirtualWindow,
+  VirtualWindowOptions,
+} from "./virtual-window";
 export { Table } from "./Table/index";
 export type { TableProps, TableColumn, TableRow } from "./Table/types";
 export { TableV2 } from "./TableV2/index";
@@ -115,5 +126,5 @@ export type {
   TableV2RowHeight,
   TableV2RowsRenderedDetail,
   TableV2Slots,
-  TableV2SortBy
+  TableV2SortBy,
 } from "./TableV2/types";

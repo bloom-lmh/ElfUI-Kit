@@ -1,44 +1,65 @@
-import { defineHtml } from "@elfui/core";
+import { defineHtml, defineStyle } from "@elfui/core";
+
 import { createDocsTranslator } from "../../docsLocale";
+import styles from "./demo.scss?inline";
+import { timelineIconOptions } from "./icons";
 
 const t = createDocsTranslator({
-  horizontal: { zh: "横向时间轴", en: "Horizontal timeline" },
-  horizontalPlayground: { zh: "水平流向并上下交替", en: "Horizontal flow alternating above and below" },
-  reverse: { zh: "横向反转", en: "Reversed horizontal timeline" },
-  analysis: { zh: "需求分析", en: "Requirements" },
-  design: { zh: "界面设计", en: "UI design" },
-  coding: { zh: "编码实现", en: "Implementation" },
-  testing: { zh: "测试验收", en: "Acceptance testing" },
-  release: { zh: "发布上线", en: "Release" }
+  title: { zh: "交替卡片", en: "Alternating cards" },
+  playground: { zh: "双色卡片与节点动作", en: "Two-tone cards and node actions" },
+  cardTitle: { zh: "示例卡片标题", en: "Release milestone" },
+  body: {
+    zh: "卡片内容在中轴两侧交替排列，节点颜色与标题色保持一致，并在窄屏下自动回退为单列。",
+    en: "Track decisions, owners, and next steps in a card that stays readable on both sides of the timeline.",
+  },
+  action: { zh: "按钮", en: "Button" },
 });
 
-const steps = [
-  { title: t("analysis"), timestamp: "Week 1", color: "primary", icon: "📋" },
-  { title: t("design"), timestamp: "Week 2", color: "info", icon: "🎨" },
-  { title: t("coding"), timestamp: "Week 3-4", color: "warning", icon: "💻" },
-  { title: t("testing"), timestamp: "Week 5", color: "danger", icon: "🧪" },
-  { title: t("release"), timestamp: "Week 6", color: "success", icon: "🚀" }
+const items = [
+  { hideTimestamp: true, color: "#e57373" },
+  { hideTimestamp: true, color: "#ba68c8" },
 ];
 
-const code1 = `<elf-timeline :items.prop=\${steps} mode="horizontal" />`;
+const code = `<elf-timeline :items.prop=\${items} mode="alternate">
+  <article slot="item-0" class="reference-card is-coral">...</article>
+  <elf-icon slot="dot-0" name="star" />
+  <article slot="item-1-secondary" class="reference-card is-purple">...</article>
+  <elf-icon slot="dot-1" name="bookmark" />
+</elf-timeline>`;
 
-const code2 = `<elf-timeline :items.prop=\${steps} mode="horizontal" reverse />`;
-
-const script = `const steps = [
-  { title: "${t("analysis")}", timestamp: "Week 1", color: "primary", icon: "📋" },
-  { title: "${t("design")}", timestamp: "Week 2", color: "info", icon: "🎨" },
-  { title: "${t("release")}", timestamp: "Week 6", color: "success", icon: "🚀" }
+const script = `const items = [
+  { hideTimestamp: true, color: "#e57373" },
+  { hideTimestamp: true, color: "#ba68c8" }
 ];`;
 
-const PageTimelineEx2 = defineHtml(`
-  <h2>${t("horizontal")}</h2>
-  <elf-playground :title=${t("horizontalPlayground")} :code=${code1} :script=${script}>
-    <elf-timeline :items.prop=${steps} mode="horizontal"></elf-timeline>
-  </elf-playground>
+defineStyle(styles);
 
-  <h2>${t("reverse")}</h2>
-  <elf-playground title="horizontal + reverse" :code=${code2} :script=${script}>
-    <elf-timeline :items.prop=${steps} mode="horizontal" reverse></elf-timeline>
+const PageTimelineEx2 = defineHtml(`
+  <h2>${t("title")}</h2>
+  <elf-playground :title=${t("playground")} :code=${code} :script=${script}>
+    <elf-icon-provider :options.prop=${timelineIconOptions}>
+      <div class="timeline-reference-stage card-stage">
+        <elf-timeline class="alternating-card-timeline" :items.prop=${items} mode="alternate">
+          <article slot="item-0" class="reference-card is-coral">
+            <header class="reference-card-header">${t("cardTitle")}</header>
+            <div class="reference-card-body">
+              <p>${t("body")}</p>
+              <elf-button variant="outlined" color="danger">${t("action")}</elf-button>
+            </div>
+          </article>
+          <elf-icon slot="dot-0" name="star" size="22"></elf-icon>
+
+          <article slot="item-1-secondary" class="reference-card is-purple">
+            <header class="reference-card-header">${t("cardTitle")}</header>
+            <div class="reference-card-body">
+              <p>${t("body")}</p>
+              <elf-button variant="outlined" color="secondary">${t("action")}</elf-button>
+            </div>
+          </article>
+          <elf-icon slot="dot-1" name="bookmark" size="20"></elf-icon>
+        </elf-timeline>
+      </div>
+    </elf-icon-provider>
   </elf-playground>
 `);
 

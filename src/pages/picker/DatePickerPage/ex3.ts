@@ -1,39 +1,62 @@
 import { defineHtml, defineStyle, useRef } from "@elfui/core";
-import styles from "./demo.scss?inline";
+
+import { createDocsPicker, createDocsTranslator } from "../../docsLocale";
+import demoStyles from "./demo.scss?inline";
 
 const month = useRef("2026-06");
+const t = createDocsTranslator({
+  title: { zh: "月份与头部", en: "Month and header" },
+  header: { zh: "选择账期", en: "Select billing month" },
+  current: { zh: "当前账期", en: "Current billing month" },
+});
+const pick = createDocsPicker();
 
-const readDetail = <T>(event: Event, fallback: T): T =>
-  ((event as CustomEvent).detail ?? fallback) as T;
-
-const updateMonth = (event: Event): void => {
-  month.set(String(readDetail(event, "")));
+const updateMonth = (event: CustomEvent<string>): void => {
+  month.set(String(event.detail || ""));
 };
 
-const monthCode = `<elf-date-picker
+const code = () =>
+  pick(
+    `<elf-date-picker
   :modelValue.prop="month"
   type="month"
   show-header
   header="选择账期"
-/>`;
+  @update:modelValue="updateMonth"
+/>`,
+    `<elf-date-picker
+  :modelValue.prop="month"
+  type="month"
+  show-header
+  header="Select billing month"
+  @update:modelValue="updateMonth"
+/>`,
+  );
 
-const monthScript = `const month = useRef("2026-06");`;
+const script = `const month = useRef("2026-06");
 
-defineStyle(styles);
+const updateMonth = (event) => {
+  month.set(event.detail || "");
+};`;
+
+defineStyle(demoStyles);
 
 const PageDatePickerEx3 = defineHtml(`
-<elf-playground title="月份与头部" :code=${monthCode} :script=${monthScript}>
-      <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
-        <elf-date-picker
-          :modelValue.prop=${month}
-          type="month"
-          show-header
-          header="选择账期"
-          @update:modelValue=${updateMonth}
-        ></elf-date-picker>
-        <span slot="status" class="demo-state">${month}</span>
-      </div>
-    </elf-playground>
+  <elf-playground :title=${t("title")} :code=${code()} :script=${script}>
+    <div class="date-picker-demo-stage">
+      <elf-date-picker
+        class="date-picker-demo-control"
+        :modelValue.prop=${month}
+        type="month"
+        show-header
+        :header=${t("header")}
+        @update:modelValue=${updateMonth}
+      ></elf-date-picker>
+    </div>
+    <span slot="status" class="demo-state" role="status" aria-live="polite">
+      ${t("current")} · ${month}
+    </span>
+  </elf-playground>
 `);
 
 export { PageDatePickerEx3 };

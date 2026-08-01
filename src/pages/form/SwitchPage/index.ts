@@ -1,12 +1,9 @@
-import {
-  PageSwitchEx1 } from "./ex1";
+import { PageSwitchEx1 } from "./ex1";
 import { PageSwitchEx2 } from "./ex2";
 import { PageSwitchEx3 } from "./ex3";
 import { PageSwitchProps } from "./props";
 
-import { defineHtml,
-  useComponents
-} from "@elfui/core";
+import { defineHtml, useComponents } from "@elfui/core";
 import { createDocsTranslator } from "../../docsLocale";
 
 const t = createDocsTranslator({
@@ -21,13 +18,12 @@ useComponents({
   "page-switch-ex1": PageSwitchEx1,
   "page-switch-ex2": PageSwitchEx2,
   "page-switch-ex3": PageSwitchEx3,
-  "page-switch-props": PageSwitchProps
+  "page-switch-props": PageSwitchProps,
 });
 
 const PageSwitch = defineHtml(`
   <elf-container>
-    <h1>${t("title")}</h1>
-    <p>${t("description")}</p>
+    <elf-docs-hero category="form" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
     <page-switch-ex1></page-switch-ex1>
     <page-switch-ex2></page-switch-ex2>
     <page-switch-ex3></page-switch-ex3>

@@ -39,36 +39,36 @@ const t = createDocsTranslator({
   three: { zh: "项目三", en: "Item three" },
   oneContent: { zh: "项目一的工作台内容。", en: "Workspace content for item one." },
   twoContent: { zh: "项目二的工作台内容。", en: "Workspace content for item two." },
-  threeContent: { zh: "项目三的工作台内容。", en: "Workspace content for item three." }
+  threeContent: { zh: "项目三的工作台内容。", en: "Workspace content for item three." },
 });
 
 const items = () => [
   { label: t("one"), value: "one", content: t("oneContent") },
   { label: t("two"), value: "two", content: t("twoContent") },
-  { label: t("three"), value: "three", content: t("threeContent") }
+  { label: t("three"), value: "three", content: t("threeContent") },
 ];
 const directionOptions = () => [
   { label: t("horizontal"), value: "horizontal" },
-  { label: t("vertical"), value: "vertical" }
+  { label: t("vertical"), value: "vertical" },
 ];
 const alignmentOptions = () => [
   { label: t("start"), value: "start" },
   { label: t("center"), value: "center" },
-  { label: t("end"), value: "end" }
+  { label: t("end"), value: "end" },
 ];
 const colorOptions = () => [
   { label: t("blue"), value: "#2563eb" },
   { label: t("teal"), value: "#0f766e" },
-  { label: t("purple"), value: "#7c3aed" }
+  { label: t("purple"), value: "#7c3aed" },
 ];
 const backgroundOptions = () => [
   { label: t("surface"), value: "var(--elf-bg-paper)" },
-  { label: t("softBlue"), value: "color-mix(in srgb, var(--elf-primary) 8%, var(--elf-bg-paper))" }
+  { label: t("softBlue"), value: "color-mix(in srgb, var(--elf-primary) 8%, var(--elf-bg-paper))" },
 ];
 const sliderOptions = () => [
   { label: t("blue"), value: "#2563eb" },
   { label: t("teal"), value: "#0d9488" },
-  { label: t("orange"), value: "#ea580c" }
+  { label: t("orange"), value: "#ea580c" },
 ];
 
 const value = (event: CustomEvent): string => String(event.detail ?? "");
@@ -81,6 +81,7 @@ const onBackground = (event: CustomEvent): void => background.set(value(event));
 const onSlider = (event: CustomEvent): void => slider.set(value(event));
 const onGrow = (event: CustomEvent): void => grow.set(flag(event));
 const onHideSlider = (event: CustomEvent): void => hideSlider.set(flag(event));
+const statusText = (): string => `${t("current")}: ${active.value}`;
 
 const code = `<elf-tabs
   :items.prop=\${items}
@@ -95,60 +96,34 @@ const code = `<elf-tabs
   show-panels
 />`;
 
-const script = `const active = useRef("one");
+const script = (): string => `const active = useRef("one");
 const direction = useRef("horizontal");
 const alignment = useRef("start");
 const grow = useRef(true);
 const hideSlider = useRef(false);
-const onActive = (event) => active.set(event.detail);
-
 const color = useRef("#2563eb");
 const background = useRef("var(--elf-bg-paper)");
 const slider = useRef("#2563eb");
-const t = createDocsTranslator({
-    heading: { zh: "可操作 Playground", en: "Interactive playground" },
-    title: { zh: "标签页操作台", en: "Tabs playground" },
-    current: { zh: "当前标签", en: "Active tab" },
-    controls: { zh: "标签页配置", en: "Tabs controls" },
-    direction: { zh: "方向", en: "Direction" },
-    alignment: { zh: "对齐", en: "Alignment" },
-    activeColor: { zh: "激活色", en: "Active color" },
-    background: { zh: "背景", en: "Background" },
-    slider: { zh: "滑块色", en: "Slider color" },
-    grow: { zh: "铺满宽度", en: "Grow" },
-    hideSlider: { zh: "隐藏滑块", en: "Hide slider" },
-    horizontal: { zh: "水平", en: "Horizontal" },
-    vertical: { zh: "垂直", en: "Vertical" },
-    start: { zh: "靠左", en: "Start" },
-    center: { zh: "居中", en: "Center" },
-    end: { zh: "靠右", en: "End" },
-    blue: { zh: "蓝色", en: "Blue" },
-    teal: { zh: "青色", en: "Teal" },
-    purple: { zh: "紫色", en: "Purple" },
-    orange: { zh: "橙色", en: "Orange" },
-    surface: { zh: "表面色", en: "Surface" },
-    softBlue: { zh: "浅蓝", en: "Soft blue" },
-    one: { zh: "项目一", en: "Item one" },
-    two: { zh: "项目二", en: "Item two" },
-    three: { zh: "项目三", en: "Item three" },
-    oneContent: { zh: "项目一的工作台内容。", en: "Workspace content for item one." },
-    twoContent: { zh: "项目二的工作台内容。", en: "Workspace content for item two." },
-    threeContent: { zh: "项目三的工作台内容。", en: "Workspace content for item three." }
-});
-const items = () => [
-    { label: t("one"), value: "one", content: t("oneContent") },
-    { label: t("two"), value: "two", content: t("twoContent") },
-    { label: t("three"), value: "three", content: t("threeContent") }
-];`;
+const items = [
+  { label: "${t("one")}", value: "one", content: "${t("oneContent")}" },
+  { label: "${t("two")}", value: "two", content: "${t("twoContent")}" },
+  { label: "${t("three")}", value: "three", content: "${t("threeContent")}" }
+];
+const directionOptions = [
+  { label: "${t("horizontal")}", value: "horizontal" },
+  { label: "${t("vertical")}", value: "vertical" }
+];
+const onActive = (event) => active.set(event.detail);`;
 
 defineStyle(styles);
 
 const PageTabsEx8 = defineHtml(`
   <h2>{{ t("heading") }}</h2>
-  <elf-playground :title=${t("title")} :code=${code} :script=${script}>
-    <span slot="status" class="demo-state">{{ t("current") }}：{{ active }}</span>
-    <section class="tabs-lab-preview">
-      <elf-tabs
+  <elf-playground :title=${t("title")} :code=${code} :script=${script()}>
+    <span slot="status" role="status" aria-live="polite">${statusText()}</span>
+    <section class="tabs-demo-stage">
+      <div class="tabs-lab-preview">
+        <elf-tabs
         :key=${t("title")}
         :items.prop=${items()}
         :modelValue.prop=${active.value}
@@ -161,7 +136,8 @@ const PageTabsEx8 = defineHtml(`
         :hideSlider.prop=${hideSlider.value}
         show-panels
         @update:modelValue=${onActive}
-      ></elf-tabs>
+        ></elf-tabs>
+      </div>
     </section>
     <aside slot="controls" class="tabs-lab-config" :aria-label=${t("controls")}>
       <strong>{{ t("controls") }}</strong>

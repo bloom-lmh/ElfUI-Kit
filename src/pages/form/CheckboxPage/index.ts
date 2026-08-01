@@ -13,13 +13,12 @@ useComponents({
   "page-checkbox-ex2": PageCheckboxEx2,
   "page-checkbox-ex3": PageCheckboxEx3,
   "page-checkbox-ex4": PageCheckboxEx4,
-  "page-checkbox-props": PageCheckboxProps
+  "page-checkbox-props": PageCheckboxProps,
 });
 
 const PageCheckbox = defineHtml(`
   <elf-container>
-    <h1>${p("复选框", "Checkbox")}</h1>
-    <p>${p("用于单项开关和多项选择，支持选项组、数量限制、按钮外观与非布尔值映射。", "Use checkboxes for standalone toggles and multiple selection with groups, selection limits, button styling, and non-boolean value mapping.")}</p>
+    <elf-docs-hero category="form" tag="Checkbox" :title=${p("复选框", "Checkbox")} :description=${p("用于单项开关和多项选择，支持选项组、数量限制、按钮外观与非布尔值映射。", "Use checkboxes for standalone toggles and multiple selection with groups, selection limits, button styling, and non-boolean value mapping.")}></elf-docs-hero>
     <page-checkbox-ex1 />
     <page-checkbox-ex2 />
     <page-checkbox-ex3 />

@@ -1,5 +1,7 @@
-import { defineHtml, useRef } from "@elfui/core";
-import { createDocsTranslator } from "../../docsLocale";
+import { defineHtml, defineStyle, useRef } from "@elfui/core";
+
+import { createDocsPicker, createDocsTranslator } from "../../docsLocale";
+import demoStyles from "./demo.scss?inline";
 
 const t = createDocsTranslator({
   title: { zh: "模态层中的日期面板", en: "Date panel inside a modal" },
@@ -14,13 +16,12 @@ const t = createDocsTranslator({
   },
   label: { zh: "发布日期", en: "Release date" },
 });
+const pick = createDocsPicker();
 
-// State
 const dialogOpen = useRef(false);
 const date = useRef("2026-08-18");
 const status = useRef(t("waiting"));
 
-// Methods
 const openDialog = (): void => {
   dialogOpen.set(true);
   status.set(t("dialogOpen"));
@@ -35,42 +36,69 @@ const updateDate = (event: CustomEvent<string>): void => date.set(event.detail |
 const onPickerVisible = (event: CustomEvent<boolean>): void =>
   status.set(event.detail ? t("pickerOpen") : t("dialogOpen"));
 
-const code = `<elf-dialog v-model:open="dialogOpen" title="发布计划">
+const code = () =>
+  pick(
+    `<elf-dialog v-model:open="dialogOpen" title="发布计划">
   <elf-date-picker
     v-model="date"
     label="发布日期"
     @visible-change="onPickerVisible"
   />
-</elf-dialog>`;
+</elf-dialog>`,
+    `<elf-dialog v-model:open="dialogOpen" title="Release schedule">
+  <elf-date-picker
+    v-model="date"
+    label="Release date"
+    @visible-change="onPickerVisible"
+  />
+</elf-dialog>`,
+  );
 
-const script = `const dialogOpen = useRef(false);
+const script = () =>
+  pick(
+    `const dialogOpen = useRef(false);
 const date = useRef("2026-08-18");
+const status = useRef("等待打开");
 
 const onPickerVisible = (event) => {
-  console.log(event.detail ? "DatePicker topmost" : "Dialog topmost");
-};`;
+  status.set(event.detail ? "日期面板位于最上层" : "对话框已打开");
+};`,
+    `const dialogOpen = useRef(false);
+const date = useRef("2026-08-18");
+const status = useRef("Waiting to open");
+
+const onPickerVisible = (event) => {
+  status.set(event.detail ? "Date panel is topmost" : "Dialog open");
+};`,
+  );
+
+defineStyle(demoStyles);
 
 const PageDatePickerEx8 = defineHtml(`
-  <elf-playground :title=${t("title")} :code=${code} :script=${script}>
-    <span slot="status" role="status" aria-live="polite">${status}</span>
-    <elf-button id="date-picker-open-dialog" type="primary" @click=${openDialog}>
-      ${t("open")}
-    </elf-button>
+  <elf-playground :title=${t("title")} :code=${code()} :script=${script()}>
+    <div class="date-picker-demo-stage">
+      <elf-button id="date-picker-open-dialog" type="primary" @click=${openDialog}>
+        ${t("open")}
+      </elf-button>
+    </div>
+    <span slot="status" class="demo-state" role="status" aria-live="polite">
+      ${status}
+    </span>
 
     <elf-dialog
       :open=${dialogOpen}
       :title=${t("dialogTitle")}
       @update:open=${updateDialog}
     >
-      <div style="display:grid;gap:16px;min-width:min(420px,70vw)">
-        <p style="margin:0;color:var(--elf-text-secondary)">${t("intro")}</p>
+      <div class="date-picker-demo-modal">
+        <p>${t("intro")}</p>
         <elf-date-picker
           id="dialog-date-picker"
           :modelValue.prop=${date}
           :label=${t("label")}
           @update:modelValue=${updateDate}
           @visible-change=${onPickerVisible}
-        />
+        ></elf-date-picker>
       </div>
     </elf-dialog>
   </elf-playground>

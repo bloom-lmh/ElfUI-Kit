@@ -1,7 +1,10 @@
+import { registerComponents } from "@elfui/core";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
 
-beforeAll(async () => {
-  await import("../../../components");
+import { Main } from "./index";
+
+beforeAll(() => {
+  registerComponents(Main);
 });
 
 afterEach(() => {

@@ -12,8 +12,8 @@ const t = createDocsTranslator({
   title: { zh: "自动补全", en: "Autocomplete" },
   description: {
     zh: "基于输入内容展示建议项，支持本地选项、异步建议、创建项、虚拟滚动和完整远程状态。",
-    en: "Show suggestions from input with local options, async fetching, creatable entries, virtualization, and complete remote states."
-  }
+    en: "Show suggestions from input with local options, async fetching, creatable entries, virtualization, and complete remote states.",
+  },
 });
 
 useComponents({
@@ -23,13 +23,12 @@ useComponents({
   "page-autocomplete-ex4": PageAutocompleteEx4,
   "page-autocomplete-ex5": PageAutocompleteEx5,
   "page-autocomplete-ex6": PageAutocompleteEx6,
-  "page-autocomplete-props": PageAutocompleteProps
+  "page-autocomplete-props": PageAutocompleteProps,
 });
 
 const PageAutocomplete = defineHtml(`
   <elf-container>
-    <h1>${t("title")}</h1>
-    <p>${t("description")}</p>
+    <elf-docs-hero category="form" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
 
     <page-autocomplete-ex1 />
 

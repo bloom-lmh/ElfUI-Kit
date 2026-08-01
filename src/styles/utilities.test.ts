@@ -14,14 +14,34 @@ const catalogEntries = Object.entries(CATALOG);
 describe("ElfUI utility classes", () => {
   it("publishes the Vuetify 4 utility contract and ElfUI compatibility aliases", () => {
     for (const className of [
-      "border-e-xl", "border-opacity-75", "border-dashed", "rounded-ts-xl",
-      "d-xxl-flex", "d-print-none", "hidden-xl-and-down", "d-sr-only",
-      "pointer-events-none", "cursor-grabbing", "hover-elevation-5",
-      "elevation-24", "flex-lg-1-0-100", "justify-md-space-evenly",
-      "align-self-sm-baseline", "order-xl-last", "float-print-end",
-      "overflow-x-auto", "position-sticky", "w-xxl-33", "h-md-screen",
-      "ga-lg-16", "mx-xxl-n16", "ms-md-auto", "text-md-display-large",
-      "text-lg-end", "text-h4", "font-weight-black"
+      "border-e-xl",
+      "border-opacity-75",
+      "border-dashed",
+      "rounded-ts-xl",
+      "d-xxl-flex",
+      "d-print-none",
+      "hidden-xl-and-down",
+      "d-sr-only",
+      "pointer-events-none",
+      "cursor-grabbing",
+      "hover-elevation-5",
+      "elevation-24",
+      "flex-lg-1-0-100",
+      "justify-md-space-evenly",
+      "align-self-sm-baseline",
+      "order-xl-last",
+      "float-print-end",
+      "overflow-x-auto",
+      "position-sticky",
+      "w-xxl-33",
+      "h-md-screen",
+      "ga-lg-16",
+      "mx-xxl-n16",
+      "ms-md-auto",
+      "text-md-display-large",
+      "text-lg-end",
+      "text-h4",
+      "font-weight-black",
     ]) {
       expect(utilityStyles).toContain(`.${className}`);
     }
@@ -58,9 +78,17 @@ describe("ElfUI utility classes", () => {
     const routePaths = new Set(routes.map((route) => route.path));
     const virtualTableNav = navItems.filter((item) => item.to === "/data/virtual-table");
 
-    expect(navItems[0]).toEqual({ to: "/providers/config", text: "Global configuration 全局配置", group: "Guide 指南" });
-    expect(utilityNav).toEqual([{ to: "/utilities", text: "Utilities 工具类", group: "Utilities 工具类" }]);
-    expect(virtualTableNav).toEqual([{ to: "/data/virtual-table", text: "VirtualTable 虚拟表格", group: "Data 数据展示" }]);
+    expect(navItems[0]).toEqual({
+      to: "/overview",
+      text: "Overview 组件总览",
+    });
+    expect(navItems[1]).toEqual({ to: "/theme-studio", text: "Theme Studio 主题调色板" });
+    expect(utilityNav).toEqual([
+      { to: "/utilities", text: "Utilities 工具类", group: "Guide 指南" },
+    ]);
+    expect(virtualTableNav).toEqual([
+      { to: "/data/virtual-table", text: "VirtualTable 虚拟表格", group: "Data 数据展示" },
+    ]);
     expect(utilityNav.every((item) => routePaths.has(item.to))).toBe(true);
     expect(virtualTableNav.every((item) => routePaths.has(item.to))).toBe(true);
     expect(catalogEntries.every(([key]) => routePaths.has(`/utilities/${key}`))).toBe(true);

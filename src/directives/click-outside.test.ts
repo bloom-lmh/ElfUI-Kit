@@ -5,7 +5,7 @@ import {
   clickOutsideDirective,
   createClickOutsideController,
   registerClickOutsideDirective,
-  type ClickOutsideDirectiveValue
+  type ClickOutsideDirectiveValue,
 } from "./click-outside";
 
 const hooks = clickOutsideDirective as {
@@ -15,11 +15,11 @@ const hooks = clickOutsideDirective as {
 };
 
 const binding = (
-  value: ClickOutsideDirectiveValue
+  value: ClickOutsideDirectiveValue,
 ): DirectiveBinding<ClickOutsideDirectiveValue> => ({
   value,
   oldValue: undefined,
-  modifiers: {}
+  modifiers: {},
 });
 
 afterEach(() => {
@@ -62,6 +62,50 @@ describe("clickOutsideDirective", () => {
     hooks.updated(target, binding({ handler, event: "click", capture: false }));
     document.body.dispatchEvent(new MouseEvent("click", { bubbles: true, composed: true }));
     expect(handler).toHaveBeenCalledTimes(1);
+    hooks.beforeUnmount(target);
+  });
+
+  it("ignores events from inside an excluded element's shadow root", () => {
+    const target = document.createElement("section");
+    const excluded = document.createElement("div");
+    excluded.className = "trigger";
+    const excludedRoot = excluded.attachShadow({ mode: "open" });
+    const innerButton = document.createElement("button");
+    excludedRoot.appendChild(innerButton);
+    document.body.append(target, excluded);
+    const handler = vi.fn();
+
+    hooks.mounted(target, binding({ handler, exclude: ".trigger" }));
+    innerButton.dispatchEvent(new Event("pointerdown", { bubbles: true, composed: true }));
+
+    expect(handler).not.toHaveBeenCalled();
+    hooks.beforeUnmount(target);
+  });
+
+  it("classifies events within a shared shadow root", () => {
+    const host = document.createElement("div");
+    const root = host.attachShadow({ mode: "open" });
+    const target = document.createElement("section");
+    const targetChild = document.createElement("button");
+    target.appendChild(targetChild);
+    const excluded = document.createElement("div");
+    excluded.className = "trigger";
+    const excludedRoot = excluded.attachShadow({ mode: "open" });
+    const excludedChild = document.createElement("button");
+    excludedRoot.appendChild(excludedChild);
+    const outside = document.createElement("button");
+    root.append(target, excluded, outside);
+    document.body.appendChild(host);
+    const handler = vi.fn();
+
+    hooks.mounted(target, binding({ handler, exclude: ".trigger" }));
+    targetChild.dispatchEvent(new Event("pointerdown", { bubbles: true, composed: true }));
+    excludedChild.dispatchEvent(new Event("pointerdown", { bubbles: true, composed: true }));
+    expect(handler).not.toHaveBeenCalled();
+
+    outside.dispatchEvent(new Event("pointerdown", { bubbles: true, composed: true }));
+    document.body.dispatchEvent(new Event("pointerdown", { bubbles: true, composed: true }));
+    expect(handler).toHaveBeenCalledTimes(2);
     hooks.beforeUnmount(target);
   });
 

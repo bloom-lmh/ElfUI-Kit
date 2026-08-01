@@ -15,7 +15,7 @@ useComponents({
   "page-select-ex4": PageSelectEx4,
   "page-select-ex5": PageSelectEx5,
   "page-select-ex6": PageSelectEx6,
-  "page-select-props": PageSelectProps
+  "page-select-props": PageSelectProps,
 });
 
 const t = createDocsTranslator({
@@ -28,8 +28,7 @@ const t = createDocsTranslator({
 
 const PageSelect = defineHtml(`
   <elf-container>
-    <h1>${t("title")}</h1>
-    <p>${t("description")}</p>
+    <elf-docs-hero category="form" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
     <page-select-ex1 />
     <page-select-ex2 />
     <page-select-ex3 />

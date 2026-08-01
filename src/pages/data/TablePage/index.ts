@@ -60,8 +60,7 @@ const t = createDocsTranslator({
 
 const PageTable = defineHtml(`
   <elf-container>
-    <h1>${t("title")}</h1>
-    <p>${t("description")}</p>
+    <elf-docs-hero category="data" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
     <page-table-ex1></page-table-ex1>
     <page-table-ex2></page-table-ex2>
     <page-table-ex3></page-table-ex3>

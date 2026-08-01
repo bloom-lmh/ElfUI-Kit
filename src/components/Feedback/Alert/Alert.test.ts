@@ -1,12 +1,5 @@
-import {
-  afterEach,
-  beforeAll,
-  describe,
-  expect,
-  it,
-  vi } from "vitest";
-import { registerComponents
-} from "@elfui/core";
+import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { registerComponents } from "@elfui/core";
 
 import { Alert } from "./index";
 import type { AlertDensity, AlertType, AlertVariant } from "./types";
@@ -37,7 +30,7 @@ interface AlertElement extends HTMLElement {
 
 const mount = async (
   patch: Partial<AlertElement> = {},
-  children: Node[] = []
+  children: Node[] = [],
 ): Promise<AlertElement> => {
   const element = document.createElement("elf-alert") as AlertElement;
   Object.assign(element, { title: "提示", ...patch });
@@ -59,19 +52,21 @@ describe("elf-alert", () => {
     expect(alertBody(element).textContent).toContain("数据已保存");
   });
 
-  it("reflects the semantic type on the host", async () => {
-    const element = await mount({ type: "success" });
-    expect(element.getAttribute("type")).toBe("success");
+  it("reflects the tip semantic type and renders its icon", async () => {
+    const element = await mount({ type: "tip" });
+
+    expect(element.getAttribute("type")).toBe("tip");
+    expect(element.shadowRoot!.querySelector(".icon path")).toBeTruthy();
   });
 
-  it.each(["tonal", "elevated", "outlined", "plain", "filled"] as const)(
+  it.each(["tonal", "soft", "elevated", "outlined", "plain", "filled"] as const)(
     "renders and reflects the %s variant",
     async (variant) => {
       const element = await mount({ variant });
 
       expect(element.getAttribute("variant")).toBe(variant);
       expect(alertBody(element)).toBeTruthy();
-    }
+    },
   );
 
   it("emits close and removes its content after the closing transition", async () => {

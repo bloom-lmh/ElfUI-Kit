@@ -13,26 +13,30 @@ import { PageTabsEx10 } from "./ex10";
 import { PageTabsProps } from "./props";
 
 useComponents({
-  "page-tabs-ex1": PageTabsEx1, "page-tabs-ex2": PageTabsEx2,
-  "page-tabs-ex3": PageTabsEx3, "page-tabs-ex4": PageTabsEx4,
-  "page-tabs-ex5": PageTabsEx5, "page-tabs-ex6": PageTabsEx6,
-  "page-tabs-ex7": PageTabsEx7, "page-tabs-ex8": PageTabsEx8,
-  "page-tabs-ex9": PageTabsEx9, "page-tabs-ex10": PageTabsEx10,
-  "page-tabs-props": PageTabsProps
+  "page-tabs-ex1": PageTabsEx1,
+  "page-tabs-ex2": PageTabsEx2,
+  "page-tabs-ex3": PageTabsEx3,
+  "page-tabs-ex4": PageTabsEx4,
+  "page-tabs-ex5": PageTabsEx5,
+  "page-tabs-ex6": PageTabsEx6,
+  "page-tabs-ex7": PageTabsEx7,
+  "page-tabs-ex8": PageTabsEx8,
+  "page-tabs-ex9": PageTabsEx9,
+  "page-tabs-ex10": PageTabsEx10,
+  "page-tabs-props": PageTabsProps,
 });
 
 const t = createDocsTranslator({
   title: { zh: "Tabs 标签页", en: "Tabs" },
   description: {
     zh: "在同一层级切换内容，支持铺满、对齐、堆叠、垂直、可编辑和内容面板。",
-    en: "Switch between peer content with grow, alignment, stacked, vertical, editable, and panel variants."
-  }
+    en: "Switch between peer content with grow, alignment, stacked, vertical, editable, and panel variants.",
+  },
 });
 
 const PageTabs = defineHtml(`
   <elf-container>
-    <h1>{{ t("title") }}</h1>
-    <p>{{ t("description") }}</p>
+    <elf-docs-hero category="navigation" tag="Tabs" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
     <page-tabs-ex8></page-tabs-ex8>
     <page-tabs-ex1></page-tabs-ex1>
     <page-tabs-ex9></page-tabs-ex9>

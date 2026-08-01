@@ -9,7 +9,7 @@ import {
   useHostAttr,
   useHostCssVar,
   useHostFlag,
-  useRef
+  useRef,
 } from "@elfui/core";
 
 import { useLocaleProvider } from "../../Providers/context";
@@ -21,7 +21,7 @@ import type {
   CardProps,
   CardShadow,
   CardSlots,
-  CardVariant
+  CardVariant,
 } from "./types";
 
 export type {
@@ -32,7 +32,7 @@ export type {
   CardProps,
   CardShadow,
   CardSlots,
-  CardVariant
+  CardVariant,
 } from "./types";
 
 const CARD_SHADOWS: readonly CardShadow[] = ["always", "hover", "never"];
@@ -49,7 +49,7 @@ const NESTED_INTERACTIVE_SELECTOR = [
   "[role='button']",
   "[role='link']",
   "elf-button",
-  "elf-link"
+  "elf-link",
 ].join(",");
 
 const props = defineProps<CardProps>({
@@ -73,7 +73,7 @@ const props = defineProps<CardProps>({
   overlay: { type: String, default: "" },
   clickable: { type: Boolean, default: false },
   disabled: { type: Boolean, default: false },
-  loading: { type: Boolean, default: false }
+  loading: { type: Boolean, default: false },
 });
 
 const emit = defineEmits<CardEmits>();
@@ -118,9 +118,9 @@ const imageUnavailableLabel = (): string =>
   locale.name.toLowerCase().startsWith("en") ? "Image is unavailable" : "图片暂时无法显示";
 
 const slotHasContent = (slot: HTMLSlotElement): boolean =>
-  slot.assignedNodes({ flatten: true }).some(
-    (node) => node.nodeType === 1 || (node.textContent?.trim() ?? "") !== ""
-  );
+  slot
+    .assignedNodes({ flatten: true })
+    .some((node) => node.nodeType === 1 || (node.textContent?.trim() ?? "") !== "");
 
 const originatedFromNestedControl = (event: Event): boolean => {
   for (const node of event.composedPath()) {
@@ -185,7 +185,7 @@ const onImageError = (event: Event): void => {
 };
 
 useEffect(() => {
-  props.image;
+  void props.image;
   imageFailed.set(false);
 });
 

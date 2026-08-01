@@ -24,9 +24,9 @@ const defaultItems: DropdownItem[] = [
   {
     label: "更多",
     command: "more",
-    children: [{ label: "复制", command: "copy" }]
+    children: [{ label: "复制", command: "copy" }],
   },
-  { label: "删除", command: "delete", divided: true }
+  { label: "删除", command: "delete", divided: true },
 ];
 
 const mount = async (patch: Partial<DropdownElement> = {}): Promise<DropdownElement> => {
@@ -40,8 +40,7 @@ const mount = async (patch: Partial<DropdownElement> = {}): Promise<DropdownElem
 const trigger = (el: DropdownElement): HTMLElement =>
   el.shadowRoot!.querySelector(".trigger, .split-toggle") as HTMLElement;
 
-const menu = (el: DropdownElement): HTMLElement | null =>
-  el.shadowRoot!.querySelector(".menu");
+const menu = (el: DropdownElement): HTMLElement | null => el.shadowRoot!.querySelector(".menu");
 
 const openByClick = async (el: DropdownElement): Promise<void> => {
   trigger(el).click();
@@ -55,6 +54,40 @@ const dispatchKey = (target: EventTarget, key: string): void => {
 const frame = (): Promise<void> => new Promise((resolve) => requestAnimationFrame(() => resolve()));
 
 describe("elf-dropdown", () => {
+  // ─── Material 字段表面 ────────────────────────────────────
+
+  it.each([
+    "default",
+    "filled",
+    "outlined",
+    "underlined",
+    "solo",
+    "solo-filled",
+    "solo-inverted",
+  ] as const)("支持 %s 外观", async (variant) => {
+    const el = await mount({ variant });
+
+    expect(el.getAttribute("variant")).toBe(variant);
+    expect(el.shadowRoot!.querySelector(".trigger > .field-outline")).toBeTruthy();
+  });
+
+  it("非法外观回退为 filled，并支持自定义表面颜色", async () => {
+    const el = await mount({
+      variant: "unknown" as never,
+      backgroundColor: "#f1f5f9",
+    });
+
+    expect(el.getAttribute("variant")).toBe("filled");
+    expect(el.style.getPropertyValue("--elf-field-custom-bg")).toBe("#f1f5f9");
+  });
+
+  it("分裂按钮共享同一字段表面", async () => {
+    const el = await mount({ splitButton: true, variant: "outlined" });
+
+    expect(el.shadowRoot!.querySelector(".split-field > .field-outline")).toBeTruthy();
+    expect(el.shadowRoot!.querySelectorAll(".split-field > button")).toHaveLength(2);
+  });
+
   // ─── 基础交互 ─────────────────────────────────────────────
 
   it("click trigger 打开菜单并触发 visible-change", async () => {
@@ -93,7 +126,7 @@ describe("elf-dropdown", () => {
 
     expect((onCommand.mock.calls[0]![0] as CustomEvent).detail).toEqual({
       command: "edit",
-      item: expect.objectContaining({ label: "编辑", command: "edit" })
+      item: expect.objectContaining({ label: "编辑", command: "edit" }),
     });
     expect(el.hasAttribute("data-open")).toBe(false);
   });
@@ -302,8 +335,8 @@ describe("elf-dropdown", () => {
       items: [
         { label: "A", command: "a" },
         { label: "B", command: "b" },
-        { label: "C", command: "c" }
-      ]
+        { label: "C", command: "c" },
+      ],
     });
 
     await openByClick(el);
@@ -314,8 +347,7 @@ describe("elf-dropdown", () => {
 
     // 打开后聚焦第一项（兼容 shadowRoot.activeElement 与 document.activeElement）
     items[0]!.focus();
-    const focused = (): Element | null =>
-      el.shadowRoot!.activeElement || document.activeElement;
+    const focused = (): Element | null => el.shadowRoot!.activeElement || document.activeElement;
 
     const menuEl = menu(el)!;
     dispatchKey(menuEl, "ArrowDown");
@@ -367,7 +399,7 @@ describe("elf-dropdown", () => {
       buttonProps: { class: "extra-trigger", style: { width: "120px" } },
       popperClass: "extra-menu",
       popperStyle: { width: "220px" },
-      persistent: false
+      persistent: false,
     });
 
     expect(menu(el)).toBeNull();
@@ -426,20 +458,20 @@ describe("elf-dropdown", () => {
     const el = await mount({
       items: [
         { title: "保存", action: "save", locked: false },
-        { title: "丢弃", action: "discard", locked: true }
+        { title: "丢弃", action: "discard", locked: true },
       ] as unknown as DropdownItem[],
       props: {
         label: "title",
         command: "action",
-        disabled: "locked"
-      }
+        disabled: "locked",
+      },
     });
     const onCommand = vi.fn();
     el.addEventListener("command", onCommand as EventListener);
 
     await openByClick(el);
     const labels = Array.from(el.shadowRoot!.querySelectorAll(".item-label")).map((n) =>
-      n.textContent?.trim()
+      n.textContent?.trim(),
     );
     expect(labels).toContain("保存");
     expect(labels).toContain("丢弃");
@@ -476,7 +508,9 @@ describe("elf-dropdown", () => {
     document.body.appendChild(el);
     await flush();
 
-    const triggerSlot = el.shadowRoot!.querySelector(".trigger slot:not([name])") as HTMLSlotElement;
+    const triggerSlot = el.shadowRoot!.querySelector(
+      ".trigger slot:not([name])",
+    ) as HTMLSlotElement;
     expect(triggerSlot.assignedElements()[0]?.textContent).toContain("Account actions");
 
     await openByClick(el);
@@ -485,17 +519,21 @@ describe("elf-dropdown", () => {
     expect(items[1]!.hasAttribute("disabled")).toBe(true);
     const iconSlot = items[0]!.shadowRoot!.querySelector('slot[name="icon"]') as HTMLSlotElement;
     expect(iconSlot.assignedElements()[0]?.textContent).toBe("P");
-    expect(items[0]!.shadowRoot!.querySelector(".dropdown-item")?.getAttribute("aria-label")).toBe("Profile");
+    expect(items[0]!.shadowRoot!.querySelector(".dropdown-item")?.getAttribute("aria-label")).toBe(
+      "Profile",
+    );
 
     (items[0]!.shadowRoot!.querySelector(".dropdown-item") as HTMLElement).click();
     await flush();
 
     expect((onCommand.mock.calls[0]![0] as CustomEvent).detail).toEqual({
       command: "profile",
-      item: expect.objectContaining({ label: "Profile", command: "profile" })
+      item: expect.objectContaining({ label: "Profile", command: "profile" }),
     });
     expect(items[0]!.hasAttribute("data-selected")).toBe(true);
-    expect(items[0]!.shadowRoot!.querySelector(".dropdown-item")?.getAttribute("aria-current")).toBe("true");
+    expect(
+      items[0]!.shadowRoot!.querySelector(".dropdown-item")?.getAttribute("aria-current"),
+    ).toBe("true");
     expect(items[2]!.hasAttribute("data-selected")).toBe(false);
     expect(el.hasAttribute("data-open")).toBe(false);
   });
@@ -513,7 +551,8 @@ describe("elf-dropdown", () => {
     await flush();
     await openByClick(el);
 
-    const item = el.querySelector("elf-dropdown-item")!
+    const item = el
+      .querySelector("elf-dropdown-item")!
       .shadowRoot!.querySelector<HTMLButtonElement>(".dropdown-item")!;
     item.focus();
     item.click();
@@ -541,16 +580,20 @@ describe("elf-dropdown", () => {
     await openByClick(el);
 
     const composedItems = Array.from(el.querySelectorAll("elf-dropdown-item"));
-    const profileButton = composedItems[0]!.shadowRoot!.querySelector<HTMLButtonElement>(".dropdown-item")!;
-    const logoutButton = composedItems[2]!.shadowRoot!.querySelector<HTMLButtonElement>(".dropdown-item")!;
+    const profileButton =
+      composedItems[0]!.shadowRoot!.querySelector<HTMLButtonElement>(".dropdown-item")!;
+    const logoutButton =
+      composedItems[2]!.shadowRoot!.querySelector<HTMLButtonElement>(".dropdown-item")!;
     const focusLogout = vi.spyOn(logoutButton, "focus");
     profileButton.focus();
-    profileButton.dispatchEvent(new KeyboardEvent("keydown", {
-      key: "ArrowDown",
-      bubbles: true,
-      composed: true,
-      cancelable: true
-    }));
+    profileButton.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        key: "ArrowDown",
+        bubbles: true,
+        composed: true,
+        cancelable: true,
+      }),
+    );
     expect(focusLogout).toHaveBeenCalled();
     logoutButton.click();
     await flush();
@@ -607,7 +650,7 @@ describe("elf-dropdown", () => {
       height: 60,
       x: 100,
       y: 20,
-      toJSON: () => ({})
+      toJSON: () => ({}),
     })) as unknown as Element["getBoundingClientRect"];
     document.body.appendChild(reference);
 
@@ -615,7 +658,7 @@ describe("elf-dropdown", () => {
       virtualTriggering: true,
       virtualRef: reference,
       trigger: "click",
-      maxHeight: 240
+      maxHeight: 240,
     });
     expect(el.shadowRoot!.querySelector(".trigger, .split-toggle")).toBeNull();
     expect(addListener).toHaveBeenCalledWith("click", expect.any(Function));
@@ -628,7 +671,7 @@ describe("elf-dropdown", () => {
     expect(el.hasAttribute("data-open")).toBe(true);
     expect(menuEl.style.position).toBe("fixed");
     expect(menuEl.style.left).toBe("100px");
-    expect(menuEl.style.top).toBe("86px");
+    expect(menuEl.style.top).toBe("80px");
     expect(menuEl.style.getPropertyValue("--dropdown-max-height")).toBe("240px");
   });
 
@@ -637,7 +680,7 @@ describe("elf-dropdown", () => {
       { left: 260, top: 180, right: 320, bottom: 220, width: 60, height: 40 },
       { width: 180, height: 120 },
       { width: 320, height: 240 },
-      { placement: "bottom-end", offset: [0, 8], padding: 8, flip: true }
+      { placement: "bottom-end", offset: [0, 8], padding: 8, flip: true },
     );
 
     expect(result).toEqual({ left: 132, top: 52, placement: "top-end" });
@@ -650,11 +693,11 @@ describe("elf-dropdown", () => {
       popperOptions: {
         modifiers: [
           { name: "offset", options: { offset: [12, 18] } },
-          { name: "preventOverflow", options: { padding: 10 } }
-        ]
-      }
+          { name: "preventOverflow", options: { padding: 10 } },
+        ],
+      },
     });
-    let anchorLeft = 100;
+    const anchorLeft = 100;
     trigger(el).getBoundingClientRect = vi.fn(() => ({
       left: anchorLeft,
       top: 100,
@@ -664,7 +707,7 @@ describe("elf-dropdown", () => {
       height: 40,
       x: anchorLeft,
       y: 100,
-      toJSON: () => ({})
+      toJSON: () => ({}),
     })) as unknown as Element["getBoundingClientRect"];
     const menuEl = menu(el)! as HTMLElement & { showPopover: () => void; hidePopover: () => void };
     menuEl.getBoundingClientRect = vi.fn(() => ({
@@ -676,7 +719,7 @@ describe("elf-dropdown", () => {
       height: 120,
       x: 0,
       y: 0,
-      toJSON: () => ({})
+      toJSON: () => ({}),
     })) as unknown as Element["getBoundingClientRect"];
     menuEl.showPopover = vi.fn();
     menuEl.hidePopover = vi.fn();

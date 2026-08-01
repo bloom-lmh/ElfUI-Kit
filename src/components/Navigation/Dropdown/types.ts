@@ -1,15 +1,13 @@
 // elf-dropdown 类型定义
 
+import type { FieldVariant } from "../../../types/field";
+
 export type DropdownTriggerMode = "click" | "hover" | "contextmenu";
 export type DropdownTrigger = DropdownTriggerMode | DropdownTriggerMode[];
 export type DropdownPlacement =
-  | "bottom"
-  | "bottom-start"
-  | "bottom-end"
-  | "top"
-  | "top-start"
-  | "top-end";
+  "bottom" | "bottom-start" | "bottom-end" | "top" | "top-start" | "top-end";
 export type DropdownSize = "sm" | "md" | "lg";
+export type DropdownVariant = FieldVariant;
 export type DropdownButtonType = "default" | "primary" | "success" | "warning" | "danger" | "info";
 export type DropdownEffect = "light" | "dark" | string;
 export type DropdownCommand = string | number | Record<string, unknown>;
@@ -76,6 +74,10 @@ export interface DropdownProps {
   trigger: DropdownTrigger;
   placement: DropdownPlacement;
   size: DropdownSize;
+  /** Material field surface used by the command trigger. */
+  variant: DropdownVariant;
+  /** Optional surface override shared with the other field-like controls. */
+  backgroundColor: string;
   type: DropdownButtonType;
   buttonProps: DropdownButtonProps;
   effect: DropdownEffect;

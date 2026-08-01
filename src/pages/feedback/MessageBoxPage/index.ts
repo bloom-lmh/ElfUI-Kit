@@ -25,8 +25,7 @@ useComponents({
 
 const PageMessageBox = defineHtml(`
   <elf-container>
-    <h1>${t("title")}</h1>
-    <p>${t("description")}</p>
+    <elf-docs-hero category="feedback" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
     <page-message-box-ex1 />
     <page-message-box-ex2 />
     <page-message-box-ex3 />

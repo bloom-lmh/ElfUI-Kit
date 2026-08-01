@@ -1,13 +1,27 @@
-import { defineHtml } from "@elfui/core";
+import { defineHtml, defineStyle } from "@elfui/core";
 import { createDocsTranslator } from "../../docsLocale";
+import styles from "./demo.scss?inline";
+defineStyle(styles);
 
 const t = createDocsTranslator({
-  title: { zh: "面板折叠、延迟渲染与持久化", en: "Panel collapse, lazy rendering, and persistence" },
+  title: {
+    zh: "面板折叠、延迟渲染与持久化",
+    en: "Panel collapse, lazy rendering, and persistence",
+  },
   navigation: { zh: "项目导航", en: "Project navigation" },
   workspace: { zh: "编辑工作区", en: "Editor workspace" },
-  status: { zh: "双击分隔条或使用折叠按钮", en: "Double-click the separator or use the collapse control" },
-  collapseComment: { zh: "双击分隔条或点击折叠按钮可以收起第一个面板。", en: "Double-click the separator or use the collapse control to collapse the first panel." },
-  storageComment: { zh: "storage-key 会在本地存储中保存最近一次尺寸。", en: "storage-key persists the latest size in local storage." }
+  status: {
+    zh: "双击分隔条或使用折叠按钮",
+    en: "Double-click the separator or use the collapse control",
+  },
+  collapseComment: {
+    zh: "双击分隔条或点击折叠按钮可以收起第一个面板。",
+    en: "Double-click the separator or use the collapse control to collapse the first panel.",
+  },
+  storageComment: {
+    zh: "storage-key 会在本地存储中保存最近一次尺寸。",
+    en: "storage-key persists the latest size in local storage.",
+  },
 });
 
 const code = `<elf-splitter storage-key="workspace-splitter">
@@ -35,7 +49,7 @@ const PageSplitterEx4 = defineHtml(`
     :script=${script}
   >
     <span slot="status">${t("status")}</span>
-    <div style="height:280px">
+    <div class="splitter-demo-stage">
       <elf-splitter storage-key="elfui-demo-workspace-splitter">
         <elf-splitter-panel
           slot="first"

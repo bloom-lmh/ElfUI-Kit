@@ -1,7 +1,7 @@
 import { defineHtml, defineProps, defineStyle, useHostCssVar } from "@elfui/core";
 
 import styles from "./style.scss?inline";
-import type { MasonryGap, MasonryProps, MasonrySlots } from "./types";
+import type { MasonryProps, MasonrySlots } from "./types";
 
 export type { MasonryGap, MasonryProps, MasonrySlots } from "./types";
 
@@ -11,13 +11,13 @@ const GAP_TOKENS: Record<string, string> = {
   sm: "var(--elf-space-2)",
   md: "var(--elf-space-4)",
   lg: "var(--elf-space-6)",
-  xl: "var(--elf-space-8)"
+  xl: "var(--elf-space-8)",
 };
 
 const props = defineProps<MasonryProps>({
   columns: { type: Number, default: 3 },
   minColumnWidth: { type: [String, Number], default: 240 },
-  gap: { type: [String, Number], default: "md" }
+  gap: { type: [String, Number], default: "md" },
 });
 
 const cssSize = (value: string | number): string => {

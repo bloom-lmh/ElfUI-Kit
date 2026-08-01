@@ -58,9 +58,7 @@
   width: min(100%, 760px);
   border: 1px solid var(--elf-border);
   border-radius: 12px;
-  background:
-    linear-gradient(145deg, color-mix(in srgb, var(--elf-primary) 4%, transparent), transparent 45%),
-    var(--elf-bg-paper);
+  background: var(--elf-bg-paper);
   box-shadow: var(--elf-shadow-sm);
 }
 

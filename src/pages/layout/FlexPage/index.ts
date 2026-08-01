@@ -11,8 +11,8 @@ const t = createDocsTranslator({
   title: { zh: "弹性布局", en: "Flex layout" },
   description: {
     zh: "一个页面覆盖弹性容器、剩余空间项与间距兼容输入，以统一编号结构图展示方向、对齐、换行和空间分配。",
-    en: "One page covers Flex, Spacer, and Space-compatible inputs with consistent numbered diagrams for direction, alignment, wrapping, and space distribution."
-  }
+    en: "One page covers Flex, Spacer, and Space-compatible inputs with consistent numbered diagrams for direction, alignment, wrapping, and space distribution.",
+  },
 });
 
 useComponents({
@@ -20,13 +20,12 @@ useComponents({
   "page-flex-ex2": PageFlexEx2,
   "page-flex-ex3": PageFlexEx3,
   "page-flex-ex4": PageFlexEx4,
-  "page-flex-props": PageFlexProps
+  "page-flex-props": PageFlexProps,
 });
 
 const PageFlex = defineHtml(`
   <elf-container>
-    <h1>${t("title")}</h1>
-    <p>${t("description")}</p>
+    <elf-docs-hero category="layout" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
     <page-flex-ex1 />
     <page-flex-ex2 />
     <page-flex-ex3 />

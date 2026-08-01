@@ -1,13 +1,7 @@
-import {
-  defineHtml,
-  defineProps,
-  defineStyle,
-  useHostAttr,
-  useHostFlag
-} from "@elfui/core";
+import { defineHtml, defineProps, defineStyle, useHostAttr, useHostFlag } from "@elfui/core";
 
 import styles from "./style.scss?inline";
-import type { TabPaneName, TabPaneProps, TabPaneSlots } from "../Tabs/types";
+import type { TabPaneProps, TabPaneSlots } from "../Tabs/types";
 
 export type { TabPaneProps, TabPaneSlots } from "../Tabs/types";
 
@@ -27,7 +21,7 @@ const props = defineProps<TabPaneRuntimeProps>({
   active: { type: Boolean, default: false },
   rendered: { type: Boolean, default: false },
   panelId: { type: String, default: "" },
-  labelledBy: { type: String, default: "" }
+  labelledBy: { type: String, default: "" },
 });
 
 const shouldRender = (): boolean => !props.lazy || props.active || props.rendered;
@@ -35,7 +29,7 @@ const shouldRender = (): boolean => !props.lazy || props.active || props.rendere
 useHostAttr("role", () => "tabpanel");
 useHostAttr("id", () => props.panelId || null);
 useHostAttr("aria-labelledby", () => props.labelledBy || null);
-useHostAttr("aria-hidden", () => props.active ? "false" : "true");
+useHostAttr("aria-hidden", () => (props.active ? "false" : "true"));
 useHostFlag("hidden", () => !props.active);
 useHostFlag("data-active", () => props.active);
 useHostFlag("data-lazy", () => Boolean(props.lazy));

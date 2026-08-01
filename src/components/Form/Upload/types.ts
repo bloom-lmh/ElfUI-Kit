@@ -106,6 +106,19 @@ export interface UploadEmits {
   error: [error: unknown, file: UploadFileItem, files: UploadFileItem[]];
 }
 
+/** Public slot surface exposed by {@link UploadElement}. */
+export interface UploadSlots {
+  /** Replaces the file-selection trigger and receives `select` and `disabled` slot props. */
+  trigger?: unknown;
+  /** Replaces the drag surface content and receives `select` and `disabled` slot props. */
+  dropzone?: unknown;
+  /** Replaces the upload constraint and guidance content. */
+  tip?: unknown;
+  /** Replaces one filename region and receives `file`, `remove`, and `preview` slot props. */
+  file?: unknown;
+}
+
+/** Imperative Upload operations available on the custom element instance. */
 export interface UploadExpose {
   select(): void;
   submit(): void;
@@ -115,4 +128,5 @@ export interface UploadExpose {
   clearFiles(statuses?: UploadStatus[]): void;
 }
 
-export type UploadElement = HTMLElement & UploadExpose;
+/** Typed custom element contract for property assignment and imperative Upload operations. */
+export type UploadElement = HTMLElement & UploadProps & UploadExpose;

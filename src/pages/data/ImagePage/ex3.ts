@@ -9,24 +9,34 @@ const t = createDocsTranslator({
   loaded: { zh: "响应式资源已加载", en: "Responsive source loaded" },
   description: {
     zh: "srcset 与 sizes 交给浏览器选择合适资源；lazy 在图片接近视口前保持 src 和 srcset 为空。",
-    en: "The browser selects a source from srcset and sizes, while lazy keeps src and srcset empty until the image nears the viewport."
+    en: "The browser selects a source from srcset and sizes, while lazy keeps src and srcset empty until the image nears the viewport.",
   },
   loading: { zh: "正在选择并加载合适尺寸", en: "Selecting and loading the right size" },
-  alt: { zh: "山间河谷", en: "Mountain valley" }
+  controls: { zh: "响应式配置", en: "Responsive controls" },
+  fit: { zh: "适配方式", en: "Object fit" },
+  height: { zh: "容器高度", en: "Container height" },
+  alt: { zh: "山间河谷", en: "Mountain valley" },
 });
 
 const source = "https://picsum.photos/id/1018/960/540";
 const sourceSet = [
   "https://picsum.photos/id/1018/480/270 480w",
   "https://picsum.photos/id/1018/960/540 960w",
-  "https://picsum.photos/id/1018/1440/810 1440w"
+  "https://picsum.photos/id/1018/1440/810 1440w",
 ].join(", ");
 
 // State
 const loaded = useRef(false);
+const fit = useRef("cover");
+const height = useRef(320);
 
 // Methods
 const onLoad = (): void => loaded.set(true);
+const eventValue = (event: CustomEvent): unknown =>
+  Array.isArray(event.detail) ? event.detail[0] : event.detail;
+const onFit = (event: CustomEvent): void => fit.set(String(eventValue(event) || "cover"));
+const onHeight = (event: CustomEvent): void => height.set(Number(eventValue(event)) || 320);
+const fitOptions = () => ["cover", "contain", "fill"].map((value) => ({ label: value, value }));
 
 const responsiveCode = `<elf-image
   src="valley-960.jpg"
@@ -65,8 +75,8 @@ const PageImageEx3 = defineHtml(`
         sizes="(max-width: 720px) 100vw, 720px"
         :alt=${t("alt")}
         width="100%"
-        height="min(52vw, 360px)"
-        fit="cover"
+        :height=${height.value}
+        :fit=${fit.value}
         lazy
         @load=${onLoad}
       >
@@ -76,6 +86,11 @@ const PageImageEx3 = defineHtml(`
         </div>
       </elf-image>
     </div>
+    <aside slot="controls" class="image-demo-controls" :aria-label=${t("controls")}>
+      <strong>${t("controls")}</strong>
+      <label><span>${t("fit")}</span><elf-select variant="outlined" :options.prop=${fitOptions()} :modelValue.prop=${fit.value} @update:modelValue=${onFit}></elf-select></label>
+      <label><span>${t("height")}</span><elf-input-number variant="outlined" :modelValue.prop=${height.value} :min=${180} :max=${420} :step=${20} @update:modelValue=${onHeight}></elf-input-number></label>
+    </aside>
   </elf-playground>
 `);
 

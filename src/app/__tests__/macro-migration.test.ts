@@ -1,27 +1,18 @@
-import {
-  readdirSync,
-  readFileSync } from "node:fs";
-import { join,
-  relative } from "node:path";
+import { readdirSync, readFileSync } from "node:fs";
+import { join, relative } from "node:path";
 
 import { compileMacroComponent } from "@elfui/compiler/macro-component";
-import { describe,
-  expect,
-  it } from "vitest";
+import { describe, expect, it } from "vitest";
 
-const srcRoot = join(process.cwd(),
-  "src");
-const componentsRoot = join(srcRoot,
-  "components");
+const srcRoot = join(process.cwd(), "src");
+const componentsRoot = join(srcRoot, "components");
 
 const collectSourceFiles = (dir: string): string[] => {
   const files: string[] = [];
 
-  for (const entry of readdirSync(dir,
-  { withFileTypes: true })) {
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
     if (entry.name === "__tests__") continue;
-    const fullPath = join(dir,
-  entry.name);
+    const fullPath = join(dir, entry.name);
     if (entry.isDirectory()) {
       files.push(...collectSourceFiles(fullPath));
       continue;
@@ -37,21 +28,15 @@ const collectSourceFiles = (dir: string): string[] => {
 const sourceFiles = collectSourceFiles(srcRoot);
 const componentFiles = collectSourceFiles(componentsRoot);
 
-const toRelativePath = (file: string): string => relative(srcRoot,
-  file).replace(/\\/g,
-  "/");
+const toRelativePath = (file: string): string => relative(srcRoot, file).replace(/\\/g, "/");
 
 const toRelativeComponentPath = (file: string): string =>
-  relative(componentsRoot,
-  "/");
+  relative(componentsRoot, file).replace(/\\/g, "/");
 
-const read = (file: string): string => readFileSync(file,
-  "utf8");
+const read = (file: string): string => readFileSync(file, "utf8");
 
-describe("ui-kit macro migration",
-  () => {
-  it("keeps non-test source off the builder API",
-  () => {
+describe("ui-kit macro migration", () => {
+  it("keeps non-test source off the builder API", () => {
     const offenders = sourceFiles
       .filter((file) => read(file).includes("ElfUI.create" + "Component("))
       .map(toRelativePath);
@@ -59,15 +44,14 @@ describe("ui-kit macro migration",
     expect(offenders).toEqual([]);
   });
 
-  it("exports defineHtml component files for automatic macro detection",
-  () => {
+  it("exports defineHtml component files for automatic macro detection", () => {
     const offenders = sourceFiles
       .filter((file) => {
         const code = read(file);
         const isComponentFile = /defineHtml(?:<[^>]+>)?\s*\(\s*html/.test(code);
         const hasNamedExport = /export\s*\{[^}]+\}/.test(code);
         const hasInlineExport = /export\s+(?:default\s+)?(?:const\s+\w+\s*=\s*)?defineHtml/.test(
-          code
+          code,
         );
         return isComponentFile && !hasNamedExport && !hasInlineExport;
       })
@@ -76,8 +60,7 @@ describe("ui-kit macro migration",
     expect(offenders).toEqual([]);
   });
 
-  it("keeps ui-kit component implementations on defineHtml constructors",
-  () => {
+  it("keeps ui-kit component implementations on defineHtml constructors", () => {
     const offenders = componentFiles
       .filter((file) => {
         const code = read(file);
@@ -92,8 +75,7 @@ describe("ui-kit macro migration",
     expect(offenders).toEqual([]);
   });
 
-  it("keeps page and app macros on defineHtml constructors",
-  () => {
+  it("keeps page and app macros on defineHtml constructors", () => {
     const offenders = sourceFiles
       .filter((file) => read(file).includes("export default " + "html"))
       .map(toRelativePath);
@@ -101,8 +83,7 @@ describe("ui-kit macro migration",
     expect(offenders).toEqual([]);
   });
 
-  it("keeps component group entries on explicit registerComponents calls",
-  () => {
+  it("keeps component group entries on explicit registerComponents calls", () => {
     const offenders = componentFiles
       .filter((file) => /import\s+["']\.\/[^"']+\/index["'];/.test(read(file)))
       .map(toRelativeComponentPath);
@@ -110,8 +91,7 @@ describe("ui-kit macro migration",
     expect(offenders).toEqual([]);
   });
 
-  it("type-checks real ui-kit local component props and events through useComponents",
-  () => {
+  it("type-checks real ui-kit local component props and events through useComponents", () => {
     const result = compileMacroComponent(
       `
 import { defineHtml,
@@ -131,8 +111,8 @@ export const Probe = defineHtml(\`
       `,
       {
         filename: join(srcRoot, "app", "__tests__", "local-component-probe.ts"),
-        templateTypeCheck: true
-      }
+        templateTypeCheck: true,
+      },
     );
 
     const messages = result.diagnostics.map((diagnostic) => diagnostic.message).join("\n");

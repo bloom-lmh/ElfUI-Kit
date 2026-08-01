@@ -15,17 +15,16 @@ import {
   useHostAttr,
   useHostCssVar,
   useHostFlag,
-  useRef
+  useRef,
 } from "@elfui/core";
 
 import styles from "./style.scss?inline";
 import type {
-  StickyAppendTarget,
   StickyExpose,
   StickyPosition,
   StickyProps,
   StickyScrollDetail,
-  StickySlots
+  StickySlots,
 } from "./types";
 
 export type {
@@ -34,7 +33,7 @@ export type {
   StickyPosition,
   StickyProps,
   StickyScrollDetail,
-  StickySlots
+  StickySlots,
 } from "./types";
 
 interface StickyGeometry {
@@ -53,7 +52,7 @@ const props = defineProps<StickyProps>({
   appendTo: { type: [String, Object], default: "body" },
   top: { type: [Number, String], default: 0 },
   bottom: { type: [Number, String], default: "" },
-  disabled: { type: Boolean, default: false }
+  disabled: { type: Boolean, default: false },
 });
 
 const emit = defineEmits<{
@@ -118,21 +117,26 @@ const queryScoped = <T extends Element>(selector: string): T | null => {
   return root.querySelector<T>(selector) ?? document.querySelector<T>(selector);
 };
 
-const resolveTarget = (): HTMLElement | null => queryScoped<HTMLElement>(String(props.target || ""));
+const resolveTarget = (): HTMLElement | null =>
+  queryScoped<HTMLElement>(String(props.target || ""));
 
 const resolveAppendTarget = (): HTMLElement => {
-  if (typeof HTMLElement !== "undefined" && props.appendTo instanceof HTMLElement) return props.appendTo;
+  if (typeof HTMLElement !== "undefined" && props.appendTo instanceof HTMLElement)
+    return props.appendTo;
   return queryScoped<HTMLElement>(String(props.appendTo || "body")) ?? document.body;
 };
 
 const portalElement = (): HTMLElement | null => {
   const appendTarget = resolveAppendTarget();
-  return appendTarget.querySelector<HTMLElement>(portalSelector) ?? queryScoped<HTMLElement>(portalSelector);
+  return (
+    appendTarget.querySelector<HTMLElement>(portalSelector) ??
+    queryScoped<HTMLElement>(portalSelector)
+  );
 };
 
 const showPortal = (): void => {
   if (!props.teleported || !supportsPopover()) return;
-  const portal = portalElement() as HTMLElement & { showPopover?: () => void } | null;
+  const portal = portalElement() as (HTMLElement & { showPopover?: () => void }) | null;
   if (!portal) return;
   try {
     portal.showPopover?.();
@@ -143,7 +147,7 @@ const showPortal = (): void => {
 
 const hidePortal = (): void => {
   if (!supportsPopover()) return;
-  const portal = portalElement() as HTMLElement & { hidePopover?: () => void } | null;
+  const portal = portalElement() as (HTMLElement & { hidePopover?: () => void }) | null;
   try {
     portal?.hidePopover?.();
   } catch {
@@ -155,12 +159,14 @@ const portalStyle = (): Record<string, string> => portalStyleState.value;
 const portalFixed = (): string => String(fixed.value);
 
 const projection = projectLightDom(host, {
-  defaultTarget: portalElement
+  defaultTarget: portalElement,
 });
 
 const isScrollable = (element: HTMLElement): boolean => {
   const computed = window.getComputedStyle(element);
-  return /(auto|scroll|overlay)/.test(`${computed.overflow} ${computed.overflowY} ${computed.overflowX}`);
+  return /(auto|scroll|overlay)/.test(
+    `${computed.overflow} ${computed.overflowY} ${computed.overflowX}`,
+  );
 };
 
 const findScrollParent = (): Window | HTMLElement => {
@@ -175,7 +181,7 @@ const findScrollParent = (): Window | HTMLElement => {
 const composedParent = (element: HTMLElement): HTMLElement | null => {
   if (element.parentElement) return element.parentElement;
   const root = element.getRootNode();
-  return root instanceof ShadowRoot ? root.host as HTMLElement : null;
+  return root instanceof ShadowRoot ? (root.host as HTMLElement) : null;
 };
 
 const scrollAncestors = (...elements: Array<HTMLElement | null>): Array<Window | HTMLElement> => {
@@ -211,7 +217,7 @@ const readGeometry = (): StickyGeometry => {
     left: rect.left,
     top: rect.top,
     width: rect.width,
-    height: portalRect?.height || rect.height
+    height: portalRect?.height || rect.height,
   };
 };
 
@@ -256,9 +262,9 @@ const updatePortalStyle = (geometry: StickyGeometry, nextFixed: boolean): void =
 
   const nextHidden = Boolean(
     targetRect &&
-      (normalizedPosition() === "top"
-        ? targetRect.bottom <= bounds.top + offset
-        : targetRect.top >= bounds.bottom - offset)
+    (normalizedPosition() === "top"
+      ? targetRect.bottom <= bounds.top + offset
+      : targetRect.top >= bounds.bottom - offset),
   );
   hidden.set(nextHidden);
   placeholderHeight.set(`${Math.max(0, geometry.height)}px`);
@@ -275,7 +281,7 @@ const updatePortalStyle = (geometry: StickyGeometry, nextFixed: boolean): void =
     background: "transparent",
     overflow: "visible",
     zIndex: String(props.zIndex || 100),
-    visibility: nextHidden ? "hidden" : "visible"
+    visibility: nextHidden ? "hidden" : "visible",
   });
 };
 
@@ -286,11 +292,11 @@ const update = (): void => {
   const geometry = readGeometry();
   const bounds = viewportBounds();
   const offset = offsetNumber();
-  const nextFixed = !props.disabled && (
-    normalizedPosition() === "bottom"
+  const nextFixed =
+    !props.disabled &&
+    (normalizedPosition() === "bottom"
       ? geometry.top + geometry.height >= bounds.bottom - offset
-      : geometry.top <= bounds.top + offset
-  );
+      : geometry.top <= bounds.top + offset);
 
   updatePortalStyle(geometry, nextFixed);
   if (props.disabled) hidden.set(false);
@@ -335,10 +341,14 @@ const connectListeners = (): void => {
 };
 
 useHostCssVar("--sticky-offset", normalizedOffset);
-useHostCssVar("--sticky-top", () => normalizedPosition() === "top" ? normalizedOffset() : "auto");
-useHostCssVar("--sticky-bottom", () => normalizedPosition() === "bottom" ? normalizedOffset() : "auto");
+useHostCssVar("--sticky-top", () => (normalizedPosition() === "top" ? normalizedOffset() : "auto"));
+useHostCssVar("--sticky-bottom", () =>
+  normalizedPosition() === "bottom" ? normalizedOffset() : "auto",
+);
 useHostCssVar("--sticky-z-index", () => String(props.zIndex || 100));
-useHostCssVar("--sticky-placeholder-height", () => props.teleported ? placeholderHeight.value : "auto");
+useHostCssVar("--sticky-placeholder-height", () =>
+  props.teleported ? placeholderHeight.value : "auto",
+);
 useHostAttr("data-position", normalizedPosition);
 useHostFlag("disabled", () => Boolean(props.disabled));
 useHostFlag("data-bottom", () => normalizedPosition() === "bottom");

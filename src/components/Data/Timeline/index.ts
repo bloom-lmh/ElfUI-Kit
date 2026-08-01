@@ -5,12 +5,18 @@ import { defineProps, defineStyle, useComputed, useHostAttr, defineHtml } from "
 import styles from "./style.scss?inline";
 import type { TimelineItem, TimelineMode, TimelineProps } from "./types";
 
-export type { TimelineColor, TimelineItem, TimelineMode, TimelineNodeSize, TimelineProps } from "./types";
+export type {
+  TimelineColor,
+  TimelineItem,
+  TimelineMode,
+  TimelineNodeSize,
+  TimelineProps,
+} from "./types";
 
 const props = defineProps({
   items: { type: Array, default: () => [] },
   mode: { type: String, default: "left" },
-  reverse: { type: Boolean, default: false }
+  reverse: { type: Boolean, default: false },
 }) as unknown as Readonly<TimelineProps>;
 
 type TimelineRenderItem = TimelineItem & {
@@ -24,7 +30,12 @@ type TimelineRenderItem = TimelineItem & {
 const normalizedMode = (): Exclude<TimelineMode, "left" | "right"> => {
   if (props.mode === "left") return "start";
   if (props.mode === "right") return "end";
-  if (props.mode === "alternate" || props.mode === "alternate-reverse" || props.mode === "horizontal") return props.mode;
+  if (
+    props.mode === "alternate" ||
+    props.mode === "alternate-reverse" ||
+    props.mode === "horizontal"
+  )
+    return props.mode;
   return "start";
 };
 
@@ -34,16 +45,18 @@ const list = useComputed(() => {
   const len = result.length;
   const mode = normalizedMode();
   const isAlt = mode === "alternate" || mode === "alternate-reverse" || mode === "horizontal";
-  return result.map(
-    (item: TimelineItem, i: number): TimelineRenderItem => ({
-      ...item,
-      __key: String(item.timestamp || item.title || i),
-      __idx: i,
-      __last: i === len - 1,
-      __side: isAlt ? ((i + (mode === "alternate-reverse" ? 1 : 0)) % 2 === 0 ? "left" : "right") : "left",
-      __placement: item.placement === "top" ? "top" : "bottom"
-    })
-  );
+  return result.map((item: TimelineItem, i: number): TimelineRenderItem => ({
+    ...item,
+    __key: String(item.timestamp || item.title || i),
+    __idx: i,
+    __last: i === len - 1,
+    __side: isAlt
+      ? (i + (mode === "alternate-reverse" ? 1 : 0)) % 2 === 0
+        ? "left"
+        : "right"
+      : "left",
+    __placement: item.placement === "top" ? "top" : "bottom",
+  }));
 });
 
 const nodeClass = (item: Record<string, unknown>): Record<string, boolean> => {
@@ -52,13 +65,17 @@ const nodeClass = (item: Record<string, unknown>): Record<string, boolean> => {
     [`is-${color}`]: true,
     "is-large": item.size === "large",
     "is-hollow": Boolean(item.hollow),
-    "is-centered": Boolean(item.center)
+    "is-centered": Boolean(item.center),
   };
 };
 
 const nodeStyle = (item: Record<string, unknown>): Record<string, string> => {
   const color = String(item.color || "");
-  return ["primary", "success", "warning", "danger", "info"].includes(color) ? {} : color ? { "--_node-bg": color } : {};
+  return ["primary", "success", "warning", "danger", "info"].includes(color)
+    ? {}
+    : color
+      ? { "--_node-bg": color }
+      : {};
 };
 
 useHostAttr("data-mode", normalizedMode);
@@ -100,7 +117,7 @@ const Timeline = defineHtml(`
 
       <div class="node" :class="nodeClass(item)" :style="nodeStyle(item)" :part="'node-' + item.__idx" aria-hidden="true">
         <slot :name="'dot-' + item.__idx">
-          <slot name="dot"><span class="node-inner">{{ item.icon || "" }}</span></slot>
+          <slot name="dot"><elf-icon v-if="item.icon" class="node-inner" :name="item.icon" size="18"></elf-icon></slot>
         </slot>
       </div>
 

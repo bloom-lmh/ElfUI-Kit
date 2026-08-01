@@ -74,7 +74,10 @@ describe("elf-table-v2", () => {
     const table = el.shadowRoot!.querySelector("elf-table")!;
     (table.shadowRoot!.querySelector(".sort-button") as HTMLButtonElement).click();
     await tick();
-    expect((onSort.mock.calls.at(-1)![0] as CustomEvent).detail).toEqual({ key: "duration", order: "ascending" });
+    expect((onSort.mock.calls.at(-1)![0] as CustomEvent).detail).toEqual({
+      key: "duration",
+      order: "ascending",
+    });
     expect((onRows.mock.calls[0]![0] as CustomEvent).detail.rowVisibleStart).toBe(0);
   });
 
@@ -135,11 +138,57 @@ describe("elf-table-v2", () => {
     await tick();
     expect(fixed.shadowRoot!.querySelector("thead")).toBeTruthy();
     expect(body.shadowRoot!.querySelector("thead")).toBeNull();
-    expect(body.shadowRoot!.querySelector(".table-root")?.classList.contains("is-sticky-header")).toBe(true);
-    const overlaySlot = el.shadowRoot!.querySelector<HTMLSlotElement>('.overlay slot[name="overlay"]')!;
-    const footerSlot = el.shadowRoot!.querySelector<HTMLSlotElement>('.footer slot[name="footer"]')!;
+    expect(
+      body.shadowRoot!.querySelector(".table-root")?.classList.contains("is-sticky-header"),
+    ).toBe(true);
+    const overlaySlot = el.shadowRoot!.querySelector<HTMLSlotElement>(
+      '.overlay slot[name="overlay"]',
+    )!;
+    const footerSlot = el.shadowRoot!.querySelector<HTMLSlotElement>(
+      '.footer slot[name="footer"]',
+    )!;
     expect(overlaySlot.assignedElements()[0]?.textContent).toContain("Refreshing metrics");
     expect(footerSlot.assignedElements()[0]?.textContent).toContain("300 records");
+  });
+
+  it("synchronizes resized columns between pinned and virtual tables", async () => {
+    const el = document.createElement("elf-table-v2") as TableV2El;
+    el.fixedData = [{ id: "summary", task: "Pinned summary", owner: "Platform" }];
+    el.data = Array.from({ length: 200 }, (_, index) => ({
+      id: index + 1,
+      task: `Task ${index + 1}`,
+      owner: "ElfUI",
+    }));
+    el.columns = [
+      { key: "task", title: "Task", width: 260 },
+      { key: "owner", title: "Owner", width: 120 },
+    ];
+    el.height = 320;
+    el.border = true;
+    document.body.appendChild(el);
+    await tick();
+    await tick();
+    await tick();
+
+    const fixed = el.shadowRoot!.querySelector("elf-table[data-fixed-table]")!;
+    const handle = fixed.shadowRoot!.querySelector<HTMLElement>(".column-resizer")!;
+    handle.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        key: "ArrowRight",
+        shiftKey: true,
+        bubbles: true,
+      }),
+    );
+    await tick();
+    await tick();
+
+    const body = el.shadowRoot!.querySelector("elf-table[data-scroll-table]")!;
+    expect(fixed.shadowRoot!.querySelector<HTMLTableCellElement>("thead th")!.style.width).toBe(
+      "284px",
+    );
+    expect(body.shadowRoot!.querySelector<HTMLTableCellElement>("tbody tr td")!.style.width).toBe(
+      "284px",
+    );
   });
 
   it("supports uncontrolled virtual tree expansion with keyboard and ARIA", async () => {
@@ -168,7 +217,9 @@ describe("elf-table-v2", () => {
 
     const table = el.shadowRoot!.querySelector("elf-table")!;
     expect(table.shadowRoot!.querySelectorAll("tbody tr")).toHaveLength(2);
-    const toggle = table.shadowRoot!.querySelector<HTMLButtonElement>('[part~="table-v2-expand-toggle"]')!;
+    const toggle = table.shadowRoot!.querySelector<HTMLButtonElement>(
+      '[part~="table-v2-expand-toggle"]',
+    )!;
     expect(toggle.getAttribute("aria-expanded")).toBe("false");
     toggle.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
     await tick();
@@ -178,9 +229,9 @@ describe("elf-table-v2", () => {
     expect((onExpanded.mock.calls[0]![0] as CustomEvent).detail).toEqual(["platform"]);
     expect((onRowExpand.mock.calls[0]![0] as CustomEvent).detail).toEqual([el.data![0], true]);
     expect(
-      table.shadowRoot!.querySelector<HTMLButtonElement>('[part~="table-v2-expand-toggle"]')!.getAttribute(
-        "aria-expanded",
-      ),
+      table
+        .shadowRoot!.querySelector<HTMLButtonElement>('[part~="table-v2-expand-toggle"]')!
+        .getAttribute("aria-expanded"),
     ).toBe("true");
   });
 

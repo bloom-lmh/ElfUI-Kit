@@ -7,6 +7,7 @@ import {
   useComputed,
   useHostAttr,
   useHostCssVar,
+  useHostFlag,
   useRef,
   useScrollLock,
 } from "@elfui/core";
@@ -32,6 +33,7 @@ const props = defineProps<LoadingProps>({
   fullscreen: { type: Boolean, default: false },
   background: { type: String, default: "rgba(255,255,255,0.72)" },
   closable: { type: Boolean, default: false },
+  plain: { type: Boolean, default: false },
   variant: { type: String, default: "spinner" },
   svg: { type: String, default: "" },
   svgViewBox: { type: String, default: "0 0 50 50" },
@@ -66,6 +68,7 @@ const close = (): void => {
 };
 
 useHostAttr("fullscreen", () => (props.fullscreen ? "" : null));
+useHostFlag("plain", () => props.plain);
 useHostCssVar("--_loading-bg", () => props.background || "rgba(255,255,255,0.72)");
 /** Keeps the shared Core scroll-lock lease until the final leave completes. */
 useScrollLock(() => rendered.value && props.lock);
@@ -146,24 +149,26 @@ const Loading = defineHtml<LoadingProps, LoadingEmits, LoadingSlots>(`
         :aria-modal=${interactiveFullscreen ? "true" : null}
         :aria-label=${props.text || locale.t("loading.active")}
       >
-        <div class="box">
-          <span :class=${indicatorClasses} aria-hidden="true">
-            <svg
-              v-if=${hasSvg}
-              class="custom-spinner"
-              :viewBox=${props.svgViewBox}
-              focusable="false"
-            >
-              <path :d=${props.svg}></path>
-            </svg>
-            <span v-if=${showSpinner} class="spinner"></span>
-            <span v-if=${showDots} class="dot"></span>
-            <span v-if=${showDots} class="dot"></span>
-            <span v-if=${showDots} class="dot"></span>
-            <span v-if=${showPulse} class="pulse"></span>
-            <span v-if=${showBars} class="bar"></span>
-            <span v-if=${showBars} class="bar"></span>
-            <span v-if=${showBars} class="bar"></span>
+        <div class="box" part="box">
+          <span :class=${indicatorClasses} part="indicator" aria-hidden="true">
+            <slot name="indicator">
+              <svg
+                v-if=${hasSvg}
+                class="custom-spinner"
+                :viewBox=${props.svgViewBox}
+                focusable="false"
+              >
+                <path :d=${props.svg}></path>
+              </svg>
+              <span v-if=${showSpinner} class="spinner"></span>
+              <span v-if=${showDots} class="dot"></span>
+              <span v-if=${showDots} class="dot"></span>
+              <span v-if=${showDots} class="dot"></span>
+              <span v-if=${showPulse} class="pulse"></span>
+              <span v-if=${showBars} class="bar"></span>
+              <span v-if=${showBars} class="bar"></span>
+              <span v-if=${showBars} class="bar"></span>
+            </slot>
           </span>
           <span v-if=${props.text} class="loading-text">${props.text}</span>
         </div>

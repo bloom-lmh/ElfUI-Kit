@@ -28,17 +28,34 @@ const tick = async (): Promise<void> => {
 };
 
 describe("Image documentation", () => {
-  it("renders all five object-fit modes in identical frames", async () => {
+  it("provides a Playground console for every image example", async () => {
+    for (const tag of [fitExampleTag, retryExampleTag, responsiveExampleTag, previewExampleTag]) {
+      const page = document.createElement(tag);
+      document.body.appendChild(page);
+      await tick();
+      const playground = page.shadowRoot!.querySelector<HTMLElement>("elf-playground")!;
+      expect(page.shadowRoot!.querySelector('[slot="controls"]')).toBeTruthy();
+      expect(playground.shadowRoot!.querySelector(".workspace.has-controls")).toBeTruthy();
+      page.remove();
+    }
+  });
+
+  it("drives object fit and dimensions from the Playground console", async () => {
     const page = document.createElement(fitExampleTag);
     document.body.appendChild(page);
     await tick();
 
-    const images = page.shadowRoot!.querySelectorAll<HTMLElement>(".image-fit-grid elf-image");
-    expect(images).toHaveLength(5);
-    expect(Array.from(images, (image) => image.getAttribute("fit")))
-      .toEqual(["fill", "contain", "cover", "none", "scale-down"]);
-    expect(Array.from(images).every((image) => image.style.getPropertyValue("--_image-width") === "180px"))
-      .toBe(true);
+    const playground = page.shadowRoot!.querySelector<HTMLElement>("elf-playground")!;
+    const image = page.shadowRoot!.querySelector<HTMLElement>(".image-fit-stage elf-image")!;
+    const controls = page.shadowRoot!.querySelector<HTMLElement>('[slot="controls"]')!;
+    const select = controls.querySelector("elf-select")!;
+
+    expect(playground.shadowRoot!.querySelector(".workspace.has-controls")).toBeTruthy();
+    expect(image.getAttribute("src")).toContain("images.unsplash.com");
+    expect(image.getAttribute("fit")).toBe("cover");
+    select.dispatchEvent(new CustomEvent("update:modelValue", { detail: "contain" }));
+    await tick();
+    expect(image.getAttribute("fit")).toBe("contain");
   });
 
   it("recovers the failed image through the custom retry action", async () => {
@@ -53,7 +70,9 @@ describe("Image documentation", () => {
 
     page.shadowRoot!.querySelector<HTMLElement>(".image-retry-error elf-button")!.click();
     await tick();
-    expect(image.shadowRoot!.querySelector("img")?.getAttribute("src")).toContain("data:image/svg+xml");
+    expect(image.shadowRoot!.querySelector("img")?.getAttribute("src")).toContain(
+      "data:image/svg+xml",
+    );
   });
 
   it("documents lazy responsive source selection", async () => {
@@ -65,6 +84,7 @@ describe("Image documentation", () => {
     expect(image.getAttribute("lazy")).not.toBeNull();
     expect((image as HTMLElement & { srcset?: string }).srcset).toContain("480w");
     expect(image.getAttribute("sizes")).toBe("(max-width: 720px) 100vw, 720px");
+    expect(page.shadowRoot!.querySelector('elf-playground [slot="controls"]')).toBeTruthy();
   });
 
   it("opens the preview from the keyboard and updates page state", async () => {

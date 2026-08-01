@@ -1,11 +1,13 @@
-// elf-alert 类型
+/** Semantic color applied to an Alert. */
+export type AlertType = "info" | "tip" | "success" | "warning" | "danger";
 
-export type AlertType = "info" | "success" | "warning" | "danger";
+/** Surface treatment applied without changing the Alert behavior. */
+export type AlertVariant = "tonal" | "soft" | "elevated" | "outlined" | "plain" | "filled";
 
-export type AlertVariant = "tonal" | "elevated" | "outlined" | "plain" | "filled";
-
+/** Vertical density of the Alert content. */
 export type AlertDensity = "default" | "compact";
 
+/** Public inputs accepted by `elf-alert`. */
 export interface AlertProps {
   type: AlertType;
   variant: AlertVariant;
@@ -19,10 +21,12 @@ export interface AlertProps {
   prominent: boolean;
 }
 
+/** Events emitted by `elf-alert`. */
 export interface AlertEmits {
   close: [];
 }
 
+/** Content regions exposed by `elf-alert`. */
 export interface AlertSlots {
   default?: () => unknown;
   title?: () => unknown;

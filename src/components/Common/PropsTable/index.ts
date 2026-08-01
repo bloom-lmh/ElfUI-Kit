@@ -1,4 +1,13 @@
-import { defineHtml, defineProps, defineStyle, useComponents } from "@elfui/core";
+import {
+  defineHtml,
+  defineProps,
+  defineStyle,
+  onMounted,
+  onUnmounted,
+  useComponents,
+  useHost,
+  useRef,
+} from "@elfui/core";
 import { Table } from "../../Data/Table";
 import type { TableColumn } from "../../Data/Table/types";
 import { useLocaleProvider } from "../../Providers/context";
@@ -12,21 +21,56 @@ useComponents({ "props-table-data": Table });
 const props = defineProps<PropsTableProps>({
   title: { type: String, default: "Props" },
   rows: { type: Array, default: () => [] as TableRow[] },
-  emptyText: { type: String, default: "" }
+  emptyText: { type: String, default: "" },
 });
 
 const locale = useLocaleProvider();
-const rows = (): TableRow[] => Array.isArray(props.rows) ? props.rows : [];
+const host = useHost();
+const sectionTitle = useRef("");
+let adjacentHeading: HTMLHeadingElement | null = null;
+let titleObserver: MutationObserver | null = null;
+
+const syncSectionTitle = (): void => {
+  sectionTitle.set(adjacentHeading?.textContent?.trim() || "");
+};
+
+onMounted(() => {
+  const previous = host.previousElementSibling;
+  if (!(previous instanceof HTMLHeadingElement) || previous.localName !== "h2") return;
+  adjacentHeading = previous;
+  adjacentHeading.hidden = true;
+  adjacentHeading.setAttribute("data-promoted-to-props-table", "");
+  syncSectionTitle();
+  titleObserver = new MutationObserver(syncSectionTitle);
+  titleObserver.observe(adjacentHeading, {
+    childList: true,
+    subtree: true,
+    characterData: true,
+  });
+});
+
+onUnmounted(() => {
+  titleObserver?.disconnect();
+  titleObserver = null;
+  if (adjacentHeading) {
+    adjacentHeading.hidden = false;
+    adjacentHeading.removeAttribute("data-promoted-to-props-table");
+  }
+  adjacentHeading = null;
+});
+
+const rows = (): TableRow[] => (Array.isArray(props.rows) ? props.rows : []);
 const columns = (): TableColumn[] => [
-  { prop: "name", label: locale.t("playground.name"), minWidth: 150 },
+  { prop: "name", label: locale.t("playground.name"), minWidth: 190 },
   { prop: "type", label: locale.t("playground.type"), minWidth: 210 },
   { prop: "default", label: locale.t("playground.default"), minWidth: 120 },
-  { prop: "desc", label: locale.t("playground.description"), minWidth: 320 }
+  { prop: "desc", label: locale.t("playground.description"), minWidth: 320 },
 ];
 
 defineStyle(styles);
 
 const PropsTable = defineHtml<PropsTableProps, Record<string, never>, PropsTableSlots>(`
+  <h2 v-if=${sectionTitle.value} class="section-title">${sectionTitle.value}</h2>
   <props-table-data
     :title=${props.title}
     title-variant="muted"
@@ -34,7 +78,6 @@ const PropsTable = defineHtml<PropsTableProps, Record<string, never>, PropsTable
     :columns.prop=${columns()}
     row-key="name"
     table-layout="auto"
-    size="small"
     border
     :empty-text=${props.emptyText || locale.t("table.empty")}
   >

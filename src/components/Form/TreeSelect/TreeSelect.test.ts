@@ -1,11 +1,7 @@
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
 import type { TreeNode } from "../../Data/Tree/types";
-import type {
-  TreeSelectElement,
-  TreeSelectModelValue,
-  TreeSelectValue,
-} from "./types";
+import type { TreeSelectElement, TreeSelectModelValue, TreeSelectValue } from "./types";
 
 beforeAll(async () => {
   await import("../../../components");
@@ -15,8 +11,7 @@ afterEach(() => {
   document.body.innerHTML = "";
 });
 
-const tick = (): Promise<void> =>
-  new Promise((resolve) => queueMicrotask(resolve));
+const tick = (): Promise<void> => new Promise((resolve) => queueMicrotask(resolve));
 const settle = async (): Promise<void> => {
   await tick();
   await tick();
@@ -92,13 +87,22 @@ describe("elf-tree-select", () => {
 
     expect(element.getAttribute("variant")).toBe("outlined");
     expect(element.hasAttribute("data-has-label")).toBe(true);
-    expect(element.shadowRoot!.querySelector(".field-label")?.textContent).toBe(
-      "Team",
-    );
-    expect(
-      element.shadowRoot!.querySelector(".field-outline legend")?.textContent,
-    ).toBe("Team");
+    expect(element.shadowRoot!.querySelector(".field-label")?.textContent).toBe("Team");
+    expect(element.shadowRoot!.querySelector(".field-outline legend")?.textContent).toBe("Team");
   });
+
+  it.each(["default", "filled", "outlined", "underlined", "solo", "solo-filled", "solo-inverted"])(
+    "normalizes and renders the %s field surface",
+    async (variant) => {
+      const element = await mount((host) => {
+        host.setAttribute("variant", variant);
+        host.setAttribute("label", "Team");
+      });
+
+      expect(element.getAttribute("variant")).toBe(variant);
+      expect(element.shadowRoot!.querySelector(".field-outline")).toBeTruthy();
+    },
+  );
 
   it("attaches the panel to the trigger by default", async () => {
     const element = await mount();
@@ -118,9 +122,7 @@ describe("elf-tree-select", () => {
 
     expect((onUpdate.mock.calls[0]![0] as CustomEvent).detail).toBe("platform");
     expect(element.hasAttribute("data-open")).toBe(false);
-    expect(element.shadowRoot!.activeElement).toBe(
-      element.shadowRoot!.querySelector(".trigger"),
-    );
+    expect(element.shadowRoot!.activeElement).toBe(element.shadowRoot!.querySelector(".trigger"));
     expect(element.selectedLabel()).toBe("Platform");
   });
 
@@ -128,9 +130,7 @@ describe("elf-tree-select", () => {
     const element = await mount((host) => {
       host.defaultExpandAll = true;
     });
-    element.addEventListener("update:modelValue", ((
-      event: CustomEvent<string>,
-    ) => {
+    element.addEventListener("update:modelValue", ((event: CustomEvent<string>) => {
       element.modelValue = event.detail;
     }) as EventListener);
     const trigger = element.shadowRoot!.querySelector<HTMLElement>(".trigger")!;
@@ -139,8 +139,7 @@ describe("elf-tree-select", () => {
     await settle();
 
     const tree = element.shadowRoot!.querySelector("elf-tree") as HTMLElement;
-    const child =
-      tree.shadowRoot!.querySelectorAll<HTMLElement>(".tree-content")[1]!;
+    const child = tree.shadowRoot!.querySelectorAll<HTMLElement>(".tree-content")[1]!;
     child.focus();
     child.click();
     await settleTask();
@@ -161,18 +160,13 @@ describe("elf-tree-select", () => {
     element.addEventListener("update:modelValue", onUpdate as EventListener);
     const tree = await open(element);
 
-    tree
-      .shadowRoot!.querySelector<HTMLButtonElement>(".tree-checkbox")!
-      .click();
+    tree.shadowRoot!.querySelector<HTMLButtonElement>(".tree-checkbox")!.click();
     await settle();
 
-    const value = (onUpdate.mock.calls[0]![0] as CustomEvent<TreeSelectValue[]>)
-      .detail;
+    const value = (onUpdate.mock.calls[0]![0] as CustomEvent<TreeSelectValue[]>).detail;
     expect(value).toEqual(["platform", "web", "mobile"]);
     expect(element.shadowRoot!.querySelectorAll(".tag")).toHaveLength(1);
-    expect(
-      element.shadowRoot!.querySelector(".collapse-tag")?.textContent,
-    ).toBe("+2");
+    expect(element.shadowRoot!.querySelector(".collapse-tag")?.textContent).toBe("+2");
   });
 
   it("keeps parent and child checks independent in strict mode", async () => {
@@ -181,15 +175,11 @@ describe("elf-tree-select", () => {
       host.checkStrictly = true;
       host.modelValue = [];
     });
-    element.addEventListener("update:modelValue", ((
-      event: CustomEvent<TreeSelectValue[]>,
-    ) => {
+    element.addEventListener("update:modelValue", ((event: CustomEvent<TreeSelectValue[]>) => {
       element.modelValue = event.detail;
     }) as EventListener);
     const tree = await open(element);
-    tree
-      .shadowRoot!.querySelector<HTMLButtonElement>(".tree-checkbox")!
-      .click();
+    tree.shadowRoot!.querySelector<HTMLButtonElement>(".tree-checkbox")!.click();
     await settle();
 
     expect(element.modelValue).toEqual(["platform"]);
@@ -201,24 +191,21 @@ describe("elf-tree-select", () => {
       host.filterable = true;
     });
     const tree = await open(element);
-    const input =
-      element.shadowRoot!.querySelector<HTMLInputElement>(".filter-input")!;
+    const input = element.shadowRoot!.querySelector<HTMLInputElement>(".filter-input")!;
     input.value = "unit";
     input.dispatchEvent(new Event("input", { bubbles: true, composed: true }));
     await settle();
 
-    const labels = Array.from(
-      tree.shadowRoot!.querySelectorAll(".tree-label"),
-    ).map((node) => node.textContent?.trim());
+    const labels = Array.from(tree.shadowRoot!.querySelectorAll(".tree-label")).map((node) =>
+      node.textContent?.trim(),
+    );
     expect(labels).toEqual(["Quality", "Unit tests"]);
   });
 
   it("loads lazy children once and refreshes the selected label projection", async () => {
-    const load = vi.fn(
-      (node: TreeNode, resolve: (children: TreeNode[]) => void) => {
-        resolve([{ key: `${String(node.key)}-child`, label: "Lazy child" }]);
-      },
-    );
+    const load = vi.fn((node: TreeNode, resolve: (children: TreeNode[]) => void) => {
+      resolve([{ key: `${String(node.key)}-child`, label: "Lazy child" }]);
+    });
     const element = await mount((host) => {
       host.data = [{ key: "lazy", label: "Lazy root", isLeaf: false }];
       host.lazy = true;
@@ -248,13 +235,10 @@ describe("elf-tree-select", () => {
     });
     const tree = await open(element);
 
-    expect(tree.shadowRoot!.querySelectorAll(".tree-node").length).toBeLessThan(
-      30,
+    expect(tree.shadowRoot!.querySelectorAll(".tree-node").length).toBeLessThan(30);
+    expect((tree.shadowRoot!.querySelector(".tree-body") as HTMLElement).style.height).toBe(
+      "160px",
     );
-    expect(
-      (tree.shadowRoot!.querySelector(".tree-body") as HTMLElement).style
-        .height,
-    ).toBe("160px");
   });
 
   it("clears through provider-aware field defaults and emits one semantic change", async () => {
@@ -276,9 +260,7 @@ describe("elf-tree-select", () => {
 
   it("opens from ArrowDown and delegates traversal and Enter selection to Tree", async () => {
     const element = await mount();
-    element.addEventListener("update:modelValue", ((
-      event: CustomEvent<TreeSelectValue>,
-    ) => {
+    element.addEventListener("update:modelValue", ((event: CustomEvent<TreeSelectValue>) => {
       element.modelValue = event.detail;
     }) as EventListener);
     const trigger = element.shadowRoot!.querySelector<HTMLElement>(".trigger")!;

@@ -146,7 +146,7 @@ describe("capability ownership inventory", () => {
     ];
     const missing = [...new Set(trackedSources)].filter((path) => !inventory.includes(path));
 
-    expect(macroComponents).toHaveLength(121);
+    expect(macroComponents).toHaveLength(123);
     expect(missing).toEqual([]);
   });
 

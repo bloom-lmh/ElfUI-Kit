@@ -1,0 +1,18 @@
+@use "./hero";
+
+.page-header-doc-hero {
+  width: max(85%, min(100%, 900px));
+  max-width: 100%;
+  margin-bottom: var(--elf-space-7);
+  margin-inline: auto;
+}
+
+.page-header-doc-hero::part(page-header) {
+  border: 0;
+}
+
+.page-header-api-title {
+  width: max(85%, min(100%, 900px));
+  max-width: 100%;
+  margin-inline: auto;
+}

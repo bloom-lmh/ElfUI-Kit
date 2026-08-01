@@ -19,13 +19,12 @@ useComponents({
   "page-message-ex2": PageMessageEx2,
   "page-message-ex3": PageMessageEx3,
   "page-message-ex4": PageMessageEx4,
-  "page-message-props": PageMessageProps
+  "page-message-props": PageMessageProps,
 });
 
 const PageMessage = defineHtml(`
   <elf-container>
-    <h1>${t("title")}</h1>
-    <p>${t("description")}</p>
+    <elf-docs-hero category="feedback" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
     <page-message-ex1></page-message-ex1>
     <page-message-ex2></page-message-ex2>
     <page-message-ex3></page-message-ex3>

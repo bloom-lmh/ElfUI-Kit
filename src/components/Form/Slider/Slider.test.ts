@@ -20,6 +20,7 @@ interface SliderEl extends HTMLElement {
   showStops?: boolean;
   segmented?: boolean;
   marks?: unknown;
+  tickLabels?: Array<string | number>;
   showInput?: boolean;
   showInputControls?: boolean;
   inputSize?: string;
@@ -70,7 +71,7 @@ describe("elf-slider", () => {
     setRangeValue(
       el.shadowRoot!.querySelector(".native-start") as HTMLInputElement,
       "90",
-      "change"
+      "change",
     );
     await tick();
 
@@ -93,11 +94,11 @@ describe("elf-slider", () => {
       bottom: 32,
       width: 100,
       height: 32,
-      toJSON: () => ({})
+      toJSON: () => ({}),
     } as DOMRect);
 
     el.shadowRoot!.querySelector(".thumb-start")!.dispatchEvent(
-      new MouseEvent("pointerdown", { bubbles: true, clientX: 40 })
+      new MouseEvent("pointerdown", { bubbles: true, clientX: 40 }),
     );
     document.dispatchEvent(new MouseEvent("pointermove", { bubbles: true, clientX: 50 }));
     document.dispatchEvent(new MouseEvent("pointerup", { bubbles: true, clientX: 50 }));
@@ -115,8 +116,8 @@ describe("elf-slider", () => {
       showStops: true,
       marks: [
         { value: 0, label: "低" },
-        { value: 10, label: "高" }
-      ]
+        { value: 10, label: "高" },
+      ],
     });
 
     expect(el.shadowRoot!.querySelectorAll(".step-stop")).toHaveLength(4);
@@ -129,7 +130,7 @@ describe("elf-slider", () => {
     const el = await mount({
       min: 0,
       max: 100,
-      marks: { 0: "0 ℃", 30: "30 ℃", 100: "100 ℃" }
+      marks: { 0: "0 ℃", 30: "30 ℃", 100: "100 ℃" },
     });
     const nodes = el.shadowRoot!.querySelectorAll<HTMLElement>(".mark-stop");
 
@@ -143,7 +144,7 @@ describe("elf-slider", () => {
       max: 100,
       step: 25,
       segmented: true,
-      modelValue: 50
+      modelValue: 50,
     });
 
     expect(el.shadowRoot!.querySelectorAll(".segment")).toHaveLength(4);
@@ -161,8 +162,8 @@ describe("elf-slider", () => {
         { value: 0, label: "0" },
         { value: 25, label: "25" },
         { value: 50, label: "50" },
-        { value: 100, label: "100" }
-      ]
+        { value: 100, label: "100" },
+      ],
     });
     const onUpdate = vi.fn();
     el.addEventListener("update:modelValue", onUpdate as EventListener);
@@ -191,7 +192,7 @@ describe("elf-slider", () => {
       max: 100,
       segmented: true,
       modelValue: 45,
-      marks: [0, 25, 50, 100]
+      marks: [0, 25, 50, 100],
     });
     const segments = el.shadowRoot!.querySelectorAll<HTMLElement>(".segment");
 
@@ -203,14 +204,14 @@ describe("elf-slider", () => {
     const marks = [
       { value: 0, label: "起点" },
       { value: 50, label: "中点" },
-      { value: 100, label: "终点" }
+      { value: 100, label: "终点" },
     ];
     const range = await mount({ range: true, modelValue: [20, 80], marks });
     const segmented = await mount({ segmented: true, modelValue: 45, marks });
 
-    expect(Array.from(range.shadowRoot!.querySelectorAll(".mark"), (item) => item.textContent?.trim())).toEqual([
-      "起点", "中点", "终点"
-    ]);
+    expect(
+      Array.from(range.shadowRoot!.querySelectorAll(".mark"), (item) => item.textContent?.trim()),
+    ).toEqual(["起点", "中点", "终点"]);
     expect(segmented.shadowRoot!.querySelectorAll(".segment")).toHaveLength(2);
   });
 
@@ -220,7 +221,7 @@ describe("elf-slider", () => {
       modelValue: [20, 80],
       rangeStartLabel: "Minimum price",
       rangeEndLabel: "Maximum price",
-      formatValueText: (value) => `$${value}`
+      formatValueText: (value) => `$${value}`,
     });
 
     const start = el.shadowRoot!.querySelector(".native-start") as HTMLInputElement;
@@ -243,7 +244,7 @@ describe("elf-slider", () => {
     const secondInput = second.shadowRoot!.querySelector(".native-single") as HTMLInputElement;
 
     expect(firstInput.getAttribute("aria-describedby")).not.toBe(
-      secondInput.getAttribute("aria-describedby")
+      secondInput.getAttribute("aria-describedby"),
     );
   });
 
@@ -261,7 +262,7 @@ describe("elf-slider", () => {
       showInput: true,
       showInputControls: false,
       inputSize: "large",
-      label: "Volume"
+      label: "Volume",
     });
     const onUpdate = vi.fn();
     el.addEventListener("update:modelValue", onUpdate as EventListener);
@@ -275,5 +276,29 @@ describe("elf-slider", () => {
     await tick();
 
     expect((onUpdate.mock.calls[0]![0] as CustomEvent).detail).toBe(42);
+  });
+
+  it("distributes tick labels evenly and exposes range thumb-label slots", async () => {
+    const el = await mount({
+      range: true,
+      modelValue: [20, 80],
+      tickLabels: ["Winter", "Spring", "Summer", "Fall"],
+    });
+    const labels = Array.from(el.shadowRoot!.querySelectorAll<HTMLElement>(".mark"));
+
+    expect(labels.map((item) => item.textContent?.trim())).toEqual([
+      "Winter",
+      "Spring",
+      "Summer",
+      "Fall",
+    ]);
+    expect(labels.map((item) => Number.parseFloat(item.style.left))).toEqual([
+      0,
+      expect.closeTo(33.333, 2),
+      expect.closeTo(66.667, 2),
+      100,
+    ]);
+    expect(el.shadowRoot!.querySelector('slot[name="thumb-label-start"]')).toBeTruthy();
+    expect(el.shadowRoot!.querySelector('slot[name="thumb-label-end"]')).toBeTruthy();
   });
 });

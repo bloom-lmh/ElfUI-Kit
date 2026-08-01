@@ -26,12 +26,27 @@ const t = createDocsTranslator({
   verification: { zh: "当前验证", en: "Current verification" },
   notes: { zh: "说明", en: "Notes" },
   currentTwo: { zh: "当前及前两个稳定版本", en: "Current and previous two stable releases" },
-  chromiumVerify: { zh: "Chromium 自动化 + 人工截图", en: "Chromium automation + manual screenshots" },
-  targetOnly: { zh: "目标；发布前需要补充矩阵验证", en: "Target; matrix verification required before release" },
+  chromiumVerify: {
+    zh: "Chromium 自动化 + 人工截图",
+    en: "Chromium automation + manual screenshots",
+  },
+  targetOnly: {
+    zh: "目标；发布前需要补充矩阵验证",
+    en: "Target; matrix verification required before release",
+  },
   safariTarget: { zh: "Safari 16.4 及以上", en: "Safari 16.4 and later" },
-  safariNote: { zh: "重点验证 Shadow DOM、Popover、焦点和日期控件", en: "Prioritize Shadow DOM, Popover, focus, and date controls" },
-  mobileTarget: { zh: "对应系统 WebView 与移动浏览器", en: "Matching system WebViews and mobile browsers" },
-  mobileNote: { zh: "重点验证触摸、视口、软键盘和安全区", en: "Prioritize touch, viewport, soft keyboard, and safe areas" },
+  safariNote: {
+    zh: "重点验证 Shadow DOM、Popover、焦点和日期控件",
+    en: "Prioritize Shadow DOM, Popover, focus, and date controls",
+  },
+  mobileTarget: {
+    zh: "对应系统 WebView 与移动浏览器",
+    en: "Matching system WebViews and mobile browsers",
+  },
+  mobileNote: {
+    zh: "重点验证触摸、视口、软键盘和安全区",
+    en: "Prioritize touch, viewport, soft keyboard, and safe areas",
+  },
   capabilitiesTitle: { zh: "平台能力要求", en: "Required platform capabilities" },
   capabilitiesLead: {
     zh: "ElfUI 不为缺少 Shadow DOM 的旧浏览器维护第二套渲染器。应用可以按业务需要加载局部 polyfill，但不能模拟核心平台模型。",
@@ -41,40 +56,120 @@ const t = createDocsTranslator({
   usage: { zh: "ElfUI 用途", en: "How ElfUI uses it" },
   fallback: { zh: "缺失时", en: "When unavailable" },
   ceUsage: { zh: "组件注册与生命周期", en: "Component registration and lifecycle" },
-  shadowUsage: { zh: "样式隔离、插槽和焦点边界", en: "Style isolation, slots, and focus boundaries" },
-  observerUsage: { zh: "尺寸、可见性和虚拟列表测量", en: "Size, visibility, and virtual-list measurement" },
+  shadowUsage: {
+    zh: "样式隔离、插槽和焦点边界",
+    en: "Style isolation, slots, and focus boundaries",
+  },
+  observerUsage: {
+    zh: "尺寸、可见性和虚拟列表测量",
+    en: "Size, visibility, and virtual-list measurement",
+  },
   abortUsage: { zh: "卸载时取消监听和异步任务", en: "Cancel listeners and async work on unmount" },
   cssUsage: { zh: "主题混色和语义表面", en: "Theme color mixing and semantic surfaces" },
   unsupported: { zh: "不支持", en: "Unsupported" },
-  featureDegrades: { zh: "对应能力降级或需要局部适配", en: "The related capability degrades or needs a focused adapter" },
+  featureDegrades: {
+    zh: "对应能力降级或需要局部适配",
+    en: "The related capability degrades or needs a focused adapter",
+  },
   cssFallback: { zh: "主题需要提供静态回退色", en: "Themes need static fallback colors" },
   testTitle: { zh: "应用侧验收清单", en: "Application acceptance checklist" },
   testLead: {
     zh: "浏览器支持不仅是页面能打开。至少覆盖以下容易跨浏览器分化的行为。",
     en: "Browser support is more than loading the page. Cover at least these cross-browser-sensitive behaviors.",
   },
-  testOne: { zh: "弹层定位、外部点击、Escape 关闭与焦点恢复。", en: "Overlay positioning, outside click, Escape close, and focus restoration." },
-  testTwo: { zh: "表单提交、禁用态、自动填充和移动端软键盘。", en: "Form submission, disabled states, autofill, and mobile soft keyboards." },
-  testThree: { zh: "RTL、200% 缩放、减少动态效果和高对比度。", en: "RTL, 200% zoom, reduced motion, and high contrast." },
-  testFour: { zh: "长列表、滚动容器、粘性定位和动态高度内容。", en: "Long lists, scroll containers, sticky positioning, and dynamic-height content." },
+  testOne: {
+    zh: "弹层定位、外部点击、Escape 关闭与焦点恢复。",
+    en: "Overlay positioning, outside click, Escape close, and focus restoration.",
+  },
+  testTwo: {
+    zh: "表单提交、禁用态、自动填充和移动端软键盘。",
+    en: "Form submission, disabled states, autofill, and mobile soft keyboards.",
+  },
+  testThree: {
+    zh: "RTL、200% 缩放、减少动态效果和高对比度。",
+    en: "RTL, 200% zoom, reduced motion, and high contrast.",
+  },
+  testFour: {
+    zh: "长列表、滚动容器、粘性定位和动态高度内容。",
+    en: "Long lists, scroll containers, sticky positioning, and dynamic-height content.",
+  },
   reportTitle: { zh: "报告兼容问题", en: "Report a compatibility issue" },
   reportBody: {
     zh: "请附浏览器与系统版本、最小复现、控制台信息、预期/实际行为和截图。若问题能脱离组件库复现到 Framework，应转为框架缺陷。",
     en: "Include browser and OS versions, a minimal reproduction, console output, expected and actual behavior, and screenshots. If the issue reproduces without the Kit, report it as a Framework defect.",
   },
   nextTitle: { zh: "下一步", en: "Next step" },
-  nextBody: { zh: "质量章节说明无障碍和发布门禁；常见问题提供接入排障路径。", en: "Quality explains accessibility and release gates; FAQ provides integration troubleshooting." },
+  nextBody: {
+    zh: "质量章节说明无障碍和发布门禁；常见问题提供接入排障路径。",
+    en: "Quality explains accessibility and release gates; FAQ provides integration troubleshooting.",
+  },
   qualityLink: { zh: "质量", en: "Quality" },
   faqLink: { zh: "常见问题", en: "FAQ" },
 });
+
+const supportColumns = () => [
+  { prop: "browser", label: t("browser"), minWidth: 140 },
+  { prop: "target", label: t("target"), minWidth: 210 },
+  { prop: "verification", label: t("verification"), minWidth: 230 },
+  { prop: "notes", label: t("notes"), minWidth: 240 },
+];
+const supportRows = () => [
+  {
+    browser: "Chrome / Edge",
+    target: t("currentTwo"),
+    verification: t("chromiumVerify"),
+    notes: "Primary CI baseline",
+  },
+  {
+    browser: "Firefox",
+    target: t("currentTwo"),
+    verification: t("targetOnly"),
+    notes: "Gecko rendering and focus",
+  },
+  {
+    browser: "Safari",
+    target: t("safariTarget"),
+    verification: t("targetOnly"),
+    notes: t("safariNote"),
+  },
+  {
+    browser: "iOS / Android",
+    target: t("mobileTarget"),
+    verification: t("targetOnly"),
+    notes: t("mobileNote"),
+  },
+];
+const capabilityColumns = () => [
+  { prop: "capability", label: t("capability"), minWidth: 210 },
+  { prop: "usage", label: t("usage"), minWidth: 280 },
+  { prop: "fallback", label: t("fallback"), minWidth: 240 },
+];
+const capabilityRows = () => [
+  { capability: "Custom Elements", usage: t("ceUsage"), fallback: t("unsupported") },
+  { capability: "Shadow DOM", usage: t("shadowUsage"), fallback: t("unsupported") },
+  {
+    capability: "ResizeObserver / IntersectionObserver",
+    usage: t("observerUsage"),
+    fallback: t("featureDegrades"),
+  },
+  {
+    capability: "AbortController / Pointer Events",
+    usage: t("abortUsage"),
+    fallback: t("featureDegrades"),
+  },
+  {
+    capability: "CSS custom properties / color-mix()",
+    usage: t("cssUsage"),
+    fallback: t("cssFallback"),
+  },
+];
 
 defineStyle(articleStyles);
 
 const PageBrowserSupport = defineHtml(`
   <elf-container class="docs-article">
-    <span class="docs-kicker">${t("kicker")}</span>
-    <h1>${t("title")}</h1>
-    <p class="page-lead">${t("description")}</p>
+    <elf-docs-hero category="getting-started" tag="Compatibility" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
+    <div class="guide-content">
 
     <div class="docs-summary">
       <div class="docs-summary-item">
@@ -94,34 +189,13 @@ const PageBrowserSupport = defineHtml(`
     <section class="docs-section">
       <h2>${t("matrixTitle")}</h2>
       <p class="docs-section-lead">${t("matrixLead")}</p>
-      <table class="docs-matrix">
-        <thead>
-          <tr><th>${t("browser")}</th><th>${t("target")}</th><th>${t("verification")}</th><th>${t("notes")}</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>Chrome / Edge</td><td>${t("currentTwo")}</td><td>${t("chromiumVerify")}</td><td>Primary CI baseline</td></tr>
-          <tr><td>Firefox</td><td>${t("currentTwo")}</td><td>${t("targetOnly")}</td><td>Gecko rendering and focus</td></tr>
-          <tr><td>Safari</td><td>${t("safariTarget")}</td><td>${t("targetOnly")}</td><td>${t("safariNote")}</td></tr>
-          <tr><td>iOS / Android</td><td>${t("mobileTarget")}</td><td>${t("targetOnly")}</td><td>${t("mobileNote")}</td></tr>
-        </tbody>
-      </table>
+      <elf-table class="guide-table" :data.prop=${supportRows()} :columns.prop=${supportColumns()} row-key="browser" border stripe></elf-table>
     </section>
 
     <section class="docs-section">
       <h2>${t("capabilitiesTitle")}</h2>
       <p class="docs-section-lead">${t("capabilitiesLead")}</p>
-      <table class="docs-matrix">
-        <thead>
-          <tr><th>${t("capability")}</th><th>${t("usage")}</th><th>${t("fallback")}</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>Custom Elements</td><td>${t("ceUsage")}</td><td>${t("unsupported")}</td></tr>
-          <tr><td>Shadow DOM</td><td>${t("shadowUsage")}</td><td>${t("unsupported")}</td></tr>
-          <tr><td>ResizeObserver / IntersectionObserver</td><td>${t("observerUsage")}</td><td>${t("featureDegrades")}</td></tr>
-          <tr><td>AbortController / Pointer Events</td><td>${t("abortUsage")}</td><td>${t("featureDegrades")}</td></tr>
-          <tr><td>CSS custom properties / color-mix()</td><td>${t("cssUsage")}</td><td>${t("cssFallback")}</td></tr>
-        </tbody>
-      </table>
+      <elf-table class="guide-table" :data.prop=${capabilityRows()} :columns.prop=${capabilityColumns()} row-key="capability" border></elf-table>
     </section>
 
     <section class="docs-section">
@@ -133,7 +207,7 @@ const PageBrowserSupport = defineHtml(`
         <li>${t("testThree")}</li>
         <li>${t("testFour")}</li>
       </ul>
-      <p class="docs-callout"><strong>${t("reportTitle")}</strong> ${t("reportBody")}</p>
+      <elf-alert type="info" variant="soft" :showIcon.prop=${false} :title=${t("reportTitle")} :description=${t("reportBody")}></elf-alert>
     </section>
 
     <section class="docs-next" data-docs-toc-ignore>
@@ -146,6 +220,7 @@ const PageBrowserSupport = defineHtml(`
         <elf-link href="#/getting-started/faq">${t("faqLink")} →</elf-link>
       </div>
     </section>
+    </div>
   </elf-container>
 `);
 

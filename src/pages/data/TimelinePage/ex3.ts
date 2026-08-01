@@ -1,68 +1,73 @@
-import { defineHtml } from "@elfui/core";
+import { defineHtml, defineStyle } from "@elfui/core";
+
 import { createDocsTranslator } from "../../docsLocale";
+import styles from "./demo.scss?inline";
+import { timelineIconOptions } from "./icons";
 
 const t = createDocsTranslator({
-  title: { zh: "出行时间线（双侧与单侧混用）", en: "Travel timeline with mixed sides" },
-  playground: { zh: "双侧节点与单侧信息混用", en: "Mix two-sided nodes with single-sided entries" },
-  depart: { zh: "出发", en: "Departure" },
-  arrive: { zh: "到达", en: "Arrival" },
-  transfer: { zh: "换乘", en: "Transfer" },
-  reached: { zh: "抵达", en: "Reached destination" },
-  lunch: { zh: "午餐会议", en: "Lunch meeting" },
-  lunchDetail: { zh: "与客户讨论项目进度", en: "Discuss project progress with the client" },
-  return: { zh: "返回", en: "Return" },
-  returnDetail: { zh: "乘坐高铁返回北京", en: "Return to Beijing by high-speed rail" },
-  beijing: { zh: "北京南站", en: "Beijing South Station" },
-  tianjin: { zh: "天津站", en: "Tianjin Station" },
-  binhai: { zh: "滨海站", en: "Binhai Station" },
-  office: { zh: "滨海新区办公室", en: "Binhai New Area office" }
+  title: { zh: "彩色卡片", en: "Color cards" },
+  playground: { zh: "图标标题与交替色块", en: "Icon headings and alternating color blocks" },
+  titleOne: { zh: "标题 1", en: "Title 1" },
+  titleTwo: { zh: "标题 2", en: "Title 2" },
+  titleThree: { zh: "标题 3", en: "Title 3" },
+  body: {
+    zh: "卡片通过独立插槽组合标题、图标和正文，同时保持时间轴节点与卡片主题色一致。",
+    en: "Highlight product research, implementation, and launch updates with clear visual grouping.",
+  },
 });
 
-const commute = [
-  {
-    timestamp: "08:00",
-    title: t("depart"),
-    timestamp2: "08:30",
-    title2: t("arrive"),
-    content: t("beijing"),
-    content2: t("tianjin"),
-    color: "primary",
-    icon: "🚄",
-    side: "both"
-  },
-  {
-    timestamp: "09:00",
-    title: t("transfer"),
-    timestamp2: "09:15",
-    title2: t("depart"),
-    content: t("tianjin"),
-    content2: t("binhai"),
-    color: "warning",
-    icon: "🚌",
-    side: "both"
-  },
-  { timestamp: "10:00", title: t("reached"), content: t("office"), color: "success", icon: "📍" },
-  {
-    timestamp: "12:00",
-    title: t("lunch"),
-    content: t("lunchDetail"),
-    color: "info",
-    icon: "🍽"
-  },
-  { timestamp: "18:00", title: t("return"), content: t("returnDetail"), color: "primary", icon: "🚄" }
+const items = [
+  { hideTimestamp: true, color: "#ba68c8" },
+  { hideTimestamp: true, color: "#ffca28" },
+  { hideTimestamp: true, color: "#26bcd0" },
 ];
 
-const code = `<elf-timeline :items.prop=\${commute} mode="alternate" />`;
+const code = `<elf-timeline :items.prop=\${items} mode="alternate">
+  <article slot="item-0" class="feature-card is-purple">...</article>
+  <article slot="item-1-secondary" class="feature-card is-amber">...</article>
+  <article slot="item-2" class="feature-card is-cyan">...</article>
+</elf-timeline>`;
 
-const script = `const commute = [
-  { timestamp: "08:00", title: "${t("depart")}", timestamp2: "08:30", title2: "${t("arrive")}", side: "both" },
-  { timestamp: "10:00", title: "${t("reached")}", content: "${t("office")}", color: "success", icon: "📍" }
+const script = `const items = [
+  { hideTimestamp: true, color: "#ba68c8" },
+  { hideTimestamp: true, color: "#ffca28" },
+  { hideTimestamp: true, color: "#26bcd0" }
 ];`;
+
+defineStyle(styles);
 
 const PageTimelineEx3 = defineHtml(`
   <h2>${t("title")}</h2>
   <elf-playground :title=${t("playground")} :code=${code} :script=${script}>
-    <elf-timeline :items.prop=${commute} mode="alternate"></elf-timeline>
+    <elf-icon-provider :options.prop=${timelineIconOptions}>
+      <div class="timeline-reference-stage feature-stage">
+        <elf-timeline class="feature-card-timeline" :items.prop=${items} mode="alternate">
+          <article slot="item-0" class="feature-card is-purple">
+            <header class="feature-card-header">
+              <elf-icon name="search" size="34"></elf-icon>
+              <strong>${t("titleOne")}</strong>
+            </header>
+            <p>${t("body")}</p>
+          </article>
+
+          <article slot="item-1-secondary" class="feature-card is-amber">
+            <header class="feature-card-header">
+              <strong>${t("titleTwo")}</strong>
+              <elf-icon name="home" size="32"></elf-icon>
+            </header>
+            <p>${t("body")}</p>
+          </article>
+
+          <article slot="item-2" class="feature-card is-cyan">
+            <header class="feature-card-header">
+              <elf-icon name="email" size="34"></elf-icon>
+              <strong>${t("titleThree")}</strong>
+            </header>
+            <p>${t("body")}</p>
+          </article>
+        </elf-timeline>
+      </div>
+    </elf-icon-provider>
   </elf-playground>
 `);
 

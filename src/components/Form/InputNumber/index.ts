@@ -4,21 +4,32 @@ import {
   defineHtml,
   defineProps,
   defineStyle,
-  useHost,
   useHostAttr,
   useHostCssVar,
   useHostFlag,
   useRef,
-  useEffect
+  useEffect,
 } from "@elfui/core";
 
 import styles from "./style.scss?inline";
 import { useFormControl } from "../../../composables";
 import { useFieldValueDefaults } from "../../../composables/field-values";
 import { normalizeFieldVariant } from "../../../types/field";
-import type { InputNumberControlsPosition, InputNumberControlVariant, InputNumberDensity, InputNumberProps, InputNumberSize } from "./types";
+import type {
+  InputNumberControlsPosition,
+  InputNumberControlVariant,
+  InputNumberDensity,
+  InputNumberProps,
+  InputNumberSize,
+} from "./types";
 
-export type { InputNumberControlsPosition, InputNumberControlVariant, InputNumberDensity, InputNumberProps, InputNumberSize } from "./types";
+export type {
+  InputNumberControlsPosition,
+  InputNumberControlVariant,
+  InputNumberDensity,
+  InputNumberProps,
+  InputNumberSize,
+} from "./types";
 
 const props = defineProps<InputNumberProps>({
   modelValue: { type: Number, default: undefined },
@@ -43,16 +54,15 @@ const props = defineProps<InputNumberProps>({
   placeholder: { type: String, default: "" },
   name: { type: String, default: "" },
   valueOnClear: { type: Number, default: undefined },
-  validateEvent: { type: Boolean, default: true }
+  validateEvent: { type: Boolean, default: true },
 });
 
 const emit = defineEmits(["update:modelValue", "change", "input", "focus", "blur"]);
 const fieldValues = useFieldValueDefaults();
-const host = useHost();
 const ctl = useFormControl<number | null>(props, emit, {
   ...(props.validateEvent === false
     ? { triggers: { input: false, change: false, blur: false } }
-    : {})
+    : {}),
 });
 
 const current = useRef<number | null>(null);
@@ -142,24 +152,19 @@ const commit = (value: number | null, eventName: "input" | "change"): void => {
 const onInput = (event: Event): void => {
   const value = numberOrNull((event.target as HTMLInputElement).value);
   commit(
-    value === null
-      ? numberOrNull(fieldValues.valueOnClear(props.valueOnClear, () => null))
-      : value,
-    "input"
+    value === null ? numberOrNull(fieldValues.valueOnClear(props.valueOnClear, () => null)) : value,
+    "input",
   );
 };
 
 const onChange = (event: Event): void => {
   const value = numberOrNull((event.target as HTMLInputElement).value);
   commit(
-    value === null
-      ? numberOrNull(fieldValues.valueOnClear(props.valueOnClear, () => null))
-      : value,
-    "change"
+    value === null ? numberOrNull(fieldValues.valueOnClear(props.valueOnClear, () => null)) : value,
+    "change",
   );
 };
 
-const inputElement = (): HTMLInputElement | null => host.shadowRoot?.querySelector("input") ?? null;
 const decrease = (): void => {
   const base = current.value ?? 0;
   commit(base - step(), "change");
@@ -188,7 +193,7 @@ const normalizedControlVariant = (): InputNumberControlVariant => {
 const wrapperClass = (): Array<string | Record<string, boolean>> => [
   "input-number",
   `controls-${normalizedControlVariant()}`,
-  { "is-reverse": props.reverse, "is-inset": props.inset, "hide-input": props.hideInput }
+  { "is-reverse": props.reverse, "is-inset": props.inset, "hide-input": props.hideInput },
 ];
 
 const showControls = (): boolean => normalizedControlVariant() !== "hidden";

@@ -12,21 +12,20 @@ useComponents({
   "page-list-ex2": PageListEx2,
   "page-list-ex3": PageListEx3,
   "page-list-ex4": PageListEx4,
-  "page-list-props": PageListProps
+  "page-list-props": PageListProps,
 });
 
 const t = createDocsTranslator({
   title: { zh: "List 列表", en: "List" },
   description: {
     zh: "组织连续且结构一致的信息，覆盖分组操作、受控选择、键盘导航、异步状态，以及普通列表与虚拟列表的使用边界。",
-    en: "Organize consistent sequences with grouped actions, controlled selection, keyboard navigation, async states, and a clear boundary between standard and virtual lists."
-  }
+    en: "Organize consistent sequences with grouped actions, controlled selection, keyboard navigation, async states, and a clear boundary between standard and virtual lists.",
+  },
 });
 
 const PageList = defineHtml(`
   <elf-container>
-    <h1>${t("title")}</h1>
-    <p>${t("description")}</p>
+    <elf-docs-hero category="data" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
     <page-list-ex1 />
     <page-list-ex2 />
     <page-list-ex3 />

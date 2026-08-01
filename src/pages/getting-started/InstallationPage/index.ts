@@ -61,125 +61,112 @@ const t = createDocsTranslator({
     zh: "看到页面并不代表工程链路完全正确；至少完成下面四项检查。",
     en: "A rendered page alone does not prove the toolchain is correct. Complete at least these four checks.",
   },
-  verifyOne: { zh: "开发服务器无编译警告，浏览器控制台无自定义元素冲突。", en: "The dev server has no compiler warnings and the browser has no custom-element conflicts." },
-  verifyTwo: { zh: "主题、语言和默认配置能够通过 Provider 传入组件。", en: "Theme, locale, and defaults reach components through Providers." },
-  verifyThree: { zh: "生产构建通过，输出没有重复打包底层运行时。", en: "The production build passes without bundling duplicate low-level runtimes." },
-  verifyFour: { zh: "使用键盘可以聚焦并操作第一个交互组件。", en: "The first interactive component is focusable and operable from the keyboard." },
+  verifyOne: {
+    zh: "开发服务器无编译警告，浏览器控制台无自定义元素冲突。",
+    en: "The dev server has no compiler warnings and the browser has no custom-element conflicts.",
+  },
+  verifyTwo: {
+    zh: "主题、语言和默认配置能够通过 Provider 传入组件。",
+    en: "Theme, locale, and defaults reach components through Providers.",
+  },
+  verifyThree: {
+    zh: "生产构建通过，输出没有重复打包底层运行时。",
+    en: "The production build passes without bundling duplicate low-level runtimes.",
+  },
+  verifyFour: {
+    zh: "使用键盘可以聚焦并操作第一个交互组件。",
+    en: "The first interactive component is focusable and operable from the keyboard.",
+  },
   nextTitle: { zh: "安装完成后", en: "After installation" },
-  nextBody: { zh: "先了解全局配置和主题，再进入组件案例。", en: "Learn global configuration and theming before exploring component demos." },
+  nextBody: {
+    zh: "先了解全局配置和主题，再进入组件案例。",
+    en: "Learn global configuration and theming before exploring component demos.",
+  },
   configLink: { zh: "全局配置", en: "Global configuration" },
   themeLink: { zh: "主题定制", en: "Theme customization" },
   faqLink: { zh: "常见问题", en: "FAQ" },
+  terminalFooter: { zh: "在项目根目录的终端中执行", en: "Run in the project root" },
+  entryFooter: { zh: "应用入口，只需要导入一次", en: "Application entry; import once" },
+  componentFooter: { zh: "第一个宏组件", en: "Your first macro component" },
+  configFooter: { zh: "Vite 编译配置", en: "Vite compiler configuration" },
 });
+
+const sourceLines = (...lines: string[]): string => lines.join("\n");
+const scaffoldCode = sourceLines(
+  "pnpm create elfui@beta my-app --install --router",
+  "cd my-app",
+  "pnpm dev",
+);
+const installCode = "pnpm add @elfui/kit";
+const entryCode = sourceLines(
+  'import "@elfui/kit";',
+  'import "@elfui/kit/styles/utilities.css"; // optional',
+);
+const componentCode = sourceLines(
+  'import { defineHtml } from "@elfui/core";',
+  "",
+  "export const App = defineHtml(`",
+  '  <elf-button type="primary">Create project</elf-button>',
+  "`);",
+);
+const authorInstallCode = sourceLines(
+  "pnpm add @elfui/core@0.1.0-beta.20",
+  "pnpm add -D @elfui/vite-plugin@0.1.0-beta.20",
+);
+const viteCode = sourceLines(
+  'import { defineConfig } from "vite";',
+  'import { elfuiMacroPlugin } from "@elfui/vite-plugin";',
+  "",
+  "export default defineConfig({",
+  "  plugins: [elfuiMacroPlugin()]",
+  "});",
+);
 
 defineStyle(articleStyles);
 
 const PageInstallation = defineHtml(`
   <elf-container class="docs-article">
-    <span class="docs-kicker">${t("kicker")}</span>
-    <h1>${t("title")}</h1>
-    <p class="page-lead">${t("description")}</p>
-
-    <div class="docs-summary">
-      <div class="docs-summary-item">
-        <span class="docs-summary-label">${t("audience")}</span>
-        <span class="docs-summary-value">${t("audienceValue")}</span>
-      </div>
-      <div class="docs-summary-item">
-        <span class="docs-summary-label">${t("recommended")}</span>
-        <span class="docs-summary-value">${t("recommendedValue")}</span>
-      </div>
-      <div class="docs-summary-item">
-        <span class="docs-summary-label">${t("versions")}</span>
-        <span class="docs-summary-value">Kit beta.1 · Framework beta.20</span>
-      </div>
-    </div>
-
+    <elf-docs-hero category="getting-started" tag="Getting Started" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
+    <div class="guide-content">
     <section class="docs-section">
       <h2>${t("chooseTitle")}</h2>
       <p class="docs-section-lead">${t("chooseLead")}</p>
-      <div class="docs-choice-grid" data-docs-toc-ignore>
-        <article class="docs-choice">
-          <span class="status">Recommended</span>
-          <h3>${t("newTitle")}</h3>
-          <p>${t("newBody")}</p>
-          <div class="docs-code">
-            <span class="docs-code-label">Terminal</span>
-            <pre><code>pnpm create elfui@beta my-app --install --router
-cd my-app
-pnpm dev</code></pre>
-          </div>
-        </article>
-        <article class="docs-choice">
-          <span class="status">Existing app</span>
-          <h3>${t("existingTitle")}</h3>
-          <p>${t("existingBody")}</p>
-          <div class="docs-code">
-            <span class="docs-code-label">Terminal</span>
-            <pre><code>pnpm add @elfui/kit</code></pre>
-          </div>
-        </article>
-      </div>
+      <h3>${t("newTitle")}</h3>
+      <p>${t("newBody")}</p>
+      <elf-code-card class="guide-code" variant="workbench" language="bash" filename="Terminal" :code.prop="scaffoldCode" :lineNumbers.prop=${false}>
+        <span slot="footer">${t("terminalFooter")}</span>
+      </elf-code-card>
+      <h3>${t("existingTitle")}</h3>
+      <p>${t("existingBody")}</p>
+      <elf-code-card class="guide-code" variant="workbench" language="bash" filename="Terminal" :code.prop="installCode" :lineNumbers.prop=${false}>
+        <span slot="footer">${t("terminalFooter")}</span>
+      </elf-code-card>
     </section>
 
     <section class="docs-section">
       <h2>${t("stepsTitle")}</h2>
-      <div class="docs-steps" data-docs-toc-ignore>
-        <article class="docs-step">
-          <span class="docs-step-index">1</span>
-          <div class="docs-step-content">
-            <h3>${t("scaffoldTitle")}</h3>
-            <p>${t("scaffoldBody")}</p>
-          </div>
-        </article>
-        <article class="docs-step">
-          <span class="docs-step-index">2</span>
-          <div class="docs-step-content">
-            <h3>${t("kitTitle")}</h3>
-            <p>${t("kitBody")}</p>
-            <div class="docs-code">
-              <span class="docs-code-label">src/main.ts</span>
-              <pre><code>import "@elfui/kit";
-import "@elfui/kit/styles/utilities.css"; // optional</code></pre>
-            </div>
-          </div>
-        </article>
-        <article class="docs-step">
-          <span class="docs-step-index">3</span>
-          <div class="docs-step-content">
-            <h3>${t("useTitle")}</h3>
-            <p>${t("useBody")}</p>
-            <div class="docs-code">
-              <span class="docs-code-label">src/App.ts</span>
-              <pre><code>import { defineHtml } from "@elfui/core";
-
-export const App = defineHtml(\`
-  &lt;elf-button type="primary"&gt;Create project&lt;/elf-button&gt;
-\`);</code></pre>
-            </div>
-          </div>
-        </article>
-      </div>
+      <h3>${t("kitTitle")}</h3>
+      <p>${t("kitBody")}</p>
+      <elf-code-card class="guide-code" variant="workbench" language="typescript" filename="src/main.ts" :code.prop="entryCode" :lineNumbers.prop=${false}>
+        <span slot="footer">${t("entryFooter")}</span>
+      </elf-code-card>
+      <h3>${t("useTitle")}</h3>
+      <p>${t("useBody")}</p>
+      <elf-code-card class="guide-code" variant="workbench" language="typescript" filename="src/App.ts" :code.prop="componentCode" :lineNumbers.prop=${false}>
+        <span slot="footer">${t("componentFooter")}</span>
+      </elf-code-card>
     </section>
 
     <section class="docs-section">
       <h2>${t("authorTitle")}</h2>
       <p class="docs-section-lead">${t("authorBody")}</p>
-      <div class="docs-code">
-        <span class="docs-code-label">Terminal</span>
-        <pre><code>pnpm add @elfui/core@0.1.0-beta.20
-pnpm add -D @elfui/vite-plugin@0.1.0-beta.20</code></pre>
-      </div>
-      <div class="docs-code">
-        <span class="docs-code-label">vite.config.ts</span>
-        <pre><code>import { defineConfig } from "vite";
-import { elfuiMacroPlugin } from "@elfui/vite-plugin";
-
-export default defineConfig({
-  plugins: [elfuiMacroPlugin()]
-});</code></pre>
-      </div>
-      <p class="docs-callout is-warning"><strong>${t("warningTitle")}</strong> ${t("warningBody")}</p>
+      <elf-code-card class="guide-code" variant="workbench" language="bash" filename="Terminal" :code.prop="authorInstallCode" :lineNumbers.prop=${false}>
+        <span slot="footer">${t("terminalFooter")}</span>
+      </elf-code-card>
+      <elf-code-card class="guide-code" variant="workbench" language="typescript" filename="vite.config.ts" :code.prop="viteCode" :lineNumbers.prop=${false}>
+        <span slot="footer">${t("configFooter")}</span>
+      </elf-code-card>
+      <elf-alert type="warning" variant="soft" :showIcon.prop=${false} :title=${t("warningTitle")} :description=${t("warningBody")}></elf-alert>
     </section>
 
     <section class="docs-section">
@@ -204,6 +191,7 @@ export default defineConfig({
         <elf-link href="#/getting-started/faq">${t("faqLink")} →</elf-link>
       </div>
     </section>
+    </div>
   </elf-container>
 `);
 

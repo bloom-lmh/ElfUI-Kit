@@ -29,13 +29,16 @@ interface TableEl extends HTMLElement {
   load?: (
     row: Record<string, unknown>,
     treeNode: { key: string; level: number; expanded: boolean; loading: boolean },
-    resolve: (children: Record<string, unknown>[]) => void
+    resolve: (children: Record<string, unknown>[]) => void,
   ) => void | Record<string, unknown>[] | Promise<void | Record<string, unknown>[]>;
   defaultSort?: { prop: string; order?: "ascending" | "descending" };
   sortProp?: string;
   sortOrder?: "" | "ascending" | "descending";
   rowClassName?: string | ((context: { row: Record<string, unknown>; rowIndex: number }) => string);
-  rowStyle?: (context: { row: Record<string, unknown>; rowIndex: number }) => Record<string, string>;
+  rowStyle?: (context: {
+    row: Record<string, unknown>;
+    rowIndex: number;
+  }) => Record<string, string>;
   cellClassName?: (context: {
     row: Record<string, unknown>;
     column: Record<string, unknown>;
@@ -57,10 +60,7 @@ interface TableEl extends HTMLElement {
   virtual?: boolean;
   virtualThreshold?: number;
   height?: string | number;
-  rowHeight?: number | ((context: {
-    row: Record<string, unknown>;
-    rowIndex: number;
-  }) => number);
+  rowHeight?: number | ((context: { row: Record<string, unknown>; rowIndex: number }) => number);
   overscan?: number;
   tooltipOptions?: {
     placement?: string;
@@ -85,7 +85,7 @@ interface TableEl extends HTMLElement {
 const rows = [
   { id: "1", name: "Alice", role: "Admin", score: 96 },
   { id: "2", name: "Bob", role: "Editor", score: 82 },
-  { id: "3", name: "Carol", role: "Viewer", score: 90 }
+  { id: "3", name: "Carol", role: "Viewer", score: 90 },
 ];
 
 const columns = [
@@ -93,7 +93,7 @@ const columns = [
   { type: "index", label: "#", width: 56 },
   { prop: "name", label: "姓名" },
   { prop: "role", label: "角色" },
-  { prop: "score", label: "分数", sortable: true, align: "right" }
+  { prop: "score", label: "分数", sortable: true, align: "right" },
 ];
 
 const mount = async (setup?: (el: TableEl) => void): Promise<TableEl> => {
@@ -153,7 +153,7 @@ describe("elf-table", () => {
     expect((onSort.mock.calls[0]![0] as CustomEvent).detail).toEqual({
       column: expect.objectContaining({ prop: "score" }),
       prop: "score",
-      order: "ascending"
+      order: "ascending",
     });
     expect(el.shadowRoot!.querySelector("tbody tr")?.textContent).toContain("Bob");
   });
@@ -173,8 +173,14 @@ describe("elf-table", () => {
 
   it("快速连续选择会同步反馈 DOM，并在合并提交后保持最终状态", async () => {
     const el = await mount((table) => {
-      table.data = Array.from({ length: 24 }, (_, index) => ({ id: String(index), name: `Row ${index}` }));
-      table.columns = [{ type: "selection", width: 48 }, { prop: "name", label: "Name" }];
+      table.data = Array.from({ length: 24 }, (_, index) => ({
+        id: String(index),
+        name: `Row ${index}`,
+      }));
+      table.columns = [
+        { type: "selection", width: 48 },
+        { prop: "name", label: "Name" },
+      ];
     });
     const checkbox = el.shadowRoot!.querySelector<HTMLButtonElement>("tbody .table-checkbox")!;
 
@@ -234,8 +240,8 @@ describe("elf-table", () => {
         {
           type: "actions",
           label: "操作",
-          actions: [{ label: "编辑", type: "primary", onClick }]
-        }
+          actions: [{ label: "编辑", type: "primary", onClick }],
+        },
       ];
     });
     el.addEventListener("action-click", onAction as EventListener);
@@ -257,9 +263,9 @@ describe("elf-table", () => {
           prop: "score",
           label: "分数",
           cellStyle: (row: Record<string, unknown>) => ({
-            color: Number(row.score) > 90 ? "rgb(46, 125, 50)" : "rgb(211, 47, 47)"
-          })
-        }
+            color: Number(row.score) > 90 ? "rgb(46, 125, 50)" : "rgb(211, 47, 47)",
+          }),
+        },
       ];
     });
 
@@ -272,7 +278,7 @@ describe("elf-table", () => {
     const el = await mount((table) => {
       table.columns = [
         { type: "expand", width: 48 },
-        { prop: "name", label: "姓名" }
+        { prop: "name", label: "姓名" },
       ];
       table.expandFormatter = (row) => `详情：${row.name}`;
     });
@@ -293,7 +299,7 @@ describe("elf-table", () => {
       table.columns = [
         { prop: "name", label: "姓名", width: 120, fixed: "left" },
         { prop: "role", label: "角色", width: 120 },
-        { prop: "score", label: "分数", width: 100, fixed: "right" }
+        { prop: "score", label: "分数", width: 100, fixed: "right" },
       ];
     });
 
@@ -314,7 +320,7 @@ describe("elf-table", () => {
         { type: "index", label: "编号", width: 56, fixed: "left" },
         { prop: "name", label: "姓名", width: 180 },
         { prop: "role", label: "角色", width: 160 },
-        { prop: "score", label: "分数", width: 120, fixed: "right" }
+        { prop: "score", label: "分数", width: 120, fixed: "right" },
       ];
     });
 
@@ -334,7 +340,7 @@ describe("elf-table", () => {
 
   it("使用 Element Plus 风格上下文设置行、单元格与表头样式", async () => {
     const rowStyle = vi.fn(({ rowIndex }) => ({
-      backgroundColor: rowIndex === 1 ? "rgb(255, 248, 225)" : ""
+      backgroundColor: rowIndex === 1 ? "rgb(255, 248, 225)" : "",
     }));
     const cellClassName = vi.fn(({ columnIndex }) => (columnIndex === 2 ? "name-cell" : ""));
     const el = await mount((table) => {
@@ -342,7 +348,7 @@ describe("elf-table", () => {
       table.rowStyle = rowStyle;
       table.cellClassName = cellClassName;
       table.headerCellStyle = ({ columnIndex }) => ({
-        color: columnIndex === 2 ? "rgb(25, 118, 210)" : ""
+        color: columnIndex === 2 ? "rgb(25, 118, 210)" : "",
       });
     });
 
@@ -356,7 +362,7 @@ describe("elf-table", () => {
     expect(nameHeader.style.color).toBe("rgb(25, 118, 210)");
     expect(rowStyle).toHaveBeenCalledWith(expect.objectContaining({ row: rows[0], rowIndex: 0 }));
     expect(cellClassName).toHaveBeenCalledWith(
-      expect.objectContaining({ row: rows[0], column: columns[2], columnIndex: 2 })
+      expect.objectContaining({ row: rows[0], column: columns[2], columnIndex: 2 }),
     );
   });
 
@@ -379,11 +385,11 @@ describe("elf-table", () => {
     expect((onHeader.mock.calls[0]![0] as CustomEvent).detail[0]).toEqual(columns[2]);
     expect((onCell.mock.calls[0]![0] as CustomEvent).detail.slice(0, 2)).toEqual([
       rows[0],
-      columns[2]
+      columns[2],
     ]);
     expect((onDblClick.mock.calls[0]![0] as CustomEvent).detail.slice(0, 2)).toEqual([
       rows[0],
-      columns[2]
+      columns[2],
     ]);
   });
 
@@ -391,7 +397,7 @@ describe("elf-table", () => {
     const el = await mount((table) => {
       table.columns = [
         { type: "selection", selectable: (row: Record<string, unknown>) => row.role !== "Viewer" },
-        { prop: "name", label: "姓名" }
+        { prop: "name", label: "姓名" },
       ];
       table.selectOnIndeterminate = false;
     });
@@ -418,7 +424,7 @@ describe("elf-table", () => {
       table.columns = [
         { type: "expand", width: 48 },
         { prop: "name", label: "姓名", width: 120 },
-        { prop: "score", label: "分数", width: 100 }
+        { prop: "score", label: "分数", width: 100 },
       ];
       table.defaultSort = { prop: "score", order: "descending" };
       table.defaultExpandAll = true;
@@ -429,9 +435,9 @@ describe("elf-table", () => {
     expect(el.shadowRoot!.querySelector("tbody tr")?.textContent).toContain("Alice");
     expect(el.shadowRoot!.querySelectorAll(".expand-row")).toHaveLength(3);
     expect(el.shadowRoot!.querySelector("tfoot")?.textContent).toContain("268");
-    expect(el.shadowRoot!.querySelectorAll<HTMLTableCellElement>("tfoot td")[1]!.textContent).toContain(
-      "合计"
-    );
+    expect(
+      el.shadowRoot!.querySelectorAll<HTMLTableCellElement>("tfoot td")[1]!.textContent,
+    ).toContain("合计");
     const tooltipCell = el.shadowRoot!.querySelectorAll<HTMLTableCellElement>("tbody td")[1]!;
     expect(tooltipCell.title).toBe("");
     expect(tooltipCell.tabIndex).toBe(0);
@@ -440,19 +446,21 @@ describe("elf-table", () => {
   it("溢出提示使用可访问浮层并支持 tooltipFormatter", async () => {
     const formatter = vi.fn((row: Record<string, unknown>) => `${row.name} 的完整档案`);
     const el = await mount((table) => {
-      table.columns = [{
-        prop: "name",
-        label: "姓名",
-        width: 80,
-        showOverflowTooltip: true,
-        tooltipFormatter: formatter
-      }];
+      table.columns = [
+        {
+          prop: "name",
+          label: "姓名",
+          width: 80,
+          showOverflowTooltip: true,
+          tooltipFormatter: formatter,
+        },
+      ];
       table.tooltipOptions = {
         placement: "bottom-start",
         offset: 4,
         showAfter: 0,
         hideAfter: 0,
-        maxWidth: 240
+        maxWidth: 240,
       };
     });
     const cell = el.shadowRoot!.querySelector<HTMLTableCellElement>("tbody td")!;
@@ -504,7 +512,7 @@ describe("elf-table", () => {
     const scrollParent = document.createElement("div");
     Object.defineProperties(scrollParent, {
       clientHeight: { configurable: true, value: 100 },
-      scrollHeight: { configurable: true, value: 300 }
+      scrollHeight: { configurable: true, value: 300 },
     });
     scrollParent.style.overflowY = "auto";
     document.body.append(scrollParent);
@@ -523,7 +531,7 @@ describe("elf-table", () => {
       height: 40,
       x: 100,
       y: anchorTop,
-      toJSON: () => ({})
+      toJSON: () => ({}),
     })) as unknown as Element["getBoundingClientRect"];
 
     cell.dispatchEvent(new MouseEvent("mouseenter"));
@@ -565,7 +573,7 @@ describe("elf-table", () => {
     await tick();
     expect((onScroll.mock.calls[0]![0] as CustomEvent).detail).toEqual({
       scrollLeft: 7,
-      scrollTop: 12
+      scrollTop: 12,
     });
     expect(el.shadowRoot!.querySelector("slot[name='empty']")).toBeTruthy();
     expect(el.shadowRoot!.querySelector("slot[name='append']")).toBeTruthy();
@@ -575,7 +583,7 @@ describe("elf-table", () => {
     const el = document.createElement("elf-table") as TableEl;
     el.data = Array.from({ length: 10_000 }, (_, index) => ({
       id: index + 1,
-      name: `任务 #${String(index + 1).padStart(5, "0")}`
+      name: `任务 #${String(index + 1).padStart(5, "0")}`,
     }));
     el.columns = [{ prop: "name", label: "任务" }];
     el.virtual = true;
@@ -615,7 +623,9 @@ describe("elf-table", () => {
     await tick();
     expect(el.shadowRoot!.textContent).toContain("任务 #00001");
     expect(el.shadowRoot!.textContent).not.toContain("任务 #10000");
-    expect((el.shadowRoot!.querySelector("tbody") as HTMLElement).style.paddingBlockStart).toBe("0px");
+    expect((el.shadowRoot!.querySelector("tbody") as HTMLElement).style.paddingBlockStart).toBe(
+      "0px",
+    );
   });
 
   it("快速虚拟路径在排序后立即重绘当前窗口", async () => {
@@ -641,13 +651,13 @@ describe("elf-table", () => {
     const el = document.createElement("elf-table") as TableEl;
     el.data = Array.from({ length: 20 }, (_, index) => ({
       id: index + 1,
-      name: `Variable row ${index + 1}`
+      name: `Variable row ${index + 1}`,
     }));
     el.columns = [{ prop: "name", label: "Name" }];
     el.virtual = true;
     el.virtualThreshold = 1;
     el.height = 260;
-    el.rowHeight = ({ rowIndex }) => rowIndex % 2 === 0 ? 60 : 30;
+    el.rowHeight = ({ rowIndex }) => (rowIndex % 2 === 0 ? 60 : 30);
     el.overscan = 1;
     document.body.appendChild(el);
     await tick();
@@ -657,15 +667,13 @@ describe("elf-table", () => {
     Object.defineProperty(wrap, "scrollTop", {
       value: 300,
       configurable: true,
-      writable: true
+      writable: true,
     });
     wrap.dispatchEvent(new Event("scroll"));
     await tick();
 
     const body = el.shadowRoot!.querySelector<HTMLElement>("tbody")!;
-    const renderedRows = Array.from(body.querySelectorAll("tr"), (row) =>
-      row.textContent?.trim()
-    );
+    const renderedRows = Array.from(body.querySelectorAll("tr"), (row) => row.textContent?.trim());
     expect(body.style.height).toBe("900px");
     expect(body.style.paddingBlockStart).toBe("240px");
     expect(renderedRows).toContain("Variable row 6");
@@ -683,7 +691,7 @@ describe("elf-table", () => {
       table.columns = [
         { prop: "name", label: "姓名" },
         { prop: "role", label: "角色" },
-        { prop: "score", label: "分数" }
+        { prop: "score", label: "分数" },
       ];
       table.spanMethod = spanMethod;
     });
@@ -695,7 +703,7 @@ describe("elf-table", () => {
     expect(bodyRows[1]!.querySelectorAll("td")).toHaveLength(2);
     expect(bodyRows[1]!.textContent).not.toContain("Editor");
     expect(spanMethod).toHaveBeenCalledWith(
-      expect.objectContaining({ row: rows[0], columnIndex: 1, rowIndex: 0 })
+      expect.objectContaining({ row: rows[0], columnIndex: 1, rowIndex: 0 }),
     );
   });
 
@@ -703,13 +711,15 @@ describe("elf-table", () => {
     const el = await mount((table) => {
       table.columns = [
         { prop: "name", label: "姓名" },
-        { prop: "score", label: "分数", sortable: true }
+        { prop: "score", label: "分数", sortable: true },
       ];
       table.defaultSort = { prop: "score" };
     });
 
     expect(el.shadowRoot!.querySelector("tbody tr")?.textContent).toContain("Bob");
-    expect(el.shadowRoot!.querySelector("th[aria-sort='ascending']")?.textContent).toContain("分数");
+    expect(el.shadowRoot!.querySelector("th[aria-sort='ascending']")?.textContent).toContain(
+      "分数",
+    );
   });
 
   it("受控 sort-prop/sort-order 可以更新并清除排序", async () => {
@@ -730,13 +740,13 @@ describe("elf-table", () => {
   it("sort-method 优先于 sort-by 执行本地自定义比较", async () => {
     const sortMethod = vi.fn(
       (left: Record<string, unknown>, right: Record<string, unknown>) =>
-        Number(left.score) % 10 - (Number(right.score) % 10)
+        (Number(left.score) % 10) - (Number(right.score) % 10),
     );
     const sortBy = vi.fn(() => 0);
     const el = await mount((table) => {
       table.columns = [
         { prop: "name", label: "姓名" },
-        { prop: "score", label: "分数", sortable: true, sortMethod, sortBy }
+        { prop: "score", label: "分数", sortable: true, sortMethod, sortBy },
       ];
     });
 
@@ -753,11 +763,11 @@ describe("elf-table", () => {
       table.data = [
         { id: "1", team: "B", name: "Alice" },
         { id: "2", team: "A", name: "Carol" },
-        { id: "3", team: "A", name: "Bob" }
+        { id: "3", team: "A", name: "Bob" },
       ];
       table.columns = [
         { prop: "name", label: "成员", sortable: true, sortBy: ["team", "name"] },
-        { prop: "team", label: "团队" }
+        { prop: "team", label: "团队" },
       ];
     });
 
@@ -777,9 +787,9 @@ describe("elf-table", () => {
           prop: "score",
           label: "分数",
           sortable: "custom",
-          sortOrders: ["descending", null]
+          sortOrders: ["descending", null],
         },
-        { prop: "name", label: "姓名" }
+        { prop: "name", label: "姓名" },
       ];
     });
     const onSort = vi.fn();
@@ -790,21 +800,21 @@ describe("elf-table", () => {
     await tick();
     expect(el.shadowRoot!.querySelector("tbody tr")?.textContent).toContain("Alice");
     expect((onSort.mock.calls[0]![0] as CustomEvent).detail).toEqual(
-      expect.objectContaining({ prop: "score", order: "descending" })
+      expect.objectContaining({ prop: "score", order: "descending" }),
     );
     expect(button.closest("th")?.getAttribute("aria-sort")).toBe("descending");
 
     button.click();
     await tick();
     expect((onSort.mock.calls[1]![0] as CustomEvent).detail).toEqual(
-      expect.objectContaining({ prop: "score", order: "" })
+      expect.objectContaining({ prop: "score", order: "" }),
     );
     expect(button.closest("th")?.getAttribute("aria-sort")).toBe("none");
   });
 
   it("filtered-value 初始化筛选，并按同列任一条件匹配", async () => {
     const filterMethod = vi.fn(
-      (value: unknown, row: Record<string, unknown>) => row.role === value
+      (value: unknown, row: Record<string, unknown>) => row.role === value,
     );
     const el = await mount((table) => {
       table.columns = [
@@ -815,11 +825,11 @@ describe("elf-table", () => {
           label: "角色",
           filters: [
             { text: "管理员", value: "Admin" },
-            { text: "访客", value: "Viewer" }
+            { text: "访客", value: "Viewer" },
           ],
           filteredValue: ["Admin", "Viewer"],
-          filterMethod
-        }
+          filterMethod,
+        },
       ];
     });
 
@@ -830,7 +840,7 @@ describe("elf-table", () => {
     expect(filterMethod).toHaveBeenCalledWith(
       "Admin",
       rows[0],
-      expect.objectContaining({ columnKey: "role-key" })
+      expect.objectContaining({ columnKey: "role-key" }),
     );
     expect(el.shadowRoot!.querySelector(".filter-trigger")?.classList).toContain("is-active");
 
@@ -851,10 +861,10 @@ describe("elf-table", () => {
           label: "角色",
           filters: [
             { text: "管理员", value: "Admin" },
-            { text: "编辑", value: "Editor" }
+            { text: "编辑", value: "Editor" },
           ],
-          filterMethod: (value: unknown, row: Record<string, unknown>) => row.role === value
-        }
+          filterMethod: (value: unknown, row: Record<string, unknown>) => row.role === value,
+        },
       ];
     });
     const onFilter = vi.fn();
@@ -875,7 +885,7 @@ describe("elf-table", () => {
     expect(el.shadowRoot!.querySelectorAll("tbody tr")).toHaveLength(1);
     expect(el.shadowRoot!.querySelector("tbody tr")?.textContent).toContain("Alice");
     expect((onFilter.mock.calls[0]![0] as CustomEvent).detail).toEqual({
-      "role-key": ["Admin"]
+      "role-key": ["Admin"],
     });
     expect(el.getSelectionRows()).toEqual([rows[1]]);
 
@@ -883,7 +893,7 @@ describe("elf-table", () => {
     await tick();
     expect(el.shadowRoot!.querySelectorAll("tbody tr")).toHaveLength(3);
     expect((onFilter.mock.calls[1]![0] as CustomEvent).detail).toEqual({
-      "role-key": []
+      "role-key": [],
     });
   });
 
@@ -897,9 +907,9 @@ describe("elf-table", () => {
           filterMultiple: false,
           filters: [
             { text: "管理员", value: "Admin" },
-            { text: "编辑", value: "Editor" }
-          ]
-        }
+            { text: "编辑", value: "Editor" },
+          ],
+        },
       ];
     });
     const trigger = el.shadowRoot!.querySelector<HTMLButtonElement>(".filter-trigger")!;
@@ -930,66 +940,75 @@ describe("elf-table", () => {
           label: "角色",
           filters: [
             { text: "管理员", value: "Admin" },
-            { text: "编辑", value: "Editor" }
-          ]
-        }
+            { text: "编辑", value: "Editor" },
+          ],
+        },
       ];
     };
     const first = await mount(withFilters);
     const second = await mount(withFilters);
 
     first.shadowRoot!.querySelector<HTMLButtonElement>(".filter-trigger")!.click();
-    second.shadowRoot!.querySelector<HTMLButtonElement>(".filter-trigger")!
-      .dispatchEvent(new KeyboardEvent("keydown", {
+    second.shadowRoot!.querySelector<HTMLButtonElement>(".filter-trigger")!.dispatchEvent(
+      new KeyboardEvent("keydown", {
         key: "ArrowDown",
-        bubbles: true
-      }));
+        bubbles: true,
+      }),
+    );
     await tick();
     await tick();
     expect(first.shadowRoot!.querySelector(".filter-panel")).toBeTruthy();
     expect(second.shadowRoot!.querySelector(".filter-panel")).toBeTruthy();
 
-    document.body.dispatchEvent(new MouseEvent("click", {
-      bubbles: true,
-      composed: true
-    }));
+    document.body.dispatchEvent(
+      new MouseEvent("click", {
+        bubbles: true,
+        composed: true,
+      }),
+    );
     await tick();
     expect(first.shadowRoot!.querySelector(".filter-panel")).toBeTruthy();
     expect(second.shadowRoot!.querySelector(".filter-panel")).toBeNull();
 
-    document.body.dispatchEvent(new MouseEvent("click", {
-      bubbles: true,
-      composed: true
-    }));
+    document.body.dispatchEvent(
+      new MouseEvent("click", {
+        bubbles: true,
+        composed: true,
+      }),
+    );
     await tick();
     expect(first.shadowRoot!.querySelector(".filter-panel")).toBeNull();
   });
 
   it("筛选面板消费 Escape 后不会连带关闭下层浮层", async () => {
     const setup = (table: TableEl): void => {
-      table.columns = [{
-        prop: "role",
-        label: "角色",
-        filters: [{ text: "管理员", value: "Admin" }]
-      }];
+      table.columns = [
+        {
+          prop: "role",
+          label: "角色",
+          filters: [{ text: "管理员", value: "Admin" }],
+        },
+      ];
     };
     const first = await mount(setup);
     const second = await mount(setup);
     first.shadowRoot!.querySelector<HTMLButtonElement>(".filter-trigger")!.click();
-    second.shadowRoot!.querySelector<HTMLButtonElement>(".filter-trigger")!
-      .dispatchEvent(new KeyboardEvent("keydown", {
+    second.shadowRoot!.querySelector<HTMLButtonElement>(".filter-trigger")!.dispatchEvent(
+      new KeyboardEvent("keydown", {
         key: "ArrowDown",
-        bubbles: true
-      }));
+        bubbles: true,
+      }),
+    );
     await tick();
     await tick();
 
-    second.shadowRoot!.querySelector<HTMLElement>(".filter-panel")!
-      .dispatchEvent(new KeyboardEvent("keydown", {
+    second.shadowRoot!.querySelector<HTMLElement>(".filter-panel")!.dispatchEvent(
+      new KeyboardEvent("keydown", {
         key: "Escape",
         bubbles: true,
-        composed: true
-      }));
+        composed: true,
+      }),
+    );
     await tick();
     expect(second.shadowRoot!.querySelector(".filter-panel")).toBeNull();
     expect(first.shadowRoot!.querySelector(".filter-panel")).toBeTruthy();
@@ -1001,7 +1020,7 @@ describe("elf-table", () => {
       table.columns = [
         { prop: "name", label: "姓名", width: 120, fixed: "left" },
         { prop: "role", label: "角色", width: 110, fixed: "left" },
-        { prop: "score", label: "分数", width: 100, resizable: false }
+        { prop: "score", label: "分数", width: 100, resizable: false },
       ];
     });
     const onDragEnd = vi.fn();
@@ -1009,22 +1028,28 @@ describe("elf-table", () => {
     const handles = el.shadowRoot!.querySelectorAll<HTMLElement>(".column-resizer");
     expect(handles).toHaveLength(2);
 
-    handles[0]!.dispatchEvent(new PointerEvent("pointerdown", {
-      bubbles: true,
-      button: 0,
-      clientX: 100,
-      pointerId: 7
-    }));
-    document.dispatchEvent(new PointerEvent("pointermove", {
-      bubbles: true,
-      clientX: 144,
-      pointerId: 7
-    }));
-    document.dispatchEvent(new PointerEvent("pointerup", {
-      bubbles: true,
-      clientX: 144,
-      pointerId: 7
-    }));
+    handles[0]!.dispatchEvent(
+      new PointerEvent("pointerdown", {
+        bubbles: true,
+        button: 0,
+        clientX: 100,
+        pointerId: 7,
+      }),
+    );
+    document.dispatchEvent(
+      new PointerEvent("pointermove", {
+        bubbles: true,
+        clientX: 144,
+        pointerId: 7,
+      }),
+    );
+    document.dispatchEvent(
+      new PointerEvent("pointerup", {
+        bubbles: true,
+        clientX: 144,
+        pointerId: 7,
+      }),
+    );
     await tick();
 
     const cols = el.shadowRoot!.querySelectorAll<HTMLTableColElement>("col");
@@ -1034,8 +1059,43 @@ describe("elf-table", () => {
     expect((onDragEnd.mock.calls[0]![0] as CustomEvent).detail.slice(0, 3)).toEqual([
       164,
       120,
-      expect.objectContaining({ prop: "name" })
+      expect.objectContaining({ prop: "name" }),
     ]);
+  });
+
+  it("虚拟滚动调整列宽时同步可见数据行", async () => {
+    const el = await mount((table) => {
+      table.data = Array.from({ length: 200 }, (_, index) => ({
+        id: index + 1,
+        task: `Task ${index + 1}`,
+        owner: "ElfUI",
+      }));
+      table.columns = [
+        { type: "index", width: 72 },
+        { prop: "task", label: "Task", width: 220 },
+        { prop: "owner", label: "Owner", width: 120 },
+      ];
+      table.border = true;
+      table.height = 240;
+      table.virtual = true;
+      table.virtualThreshold = 100;
+      table.rowHeight = 44;
+    });
+
+    const handle = el.shadowRoot!.querySelector<HTMLElement>(".column-resizer")!;
+    handle.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        key: "ArrowRight",
+        shiftKey: true,
+        bubbles: true,
+      }),
+    );
+    await tick();
+
+    const header = el.shadowRoot!.querySelector<HTMLTableCellElement>("thead th")!;
+    const bodyCell = el.shadowRoot!.querySelector<HTMLTableCellElement>("tbody tr td")!;
+    expect(header.style.width).toBe("96px");
+    expect(bodyCell.style.width).toBe("96px");
   });
 
   it("列宽分隔符支持键盘微调，且无边框表格不启用调整", async () => {
@@ -1052,11 +1112,13 @@ describe("elf-table", () => {
     const onDragEnd = vi.fn();
     el.addEventListener("header-dragend", onDragEnd as EventListener);
     const handle = el.shadowRoot!.querySelector<HTMLElement>(".column-resizer")!;
-    handle.dispatchEvent(new KeyboardEvent("keydown", {
-      key: "ArrowRight",
-      bubbles: true,
-      shiftKey: true
-    }));
+    handle.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        key: "ArrowRight",
+        bubbles: true,
+        shiftKey: true,
+      }),
+    );
     await tick();
 
     expect(el.shadowRoot!.querySelector<HTMLTableColElement>("col")!.style.width).toBe("144px");
@@ -1065,14 +1127,16 @@ describe("elf-table", () => {
   });
 
   it("树形数据按层级折叠，并提供缩进与 treegrid 语义", async () => {
-    const treeRows = [{
-      id: "platform",
-      name: "平台组",
-      children: [
-        { id: "frontend", name: "前端组" },
-        { id: "backend", name: "后端组" }
-      ]
-    }];
+    const treeRows = [
+      {
+        id: "platform",
+        name: "平台组",
+        children: [
+          { id: "frontend", name: "前端组" },
+          { id: "backend", name: "后端组" },
+        ],
+      },
+    ];
     const el = await mount((table) => {
       table.data = treeRows;
       table.columns = [{ prop: "name", label: "团队" }];
@@ -1089,8 +1153,9 @@ describe("elf-table", () => {
     toggle.click();
     await tick();
     expect(el.shadowRoot!.querySelectorAll("tbody > tr")).toHaveLength(3);
-    expect(el.shadowRoot!.querySelectorAll<HTMLSpanElement>(".tree-cell")[1]!.style.paddingInlineStart)
-      .toBe("24px");
+    expect(
+      el.shadowRoot!.querySelectorAll<HTMLSpanElement>(".tree-cell")[1]!.style.paddingInlineStart,
+    ).toBe("24px");
     expect((onExpand.mock.calls[0]![0] as CustomEvent).detail).toEqual([treeRows[0], true]);
   });
 
@@ -1103,8 +1168,9 @@ describe("elf-table", () => {
     });
 
     expect(el.shadowRoot!.querySelectorAll("tbody > tr")).toHaveLength(2);
-    expect(el.shadowRoot!.querySelector("tbody > tr:nth-child(2)")?.getAttribute("aria-level"))
-      .toBe("2");
+    expect(
+      el.shadowRoot!.querySelector("tbody > tr:nth-child(2)")?.getAttribute("aria-level"),
+    ).toBe("2");
   });
 
   it("lazy/load 解析子节点后展开，并公开准确的加载上下文", async () => {
@@ -1124,7 +1190,7 @@ describe("elf-table", () => {
     expect(load).toHaveBeenCalledWith(
       expect.objectContaining({ id: "async" }),
       { key: "async", level: 0, expanded: false, loading: true },
-      expect.any(Function)
+      expect.any(Function),
     );
     expect(el.shadowRoot!.querySelector(".tree-toggle.is-loading")).toBeTruthy();
 
@@ -1225,13 +1291,15 @@ describe("elf-table", () => {
       return button;
     });
     const el = await mount((table) => {
-      table.columns = [{
-        prop: "name",
-        label: "姓名",
-        formatter,
-        renderHeader,
-        renderCell
-      }];
+      table.columns = [
+        {
+          prop: "name",
+          label: "姓名",
+          formatter,
+          renderHeader,
+          renderCell,
+        },
+      ];
     });
     await tick();
 
@@ -1256,7 +1324,7 @@ describe("elf-table", () => {
     const el = await mount((table) => {
       table.columns = [
         { type: "expand", width: 48, renderExpand },
-        { prop: "name", label: "姓名" }
+        { prop: "name", label: "姓名" },
       ];
       table.expandFormatter = expandFormatter;
     });
@@ -1264,9 +1332,10 @@ describe("elf-table", () => {
     el.shadowRoot!.querySelector<HTMLButtonElement>(".expand-toggle")!.click();
     await tick();
     await tick();
-    expect(el.shadowRoot!.querySelector(".custom-expand")?.textContent)
-      .toBe("Alice 的权限详情");
-    expect(renderExpand).toHaveBeenCalledWith(expect.objectContaining({ row: rows[0], rowIndex: 0 }));
+    expect(el.shadowRoot!.querySelector(".custom-expand")?.textContent).toBe("Alice 的权限详情");
+    expect(renderExpand).toHaveBeenCalledWith(
+      expect.objectContaining({ row: rows[0], rowIndex: 0 }),
+    );
     expect(expandFormatter).not.toHaveBeenCalled();
   });
 
@@ -1278,13 +1347,15 @@ describe("elf-table", () => {
       return icon;
     });
     const el = await mount((table) => {
-      table.columns = [{
-        prop: "role",
-        label: "角色",
-        filters: [{ text: "管理员", value: "Admin" }],
-        filteredValue: ["Admin"],
-        renderFilterIcon
-      }];
+      table.columns = [
+        {
+          prop: "role",
+          label: "角色",
+          filters: [{ text: "管理员", value: "Admin" }],
+          filteredValue: ["Admin"],
+          renderFilterIcon,
+        },
+      ];
     });
     await tick();
 

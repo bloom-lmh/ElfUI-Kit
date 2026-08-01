@@ -10,7 +10,7 @@ import {
   useHost,
   useHostFlag,
   useRef,
-  useEffect
+  useEffect,
 } from "@elfui/core";
 
 import styles from "./style.scss?inline";
@@ -28,7 +28,7 @@ import type {
   TabsReorderDetail,
   TabsSlots,
   TabsTransition,
-  TabsType
+  TabsType,
 } from "./types";
 
 export type {
@@ -48,7 +48,7 @@ export type {
   TabsReorderDetail,
   TabsSlots,
   TabsTransition,
-  TabsType
+  TabsType,
 } from "./types";
 
 type TabsRawItem = Record<string, unknown>;
@@ -122,9 +122,9 @@ const props = defineProps<TabsProps>({
       closable: "closable",
       lazy: "lazy",
       badge: "badge",
-      content: "content"
-    })
-  }
+      content: "content",
+    }),
+  },
 });
 
 const locale = useLocaleProvider();
@@ -159,7 +159,8 @@ const instanceId = (() => {
 
 const nameKey = (value: unknown): string => String(value ?? "");
 const sameName = (left: unknown, right: unknown): boolean => nameKey(left) === nameKey(right);
-const hasName = (value: unknown): value is TabPaneName => value !== undefined && value !== null && value !== "";
+const hasName = (value: unknown): value is TabPaneName =>
+  value !== undefined && value !== null && value !== "";
 
 const fieldNames = (): Required<TabsFieldNames> => {
   const value = props.props || {};
@@ -171,23 +172,24 @@ const fieldNames = (): Required<TabsFieldNames> => {
     closable: value.closable || "closable",
     lazy: value.lazy || "lazy",
     badge: value.badge || "badge",
-    content: value.content || "content"
+    content: value.content || "content",
   };
 };
 
 const paneChildren = (): TabPaneElement[] =>
   Array.from(host.children).filter(
-    (child): child is TabPaneElement => child.tagName.toLowerCase() === "elf-tab-pane"
+    (child): child is TabPaneElement => child.tagName.toLowerCase() === "elf-tab-pane",
   );
 
 const labelSource = (pane: TabPaneElement): HTMLElement | null =>
   Array.from(pane.children).find(
-    (child): child is HTMLElement => child instanceof HTMLElement && child.slot === "label"
+    (child): child is HTMLElement => child instanceof HTMLElement && child.slot === "label",
   ) ?? null;
 
 const labelSlotName = (index: number): string => `${instanceId}-label-${index}`;
 const tabId = (item: TabsViewItem): string => `${instanceId}-tab-${encodeURIComponent(item.key)}`;
-const panelId = (item: TabsViewItem): string => `${instanceId}-panel-${encodeURIComponent(item.key)}`;
+const panelId = (item: TabsViewItem): string =>
+  `${instanceId}-panel-${encodeURIComponent(item.key)}`;
 
 const dataItems = (): TabsViewItem[] => {
   const fields = fieldNames();
@@ -206,15 +208,18 @@ const dataItems = (): TabsViewItem[] => {
       closable: Boolean(item[fields.closable]),
       lazy: Boolean(item[fields.lazy]),
       content: String(item[fields.content] ?? ""),
-      labelSlot: ""
+      labelSlot: "",
     };
   });
   if (orderedKeys.value.length === 0) return normalized;
   const positions = new Map(orderedKeys.value.map((key, index) => [key, index]));
-  return normalized.slice().sort((left, right) =>
-    (positions.get(left.key) ?? Number.MAX_SAFE_INTEGER) -
-    (positions.get(right.key) ?? Number.MAX_SAFE_INTEGER)
-  );
+  return normalized
+    .slice()
+    .sort(
+      (left, right) =>
+        (positions.get(left.key) ?? Number.MAX_SAFE_INTEGER) -
+        (positions.get(right.key) ?? Number.MAX_SAFE_INTEGER),
+    );
 };
 
 const paneItems = (): TabsViewItem[] =>
@@ -226,7 +231,7 @@ const paneItems = (): TabsViewItem[] =>
       value,
       disabled: Boolean(pane.disabled),
       closable: Boolean(pane.closable),
-      lazy: Boolean(pane.lazy)
+      lazy: Boolean(pane.lazy),
     };
     return {
       raw,
@@ -239,13 +244,13 @@ const paneItems = (): TabsViewItem[] =>
       closable: Boolean(pane.closable),
       lazy: Boolean(pane.lazy),
       content: "",
-      labelSlot: source ? labelSlotName(index) : ""
+      labelSlot: source ? labelSlotName(index) : "",
     };
   });
 
-const viewItems = (): TabsViewItem[] => hasPaneChildren.value ? paneItems() : dataItems();
-const firstEnabledName = (): TabPaneName | "" => viewItems().find((item) => !item.disabled)?.value ?? "";
-const activeItem = (): TabsViewItem | undefined => viewItems().find((item) => sameName(item.value, active.value));
+const viewItems = (): TabsViewItem[] => (hasPaneChildren.value ? paneItems() : dataItems());
+const firstEnabledName = (): TabPaneName | "" =>
+  viewItems().find((item) => !item.disabled)?.value ?? "";
 const isActive = (item: TabsViewItem): boolean => sameName(item.value, active.value);
 const isClosable = (item: TabsViewItem): boolean =>
   (Boolean(props.closable) || Boolean(props.editable) || item.closable) && !item.disabled;
@@ -255,7 +260,9 @@ const renderedPanels = (): TabsViewItem[] =>
 
 const transition = (): TabsTransition => {
   const value = String(props.transition || "fade");
-  return value === "slide" || value === "scale" || value === "none" || value === "custom" ? value : "fade";
+  return value === "slide" || value === "scale" || value === "none" || value === "custom"
+    ? value
+    : "fade";
 };
 
 const tabPosition = (): TabsPosition => {
@@ -278,7 +285,7 @@ const hostStyle = useComputed(() => {
     ...(color ? { "--tabs-color": color } : {}),
     ...(backgroundColor ? { "--tabs-background-color": backgroundColor } : {}),
     ...(sliderColor ? { "--tabs-slider-color": sliderColor } : {}),
-    "--tabs-transition-duration": `${duration}ms`
+    "--tabs-transition-duration": `${duration}ms`,
   };
 });
 
@@ -300,7 +307,7 @@ const rootClass = () => ({
   "align-center": (props.alignTabs as TabsAlign) === "center",
   "align-end": (props.alignTabs as TabsAlign) === "end",
   "align-title": (props.alignTabs as TabsAlign) === "title",
-  [`transition-${transition()}`]: true
+  [`transition-${transition()}`]: true,
 });
 
 const paneContext = (item: TabsViewItem): TabsPaneContext => ({
@@ -308,13 +315,15 @@ const paneContext = (item: TabsViewItem): TabsPaneContext => ({
   label: item.label,
   disabled: item.disabled,
   closable: item.closable,
-  lazy: item.lazy
+  lazy: item.lazy,
 });
 
 const tabButtons = (): HTMLButtonElement[] =>
   Array.from(host.shadowRoot?.querySelectorAll<HTMLButtonElement>(".tab") ?? []);
-const tabListRef = (): HTMLElement | null => host.shadowRoot?.querySelector<HTMLElement>(".tab-list") ?? null;
-const tabBarRef = (): HTMLElement | null => host.shadowRoot?.querySelector<HTMLElement>(".tab-slider") ?? null;
+const tabListRef = (): HTMLElement | null =>
+  host.shadowRoot?.querySelector<HTMLElement>(".tab-list") ?? null;
+const tabBarRef = (): HTMLElement | null =>
+  host.shadowRoot?.querySelector<HTMLElement>(".tab-slider") ?? null;
 
 const syncSlider = (): void => {
   const index = viewItems().findIndex((item) => isActive(item));
@@ -330,7 +339,7 @@ const syncSlider = (): void => {
       opacity: "1",
       width: "3px",
       height: `${Math.max(0, button.offsetHeight - 16)}px`,
-      transform: `translate3d(0, ${button.offsetTop + 8}px, 0)`
+      transform: `translate3d(0, ${button.offsetTop + 8}px, 0)`,
     });
     return;
   }
@@ -339,7 +348,7 @@ const syncSlider = (): void => {
     opacity: "1",
     width: `${Math.max(0, button.offsetWidth - 24)}px`,
     height: "3px",
-    transform: `translate3d(${button.offsetLeft + 12}px, 0, 0)`
+    transform: `translate3d(${button.offsetLeft + 12}px, 0, 0)`,
   });
 };
 
@@ -399,7 +408,11 @@ const commitActive = (item: TabsViewItem): void => {
   });
 };
 
-const runBeforeLeave = (item: TabsViewItem, oldValue: TabPaneName | "", commit: () => void): void => {
+const runBeforeLeave = (
+  item: TabsViewItem,
+  oldValue: TabPaneName | "",
+  commit: () => void,
+): void => {
   const guard = props.beforeLeave as TabsBeforeLeave | null | undefined;
   if (typeof guard !== "function") {
     commit();
@@ -409,9 +422,11 @@ const runBeforeLeave = (item: TabsViewItem, oldValue: TabPaneName | "", commit: 
   try {
     const result = guard(item.value, oldValue);
     if (result && typeof (result as Promise<boolean | void>).then === "function") {
-      void Promise.resolve(result).then((allowed) => {
-        if (allowed !== false) commit();
-      }).catch(() => undefined);
+      void Promise.resolve(result)
+        .then((allowed) => {
+          if (allowed !== false) commit();
+        })
+        .catch(() => undefined);
       return;
     }
     if (result !== false) commit();
@@ -441,10 +456,14 @@ const focusTab = (value: TabPaneName): void => {
 };
 
 const onTabKeydown = (item: TabsViewItem, event: KeyboardEvent): void => {
-  if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"].includes(event.key)) return;
+  if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"].includes(event.key))
+    return;
   event.preventDefault();
   const enabled = viewItems().filter((entry) => !entry.disabled);
-  const currentIndex = Math.max(0, enabled.findIndex((entry) => sameName(entry.value, item.value)));
+  const currentIndex = Math.max(
+    0,
+    enabled.findIndex((entry) => sameName(entry.value, item.value)),
+  );
   let nextIndex = currentIndex;
   if (event.key === "Home") nextIndex = 0;
   else if (event.key === "End") nextIndex = enabled.length - 1;
@@ -464,7 +483,10 @@ const nextAfterRemove = (item: TabsViewItem): TabPaneName | "" => {
   const available = all.filter((entry) => !entry.disabled && !sameName(entry.value, item.value));
   if (available.length === 0) return "";
   const currentIndex = all.findIndex((entry) => sameName(entry.value, item.value));
-  return available.find((entry) => all.indexOf(entry) > currentIndex)?.value ?? available[available.length - 1]!.value;
+  return (
+    available.find((entry) => all.indexOf(entry) > currentIndex)?.value ??
+    available[available.length - 1]!.value
+  );
 };
 
 const removeTab = (value: TabPaneName): void => {
@@ -494,14 +516,23 @@ const setActive = (value: TabPaneName): void => select(value);
 const scrollToActiveTab = (): void => {
   const index = viewItems().findIndex((item) => isActive(item));
   tabButtons()[index]?.scrollIntoView?.({
-    block: props.centerActive && tabPosition() !== "top" && tabPosition() !== "bottom" ? "center" : "nearest",
-    inline: props.centerActive && (tabPosition() === "top" || tabPosition() === "bottom") ? "center" : "nearest"
+    block:
+      props.centerActive && tabPosition() !== "top" && tabPosition() !== "bottom"
+        ? "center"
+        : "nearest",
+    inline:
+      props.centerActive && (tabPosition() === "top" || tabPosition() === "bottom")
+        ? "center"
+        : "nearest",
   });
 };
 const selectRelative = (direction: -1 | 1): void => {
   const enabled = viewItems().filter((item) => !item.disabled);
   if (enabled.length === 0) return;
-  const current = Math.max(0, enabled.findIndex((item) => isActive(item)));
+  const current = Math.max(
+    0,
+    enabled.findIndex((item) => isActive(item)),
+  );
   const next = enabled[(current + direction + enabled.length) % enabled.length];
   if (!next) return;
   select(next.value);
@@ -509,10 +540,13 @@ const selectRelative = (direction: -1 | 1): void => {
 };
 
 const onSlottedControlClick = (event: Event): void => {
-  const control = event.composedPath().find((node): node is HTMLElement =>
-    node instanceof HTMLElement
-    && (node.slot === "prev-control" || node.slot === "next-control")
-  );
+  const control = event
+    .composedPath()
+    .find(
+      (node): node is HTMLElement =>
+        node instanceof HTMLElement &&
+        (node.slot === "prev-control" || node.slot === "next-control"),
+    );
   if (!control) return;
   selectRelative(control.slot === "prev-control" ? -1 : 1);
 };
@@ -629,9 +663,9 @@ defineExpose({
       },
       get tabBarRef() {
         return tabBarRef();
-      }
+      },
     };
-  }
+  },
 });
 
 defineStyle(styles);

@@ -7,7 +7,14 @@
 //
 // 样式见 ./style.scss；运行时通过 Vite 的 ?inline 加载为字符串注入 Shadow DOM。
 
-import { defineHtml, defineProps, defineStyle, useHostAttr, useHostCssVar, useHostFlag } from "@elfui/core";
+import {
+  defineHtml,
+  defineProps,
+  defineStyle,
+  useHostAttr,
+  useHostCssVar,
+  useHostFlag,
+} from "@elfui/core";
 
 import styles from "./style.scss?inline";
 import type {
@@ -15,9 +22,8 @@ import type {
   FlexAlignContent,
   FlexJustify,
   FlexProps,
-  FlexSize,
   FlexSlots,
-  FlexWrap
+  FlexWrap,
 } from "./types";
 
 export type {
@@ -29,7 +35,7 @@ export type {
   FlexProps,
   FlexSize,
   FlexSlots,
-  FlexWrap
+  FlexWrap,
 } from "./types";
 
 const gapTokens: Record<string, string> = {
@@ -38,7 +44,7 @@ const gapTokens: Record<string, string> = {
   sm: "var(--elf-space-2)",
   md: "var(--elf-space-4)",
   lg: "var(--elf-space-6)",
-  xl: "var(--elf-space-8)"
+  xl: "var(--elf-space-8)",
 };
 
 const justifyValues = new Set<FlexJustify>([
@@ -47,7 +53,7 @@ const justifyValues = new Set<FlexJustify>([
   "center",
   "space-between",
   "space-around",
-  "space-evenly"
+  "space-evenly",
 ]);
 
 const alignValues = new Set<FlexAlign>(["stretch", "flex-start", "flex-end", "center", "baseline"]);
@@ -59,7 +65,7 @@ const alignContentValues = new Set<FlexAlignContent>([
   "center",
   "space-between",
   "space-around",
-  "space-evenly"
+  "space-evenly",
 ]);
 
 const props = defineProps<FlexProps>({
@@ -73,7 +79,7 @@ const props = defineProps<FlexProps>({
   wrap: { type: [Boolean, String], default: false },
   inline: { type: Boolean, default: false },
   fill: { type: Boolean, default: false },
-  fillRatio: { type: Number, default: 100 }
+  fillRatio: { type: Number, default: 100 },
 });
 
 const normalizedJustify = (): FlexJustify =>
@@ -110,7 +116,8 @@ const normalizedGap = (): string => {
   return toCssLength(value);
 };
 
-const normalizedFillRatio = (): string => `${Math.min(100, Math.max(0, Number(props.fillRatio) || 0))}%`;
+const normalizedFillRatio = (): string =>
+  `${Math.min(100, Math.max(0, Number(props.fillRatio) || 0))}%`;
 
 useHostAttr("direction", () => props.direction);
 useHostAttr("justify", normalizedJustify);

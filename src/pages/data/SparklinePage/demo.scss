@@ -1,0 +1,41 @@
+.sparkline-card {
+  display: grid;
+  gap: 28px;
+  width: min(100%, 820px);
+  margin-inline: auto;
+  padding: 28px;
+  border: 1px solid var(--elf-divider);
+  border-radius: 4px;
+  background: var(--elf-bg-paper);
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.sparkline-card h3 {
+  margin: 0;
+  font-size: 20px;
+}
+.sparkline-chart {
+  width: 100%;
+  min-width: 0;
+  height: 220px;
+  padding-top: 10px;
+  overflow: hidden;
+}
+.sparkline-chart elf-sparkline {
+  width: 100%;
+  height: 100%;
+}
+.sparkline-periods {
+  width: 100%;
+}
+
+@media (max-width: 520px) {
+  .sparkline-card {
+    gap: 20px;
+    padding: 18px 14px;
+  }
+  .sparkline-chart {
+    height: 170px;
+  }
+}

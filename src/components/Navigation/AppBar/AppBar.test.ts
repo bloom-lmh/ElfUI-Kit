@@ -1,10 +1,14 @@
+import { readFileSync } from "node:fs";
+
 import { registerComponents } from "@elfui/core";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
 
 import { AppBar } from "./index";
 
 beforeAll(() => registerComponents(AppBar));
-afterEach(() => { document.body.innerHTML = ""; });
+afterEach(() => {
+  document.body.innerHTML = "";
+});
 
 const tick = (): Promise<void> => new Promise((resolve) => queueMicrotask(resolve));
 
@@ -14,13 +18,18 @@ describe("elf-app-bar", () => {
     element.title = "Workspace";
     document.body.appendChild(element);
     await tick();
-    expect(element.shadowRoot?.querySelector("header")?.getAttribute("aria-label")).toBe("Application bar");
+    expect(element.shadowRoot?.querySelector("header")?.getAttribute("aria-label")).toBe(
+      "Application bar",
+    );
     expect(element.shadowRoot?.textContent).toContain("Workspace");
   });
 
   it("normalizes density and maps surface configuration", async () => {
     const element = document.createElement("elf-app-bar") as HTMLElement & {
-      color: string; density: string; elevation: number; rounded: boolean;
+      color: string;
+      density: string;
+      elevation: number;
+      rounded: boolean;
     };
     Object.assign(element, { color: "primary", density: "compact", elevation: 4, rounded: true });
     document.body.appendChild(element);
@@ -28,30 +37,40 @@ describe("elf-app-bar", () => {
     expect(element.getAttribute("density")).toBe("compact");
     expect(element.hasAttribute("rounded")).toBe(true);
     expect(element.style.getPropertyValue("--_app-bar-bg")).toBe("var(--elf-primary)");
+    expect(element.style.getPropertyValue("--_app-bar-color")).toBe(
+      "var(--elf-app-bar-on-color, #ffffff)",
+    );
     expect(element.style.getPropertyValue("--_app-bar-shadow")).toBe("var(--elf-shadow-2)");
   });
 
-  it.each(["prepend", "title", "append", "extension", "background"])("projects the %s slot", async (name) => {
-    const element = document.createElement("elf-app-bar");
-    const child = document.createElement(name === "background" ? "img" : "span");
-    child.slot = name;
-    element.appendChild(child);
-    document.body.appendChild(element);
-    await tick();
-    const slot = element.shadowRoot?.querySelector<HTMLSlotElement>(`slot[name="${name}"]`);
-    expect(slot?.assignedElements()).toEqual([child]);
-  });
+  it.each(["prepend", "title", "append", "extension", "background"])(
+    "projects the %s slot",
+    async (name) => {
+      const element = document.createElement("elf-app-bar");
+      const child = document.createElement(name === "background" ? "img" : "span");
+      child.slot = name;
+      element.appendChild(child);
+      document.body.appendChild(element);
+      await tick();
+      const slot = element.shadowRoot?.querySelector<HTMLSlotElement>(`slot[name="${name}"]`);
+      expect(slot?.assignedElements()).toEqual([child]);
+    },
+  );
 
   it("renders a prominent image background with configurable framing", async () => {
     const element = document.createElement("elf-app-bar") as HTMLElement & {
-      density: string; image: string; imageAlt: string; imagePosition: string; imageOpacity: number;
+      density: string;
+      image: string;
+      imageAlt: string;
+      imagePosition: string;
+      imageOpacity: number;
     };
     Object.assign(element, {
       density: "prominent",
       image: "/media/city.jpg",
       imageAlt: "City skyline",
       imagePosition: "center 30%",
-      imageOpacity: 0.7
+      imageOpacity: 0.7,
     });
     document.body.appendChild(element);
     await tick();
@@ -68,12 +87,14 @@ describe("elf-app-bar", () => {
     Object.defineProperty(target, "scrollTop", { configurable: true, writable: true, value: 0 });
     document.body.appendChild(target);
     const element = document.createElement("elf-app-bar") as HTMLElement & {
-      scrollBehavior: string; scrollTarget: HTMLElement; scrollThreshold: number;
+      scrollBehavior: string;
+      scrollTarget: HTMLElement;
+      scrollThreshold: number;
     };
     Object.assign(element, {
       scrollBehavior: "hide collapse elevate fade-image",
       scrollTarget: target,
-      scrollThreshold: 80
+      scrollThreshold: 80,
     });
     document.body.appendChild(element);
     await tick();
@@ -84,5 +105,51 @@ describe("elf-app-bar", () => {
     expect(element.hasAttribute("data-scroll-collapsed")).toBe(true);
     expect(element.hasAttribute("data-scroll-elevated")).toBe(true);
     expect(element.style.getPropertyValue("--_app-bar-image-opacity")).toBe("0");
+  });
+
+  it("keeps threshold reflow and tiny direction jitter from flashing the bar", async () => {
+    const target = document.createElement("div");
+    Object.defineProperty(target, "scrollTop", {
+      configurable: true,
+      writable: true,
+      value: 0,
+    });
+    document.body.appendChild(target);
+    const element = document.createElement("elf-app-bar") as HTMLElement & {
+      scrollBehavior: string;
+      scrollTarget: HTMLElement;
+      scrollThreshold: number;
+    };
+    Object.assign(element, {
+      scrollBehavior: "hide collapse elevate",
+      scrollTarget: target,
+      scrollThreshold: 80,
+    });
+    document.body.appendChild(element);
+    await tick();
+
+    target.scrollTop = 96;
+    target.dispatchEvent(new Event("scroll"));
+    await tick();
+    expect(element.hasAttribute("data-scroll-collapsed")).toBe(true);
+    expect(element.hasAttribute("data-scroll-hidden")).toBe(true);
+
+    // Simulate the scrollTop correction caused by the prominent row shrinking.
+    target.scrollTop = 24;
+    target.dispatchEvent(new Event("scroll"));
+    await tick();
+    expect(element.hasAttribute("data-scroll-collapsed")).toBe(true);
+    expect(element.hasAttribute("data-scroll-hidden")).toBe(false);
+
+    target.scrollTop = 0;
+    target.dispatchEvent(new Event("scroll"));
+    await tick();
+    expect(element.hasAttribute("data-scroll-collapsed")).toBe(false);
+  });
+
+  it("centers a prominent row after scroll collapse", () => {
+    expect(readFileSync("src/components/Navigation/AppBar/style.scss", "utf8")).toMatch(
+      /:host\(\[data-scroll-collapsed\]\) \.row \{[\s\S]*align-items: center/,
+    );
   });
 });

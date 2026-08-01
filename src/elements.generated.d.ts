@@ -843,6 +843,13 @@ declare global {
       round: boolean;
       disabled: boolean;
     };
+    "elf-quote": HTMLElement & {
+      type: string;
+      variant: string;
+      title: string;
+      cite: string;
+      compact: boolean;
+    };
     "elf-textarea": HTMLElement & {
       modelValue: string;
       size: string;

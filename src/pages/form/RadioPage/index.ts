@@ -19,13 +19,12 @@ useComponents({
   "page-radio-ex2": PageRadioEx2,
   "page-radio-ex3": PageRadioEx3,
   "page-radio-ex4": PageRadioEx4,
-  "page-radio-props": PageRadioProps
+  "page-radio-props": PageRadioProps,
 });
 
 const PageRadio = defineHtml(`
   <elf-container>
-    <h1>${t("title")}</h1>
-    <p>${t("description")}</p>
+    <elf-docs-hero category="form" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
     <page-radio-ex1 />
     <page-radio-ex2 />
     <page-radio-ex3 />

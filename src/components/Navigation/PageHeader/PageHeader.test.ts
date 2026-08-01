@@ -17,6 +17,15 @@ interface PageHeaderEl extends HTMLElement {
   title?: string;
   content?: string;
   icon?: string;
+  mode?: string;
+  variant?: string;
+  align?: string;
+  tone?: string;
+  eyebrow?: string;
+  tag?: string;
+  description?: string;
+  image?: string;
+  imageAlt?: string;
 }
 
 const mount = async (patch: Partial<PageHeaderEl> = {}): Promise<PageHeaderEl> => {
@@ -74,4 +83,53 @@ describe("elf-page-header", () => {
     const slot = element.shadowRoot!.querySelector<HTMLSlotElement>(`slot[name="${name}"]`)!;
     expect(slot.assignedElements()).toEqual([child]);
   });
+
+  it("renders the hero structure and visual API without a back control", async () => {
+    const el = await mount({
+      mode: "hero",
+      variant: "banner",
+      align: "center",
+      tone: "dark",
+      title: "Toolbar",
+      eyebrow: "Layout / Toolbar",
+      tag: "Toolbar",
+      description: "Arrange contextual tools.",
+      image: "/toolbar.png",
+      imageAlt: "Toolbar illustration",
+    });
+
+    expect(el.getAttribute("mode")).toBe("hero");
+    expect(el.getAttribute("variant")).toBe("banner");
+    expect(el.getAttribute("align")).toBe("center");
+    expect(el.getAttribute("tone")).toBe("dark");
+    expect(el.shadowRoot!.querySelector("header")?.classList).toContain("is-hero");
+    expect(el.shadowRoot!.querySelector("header")?.classList).toContain("is-banner");
+    expect(el.shadowRoot!.querySelector("header")?.classList).toContain("is-center");
+    expect(el.shadowRoot!.querySelector("header")?.classList).toContain("is-dark");
+    expect(el.shadowRoot!.querySelector(".back")).toBeNull();
+    expect(el.shadowRoot!.querySelector(".hero-title")?.textContent).toContain("Toolbar");
+    expect(el.shadowRoot!.querySelector(".hero-description")?.textContent).toContain(
+      "Arrange contextual tools.",
+    );
+    const image = el.shadowRoot!.querySelector(".hero-visual img") as HTMLImageElement;
+    expect(image.getAttribute("src")).toBe("/toolbar.png");
+    expect(image.getAttribute("alt")).toBe("Toolbar illustration");
+  });
+
+  it.each(["eyebrow", "tag", "description", "meta", "visual"])(
+    "projects the hero %s slot",
+    async (name) => {
+      const element = document.createElement("elf-page-header") as PageHeaderEl;
+      element.mode = "hero";
+      const child = document.createElement("span");
+      child.slot = name;
+      child.textContent = `${name} content`;
+      element.appendChild(child);
+      document.body.appendChild(element);
+      await tick();
+
+      const slot = element.shadowRoot!.querySelector<HTMLSlotElement>(`slot[name="${name}"]`)!;
+      expect(slot.assignedElements()).toEqual([child]);
+    },
+  );
 });

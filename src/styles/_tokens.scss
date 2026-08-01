@@ -11,7 +11,7 @@
   --elf-primary-active: #0d47a1;
   --elf-secondary: #d81b60;
   --elf-success: #2e7d32;
-  --elf-warning: #ed6c02;
+  --elf-warning: #ef6c00;
   --elf-danger: #d32f2f;
   --elf-info: #0288d1;
 
@@ -25,7 +25,7 @@
   --elf-bg-overlay: rgba(0, 0, 0, 0.04);
   --elf-overlay-backdrop: rgba(0, 0, 0, 0.48);
   --elf-field-bg: #eeeeee;
-  --elf-field-hover-bg: #e7e7e7;
+  --elf-field-hover-bg: #e0e0e0;
 
   --elf-border: rgba(0, 0, 0, 0.12);
   --elf-border-strong: rgba(0, 0, 0, 0.23);
@@ -78,9 +78,9 @@
 }
 
 :root[data-theme="dark"] {
-  --elf-primary: #90caf9;
-  --elf-primary-hover: #64b5f6;
-  --elf-primary-active: #42a5f5;
+  --elf-primary: #7986cb;
+  --elf-primary-hover: #5c6bc0;
+  --elf-primary-active: #3f51b5;
   --elf-secondary: #f48fb1;
   --elf-success: #66bb6a;
   --elf-warning: #ffa726;

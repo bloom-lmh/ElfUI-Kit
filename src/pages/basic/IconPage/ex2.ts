@@ -1,4 +1,5 @@
 import { defineHtml, defineStyle, useRef } from "@elfui/core";
+import { mdiAccount, mdiAccountOutline, mdiAlert, mdiAlertOutline } from "@mdi/js";
 
 import { createSvgIconSet } from "../../../components/Basic/Icon";
 import { createDocsTranslator } from "../../docsLocale";
@@ -10,28 +11,28 @@ const outlineOptions = {
   defaultSet: "outline",
   aliases: {
     account: "outline:account",
-    alert: "outline:alert"
+    alert: "outline:alert",
   },
   sets: {
     outline: createSvgIconSet({
-      account: "M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm0 2c-4.42 0-8 2.24-8 5v1h16v-1c0-2.76-3.58-5-8-5Z",
-      alert: "M12 3 2 21h20L12 3Zm0 6v5m0 3v1"
-    })
-  }
+      account: mdiAccountOutline,
+      alert: mdiAlertOutline,
+    }),
+  },
 };
 
 const filledOptions = {
   defaultSet: "filled",
   aliases: {
     account: "filled:account",
-    alert: "filled:alert"
+    alert: "filled:alert",
   },
   sets: {
     filled: createSvgIconSet({
-      account: "M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm8 8c0-3.3-3.6-6-8-6s-8 2.7-8 6h16Z",
-      alert: "M1 21h22L12 2 1 21Zm12-3h-2v-2h2v2Zm0-4h-2v-4h2v4Z"
-    })
-  }
+      account: mdiAccount,
+      alert: mdiAlert,
+    }),
+  },
 };
 
 const t = createDocsTranslator({
@@ -43,10 +44,13 @@ const t = createDocsTranslator({
   account: { zh: "账户", en: "Account" },
   alert: { zh: "告警", en: "Alert" },
   missing: { zh: "未知名称", en: "Unknown name" },
-  fallback: { zh: "缺失时使用 fallback 属性或插槽", en: "Use the fallback prop or slot when an icon is missing" }
+  fallback: {
+    zh: "缺失时使用 fallback 属性或插槽",
+    en: "Use the fallback prop or slot when an icon is missing",
+  },
 });
 
-const currentOptions = () => activeSet.value === "outline" ? outlineOptions : filledOptions;
+const currentOptions = () => (activeSet.value === "outline" ? outlineOptions : filledOptions);
 const currentSetLabel = (): string => t(activeSet.value);
 const toggleSet = (): void => activeSet.set(activeSet.value === "outline" ? "filled" : "outline");
 

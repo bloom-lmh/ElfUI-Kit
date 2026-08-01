@@ -174,27 +174,45 @@ defineExpose(
 defineStyle(styles);
 
 const Button = defineHtml<ButtonProps, ButtonEmits, ButtonSlots>(`
-    <button
-        ref="button"
-        part="button"
-        :type=${normalizedNativeType()}
-        :disabled=${props.disabled || props.loading}
-        :aria-busy=${props.loading}
-        :aria-label=${props.ariaLabel || null}
-        :autofocus=${props.autofocus}
-        :form=${props.form || null}
-        @click=${handleClick}
+  <button
+    ref="button"
+    part="button"
+    :type=${normalizedNativeType()}
+    :disabled=${props.disabled || props.loading}
+    :aria-busy=${props.loading}
+    :aria-label=${props.ariaLabel || null}
+    :autofocus=${props.autofocus}
+    :form=${props.form || null}
+    @click=${handleClick}
+  >
+    <slot
+      v-if=${props.loading}
+      name="loading"
     >
-        <slot v-if=${props.loading} name="loading">
-            <span v-if=${props.loadingIcon} class="prop-icon" aria-hidden="true">${props.loadingIcon}</span>
-            <span v-else class="spinner" aria-hidden="true"></span>
-        </slot>
-        <slot v-if=${!props.loading} name="icon">
-            <span v-if=${props.icon} class="prop-icon" aria-hidden="true">${props.icon}</span>
-        </slot>
-        <slot></slot>
-        <slot name="suffix-icon"></slot>
-    </button>
+      <span
+        v-if=${props.loadingIcon}
+        class="prop-icon"
+        aria-hidden="true"
+      >${props.loadingIcon}</span>
+      <span
+        v-else
+        class="spinner"
+        aria-hidden="true"
+      ></span>
+    </slot>
+    <slot
+      v-if=${!props.loading}
+      name="icon"
+    >
+      <span
+        v-if=${props.icon}
+        class="prop-icon"
+        aria-hidden="true"
+      >${props.icon}</span>
+    </slot>
+    <slot></slot>
+    <slot name="suffix-icon"></slot>
+  </button>
 `);
 
 export { Button };

@@ -8,7 +8,7 @@ export {
   type CheckboxGroupContext,
   type FormContext,
   type FormItemContext,
-  type RadioGroupContext
+  type RadioGroupContext,
 } from "./context";
 export {
   useDisabled,
@@ -17,7 +17,7 @@ export {
   useSize,
   type FormControl,
   type FormItemInfo,
-  type UseFormControlOptions
+  type UseFormControlOptions,
 } from "../../composables/form";
 export type {
   FormEmits,
@@ -27,13 +27,13 @@ export type {
   FormRule,
   FormRules,
   RuleTrigger,
-  ValidateField
+  ValidateField,
 } from "./Form/types";
 export type {
   AutocompleteFetchSuggestions,
   AutocompleteOption,
   AutocompleteProps,
-  AutocompleteVariant
+  AutocompleteVariant,
 } from "./Autocomplete/types";
 export type {
   FormItemProps,
@@ -41,13 +41,13 @@ export type {
   FormItemExpose,
   FormItemSize,
   FormItemValidateState,
-  ValidateError
+  ValidateError,
 } from "./FormItem/types";
 export type { InputProps, InputSize, InputType, InputVariant } from "./Input/types";
 export type {
   InputNumberControlsPosition,
   InputNumberProps,
-  InputNumberSize
+  InputNumberSize,
 } from "./InputNumber/types";
 export type { InputOtpProps, InputOtpSize, InputOtpType } from "./InputOtp/types";
 export type { InputTagProps, InputTagSize } from "./InputTag/types";
@@ -67,7 +67,7 @@ export type {
   TreeSelectProps,
   TreeSelectSize,
   TreeSelectValue,
-  TreeSelectVariant
+  TreeSelectVariant,
 } from "./TreeSelect/types";
 export type {
   SegmentedFieldNames,
@@ -75,7 +75,7 @@ export type {
   SegmentedOptionObject,
   SegmentedProps,
   SegmentedSize,
-  SegmentedValue
+  SegmentedValue,
 } from "./Segmented/types";
 export type {
   CascaderChangeDetail,
@@ -89,14 +89,21 @@ export type {
   CascaderSize,
   CascaderShowCheckedStrategy,
   CascaderValue,
-  CascaderVariant
+  CascaderVariant,
 } from "./Cascader/types";
-export type { UploadFileItem, UploadProps, UploadRequestOptions } from "./Upload/types";
+export type {
+  UploadElement,
+  UploadFileItem,
+  UploadProps,
+  UploadRequestOptions,
+  UploadSlots,
+} from "./Upload/types";
 export type { RateProps, RateSize } from "./Rate/types";
 export type {
   SliderMark,
   SliderMarks,
   SliderModelValue,
   SliderProps,
-  SliderSize
+  SliderSize,
+  SliderSlots,
 } from "./Slider/types";

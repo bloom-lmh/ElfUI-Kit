@@ -1,0 +1,17 @@
+:host {
+  display: block;
+  width: max(85%, min(100%, 900px));
+  max-width: 100%;
+  min-width: 0;
+  margin: 0 auto clamp(32px, 5vw, 56px);
+}
+
+docs-hero-page-header {
+  display: block;
+}
+
+@media (max-width: 720px) {
+  :host {
+    margin-bottom: var(--elf-space-7, 32px);
+  }
+}

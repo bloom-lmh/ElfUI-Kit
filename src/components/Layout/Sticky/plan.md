@@ -1,6 +1,7 @@
 # Sticky / Affix Element Plus API 对标计划
 
 ## 2026-07-19 目标容器回归
+
 - [x] 验证 Teleport 节点在目标滚动容器顶部保持吸附，并受目标边界约束
 - [x] 同时监听目标滚动容器及其外层可滚动祖先，避免文档主视口滚动时 Teleport 停留在示例外部。
 - [x] 单元测试覆盖外层滚动后的上下边界和卸载监听清理；真实浏览器断言目标与 Teleport 同步移动且始终被目标矩形包含。
@@ -40,3 +41,9 @@
 - [x] Playwright 页面冒烟通过，4 个案例均显示 Template / Script，控制台 0 error。
 - [x] 浏览器实际滚动验证：scrollTop 140、fixed true、Light DOM 位于 append-to、占位高度 48px。
 - [x] 视觉截图：`output/playwright/sticky-upgrade.png`。
+
+## 2026-08-01 Disabled 案例视觉升级
+
+- [x] 将单一说明条改为项目摘要、统计指标和动态列表组成的真实业务场景。
+- [x] 保留 disabled 回到普通文档流的核心行为，并通过容器滚动直观展示卡片不会吸附。
+- [x] 使用纯色 Material 表面与暗色 token，移动端隐藏低优先级信息；页面测试 2 项通过。

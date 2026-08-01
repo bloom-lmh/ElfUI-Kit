@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts-nocheck -- Legacy custom-element fixture requires runtime-only properties.
 // elf-select 单元测试
 
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
@@ -48,13 +48,13 @@ const opts = [
   { value: "svelte", label: "Svelte" },
   { value: "solid", label: "Solid" },
   { value: "elfui", label: "ElfUI" },
-  { value: "lit", label: "Lit" }
+  { value: "lit", label: "Lit" },
 ];
 
 const opts2 = [
   { value: "a", label: "可选 A" },
   { value: "b", label: "可选 B" },
-  { value: "c", label: "禁用 C", disabled: true }
+  { value: "c", label: "禁用 C", disabled: true },
 ];
 
 describe("elf-select", () => {
@@ -127,7 +127,7 @@ describe("elf-select", () => {
       el.setAttribute("variant", variant);
       await tick();
       expect(el.getAttribute("variant")).toBe(variant);
-    }
+    },
   );
 
   it("keeps internal scrolling usable and closes on external page motion", async () => {
@@ -380,7 +380,7 @@ describe("elf-select", () => {
     const trigger = el.shadowRoot!.querySelector(".trigger") as HTMLElement;
     expect(el.shadowRoot!.activeElement).toBe(trigger);
     expect(trigger.getAttribute("aria-controls")).toBe(
-      el.shadowRoot!.querySelector("[role=listbox]")?.id || `${trigger.id}-listbox`
+      el.shadowRoot!.querySelector("[role=listbox]")?.id || `${trigger.id}-listbox`,
     );
     el.blur?.();
     expect(el.shadowRoot!.activeElement).not.toBe(trigger);
@@ -477,7 +477,9 @@ describe("elf-select", () => {
 
     expect(el.hasAttribute("data-virtualized")).toBe(true);
     expect(el.shadowRoot!.querySelectorAll(".option").length).toBeLessThan(20);
-    expect(el.shadowRoot!.querySelector<HTMLElement>(".options-track")?.style.height).toBe("40000px");
+    expect(el.shadowRoot!.querySelector<HTMLElement>(".options-track")?.style.height).toBe(
+      "40000px",
+    );
 
     const dropdown = el.shadowRoot!.querySelector<HTMLElement>(".dropdown")!;
     dropdown.scrollTop = 20000;
@@ -519,20 +521,20 @@ describe("elf-select", () => {
     await tick();
 
     expect(
-      (el.shadowRoot!.querySelector('slot[name="header"]') as HTMLSlotElement).assignedElements()
+      (el.shadowRoot!.querySelector('slot[name="header"]') as HTMLSlotElement).assignedElements(),
     ).toEqual([header]);
     expect(
-      (el.shadowRoot!.querySelector('slot[name="loading"]') as HTMLSlotElement).assignedElements()
+      (el.shadowRoot!.querySelector('slot[name="loading"]') as HTMLSlotElement).assignedElements(),
     ).toEqual([loading]);
     expect(
-      (el.shadowRoot!.querySelector('slot[name="footer"]') as HTMLSlotElement).assignedElements()
+      (el.shadowRoot!.querySelector('slot[name="footer"]') as HTMLSlotElement).assignedElements(),
     ).toEqual([footer]);
 
     el.loading = false;
     await tick();
 
     expect(
-      (el.shadowRoot!.querySelector('slot[name="empty"]') as HTMLSlotElement).assignedElements()
+      (el.shadowRoot!.querySelector('slot[name="empty"]') as HTMLSlotElement).assignedElements(),
     ).toEqual([empty]);
   });
 

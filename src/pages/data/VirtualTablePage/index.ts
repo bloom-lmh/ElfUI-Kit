@@ -23,8 +23,7 @@ const t = createDocsTranslator({
 
 const PageVirtualTable = defineHtml(`
   <elf-container>
-    <h1>${t("title")}</h1>
-    <p>${t("description")}</p>
+    <elf-docs-hero category="data" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
     <page-virtual-table-ex1></page-virtual-table-ex1>
     <page-virtual-table-ex2></page-virtual-table-ex2>
     <page-virtual-table-ex3></page-virtual-table-ex3>

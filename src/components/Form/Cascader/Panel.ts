@@ -106,9 +106,11 @@ const config = (): PanelConfig => {
   };
 };
 
-const rawOptions = (): RawOption[] => (Array.isArray(props.options) ? (props.options as RawOption[]) : []);
+const rawOptions = (): RawOption[] =>
+  Array.isArray(props.options) ? (props.options as RawOption[]) : [];
 
-const optionLabel = (option: RawOption): string => String(option[config().label] ?? option[config().value] ?? "");
+const optionLabel = (option: RawOption): string =>
+  String(option[config().label] ?? option[config().value] ?? "");
 
 const optionValue = (option: RawOption): CascaderValue =>
   (option[config().value] ?? option[config().label] ?? "") as CascaderValue;
@@ -156,7 +158,11 @@ const findPathByValues = (
   return [];
 };
 
-const findPathByValue = (value: CascaderValue, options = rawOptions(), path: RawOption[] = []): RawOption[] => {
+const findPathByValue = (
+  value: CascaderValue,
+  options = rawOptions(),
+  path: RawOption[] = [],
+): RawOption[] => {
   for (const option of options) {
     const nextPath = [...path, option];
     if (sameValue(optionValue(option), value)) return nextPath;
@@ -168,7 +174,9 @@ const findPathByValue = (value: CascaderValue, options = rawOptions(), path: Raw
 
 const normalizePathValue = (value: unknown): CascaderPathValue => {
   if (!Array.isArray(value)) return value == null || value === "" ? [] : [value as CascaderValue];
-  return (value as unknown[]).filter((item) => item != null && item !== "").map((item) => item as CascaderValue);
+  return (value as unknown[])
+    .filter((item) => item != null && item !== "")
+    .map((item) => item as CascaderValue);
 };
 
 const toValuePaths = (value: unknown): CascaderPathValue[] => {
@@ -228,28 +236,22 @@ const emitChange = (paths: CascaderPathValue[]): void => {
   emit("change", detailFromPaths(paths));
 };
 
-const optionPath = (option: RawOption, column: PanelColumn): RawOption[] => [...column.parentPath, option];
+const optionPath = (option: RawOption, column: PanelColumn): RawOption[] => [
+  ...column.parentPath,
+  option,
+];
 
 const valuePathKey = (path: CascaderPathValue): string => JSON.stringify(path);
 
 const optionPathKey = (option: RawOption, column: PanelColumn): string =>
   valuePathKey(pathValues(optionPath(option, column)));
 
-const findPathByKey = (key: string, options = rawOptions(), path: RawOption[] = []): RawOption[] => {
-  for (const option of options) {
-    const nextPath = [...path, option];
-    if (valuePathKey(pathValues(nextPath)) === key) return nextPath;
-    const childPath = findPathByKey(key, optionChildren(option), nextPath);
-    if (childPath.length > 0) return childPath;
-  }
-  return [];
-};
-
 const collectLeafValuePaths = (path: RawOption[]): CascaderPathValue[] => {
   const current = path[path.length - 1];
   if (!current || optionDisabled(current)) return [];
   const children = optionChildren(current).filter((item) => !optionDisabled(item));
-  if (children.length === 0 || optionLeaf(current) || config().checkStrictly) return [pathValues(path)];
+  if (children.length === 0 || optionLeaf(current) || config().checkStrictly)
+    return [pathValues(path)];
   return children.flatMap((child) => collectLeafValuePaths([...path, child]));
 };
 
@@ -281,7 +283,9 @@ const toggleStrictPath = (path: RawOption[]): void => {
   const value = pathValues(path);
   const current = selectedValues.peek();
   const selected = current.some((item) => samePathValue(item, value));
-  const next = selected ? current.filter((item) => !samePathValue(item, value)) : [...current, value];
+  const next = selected
+    ? current.filter((item) => !samePathValue(item, value))
+    : [...current, value];
   selectedValues.set(next);
   activePath.set(path);
   emitChange(next);
@@ -307,15 +311,6 @@ const onOptionPathClick = (path: RawOption[], event?: Event): void => {
   }
   if (hasChildren && !config().checkStrictly) return;
   setSinglePath(path);
-};
-
-const onColumnsClick = (event: Event): void => {
-  const target = event.target as HTMLElement | null;
-  const optionButton = target?.closest?.(".option") as HTMLElement | null;
-  const key = optionButton?.dataset.pathKey;
-  if (!key) return;
-  const path = findPathByKey(key);
-  if (path.length > 0) onOptionPathClick(path, event);
 };
 
 const isActive = (option: RawOption, column: PanelColumn): boolean =>
@@ -368,7 +363,8 @@ const columns = (): PanelColumn[] => {
   return result;
 };
 
-const optionKey = (option: RawOption, level: number): string => `${level}-${String(optionValue(option))}`;
+const optionKey = (option: RawOption, level: number): string =>
+  `${level}-${String(optionValue(option))}`;
 
 const optionClass = (option: RawOption, column: PanelColumn): Record<string, boolean> => ({
   "is-active": isActive(option, column),

@@ -27,8 +27,7 @@ const t = createDocsTranslator({
 
 const PageTreeSelect = defineHtml(`
   <elf-container>
-    <h1>${t("title")}</h1>
-    <p>${t("description")}</p>
+    <elf-docs-hero category="form" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
     <page-tree-select-ex1 />
     <page-tree-select-ex2 />
     <page-tree-select-ex3 />

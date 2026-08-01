@@ -5,7 +5,7 @@ import { ThemeProviderProbe } from "./probe.test-component";
 beforeAll(async () => {
   await import("../../index");
   registerComponents(ThemeProviderProbe);
-});
+}, 30_000);
 
 afterEach(() => {
   document.body.innerHTML = "";

@@ -27,8 +27,7 @@ const t = createDocsTranslator({
 
 const PageCalendar = defineHtml(`
   <elf-container>
-    <h1>${t("title")}</h1>
-    <p>${t("description")}</p>
+    <elf-docs-hero category="picker" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
     <page-calendar-ex1 />
     <page-calendar-ex2 />
     <page-calendar-ex3 />

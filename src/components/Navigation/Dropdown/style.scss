@@ -1,6 +1,8 @@
 @use "../../../styles/reset";
+@use "../../../styles/field-surface" as field;
 
 :host {
+  @include field.tokens;
   display: inline-block;
   position: relative;
   color: var(--elf-text-primary);
@@ -18,99 +20,100 @@
 .split-toggle {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  min-height: 36px;
-  padding: 0 var(--elf-space-4);
-  border: 1px solid var(--elf-border);
-  border-radius: var(--elf-radius-sm);
-  background: var(--elf-bg-paper);
+  justify-content: space-between;
+  min-height: var(--elf-field-control-height);
+  padding: 0 var(--elf-field-padding-end);
+  border: 0;
+  background: transparent;
   color: var(--elf-text-primary);
   font: inherit;
   cursor: pointer;
   user-select: none;
   gap: var(--elf-space-2);
   transition:
-    border-color var(--elf-transition-fast),
-    background var(--elf-transition-fast),
     color var(--elf-transition-fast),
-    box-shadow var(--elf-transition-fast);
-
-  &:hover {
-    border-color: var(--elf-border-strong);
-    background: var(--elf-bg-overlay);
-  }
+    opacity var(--elf-transition-fast);
 
   &:focus-visible {
-    outline: 2px solid var(--elf-primary);
-    outline-offset: 2px;
+    outline: none;
   }
+}
+
+.trigger {
+  min-width: min(220px, calc(100vw - 48px));
+}
+
+.split-field {
+  position: relative;
+  display: inline-flex;
+  align-items: stretch;
+  min-width: min(220px, calc(100vw - 48px));
+}
+
+@include field.surface(".trigger");
+@include field.surface(".split-field");
+@include field.reduced-motion(".trigger");
+@include field.reduced-motion(".split-field");
+
+.trigger > :not(.field-outline),
+.split-field > :not(.field-outline) {
+  position: relative;
+  z-index: 1;
 }
 
 .split-main {
-  border-radius: var(--elf-radius-sm) 0 0 var(--elf-radius-sm);
-  border-right: none;
+  flex: 1 1 auto;
+  justify-content: flex-start;
 }
 
 .split-toggle {
-  width: 36px;
+  width: var(--elf-field-control-height);
   padding: 0;
-  border-radius: 0 var(--elf-radius-sm) var(--elf-radius-sm) 0;
+  justify-content: center;
+  border-left: 1px solid var(--elf-divider);
 }
 
-.trigger.is-primary,
-.split-main.is-primary,
-.split-toggle.is-primary {
-  border-color: var(--elf-primary);
-  background: var(--elf-primary);
-  color: #fff;
+:host([type="primary"]) :is(.trigger, .split-field) {
+  --elf-field-custom-bg: color-mix(in srgb, var(--elf-primary) 8%, var(--elf-bg-paper));
+  color: var(--elf-primary);
 }
 
-.trigger.is-success,
-.split-main.is-success,
-.split-toggle.is-success {
-  border-color: var(--elf-success);
-  background: var(--elf-success);
-  color: #fff;
+:host([type="success"]) :is(.trigger, .split-field) {
+  --elf-field-custom-bg: color-mix(in srgb, var(--elf-success) 8%, var(--elf-bg-paper));
+  color: var(--elf-success);
 }
 
-.trigger.is-warning,
-.split-main.is-warning,
-.split-toggle.is-warning {
-  border-color: var(--elf-warning);
-  background: var(--elf-warning);
-  color: #fff;
+:host([type="warning"]) :is(.trigger, .split-field) {
+  --elf-field-custom-bg: color-mix(in srgb, var(--elf-warning) 9%, var(--elf-bg-paper));
+  color: var(--elf-warning);
 }
 
-.trigger.is-danger,
-.split-main.is-danger,
-.split-toggle.is-danger {
-  border-color: var(--elf-danger);
-  background: var(--elf-danger);
-  color: #fff;
+:host([type="danger"]) :is(.trigger, .split-field) {
+  --elf-field-custom-bg: color-mix(in srgb, var(--elf-danger) 8%, var(--elf-bg-paper));
+  color: var(--elf-danger);
 }
 
-.trigger.is-info,
-.split-main.is-info,
-.split-toggle.is-info {
-  border-color: var(--elf-info, #607d8b);
-  background: var(--elf-info, #607d8b);
-  color: #fff;
+:host([type="info"]) :is(.trigger, .split-field) {
+  --elf-field-custom-bg: color-mix(in srgb, var(--elf-info, #607d8b) 8%, var(--elf-bg-paper));
+  color: var(--elf-info, #607d8b);
 }
 
-:host([size="sm"]) .trigger,
-:host([size="sm"]) .split-main,
-:host([size="sm"]) .split-toggle {
-  min-height: 30px;
-  padding-inline: var(--elf-space-3);
+:host([size="sm"]) :is(.trigger, .split-field) {
+  --elf-field-control-height: 40px;
   font-size: var(--elf-font-size-xs);
 }
 
-:host([size="lg"]) .trigger,
-:host([size="lg"]) .split-main,
-:host([size="lg"]) .split-toggle {
-  min-height: 44px;
-  padding-inline: var(--elf-space-5);
+:host([size="sm"]) :is(.trigger, .split-main) {
+  padding-inline: var(--elf-space-3);
+}
+
+:host([size="lg"]) :is(.trigger, .split-field) {
+  --elf-field-control-height: 64px;
   font-size: var(--elf-font-size-md);
+}
+
+:host([size="lg"]) :is(.trigger, .split-main) {
+  padding-inline: var(--elf-space-5);
 }
 
 :host([disabled]) .trigger,
@@ -118,7 +121,6 @@
 :host([disabled]) .split-toggle {
   cursor: not-allowed;
   color: var(--elf-text-disabled);
-  background: var(--elf-bg-overlay);
   pointer-events: none;
 }
 
@@ -127,7 +129,10 @@
 }
 
 .arrow {
-  font-size: 12px;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  fill: currentColor;
   transition: transform var(--elf-transition-fast);
 }
 
@@ -138,17 +143,20 @@
 .menu {
   position: absolute;
   z-index: var(--elf-z-index-dropdown, 1000);
-  min-width: 192px;
+  min-width: 208px;
   width: max-content;
   max-width: min(340px, calc(100vw - 24px));
   max-height: var(--dropdown-max-height, 280px);
   overflow-x: hidden;
   overflow-y: auto;
-  padding: var(--elf-space-1) 0;
-  border: 1px solid var(--elf-border);
+  padding: var(--elf-space-1);
+  border: 1px solid color-mix(in srgb, var(--elf-border) 76%, transparent);
   border-radius: var(--elf-radius-sm);
   background: var(--elf-bg-paper);
-  box-shadow: var(--elf-shadow-2);
+  box-shadow:
+    0 5px 5px -3px rgb(0 0 0 / 20%),
+    0 8px 10px 1px rgb(0 0 0 / 14%),
+    0 3px 14px 2px rgb(0 0 0 / 12%);
   opacity: 0;
   transform: translateY(-6px) scale(0.98);
   transform-origin: top;
@@ -164,10 +172,28 @@
   pointer-events: auto;
 }
 
+.menu {
+  scrollbar-color: var(--elf-border-strong) transparent;
+  scrollbar-width: thin;
+}
+
+.menu::-webkit-scrollbar {
+  width: 8px;
+}
+.menu::-webkit-scrollbar-track {
+  background: transparent;
+}
+.menu::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: var(--elf-border-strong);
+  background-clip: padding-box;
+}
+
 .menu.is-dark {
-  border-color: rgba(255, 255, 255, 0.08);
-  background: #1f2937;
-  color: #f8fafc;
+  border-color: color-mix(in srgb, var(--elf-border) 72%, transparent);
+  background: var(--elf-bg-overlay);
+  color: var(--elf-text-primary);
 }
 
 .menu.is-dark .item,
@@ -179,17 +205,17 @@
 .menu.is-dark .item:focus-visible,
 .menu.is-dark .sub-trigger:hover,
 .menu.is-dark .sub-trigger:focus-visible {
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
+  background: color-mix(in srgb, var(--elf-text-primary) 10%, transparent);
+  color: var(--elf-text-primary);
 }
 
 .menu.is-bottom-start {
-  top: calc(100% + 6px);
+  top: 100%;
   left: 0;
 }
 
 .menu.is-bottom-end {
-  top: calc(100% + 6px);
+  top: 100%;
   right: 0;
 }
 
@@ -204,33 +230,37 @@
 }
 
 .menu.is-bottom {
-  top: calc(100% + 6px);
+  top: 100%;
   left: 50%;
   transform: translate(-50%, -6px) scale(0.98);
 }
 
-.menu.is-bottom.is-open { transform: translate(-50%, 0) scale(1); }
+.menu.is-bottom.is-open {
+  transform: translate(-50%, 0) scale(1);
+}
 
 .menu.is-top-start {
-  bottom: calc(100% + 6px);
+  bottom: 100%;
   left: 0;
   transform-origin: bottom;
 }
 
 .menu.is-top-end {
   right: 0;
-  bottom: calc(100% + 6px);
+  bottom: 100%;
   transform-origin: bottom;
 }
 
 .menu.is-top {
-  bottom: calc(100% + 6px);
+  bottom: 100%;
   left: 50%;
   transform: translate(-50%, 6px) scale(0.98);
   transform-origin: bottom;
 }
 
-.menu.is-top.is-open { transform: translate(-50%, 0) scale(1); }
+.menu.is-top.is-open {
+  transform: translate(-50%, 0) scale(1);
+}
 
 .menu.is-virtual,
 .menu.is-virtual.is-bottom,
@@ -258,9 +288,10 @@
   align-items: center;
   width: 100%;
   box-sizing: border-box;
-  min-height: 36px;
+  min-height: 40px;
   padding: 0 var(--elf-space-3);
   border: 0;
+  border-radius: 2px;
   background: transparent;
   color: var(--elf-text-primary);
   font: inherit;
@@ -291,7 +322,7 @@
 }
 
 .item.is-selected {
-  background: rgba(25, 118, 210, 0.1);
+  background: color-mix(in srgb, var(--elf-primary) 10%, var(--elf-bg-paper));
   color: var(--elf-primary);
   font-weight: 600;
 }

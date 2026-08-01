@@ -10,17 +10,17 @@ import "./components";
 import "./styles/utilities.scss";
 /* import "./elements.generated"; */
 
-import {
-  createRouter } from "@elfui/router";
-import { registerComponents
-} from "@elfui/core";
+import { createRouter } from "@elfui/router";
+import { registerComponents } from "@elfui/core";
 
 import { App } from "./app/AppShell/index";
 import { routes } from "./routes";
 
-registerComponents(App);
-
+// Create the router before upgrading the existing <elf-app> element so AppShell
+// can subscribe to the initial route and keep its menu state controlled.
 createRouter({
   mode: "hash",
-  routes
+  routes,
 });
+
+registerComponents(App);

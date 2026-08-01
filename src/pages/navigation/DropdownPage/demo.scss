@@ -1,0 +1,63 @@
+:host {
+  display: block;
+}
+
+.command-surface {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 132px;
+  padding: clamp(20px, 4vw, 36px);
+  border: 1px solid color-mix(in srgb, var(--elf-primary) 20%, var(--elf-border));
+  border-radius: var(--elf-radius-lg);
+  background: color-mix(in srgb, var(--elf-primary) 5%, var(--elf-bg-page));
+  gap: var(--elf-space-6);
+}
+
+.command-copy {
+  display: grid;
+  max-width: 420px;
+  gap: var(--elf-space-2);
+}
+
+.command-copy strong {
+  color: var(--elf-text-primary);
+  font-size: var(--elf-font-size-lg);
+}
+
+.command-copy > span:last-child {
+  color: var(--elf-text-secondary);
+  line-height: 1.65;
+}
+
+.command-eyebrow {
+  color: var(--elf-primary);
+  font-size: var(--elf-font-size-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.command-controls {
+  display: grid;
+  gap: var(--elf-space-4);
+}
+
+.command-controls label {
+  display: grid;
+  gap: var(--elf-space-2);
+  color: var(--elf-text-secondary);
+  font-size: var(--elf-font-size-sm);
+}
+
+.demo-state {
+  color: var(--elf-text-secondary);
+  font-size: var(--elf-font-size-sm);
+}
+
+@media (max-width: 640px) {
+  .command-surface {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

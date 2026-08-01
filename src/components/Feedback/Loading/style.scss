@@ -88,6 +88,19 @@
   box-shadow: 0 12px 32px rgb(0 0 0 / 10%);
 }
 
+:host([plain]) .box {
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+:host([plain]) .indicator {
+  width: auto;
+  height: auto;
+}
+
 .indicator {
   display: inline-flex;
   align-items: center;

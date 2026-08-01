@@ -1,7 +1,72 @@
-@use "../../../styles/reset";
+.anchor-demo-layout {
+  display: grid;
+  grid-template-columns: minmax(160px, 220px) minmax(0, 1fr);
+  gap: clamp(16px, 3vw, 28px);
+  width: 100%;
+  max-width: 900px;
+  min-width: 0;
+  align-items: start;
+}
 
-:host {
-  display: block;
+.anchor-document {
+  height: 310px;
+  min-width: 0;
+  overflow: auto;
+  border: 1px solid var(--elf-divider);
+  border-radius: var(--elf-radius-sm);
+  background: var(--elf-bg-paper);
+  scrollbar-color: var(--elf-border-strong) transparent;
+  scrollbar-width: thin;
+}
+
+.anchor-document::-webkit-scrollbar {
+  width: 8px;
+}
+.anchor-document::-webkit-scrollbar-track {
+  background: transparent;
+}
+.anchor-document::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: var(--elf-border-strong);
+  background-clip: padding-box;
+}
+
+.anchor-section {
+  position: relative;
+  display: grid;
+  min-height: 220px;
+  box-sizing: border-box;
+  align-content: center;
+  padding: clamp(28px, 5vw, 48px);
+  border-bottom: 1px solid var(--elf-divider);
+  background: var(--elf-bg-paper);
+}
+
+.anchor-section:last-child {
+  border-bottom: 0;
+}
+.anchor-section::before {
+  position: absolute;
+  top: 28px;
+  bottom: 28px;
+  left: 0;
+  width: 3px;
+  background: var(--elf-primary);
+  content: "";
+}
+.anchor-section h3 {
+  margin: 0 0 10px;
+  color: var(--elf-text-primary);
+  font-size: clamp(19px, 3vw, 26px);
+  font-weight: 650;
+  letter-spacing: 0;
+}
+.anchor-section p {
+  max-width: 580px;
+  margin: 0;
+  color: var(--elf-text-secondary);
+  line-height: 1.75;
 }
 
 .horizontal-scroll-shell {
@@ -15,7 +80,7 @@
 .horizontal-scroll {
   display: flex;
   width: 100%;
-  height: 340px;
+  height: 320px;
   overflow-x: auto;
   overflow-y: hidden;
   overscroll-behavior-inline: contain;
@@ -23,81 +88,30 @@
   scrollbar-width: none;
   background: var(--elf-bg-paper);
 }
-
 .horizontal-scroll::-webkit-scrollbar {
   display: none;
 }
 
-.horizontal-scrollbar {
-  display: block;
-  width: 100%;
-  height: 10px;
-  box-sizing: border-box;
-  margin: 0;
-  padding: 2px;
-  border: 0;
-  appearance: none;
-  background: var(--elf-bg-overlay);
-  cursor: ew-resize;
-}
-
-.horizontal-scrollbar::-webkit-slider-runnable-track {
-  width: 100%;
-  height: 6px;
-  border-radius: 999px;
-  background: var(--elf-divider);
-}
-
-.horizontal-scrollbar::-webkit-slider-thumb {
-  width: max(44px, calc(100% / 7));
-  height: 6px;
-  border: 0;
-  border-radius: 999px;
-  appearance: none;
-  background: color-mix(in srgb, var(--elf-primary) 70%, var(--elf-divider));
-  cursor: grab;
-}
-
-.horizontal-scrollbar::-moz-range-track {
-  height: 6px;
-  border: 0;
-  border-radius: 999px;
-  background: var(--elf-divider);
-}
-
-.horizontal-scrollbar::-moz-range-thumb {
-  width: 44px;
-  height: 6px;
-  border: 0;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--elf-primary) 70%, var(--elf-divider));
-  cursor: grab;
-}
-
-.horizontal-scrollbar:focus-visible {
-  outline: 2px solid color-mix(in srgb, var(--elf-primary) 62%, transparent);
-  outline-offset: 2px;
-}
-
 .horizontal-section {
+  position: relative;
   box-sizing: border-box;
   display: grid;
   min-width: 100%;
   height: 100%;
   flex: 0 0 100%;
-  grid-template-rows: auto auto 1fr;
+  grid-template-rows: auto auto auto;
   align-content: center;
-  padding: clamp(28px, 6vw, 64px);
+  padding: clamp(30px, 7vw, 68px);
+  border-right: 1px solid var(--elf-divider);
   scroll-snap-align: start;
   color: var(--elf-text-primary);
 }
-
 .horizontal-section h3 {
   margin: 12px 0 10px;
-  font-size: clamp(24px, 4vw, 42px);
-  letter-spacing: -0.03em;
+  font-size: clamp(24px, 4vw, 40px);
+  font-weight: 600;
+  letter-spacing: 0;
 }
-
 .horizontal-section p {
   max-width: 620px;
   margin: 0;
@@ -105,22 +119,27 @@
   font-size: 15px;
   line-height: 1.7;
 }
-
 .section-index {
-  color: currentColor;
+  color: var(--elf-primary);
   font-size: 12px;
   font-weight: 800;
-  letter-spacing: .16em;
-  opacity: .72;
 }
 
-.tone-1 { background: color-mix(in srgb, var(--elf-primary) 24%, var(--elf-bg-paper)); }
-.tone-2 { background: color-mix(in srgb, var(--elf-success) 22%, var(--elf-bg-paper)); }
-.tone-3 { background: color-mix(in srgb, var(--elf-warning) 24%, var(--elf-bg-paper)); }
-.tone-4 { background: color-mix(in srgb, var(--elf-info) 24%, var(--elf-bg-paper)); }
-
-@media (max-width: 640px) {
-  .horizontal-scroll {
+@media (max-width: 680px) {
+  .anchor-demo-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .anchor-demo-layout > elf-anchor {
+    width: 100%;
+  }
+  .anchor-document {
     height: 300px;
+  }
+  .anchor-section {
+    min-height: 210px;
+    padding: 30px 26px;
+  }
+  .horizontal-scroll {
+    height: 290px;
   }
 }

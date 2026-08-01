@@ -9,6 +9,18 @@ export interface SliderMark {
 
 export type SliderMarks = SliderMark[] | Record<string, string | number>;
 
+export type SliderEmits = {
+  "update:modelValue": [value: SliderModelValue];
+  input: [value: SliderModelValue];
+  change: [value: SliderModelValue];
+};
+
+export interface SliderSlots {
+  "thumb-label"?: unknown;
+  "thumb-label-start"?: unknown;
+  "thumb-label-end"?: unknown;
+}
+
 export interface SliderProps {
   modelValue: SliderModelValue;
   min: number;
@@ -25,6 +37,7 @@ export interface SliderProps {
   showInputControls: boolean;
   inputSize: SliderInputSize;
   marks: SliderMarks;
+  tickLabels: Array<string | number>;
   color: string;
   size: SliderSize;
   formatTooltip?: (value: number) => string;

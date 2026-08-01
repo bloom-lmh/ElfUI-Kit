@@ -1,0 +1,157 @@
+.upload-demo-stage {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  min-height: 220px;
+}
+
+.upload-demo-stage > elf-upload {
+  width: min(100%, 720px);
+  --elf-upload-justify: center;
+  --elf-upload-text-align: center;
+}
+
+.upload-demo-stage.is-large {
+  min-height: 360px;
+}
+
+.vuetify-file-input,
+.vuetify-file-upload {
+  width: min(100%, 760px);
+  margin-inline: auto;
+}
+
+.vuetify-file-input::part(trigger) {
+  display: block;
+}
+.vuetify-file-input::part(list) {
+  margin-top: 8px;
+}
+
+.file-input-field {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  min-height: 56px;
+  padding: 8px 14px;
+  border: 1px solid var(--elf-border-strong);
+  border-radius: 4px;
+  background: var(--elf-bg-paper);
+  cursor: pointer;
+}
+
+.file-input-field:focus-visible {
+  outline: 2px solid var(--elf-primary);
+  outline-offset: 2px;
+}
+.file-input-paperclip {
+  display: inline-flex;
+  color: var(--elf-text-secondary);
+}
+
+.file-input-paperclip svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+.file-input-content {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+.file-input-placeholder {
+  color: var(--elf-text-secondary);
+}
+.file-input-chip {
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: var(--elf-primary);
+  color: var(--elf-text-on-primary);
+  font-size: 12px;
+}
+
+.vuetify-file-upload::part(dropzone) {
+  min-height: 300px;
+  padding: 32px;
+  border: 2px dashed var(--elf-border-strong);
+  border-radius: 4px;
+  background: var(--elf-bg-paper);
+}
+
+.vuetify-file-upload::part(trigger) {
+  display: none;
+}
+.upload-drop-content {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+}
+.upload-drop-icon {
+  display: grid;
+  width: 56px;
+  height: 56px;
+  place-items: center;
+  color: var(--elf-primary);
+}
+
+.upload-drop-icon svg {
+  width: 40px;
+  height: 40px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.6;
+}
+.upload-drop-title {
+  color: var(--elf-text-primary);
+  font-size: 16px;
+  font-weight: 600;
+}
+.upload-drop-or {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 180px;
+  color: var(--elf-text-secondary);
+  font-size: 12px;
+}
+.upload-drop-or::before,
+.upload-drop-or::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--elf-divider);
+}
+.upload-browse {
+  min-height: 36px;
+  padding: 0 16px;
+  color: var(--elf-primary);
+  border: 1px solid var(--elf-primary);
+  border-radius: 4px;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+
+@media (max-width: 520px) {
+  .upload-demo-stage {
+    min-height: 200px;
+  }
+
+  .upload-demo-stage.is-large {
+    min-height: 300px;
+  }
+
+  .vuetify-file-upload::part(dropzone) {
+    min-height: 260px;
+    padding: 24px 16px;
+  }
+}

@@ -5,10 +5,10 @@ const t = createDocsTranslator({
   title: { zh: "布局、默认值与尺寸", en: "Layout, defaults, and sizes" },
   playground: {
     zh: "已知页数、非受控默认值与紧凑布局",
-    en: "Known page counts, uncontrolled defaults, and compact layouts."
+    en: "Known page counts, uncontrolled defaults, and compact layouts.",
   },
   previous: { zh: "上一页", en: "Previous" },
-  next: { zh: "下一页", en: "Next" }
+  next: { zh: "下一页", en: "Next" },
 });
 const compactPage = useRef(3);
 const simplePage = useRef(1);
@@ -18,8 +18,10 @@ const readFirst = <T>(event: Event, fallback: T): T => {
   return (Array.isArray(detail) ? detail[0] : detail) ?? fallback;
 };
 
-const onCompactChange = (event: Event): void => compactPage.set(Number(readFirst(event, compactPage.value)));
-const onSimpleChange = (event: Event): void => simplePage.set(Number(readFirst(event, simplePage.value)));
+const onCompactChange = (event: Event): void =>
+  compactPage.set(Number(readFirst(event, compactPage.value)));
+const onSimpleChange = (event: Event): void =>
+  simplePage.set(Number(readFirst(event, simplePage.value)));
 
 const code = `<elf-pagination
   size="large"
@@ -46,8 +48,8 @@ const PagePaginationEx2 = defineHtml(`
         size="large"
         page-count="4"
         default-current-page="2"
-        prev-text=${t("previous")}
-        next-text=${t("next")}
+        :prevText.prop=${t("previous")}
+        :nextText.prop=${t("next")}
         layout="prev, pager, next"
       ></elf-pagination>
 

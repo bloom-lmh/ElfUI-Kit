@@ -30,11 +30,7 @@ import type { TreeNode } from "../../Data/Tree/types";
 import { useLocaleProvider } from "../../Providers/context";
 import { useDismissibleOverlay } from "../../../composables/useDismissibleOverlay";
 import { useFieldValueDefaults } from "../../../composables/field-values";
-import {
-  useDisabled,
-  useFormControl,
-  useFormItem,
-} from "../../../composables/form";
+import { useDisabled, useFormControl, useFormItem } from "../../../composables/form";
 import { normalizeFieldVariant } from "../../../types/field";
 import {
   normalizeTreeSelectKeys,
@@ -44,7 +40,6 @@ import {
 } from "./model";
 import styles from "./style.scss?inline";
 import type {
-  TreeSelectElement,
   TreeSelectEmits,
   TreeSelectExpose,
   TreeSelectModelValue,
@@ -126,9 +121,7 @@ const locale = useLocaleProvider();
 const fieldValues = useFieldValueDefaults();
 const host = useHost();
 const ctl = useFormControl<TreeSelectModelValue>(props, emit, {
-  ...(props.validateEvent === false
-    ? { triggers: { change: false, blur: false } }
-    : {}),
+  ...(props.validateEvent === false ? { triggers: { change: false, blur: false } } : {}),
 });
 const isDisabled = useDisabled(() => Boolean(props.disabled));
 const normalizedOwnSize = (): "sm" | "md" | "lg" | "" =>
@@ -155,12 +148,8 @@ const resolvedPlacement = useRef<TreeSelectPlacement>("bottom-start");
 const collection = useRef<TreeCollection>(
   buildTreeCollection([], resolveTreeFields("", {}), false),
 );
-const triggerRef = useTemplateRef(
-  "triggerEl",
-) as TemplateElementRef<HTMLElement>;
-const filterRef = useTemplateRef(
-  "filterEl",
-) as TemplateElementRef<HTMLInputElement>;
+const triggerRef = useTemplateRef("triggerEl") as TemplateElementRef<HTMLElement>;
+const filterRef = useTemplateRef("filterEl") as TemplateElementRef<HTMLInputElement>;
 const panelRef = useTemplateRef("panelEl") as TemplateElementRef<HTMLElement>;
 let mounted = false;
 let overlayFrame = 0;
@@ -170,18 +159,13 @@ let cleanupAnchoredOverlay = (): void => {};
 // ── Derived model ─────────────────────────────────────────
 
 const isMultiple = (): boolean => Boolean(props.multiple || props.showCheckbox);
-const keyField = (): string =>
-  props.valueKey || props.nodeKey || props.props?.key || "key";
-const fields = (): TreeFieldConfig =>
-  resolveTreeFields(keyField(), props.props || {});
-const selectedKeys = (): string[] =>
-  normalizeTreeSelectKeys(ctl.model.value, isMultiple());
+const keyField = (): string => props.valueKey || props.nodeKey || props.props?.key || "key";
+const fields = (): TreeFieldConfig => resolveTreeFields(keyField(), props.props || {});
+const selectedKeys = (): string[] => normalizeTreeSelectKeys(ctl.model.value, isMultiple());
 const selectedEntries = (): TreeSelectEntry[] =>
   treeSelectEntries(collection.value, fields(), selectedKeys());
 const selectedLabel = (): string | string[] =>
-  isMultiple()
-    ? selectedEntries().map((entry) => entry.label)
-    : selectedEntries()[0]?.label || "";
+  isMultiple() ? selectedEntries().map((entry) => entry.label) : selectedEntries()[0]?.label || "";
 const visibleEntries = (): TreeSelectEntry[] => {
   const entries = selectedEntries();
   if (!isMultiple() || !props.collapseTags) return entries;
@@ -190,20 +174,14 @@ const visibleEntries = (): TreeSelectEntry[] => {
 const collapsedCount = (): number =>
   Math.max(0, selectedEntries().length - visibleEntries().length);
 const hasValue = (): boolean => selectedKeys().length > 0;
-const placeholderText = (): string =>
-  props.placeholder || locale.t("common.select");
-const filterPlaceholderText = (): string =>
-  props.filterPlaceholder || locale.t("tree.search");
+const placeholderText = (): string => props.placeholder || locale.t("common.select");
+const filterPlaceholderText = (): string => props.filterPlaceholder || locale.t("tree.search");
 const panelId = (): string => `${props.id || "elf-tree-select"}-panel`;
 const treeFields = () => props.props || {};
-const treeDefaultExpandedKeys = (): string[] =>
-  (props.defaultExpandedKeys || []).map(String);
-const treeModelValue = (): string =>
-  isMultiple() ? "" : selectedKeys()[0] || "";
+const treeDefaultExpandedKeys = (): string[] => (props.defaultExpandedKeys || []).map(String);
+const treeModelValue = (): string => (isMultiple() ? "" : selectedKeys()[0] || "");
 const treeElement = (): TreeSelectTreeElement | null =>
-  (host.shadowRoot?.querySelector(
-    "elf-tree",
-  ) as TreeSelectTreeElement | null) ?? null;
+  (host.shadowRoot?.querySelector("elf-tree") as TreeSelectTreeElement | null) ?? null;
 const panelStyle = (): Record<string, string> => ({
   ...(props.popperStyle || {}),
   ...overlayStyle.value,
@@ -216,9 +194,7 @@ const panelClass = () => [
 ];
 
 const rebuildCollection = (): void => {
-  collection.set(
-    buildTreeCollection(props.data || [], fields(), Boolean(props.lazy)),
-  );
+  collection.set(buildTreeCollection(props.data || [], fields(), Boolean(props.lazy)));
 };
 
 // ── Value transactions ───────────────────────────────────
@@ -235,9 +211,7 @@ const commitKeys = (keys: readonly string[]): void => {
 
 const removeValue = (value: TreeSelectValue): void => {
   if (!isMultiple() || isDisabled()) return;
-  const removed = selectedEntries().find((entry) =>
-    Object.is(entry.value, value),
-  );
+  const removed = selectedEntries().find((entry) => Object.is(entry.value, value));
   if (!removed) return;
   const next = selectedEntries().filter((entry) => entry.key !== removed.key);
   treeElement()?.setCheckedKeys(next.map((entry) => entry.key));
@@ -248,9 +222,8 @@ const removeValue = (value: TreeSelectValue): void => {
 const clear = (event?: Event): void => {
   event?.stopPropagation();
   if (isDisabled() || !hasValue()) return;
-  const next = fieldValues.valueOnClear<TreeSelectModelValue>(
-    props.valueOnClear,
-    () => (isMultiple() ? [] : ""),
+  const next = fieldValues.valueOnClear<TreeSelectModelValue>(props.valueOnClear, () =>
+    isMultiple() ? [] : "",
   );
   treeElement()?.setCheckedKeys([]);
   ctl.setValue(next);
@@ -279,8 +252,7 @@ const updateOverlayPosition = (): void => {
     anchorRect,
     {
       width,
-      height:
-        panelRect.height || panel.offsetHeight || Number(props.height) || 280,
+      height: panelRect.height || panel.offsetHeight || Number(props.height) || 280,
     },
     readOverlayViewport(),
     {
@@ -336,8 +308,7 @@ const close = (restoreFocus = false): void => {
 const connectOverlay = (): void => {
   cleanupAnchoredOverlay();
   cleanupAnchoredOverlay = (): void => {};
-  if (!openState.peek() || !props.teleported || typeof window === "undefined")
-    return;
+  if (!openState.peek() || !props.teleported || typeof window === "undefined") return;
   const trigger = triggerRef.value;
   const panel = panelRef.value;
   if (!trigger || !panel) return;
@@ -408,10 +379,7 @@ const onTriggerKeydown = (event: KeyboardEvent): void => {
     focusTree(event.key === "ArrowUp");
     return;
   }
-  if (
-    (event.key === "Enter" || event.key === " ") &&
-    event.target === triggerRef.value
-  ) {
+  if ((event.key === "Enter" || event.key === " ") && event.target === triggerRef.value) {
     event.preventDefault();
     toggle();
   }
@@ -487,8 +455,7 @@ const onFocusOut = (event: FocusEvent): void => {
     // `document.activeElement` is the TreeSelect host while any nested
     // shadow descendant owns focus. The shadow-root check also supports
     // test environments that expose the inner active element directly.
-    if (document.activeElement === host || host.shadowRoot?.activeElement)
-      return;
+    if (document.activeElement === host || host.shadowRoot?.activeElement) return;
     ctl.dispatchBlur(event);
     if (openState.peek()) close(false);
   }, 0);
@@ -503,10 +470,8 @@ const getCheckedKeys = (leafOnly = false): string[] =>
   treeElement()?.getCheckedKeys(leafOnly) || [];
 const setCheckedKeys = (keys: TreeSelectValue[], leafOnly = false): void =>
   treeElement()?.setCheckedKeys(keys, leafOnly);
-const getCurrentNode = (): TreeNode | undefined =>
-  treeElement()?.getCurrentNode();
-const scrollToNode = (key: TreeSelectValue): void =>
-  treeElement()?.scrollToNode(key);
+const getCurrentNode = (): TreeNode | undefined => treeElement()?.getCurrentNode();
+const scrollToNode = (key: TreeSelectValue): void => treeElement()?.scrollToNode(key);
 
 // ── Host, lifecycle, and public contract ─────────────────
 

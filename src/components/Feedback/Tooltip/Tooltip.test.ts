@@ -35,13 +35,13 @@ interface TooltipEl extends HTMLElement {
 const touchPointerEvent = (
   type: "pointerdown" | "pointermove" | "pointerup" | "pointercancel",
   clientX: number,
-  clientY: number
+  clientY: number,
 ): Event => {
   const event = new Event(type, { bubbles: true, composed: true });
   Object.defineProperties(event, {
     pointerType: { value: "touch" },
     clientX: { value: clientX },
-    clientY: { value: clientY }
+    clientY: { value: clientY },
   });
   return event;
 };
@@ -58,7 +58,7 @@ describe("elf-tooltip", () => {
     expect(el.shadowRoot!.querySelector(".tooltip-content")).toBeNull();
 
     // 模拟 mouseenter 触发
-    const container = el.shadowRoot!.querySelector(".tooltip-container") as HTMLElement;
+    const _container = el.shadowRoot!.querySelector(".tooltip-container") as HTMLElement;
     triggerOf(el).dispatchEvent(new MouseEvent("mouseenter"));
     await tick();
     await tick();
@@ -91,7 +91,7 @@ describe("elf-tooltip", () => {
 
     expect(el.shadowRoot!.querySelector(".tooltip-content")).toBeNull();
 
-    const container = el.shadowRoot!.querySelector(".tooltip-container") as HTMLElement;
+    const _container = el.shadowRoot!.querySelector(".tooltip-container") as HTMLElement;
     triggerOf(el).dispatchEvent(new FocusEvent("focusin"));
     await tick();
     await tick();
@@ -117,7 +117,7 @@ describe("elf-tooltip", () => {
     document.body.appendChild(el);
     await tick();
 
-    const container = el.shadowRoot!.querySelector(".tooltip-container") as HTMLElement;
+    const _container = el.shadowRoot!.querySelector(".tooltip-container") as HTMLElement;
     triggerOf(el).dispatchEvent(new FocusEvent("focusin"));
     await tick();
 
@@ -126,7 +126,7 @@ describe("elf-tooltip", () => {
     expect(tooltip?.style.getPropertyValue("--elf-tooltip-max-width")).toBe("280px");
     expect(button.getAttribute("aria-describedby")?.split(" ")).toEqual([
       "existing-help",
-      tooltip?.id
+      tooltip?.id,
     ]);
 
     document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
@@ -144,7 +144,7 @@ describe("elf-tooltip", () => {
     document.body.appendChild(el);
     await tick();
 
-    const container = el.shadowRoot!.querySelector(".tooltip-container") as HTMLElement;
+    const _container = el.shadowRoot!.querySelector(".tooltip-container") as HTMLElement;
     triggerOf(el).dispatchEvent(new MouseEvent("mouseenter"));
     await tick();
     await tick();
@@ -160,7 +160,7 @@ describe("elf-tooltip", () => {
     document.body.appendChild(el);
     await tick();
 
-    const container = el.shadowRoot!.querySelector(".tooltip-container") as HTMLElement;
+    const _container = el.shadowRoot!.querySelector(".tooltip-container") as HTMLElement;
 
     // 第一次点击：显示
     triggerOf(el).dispatchEvent(new MouseEvent("click"));
@@ -195,7 +195,7 @@ describe("elf-tooltip", () => {
     document.body.appendChild(el);
     await tick();
 
-    const container = el.shadowRoot!.querySelector(".tooltip-container") as HTMLElement;
+    const _container = el.shadowRoot!.querySelector(".tooltip-container") as HTMLElement;
 
     // 右键触发
     const contextMenuEvt = new MouseEvent("contextmenu", { cancelable: true });
@@ -242,7 +242,7 @@ describe("elf-tooltip", () => {
     document.body.appendChild(el);
     await tick();
 
-    const container = el.shadowRoot!.querySelector(".tooltip-container") as HTMLElement;
+    const _container = el.shadowRoot!.querySelector(".tooltip-container") as HTMLElement;
 
     triggerOf(el).dispatchEvent(new MouseEvent("mouseenter"));
     await tick();
@@ -275,7 +275,7 @@ describe("elf-tooltip", () => {
     document.body.appendChild(el);
     await tick();
 
-    const container = el.shadowRoot!.querySelector(".tooltip-container") as HTMLElement;
+    const _container = el.shadowRoot!.querySelector(".tooltip-container") as HTMLElement;
     triggerOf(el).dispatchEvent(new MouseEvent("mouseenter"));
     await tick();
     await tick();
@@ -292,7 +292,7 @@ describe("elf-tooltip", () => {
     document.body.appendChild(el);
     await tick();
 
-    const container = el.shadowRoot!.querySelector(".tooltip-container") as HTMLElement;
+    const _container = el.shadowRoot!.querySelector(".tooltip-container") as HTMLElement;
     triggerOf(el).dispatchEvent(new MouseEvent("mouseenter"));
     await tick();
     await tick();
@@ -308,7 +308,7 @@ describe("elf-tooltip", () => {
     document.body.appendChild(el);
     await tick();
 
-    const container = el.shadowRoot!.querySelector(".tooltip-container") as HTMLElement;
+    const _container = el.shadowRoot!.querySelector(".tooltip-container") as HTMLElement;
     triggerOf(el).dispatchEvent(new MouseEvent("mouseenter"));
     await tick();
     await tick();
@@ -368,7 +368,7 @@ describe("elf-tooltip touch long press", () => {
     document.body.appendChild(el);
     await tick();
 
-    const container = el.shadowRoot!.querySelector(".tooltip-container") as HTMLElement;
+    const _container = el.shadowRoot!.querySelector(".tooltip-container") as HTMLElement;
     triggerOf(el).dispatchEvent(touchPointerEvent("pointerdown", 20, 20));
     await wait(130);
 
@@ -394,7 +394,7 @@ describe("elf-tooltip touch long press", () => {
     document.body.appendChild(el);
     await tick();
 
-    const container = el.shadowRoot!.querySelector(".tooltip-container") as HTMLElement;
+    const _container = el.shadowRoot!.querySelector(".tooltip-container") as HTMLElement;
     triggerOf(el).dispatchEvent(touchPointerEvent("pointerdown", 10, 10));
     triggerOf(el).dispatchEvent(touchPointerEvent("pointermove", 30, 10));
     await wait(140);

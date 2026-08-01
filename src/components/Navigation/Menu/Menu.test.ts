@@ -1,4 +1,5 @@
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { mdiViewDashboardOutline } from "@mdi/js";
 import { createOverlayInteractionController } from "../../Common/overlay/overlay-interaction-controller";
 
 beforeAll(async () => {
@@ -62,15 +63,15 @@ const items = [
     icon: "W",
     children: [
       { index: "/workspace/projects", label: "Projects" },
-      { index: "/workspace/tasks", label: "Tasks", disabled: true }
-    ]
+      { index: "/workspace/tasks", label: "Tasks", disabled: true },
+    ],
   },
   {
     index: "/settings",
     label: "Settings",
     icon: "S",
-    children: [{ index: "/settings/profile", label: "Profile" }]
-  }
+    children: [{ index: "/settings/profile", label: "Profile" }],
+  },
 ];
 
 const mount = async (): Promise<MenuEl> => {
@@ -84,10 +85,28 @@ const mount = async (): Promise<MenuEl> => {
 
 const labels = (el: MenuEl): string[] =>
   Array.from(el.shadowRoot!.querySelectorAll(".menu-label")).map(
-    (node) => node.textContent?.trim() || ""
+    (node) => node.textContent?.trim() || "",
   );
 
 describe("elf-menu", () => {
+  it("renders Material SVG paths while preserving text icon compatibility", async () => {
+    const el = document.createElement("elf-menu") as MenuEl;
+    el.items = [
+      { index: "/material", label: "Material", icon: mdiViewDashboardOutline },
+      { index: "/legacy", label: "Legacy", icon: "L" },
+    ];
+    document.body.appendChild(el);
+    await tick();
+    await tick();
+
+    const icons = el.shadowRoot!.querySelectorAll(".menu-icon");
+    expect(icons[0]?.classList.contains("is-svg")).toBe(true);
+    expect(icons[0]?.querySelector("path")?.getAttribute("d")).toBe(mdiViewDashboardOutline);
+    expect(icons[0]?.getAttribute("aria-hidden")).toBe("true");
+    expect(icons[1]?.classList.contains("is-svg")).toBe(false);
+    expect(icons[1]?.textContent?.trim()).toBe("L");
+  });
+
   it("渲染顶层菜单", async () => {
     const el = await mount();
     expect(labels(el)).toEqual(["Dashboard", "Workspace", "Settings"]);
@@ -156,7 +175,7 @@ describe("elf-menu", () => {
     expect(labels(el)).toContain("Projects");
 
     const settingsButton = Array.from(el.shadowRoot!.querySelectorAll(".menu-item")).find((node) =>
-      node.textContent?.includes("Settings")
+      node.textContent?.includes("Settings"),
     ) as HTMLElement;
     settingsButton.click();
     await tick();
@@ -178,7 +197,7 @@ describe("elf-menu", () => {
     expect(labels(el)).toContain("Projects");
 
     const settingsButton = Array.from(el.shadowRoot!.querySelectorAll(".menu-item")).find((node) =>
-      node.textContent?.includes("Settings")
+      node.textContent?.includes("Settings"),
     ) as HTMLElement;
     settingsButton.click();
     await tick();
@@ -194,8 +213,8 @@ describe("elf-menu", () => {
       {
         index: "group:docs",
         group: "Docs",
-        children: [{ index: "/docs/start", label: "Start" }]
-      }
+        children: [{ index: "/docs/start", label: "Start" }],
+      },
     ];
     el.defaultOpeneds = ["group:docs"];
     document.body.appendChild(el);
@@ -255,7 +274,7 @@ describe("elf-menu", () => {
 
     const menu = el.shadowRoot!.querySelector(".menu") as HTMLElement;
     const workspaceButton = Array.from(el.shadowRoot!.querySelectorAll(".menu-item")).find((node) =>
-      node.textContent?.includes("Workspace")
+      node.textContent?.includes("Workspace"),
     ) as HTMLElement;
     menu.getBoundingClientRect = () =>
       ({
@@ -267,7 +286,7 @@ describe("elf-menu", () => {
         height: 290,
         x: 0,
         y: 10,
-        toJSON: () => ({})
+        toJSON: () => ({}),
       }) as DOMRect;
     workspaceButton.getBoundingClientRect = () =>
       ({
@@ -279,7 +298,7 @@ describe("elf-menu", () => {
         height: 44,
         x: 0,
         y: 98,
-        toJSON: () => ({})
+        toJSON: () => ({}),
       }) as DOMRect;
 
     workspaceButton.dispatchEvent(new MouseEvent("mouseenter"));
@@ -344,7 +363,9 @@ describe("elf-menu", () => {
     customSearch.dispatchEvent(new InputEvent("input", { bubbles: true, composed: true }));
     await tick();
 
-    const labels = Array.from(el.shadowRoot!.querySelectorAll(".menu-label"), (node) => node.textContent?.trim());
+    const labels = Array.from(el.shadowRoot!.querySelectorAll(".menu-label"), (node) =>
+      node.textContent?.trim(),
+    );
     expect(labels).toContain("Settings");
     expect(labels).not.toContain("Dashboard");
   });
@@ -354,7 +375,7 @@ describe("elf-menu", () => {
     el.items = [
       { index: "/dashboard", label: "Dashboard" },
       { index: "/projects", label: "Projects" },
-      { index: "/settings", label: "Settings" }
+      { index: "/settings", label: "Settings" },
     ];
     el.searchable = true;
     document.body.appendChild(el);
@@ -428,7 +449,11 @@ describe("elf-menu", () => {
     el.props = { label: "title", route: "to" };
     el.items = [
       { index: "home", title: "Home", to: "/home" },
-      { index: "docs", title: "Docs", children: [{ index: "guide", title: "Guide", to: "/guide" }] }
+      {
+        index: "docs",
+        title: "Docs",
+        children: [{ index: "guide", title: "Guide", to: "/guide" }],
+      },
     ];
     el.mode = "horizontal";
     el.router = true;
@@ -446,7 +471,9 @@ describe("elf-menu", () => {
     (el.shadowRoot!.querySelectorAll(".menu-item")[1] as HTMLElement).click();
     await tick();
     expect(el.shadowRoot!.querySelector(".horizontal-panel")?.className).toContain("menu-popper");
-    expect((el.shadowRoot!.querySelector(".horizontal-panel") as HTMLElement).style.width).toBe("260px");
+    expect((el.shadowRoot!.querySelector(".horizontal-panel") as HTMLElement).style.width).toBe(
+      "260px",
+    );
 
     el.updateActiveIndex!("home");
     await tick();
@@ -488,7 +515,9 @@ describe("elf-menu", () => {
 
     expect(labels(el)).toEqual(["Workspace", "Projects", "Archive"]);
     expect(el.shadowRoot!.querySelector(".menu-group-title")?.textContent).toContain("Delivery");
-    expect(el.shadowRoot!.querySelector('[data-index="workspace"]')?.getAttribute("aria-expanded")).toBe("true");
+    expect(
+      el.shadowRoot!.querySelector('[data-index="workspace"]')?.getAttribute("aria-expanded"),
+    ).toBe("true");
 
     const onItemClick = vi.fn();
     project.addEventListener("click", onItemClick);
@@ -499,7 +528,7 @@ describe("elf-menu", () => {
     expect(detail).toEqual({
       index: "workspace/projects",
       indexPath: ["workspace", "workspace/projects"],
-      route: { path: "/projects" }
+      route: { path: "/projects" },
     });
   });
 
@@ -541,7 +570,9 @@ describe("elf-menu", () => {
     await tick();
     await new Promise((resolve) => requestAnimationFrame(resolve));
 
-    const project = el.shadowRoot!.querySelector('[data-index="/workspace/projects"]') as HTMLElement;
+    const project = el.shadowRoot!.querySelector(
+      '[data-index="/workspace/projects"]',
+    ) as HTMLElement;
     expect(workspace.getAttribute("aria-expanded")).toBe("true");
     expect(el.shadowRoot!.activeElement).toBe(project);
 
@@ -563,7 +594,11 @@ describe("elf-menu", () => {
     await tick();
     (persistentMenu.shadowRoot!.querySelector('[data-index="/workspace"]') as HTMLElement).click();
     await tick();
-    (persistentMenu.shadowRoot!.querySelector('.horizontal-panel [data-index="/workspace/projects"]') as HTMLElement).click();
+    (
+      persistentMenu.shadowRoot!.querySelector(
+        '.horizontal-panel [data-index="/workspace/projects"]',
+      ) as HTMLElement
+    ).click();
     await tick();
 
     const hiddenPanel = persistentMenu.shadowRoot!.querySelector(".horizontal-panel");
@@ -578,7 +613,11 @@ describe("elf-menu", () => {
     await tick();
     (disposableMenu.shadowRoot!.querySelector('[data-index="/workspace"]') as HTMLElement).click();
     await tick();
-    (disposableMenu.shadowRoot!.querySelector('.horizontal-panel [data-index="/workspace/projects"]') as HTMLElement).click();
+    (
+      disposableMenu.shadowRoot!.querySelector(
+        '.horizontal-panel [data-index="/workspace/projects"]',
+      ) as HTMLElement
+    ).click();
     await tick();
 
     expect(disposableMenu.shadowRoot!.querySelector(".horizontal-panel")).toBeNull();

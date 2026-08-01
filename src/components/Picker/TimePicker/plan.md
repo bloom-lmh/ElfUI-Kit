@@ -277,3 +277,12 @@
 
 - [x] 接入进程级 Overlay Stack 与 `useDismissibleOverlay`，外部 pointerdown、Escape 和外部滚动职责清晰分层。
 - [x] 触发器与钟面 Escape 都先认领事件，再关闭面板并恢复当前时间字段焦点。
+
+## 2026-07-30 EP-11 文档页面收敛
+
+- [x] 页面入口、6 个 Playground、Template/Script、运行时状态和 Props/Events/Methods API 表完成中英文对齐；API 表以当前 `types.ts`、默认值和 Provider 行为为准。
+- [x] 所有变化状态均位于 Playground 直接子节点的 `slot="status"`，并使用 `role="status"` 与 `aria-live="polite"`；示例预览复用共享舞台水平、垂直居中。
+- [x] 页面测试覆盖 6 个示例、3 张 API 表、英文源码、live region、共享居中舞台和状态响应；文档审计从 `482/527` 推进到 `495/533`，TimePicker 不再出现在缺口清单。
+- [x] 真实 Chromium 覆盖 1440x1000 与 390x844、Material/Midnight、中英文；Enter/Escape 可打开/关闭钟面，移动端无横向溢出，最终控制台 0 warning / 0 error。
+- [x] 聚焦诊断测试在 `--hookTimeout=30000` 下 2 个文件、25 项通过；`pnpm lint`、`pnpm typecheck`、`pnpm build`、`pnpm build:lib` 通过。
+- [ ] 仓库标准测试门限仍被全组件入口冷加载超过 10 秒阻断；全量结果为 224/229 个文件、1568 项通过，4 个套件 hook 超时、1 个 FormPage 测试超时。该问题不通过放宽仓库测试配置或修改断言规避。

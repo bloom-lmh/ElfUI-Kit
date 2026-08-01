@@ -9,21 +9,20 @@ const t = createDocsTranslator({
   title: { zh: "结果", en: "Result" },
   description: {
     zh: "用于流程结束页或局部操作结果，支持 success、warning、error 与 info 状态。",
-    en: "Present page-level or local operation outcomes with success, warning, error, and info states."
-  }
+    en: "Present page-level or local operation outcomes with success, warning, error, and info states.",
+  },
 });
 
 useComponents({
   "page-result-ex1": PageResultEx1,
   "page-result-ex2": PageResultEx2,
   "page-result-ex3": PageResultEx3,
-  "page-result-props": PageResultProps
+  "page-result-props": PageResultProps,
 });
 
 const PageResult = defineHtml(`
   <elf-container>
-    <h1>${t("title")}</h1>
-    <p>${t("description")}</p>
+    <elf-docs-hero category="data" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
 
     <page-result-ex1 />
 

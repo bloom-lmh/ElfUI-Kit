@@ -47,7 +47,7 @@ const onCommand = (event) => {
     selectedLabel.set(String(event.detail?.item?.label ?? event.detail?.command ?? "${t("notSelected")}"));
 };`;
 
-const virtualCode = `<button id="dropdown-virtual-trigger">${t("rightClick")}</button>
+const virtualCode = `<elf-input id="dropdown-virtual-trigger" readonly variant="outlined" model-value="${t("rightClick")}" />
 <elf-dropdown
   data-virtual-dropdown
   virtual-triggering
@@ -73,7 +73,7 @@ const virtualItems = [
 const virtualItems = [
   { label: t("refreshCanvas"), command: "refresh" },
   { label: t("copyPosition"), command: "copy-position" },
-  { label: t("deleteNode"), command: "delete", divided: true }
+  { label: t("deleteNode"), command: "delete", divided: true },
 ];
 
 onMounted(() => {
@@ -107,13 +107,13 @@ const PageDropdownEx5 = defineHtml(`
 
   <elf-playground :title=${t("virtualTitle")} :code=${virtualCode} :script=${virtualScript}>
     <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
-      <button
+      <elf-input
         id="dropdown-virtual-trigger"
-        type="button"
-        style="min-width:220px;min-height:96px;border:1px dashed var(--elf-border);border-radius:8px;background:var(--elf-bg-paper);color:var(--elf-text-secondary)"
-      >
-        ${t("rightClick")}
-      </button>
+        readonly
+        variant="outlined"
+        :modelValue=${t("rightClick")}
+        style="width:min(100%,300px)"
+      ></elf-input>
       <elf-dropdown
         data-virtual-dropdown
         virtual-triggering

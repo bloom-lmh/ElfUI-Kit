@@ -41,8 +41,8 @@ const MESSAGES: LocaleMessages = {
     starterData: "Data workspace",
     starterLayout: "Responsive layout",
     codeTitle: "Provider setup",
-    codeComment: "Configure once"
-  }
+    codeComment: "Configure once",
+  },
 };
 
 const ZH_MESSAGES: LocaleMessages = {
@@ -82,8 +82,8 @@ const ZH_MESSAGES: LocaleMessages = {
     starterData: "数据工作区",
     starterLayout: "响应式布局",
     codeTitle: "Provider 配置",
-    codeComment: "一次配置"
-  }
+    codeComment: "一次配置",
+  },
 };
 
 beforeAll(async () => {
@@ -97,7 +97,9 @@ afterEach(() => {
 
 const tick = (): Promise<void> => new Promise((resolve) => queueMicrotask(resolve));
 const homeTag = (): string =>
-  String((PageHome as typeof PageHome & { __elfDefinition?: { tag?: string } }).__elfDefinition?.tag);
+  String(
+    (PageHome as typeof PageHome & { __elfDefinition?: { tag?: string } }).__elfDefinition?.tag,
+  );
 
 const collectText = (root: Node): string => {
   let output = "";
@@ -148,9 +150,10 @@ describe("HomePage localization", () => {
 
   it("publishes keyboard-focusable primary navigation", async () => {
     const page = await mount("en-US", MESSAGES);
-    const links = page?.shadowRoot?.querySelectorAll<HTMLAnchorElement>("a[href]") ?? [];
+    const links = page?.shadowRoot?.querySelectorAll<HTMLElement>("elf-link[to]") ?? [];
     expect(links).toHaveLength(2);
-    expect(links[0]?.getAttribute("href")).toBe("#/basic/button");
+    expect(links[0]?.getAttribute("to")).toBe("/overview");
+    expect(links[0]?.shadowRoot?.querySelector("a")?.getAttribute("href")).toBe("/overview");
     expect(page?.shadowRoot?.querySelector(".principles, .starter")).toBeNull();
   });
 });

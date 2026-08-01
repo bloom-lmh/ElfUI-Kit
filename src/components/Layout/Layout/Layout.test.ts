@@ -1,9 +1,16 @@
 // Layout / Header / Aside / Main / Footer 测试
 
+import { registerComponents } from "@elfui/core";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
 
-beforeAll(async () => {
-  await import("../../../components");
+import { Aside } from "../Aside";
+import { Footer } from "../Footer";
+import { Header } from "../Header";
+import { Main } from "../Main";
+import { Layout } from "./index";
+
+beforeAll(() => {
+  registerComponents(Layout, Header, Aside, Main, Footer);
 });
 
 afterEach(() => {

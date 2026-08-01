@@ -9,19 +9,12 @@ import {
   useHostAttr,
   useHostCssVar,
   useHostFlag,
-  useRef
+  useRef,
 } from "@elfui/core";
 
-import { SplitterPanel } from "./panel";
 import styles from "./style.scss?inline";
 import { useLocaleProvider } from "../../Providers/context";
-import type {
-  SplitterEmits,
-  SplitterPanelProps,
-  SplitterPanelSlots,
-  SplitterProps,
-  SplitterSlots
-} from "./types";
+import type { SplitterEmits, SplitterPanelProps, SplitterProps, SplitterSlots } from "./types";
 
 export { SplitterPanel } from "./panel";
 export type {
@@ -29,7 +22,7 @@ export type {
   SplitterPanelProps,
   SplitterPanelSlots,
   SplitterProps,
-  SplitterSlots
+  SplitterSlots,
 } from "./types";
 
 type SplitterPanelElement = HTMLElement & Partial<SplitterPanelProps>;
@@ -42,7 +35,7 @@ const props = defineProps<SplitterProps>({
   disabled: { type: Boolean, default: false },
   collapsible: { type: Boolean, default: false },
   resizable: { type: Boolean, default: true },
-  storageKey: { type: String, default: "" }
+  storageKey: { type: String, default: "" },
 });
 
 const emit = defineEmits<SplitterEmits>();
@@ -158,9 +151,13 @@ const onFirstSlotChange = (event: Event): void => {
   });
   panelContractObserver.observe(panel, {
     attributes: true,
-    attributeFilter: ["data-resizable"]
+    attributeFilter: ["data-resizable"],
   });
-  if (!host.hasAttribute("model-value") && !hasPersistedSize() && panel.tagName.toLowerCase() === "elf-splitter-panel") {
+  if (
+    !host.hasAttribute("model-value") &&
+    !hasPersistedSize() &&
+    panel.tagName.toLowerCase() === "elf-splitter-panel"
+  ) {
     const initial = clamp(numberOr(panel.size, 50));
     size.set(initial);
     lastExpandedSize.set(initial);
@@ -196,7 +193,9 @@ const onPointerDown = (event: PointerEvent): void => {
 const onPointerMove = (event: PointerEvent): void => {
   if (!dragging.value || !canResize()) return;
   event.preventDefault();
-  commitSize(percentageFromPointer(event.currentTarget as HTMLElement, event.clientX, event.clientY));
+  commitSize(
+    percentageFromPointer(event.currentTarget as HTMLElement, event.clientX, event.clientY),
+  );
 };
 
 const endResize = (): void => {
@@ -293,9 +292,11 @@ const Splitter = defineHtml<SplitterProps, SplitterEmits, SplitterSlots>(`
       :aria-valuenow=${currentSize()}
       :aria-valuemin=${panelMin()}
       :aria-valuemax=${panelMax()}
-      :aria-valuetext=${collapsed
-        ? locale.t("a11y.collapsed")
-        : locale.t("splitter.size", { size: Math.round(currentSize()) })}
+      :aria-valuetext=${
+        collapsed
+          ? locale.t("a11y.collapsed")
+          : locale.t("splitter.size", { size: Math.round(currentSize()) })
+      }
       :aria-orientation=${props.vertical ? "vertical" : "horizontal"}
       @pointerdown=${onPointerDown}
       @pointermove=${onPointerMove}
@@ -308,9 +309,7 @@ const Splitter = defineHtml<SplitterProps, SplitterEmits, SplitterSlots>(`
         v-if=${canCollapse()}
         class="collapse-button"
         type="button"
-        :aria-label=${locale.t(
-          collapsed ? "a11y.expandFirstPanel" : "a11y.collapseFirstPanel"
-        )}
+        :aria-label=${locale.t(collapsed ? "a11y.expandFirstPanel" : "a11y.collapseFirstPanel")}
         @pointerdown=${stopCollapsePointerDown}
         @click.stop=${toggleCollapse}
       >

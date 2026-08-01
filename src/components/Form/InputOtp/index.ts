@@ -4,12 +4,12 @@ import {
   defineProps,
   defineStyle,
   useHost,
-  useHostAttr
+  useHostAttr,
 } from "@elfui/core";
 
 import styles from "./style.scss?inline";
 import { useFormControl } from "../../../composables";
-import type { InputOtpProps, InputOtpSize, InputOtpType } from "./types";
+import type { InputOtpProps, InputOtpSize } from "./types";
 
 export type { InputOtpProps, InputOtpSize, InputOtpType } from "./types";
 
@@ -30,7 +30,7 @@ const props = defineProps<InputOtpProps>({
   formatter: { type: Function, default: undefined },
   parser: { type: Function, default: undefined },
   mask: { type: Boolean, default: false },
-  validateEvent: { type: Boolean, default: true }
+  validateEvent: { type: Boolean, default: true },
 });
 
 const emit = defineEmits(["update:modelValue", "input", "change", "focus", "blur"]);
@@ -38,16 +38,15 @@ const host = useHost();
 const ctl = useFormControl<string>(props, emit, {
   ...(props.validateEvent === false
     ? { triggers: { input: false, change: false, blur: false } }
-    : {})
+    : {}),
 });
 
 const length = (): number => Math.min(12, Math.max(1, Number(props.length) || 6));
 const formattedValue = (): string =>
-  typeof props.formatter === "function" ? String(props.formatter(String(props.modelValue || ""))) : String(props.modelValue || "");
-const chars = (): string[] =>
-  formattedValue()
-    .split("")
-    .slice(0, length());
+  typeof props.formatter === "function"
+    ? String(props.formatter(String(props.modelValue || "")))
+    : String(props.modelValue || "");
+const chars = (): string[] => formattedValue().split("").slice(0, length());
 const displayChar = (value: string): string => (props.mask && value ? "•" : value);
 const cells = (): OtpCell[] =>
   Array.from({ length: length() }, (_, index) => ({ index, char: chars()[index] || "" }));

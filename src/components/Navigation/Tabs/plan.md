@@ -55,3 +55,10 @@
 - [x] 2026-07-17：组合式案例改为真实动态 pane 集合，新增按钮创建并激活面板，关闭当前项按“右侧优先、左侧回退、忽略禁用项”更新状态。
 - [x] 2026-07-21：新增背景色、滑块色、固定标签、激活项居中和可插槽翻页箭头；补充响应式操作台、懒加载图片分类与扩展变体案例。
 - [x] 2026-07-22：改为单一持久化激活指示器，水平与垂直布局均按标签尺寸计算位置，并通过 transform/尺寸过渡平滑滑动。
+
+## 2026-07-30 EP-11 文档页面收口
+
+- [x] 按当前 `TabsProps`、`TabPaneProps`、事件与 expose 契约重写双语 API 表，不把未类型化内部能力写成公开 API。
+- [x] 10 个案例和 13 个 Playground 的动态状态统一放入标题行 live region，预览复用共享水平/垂直居中舞台；操作台继续使用 5 个 Select 与 2 个 Checkbox 真实驱动配置。
+- [x] Template/Script 随当前 locale 生成，英文源码不再混入中文；图片分类切换使用框架 `<Transition>`，并覆盖 reduced motion 样式。
+- [ ] 在 `EP-03` 收敛组件内部结构性动效：数据面板与 TabPane 的 enter/leave 应审计 `<Transition>`，拖动列表只有在提供移动动画契约时才使用 `<TransitionGroup>`。当前面板是原生 section 或已挂载的 slotted Custom Element，不是动态组件实例，`<KeepAlive>` 不适用于现有契约；不得另建手写组件缓存。

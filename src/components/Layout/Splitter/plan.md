@@ -1,6 +1,7 @@
 # Splitter Element Plus API 对标计划
 
 ## 2026-07-19 垂直拖拽回归
+
 - [x] 为垂直模式建立确定高度并扩大横向命中区，百分比与实际面板尺寸同步
 - [x] 面板默认隐藏原生 overflow；真实浏览器验证垂直分割条可从 48% 拖到 71%，且两侧不出现原生滚动条
 
@@ -43,3 +44,9 @@
 ## 本轮案例页
 
 - [x] 新增独立展示页面，覆盖 Template / Script、水平/垂直分割、min/max、受控比例和 disabled 示例。
+
+## 2026-07-30 Vuetify documentation batch
+
+- [x] 五个 Splitter 案例统一使用占满 Playground 中央区的 `.splitter-demo-stage`，水平布局为左黑右白，垂直布局为上黑下白。
+- [x] 通过公开 `splitter` part 去除案例边框与圆角，不修改组件默认视觉契约。
+- [x] Chromium 验收：桌面 stage 与 splitter 均为 `861 x 280`，移动端均为 `259 x 280`，边框为 `0px`；截图为 `docs/screenshots/2026-07-30/splitter-desktop-light-zh.png`。

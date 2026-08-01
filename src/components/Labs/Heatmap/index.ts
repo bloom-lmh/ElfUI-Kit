@@ -6,19 +6,18 @@ import {
   defineStyle,
   useComputed,
   useHost,
-  useRef
+  useRef,
 } from "@elfui/core";
 
 import styles from "./style.scss?inline";
 import type {
   HeatmapAxisItem,
   HeatmapCellDetail,
-  HeatmapElement,
   HeatmapEmits,
   HeatmapExpose,
   HeatmapItem,
   HeatmapProps,
-  HeatmapThreshold
+  HeatmapThreshold,
 } from "./types";
 
 export type {
@@ -29,7 +28,7 @@ export type {
   HeatmapExpose,
   HeatmapItem,
   HeatmapProps,
-  HeatmapThreshold
+  HeatmapThreshold,
 } from "./types";
 
 const props = defineProps<HeatmapProps>({
@@ -51,14 +50,14 @@ const props = defineProps<HeatmapProps>({
   legendAriaLabel: { type: String, default: "Filter heatmap by color" },
   hover: { type: Boolean, default: true },
   emptyColor: { type: String, default: "var(--elf-fill-color-light, #f2f6fc)" },
-  ariaLabel: { type: String, default: "Heatmap" }
+  ariaLabel: { type: String, default: "Heatmap" },
 });
 
 const emit = defineEmits<HeatmapEmits>();
 const host = useHost();
 const activeThresholdIndex = useRef(-1);
 const sortedThresholds = useComputed(() =>
-  [...(props.thresholds as HeatmapThreshold[])].sort((a, b) => a.max - b.max)
+  [...(props.thresholds as HeatmapThreshold[])].sort((a, b) => a.max - b.max),
 );
 const rows = (): HeatmapAxisItem[] => props.rows;
 const columns = (): HeatmapAxisItem[] => props.columns;
@@ -90,7 +89,10 @@ const thresholdIndex = (value: number | null): number => {
 const detail = (rowKey: string, columnKey: string): HeatmapCellDetail => ({
   item: findItem(rowKey, columnKey),
   row: rows().find((entry) => entry.key === rowKey) ?? { key: rowKey, label: rowKey },
-  column: columns().find((entry) => entry.key === columnKey) ?? { key: columnKey, label: columnKey }
+  column: columns().find((entry) => entry.key === columnKey) ?? {
+    key: columnKey,
+    label: columnKey,
+  },
 });
 
 const cellLabel = (rowKey: string, columnKey: string): string => {
@@ -102,15 +104,16 @@ const cellClass = (rowKey: string, columnKey: string): Record<string, boolean> =
   cell: true,
   empty: findItem(rowKey, columnKey).value === null,
   hoverable: props.hover,
-  "is-filtered": activeThresholdIndex.value >= 0
-    && thresholdIndex(findItem(rowKey, columnKey).value) !== activeThresholdIndex.value
+  "is-filtered":
+    activeThresholdIndex.value >= 0 &&
+    thresholdIndex(findItem(rowKey, columnKey).value) !== activeThresholdIndex.value,
 });
 
 const cellStyle = (rowKey: string, columnKey: string): Record<string, string> => ({
   background: valueColor(findItem(rowKey, columnKey).value),
   width: `${Math.max(20, props.cellSize)}px`,
   height: `${Math.max(20, props.cellSize)}px`,
-  borderRadius: `${Math.max(0, props.rounded)}px`
+  borderRadius: `${Math.max(0, props.rounded)}px`,
 });
 
 const gridStyle = (): Record<string, string> => {
@@ -118,13 +121,13 @@ const gridStyle = (): Record<string, string> => {
   const labelColumn = props.showRowHeaders ? "88px " : "";
   return {
     gridTemplateColumns: `${labelColumn}repeat(${Math.max(1, columns().length)}, ${cellSize})`,
-    gap: `${Math.max(0, props.gap)}px`
+    gap: `${Math.max(0, props.gap)}px`,
   };
 };
 
 const getCell = (row: string, column: string): HTMLButtonElement | null =>
   [...(host.shadowRoot?.querySelectorAll<HTMLButtonElement>(".cell") ?? [])].find(
-    (element) => element.dataset.row === row && element.dataset.column === column
+    (element) => element.dataset.row === row && element.dataset.column === column,
   ) ?? null;
 
 const focusCell = (row: string, column: string): void => getCell(row, column)?.focus();
@@ -135,10 +138,8 @@ const clearLegendFilter = (): void => {
 
 const legendLabel = (threshold: HeatmapThreshold): string =>
   threshold.label || `≤ ${threshold.max}`;
-const isLegendActive = (index: number): boolean =>
-  activeThresholdIndex.value === index;
-const legendPressed = (index: number): string =>
-  String(isLegendActive(index));
+const isLegendActive = (index: number): boolean => activeThresholdIndex.value === index;
+const legendPressed = (index: number): string => String(isLegendActive(index));
 
 const onLegendClick = (event: Event): void => {
   if (!props.legendInteractive) return;

@@ -14,6 +14,7 @@ interface LoadingElement extends HTMLElement {
   text: string;
   fullscreen: boolean;
   closable: boolean;
+  plain: boolean;
   background: string;
   variant: string;
   svg: string;
@@ -85,6 +86,7 @@ const createLoading = (
   el.text = options.text ?? "";
   el.fullscreen = fullscreen;
   el.closable = closable;
+  el.plain = options.plain ?? false;
   el.background = options.background ?? "rgba(255,255,255,0.72)";
   el.variant = options.variant ?? "spinner";
   el.svg = options.svg ?? "";

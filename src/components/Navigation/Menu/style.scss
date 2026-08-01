@@ -211,9 +211,27 @@
   line-height: 1;
 }
 
+.menu-icon.is-svg {
+  border-radius: 0;
+  background: transparent;
+  color: currentColor;
+  font-weight: 400;
+}
+
+.menu-icon.is-svg svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
+
 .menu-item.is-active .menu-icon {
   background: var(--m-active-c, var(--elf-primary));
   color: #fff;
+}
+
+.menu-item.is-active .menu-icon.is-svg {
+  background: transparent;
+  color: var(--m-active-c, var(--elf-primary));
 }
 
 // ───── 标签 / 箭头 ───────────────────────────────

@@ -1,0 +1,49 @@
+:host {
+  display: block;
+}
+
+.time-picker-demo-stage {
+  display: grid;
+  width: min(100%, 820px);
+  min-height: 220px;
+  margin-inline: auto;
+  place-items: center;
+}
+
+.time-picker-demo-stage--compact {
+  width: min(100%, 480px);
+}
+
+.time-picker-demo-stage--form {
+  width: min(100%, 620px);
+  min-height: 260px;
+}
+
+.time-picker-demo-form {
+  width: 100%;
+  padding: var(--elf-space-5);
+  border: 1px solid var(--elf-divider);
+  border-radius: var(--elf-radius-lg);
+  background: var(--elf-bg-paper);
+}
+
+.time-picker-demo-note,
+.demo-state {
+  color: var(--elf-text-secondary);
+  font-size: var(--elf-font-size-xs);
+  line-height: 1.5;
+}
+
+.time-picker-demo-note {
+  margin: var(--elf-space-3) 0 0;
+}
+
+@media (max-width: 600px) {
+  .time-picker-demo-stage {
+    min-height: 200px;
+  }
+
+  .time-picker-demo-form {
+    padding: var(--elf-space-4);
+  }
+}

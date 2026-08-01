@@ -10,8 +10,8 @@ const t = createDocsTranslator({
   title: { zh: "分页", en: "Pagination" },
   description: {
     zh: "用于大数据列表的分页导航，支持页码、每页条数、跳转和布局组合。",
-    en: "Navigate large data sets with page numbers, page sizes, jump controls, and configurable layouts."
-  }
+    en: "Navigate large data sets with page numbers, page sizes, jump controls, and configurable layouts.",
+  },
 });
 
 useComponents({
@@ -19,13 +19,12 @@ useComponents({
   "page-pagination-ex2": PagePaginationEx2,
   "page-pagination-ex3": PagePaginationEx3,
   "page-pagination-ex4": PagePaginationEx4,
-  "page-pagination-props": PagePaginationProps
+  "page-pagination-props": PagePaginationProps,
 });
 
 const PagePagination = defineHtml(`
   <elf-container>
-    <h1>${t("title")}</h1>
-    <p>${t("description")}</p>
+    <elf-docs-hero category="data" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
     <page-pagination-ex1></page-pagination-ex1>
     <page-pagination-ex2></page-pagination-ex2>
     <page-pagination-ex3></page-pagination-ex3>

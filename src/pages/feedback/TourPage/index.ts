@@ -17,13 +17,12 @@ useComponents({
   "page-tour-ex1": PageTourEx1,
   "page-tour-ex2": PageTourEx2,
   "page-tour-ex3": PageTourEx3,
-  "page-tour-props": PageTourProps
+  "page-tour-props": PageTourProps,
 });
 
 const PageTour = defineHtml(`
   <elf-container>
-    <h1>${t("title")}</h1>
-    <p>${t("description")}</p>
+    <elf-docs-hero category="feedback" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
     <page-tour-ex1 />
     <page-tour-ex2 />
     <page-tour-ex3 />

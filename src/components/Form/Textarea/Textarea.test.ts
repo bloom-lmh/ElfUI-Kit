@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts-nocheck -- Legacy custom-element fixture requires runtime-only properties.
 // elf-textarea 单元测试
 
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
@@ -69,7 +69,7 @@ describe("elf-textarea", () => {
       document.body.appendChild(el);
       await flush();
       expect(el.getAttribute("variant")).toBe(variant);
-    }
+    },
   );
 
   const mount = (): TextareaHost => {

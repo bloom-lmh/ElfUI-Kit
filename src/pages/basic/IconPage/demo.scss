@@ -24,10 +24,9 @@
   display: grid;
   align-content: start;
   gap: 20px;
-  padding: 22px;
-  border: 1px solid var(--elf-divider);
-  border-radius: var(--elf-radius-md);
-  background: color-mix(in srgb, var(--elf-bg-paper) 94%, var(--elf-primary) 6%);
+  padding: 18px 0;
+  border: 0;
+  background: transparent;
 }
 
 .icon-demo-card-wide {
@@ -84,9 +83,9 @@
   min-height: 150px;
   padding: 20px;
   text-align: center;
-  border: 1px solid var(--elf-divider);
-  border-radius: var(--elf-radius-md);
-  background: var(--elf-bg-paper);
+  border: 0;
+  border-radius: var(--elf-radius-sm);
+  background: color-mix(in srgb, var(--elf-primary) 6%, transparent);
 }
 
 .icon-accessibility-panel {
@@ -97,9 +96,8 @@
   width: min(760px, 100%);
   margin-inline: auto;
   padding: 26px;
-  border: 1px solid var(--elf-divider);
-  border-radius: var(--elf-radius-md);
-  background: var(--elf-bg-paper);
+  border: 0;
+  background: transparent;
 }
 
 .icon-accessibility-panel p {

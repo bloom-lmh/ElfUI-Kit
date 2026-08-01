@@ -19,13 +19,12 @@ useComponents({
   "page-notification-ex2": PageNotificationEx2,
   "page-notification-ex3": PageNotificationEx3,
   "page-notification-ex4": PageNotificationEx4,
-  "page-notification-props": PageNotificationProps
+  "page-notification-props": PageNotificationProps,
 });
 
 const PageNotification = defineHtml(`
   <elf-container
-    ><h1>${t("title")}</h1>
-    <p>${t("description")}</p>
+    ><elf-docs-hero category="feedback" tag="Notification" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
     <page-notification-ex1 /><page-notification-ex2 /><page-notification-ex3 /><page-notification-ex4 /><page-notification-props
   /></elf-container>
 `);

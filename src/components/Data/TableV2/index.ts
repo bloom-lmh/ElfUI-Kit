@@ -89,6 +89,7 @@ const host = useHost();
 const locale = useLocaleProvider();
 
 const expandedState = useShallowRef<string[]>([]);
+const columnWidths = useShallowRef<Record<string, number>>({});
 let reachedEnd = false;
 let expansionInitialized = false;
 
@@ -100,11 +101,7 @@ const fixedTable = (): InnerTable | null =>
 const normalizeKeys = (value: unknown): string[] =>
   Array.isArray(value)
     ? Array.from(
-        new Set(
-          value
-            .map((item: unknown) => String(item))
-            .filter((key: string) => Boolean(key)),
-        ),
+        new Set(value.map((item: unknown) => String(item)).filter((key: string) => Boolean(key))),
       )
     : [];
 
@@ -154,8 +151,7 @@ const expansionView = useComputed(() => {
 });
 
 const rowViewOf = (row: TableRow): TableTreeRow | undefined =>
-  (row as ProjectedRow)[projectedRowView] ??
-  expansionView.value.byKey.get(rowKeyOf(row, ""));
+  (row as ProjectedRow)[projectedRowView] ?? expansionView.value.byKey.get(rowKeyOf(row, ""));
 
 const rawRowOf = (row: TableRow): TableRow => rowViewOf(row)?.raw ?? row;
 
@@ -164,7 +160,10 @@ const innerRowKey = (row: TableRow): string => rowViewOf(row)?.key ?? rowKeyOf(r
 const cssSize = (value: string | number): string =>
   typeof value === "number" || /^\d+(?:\.\d+)?$/.test(String(value)) ? `${value}px` : String(value);
 
-const baseCellValue = (column: TableV2Column, context: { row: TableRow; rowIndex: number }): TableRenderValue => {
+const baseCellValue = (
+  column: TableV2Column,
+  context: { row: TableRow; rowIndex: number },
+): TableRenderValue => {
   const row = rawRowOf(context.row);
   if (!column.cellRenderer) return row[column.dataKey || column.key] as TableRenderValue;
   return column.cellRenderer({
@@ -203,9 +202,15 @@ const toggleRowExpansion = (row: TableTreeRow, expanded?: boolean): void => {
 
 const expansionControl = (row: TableTreeRow): HTMLElement => {
   const control = document.createElement(row.hasChildren ? "button" : "span");
-  control.setAttribute("part", row.hasChildren ? "table-v2-expand-toggle" : "table-v2-expand-spacer");
+  control.setAttribute(
+    "part",
+    row.hasChildren ? "table-v2-expand-toggle" : "table-v2-expand-spacer",
+  );
   control.style.setProperty("--elf-table-v2-level", String(row.level));
-  control.style.setProperty("--elf-table-v2-indent-size", `${Math.max(0, Number(props.indentSize) || 0)}px`);
+  control.style.setProperty(
+    "--elf-table-v2-indent-size",
+    `${Math.max(0, Number(props.indentSize) || 0)}px`,
+  );
   if (!row.hasChildren) {
     control.setAttribute("aria-hidden", "true");
     return control;
@@ -216,7 +221,10 @@ const expansionControl = (row: TableTreeRow): HTMLElement => {
   button.type = "button";
   button.dataset.rowKey = row.key;
   button.setAttribute("aria-expanded", String(expanded));
-  button.setAttribute("aria-label", locale.t(expanded ? "table.collapseChildren" : "table.expandChildren"));
+  button.setAttribute(
+    "aria-label",
+    locale.t(expanded ? "table.collapseChildren" : "table.expandChildren"),
+  );
   const icon = document.createElement("span");
   icon.setAttribute("part", "table-v2-expand-icon");
   icon.setAttribute("aria-hidden", "true");
@@ -258,7 +266,9 @@ const mapColumn = (column: TableV2Column, columnIndex: number): TableColumn => {
     prop: column.dataKey || column.key,
     label: column.title || column.key,
   };
-  if (column.width !== undefined) mapped.width = column.width;
+  const resizedWidth = columnWidths.value[column.key];
+  if (resizedWidth !== undefined) mapped.width = resizedWidth;
+  else if (column.width !== undefined) mapped.width = column.width;
   if (column.minWidth !== undefined) mapped.minWidth = column.minWidth;
   if (column.align !== undefined) mapped.align = column.align;
   if (column.fixed !== undefined) mapped.fixed = column.fixed;
@@ -266,11 +276,23 @@ const mapColumn = (column: TableV2Column, columnIndex: number): TableColumn => {
   if (column.headerCellRenderer) {
     mapped.renderHeader = () => column.headerCellRenderer!({ column, columnIndex });
   }
-  mapped.renderCell = ({ row, rowIndex }: TableCellContext) => renderCellValue(column, { row, rowIndex });
+  mapped.renderCell = ({ row, rowIndex }: TableCellContext) =>
+    renderCellValue(column, { row, rowIndex });
   return mapped;
 };
 
-const mappedColumns = (): TableColumn[] => (Array.isArray(props.columns) ? props.columns : []).map(mapColumn);
+const mappedColumns = (): TableColumn[] =>
+  (Array.isArray(props.columns) ? props.columns : []).map(mapColumn);
+
+const onHeaderDragend = (event: CustomEvent<unknown[]>): void => {
+  const [newWidth, _oldWidth, rawColumn] = event.detail;
+  const width = Number(newWidth);
+  if (!Number.isFinite(width) || width <= 0 || !rawColumn || typeof rawColumn !== "object") return;
+  const source = rawColumn as Record<string, unknown>;
+  const key = String(source.columnKey || source.prop || "");
+  if (!key) return;
+  columnWidths.set({ ...columnWidths.peek(), [key]: width });
+};
 
 const numericHeight = (): number => Math.max(1, Number.parseFloat(String(props.height)) || 400);
 const rowHeightAt = (row: TableRow, rowIndex: number): number => {
@@ -297,7 +319,10 @@ const bodyRows = (): TableRow[] =>
       ? props.data
       : [];
 const fixedBodyHeight = (): number =>
-  fixedRows().reduce((total: number, row: TableRow, index: number) => total + rowHeightAt(row, index), 0);
+  fixedRows().reduce(
+    (total: number, row: TableRow, index: number) => total + rowHeightAt(row, index),
+    0,
+  );
 const fixedTableHeight = (): number => headerHeight() + fixedBodyHeight();
 const bodyHeight = (): number => Math.max(1, numericHeight() - fixedTableHeight() - footerHeight());
 const headerRowStyle = (): Record<string, string> => ({ height: `${headerHeight()}px` });
@@ -312,7 +337,10 @@ const renderedDetail = (scrollTop: number): TableV2RowsRenderedDetail => {
   let visibleEnd = Math.max(0, count - 1);
   if (count > 0) {
     let offset = 0;
-    while (visibleStart < count - 1 && offset + rowHeightAt(source[visibleStart]!, visibleStart) <= scrollTop) {
+    while (
+      visibleStart < count - 1 &&
+      offset + rowHeightAt(source[visibleStart]!, visibleStart) <= scrollTop
+    ) {
       offset += rowHeightAt(source[visibleStart]!, visibleStart);
       visibleStart += 1;
     }
@@ -365,7 +393,10 @@ const onFixedScroll = (event: CustomEvent<unknown[]>): void => {
 };
 
 const onSort = (event: CustomEvent<unknown[]>): void => {
-  const detail = firstEventDetail<{ prop: string; order: string }>(event) || { prop: "", order: "" };
+  const detail = firstEventDetail<{ prop: string; order: string }>(event) || {
+    prop: "",
+    order: "",
+  };
   const column = (props.columns || []).find(
     (item: TableV2Column) => (item.dataKey || item.key) === detail.prop,
   );
@@ -380,7 +411,8 @@ const forwardRowClick = (event: CustomEvent<unknown[]>): void => {
   emit("row-click", rawRowOf(args[0]), args[1], args[2]);
 };
 
-const scrollTableTo = (options: { left?: number; top?: number }): void => innerTable()?.scrollTableTo(options);
+const scrollTableTo = (options: { left?: number; top?: number }): void =>
+  innerTable()?.scrollTableTo(options);
 const setScrollTop = (top: number): void => innerTable()?.setScrollTop(top);
 const setScrollLeft = (left: number): void => innerTable()?.setScrollLeft(left);
 const scrollToRow = (row: number, strategy: "auto" | "start" | "center" | "end" = "auto"): void => {
@@ -442,6 +474,7 @@ const TableV2 = defineHtml<TableV2Props, Record<string, never>, TableV2Slots>(`
       :border=${props.border}
       stickyHeader
       @scroll=${onFixedScroll}
+      @header-dragend=${onHeaderDragend}
       @sort-change=${onSort}
       @row-click=${forwardRowClick}
     ></elf-table>
@@ -466,6 +499,7 @@ const TableV2 = defineHtml<TableV2Props, Record<string, never>, TableV2Slots>(`
       virtual
       :virtualThreshold.prop=${0}
       @scroll=${onScroll}
+      @header-dragend=${onHeaderDragend}
       @sort-change=${onSort}
       @row-click=${forwardRowClick}
     ></elf-table>

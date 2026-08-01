@@ -11,10 +11,7 @@ import {
 } from "./selection-model";
 import type { TableTreeRow } from "./tree";
 
-const row = (
-  key: string,
-  options: Partial<TableTreeRow> = {},
-): TableTreeRow => ({
+const row = (key: string, options: Partial<TableTreeRow> = {}): TableTreeRow => ({
   key,
   index: 0,
   raw: { id: key },
@@ -37,8 +34,7 @@ const disabled = row("disabled", {
   path: ["root", "disabled"],
 });
 const rows = [root, child, disabled];
-const isSelectable = (item: TableTreeRow): boolean =>
-  item.key !== "disabled";
+const isSelectable = (item: TableTreeRow): boolean => item.key !== "disabled";
 
 describe("Table selection model", () => {
   it("normalizes existing keys and cascades a selected tree parent", () => {
@@ -76,12 +72,8 @@ describe("Table selection model", () => {
       "child",
       "disabled",
     ]);
-    expect(
-      isTableRowIndeterminate(rows, root, ["child"], false, isSelectable),
-    ).toBe(true);
-    expect(
-      isTableRowIndeterminate(rows, root, ["child"], true, isSelectable),
-    ).toBe(false);
+    expect(isTableRowIndeterminate(rows, root, ["child"], false, isSelectable)).toBe(true);
+    expect(isTableRowIndeterminate(rows, root, ["child"], true, isSelectable)).toBe(false);
     expect(getTableSelectionSummary(rows, ["root"], isSelectable)).toEqual({
       selectableRows: [root, child],
       allSelected: false,
@@ -114,7 +106,6 @@ describe("Table selection model", () => {
   });
 
   it("toggles visible rows while retaining hidden and disabled selection", () => {
-    const hidden = row("hidden");
     expect(
       toggleAllTableSelection({
         selectedKeys: ["hidden", "disabled"],
@@ -134,20 +125,18 @@ describe("Table selection model", () => {
   });
 
   it("maps selected keys back to source rows in data order", () => {
-    expect(getSelectedTableRows([...rows, row("last")], ["last", "child"]))
-      .toEqual([{ id: "child" }, { id: "last" }]);
+    expect(getSelectedTableRows([...rows, row("last")], ["last", "child"])).toEqual([
+      { id: "child" },
+      { id: "last" },
+    ]);
   });
 
   it("binds row operations to one immutable collection snapshot", () => {
     const collection = createTableRowCollection(rows, [root, child], true);
 
     expect(collection.resolve("child")).toBe(child);
-    expect(
-      collection.normalizeSelection(["root"], false, isSelectable),
-    ).toEqual(["root", "child"]);
-    expect(
-      collection.selectionSummary(["root", "child"], isSelectable),
-    ).toEqual({
+    expect(collection.normalizeSelection(["root"], false, isSelectable)).toEqual(["root", "child"]);
+    expect(collection.selectionSummary(["root", "child"], isSelectable)).toEqual({
       selectableRows: [root, child],
       allSelected: true,
       indeterminate: false,

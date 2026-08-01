@@ -64,4 +64,22 @@ describe("SliderPage localization", () => {
     await tick();
     expect(collectText(example)).toContain("当前值 : 55");
   });
+
+  it("renders the season range with visible track segments", async () => {
+    const page = await mount();
+    const example = page.shadowRoot!.querySelector<HTMLElement>("elf-page-slider-ex9")!;
+    const slider = example.shadowRoot!.querySelector<HTMLElement>("elf-slider")!;
+    expect(slider.hasAttribute("segmented")).toBe(true);
+    expect(slider.shadowRoot!.querySelectorAll(".segment")).toHaveLength(3);
+    expect((slider as HTMLElement & { min?: number }).min).toBe(0);
+    expect((slider as HTMLElement & { max?: number }).max).toBe(3);
+    expect((slider as HTMLElement & { step?: number }).step).toBe(1);
+    expect((slider as HTMLElement & { modelValue?: number[] }).modelValue).toEqual([0, 2]);
+    expect(
+      example.shadowRoot!.querySelector('elf-icon[slot="thumb-label-start"][name="snow"]'),
+    ).toBeTruthy();
+    expect(
+      example.shadowRoot!.querySelector('elf-icon[slot="thumb-label-end"][name="sun"]'),
+    ).toBeTruthy();
+  });
 });

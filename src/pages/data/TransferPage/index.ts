@@ -12,8 +12,8 @@ const t = createDocsTranslator({
   title: { zh: "穿梭框", en: "Transfer" },
   description: {
     zh: "双栏穿梭选择框，支持搜索过滤、全选、自定义字段名与虚拟化。",
-    en: "A dual-panel selector with filtering, select all, custom field mappings, and virtualization."
-  }
+    en: "A dual-panel selector with filtering, select all, custom field mappings, and virtualization.",
+  },
 });
 
 useComponents({
@@ -23,13 +23,12 @@ useComponents({
   "page-transfer-ex4": PageTransferEx4,
   "page-transfer-ex5": PageTransferEx5,
   "page-transfer-ex6": PageTransferEx6,
-  "page-transfer-props": PageTransferProps
+  "page-transfer-props": PageTransferProps,
 });
 
 const PageTransfer = defineHtml(`
   <elf-container
-    ><h1>${t("title")}</h1>
-    <p>${t("description")}</p>
+    ><elf-docs-hero category="data" tag="Transfer" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
     <page-transfer-ex1 /><page-transfer-ex2 /><page-transfer-ex3 /><page-transfer-ex4 /><page-transfer-ex5 /><page-transfer-ex6 /><page-transfer-props
   /></elf-container>
 `);

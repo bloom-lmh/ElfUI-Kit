@@ -31,54 +31,56 @@
   outline-offset: 2px;
 }
 
-.image-fit-grid {
+.image-fit-stage {
+  box-sizing: border-box;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 14px;
-  width: min(1060px, 100%);
-  margin-inline: auto;
-}
-
-.image-fit-grid article {
-  display: grid;
-  gap: 12px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
   justify-items: center;
-  min-width: 0;
-  padding: 14px;
+  width: min(620px, 100%);
+  margin-inline: auto;
+  padding: 22px;
   border: 1px solid var(--elf-border);
   border-radius: var(--elf-radius-md);
   background: color-mix(in srgb, var(--elf-bg-paper) 94%, var(--elf-primary) 6%);
 }
 
-.image-fit-grid header {
-  display: grid;
-  gap: 2px;
-  width: 100%;
-}
-
-.image-fit-grid header strong {
-  color: var(--elf-primary);
-  font-family: var(--elf-font-family-mono, monospace);
-}
-
-.image-fit-grid header span {
+.image-fit-note {
   color: var(--elf-text-secondary);
   font-size: var(--elf-font-size-xs);
 }
 
-.image-fit-grid elf-image {
+.image-fit-stage elf-image {
   max-width: 100%;
-  border: 1px solid var(--elf-border);
-  background:
-    linear-gradient(45deg, color-mix(in srgb, var(--elf-border) 36%, transparent) 25%, transparent 25%) 0 0 / 16px 16px,
-    linear-gradient(-45deg, color-mix(in srgb, var(--elf-border) 36%, transparent) 25%, transparent 25%) 0 8px / 16px 16px,
-    linear-gradient(45deg, transparent 75%, color-mix(in srgb, var(--elf-border) 36%, transparent) 75%) 8px -8px / 16px 16px,
-    linear-gradient(-45deg, transparent 75%, color-mix(in srgb, var(--elf-border) 36%, transparent) 75%) -8px 0 / 16px 16px;
+  background: var(--elf-bg-muted);
+}
+
+.image-demo-controls {
+  display: grid;
+  gap: 16px;
+}
+
+.image-demo-controls > strong {
+  font-size: var(--elf-font-size-sm);
+}
+
+.image-demo-controls > label {
+  display: grid;
+  gap: 7px;
+  color: var(--elf-text-secondary);
+  font-size: var(--elf-font-size-xs);
+}
+
+.image-demo-controls elf-select,
+.image-demo-controls elf-input-number,
+.image-demo-controls elf-button {
+  width: 100%;
 }
 
 .image-retry-stage,
 .image-responsive-stage,
 .image-preview-stage {
+  box-sizing: border-box;
   width: min(820px, 100%);
   margin-inline: auto;
   padding: 22px;
@@ -168,11 +170,15 @@
 }
 
 @keyframes image-demo-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .custom-image-loader__ring { animation: none; }
+  .custom-image-loader__ring {
+    animation: none;
+  }
 }
 
 @media (max-width: 680px) {

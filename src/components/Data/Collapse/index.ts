@@ -8,18 +8,11 @@ import {
   useEventListener,
   useHost,
   useHostFlag,
-  useRef
+  useRef,
 } from "@elfui/core";
 
 import styles from "./style.scss?inline";
-import type {
-  CollapseEmits,
-  CollapseFieldNames,
-  CollapseItem,
-  CollapseItemProps,
-  CollapseModelValue,
-  CollapseProps
-} from "./types";
+import type { CollapseEmits, CollapseFieldNames, CollapseModelValue, CollapseProps } from "./types";
 
 export type {
   CollapseEmits,
@@ -29,7 +22,7 @@ export type {
   CollapseItemProps,
   CollapseItemSlots,
   CollapseModelValue,
-  CollapseProps
+  CollapseProps,
 } from "./types";
 
 interface ViewItem {
@@ -53,7 +46,7 @@ const DEFAULT_FIELDS: Required<CollapseFieldNames> = {
   name: "name",
   title: "title",
   content: "content",
-  disabled: "disabled"
+  disabled: "disabled",
 };
 
 const nextId = (): string => {
@@ -72,9 +65,9 @@ const props = defineProps<CollapseProps>({
       name: "name",
       title: "title",
       content: "content",
-      disabled: "disabled"
-    })
-  }
+      disabled: "disabled",
+    }),
+  },
 });
 
 const emit = defineEmits<CollapseEmits>();
@@ -92,7 +85,7 @@ const fieldNames = (): Required<CollapseFieldNames> => {
     name: value.name || DEFAULT_FIELDS.name,
     title: value.title || DEFAULT_FIELDS.title,
     content: value.content || DEFAULT_FIELDS.content,
-    disabled: value.disabled || DEFAULT_FIELDS.disabled
+    disabled: value.disabled || DEFAULT_FIELDS.disabled,
   };
 };
 
@@ -108,7 +101,7 @@ const normalizeActiveNames = (value: unknown): string[] => {
 
 const itemChildren = (): CollapseItemElement[] =>
   Array.from(host.children).filter(
-    (child): child is CollapseItemElement => child.tagName.toLowerCase() === "elf-collapse-item"
+    (child): child is CollapseItemElement => child.tagName.toLowerCase() === "elf-collapse-item",
   );
 
 const childName = (child: CollapseItemElement, index: number): string =>
@@ -127,7 +120,7 @@ const viewItems = (): ViewItem[] => {
       name,
       title: String(raw[fields.title] ?? name),
       content: String(raw[fields.content] ?? ""),
-      disabled: Boolean(raw[fields.disabled])
+      disabled: Boolean(raw[fields.disabled]),
     };
   });
 };
@@ -181,7 +174,7 @@ const toggle = (name: string, disabled = false): void => {
 const focusByAction = (
   candidates: Array<{ disabled: boolean; focus: () => void }>,
   currentIndex: number,
-  action: NavigationAction
+  action: NavigationAction,
 ): void => {
   const enabled = candidates
     .map((candidate, index) => ({ ...candidate, index }))
@@ -210,16 +203,14 @@ const onHeaderKeydown = (event: KeyboardEvent): void => {
   const action = navigationAction(event.key);
   if (!action) return;
   event.preventDefault();
-  const headers = Array.from(
-    host.shadowRoot?.querySelectorAll<HTMLButtonElement>(".header") ?? []
-  );
+  const headers = Array.from(host.shadowRoot?.querySelectorAll<HTMLButtonElement>(".header") ?? []);
   focusByAction(
     headers.map((header) => ({
       disabled: header.disabled,
-      focus: () => header.focus()
+      focus: () => header.focus(),
     })),
     headers.indexOf(event.currentTarget as HTMLButtonElement),
-    action
+    action,
   );
 };
 
@@ -244,10 +235,10 @@ useEventListener(host, "elf-collapse-navigate", (event) => {
   focusByAction(
     children.map((item) => ({
       disabled: Boolean(item.disabled),
-      focus: () => item.focusHeader?.()
+      focus: () => item.focusHeader?.(),
     })),
     index,
-    action
+    action,
   );
 });
 

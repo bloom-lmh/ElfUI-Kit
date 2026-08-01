@@ -8,17 +8,11 @@ import {
   useEffect,
   useHost,
   useHostCssVar,
-  useRef
+  useRef,
 } from "@elfui/core";
 
 import styles from "./style.scss?inline";
-import type {
-  VideoControlLabels,
-  VideoEmits,
-  VideoExpose,
-  VideoProps,
-  VideoTrack
-} from "./types";
+import type { VideoControlLabels, VideoEmits, VideoExpose, VideoProps, VideoTrack } from "./types";
 
 export type {
   VideoControlLabels,
@@ -30,7 +24,7 @@ export type {
   VideoPreload,
   VideoTimeDetail,
   VideoTrack,
-  VideoVolumeDetail
+  VideoVolumeDetail,
 } from "./types";
 
 const DEFAULT_LABELS: VideoControlLabels = {
@@ -42,7 +36,7 @@ const DEFAULT_LABELS: VideoControlLabels = {
   seek: "Seek",
   playbackRate: "Playback rate",
   pictureInPicture: "Picture in picture",
-  fullscreen: "Fullscreen"
+  fullscreen: "Fullscreen",
 };
 
 const props = defineProps<VideoProps>({
@@ -62,7 +56,7 @@ const props = defineProps<VideoProps>({
   playbackRate: { type: Number, default: 1 },
   playbackRates: { type: Array, default: () => [0.75, 1, 1.25, 1.5, 2] },
   tracks: { type: Array, default: () => [] },
-  labels: { type: Object, default: () => ({}) }
+  labels: { type: Object, default: () => ({}) },
 });
 
 const emit = defineEmits<VideoEmits>();
@@ -96,7 +90,7 @@ const syncTime = (): void => {
   emit("time-update", {
     currentTime: currentTime.value,
     duration: duration.value,
-    progress: duration.value > 0 ? currentTime.value / duration.value : 0
+    progress: duration.value > 0 ? currentTime.value / duration.value : 0,
   });
 };
 
@@ -159,11 +153,7 @@ const toggleRateMenu = (): void => {
 const selectPlaybackRate = (event: Event): void => {
   const video = media();
   if (!video) return;
-  video.playbackRate = clamp(
-    Number((event.currentTarget as HTMLElement).dataset.rate),
-    0.25,
-    4
-  );
+  video.playbackRate = clamp(Number((event.currentTarget as HTMLElement).dataset.rate), 0.25, 4);
   playbackRate.set(video.playbackRate);
   emit("rate-change", video.playbackRate);
   rateMenuOpen.set(false);
@@ -222,15 +212,18 @@ const onKeydown = (event: KeyboardEvent): void => {
     rateMenuOpen.set(false);
     return;
   } else if (key === " " || key === "k") {
-    if (event.target instanceof HTMLInputElement || event.target instanceof HTMLSelectElement) return;
+    if (event.target instanceof HTMLInputElement || event.target instanceof HTMLSelectElement)
+      return;
     event.preventDefault();
     void togglePlayback();
   } else if (key === "arrowleft" || key === "arrowright") {
-    if (event.target instanceof HTMLInputElement || event.target instanceof HTMLSelectElement) return;
+    if (event.target instanceof HTMLInputElement || event.target instanceof HTMLSelectElement)
+      return;
     event.preventDefault();
     seekTo(currentTime.peek() + (key === "arrowleft" ? -5 : 5));
   } else if (key === "m") {
-    if (event.target instanceof HTMLInputElement || event.target instanceof HTMLSelectElement) return;
+    if (event.target instanceof HTMLInputElement || event.target instanceof HTMLSelectElement)
+      return;
     toggleMuted();
   } else if (key === "f") {
     void requestMediaFullscreen();
@@ -255,10 +248,18 @@ const timelineValue = (): number => currentTime.value;
 const selectedPlaybackRate = (): number => playbackRate.value;
 const volumeValue = (): number => volume.value;
 const volumePercent = (): number => Math.round(volume.value * 100);
+const volumeSegments = [0.2, 0.4, 0.6, 0.8, 1];
+const isVolumeSegmentActive = (level: number): boolean =>
+  !muted.value && volume.value > 0 && volume.value >= level - 0.001;
+const timelineProgress = (): string =>
+  `${Math.round((duration.value > 0 ? currentTime.value / duration.value : 0) * 100)}%`;
+const volumeProgress = (): string => `${volumePercent()}%`;
 const pipSupported = (): boolean =>
   typeof document !== "undefined" && "pictureInPictureEnabled" in document;
 
 useHostCssVar("--_video-ratio", () => String(props.aspectRatio || "16 / 9"));
+useHostCssVar("--_video-progress", timelineProgress);
+useHostCssVar("--_video-volume", volumeProgress);
 
 const syncConfiguredMedia = (): void => {
   const video = media();
@@ -284,10 +285,11 @@ onMounted(() => {
   };
   const onDocumentPointerDown = (event: PointerEvent): void => {
     if (
-      event.target === host
-      || host.contains(event.target as Node)
-      || event.composedPath().includes(host)
-    ) return;
+      event.target === host ||
+      host.contains(event.target as Node) ||
+      event.composedPath().includes(host)
+    )
+      return;
     volumeMenuOpen.set(false);
     rateMenuOpen.set(false);
   };
@@ -319,7 +321,7 @@ defineExpose<VideoExpose>({
   setVolumeLevel,
   requestMediaFullscreen,
   togglePictureInPicture,
-  getMediaElement: media
+  getMediaElement: media,
 });
 
 defineStyle(styles);
@@ -382,9 +384,20 @@ const Video = defineHtml(`
       <span class="time">${timeLabel()}</span>
       <div class="volume-menu">
         <button class="control volume-control" type="button" :aria-label=${muteLabel()} :aria-expanded=${isVolumeMenuOpen()} @click=${toggleVolumeMenu}>
-          <span class="volume-icon" :class="{ muted: isMuted() }" aria-hidden="true"></span>
+          <span class="volume-icon" :class="{ muted: isMuted() }" aria-hidden="true">
+            <i
+              v-for="level in volumeSegments"
+              :class="{ active: isVolumeSegmentActive(level) }"
+            ></i>
+          </span>
         </button>
         <div v-if=${isVolumeMenuOpen()} class="volume-popover" role="dialog" :aria-label=${label("volume")}>
+          <div class="volume-meter" aria-hidden="true">
+            <i
+              v-for="level in volumeSegments"
+              :class="{ active: isVolumeSegmentActive(level) }"
+            ></i>
+          </div>
           <input
             class="volume-slider"
             type="range"

@@ -5,12 +5,26 @@
   width: 100%;
   transform: translateY(100%);
   visibility: hidden;
-  transition: transform var(--elf-transition-base), visibility var(--elf-transition-base);
+  transition:
+    transform var(--elf-transition-base),
+    visibility var(--elf-transition-base);
 }
 
-:host([active]) { transform: translateY(0); visibility: visible; }
-:host([rounded]) { border-radius: var(--elf-radius-md); overflow: hidden; }
-:host([fixed]) { position: fixed; z-index: var(--elf-z-index-dropdown); right: 0; bottom: 0; left: 0; }
+:host([active]) {
+  transform: translateY(0);
+  visibility: visible;
+}
+:host([rounded]) {
+  border-radius: var(--elf-radius-md);
+  overflow: hidden;
+}
+:host([fixed]) {
+  position: fixed;
+  z-index: var(--elf-z-index-dropdown);
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
 
 .navigation {
   display: flex;
@@ -38,13 +52,17 @@
   color: var(--elf-text-secondary);
   cursor: pointer;
   font: inherit;
-  transition: color var(--elf-transition-fast), background-color var(--elf-transition-fast);
+  transition:
+    color var(--elf-transition-fast),
+    background-color var(--elf-transition-fast);
   isolation: isolate;
   overflow: hidden;
   position: relative;
 }
 
-.item:hover:not(:disabled) { background: color-mix(in srgb, var(--_bottom-nav-active) 8%, transparent); }
+.item:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--_bottom-nav-active) 8%, transparent);
+}
 .item::after {
   position: absolute;
   z-index: -1;
@@ -54,20 +72,41 @@
   background: color-mix(in srgb, var(--_bottom-nav-active) 18%, transparent);
   content: "";
   opacity: 0;
-  transform: scale(.25);
-  transition: opacity var(--elf-transition-fast), transform var(--elf-transition-fast);
+  transform: scale(0.25);
+  transition:
+    opacity var(--elf-transition-fast),
+    transform var(--elf-transition-fast);
 }
-.item:active:not(:disabled)::after { opacity: 1; transform: scale(1.55); }
-.item:focus-visible { outline: 2px solid var(--_bottom-nav-active); outline-offset: -3px; }
+.item:active:not(:disabled)::after {
+  opacity: 1;
+  transform: scale(1.55);
+}
+.item:focus-visible {
+  outline: 2px solid var(--_bottom-nav-active);
+  outline-offset: -3px;
+}
 .item.is-selected {
   background: color-mix(in srgb, var(--_bottom-nav-active) 12%, transparent);
   color: var(--_bottom-nav-active, var(--elf-primary));
 }
-.item:disabled { color: var(--elf-text-disabled); cursor: not-allowed; }
+.item:disabled {
+  color: var(--elf-text-disabled);
+  cursor: not-allowed;
+}
 
-.icon { font-size: 22px; line-height: 1; transition: transform var(--elf-transition-fast); }
-.item.is-selected .icon { transform: translateY(-1px); }
-.label { max-width: 100%; overflow: hidden; font-size: var(--elf-font-size-xs); font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  line-height: 1;
+}
+.label {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: var(--elf-font-size-xs);
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .badge {
   position: absolute;
   top: 6px;
@@ -85,16 +124,39 @@
   text-align: center;
 }
 
-:host([grow]) .item { max-width: none; flex: 1 1 0; }
-:host([horizontal]) .item { flex-direction: row; gap: var(--elf-space-2); }
-:host([shift]) .item:not(.is-selected) .label { width: 0; opacity: 0; }
-:host([shift]) .item.is-selected { flex-grow: 1.25; }
-:host([border]) .navigation { border: 1px solid var(--elf-border); }
-:host([safe-area]) .navigation { padding-bottom: env(safe-area-inset-bottom); }
+:host([grow]) .item {
+  max-width: none;
+  flex: 1 1 0;
+}
+:host([horizontal]) .item {
+  flex-direction: row;
+  gap: var(--elf-space-2);
+}
+:host([shift]) .item:not(.is-selected) .label {
+  width: 0;
+  opacity: 0;
+  visibility: hidden;
+}
+:host([shift]) .item {
+  min-width: 0;
+}
+:host([border]) .navigation {
+  border: 1px solid var(--elf-border);
+}
+:host([safe-area]) .navigation {
+  padding-bottom: env(safe-area-inset-bottom);
+}
 
 ::slotted([slot="prepend"]),
-::slotted([slot="append"]) { display: inline-flex; align-items: center; }
+::slotted([slot="append"]) {
+  display: inline-flex;
+  align-items: center;
+}
 
 @media (prefers-reduced-motion: reduce) {
-  :host, .item, .icon, .item::after { transition: none; }
+  :host,
+  .item,
+  .item::after {
+    transition: none;
+  }
 }

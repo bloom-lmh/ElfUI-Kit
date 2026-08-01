@@ -113,7 +113,7 @@ const breakpointRank = (name: DisplayBreakpoint): number =>
 const isMobile = (): boolean => {
   const { mobileBreakpoint, thresholds } = readDisplayOptions();
   const breakpoint = (
-    typeof mobileBreakpoint === "number" ? "lg" : mobileBreakpoint ?? "lg"
+    typeof mobileBreakpoint === "number" ? "lg" : (mobileBreakpoint ?? "lg")
   ) as DisplayBreakpoint;
   const limit =
     typeof mobileBreakpoint === "number"
@@ -135,8 +135,7 @@ const updateDisplay = (): void => {
 
 const reducedMotion = (): boolean => {
   const preference = readConfig().motion ?? "system";
-  return preference === "reduced" ||
-    (preference === "system" && systemReducedMotion.value);
+  return preference === "reduced" || (preference === "system" && systemReducedMotion.value);
 };
 
 const display: DisplayProviderContext = {
@@ -239,11 +238,11 @@ onMounted(() => {
 });
 
 useEffect(() => {
-  display.width;
-  display.height;
-  display.name;
-  display.mobile;
-  display.prefersReducedMotion;
+  void display.width;
+  void display.height;
+  void display.name;
+  void display.mobile;
+  void display.prefersReducedMotion;
   host.setAttribute("data-breakpoint", display.name);
   host.setAttribute("data-mobile", display.mobile ? "true" : "false");
   host.setAttribute("data-motion", motionData());

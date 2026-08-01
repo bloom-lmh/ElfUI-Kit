@@ -1,7 +1,10 @@
+import { ensureCustomElement } from "@elfui/core";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
 
-beforeAll(async () => {
-  await import("../../../components");
+import { Timeline } from "./index";
+
+beforeAll(() => {
+  ensureCustomElement(Timeline);
 });
 
 afterEach(() => {
@@ -13,7 +16,7 @@ const tick = (): Promise<void> => new Promise((resolve) => queueMicrotask(resolv
 const items = [
   { timestamp: "2024-01-01", title: "需求分析", content: "确认范围" },
   { timestamp: "2024-02-01", title: "界面设计", content: "完成设计稿" },
-  { timestamp: "2024-03-01", title: "发布上线", content: "完成交付" }
+  { timestamp: "2024-03-01", title: "发布上线", content: "完成交付" },
 ];
 
 describe("elf-timeline", () => {
@@ -43,7 +46,7 @@ describe("elf-timeline", () => {
     const el = document.createElement("elf-timeline");
     (el as any).items = [
       { title: "Ready", color: "success" },
-      { title: "Custom", color: "#7c3aed" }
+      { title: "Custom", color: "#7c3aed" },
     ];
     document.body.appendChild(el);
     await tick();
@@ -57,7 +60,7 @@ describe("elf-timeline", () => {
     const el = document.createElement("elf-timeline");
     (el as any).items = [
       { timestamp: "2026-07-13", title: "Top", placement: "top", type: "success", size: "large" },
-      { timestamp: "2026-07-14", title: "Hidden", hideTimestamp: true, hollow: true }
+      { timestamp: "2026-07-14", title: "Hidden", hideTimestamp: true, hollow: true },
     ];
     document.body.appendChild(el);
     await tick();
@@ -89,8 +92,8 @@ describe("elf-timeline", () => {
         timestamp: "2026-07-21",
         title: "Fallback title",
         cardClass: "release-card",
-        cardStyle: { "--release-accent": "#2563eb" }
-      }
+        cardStyle: { "--release-accent": "#2563eb" },
+      },
     ];
     el.innerHTML = `
       <article slot="item-0">Custom release card</article>

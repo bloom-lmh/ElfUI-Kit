@@ -39,3 +39,10 @@
 - [x] `pnpm test src/components/Form/Slider/Slider.test.ts` 通过。
 - [x] `pnpm build` 通过。
 - [x] 2026-07-15 验收：13 项组件测试通过；浏览器验证 11 个 Slider、纵向布局及 top/bottom/left/right 四种提示位置，12 个说明区域 ID 全部唯一且控制台无错误。
+
+## 2026-07-30 Vuetify documentation batch
+
+- [x] 新增 `tickLabels`、`SliderEmits`、`SliderSlots` 以及 `thumb-label`、`thumb-label-start`、`thumb-label-end` 插槽契约。
+- [x] 新增四季刻度 range 案例，起点使用雪花标签，终点使用太阳标签，并同步 Props/Slots API。
+- [x] Slider 组件聚焦测试 `15/15` 通过；中英文移动端刻度标签检测 `overlaps: 0`。
+- [x] 桌面 Material 中文截图为 `docs/screenshots/2026-07-30/slider-season-desktop-light-zh.png`。

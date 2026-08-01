@@ -35,6 +35,12 @@ const propsRows = [
     desc: pick("全屏模式是否显示退出按钮", "Show an exit button in fullscreen mode."),
   },
   {
+    name: "plain",
+    type: "boolean",
+    default: "false",
+    desc: pick("移除加载图标外层卡片表面", "Remove the indicator card surface."),
+  },
+  {
     name: "variant",
     type: "spinner | dots | pulse | bars",
     default: "spinner",
@@ -89,6 +95,10 @@ const slotsRows = [
     name: "default",
     desc: pick("被加载遮罩覆盖的内容", "Content covered by the loading overlay."),
   },
+  {
+    name: "indicator",
+    desc: pick("自定义加载图标或 CSS 动画", "Custom loading icon or CSS animation."),
+  },
 ];
 
 const serviceRows = [
@@ -132,7 +142,7 @@ const serviceRows = [
     ),
   },
   {
-    name: "text / background / variant",
+    name: "text / background / variant / plain",
     type: "LoadingOptions",
     desc: pick(
       "配置文案、背景和内置动效",

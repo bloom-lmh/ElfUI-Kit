@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts-nocheck -- Legacy custom-element fixture requires runtime-only properties.
 // elf-checkbox-group 测试
 
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
@@ -110,7 +110,7 @@ describe("elf-checkbox-group", () => {
     group.variant = "button";
     group.options = [
       { text: "Read", code: "read" },
-      { text: "Write", code: "write", locked: true }
+      { text: "Write", code: "write", locked: true },
     ];
     group.props = { label: "text", value: "code", disabled: "locked" };
     await flush();

@@ -1,0 +1,27 @@
+.splitter-demo-stage {
+  width: 100%;
+  height: 280px;
+  min-height: 220px;
+}
+.splitter-demo-stage elf-splitter {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.splitter-demo-stage elf-splitter::part(splitter) {
+  border: 0;
+  border-radius: 0;
+}
+.splitter-demo-stage elf-splitter::part(first),
+.splitter-demo-stage elf-splitter::part(second) {
+  box-sizing: border-box;
+  padding: 16px;
+}
+.splitter-demo-stage elf-splitter::part(first) {
+  color: #fff;
+  background: #616161;
+}
+.splitter-demo-stage elf-splitter::part(second) {
+  color: #111;
+  background: #fff;
+}

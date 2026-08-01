@@ -4,16 +4,15 @@ import { Notification as NotificationElement } from "./component";
 import {
   resolveServiceOptions,
   useServiceDefaults,
-  type ServiceDefaultsReader
+  type ServiceDefaultsReader,
 } from "../../Providers/service-defaults";
 import type {
   NotificationApi,
   NotificationAppendTarget,
-  NotificationContent,
   NotificationHandle,
   NotificationOptions,
   NotificationPosition,
-  NotificationType
+  NotificationType,
 } from "./types";
 
 export type {
@@ -23,7 +22,7 @@ export type {
   NotificationHandle,
   NotificationOptions,
   NotificationPosition,
-  NotificationType
+  NotificationType,
 } from "./types";
 
 registerComponents(NotificationElement);
@@ -39,7 +38,7 @@ const activeStacks: Record<NotificationPosition, ActiveNotification[]> = {
   "top-right": [],
   "top-left": [],
   "bottom-right": [],
-  "bottom-left": []
+  "bottom-left": [],
 };
 
 const restack = (position: NotificationPosition): void => {
@@ -86,9 +85,10 @@ interface NotificationEl extends HTMLElement {
 const createNotification = (
   options: NotificationOptions | string,
   forcedType?: NotificationType,
-  defaults?: Partial<NotificationOptions>
+  defaults?: Partial<NotificationOptions>,
 ): NotificationHandle => {
-  const normalized: NotificationOptions = typeof options === "string" ? { message: options } : { ...options };
+  const normalized: NotificationOptions =
+    typeof options === "string" ? { message: options } : { ...options };
   const opts = resolveServiceOptions(defaults, normalized);
   if (forcedType) opts.type = forcedType;
 
@@ -160,7 +160,7 @@ const createNotification = (
 };
 
 const createNotificationApi = (
-  readDefaults?: ServiceDefaultsReader<"notification">
+  readDefaults?: ServiceDefaultsReader<"notification">,
 ): NotificationApi => {
   const fn = ((options: NotificationOptions | string): NotificationHandle =>
     createNotification(options, undefined, readDefaults?.())) as NotificationApi;
@@ -170,7 +170,8 @@ const createNotificationApi = (
   fn.error = (options) => createNotification(options, "error", readDefaults?.());
   fn.closeAll = (): void => {
     for (const position of Object.keys(activeStacks) as NotificationPosition[]) {
-      for (const entry of [...activeStacks[position]]) entry.el.dispatchEvent(new CustomEvent("close"));
+      for (const entry of [...activeStacks[position]])
+        entry.el.dispatchEvent(new CustomEvent("close"));
     }
   };
   return fn;

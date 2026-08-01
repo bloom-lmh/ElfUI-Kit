@@ -33,8 +33,7 @@ const t = createDocsTranslator({
 
 const PageCascader = defineHtml(`
   <elf-container>
-    <h1>${t("title")}</h1>
-    <p>${t("description")}</p>
+    <elf-docs-hero category="form" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
     <page-cascader-ex1 />
     <page-cascader-ex2 />
     <page-cascader-ex3 />
