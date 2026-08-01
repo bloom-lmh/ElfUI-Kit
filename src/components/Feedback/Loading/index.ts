@@ -3,12 +3,12 @@ import {
   defineHtml,
   defineProps,
   defineStyle,
+  onBeforeUnmount,
   useComputed,
-  useEffect,
   useHostAttr,
   useHostCssVar,
+  useRef,
   useScrollLock,
-  useTemplateRef,
 } from "@elfui/core";
 
 import styles from "./style.scss?inline";
@@ -38,9 +38,12 @@ const props = defineProps<LoadingProps>({
   lock: { type: Boolean, default: false },
 });
 
-const emit = defineEmits<LoadingEmits>();
+const emit = defineEmits<LoadingEmits>(["update:loading", "close", "closed"]);
 const locale = useLocaleProvider();
-const overlayRef = useTemplateRef<HTMLElement>("overlayEl");
+const rendered = useRef(false);
+
+let activeOverlay: HTMLElement | null = null;
+let completionPending = false;
 
 const normalizedVariant = (): LoadingVariant => {
   const variant = String(props.variant || "spinner") as LoadingVariant;
@@ -64,18 +67,62 @@ const close = (): void => {
 
 useHostAttr("fullscreen", () => (props.fullscreen ? "" : null));
 useHostCssVar("--_loading-bg", () => props.background || "rgba(255,255,255,0.72)");
-/** Shares Core's owner-counted body lock with service-created Loading hosts. */
-useScrollLock(() => props.loading && props.lock);
+/** Keeps the shared Core scroll-lock lease until the final leave completes. */
+useScrollLock(() => rendered.value && props.lock);
 
-useEffect(() => {
-  void props.loading;
-  void props.fullscreen;
-  if (!props.loading || !props.fullscreen) return;
-  queueMicrotask(() => {
-    const overlay = overlayRef.value;
-    if (!overlay || overlay.matches(":popover-open")) return;
-    overlay.showPopover?.();
-  });
+const showTopLayer = (element: HTMLElement): void => {
+  if (!props.fullscreen) return;
+  try {
+    element.showPopover?.();
+  } catch {
+    // A rapid replacement can update the native popover state before this hook runs.
+  }
+};
+
+const hideTopLayer = (element: Element): void => {
+  try {
+    (element as HTMLElement & { hidePopover?: () => void }).hidePopover?.();
+  } catch {
+    // Disconnecting a popover already removes it from the Top Layer.
+  }
+};
+
+const completeLoadingCycle = (): void => {
+  if (!completionPending) return;
+  completionPending = false;
+  emit("closed");
+};
+
+/** Starts one structural Loading transaction after Transition inserts the overlay. */
+const onBeforeEnter = (element: Element): void => {
+  const overlay = element as HTMLElement;
+  activeOverlay = overlay;
+  completionPending = true;
+  rendered.set(true);
+  showTopLayer(overlay);
+};
+
+const onAfterEnter = (element: Element): void => {
+  if (activeOverlay !== element || !props.loading) return;
+  if (props.fullscreen && props.closable) {
+    (element as HTMLElement).querySelector<HTMLButtonElement>(".close")?.focus();
+  }
+};
+
+/** Releases Top Layer and scroll-lock ownership only for the final active leave. */
+const onAfterLeave = (element: Element): void => {
+  hideTopLayer(element);
+  if (activeOverlay !== element || props.loading) return;
+  activeOverlay = null;
+  rendered.set(false);
+  completeLoadingCycle();
+};
+
+onBeforeUnmount(() => {
+  if (activeOverlay) hideTopLayer(activeOverlay);
+  activeOverlay = null;
+  rendered.set(false);
+  completeLoadingCycle();
 });
 
 defineStyle(styles);
@@ -83,50 +130,57 @@ defineStyle(styles);
 const Loading = defineHtml<LoadingProps, LoadingEmits, LoadingSlots>(`
   <div class="loading" part="loading">
     <slot></slot>
-    <div
-      v-if=${props.loading}
-      ref="overlayEl"
-      class="overlay"
-      part="overlay"
-      :popover=${props.fullscreen ? "manual" : undefined}
-      :role=${overlayRole()}
-      :aria-modal=${interactiveFullscreen ? "true" : null}
-      :aria-label=${props.text || locale.t("loading.active")}
+    <Transition
+      name="elf-loading"
+      appear
+      @before-enter=${onBeforeEnter}
+      @after-enter=${onAfterEnter}
+      @after-leave=${onAfterLeave}
     >
-      <div class="box">
-        <span :class=${indicatorClasses} aria-hidden="true">
-          <svg
-            v-if=${hasSvg}
-            class="custom-spinner"
-            :viewBox=${props.svgViewBox}
-            focusable="false"
-          >
-            <path :d=${props.svg}></path>
-          </svg>
-          <span v-if=${showSpinner} class="spinner"></span>
-          <span v-if=${showDots} class="dot"></span>
-          <span v-if=${showDots} class="dot"></span>
-          <span v-if=${showDots} class="dot"></span>
-          <span v-if=${showPulse} class="pulse"></span>
-          <span v-if=${showBars} class="bar"></span>
-          <span v-if=${showBars} class="bar"></span>
-          <span v-if=${showBars} class="bar"></span>
-        </span>
-        <span v-if=${props.text} class="loading-text">${props.text}</span>
-      </div>
-      <button
-        v-if=${props.fullscreen && props.closable}
-        class="close"
-        type="button"
-        :aria-label=${locale.t("loading.exitFullscreen")}
-        @click=${close}
+      <div
+        v-if=${props.loading}
+        class="overlay"
+        part="overlay"
+        :popover=${props.fullscreen ? "manual" : undefined}
+        :role=${overlayRole()}
+        :aria-modal=${interactiveFullscreen ? "true" : null}
+        :aria-label=${props.text || locale.t("loading.active")}
       >
-        <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
-          <path d="M5 5l10 10M15 5L5 15"></path>
-        </svg>
-        <span>${locale.t("loading.exitFullscreen")}</span>
-      </button>
-    </div>
+        <div class="box">
+          <span :class=${indicatorClasses} aria-hidden="true">
+            <svg
+              v-if=${hasSvg}
+              class="custom-spinner"
+              :viewBox=${props.svgViewBox}
+              focusable="false"
+            >
+              <path :d=${props.svg}></path>
+            </svg>
+            <span v-if=${showSpinner} class="spinner"></span>
+            <span v-if=${showDots} class="dot"></span>
+            <span v-if=${showDots} class="dot"></span>
+            <span v-if=${showDots} class="dot"></span>
+            <span v-if=${showPulse} class="pulse"></span>
+            <span v-if=${showBars} class="bar"></span>
+            <span v-if=${showBars} class="bar"></span>
+            <span v-if=${showBars} class="bar"></span>
+          </span>
+          <span v-if=${props.text} class="loading-text">${props.text}</span>
+        </div>
+        <button
+          v-if=${props.fullscreen && props.closable}
+          class="close"
+          type="button"
+          :aria-label=${locale.t("loading.exitFullscreen")}
+          @click=${close}
+        >
+          <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+            <path d="M5 5l10 10M15 5L5 15"></path>
+          </svg>
+          <span>${locale.t("loading.exitFullscreen")}</span>
+        </button>
+      </div>
+    </Transition>
   </div>
 `);
 

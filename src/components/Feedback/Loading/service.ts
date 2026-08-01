@@ -6,6 +6,7 @@ import {
   useServiceDefaults,
   type ServiceDefaultsReader,
 } from "../../Providers/service-defaults";
+import { acquireTargetPositionContext } from "../../Common/overlay/positioning-context";
 import type { LoadingApi, LoadingInstance, LoadingOptions, LoadingTarget } from "./types";
 
 interface LoadingElement extends HTMLElement {
@@ -20,13 +21,6 @@ interface LoadingElement extends HTMLElement {
   lock: boolean;
 }
 
-interface TargetPositionState {
-  count: number;
-  inlinePosition: string;
-}
-
-const targetPositionStates = new WeakMap<HTMLElement, TargetPositionState>();
-
 const resolveTarget = (target: LoadingTarget | undefined): HTMLElement => {
   if (target instanceof HTMLElement) return target;
   if (typeof target === "string") {
@@ -38,27 +32,6 @@ const resolveTarget = (target: LoadingTarget | undefined): HTMLElement => {
     }
   }
   return document.body;
-};
-
-const acquireTargetPosition = (target: HTMLElement): void => {
-  const current = targetPositionStates.get(target);
-  if (current) {
-    current.count += 1;
-    return;
-  }
-
-  const state: TargetPositionState = { count: 1, inlinePosition: target.style.position };
-  targetPositionStates.set(target, state);
-  if (getComputedStyle(target).position === "static") target.style.position = "relative";
-};
-
-const releaseTargetPosition = (target: HTMLElement): void => {
-  const state = targetPositionStates.get(target);
-  if (!state) return;
-  state.count -= 1;
-  if (state.count > 0) return;
-  target.style.position = state.inlinePosition;
-  targetPositionStates.delete(target);
 };
 
 const applyBodyTargetGeometry = (el: HTMLElement, target: HTMLElement): (() => void) => {
@@ -125,6 +98,7 @@ const createLoading = (
   }
 
   let releaseGeometry: (() => void) | undefined;
+  let releaseTargetPosition: (() => void) | null = null;
   if (fullscreen) {
     el.style.position = "fixed";
     el.style.inset = "0";
@@ -132,34 +106,43 @@ const createLoading = (
     el.style.position = "absolute";
     releaseGeometry = applyBodyTargetGeometry(el, target);
   } else {
-    acquireTargetPosition(target);
+    releaseTargetPosition = acquireTargetPositionContext(target);
     el.style.position = "absolute";
     el.style.inset = "0";
   }
 
   appendTarget.appendChild(el);
 
-  let closed = false;
-  const close = (): void => {
-    if (closed) return;
-    closed = true;
+  let state: "open" | "closing" | "closed" = "open";
+
+  /** Finalizes service-owned resources after the component completes its leave. */
+  const finalize = (): void => {
+    if (state === "closed") return;
+    state = "closed";
+    el.removeEventListener("close", requestClose);
     releaseGeometry?.();
-    if (!fullscreen && !appendToBody) releaseTargetPosition(target);
-    el.loading = false;
+    releaseGeometry = undefined;
+    releaseTargetPosition?.();
+    releaseTargetPosition = null;
     el.remove();
     if (previousActive?.isConnected) previousActive.focus();
     options.onClose?.();
   };
 
-  el.addEventListener("close", close, { once: true });
-  if (closable) {
-    queueMicrotask(() => el.shadowRoot?.querySelector<HTMLButtonElement>(".close")?.focus());
-  }
+  const close = (): void => {
+    if (state !== "open") return;
+    state = "closing";
+    el.loading = false;
+  };
+
+  const requestClose = (): void => close();
+  el.addEventListener("close", requestClose);
+  el.addEventListener("closed", finalize, { once: true });
 
   return {
     close,
     setText(text: string): void {
-      if (!closed) el.text = text;
+      if (state !== "closed") el.text = text;
     },
   };
 };

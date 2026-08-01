@@ -1,6 +1,8 @@
+import { readFileSync } from "node:fs";
+
 import { registerComponents } from "@elfui/core";
 import type { DirectiveBinding, DirectiveHooks } from "@elfui/core";
-import { afterEach, beforeAll, describe, expect, it } from "vitest";
+import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
 import { Loading } from "./index";
 import { loadingDirective } from "./directive";
@@ -18,7 +20,18 @@ afterEach(() => {
 });
 
 const tick = (): Promise<void> => new Promise((resolve) => queueMicrotask(resolve));
+const frame = (): Promise<void> => new Promise((resolve) => requestAnimationFrame(() => resolve()));
 const serviceInstances: LoadingInstance[] = [];
+
+const overlay = (el: LoadingEl): HTMLElement | null =>
+  el.shadowRoot?.querySelector<HTMLElement>(".overlay") ?? null;
+
+const finishTransition = async (element: HTMLElement | null): Promise<void> => {
+  await frame();
+  await frame();
+  element?.dispatchEvent(new Event("transitionend", { bubbles: true }));
+  await tick();
+};
 
 const createService = (...args: Parameters<typeof ElfLoading>): LoadingInstance => {
   const instance = ElfLoading(...args);
@@ -38,6 +51,25 @@ interface LoadingEl extends HTMLElement {
 }
 
 describe("elf-loading", () => {
+  it("uses Core Transition as the structural resource owner", () => {
+    const source = readFileSync("src/components/Feedback/Loading/index.ts", "utf8");
+    const service = readFileSync("src/components/Feedback/Loading/service.ts", "utf8");
+    const cssText = readFileSync("src/components/Feedback/Loading/style.scss", "utf8");
+
+    expect(source).toContain('<Transition\n      name="elf-loading"');
+    expect(source).toContain("@after-leave=${onAfterLeave}");
+    expect(source).toContain('emit("closed")');
+    expect(source).not.toContain("queueMicrotask");
+    expect(service).toContain("acquireTargetPositionContext(target)");
+    expect(service).not.toContain("targetPositionStates");
+    expect(service).not.toContain("setTimeout");
+    expect(service).not.toContain("queueMicrotask");
+    expect(cssText).toContain(".elf-loading-enter-active");
+    expect(cssText).toContain(".elf-loading-leave-active");
+    expect(cssText).toMatch(/prefers-reduced-motion[\s\S]*transition: none/);
+    expect(cssText).toMatch(/prefers-reduced-motion[\s\S]*animation: none/);
+  });
+
   it("renders overlay text", async () => {
     const el = document.createElement("elf-loading") as LoadingEl;
     el.text = "Loading";
@@ -86,22 +118,99 @@ describe("elf-loading", () => {
     await tick();
 
     let nextLoading: unknown = true;
-    let closed = 0;
+    let closeRequests = 0;
+    let completed = 0;
     el.addEventListener("update:loading", (event) => {
       nextLoading = (event as CustomEvent).detail;
       el.loading = Boolean(nextLoading);
     });
-    el.addEventListener("close", () => closed++);
+    el.addEventListener("close", () => closeRequests++);
+    el.addEventListener("closed", () => completed++);
 
     const button = el.shadowRoot!.querySelector<HTMLButtonElement>(".close")!;
+    const leavingOverlay = overlay(el);
     expect(button.textContent).toContain("退出全屏加载");
     expect(button.querySelector("svg")).toBeTruthy();
     button.click();
 
     expect(nextLoading).toBe(false);
-    expect(closed).toBe(1);
+    expect(closeRequests).toBe(1);
+    expect(completed).toBe(0);
+    expect(overlay(el)).toBe(leavingOverlay);
+
+    await finishTransition(leavingOverlay);
+    expect(completed).toBe(1);
+    expect(overlay(el)).toBeNull();
+  });
+
+  it("manages fullscreen Top Layer state from Transition hooks", async () => {
+    const originalShow = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "showPopover");
+    const originalHide = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "hidePopover");
+    const showPopover = vi.fn();
+    const hidePopover = vi.fn();
+    Object.defineProperty(HTMLElement.prototype, "showPopover", {
+      configurable: true,
+      value: showPopover,
+    });
+    Object.defineProperty(HTMLElement.prototype, "hidePopover", {
+      configurable: true,
+      value: hidePopover,
+    });
+
+    try {
+      const el = document.createElement("elf-loading") as LoadingEl;
+      el.loading = true;
+      el.fullscreen = true;
+      document.body.appendChild(el);
+      await tick();
+
+      expect(showPopover).toHaveBeenCalledOnce();
+      const leavingOverlay = overlay(el);
+      el.loading = false;
+      await tick();
+      expect(hidePopover).not.toHaveBeenCalled();
+
+      await finishTransition(leavingOverlay);
+      expect(hidePopover).toHaveBeenCalledOnce();
+    } finally {
+      if (originalShow) Object.defineProperty(HTMLElement.prototype, "showPopover", originalShow);
+      else delete (HTMLElement.prototype as HTMLElement & { showPopover?: () => void }).showPopover;
+      if (originalHide) Object.defineProperty(HTMLElement.prototype, "hidePopover", originalHide);
+      else delete (HTMLElement.prototype as HTMLElement & { hidePopover?: () => void }).hidePopover;
+    }
+  });
+
+  it("ignores a stale leave when loading rapidly reopens", async () => {
+    const el = document.createElement("elf-loading") as LoadingEl;
+    el.loading = true;
+    el.lock = true;
+    let completed = 0;
+    el.addEventListener("closed", () => completed++);
+    document.body.appendChild(el);
     await tick();
-    expect(el.shadowRoot!.querySelector(".overlay")).toBeNull();
+    await finishTransition(overlay(el));
+
+    const firstOverlay = overlay(el)!;
+    el.loading = false;
+    await tick();
+    el.loading = true;
+    await tick();
+
+    const replacement = Array.from(el.shadowRoot!.querySelectorAll<HTMLElement>(".overlay")).find(
+      (candidate) => candidate !== firstOverlay,
+    )!;
+    expect(replacement).toBeTruthy();
+    expect(document.body.style.overflow).toBe("hidden");
+
+    await finishTransition(firstOverlay);
+    expect(completed).toBe(0);
+    expect(replacement.isConnected).toBe(true);
+    expect(document.body.style.overflow).toBe("hidden");
+
+    el.loading = false;
+    await finishTransition(replacement);
+    expect(completed).toBe(1);
+    expect(document.body.style.overflow).toBe("");
   });
 
   it("renders a custom SVG path with its configured view box", async () => {
@@ -148,9 +257,36 @@ describe("elf-loading", () => {
 
     instance.close();
     instance.close();
+    expect(target.querySelector("elf-loading")).toBe(el);
+    expect(target.style.position).toBe("relative");
+    expect(document.body.style.overflow).toBe("hidden");
+    expect(closed).toBe(0);
+
+    await finishTransition(overlay(el));
     expect(target.querySelector("elf-loading")).toBeNull();
     expect(target.style.position).toBe("static");
     expect(document.body.style.overflow).toBe("");
+    expect(closed).toBe(1);
+  });
+
+  it("finalizes service resources when an active host is externally unmounted", async () => {
+    const target = document.createElement("section");
+    target.style.position = "static";
+    document.body.appendChild(target);
+    let closed = 0;
+    const instance = createService({ target, lock: true, onClose: () => closed++ });
+    await tick();
+
+    const el = target.querySelector<LoadingEl>("elf-loading[data-loading-service]")!;
+    expect(target.style.position).toBe("relative");
+    expect(document.body.style.overflow).toBe("hidden");
+    el.remove();
+    await tick();
+
+    expect(target.style.position).toBe("static");
+    expect(document.body.style.overflow).toBe("");
+    expect(closed).toBe(1);
+    instance.close();
     expect(closed).toBe(1);
   });
 
@@ -163,6 +299,7 @@ describe("elf-loading", () => {
     expect(fullscreenEl.style.position).toBe("fixed");
     expect(fullscreenEl.style.zIndex).toBe("10000");
     fullscreen.close();
+    await finishTransition(overlay(fullscreenEl));
 
     const target = document.createElement("section");
     target.getBoundingClientRect = () =>
@@ -186,6 +323,7 @@ describe("elf-loading", () => {
     expect(bodyEl.style.width).toBe("320px");
     expect(bodyEl.style.height).toBe("180px");
     bodyMounted.close();
+    await finishTransition(overlay(bodyEl));
   });
 
   it("lets users exit a fullscreen service and restores focus and scroll state", async () => {
@@ -200,26 +338,59 @@ describe("elf-loading", () => {
 
     const el = document.body.querySelector<LoadingEl>("elf-loading[data-loading-service]")!;
     const closeButton = el.shadowRoot!.querySelector<HTMLButtonElement>(".close")!;
+    await finishTransition(overlay(el));
     expect(el.closable).toBe(true);
     expect(el.shadowRoot!.activeElement).toBe(closeButton);
     expect(document.body.style.overflow).toBe("hidden");
 
     closeButton.click();
 
+    expect(el.isConnected).toBe(true);
+    expect(document.body.style.overflow).toBe("hidden");
+    expect(document.activeElement).not.toBe(trigger);
+    expect(closed).toBe(0);
+
+    await finishTransition(overlay(el));
     expect(el.isConnected).toBe(false);
     expect(document.body.style.overflow).toBe("");
     expect(document.activeElement).toBe(trigger);
     expect(closed).toBe(1);
   });
 
-  it("keeps body locked until every locking service is closed", () => {
+  it("keeps body locked until every locking service completes leave", async () => {
     const first = createService({ lock: true });
     const second = createService({ lock: true });
+    const elements = Array.from(
+      document.body.querySelectorAll<LoadingEl>("elf-loading[data-loading-service]"),
+    );
     expect(document.body.style.overflow).toBe("hidden");
     first.close();
+    await finishTransition(overlay(elements[0]!));
     expect(document.body.style.overflow).toBe("hidden");
     second.close();
+    expect(document.body.style.overflow).toBe("hidden");
+    await finishTransition(overlay(elements[1]!));
     expect(document.body.style.overflow).toBe("");
+  });
+
+  it("keeps the shared target positioning lease until every local service leaves", async () => {
+    const target = document.createElement("section");
+    target.style.position = "static";
+    document.body.appendChild(target);
+    const first = createService({ target });
+    const second = createService({ target });
+    const elements = Array.from(
+      target.querySelectorAll<LoadingEl>("elf-loading[data-loading-service]"),
+    );
+
+    expect(target.style.position).toBe("relative");
+    first.close();
+    await finishTransition(overlay(elements[0]!));
+    expect(target.style.position).toBe("relative");
+
+    second.close();
+    await finishTransition(overlay(elements[1]!));
+    expect(target.style.position).toBe("static");
   });
 
   it("shares Core scroll-lock ownership between declarative and service instances", async () => {
@@ -233,12 +404,16 @@ describe("elf-loading", () => {
     expect(document.body.style.overflow).toBe("hidden");
 
     const service = createService({ lock: true });
+    const serviceEl = document.body.querySelector<LoadingEl>("elf-loading[data-loading-service]")!;
     await tick();
+    const declarativeOverlay = overlay(declarative);
     declarative.loading = false;
-    await tick();
+    await finishTransition(declarativeOverlay);
 
     expect(document.body.style.overflow).toBe("hidden");
     service.close();
+    expect(document.body.style.overflow).toBe("hidden");
+    await finishTransition(overlay(serviceEl));
     expect(document.body.style.overflow).toBe("scroll");
   });
 
@@ -263,11 +438,15 @@ describe("elf-loading", () => {
     expect(serviceEl.variant).toBe("dots");
 
     hooks.updated!(target, binding(false, true));
+    expect(target.querySelector("elf-loading")).toBe(serviceEl);
+    await finishTransition(overlay(serviceEl));
     expect(target.querySelector("elf-loading")).toBeNull();
 
     hooks.updated!(target, binding(true, false));
-    expect(target.querySelector("elf-loading")).toBeTruthy();
+    const replacement = target.querySelector<LoadingEl>("elf-loading[data-loading-service]")!;
+    expect(replacement).toBeTruthy();
     hooks.beforeUnmount!(target, binding(true));
+    await finishTransition(overlay(replacement));
     expect(target.querySelector("elf-loading")).toBeNull();
   });
 });

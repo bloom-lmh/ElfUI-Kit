@@ -22,6 +22,14 @@ afterEach(() => {
 });
 
 const wait = (ms = 20): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
+const frame = (): Promise<void> => new Promise((resolve) => requestAnimationFrame(() => resolve()));
+
+const finishTransition = async (element: HTMLElement | null): Promise<void> => {
+  await frame();
+  await frame();
+  element?.dispatchEvent(new Event("transitionend", { bubbles: true }));
+  await wait();
+};
 
 const collectText = (root: Node): string => {
   let output = "";
@@ -50,6 +58,7 @@ describe("LoadingPage", () => {
     expect(text).toContain("四种加载动效");
     expect(text).toContain("命令式服务");
     expect(text).toContain("被加载遮罩覆盖的内容");
+    expect(text).toContain("遮罩退场并释放资源后触发");
   });
 
   it("英文页面覆盖全部案例、源码和 API 文案", async () => {
@@ -60,6 +69,7 @@ describe("LoadingPage", () => {
     expect(text).toContain("Four loading variants");
     expect(text).toContain("Imperative service");
     expect(text).toContain("Content covered by the loading overlay.");
+    expect(text).toContain("Emitted after the overlay leaves and releases its resources.");
     expect(text).not.toMatch(/[\u3400-\u9fff]/u);
   });
 
@@ -70,7 +80,9 @@ describe("LoadingPage", () => {
 
     page.shadowRoot!.querySelector<HTMLElement>("elf-button")!.click();
     await wait();
-    expect(loading.shadowRoot!.querySelector(".overlay")?.textContent).toContain("正在加载组件数据");
+    expect(loading.shadowRoot!.querySelector(".overlay")?.textContent).toContain(
+      "正在加载组件数据",
+    );
   });
 
   it("英文命令式服务会进入全屏层并可主动退出", async () => {
@@ -83,8 +95,12 @@ describe("LoadingPage", () => {
     expect(loading).toBeTruthy();
     expect(collectText(loading)).toContain("Syncing workspace");
     const closeButton = loading.shadowRoot!.querySelector<HTMLButtonElement>(".close")!;
+    const leavingOverlay = loading.shadowRoot!.querySelector<HTMLElement>(".overlay");
     expect(closeButton.getAttribute("aria-label")).toBe("Exit fullscreen loading");
     closeButton.click();
+    expect(loading.isConnected).toBe(true);
+
+    await finishTransition(leavingOverlay);
     expect(loading.isConnected).toBe(false);
   });
 });

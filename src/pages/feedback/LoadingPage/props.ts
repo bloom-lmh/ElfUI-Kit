@@ -74,6 +74,14 @@ const eventsRows = [
     type: "() => void",
     desc: pick("点击全屏退出按钮时触发", "Emitted when the fullscreen exit button is clicked."),
   },
+  {
+    name: "closed",
+    type: "() => void",
+    desc: pick(
+      "遮罩退场并释放资源后触发",
+      "Emitted after the overlay leaves and releases its resources.",
+    ),
+  },
 ];
 
 const slotsRows = [

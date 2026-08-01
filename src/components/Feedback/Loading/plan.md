@@ -21,3 +21,5 @@
 - [x] 2026-07-22 全屏声明式遮罩进入浏览器 Top Layer，提供 SVG 退出按钮并隔离后续局部 Loading 的层叠上下文；命令式服务同步提升层级。
 - [x] 2026-07-31 OP-03 框架 API 收敛：声明式与命令式 Loading 统一复用 Core `useScrollLock`，移除 service 的第二套 body lock 计数器，并补充跨 owner 回归测试。
 - [ ] 2026-07-31 OP-03 浏览器交互复核：静态页面已覆盖 1440x1000 Material 中文和 390x844 Midnight 英文，控制台无 warning/error；当前控制通道无法向嵌套 Shadow DOM 示例按钮投递用户事件，命令式服务的锁定、退出与焦点恢复仍需独立 Chromium 或人工验收，不得用脚本直接调用 API 代替。
+- [x] 2026-08-01 Transition 生命周期批次：遮罩结构统一改用 Core `<Transition name="elf-loading" appear>`，`close` 保持请求事件并新增 leave 完成后的 `closed`；Top Layer、共享 `useScrollLock`、焦点恢复、目标几何与共享定位上下文 lease 均延迟到最终 leave 后释放，覆盖重复关闭、rapid reopen、外部卸载和 reduced motion。Loading、LoadingPage、ConfigProvider service defaults 共 3 个文件 21 项测试通过。
+- [ ] 2026-08-01 最终浏览器复核：需在 1440px / 390px、Material / Midnight 下现场验证全屏进入、退出动效、Top Layer、滚动锁、焦点恢复和控制台输出。

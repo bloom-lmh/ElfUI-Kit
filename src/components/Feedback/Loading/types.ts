@@ -42,7 +42,10 @@ export type LoadingDirectiveValue = boolean | (LoadingOptions & { loading?: bool
 
 export interface LoadingEmits {
   "update:loading": [loading: boolean];
+  /** Requests that the controlled loading state be disabled. */
   close: [];
+  /** Fires after the structural leave transaction has released its resources. */
+  closed: [];
 }
 
 export interface LoadingSlots {
