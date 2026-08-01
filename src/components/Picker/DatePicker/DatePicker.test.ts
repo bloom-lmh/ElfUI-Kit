@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
 beforeAll(async () => {
@@ -9,6 +10,14 @@ afterEach(() => {
 });
 
 const tick = (): Promise<void> => new Promise((resolve) => queueMicrotask(resolve));
+const frame = (): Promise<void> => new Promise((resolve) => requestAnimationFrame(() => resolve()));
+
+const finishTransition = async (element: HTMLElement | null): Promise<void> => {
+  await frame();
+  await frame();
+  element?.dispatchEvent(new Event("transitionend", { bubbles: true }));
+  await tick();
+};
 
 interface DatePickerEl extends HTMLElement {
   modelValue?: string | string[];
@@ -67,6 +76,22 @@ const selectCalendarDay = async (el: DatePickerEl, value: string): Promise<void>
 };
 
 describe("elf-date-picker", () => {
+  it("uses Core Transition as the structural panel lifecycle", () => {
+    const source = readFileSync("src/components/Picker/DatePicker/index.ts", "utf8");
+    const cssText = readFileSync("src/components/Picker/DatePicker/style.scss", "utf8");
+
+    expect(source).toContain('<Transition\n      name="date-picker-panel"');
+    expect(source).toContain("@before-enter=${onBeforeEnter}");
+    expect(source).toContain("@after-leave=${onAfterLeave}");
+    expect(source).toContain("dismissibleOverlay.beginClose()");
+    expect(source).toContain("dismissibleOverlay.completeClose()");
+    expect(source).not.toContain("queueMicrotask(syncTopLayer)");
+    expect(cssText).toContain(".date-picker-panel-enter-active");
+    expect(cssText).toContain(".date-picker-panel-leave-active");
+    expect(cssText).not.toContain("@keyframes picker-panel-enter");
+    expect(cssText).toMatch(/prefers-reduced-motion[\s\S]*transition: none/);
+  });
+
   it("uses the shared Input outline and floating-label focus surface", async () => {
     const el = await mount({ variant: "outlined", label: "发布日期" });
     const trigger = el.shadowRoot!.querySelector<HTMLButtonElement>(".field-trigger")!;
@@ -79,7 +104,7 @@ describe("elf-date-picker", () => {
   it("range 快捷项同时更新开始和结束日期", async () => {
     const el = await mount({
       range: true,
-      shortcuts: [{ label: "本周", value: "2026-06-15", endValue: "2026-06-21" }]
+      shortcuts: [{ label: "本周", value: "2026-06-15", endValue: "2026-06-21" }],
     });
 
     const onStart = vi.fn();
@@ -103,7 +128,7 @@ describe("elf-date-picker", () => {
 
     expect((onUpdate.mock.calls[0]![0] as CustomEvent).detail).toEqual([
       "2026-06-10",
-      "2026-06-18"
+      "2026-06-18",
     ]);
     expect(el.shadowRoot!.querySelector(".chips")?.textContent).toContain("2026-06-18");
   });
@@ -151,11 +176,18 @@ describe("elf-date-picker", () => {
     expect(el.shadowRoot!.querySelector(".panel")).not.toBeNull();
     document.body.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, composed: true }));
     await tick();
+    expect(el.hasAttribute("data-open")).toBe(false);
+    expect(el.shadowRoot!.querySelector(".panel")).toBe(panel);
+    await finishTransition(panel);
     expect(el.shadowRoot!.querySelector(".panel")).toBeNull();
 
     await openPanel(el);
+    const scrollingPanel = el.shadowRoot!.querySelector(".panel") as HTMLElement;
     window.dispatchEvent(new Event("scroll"));
     await tick();
+    expect(el.hasAttribute("data-open")).toBe(false);
+    expect(el.shadowRoot!.querySelector(".panel")).toBe(scrollingPanel);
+    await finishTransition(scrollingPanel);
     expect(el.shadowRoot!.querySelector(".panel")).toBeNull();
     expect(el.getAttribute("variant")).toBe("outlined");
     expect(el.shadowRoot!.querySelector(".field-label")?.textContent).toBe("Publish date");
@@ -166,7 +198,7 @@ describe("elf-date-picker", () => {
     async (variant) => {
       const el = await mount({ variant });
       expect(el.getAttribute("variant")).toBe(variant);
-    }
+    },
   );
 
   it("starts a fresh visible range before committing the second day", async () => {
@@ -176,9 +208,21 @@ describe("elf-date-picker", () => {
     (calendar.shadowRoot!.querySelector('[data-date="2026-06-20"]') as HTMLButtonElement).click();
     await tick();
 
-    expect(calendar.shadowRoot!.querySelector('[data-date="2026-06-20"]')?.classList.contains("is-range-start")).toBe(true);
-    expect(calendar.shadowRoot!.querySelector('[data-date="2026-06-05"]')?.classList.contains("is-range-start")).toBe(false);
-    expect(calendar.shadowRoot!.querySelector('[data-date="2026-06-12"]')?.classList.contains("is-range-end")).toBe(false);
+    expect(
+      calendar
+        .shadowRoot!.querySelector('[data-date="2026-06-20"]')
+        ?.classList.contains("is-range-start"),
+    ).toBe(true);
+    expect(
+      calendar
+        .shadowRoot!.querySelector('[data-date="2026-06-05"]')
+        ?.classList.contains("is-range-start"),
+    ).toBe(false);
+    expect(
+      calendar
+        .shadowRoot!.querySelector('[data-date="2026-06-12"]')
+        ?.classList.contains("is-range-end"),
+    ).toBe(false);
     expect(calendar.shadowRoot!.querySelectorAll(".is-in-range")).toHaveLength(0);
     expect(el.shadowRoot!.querySelector(".panel")).not.toBeNull();
   });
@@ -187,7 +231,7 @@ describe("elf-date-picker", () => {
     const el = await mount({
       modelValue: "2026/06/17",
       valueFormat: "YYYY/MM/DD",
-      format: "DD.MM.YYYY"
+      format: "DD.MM.YYYY",
     });
     const onUpdate = vi.fn();
     el.addEventListener("update:modelValue", onUpdate as EventListener);
@@ -203,14 +247,23 @@ describe("elf-date-picker", () => {
       modelValue: "2026-06-17",
       min: "2026-06-10",
       max: "2026-06-25",
-      disabledDate: (date) => date.getDay() === 0 || date.getDay() === 6
+      disabledDate: (date) => date.getDay() === 0 || date.getDay() === 6,
     } as Partial<DatePickerEl> & { min: string; max: string });
     await openPanel(el);
 
     const calendar = el.shadowRoot!.querySelector("elf-calendar") as HTMLElement;
-    expect((calendar.shadowRoot!.querySelector('[data-date="2026-06-07"]') as HTMLButtonElement).disabled).toBe(true);
-    expect((calendar.shadowRoot!.querySelector('[data-date="2026-06-27"]') as HTMLButtonElement).disabled).toBe(true);
-    expect((calendar.shadowRoot!.querySelector('[data-date="2026-06-17"]') as HTMLButtonElement).disabled).toBe(false);
+    expect(
+      (calendar.shadowRoot!.querySelector('[data-date="2026-06-07"]') as HTMLButtonElement)
+        .disabled,
+    ).toBe(true);
+    expect(
+      (calendar.shadowRoot!.querySelector('[data-date="2026-06-27"]') as HTMLButtonElement)
+        .disabled,
+    ).toBe(true);
+    expect(
+      (calendar.shadowRoot!.querySelector('[data-date="2026-06-17"]') as HTMLButtonElement)
+        .disabled,
+    ).toBe(false);
   });
 
   it("opens from ArrowDown, focuses the calendar, and exposes a Top Layer panel", async () => {
@@ -234,8 +287,47 @@ describe("elf-date-picker", () => {
 
     trigger.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
     await tick();
+    expect(el.hasAttribute("data-open")).toBe(false);
+    expect(el.shadowRoot!.querySelector(".panel")).toBe(panel);
+    await finishTransition(panel);
     expect(el.shadowRoot!.querySelector(".panel")).toBeNull();
     expect(visibleChanges).toEqual([true, false]);
+  });
+
+  it("isolates a stale leave when the panel rapidly reopens", async () => {
+    const el = await mount({ teleported: true });
+    const visibleChanges: boolean[] = [];
+    el.addEventListener("visible-change", (event) => {
+      visibleChanges.push(Boolean((event as CustomEvent).detail));
+    });
+    const trigger = el.shadowRoot!.querySelector<HTMLButtonElement>(".field-trigger")!;
+
+    await openPanel(el);
+    const firstPanel = el.shadowRoot!.querySelector<HTMLElement>(".panel")!;
+    await finishTransition(firstPanel);
+
+    trigger.click();
+    await tick();
+    const leavingPanel = el.shadowRoot!.querySelector<HTMLElement>(".panel")!;
+    trigger.click();
+    await tick();
+    await tick();
+
+    const panels = Array.from(el.shadowRoot!.querySelectorAll<HTMLElement>(".panel"));
+    const replacementPanel = panels.find((candidate) => candidate !== leavingPanel)!;
+    expect(replacementPanel).toBeTruthy();
+    expect(el.hasAttribute("data-open")).toBe(true);
+
+    await finishTransition(leavingPanel);
+    expect(el.shadowRoot!.querySelector(".panel")).toBe(replacementPanel);
+    expect(el.hasAttribute("data-open")).toBe(true);
+
+    document.body.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, composed: true }));
+    await tick();
+    expect(el.hasAttribute("data-open")).toBe(false);
+    await finishTransition(replacementPanel);
+    expect(el.shadowRoot!.querySelector(".panel")).toBeNull();
+    expect(visibleChanges).toEqual([true, false, true, false]);
   });
 
   it("supports clear fallbacks and custom overlay surfaces", async () => {
@@ -244,7 +336,7 @@ describe("elf-date-picker", () => {
       clearable: true,
       valueOnClear: "2026-01-01",
       popperClass: "release-calendar",
-      popperStyle: { width: "360px" }
+      popperStyle: { width: "360px" },
     });
     await openPanel(el);
 
@@ -279,7 +371,10 @@ describe("elf-date-picker", () => {
   });
 
   it("inherits Form size and disabled state", async () => {
-    const form = document.createElement("elf-form") as HTMLElement & { disabled?: boolean; size?: string };
+    const form = document.createElement("elf-form") as HTMLElement & {
+      disabled?: boolean;
+      size?: string;
+    };
     form.disabled = true;
     form.size = "lg";
     const item = document.createElement("elf-form-item");
@@ -292,7 +387,9 @@ describe("elf-date-picker", () => {
 
     expect(picker.getAttribute("size")).toBe("lg");
     expect(picker.hasAttribute("disabled")).toBe(true);
-    expect(picker.shadowRoot!.querySelector<HTMLButtonElement>(".field-trigger")!.disabled).toBe(true);
+    expect(picker.shadowRoot!.querySelector<HTMLButtonElement>(".field-trigger")!.disabled).toBe(
+      true,
+    );
   });
 
   it("supports dual range panels, week numbers, custom cell classes, and advanced placement options", async () => {
@@ -304,9 +401,9 @@ describe("elf-date-picker", () => {
       unlinkPanels: true,
       defaultValue: "2026-07-01",
       showWeekNumber: true,
-      cellClassName: (date) => date.getDate() === 15 ? "is-release-day" : "",
+      cellClassName: (date) => (date.getDate() === 15 ? "is-release-day" : ""),
       fallbackPlacements: ["top-end"],
-      popperOptions: { offset: [4, 12], padding: 12 }
+      popperOptions: { offset: [4, 12], padding: 12 },
     });
     await openPanel(el);
 

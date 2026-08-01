@@ -5,18 +5,20 @@ import {
   defineProps,
   defineStyle,
   onBeforeUnmount,
-  onMounted,
   useComponents,
   useComputed,
   useHost,
   useHostAttr,
   useHostFlag,
   useRef,
-  useEffect
+  useEffect,
 } from "@elfui/core";
 
 import { Calendar } from "../Calendar";
-import { computeAnchoredPosition, connectAnchoredOverlayLifecycle } from "../../Common/overlay/anchored-overlay";
+import {
+  computeAnchoredPosition,
+  connectAnchoredOverlayLifecycle,
+} from "../../Common/overlay/anchored-overlay";
 import { useLocaleProvider } from "../../Providers/context";
 import styles from "./style.scss?inline";
 import { normalizeFieldVariant } from "../../../types/field";
@@ -24,9 +26,30 @@ import { useDisabled, useFormControl, useSize } from "../../../composables";
 import { useDateAdapter } from "../../../composables/date";
 import { useDismissibleOverlay } from "../../../composables/useDismissibleOverlay";
 import { useFieldValueDefaults } from "../../../composables/field-values";
-import type { DatePickerEmits, DatePickerPlacement, DatePickerProps, DatePickerSlots, DatePickerType, DatePickerValue, DateShortcut } from "./types";
+import type {
+  DatePickerEmits,
+  DatePickerPlacement,
+  DatePickerProps,
+  DatePickerSlots,
+  DatePickerType,
+  DatePickerValue,
+  DateShortcut,
+} from "./types";
 
-export type { DatePickerElement, DatePickerEmits, DatePickerExpose, DatePickerPlacement, DatePickerPopperOptions, DatePickerProps, DatePickerSize, DatePickerSlots, DatePickerType, DatePickerValue, DatePickerVariant, DateShortcut } from "./types";
+export type {
+  DatePickerElement,
+  DatePickerEmits,
+  DatePickerExpose,
+  DatePickerPlacement,
+  DatePickerPopperOptions,
+  DatePickerProps,
+  DatePickerSize,
+  DatePickerSlots,
+  DatePickerType,
+  DatePickerValue,
+  DatePickerVariant,
+  DateShortcut,
+} from "./types";
 
 const props = defineProps<DatePickerProps>({
   modelValue: { type: null, default: "" },
@@ -77,14 +100,14 @@ const props = defineProps<DatePickerProps>({
   popperClass: { type: String, default: "" },
   popperStyle: { type: Object, default: () => ({}) },
   showFooter: { type: Boolean, default: false },
-  showConfirm: { type: Boolean, default: false }
+  showConfirm: { type: Boolean, default: false },
 });
 
 const emit = defineEmits<DatePickerEmits>();
 const fieldValues = useFieldValueDefaults();
 
 const ctl = useFormControl<DatePickerValue>(props, emit, {
-  ...(props.validateEvent === false ? { triggers: { change: false, blur: false } } : {})
+  ...(props.validateEvent === false ? { triggers: { change: false, blur: false } } : {}),
 });
 const isDisabled = useDisabled(() => Boolean(props.disabled));
 const resolvedSize = useSize(() => props.size);
@@ -103,11 +126,14 @@ const rightPanelView = useRef("");
 const overlayStyle = useRef<Record<string, string>>({});
 const host = useHost();
 let overlayFrame = 0;
+let activePanel: HTMLElement | null = null;
+let cleanupAnchoredOverlay = (): void => {};
 
 const parseFormattedValue = (value: unknown): string => {
   const source = String(value || "");
   const pattern = String(props.valueFormat || "");
-  if (!source || !pattern || pattern === "YYYY-MM-DD" || String(props.type || "date") !== "date") return source;
+  if (!source || !pattern || pattern === "YYYY-MM-DD" || String(props.type || "date") !== "date")
+    return source;
   const parsed = dateService.adapter.parse(source, pattern);
   return parsed ? dateService.adapter.toISODate(parsed) : source;
 };
@@ -118,26 +144,33 @@ const formatValue = (value: string, pattern: string): string => {
   return parsed ? dateService.adapter.format(parsed, pattern, dateService.context) : value;
 };
 
-const externalValue = (value: string): string => formatValue(value, String(props.valueFormat || ""));
+const externalValue = (value: string): string =>
+  formatValue(value, String(props.valueFormat || ""));
 const displayDate = (value: string): string =>
   formatValue(value, String(props.format || props.valueFormat || ""));
 
-const placeholderText = (): string => props.startPlaceholder || props.placeholder || locale.t("datePicker.placeholder");
-const endPlaceholderText = (): string => props.endPlaceholder || locale.t("datePicker.endPlaceholder");
-const rangeSeparatorText = (): string => props.rangeSeparator || locale.t("datePicker.rangeSeparator");
+const placeholderText = (): string =>
+  props.startPlaceholder || props.placeholder || locale.t("datePicker.placeholder");
+const endPlaceholderText = (): string =>
+  props.endPlaceholder || locale.t("datePicker.endPlaceholder");
+const rangeSeparatorText = (): string =>
+  props.rangeSeparator || locale.t("datePicker.rangeSeparator");
 const confirmText = (): string => props.confirmText || locale.t("common.confirm");
 const cancelText = (): string => props.cancelText || locale.t("common.cancel");
 const clearText = (): string => props.clearText || locale.t("common.clear");
 const showActions = (): boolean => Boolean(props.actions || props.showFooter || props.showConfirm);
 const resolvedPanelStyle = useComputed((): Record<string, string> => ({
   ...(props.popperStyle || {}),
-  ...overlayStyle.value
+  ...overlayStyle.value,
 }));
 
-const isEmptyValue = (value: unknown): boolean =>
-  fieldValues.isEmpty(value, props.emptyValues);
+const isEmptyValue = (value: unknown): boolean => fieldValues.isEmpty(value, props.emptyValues);
 const readModelValue = (): DatePickerValue =>
-  isEmptyValue(props.modelValue) ? (props.multiple ? [] : "") : props.modelValue as DatePickerValue;
+  isEmptyValue(props.modelValue)
+    ? props.multiple
+      ? []
+      : ""
+    : (props.modelValue as DatePickerValue);
 
 const toValues = (value: DatePickerValue): string[] => {
   if (Array.isArray(value)) return value.map(String).filter(Boolean);
@@ -155,7 +188,8 @@ const addMonths = (value: string, amount: number): string => {
 };
 
 const syncPanelViews = (): void => {
-  const base = start.peek() || props.defaultValue || dateService.adapter.toISODate(dateService.adapter.now());
+  const base =
+    start.peek() || props.defaultValue || dateService.adapter.toISODate(dateService.adapter.now());
   leftPanelView.set(base);
   rightPanelView.set(end.peek() || addMonths(base, 1));
 };
@@ -164,12 +198,8 @@ let externalDraftSignature = "";
 let expectedDraftSignature = "";
 let expectedDraftToken = 0;
 
-const draftSignature = (): string => JSON.stringify([
-  props.modelValue,
-  props.endValue,
-  Boolean(props.multiple),
-  Boolean(props.range)
-]);
+const draftSignature = (): string =>
+  JSON.stringify([props.modelValue, props.endValue, Boolean(props.multiple), Boolean(props.range)]);
 
 const resetDraft = (force = false): void => {
   const signature = draftSignature();
@@ -233,7 +263,7 @@ const emitCurrent = (): DatePickerValue => {
     props.multiple ? emittedValue : externalValue(start.value),
     props.range ? externalValue(end.value) : props.endValue,
     Boolean(props.multiple),
-    Boolean(props.range)
+    Boolean(props.range),
   ]);
   const token = ++expectedDraftToken;
   window.setTimeout(() => {
@@ -266,7 +296,7 @@ const toggleMultiple = (value: string): void => {
   selected.set(
     selected.value.includes(value)
       ? selected.value.filter((item) => item !== value)
-      : [...selected.value, value].sort()
+      : [...selected.value, value].sort(),
   );
   start.set(value);
   commitIfNeeded();
@@ -274,12 +304,7 @@ const toggleMultiple = (value: string): void => {
 
 const setOpen = (visible: boolean): void => {
   if (open.peek() === visible) return;
-  if (visible) {
-    syncPanelViews();
-    dismissibleOverlay.activate();
-  } else {
-    dismissibleOverlay.deactivate();
-  }
+  if (visible) syncPanelViews();
   open.set(visible);
   emit("visible-change", visible);
 };
@@ -292,7 +317,7 @@ const toggleOpen = (): void => {
 const closePanel = (): void => setOpen(false);
 
 const getPanelEl = (): HTMLElement | null =>
-  host.shadowRoot?.querySelector<HTMLElement>(".panel") ?? null;
+  activePanel ?? host.shadowRoot?.querySelector<HTMLElement>(".panel") ?? null;
 const getTriggerEl = (): HTMLButtonElement | null =>
   host.shadowRoot?.querySelector<HTMLButtonElement>(".field-trigger") ?? null;
 
@@ -322,7 +347,9 @@ const updateOverlayPosition = (): void => {
   const rect = panel.getBoundingClientRect();
   const viewport = window.visualViewport;
   const options = props.popperOptions || {};
-  const preferredPlacement = (options.placement || props.placement || "bottom-start") as DatePickerPlacement;
+  const preferredPlacement = (options.placement ||
+    props.placement ||
+    "bottom-start") as DatePickerPlacement;
   const next = computeAnchoredPosition(
     anchor,
     { width: rect.width || Math.min(420, window.innerWidth - 32), height: rect.height || 360 },
@@ -330,15 +357,15 @@ const updateOverlayPosition = (): void => {
       width: viewport?.width || window.innerWidth,
       height: viewport?.height || window.innerHeight,
       offsetLeft: viewport?.offsetLeft || 0,
-      offsetTop: viewport?.offsetTop || 0
+      offsetTop: viewport?.offsetTop || 0,
     },
     {
       placement: preferredPlacement,
       offset: options.offset || [0, 8],
       padding: options.padding ?? 8,
       flip: options.flip ?? true,
-      fallbackPlacements: options.fallbackPlacements || props.fallbackPlacements
-    }
+      fallbackPlacements: options.fallbackPlacements || props.fallbackPlacements,
+    },
   );
   overlayStyle.set({
     position: "fixed",
@@ -346,12 +373,13 @@ const updateOverlayPosition = (): void => {
     left: `${Math.round(next.left)}px`,
     right: "auto",
     bottom: "auto",
-    margin: "0"
+    margin: "0",
   });
 };
 
-const syncTopLayer = (): void => {
-  const panel = getPanelEl() as (HTMLElement & { showPopover?: () => void; hidePopover?: () => void }) | null;
+const syncTopLayer = (element = getPanelEl()): void => {
+  const panel = element as
+    (HTMLElement & { showPopover?: () => void; hidePopover?: () => void }) | null;
   if (!panel) return;
   try {
     if (props.teleported && open.peek()) panel.showPopover?.();
@@ -362,7 +390,16 @@ const syncTopLayer = (): void => {
   if (open.peek()) updateOverlayPosition();
 };
 
+const hideTopLayer = (element: Element): void => {
+  try {
+    (element as HTMLElement & { hidePopover?: () => void }).hidePopover?.();
+  } catch {
+    // A disconnected native popover is already equivalent to a hidden panel.
+  }
+};
+
 const requestOverlayUpdate = (): void => {
+  if (!open.peek()) return;
   if (overlayFrame) cancelAnimationFrame(overlayFrame);
   overlayFrame = requestAnimationFrame(() => {
     overlayFrame = 0;
@@ -371,10 +408,14 @@ const requestOverlayUpdate = (): void => {
 };
 
 const focusCalendar = (): void => {
-  queueMicrotask(() => queueMicrotask(() => {
-    const calendar = host.shadowRoot?.querySelector<HTMLElement>("elf-calendar");
-    calendar?.shadowRoot?.querySelector<HTMLElement>('[tabindex="0"]')?.focus({ preventScroll: true });
-  }));
+  queueMicrotask(() =>
+    queueMicrotask(() => {
+      const calendar = host.shadowRoot?.querySelector<HTMLElement>("elf-calendar");
+      calendar?.shadowRoot
+        ?.querySelector<HTMLElement>('[tabindex="0"]')
+        ?.focus({ preventScroll: true });
+    }),
+  );
 };
 
 const onTriggerKeydown = (event: KeyboardEvent): void => {
@@ -398,7 +439,18 @@ const onTriggerBlur = (event: FocusEvent): void => {
   ctl.dispatchBlur(event);
 };
 
-let cleanupOverlayMotion = (): void => {};
+const connectAnchoredOverlay = (panel = getPanelEl()): void => {
+  cleanupAnchoredOverlay();
+  syncTopLayer(panel);
+  if (!panel || !props.teleported || !open.peek()) return;
+  cleanupAnchoredOverlay = connectAnchoredOverlayLifecycle({
+    resizeTargets: [getTriggerEl(), panel],
+    motionContainers: () => [host, panel],
+    onResize: requestOverlayUpdate,
+    onExternalMotion: closePanel,
+  });
+  requestOverlayUpdate();
+};
 
 const onNativeStart = (event: Event): void => {
   const value = withDefaultTime((event.target as HTMLInputElement).value, "start");
@@ -406,11 +458,15 @@ const onNativeStart = (event: Event): void => {
   else setStart(value);
 };
 
-const onNativeEnd = (event: Event): void => setEnd(withDefaultTime((event.target as HTMLInputElement).value, "end"));
+const onNativeEnd = (event: Event): void =>
+  setEnd(withDefaultTime((event.target as HTMLInputElement).value, "end"));
 
 const defaultTimeFor = (target: "start" | "end"): string => {
   const value = props.defaultTime;
-  return String(Array.isArray(value) ? value[target === "end" ? 1 : 0] || "" : value || "").replace(/^T/, "");
+  return String(Array.isArray(value) ? value[target === "end" ? 1 : 0] || "" : value || "").replace(
+    /^T/,
+    "",
+  );
 };
 
 const withDefaultTime = (value: string, target: "start" | "end"): string => {
@@ -473,7 +529,7 @@ const monthItems = (): Array<{ id: string; label: string; active: boolean }> =>
         "monthShort",
         dateService.context,
       ),
-      active: start.value === id
+      active: start.value === id,
     };
   });
 
@@ -504,9 +560,8 @@ const applyShortcut = (shortcut: DateShortcut): void => {
 
 const clear = (): void => {
   if (isDisabled() || props.readonly) return;
-  const next = fieldValues.valueOnClear<DatePickerValue>(
-    props.valueOnClear,
-    () => props.multiple || props.range ? [] : ""
+  const next = fieldValues.valueOnClear<DatePickerValue>(props.valueOnClear, () =>
+    props.multiple || props.range ? [] : "",
   );
   const values = Array.isArray(next) ? next.map(String) : [String(next || "")];
   start.set(values[0] || "");
@@ -560,26 +615,52 @@ const headerText = (): string => {
   if (props.header) return String(props.header);
   if (props.multiple) return locale.t("datePicker.multiple");
   if (props.range) return locale.t("datePicker.range");
-  return inputType() === "month" ? locale.t("datePicker.month") : locale.t("datePicker.placeholder");
+  return inputType() === "month"
+    ? locale.t("datePicker.month")
+    : locale.t("datePicker.placeholder");
 };
 
 useEffect(() => {
   void open.value;
   void props.teleported;
   void props.placement;
-  queueMicrotask(syncTopLayer);
+  void props.popperOptions;
+  if (activePanel && open.value) connectAnchoredOverlay(activePanel);
 });
 
-onMounted(() => {
-  cleanupOverlayMotion = connectAnchoredOverlayLifecycle({
-    resizeTargets: [],
-    motionContainers: () => [getPanelEl()],
-    onResize: requestOverlayUpdate,
-    onExternalMotion: closePanel,
-  });
-});
+/** Starts one positioned popover transaction for the inserted panel root. */
+const onBeforeEnter = (element: Element): void => {
+  const panel = element as HTMLElement;
+  activePanel = panel;
+  if (!dismissibleOverlay.isActive()) dismissibleOverlay.activate();
+  connectAnchoredOverlay(panel);
+};
+
+const onAfterEnter = (element: Element): void => {
+  if (activePanel === element && open.peek()) requestOverlayUpdate();
+};
+
+/** Releases input ownership immediately while retaining the leaving panel until Core settles it. */
+const onBeforeLeave = (element: Element): void => {
+  if (activePanel !== element) return;
+  dismissibleOverlay.beginClose();
+  cleanupAnchoredOverlay();
+};
+
+/** Completes Top Layer and dismissible ownership for the final active panel only. */
+const onAfterLeave = (element: Element): void => {
+  hideTopLayer(element);
+  if (activePanel !== element || open.peek()) return;
+  if (!dismissibleOverlay.completeClose()) dismissibleOverlay.deactivate();
+  activePanel = null;
+  overlayStyle.set({});
+};
+
 onBeforeUnmount(() => {
-  cleanupOverlayMotion();
+  if (activePanel) hideTopLayer(activePanel);
+  activePanel = null;
+  dismissibleOverlay.deactivate();
+  cleanupAnchoredOverlay();
   if (overlayFrame) cancelAnimationFrame(overlayFrame);
 });
 useHostAttr("variant", () => normalizeFieldVariant(props.variant));
@@ -594,7 +675,7 @@ defineExpose({
   focusInput: () => getTriggerEl()?.focus(),
   blurInput: () => getTriggerEl()?.blur(),
   handleOpen: () => setOpen(true),
-  handleClose: closePanel
+  handleClose: closePanel,
 });
 
 const DatePicker = defineHtml<DatePickerProps, DatePickerEmits, DatePickerSlots>(`
@@ -606,8 +687,8 @@ const DatePicker = defineHtml<DatePickerProps, DatePickerEmits, DatePickerSlots>
         "is-open": open,
         "is-range": props.range && !props.multiple,
         "is-multiple": props.multiple,
-        "has-actions": showActions()
-      }
+        "has-actions": showActions(),
+      },
     ]}
   >
     <div v-if=${props.showHeader} class="header">
@@ -691,82 +772,91 @@ const DatePicker = defineHtml<DatePickerProps, DatePickerEmits, DatePickerSlots>
       </button>
     </div>
 
-    <div
-      v-if=${open}
-      :class=${["panel", props.popperClass, { "is-teleported": props.teleported }]}
-      :style=${resolvedPanelStyle}
-      :popover=${props.teleported ? "manual" : undefined}
-      role="dialog"
+    <Transition
+      name="date-picker-panel"
+      appear
+      @before-enter=${onBeforeEnter}
+      @after-enter=${onAfterEnter}
+      @before-leave=${onBeforeLeave}
+      @after-leave=${onAfterLeave}
     >
-      <div v-if=${inputType() === "month"} class="month-panel">
-        <div class="month-nav">
-          <button type="button" @click=${() => shiftMonthYear(-1)}><slot name="prev-year">‹</slot></button>
-          <strong>${locale.t("datePicker.yearSuffix", { year: currentMonthYear() })}</strong>
-          <button type="button" @click=${() => shiftMonthYear(1)}><slot name="next-year">›</slot></button>
+      <div
+        v-if=${open}
+        :class=${["panel", props.popperClass, { "is-teleported": props.teleported }]}
+        :style=${resolvedPanelStyle}
+        :popover=${props.teleported ? "manual" : undefined}
+        role="dialog"
+      >
+        <div v-if=${inputType() === "month"} class="month-panel">
+          <div class="month-nav">
+            <button type="button" @click=${() => shiftMonthYear(-1)}><slot name="prev-year">‹</slot></button>
+            <strong>${locale.t("datePicker.yearSuffix", { year: currentMonthYear() })}</strong>
+            <button type="button" @click=${() => shiftMonthYear(1)}><slot name="next-year">›</slot></button>
+          </div>
+          <div class="month-grid">
+            <button
+              v-for="month in monthItems()"
+              :key="month.id"
+              type="button"
+              :class='["month-option", { "is-active": month.active }]'
+              :data-month="month.id"
+              @click=${selectMonth}
+            >{{ month.label }}</button>
+          </div>
         </div>
-        <div class="month-grid">
+        <div v-else :class=${["calendar-panels", { "is-dual": usesDualPanels() }]}>
+          <date-picker-calendar
+            :modelValue.prop=${calendarValue()}
+            :viewDate.prop=${leftPanelView}
+            :defaultValue.prop=${props.defaultValue}
+            :range=${props.range}
+            :disabledDate.prop=${calendarDisabled}
+            :cellClassName.prop=${props.cellClassName}
+            :showWeekNumber.prop=${props.showWeekNumber}
+            :firstDayOfWeek.prop=${dateService.firstDayOfWeek}
+            @panel-change="onCalendarPanelChange('left', $event)"
+            @update:modelValue=${onCalendarUpdate}
+          >
+            <span slot="prev-month"><slot name="prev-month">‹</slot></span>
+            <span slot="next-month"><slot name="next-month">›</slot></span>
+            <span slot="prev-year"><slot name="prev-year">‹</slot></span>
+            <span slot="next-year"><slot name="next-year">›</slot></span>
+          </date-picker-calendar>
+          <date-picker-calendar
+            v-if=${usesDualPanels()}
+            :modelValue.prop=${calendarValue()}
+            :viewDate.prop=${rightPanelView}
+            :defaultValue.prop=${addMonths(props.defaultValue, 1)}
+            range
+            :disabledDate.prop=${calendarDisabled}
+            :cellClassName.prop=${props.cellClassName}
+            :showWeekNumber.prop=${props.showWeekNumber}
+            :firstDayOfWeek.prop=${dateService.firstDayOfWeek}
+            @panel-change="onCalendarPanelChange('right', $event)"
+            @update:modelValue=${onCalendarUpdate}
+          ></date-picker-calendar>
+        </div>
+
+        <div v-if=${shortcutItems().length > 0} class="shortcuts">
           <button
-            v-for="month in monthItems()"
-            :key="month.id"
+            v-for="item in shortcutItems()"
+            :key="item.label"
             type="button"
-            :class='["month-option", { "is-active": month.active }]'
-            :data-month="month.id"
-            @click=${selectMonth}
-          >{{ month.label }}</button>
+            class="shortcut"
+            @click="applyShortcut(item)"
+          >{{ item.label }}</button>
+        </div>
+
+        <div v-if=${showActions()} class="actions">
+          <button v-if=${props.clearable} type="button" class="text-action" @click=${clear}>
+            ${clearText()}
+          </button>
+          <span class="actions-spacer"></span>
+          <button type="button" class="text-action" @click=${cancel}>${cancelText()}</button>
+          <button type="button" class="primary-action" @click=${confirm}>${confirmText()}</button>
         </div>
       </div>
-      <div v-else :class=${["calendar-panels", { "is-dual": usesDualPanels() }]}>
-        <date-picker-calendar
-          :modelValue.prop=${calendarValue()}
-          :viewDate.prop=${leftPanelView}
-          :defaultValue.prop=${props.defaultValue}
-          :range=${props.range}
-          :disabledDate.prop=${calendarDisabled}
-          :cellClassName.prop=${props.cellClassName}
-          :showWeekNumber.prop=${props.showWeekNumber}
-          :firstDayOfWeek.prop=${dateService.firstDayOfWeek}
-          @panel-change="onCalendarPanelChange('left', $event)"
-          @update:modelValue=${onCalendarUpdate}
-        >
-          <span slot="prev-month"><slot name="prev-month">‹</slot></span>
-          <span slot="next-month"><slot name="next-month">›</slot></span>
-          <span slot="prev-year"><slot name="prev-year">‹</slot></span>
-          <span slot="next-year"><slot name="next-year">›</slot></span>
-        </date-picker-calendar>
-        <date-picker-calendar
-          v-if=${usesDualPanels()}
-          :modelValue.prop=${calendarValue()}
-          :viewDate.prop=${rightPanelView}
-          :defaultValue.prop=${addMonths(props.defaultValue, 1)}
-          range
-          :disabledDate.prop=${calendarDisabled}
-          :cellClassName.prop=${props.cellClassName}
-          :showWeekNumber.prop=${props.showWeekNumber}
-          :firstDayOfWeek.prop=${dateService.firstDayOfWeek}
-          @panel-change="onCalendarPanelChange('right', $event)"
-          @update:modelValue=${onCalendarUpdate}
-        ></date-picker-calendar>
-      </div>
-
-      <div v-if=${shortcutItems().length > 0} class="shortcuts">
-        <button
-          v-for="item in shortcutItems()"
-          :key="item.label"
-          type="button"
-          class="shortcut"
-          @click="applyShortcut(item)"
-        >{{ item.label }}</button>
-      </div>
-
-      <div v-if=${showActions()} class="actions">
-        <button v-if=${props.clearable} type="button" class="text-action" @click=${clear}>
-          ${clearText()}
-        </button>
-        <span class="actions-spacer"></span>
-        <button type="button" class="text-action" @click=${cancel}>${cancelText()}</button>
-        <button type="button" class="primary-action" @click=${confirm}>${confirmText()}</button>
-      </div>
-    </div>
+    </Transition>
   </div>
 `);
 
