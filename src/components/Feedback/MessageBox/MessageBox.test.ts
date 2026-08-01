@@ -38,6 +38,7 @@ describe("ElfMessageBox", () => {
     expect(source).toContain('<Transition\n    name="message-box"');
     expect(source).toContain("@before-leave=${onBeforeLeave}");
     expect(source).toContain("@after-leave=${onAfterLeave}");
+    expect(source).not.toContain("v-if=${open.value}");
     expect(source).not.toContain("closeTimer");
     expect(source).not.toContain("setTimeout");
     expect(cssText).not.toContain(".is-closing");

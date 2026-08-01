@@ -205,7 +205,7 @@ const MessageBox = defineHtml<MessageBoxProps, MessageBoxEmits, MessageBoxSlots>
     @before-leave=${onBeforeLeave}
     @after-leave=${onAfterLeave}
   >
-  <div v-if=${open.value} :class=${maskClasses()} part="mask" @click=${onMaskClick}>
+  <div v-if=${open} :class=${maskClasses()} part="mask" @click=${onMaskClick}>
     <section
       ref="panelEl"
       class="panel"
