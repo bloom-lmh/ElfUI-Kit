@@ -19,3 +19,10 @@
 
 - [x] `pnpm test src/components/Data/Watermark/Watermark.test.ts` 通过。
 - [x] `pnpm build` 通过。
+
+## 2026-08-01 资源所有权收敛
+
+- [x] `anti-tamper` 复用公开 `createMutateController`，不再直接构造第二套 `MutationObserver`。
+- [x] 外部覆盖层与 Loading 共用目标定位租约，多个实例并发时仅由最后一个 owner 恢复目标样式。
+- [x] 属性变化在已连接宿主上直接同步，移除无契约依据的 effect 微任务；原生 mutation 回调仍按一次微任务合并恢复。
+- [x] 覆盖 style/class 篡改、目标切换、并发 owner、幂等释放和卸载后不重连回归。

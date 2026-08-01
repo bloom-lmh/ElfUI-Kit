@@ -1,7 +1,23 @@
-import { defineExpose, defineHtml, defineProps, defineStyle, onBeforeUnmount, onMounted, useEffect, useHost, useHostCssVar, useHostFlag } from "@elfui/core";
+import {
+  defineExpose,
+  defineHtml,
+  defineProps,
+  defineStyle,
+  onBeforeUnmount,
+  onMounted,
+  useEffect,
+  useHost,
+  useHostCssVar,
+  useHostFlag,
+} from "@elfui/core";
 
 import styles from "./style.scss?inline";
 import type { WatermarkExpose, WatermarkFont, WatermarkProps, WatermarkSlots } from "./types";
+import { createMutateController } from "../../../directives/observers";
+import {
+  acquireTargetPositionContext,
+  type TargetPositionLease,
+} from "../../Common/overlay/positioning-context";
 
 export type { WatermarkExpose, WatermarkFont, WatermarkProps, WatermarkSlots } from "./types";
 
@@ -20,19 +36,18 @@ const props = defineProps<WatermarkProps>({
   fontColor: { type: String, default: "rgba(0,0,0,0.15)" },
   font: { type: Object, default: () => ({}) },
   appendTo: { type: null, default: null },
-  antiTamper: { type: Boolean, default: false }
+  antiTamper: { type: Boolean, default: false },
 });
 
 const host = useHost();
 let overlay: HTMLElement | null = null;
 let overlayTarget: HTMLElement | null = null;
-let observer: MutationObserver | null = null;
-let restoredTargetPosition = "";
-let targetPositionPatched = false;
+let positionLease: TargetPositionLease | null = null;
+let observerControllers: Array<ReturnType<typeof createMutateController>> = [];
 let restorationQueued = false;
+let restorationGeneration = 0;
 
-const font = (): WatermarkFont =>
-  props.font && typeof props.font === "object" ? props.font : {};
+const font = (): WatermarkFont => (props.font && typeof props.font === "object" ? props.font : {});
 const fontSize = (): number => Math.max(1, Number(font().fontSize ?? props.fontSize) || 16);
 const fontColor = (): string => String(font().color || props.fontColor || "rgba(0,0,0,0.15)");
 const fontWeight = (): string => String(font().fontWeight ?? "normal");
@@ -76,7 +91,7 @@ const svgText = (): string => {
     : lines
         .map(
           (line, index) =>
-            `<text x="${position.x}" y="${startY + index * lineHeight}" dominant-baseline="middle" text-anchor="${position.anchor}" font-size="${fontSize()}" font-weight="${escapeXml(fontWeight())}" font-style="${escapeXml(fontStyle())}" font-family="${escapeXml(fontFamily())}" fill="${escapeXml(fontColor())}">${escapeXml(line)}</text>`
+            `<text x="${position.x}" y="${startY + index * lineHeight}" dominant-baseline="middle" text-anchor="${position.anchor}" font-size="${fontSize()}" font-weight="${escapeXml(fontWeight())}" font-style="${escapeXml(fontStyle())}" font-family="${escapeXml(fontFamily())}" fill="${escapeXml(fontColor())}">${escapeXml(line)}</text>`,
         )
         .join("");
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}"><g transform="rotate(${Number(props.rotate) || 0} ${width / 2} ${height / 2})">${body}</g></svg>`;
@@ -93,10 +108,14 @@ const resolveAppendTarget = (): HTMLElement | null => {
   if (typeof props.appendTo !== "string" || !props.appendTo.trim()) return null;
   const selector = props.appendTo.trim();
   const localRoot = host.getRootNode() as Document | ShadowRoot;
-  return localRoot.querySelector<HTMLElement>(selector) ?? document.querySelector<HTMLElement>(selector);
+  return (
+    localRoot.querySelector<HTMLElement>(selector) ?? document.querySelector<HTMLElement>(selector)
+  );
 };
 
 const applyOverlayStyle = (element: HTMLElement): void => {
+  element.className = "";
+  element.removeAttribute("style");
   element.style.setProperty("--_watermark-image", backgroundImage());
   Object.assign(element.style, {
     position: "absolute",
@@ -106,44 +125,61 @@ const applyOverlayStyle = (element: HTMLElement): void => {
     backgroundImage: "var(--_watermark-image)",
     backgroundPosition: backgroundPosition(),
     backgroundRepeat: "repeat",
-    backgroundSize: backgroundSize()
+    backgroundSize: backgroundSize(),
   });
 };
 
 const disconnectObserver = (): void => {
-  observer?.disconnect();
-  observer = null;
+  for (const controller of observerControllers) controller.dispose();
+  observerControllers = [];
 };
 
 const cleanupExternalOverlay = (): void => {
   disconnectObserver();
   overlay?.remove();
-  if (overlayTarget && targetPositionPatched) overlayTarget.style.position = restoredTargetPosition;
+  positionLease?.();
   overlay = null;
   overlayTarget = null;
-  targetPositionPatched = false;
-  restoredTargetPosition = "";
+  positionLease = null;
 };
 
+/** Coalesces one native mutation delivery into one overlay reconciliation. */
 const queueRestore = (): void => {
   if (restorationQueued) return;
   restorationQueued = true;
+  const generation = restorationGeneration;
   queueMicrotask(() => {
     restorationQueued = false;
+    if (generation !== restorationGeneration || !host.isConnected) return;
     syncExternalOverlay();
   });
 };
 
 const observeExternalOverlay = (): void => {
   disconnectObserver();
-  if (!props.antiTamper || !overlayTarget || typeof MutationObserver === "undefined") return;
-  observer = new MutationObserver(queueRestore);
-  observer.observe(overlayTarget, { childList: true });
-  if (overlay) observer.observe(overlay, { attributes: true, attributeFilter: ["style", "class"] });
+  if (!props.antiTamper || !overlayTarget) return;
+  observerControllers.push(
+    createMutateController(overlayTarget, {
+      handler: queueRestore,
+      observer: { childList: true },
+    }),
+  );
+  if (overlay) {
+    observerControllers.push(
+      createMutateController(overlay, {
+        handler: queueRestore,
+        observer: { attributes: true, attributeFilter: ["style", "class"] },
+      }),
+    );
+  }
 };
 
 const syncExternalOverlay = (): void => {
   disconnectObserver();
+  if (!host.isConnected) {
+    cleanupExternalOverlay();
+    return;
+  }
   const target = resolveAppendTarget();
   if (!target || target === host || host.contains(target)) {
     cleanupExternalOverlay();
@@ -151,11 +187,7 @@ const syncExternalOverlay = (): void => {
   }
   if (target !== overlayTarget) cleanupExternalOverlay();
   overlayTarget = target;
-  if (getComputedStyle(target).position === "static") {
-    restoredTargetPosition = target.style.position;
-    target.style.position = "relative";
-    targetPositionPatched = true;
-  }
+  if (!positionLease) positionLease = acquireTargetPositionContext(target);
   if (!overlay) {
     overlay = document.createElement("div");
     overlay.dataset.elfWatermarkOverlay = "";
@@ -169,7 +201,7 @@ const syncExternalOverlay = (): void => {
 useHostCssVar("--_watermark-bg", backgroundImage);
 useHostCssVar(
   "--_watermark-size",
-  () => `${tileWidth() + Number(props.gapX || 0)}px ${tileHeight() + Number(props.gapY || 0)}px`
+  () => `${tileWidth() + Number(props.gapX || 0)}px ${tileHeight() + Number(props.gapY || 0)}px`,
 );
 useHostCssVar("--_watermark-z", () => String(Number(props.zIndex) || 9));
 useHostCssVar("--_watermark-offset-x", () => `${Number(props.offsetX ?? props.gapX / 2) || 0}px`);
@@ -182,11 +214,15 @@ useEffect(() => {
   void backgroundImage();
   void backgroundSize();
   void backgroundPosition();
-  queueMicrotask(syncExternalOverlay);
+  if (host.isConnected) syncExternalOverlay();
 });
 
 onMounted(syncExternalOverlay);
-onBeforeUnmount(cleanupExternalOverlay);
+onBeforeUnmount(() => {
+  restorationGeneration += 1;
+  restorationQueued = false;
+  cleanupExternalOverlay();
+});
 defineExpose<WatermarkExpose>({ refresh: syncExternalOverlay });
 
 defineStyle(styles);
