@@ -3,15 +3,21 @@ import { afterEach, beforeAll, describe, expect, it } from "vitest";
 let formExampleTag = "";
 let alphaExampleTag = "";
 let portalExampleTag = "";
+let sliderExampleTag = "";
 
 beforeAll(async () => {
   await import("../../../components");
   const { ensureCustomElement } = await import("@elfui/core");
-  const [{ PageColorPickerEx2 }, { PageColorPickerEx3 }, { PageColorPickerEx4 }] =
-    await Promise.all([import("./ex2"), import("./ex3"), import("./ex4")]);
+  const [
+    { PageColorPickerEx2 },
+    { PageColorPickerEx3 },
+    { PageColorPickerEx4 },
+    { PageColorPickerEx5 },
+  ] = await Promise.all([import("./ex2"), import("./ex3"), import("./ex4"), import("./ex5")]);
   alphaExampleTag = ensureCustomElement(PageColorPickerEx2);
   formExampleTag = ensureCustomElement(PageColorPickerEx3);
   portalExampleTag = ensureCustomElement(PageColorPickerEx4);
+  sliderExampleTag = ensureCustomElement(PageColorPickerEx5);
 });
 
 afterEach(() => {
@@ -47,5 +53,26 @@ describe("ColorPicker documentation", () => {
 
     expect(alphaPicker?.modelValue).toBe("rgba(0, 106, 106, 0.8)");
     expect(portalPicker?.modelValue).toBe("#2563eb");
+  });
+
+  it("drives the picker color from a slider", async () => {
+    const page = document.createElement(sliderExampleTag);
+    document.body.appendChild(page);
+    await tick();
+    await tick();
+
+    const slider = page.shadowRoot!.querySelector<HTMLElement & { modelValue?: number }>(
+      "elf-slider",
+    )!;
+    const picker = page.shadowRoot!.querySelector<HTMLElement & { modelValue?: string }>(
+      "elf-color-picker",
+    )!;
+
+    expect(slider).toBeTruthy();
+    expect(picker.modelValue?.toLowerCase()).toMatch(/^#[0-9a-f]{6}$/i);
+
+    slider.dispatchEvent(new CustomEvent("update:modelValue", { detail: 0 }));
+    await tick();
+    expect(picker.modelValue?.toLowerCase()).toBe("#e83030");
   });
 });

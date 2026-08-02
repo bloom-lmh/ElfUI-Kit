@@ -5,7 +5,7 @@
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { createRouter as createRouterFactory } from "@elfui/router";
-import { resolveAppMenuIcon } from "../menu-icons";
+import { resolveAppMenuIcon, resolveAppMenuIconColor } from "../menu-icons";
 import { TestButton } from "./test-button-fixture";
 import { TestHome } from "./test-home-fixture";
 
@@ -270,10 +270,20 @@ describe("路由跳转", () => {
     await tick();
     await wait(20);
 
+    const toc = app.shadowRoot?.querySelector<HTMLElement & { label?: string }>("elf-docs-toc");
+    expect(toc?.label).toBe("按钮");
+
     const routerView = app.shadowRoot?.querySelector("elf-router-view");
     const routePageBefore = routerView?.firstElementChild;
-    const languageButton = app.shadowRoot?.querySelector<HTMLElement>(".header-action");
-    languageButton?.click();
+    const languageDropdown = app.shadowRoot?.querySelector<HTMLElement & { openMenu: () => void }>(
+      ".language-dropdown",
+    );
+    languageDropdown?.openMenu();
+    await tick();
+    const englishItem = Array.from(
+      languageDropdown?.shadowRoot?.querySelectorAll<HTMLElement>(".item") ?? [],
+    ).find((item) => item.textContent?.includes("English"));
+    englishItem?.click();
     await tick();
     await tick();
     await wait(20);
@@ -288,6 +298,9 @@ describe("路由跳转", () => {
     );
     expect(menu?.shadowRoot?.textContent).not.toContain("Home");
     expect(menu?.shadowRoot?.textContent).not.toContain("Layout 布局");
+    expect(
+      app.shadowRoot?.querySelector<HTMLElement & { label?: string }>("elf-docs-toc")?.label,
+    ).toBe("Button");
     const { getActiveRouter } = await import("@elfui/router");
     expect(getActiveRouter()?.current.peek().path).toBe("/basic/button");
     expect(routerView?.firstElementChild).not.toBe(routePageBefore);
@@ -343,6 +356,7 @@ describe("路由跳转", () => {
       index: "group:Guide 指南",
       label: "指南",
       icon: resolveAppMenuIcon("group:Guide 指南"),
+      iconColor: resolveAppMenuIconColor("group:Guide 指南"),
       children: expect.arrayContaining([
         expect.objectContaining({ index: "/providers/config", label: "全局配置" }),
         expect.objectContaining({ index: "/guide/accessibility", label: "无障碍" }),

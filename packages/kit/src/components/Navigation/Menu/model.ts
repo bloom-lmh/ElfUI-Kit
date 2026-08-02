@@ -8,6 +8,7 @@ export interface MenuViewItem {
   label: string;
   title: string;
   icon: string;
+  iconColor: string;
   disabled: boolean;
   badge: string;
   divider: boolean;
@@ -42,6 +43,7 @@ const DEFAULT_FIELDS: Required<MenuFieldNames> = {
   label: "label",
   title: "title",
   icon: "icon",
+  iconColor: "iconColor",
   disabled: "disabled",
   children: "children",
   badge: "badge",
@@ -87,6 +89,7 @@ const baseViewItem = (
   MenuViewItem,
   | "raw"
   | "icon"
+  | "iconColor"
   | "badge"
   | "route"
   | "popperClass"
@@ -104,6 +107,7 @@ const baseViewItem = (
 > => ({
   raw: item,
   icon: String(item[fields.icon] ?? ""),
+  iconColor: String(item[fields.iconColor] ?? ""),
   badge: String(item[fields.badge] ?? ""),
   route: item[fields.route],
   popperClass: String(item[fields.popperClass] ?? ""),
@@ -141,6 +145,7 @@ export const normalizeMenuItems = (
         label: "",
         title: "",
         icon: "",
+        iconColor: "",
         disabled: false,
         badge: "",
         divider: true,

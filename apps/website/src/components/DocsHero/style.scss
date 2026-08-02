@@ -3,15 +3,31 @@
   width: max(85%, min(100%, 900px));
   max-width: 100%;
   min-width: 0;
-  margin: 0 auto clamp(32px, 5vw, 56px);
+  margin: 0 auto;
 }
 
 docs-hero-page-header {
   display: block;
 }
 
-@media (max-width: 720px) {
-  :host {
-    margin-bottom: var(--elf-space-7, 32px);
-  }
+docs-hero-page-header::part(title) {
+  position: relative;
+  padding-inline-start: 18px;
+  letter-spacing: 0;
+}
+
+docs-hero-page-header::part(title)::before {
+  position: absolute;
+  inset-inline-start: 0;
+  top: 0.12em;
+  width: 6px;
+  height: 0.72em;
+  border-radius: 3px;
+  background: var(--elf-primary);
+  content: "";
+}
+
+.docs-hero-breadcrumb {
+  display: block;
+  margin-top: var(--elf-space-4);
 }

@@ -1,0 +1,235 @@
+@use "../../../styles/reset";
+
+:host {
+  box-sizing: border-box;
+  display: block;
+  min-width: 0;
+  color: var(--elf-text-primary);
+  --_heading-line-clamp: 1;
+}
+
+.heading {
+  position: relative;
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: break-word;
+  color: inherit;
+  font-family: var(--elf-font-family);
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.heading-line {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
+  min-width: 0;
+}
+
+.heading-text {
+  min-width: 0;
+}
+
+.eyebrow {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--elf-text-secondary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.index {
+  display: inline-grid;
+  flex: 0 0 auto;
+  min-width: 30px;
+  height: 30px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--elf-primary);
+  color: var(--elf-text-on-primary, #fff);
+  font-size: 0.8125rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+:host([accent]) .heading {
+  padding-inline-start: 16px;
+}
+
+:host([accent]) .heading::before {
+  position: absolute;
+  inset: 0.08em auto 0.08em 0;
+  width: 4px;
+  border-radius: 2px;
+  background: var(--elf-primary);
+  content: "";
+}
+
+:host([chip]) .heading {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 6px 12px;
+  border-radius: var(--elf-radius-sm);
+  background: color-mix(in srgb, var(--elf-primary) 10%, transparent);
+  color: var(--elf-primary);
+}
+
+:host([chip]) .eyebrow {
+  margin-bottom: 0;
+  color: var(--elf-primary);
+}
+
+:host([variant="display"]) .heading {
+  font-size: clamp(2.75rem, 7vw, 4.5rem);
+  font-weight: 800;
+  line-height: 1.05;
+}
+
+:host([variant="hero"]) .heading {
+  font-size: clamp(2.25rem, 5vw, 3.25rem);
+  font-weight: 800;
+  line-height: 1.08;
+}
+
+:host([variant="page"]) .heading {
+  font-size: clamp(1.9rem, 4vw, 2.75rem);
+  font-weight: 800;
+  line-height: 1.12;
+}
+
+:host([variant="section"]) .heading {
+  font-size: clamp(1.45rem, 2.5vw, 2rem);
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+:host([variant="subsection"]) .heading {
+  font-size: clamp(1.2rem, 2vw, 1.5rem);
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+:host([variant="card"]) .heading {
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+:host([variant="overline"]) .heading {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+:host([variant="eyebrow"]) .heading {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+:host([variant="stat"]) .heading {
+  font-size: clamp(2rem, 6vw, 3rem);
+  font-weight: 800;
+  line-height: 1;
+}
+
+:host([variant="label"]) .heading {
+  color: var(--elf-text-secondary);
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+:host([variant="caption"]) .heading {
+  color: var(--elf-text-secondary);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+:host([align="center"]) .heading {
+  text-align: center;
+}
+
+:host([align="center"]) .heading-line {
+  justify-content: center;
+}
+
+:host([align="end"]) .heading {
+  text-align: end;
+}
+
+:host([align="end"]) .heading-line {
+  justify-content: flex-end;
+}
+
+:host([color="primary"]) {
+  color: var(--elf-primary);
+}
+
+:host([color="secondary"]) {
+  color: var(--elf-secondary);
+}
+
+:host([color="success"]) {
+  color: var(--elf-success);
+}
+
+:host([color="warning"]) {
+  color: var(--elf-warning);
+}
+
+:host([color="danger"]) {
+  color: var(--elf-danger);
+}
+
+:host([color="info"]) {
+  color: var(--elf-info);
+}
+
+:host([color="muted"]) {
+  color: var(--elf-text-secondary);
+}
+
+:host([weight="regular"]) .heading {
+  font-weight: 400;
+}
+
+:host([weight="medium"]) .heading {
+  font-weight: 600;
+}
+
+:host([weight="bold"]) .heading {
+  font-weight: 800;
+}
+
+:host([truncated]) .heading-text {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:host([data-line-clamp]) .heading-text {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--_heading-line-clamp);
+  white-space: normal;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heading {
+    transition: none;
+  }
+}

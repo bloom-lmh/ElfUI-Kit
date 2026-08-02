@@ -194,7 +194,14 @@ const navigate = (raw: BreadcrumbRawItem, to: string, replace: boolean): void =>
 const onItemClick = (item: BreadcrumbViewItem, event: Event): void => {
   // Router items keep a real hash href as a resilient navigation fallback.
   // Non-router items are command buttons and must not trigger navigation.
-  if (!(event.currentTarget instanceof HTMLAnchorElement)) event.preventDefault();
+  if (
+    item.disabled ||
+    item.current ||
+    item.ellipsis ||
+    !(event.currentTarget instanceof HTMLAnchorElement)
+  ) {
+    event.preventDefault();
+  }
   event.stopPropagation();
   if (!item.disabled && !item.current && !item.ellipsis) navigate(item.raw, item.to, item.replace);
 };

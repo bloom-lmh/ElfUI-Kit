@@ -69,8 +69,15 @@ const t = createDocsTranslator({
     en: "Grouped tabs with source, language, and line annotations.",
   },
   variantProp: { zh: "工具台、窗口或极简外观。", en: "Workbench, window, or minimal shell." },
-  themeProp: { zh: "卡片表面的明暗主题。", en: "Light or dark card surface scheme." },
+  themeProp: {
+    zh: "表面明暗与文档主题相反：light 渲染暗色卡片，dark 渲染亮色卡片。",
+    en: "Surface scheme is inverted from the document theme: light renders a dark card and dark renders a light card.",
+  },
   codeThemeProp: { zh: "Shiki 代码配色系列。", en: "Shiki syntax palette family." },
+  iconsProp: {
+    zh: "文件、工具栏和复制状态的 SVG path 覆盖。",
+    en: "SVG path overrides for file, toolbar, and copy-state icons.",
+  },
   languageProp: {
     zh: "高亮与格式化所使用的语言。",
     en: "Language used for highlighting and formatting.",
@@ -386,6 +393,7 @@ const propRows = () => [
     default: "'github'",
     desc: t("codeThemeProp"),
   },
+  { name: "icons", type: "Partial<CodeCardIcons>", default: "{}", desc: t("iconsProp") },
   { name: "language", type: "CodeCardLanguage", default: "'javascript'", desc: t("languageProp") },
   { name: "line-numbers", type: "boolean", default: "true", desc: t("lineNumbersProp") },
   { name: "expanded", type: "boolean", default: "true", desc: t("expandedProp") },

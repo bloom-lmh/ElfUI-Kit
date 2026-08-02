@@ -368,7 +368,7 @@ const Input = defineHtml(`
     </span>
 
     <div class="wrapper" part="wrapper">
-      <fieldset v-if=${props.label} class="outline" aria-hidden="true">
+      <fieldset class="outline" aria-hidden="true">
         <legend><span>${props.label}</span></legend>
       </fieldset>
       <span v-if=${props.label} class="label" part="label" @click=${onLabelClick}>

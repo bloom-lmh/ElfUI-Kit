@@ -5,6 +5,7 @@ import { PageColorPickerEx1 } from "./ex1";
 import { PageColorPickerEx2 } from "./ex2";
 import { PageColorPickerEx3 } from "./ex3";
 import { PageColorPickerEx4 } from "./ex4";
+import { PageColorPickerEx5 } from "./ex5";
 
 const t = createDocsTranslator({
   title: { zh: "ColorPicker 颜色选择器", en: "ColorPicker" },
@@ -168,6 +169,7 @@ useComponents({
   "page-color-picker-ex2": PageColorPickerEx2,
   "page-color-picker-ex3": PageColorPickerEx3,
   "page-color-picker-ex4": PageColorPickerEx4,
+  "page-color-picker-ex5": PageColorPickerEx5,
 });
 
 const PageColorPicker = defineHtml(`
@@ -177,6 +179,7 @@ const PageColorPicker = defineHtml(`
     <page-color-picker-ex2 />
     <page-color-picker-ex3 />
     <page-color-picker-ex4 />
+    <page-color-picker-ex5 />
     <h2>API</h2>
     <elf-props-table :title=${t("props")} :rows=${propsRows()}></elf-props-table>
     <elf-props-table :title=${t("events")} :rows=${eventsRows()}></elf-props-table>

@@ -1,4 +1,4 @@
-import { defineHtml, defineStyle } from "@elfui/core";
+import { defineHtml, defineStyle, useRef } from "@elfui/core";
 
 import { createDocsTranslator } from "../../docsLocale";
 import articleStyles from "../../shared/article.scss?inline";
@@ -48,30 +48,6 @@ const t = createDocsTranslator({
     zh: "从聚焦单测到完整构建，再到浏览器行为与截图，按成本从低到高执行。",
     en: "Run focused tests, full builds, browser behavior, and screenshots in increasing order of cost.",
   },
-  migrationTitle: { zh: "beta.7 以后关键迁移", en: "Key migrations since beta.7" },
-  oldApi: { zh: "旧 API", en: "Previous API" },
-  newApi: { zh: "当前 API", en: "Current API" },
-  reason: { zh: "迁移意图", en: "Migration intent" },
-  templateReason: {
-    zh: "模板和样式必须可由编译器静态分析。",
-    en: "Templates and styles remain statically analyzable.",
-  },
-  lifecycleReason: {
-    zh: "生命周期命名统一，并允许 mounted 返回清理函数。",
-    en: "Lifecycle naming is consistent and mounted may return cleanup.",
-  },
-  reactiveReason: {
-    zh: "明确区分派生值、自动依赖副作用和显式监听。",
-    en: "Derived values, effects, and explicit watchers have distinct roles.",
-  },
-  themeReason: {
-    zh: "theme() 注入主题样式，不再混淆为上下文读取。",
-    en: "theme() injects theme CSS instead of implying context access.",
-  },
-  directiveReason: {
-    zh: "指令作用域显式化，避免进程级隐式状态。",
-    en: "Directive scope is explicit instead of process-global.",
-  },
   gatesTitle: { zh: "推荐门禁顺序", en: "Recommended gate order" },
   gatesLead: {
     zh: "任何一步失败都先停止并定位，不要继续堆叠后续错误。",
@@ -101,12 +77,13 @@ const t = createDocsTranslator({
   },
   nextTitle: { zh: "继续了解", en: "Continue" },
   nextBody: {
-    zh: "浏览器支持定义运行环境，质量章节定义验收边界。",
-    en: "Browser support defines the runtime matrix; Quality defines acceptance gates.",
+    zh: "质量章节定义验收门禁与无障碍边界。",
+    en: "Quality defines acceptance gates and accessibility boundaries.",
   },
-  browserLink: { zh: "浏览器支持", en: "Browser support" },
   qualityLink: { zh: "质量门禁", en: "Quality gates" },
   releasesTitle: { zh: "版本记录", en: "Release history" },
+  frameworkReleasesTitle: { zh: "框架版本记录", en: "Framework release history" },
+  kitReleasesTitle: { zh: "组件库版本记录", en: "Kit release history" },
   current: { zh: "当前版本", en: "Current" },
   kitReleaseTitle: { zh: "组件库能力收敛", en: "Kit capability consolidation" },
   kitReleaseBody: {
@@ -153,34 +130,15 @@ const t = createDocsTranslator({
   },
 });
 
-const migrationColumns = () => [
-  { prop: "previous", label: t("oldApi"), minWidth: 180 },
-  { prop: "current", label: t("newApi"), minWidth: 220 },
-  { prop: "reason", label: t("reason"), minWidth: 280 },
-];
-const migrationRows = () => [
-  {
-    previous: "html`...` / css`...`",
-    current: 'defineHtml("...") / defineStyle("...")',
-    reason: t("templateReason"),
-  },
-  {
-    previous: "onMount / onUnmount",
-    current: "onMounted / onUnmounted",
-    reason: t("lifecycleReason"),
-  },
-  {
-    previous: "computed / watchEffect",
-    current: "useComputed / useEffect / watch",
-    reason: t("reactiveReason"),
-  },
-  { previous: "useTheme", current: "theme", reason: t("themeReason") },
-  {
-    previous: "directive(name, definition)",
-    current: "defineDirective / app.directive",
-    reason: t("directiveReason"),
-  },
-];
+const activeFrameworkRelease = useRef("framework-beta.20");
+const activeKitRelease = useRef("v0.0.2-beta.1");
+const onFrameworkReleaseChange = (event: CustomEvent): void => {
+  activeFrameworkRelease.set(String(event.detail));
+};
+const onKitReleaseChange = (event: CustomEvent): void => {
+  activeKitRelease.set(String(event.detail));
+};
+const releaseTitle = (version: string, title: string): string => `${version} · ${title}`;
 const gateCode = [
   "node scripts/check-beta8-migration.mjs",
   "pnpm exec vitest run path/to/component.test.ts --maxWorkers=1",
@@ -189,33 +147,126 @@ const gateCode = [
   "pnpm build",
 ].join("\n");
 
-defineStyle(articleStyles);
+defineStyle(
+  articleStyles,
+  `
+  .upgrade-page .docs-section {
+    margin-block: clamp(1.75rem, 3vw, 2.75rem);
+  }
+  .release-accordion {
+    margin-top: var(--elf-space-4);
+  }
+  .release-accordion::part(collapse) {
+    box-shadow: none;
+    border-radius: var(--elf-radius-sm);
+  }
+  .release-accordion elf-collapse-item::part(header) {
+    min-height: 54px;
+    color: var(--elf-text-primary);
+    font-weight: 700;
+  }
+  .release-accordion elf-collapse-item::part(header):hover {
+    background: color-mix(in srgb, var(--elf-primary) 6%, transparent);
+  }
+  .release-accordion elf-collapse-item[data-active]::part(header) {
+    color: var(--elf-primary);
+  }
+  .release-accordion elf-collapse-item::part(icon) {
+    color: var(--elf-primary);
+  }
+  .release-accordion elf-collapse-item::part(body) {
+    color: var(--elf-text-secondary);
+  }
+  .release-group-title {
+    margin: var(--elf-space-7) 0 var(--elf-space-3);
+    font-size: var(--elf-font-size-lg);
+  }
+  .release-group-title:first-child {
+    margin-top: 0;
+  }
+  .release-accordion .release-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--elf-space-3);
+    margin-bottom: var(--elf-space-3);
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  }
+  .release-accordion p {
+    margin: 0 0 var(--elf-space-3);
+    color: var(--elf-text-secondary);
+    line-height: var(--docs-line-height);
+  }
+  .release-accordion ul {
+    display: grid;
+    gap: var(--elf-space-2);
+    margin: 0;
+    padding-inline-start: 1.25rem;
+    color: var(--elf-text-secondary);
+    line-height: var(--docs-line-height);
+  }
+  `,
+);
 
 const PageUpgradeGuide = defineHtml(`
-  <elf-container class="docs-article">
+  <elf-container class="docs-article guide-page upgrade-page">
     <elf-docs-hero category="getting-started" tag="Upgrade" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
     <div class="guide-content">
 
     <section class="docs-section release-log">
       <h2>${t("releasesTitle")}</h2>
-      <article class="release-entry">
-        <div class="release-meta"><strong>v0.0.2-beta.1</strong><elf-tag size="small" type="success">${t("current")}</elf-tag></div>
-        <h3>${t("kitReleaseTitle")}</h3>
-        <p>${t("kitReleaseBody")}</p>
-        <ul><li>${t("kitReleaseOne")}</li><li>${t("kitReleaseTwo")}</li><li>${t("kitReleaseThree")}</li></ul>
-      </article>
-      <article class="release-entry">
-        <div class="release-meta"><strong>Framework v0.1.0-beta.20</strong></div>
-        <h3>${t("beta20Title")}</h3>
-        <p>${t("beta20Body")}</p>
-        <ul><li>${t("beta20One")}</li><li>${t("beta20Two")}</li></ul>
-      </article>
-      <article class="release-entry">
-        <div class="release-meta"><strong>Framework v0.1.0-beta.18</strong></div>
-        <h3>${t("beta18Title")}</h3>
-        <p>${t("beta18Body")}</p>
-        <ul><li>${t("beta18One")}</li><li>${t("beta18Two")}</li></ul>
-      </article>
+
+      <h3 class="release-group-title">${t("frameworkReleasesTitle")}</h3>
+      <elf-collapse
+        class="release-accordion"
+        accordion
+        :modelValue.prop=${activeFrameworkRelease.value}
+        @update:modelValue=${onFrameworkReleaseChange}
+      >
+        <elf-collapse-item
+          name="framework-beta.20"
+          :title.prop=${releaseTitle("Framework v0.1.0-beta.20", t("beta20Title"))}
+        >
+          <p>${t("beta20Body")}</p>
+          <ul>
+            <li>${t("beta20One")}</li>
+            <li>${t("beta20Two")}</li>
+          </ul>
+        </elf-collapse-item>
+        <elf-collapse-item
+          name="framework-beta.18"
+          :title.prop=${releaseTitle("Framework v0.1.0-beta.18", t("beta18Title"))}
+        >
+          <p>${t("beta18Body")}</p>
+          <ul>
+            <li>${t("beta18One")}</li>
+            <li>${t("beta18Two")}</li>
+          </ul>
+        </elf-collapse-item>
+      </elf-collapse>
+
+      <h3 class="release-group-title">${t("kitReleasesTitle")}</h3>
+      <elf-collapse
+        class="release-accordion"
+        accordion
+        :modelValue.prop=${activeKitRelease.value}
+        @update:modelValue=${onKitReleaseChange}
+      >
+        <elf-collapse-item
+          name="v0.0.2-beta.1"
+          :title.prop=${releaseTitle("v0.0.2-beta.1", t("kitReleaseTitle"))}
+        >
+          <div class="release-meta">
+            <elf-tag size="small" type="success">${t("current")}</elf-tag>
+          </div>
+          <p>${t("kitReleaseBody")}</p>
+          <ul>
+            <li>${t("kitReleaseOne")}</li>
+            <li>${t("kitReleaseTwo")}</li>
+            <li>${t("kitReleaseThree")}</li>
+          </ul>
+        </elf-collapse-item>
+      </elf-collapse>
     </section>
 
     <section class="docs-section">
@@ -226,11 +277,6 @@ const PageUpgradeGuide = defineHtml(`
         <li>${t("beforeTwo")}</li>
         <li>${t("beforeThree")}</li>
       </ul>
-    </section>
-
-    <section class="docs-section">
-      <h2>${t("migrationTitle")}</h2>
-      <elf-table class="guide-table" :data.prop=${migrationRows()} :columns.prop=${migrationColumns()} row-key="previous" border stripe></elf-table>
     </section>
 
     <section class="docs-section">
@@ -256,7 +302,6 @@ const PageUpgradeGuide = defineHtml(`
         <p>${t("nextBody")}</p>
       </div>
       <div class="docs-link-list">
-        <elf-link href="#/getting-started/browser-support">${t("browserLink")} →</elf-link>
         <elf-link href="#/quality">${t("qualityLink")} →</elf-link>
       </div>
     </section>

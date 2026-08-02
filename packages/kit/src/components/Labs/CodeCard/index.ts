@@ -45,6 +45,7 @@ import type {
   CodeCardFormatDetail,
   CodeCardItem,
   CodeCardItemDetail,
+  CodeCardIcons,
   CodeCardLabels,
   CodeCardLanguage,
   CodeCardLineSelection,
@@ -72,6 +73,7 @@ export type {
   CodeCardEmits,
   CodeCardExpose,
   CodeCardFormatDetail,
+  CodeCardIcons,
   CodeCardItem,
   CodeCardItemDetail,
   CodeCardLabels,
@@ -97,6 +99,7 @@ const props = defineProps<CodeCardProps>({
   variant: { type: String, default: "workbench" },
   theme: { type: String, default: "auto" },
   codeTheme: { type: String, default: "github" },
+  icons: { type: Object, default: () => ({}) },
   collapsible: { type: Boolean, default: true },
   copyable: { type: Boolean, default: true },
   formattable: { type: Boolean, default: true },
@@ -184,6 +187,19 @@ let themeObserver: ReturnType<typeof createMutateController> | undefined;
 
 const label = (key: keyof CodeCardLabels): string => props.labels[key] || defaultLabels[key];
 const standaloneLanguage = (): CodeCardLanguage => language.value;
+const defaultIcons: Required<CodeCardIcons> = {
+  file: mdiFileCodeOutline,
+  lineNumbers: mdiFormatListNumbered,
+  format: mdiAutoFix,
+  copy: mdiContentCopy,
+  copied: mdiCheck,
+  expand: mdiChevronDown,
+  collapse: mdiChevronUp,
+};
+const iconPath = (key: keyof CodeCardIcons): string =>
+  typeof props.icons?.[key] === "string" && props.icons[key]
+    ? (props.icons[key] as string)
+    : defaultIcons[key];
 
 const singleItem = (): CodeCardItem => ({
   key: "code",
@@ -642,7 +658,7 @@ const CodeCard = defineHtml<CodeCardProps, CodeCardEmits, CodeCardSlots>(`
         aria-hidden="true"
       >
         <svg viewBox="0 0 24 24">
-          <path :d=${mdiFileCodeOutline}></path>
+          <path :d=${iconPath("file")}></path>
         </svg>
       </span>
       <span v-if=${!isGrouped()} class="card-title">${currentTitle()}</span>
@@ -679,7 +695,7 @@ const CodeCard = defineHtml<CodeCardProps, CodeCardEmits, CodeCardSlots>(`
             viewBox="0 0 24 24"
             aria-hidden="true"
           >
-            <path :d=${mdiFormatListNumbered}></path>
+            <path :d=${iconPath("lineNumbers")}></path>
           </svg>
         </button>
         <button
@@ -695,7 +711,7 @@ const CodeCard = defineHtml<CodeCardProps, CodeCardEmits, CodeCardSlots>(`
             viewBox="0 0 24 24"
             aria-hidden="true"
           >
-            <path :d=${mdiAutoFix}></path>
+            <path :d=${iconPath("format")}></path>
           </svg>
         </button>
         <button
@@ -712,7 +728,7 @@ const CodeCard = defineHtml<CodeCardProps, CodeCardEmits, CodeCardSlots>(`
             viewBox="0 0 24 24"
             aria-hidden="true"
           >
-            <path :d=${copied ? mdiCheck : mdiContentCopy}></path>
+            <path :d=${copied ? iconPath("copied") : iconPath("copy")}></path>
           </svg>
         </button>
         <button
@@ -729,7 +745,7 @@ const CodeCard = defineHtml<CodeCardProps, CodeCardEmits, CodeCardSlots>(`
             viewBox="0 0 24 24"
             aria-hidden="true"
           >
-            <path :d=${expanded.value ? mdiChevronUp : mdiChevronDown}></path>
+            <path :d=${expanded.value ? iconPath("collapse") : iconPath("expand")}></path>
           </svg>
         </button>
       </span>

@@ -88,7 +88,7 @@
   min-height: 168px;
   overflow: hidden;
   border: 1px solid var(--elf-border);
-  border-radius: var(--elf-radius-lg, 12px);
+  border-radius: var(--elf-radius-md);
   background: var(--elf-bg-paper);
   color: var(--elf-text-primary);
 }
@@ -118,6 +118,7 @@
   align-items: center;
   gap: 26px;
   padding: 28px 36px;
+  border-radius: inherit;
 }
 
 .is-card .hero-layout {
@@ -147,6 +148,20 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 10px;
+}
+
+.hero-title-icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  color: var(--elf-primary);
+}
+
+.hero-title-icon svg {
+  width: 30px;
+  height: 30px;
+  fill: currentColor;
 }
 
 .hero-title {

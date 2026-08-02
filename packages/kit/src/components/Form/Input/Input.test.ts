@@ -124,6 +124,15 @@ describe("elf-input", () => {
     expect(el.getAttribute("variant")).toBe("outlined");
   });
 
+  it("renders an outlined border even without a label", async () => {
+    const el = mount((node) => {
+      node.variant = "outlined";
+    });
+    await flush();
+
+    expect(el.shadowRoot!.querySelector(".outline")).toBeTruthy();
+  });
+
   it.each(["default", "outlined", "underlined", "solo", "solo-filled", "solo-inverted"])(
     "reflects the %s field variant",
     async (variant) => {

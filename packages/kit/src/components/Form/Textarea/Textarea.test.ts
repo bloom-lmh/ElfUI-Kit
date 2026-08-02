@@ -61,6 +61,15 @@ describe("elf-textarea", () => {
     expect(el.shadowRoot!.querySelector(".field-outline legend")?.textContent).toBe("Description");
   });
 
+  it("renders an outlined border even without a label", async () => {
+    const el = document.createElement("elf-textarea") as TextareaHost;
+    el.setAttribute("variant", "outlined");
+    document.body.appendChild(el);
+    await flush();
+
+    expect(el.shadowRoot!.querySelector(".field-outline")).toBeTruthy();
+  });
+
   it.each(["default", "underlined", "solo", "solo-filled", "solo-inverted"])(
     "reflects the shared %s field variant",
     async (variant) => {

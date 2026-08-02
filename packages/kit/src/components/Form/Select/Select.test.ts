@@ -1,6 +1,7 @@
 // @ts-nocheck -- Legacy custom-element fixture requires runtime-only properties.
 // elf-select 单元测试
 
+import { readFileSync } from "node:fs";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
 beforeAll(async () => {
@@ -74,6 +75,14 @@ describe("elf-select", () => {
     expect(el.hasAttribute("data-has-label")).toBe(true);
     expect(el.shadowRoot!.querySelector(".field-label")?.textContent).toBe("Framework");
     expect(el.shadowRoot!.querySelector(".field-outline legend")?.textContent).toBe("Framework");
+  });
+
+  it("renders an outlined border even without a label", async () => {
+    const el = mount();
+    el.setAttribute("variant", "outlined");
+    await tick();
+
+    expect(el.shadowRoot!.querySelector(".field-outline")).toBeTruthy();
   });
 
   it("inherits field empty and clear defaults while local props keep priority", async () => {
@@ -545,6 +554,11 @@ describe("elf-select", () => {
     await tick();
     await tick();
     expect(el.shadowRoot!.querySelector(".placeholder")?.textContent).toBe("请选择一项");
+  });
+
+  it("keeps the outlined placeholder visible on focus", () => {
+    const source = readFileSync("packages/kit/src/components/Form/Select/style.scss", "utf8");
+    expect(source).toContain(":not(:focus-within)) .placeholder");
   });
 
   // ═══ 多实例隔离 ═══

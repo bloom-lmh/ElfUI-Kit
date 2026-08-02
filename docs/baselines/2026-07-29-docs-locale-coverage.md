@@ -21,6 +21,17 @@ This update was captured after the Table EP-11 page-family batch. Explicit helpe
 
 As of 2026-07-31, the command above is a blocking gate by default. Any missing audit target exits with status 1; use `node scripts/audit-docs-locale.mjs --report-only` only for an explicitly non-blocking diagnostic report. CI and Release both execute the default command before build or publication.
 
+## 2026-08-02 current coverage after Browser support merge
+
+| Surface         | Localized | Total | Missing |
+| --------------- | --------: | ----: | ------: |
+| Page entries    |       112 |   112 |       0 |
+| Examples        |       364 |   364 |       0 |
+| Props/API files |        71 |    71 |       0 |
+| Total           |       547 |   547 |       0 |
+
+The standalone Browser support page was removed; its matrix, platform capabilities, and acceptance checklist now live inside the Installation Requirements section.
+
 ## 2026-07-29 repository coverage
 
 | Surface         | Localized | Total | Missing |

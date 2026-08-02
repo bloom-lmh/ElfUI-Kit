@@ -10,6 +10,8 @@ export interface PageHeaderProps {
   title: string;
   content: string;
   icon: string;
+  titleIcon: string;
+  titleIconColor: string;
   mode: PageHeaderMode;
   variant: PageHeaderVariant;
   align: PageHeaderAlign;

@@ -314,7 +314,7 @@ const syncStatusSlots = (): void => {
       ),
     ];
     fields.forEach((field) => {
-      if (!field.hasAttribute("data-playground-variant")) field.setAttribute("variant", "filled");
+      if (!field.hasAttribute("data-playground-variant")) field.setAttribute("variant", "outlined");
       if (!field.hasAttribute("data-playground-density"))
         field.setAttribute("density", "comfortable");
       field.setAttribute("data-playground-control", "");

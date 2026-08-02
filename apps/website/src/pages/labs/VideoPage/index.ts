@@ -36,7 +36,7 @@ const t = createDocsTranslator({
 defineStyle(
   articleStyles,
   `
-  .labs-warning { margin-bottom: var(--elf-space-5); }
+  .labs-warning { margin-bottom: var(--elf-space-4); }
   .labs-video { width: min(840px, 100%); }
 `,
 );

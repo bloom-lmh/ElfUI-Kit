@@ -1,0 +1,200 @@
+.heading-family-status {
+  color: var(--elf-text-secondary);
+  font-size: var(--elf-font-size-sm);
+}
+
+.heading-family {
+  display: grid;
+  gap: 16px;
+  width: min(920px, 100%);
+  margin-inline: auto;
+}
+
+.heading-family-section {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  padding: 20px 22px;
+  border: 1px solid var(--elf-divider);
+  border-radius: var(--elf-radius-md);
+  background: var(--elf-bg-paper);
+}
+
+.heading-family-label {
+  color: var(--elf-text-secondary);
+  font:
+    600 11px "JetBrains Mono",
+    Menlo,
+    Consolas,
+    monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.heading-family-ordered,
+.heading-family-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.heading-family-ordered {
+  counter-reset: heading-family-count;
+}
+
+.heading-family-ordered li {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  align-items: baseline;
+  gap: 10px;
+  min-width: 0;
+  counter-increment: heading-family-count;
+}
+
+.heading-family-ordered li::before {
+  content: counter(heading-family-count) ".";
+  color: var(--heading-family-accent, var(--elf-primary));
+  font:
+    700 14px "JetBrains Mono",
+    Menlo,
+    Consolas,
+    monospace;
+}
+
+.heading-family-list li {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  align-items: baseline;
+  gap: 10px;
+  min-width: 0;
+}
+
+.heading-family-list li::before {
+  content: "-";
+  color: var(--heading-family-accent, var(--elf-primary));
+  font:
+    700 16px "JetBrains Mono",
+    Menlo,
+    Consolas,
+    monospace;
+}
+
+/* 风格一：文档蓝 */
+.heading-family-docs {
+  --heading-family-accent: var(--elf-primary);
+  --heading-family-surface: color-mix(in srgb, var(--elf-primary) 5%, var(--elf-bg-paper));
+}
+
+.heading-family-docs .heading-family-section {
+  border-color: color-mix(in srgb, var(--elf-primary) 22%, var(--elf-border));
+  background: var(--heading-family-surface);
+}
+
+.heading-family-docs elf-heading[level="1"]::part(text) {
+  letter-spacing: -0.02em;
+}
+
+.heading-family-docs elf-heading[level="2"]::part(text) {
+  color: var(--elf-primary);
+}
+
+.heading-family-docs elf-heading[level="6"]::part(text) {
+  color: var(--elf-text-secondary);
+}
+
+/* 风格二：编辑杂志 */
+.heading-family-editorial {
+  --heading-family-accent: #b3261e;
+  --heading-family-surface: #fffaf3;
+}
+
+.heading-family-editorial .heading-family-section {
+  border-color: #e5d9c3;
+  background: var(--heading-family-surface);
+}
+
+.heading-family-editorial elf-heading {
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+.heading-family-editorial elf-heading[level="1"]::part(text) {
+  font-size: 42px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+.heading-family-editorial elf-heading[level="2"]::part(text) {
+  color: #b3261e;
+  font-style: italic;
+  font-weight: 600;
+}
+
+.heading-family-editorial elf-heading[level="5"]::part(text),
+.heading-family-editorial elf-heading[level="6"]::part(text) {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* 风格三：开发者终端 */
+.heading-family-terminal {
+  --heading-family-accent: #22c55e;
+  --heading-family-surface: #0d1117;
+  color: #d1d5db;
+}
+
+.heading-family-terminal .heading-family-section {
+  border-color: #30363d;
+  background: var(--heading-family-surface);
+}
+
+.heading-family-terminal elf-heading {
+  color: #d1d5db;
+  font-family: "JetBrains Mono", Menlo, Consolas, monospace;
+}
+
+.heading-family-terminal elf-heading::part(text) {
+  color: inherit;
+}
+
+.heading-family-terminal elf-heading::part(text)::before {
+  color: var(--heading-family-accent);
+  font-weight: 700;
+}
+
+.heading-family-terminal elf-heading[level="1"]::part(text)::before {
+  content: "# ";
+}
+
+.heading-family-terminal elf-heading[level="2"]::part(text)::before {
+  content: "## ";
+}
+
+.heading-family-terminal elf-heading[level="3"]::part(text)::before {
+  content: "### ";
+}
+
+.heading-family-terminal elf-heading[level="4"]::part(text)::before {
+  content: "#### ";
+}
+
+.heading-family-terminal elf-heading[level="5"]::part(text)::before {
+  content: "##### ";
+}
+
+.heading-family-terminal elf-heading[level="6"]::part(text)::before {
+  content: "###### ";
+}
+
+@media (max-width: 720px) {
+  .heading-family-section {
+    padding: 16px;
+  }
+
+  .heading-family-editorial elf-heading[level="1"]::part(text) {
+    font-size: 32px;
+  }
+}

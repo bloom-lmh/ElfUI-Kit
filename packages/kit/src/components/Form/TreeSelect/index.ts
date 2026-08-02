@@ -541,7 +541,7 @@ const TreeSelect = defineHtml<TreeSelectProps>(`
       :aria-label=${props.ariaLabel || props.label || placeholderText()} :aria-expanded=${openState ? "true" : "false"}
       :aria-controls=${openState ? panelId() : null} :aria-disabled=${isDisabled() ? "true" : "false"}
       @click=${onTriggerClick} @focus=${onFocus} @keydown=${onTriggerKeydown}>
-      <fieldset v-if=${props.label} class="field-outline" aria-hidden="true">
+      <fieldset class="field-outline" aria-hidden="true">
         <legend><span>${props.label}</span></legend>
       </fieldset>
       <span v-if=${props.label} class="field-label">${props.label}</span>

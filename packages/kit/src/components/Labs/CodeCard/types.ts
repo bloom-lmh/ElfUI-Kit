@@ -59,6 +59,17 @@ export interface CodeCardItem {
   diffLines?: CodeCardDiffLine[];
 }
 
+/** Optional SVG path overrides for file, toolbar, and copy-state icons. */
+export interface CodeCardIcons {
+  file?: string;
+  lineNumbers?: string;
+  format?: string;
+  copy?: string;
+  copied?: string;
+  expand?: string;
+  collapse?: string;
+}
+
 /** User-facing labels for toolbar actions and accessible names. */
 export interface CodeCardLabels {
   copy: string;
@@ -88,6 +99,7 @@ export interface CodeCardProps {
   variant: CodeCardVariant;
   theme: CodeCardTheme;
   codeTheme: CodeCardCodeTheme;
+  icons: Partial<CodeCardIcons>;
   lineNumbers: boolean;
   collapsible: boolean;
   expanded: boolean;

@@ -1,7 +1,9 @@
 import { defineHtml, defineProps, defineStyle, useComponents } from "@elfui/core";
 
+import { Breadcrumb } from "@elfui/kit-src/components/Navigation/Breadcrumb";
 import { PageHeader } from "@elfui/kit-src/components/Navigation/PageHeader";
 import { useLocaleProvider } from "@elfui/kit-src/components/Providers/context";
+import { resolveAppMenuIcon, resolveAppMenuIconColor } from "../../app/menu-icons";
 import styles from "./style.scss?inline";
 import type { DocsHeroProps, DocsHeroSlots } from "./types";
 
@@ -28,6 +30,7 @@ const categoryLabels: Record<string, readonly [string, string]> = {
   providers: ["全局配置", "Global configuration"],
   "getting-started": ["快速入门", "Getting started"],
   directives: ["指令", "Directives"],
+  guide: ["指南", "Guide"],
   component: ["组件库", "Components"],
 };
 
@@ -45,8 +48,30 @@ const inferredTag = (): string => {
 };
 const metaText = (): string =>
   `${isChinese() ? "组件库" : "Component library"} · ${props.version || "v1.0.0"}`;
+const currentRoute = (): string => {
+  if (typeof window === "undefined") return "";
+  const hash = window.location.hash || "#/";
+  return hash.startsWith("#") ? hash.slice(1) || "/" : hash;
+};
+const menuRoute = (): string => {
+  const route = currentRoute();
+  if (route.startsWith("/utilities/")) return "/utilities";
+  if (route === "/layout/container") return "/layout/grid";
+  if (route === "/layout/space") return "/layout/flex";
+  return route;
+};
+const titleIcon = (): string => resolveAppMenuIcon(menuRoute());
+const titleIconColor = (): string => resolveAppMenuIconColor(menuRoute());
+const breadcrumbItems = (): Array<{ label: string; to: string; disabled?: boolean }> => [
+  { label: isChinese() ? "首页" : "Home", to: "/" },
+  { label: eyebrow(), to: "", disabled: true },
+  { label: String(props.title || inferredTag()), to: "" },
+];
 
-useComponents({ "docs-hero-page-header": PageHeader });
+useComponents({
+  "docs-hero-breadcrumb": Breadcrumb,
+  "docs-hero-page-header": PageHeader,
+});
 defineStyle(styles);
 
 const DocsHero = defineHtml<DocsHeroProps, Record<string, never>, DocsHeroSlots>(`
@@ -59,9 +84,16 @@ const DocsHero = defineHtml<DocsHeroProps, Record<string, never>, DocsHeroSlots>
     :tag=${inferredTag()}
     :description=${props.description}
     :version=${metaText()}
+    :titleIcon.prop=${titleIcon()}
+    :titleIconColor.prop=${titleIconColor()}
   >
     <div slot="extra"><slot name="extra"></slot></div>
   </docs-hero-page-header>
+  <docs-hero-breadcrumb
+    class="docs-hero-breadcrumb"
+    router
+    :items.prop=${breadcrumbItems()}
+  ></docs-hero-breadcrumb>
 `);
 
 export { DocsHero };

@@ -1447,7 +1447,7 @@ const Cascader = defineHtml<CascaderProps, CascaderEmits, CascaderSlots>(`
   <div class="trigger" part="trigger" :tabindex=${props.filterable ? undefined : 0}
     role="combobox" :aria-expanded=${open ? "true" : "false"} @click=${toggleOpen}
     @focus=${onTriggerFocus} @blur=${onTriggerBlur} @keydown=${onTriggerKeydown}>
-    <fieldset v-if=${props.label} class="field-outline" aria-hidden="true">
+    <fieldset class="field-outline" aria-hidden="true">
       <legend><span>${props.label}</span></legend>
     </fieldset>
     <span v-if=${props.label} class="field-label">${props.label}</span>

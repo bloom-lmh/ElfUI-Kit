@@ -39,7 +39,7 @@
   overflow: hidden;
   background: var(--m-bg, var(--elf-bg-paper));
   border: var(--m-border, 0);
-  border-radius: var(--m-radius, var(--elf-radius-md));
+  border-radius: var(--m-radius, 0);
   box-shadow: var(--m-shadow, none);
   transition: width var(--elf-transition-base);
 }
@@ -147,26 +147,52 @@
 
 // ───── 搜索 ────────────────────────────────────────
 .menu-search {
-  padding: 8px;
+  padding: 10px 12px 12px;
 
   ::slotted([slot="search"]) {
     display: block;
     width: 100%;
   }
 
+  .search-field {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .search-icon {
+    position: absolute;
+    inset-inline-start: 12px;
+    width: 18px;
+    height: 18px;
+    color: var(--elf-text-secondary);
+    fill: currentColor;
+    pointer-events: none;
+  }
+
   .search-input {
     width: 100%;
     box-sizing: border-box;
-    padding: 6px 10px;
-    border: 1px solid var(--elf-border);
-    border-radius: var(--elf-radius-sm);
-    background: var(--elf-bg-default);
+    min-height: 40px;
+    padding: 8px 12px 8px 38px;
+    border: 1px solid color-mix(in srgb, var(--elf-border) 60%, var(--elf-border-strong));
+    border-radius: var(--elf-radius-md);
+    background: var(--elf-bg-paper);
     color: var(--elf-text-primary);
     font: inherit;
-    font-size: var(--elf-font-size-xs);
+    font-size: var(--elf-font-size-sm);
     outline: none;
+    transition:
+      border-color var(--elf-transition-fast),
+      box-shadow var(--elf-transition-fast);
+
+    &::placeholder {
+      color: var(--elf-text-disabled);
+    }
+
     &:focus {
       border-color: var(--elf-primary);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--elf-primary) 14%, transparent);
     }
   }
 }
@@ -261,6 +287,24 @@
 .menu-item.is-active .menu-icon {
   background: var(--m-active-c, var(--elf-primary));
   color: #fff;
+}
+
+.menu-icon.is-svg {
+  border-radius: 0;
+  background: transparent;
+  color: currentColor;
+  font-weight: 400;
+}
+
+.menu-icon.is-svg svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
+
+.menu-item.is-active .menu-icon.is-svg {
+  background: transparent;
+  color: var(--m-active-c, var(--elf-primary));
 }
 
 .menu-label {

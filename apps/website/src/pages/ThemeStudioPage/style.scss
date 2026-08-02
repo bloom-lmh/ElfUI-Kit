@@ -14,9 +14,9 @@ textarea {
 }
 
 .theme-studio {
-  width: min(100%, 1480px);
+  width: min(85%, 1480px);
   margin-inline: auto;
-  padding-block: 36px 72px;
+  padding-block: 24px 72px;
 }
 
 .studio-hero,
@@ -36,7 +36,10 @@ textarea {
   border: 1px solid var(--elf-border);
   border-radius: 12px;
   background: var(--elf-bg-paper);
-  box-shadow: var(--elf-shadow-1);
+}
+
+.theme-breadcrumb {
+  margin-block: var(--elf-space-4);
 }
 
 .eyebrow {
@@ -55,9 +58,19 @@ p {
 }
 
 h1 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   margin-top: 8px;
   font-size: clamp(30px, 3vw, 44px);
   letter-spacing: -0.035em;
+}
+
+.studio-icon {
+  width: 30px;
+  height: 30px;
+  flex: 0 0 auto;
+  fill: currentColor;
 }
 
 .studio-hero p {
@@ -87,7 +100,7 @@ h1 {
 }
 
 .preset-section {
-  margin-top: 24px;
+  margin-top: 0;
   padding: 24px;
   border: 1px solid var(--elf-border);
   border-radius: 12px;
@@ -415,7 +428,6 @@ h1 {
   border: 1px solid var(--elf-border);
   border-radius: 12px;
   background: var(--elf-bg-paper);
-  box-shadow: var(--elf-shadow-1);
 }
 
 .editor-panel {

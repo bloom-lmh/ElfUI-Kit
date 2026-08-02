@@ -26,7 +26,6 @@ beforeAll(async () => {
   const [
     { PageInstallation },
     { PageUpgradeGuide },
-    { PageBrowserSupport },
     { PageFaq },
     { PageClickOutside },
     { PageIntersect },
@@ -42,7 +41,6 @@ beforeAll(async () => {
   ] = await Promise.all([
     import("./getting-started/InstallationPage/index"),
     import("./getting-started/UpgradeGuidePage/index"),
-    import("./getting-started/BrowserSupportPage/index"),
     import("./getting-started/FaqPage/index"),
     import("./directives/ClickOutsidePage/index"),
     import("./directives/IntersectPage/index"),
@@ -58,9 +56,8 @@ beforeAll(async () => {
   ]);
 
   pages.push(
-    { tag: ensureCustomElement(PageInstallation), title: "Install ElfUI Kit" },
+    { tag: ensureCustomElement(PageInstallation), title: "Installation" },
     { tag: ensureCustomElement(PageUpgradeGuide), title: "Upgrade guide" },
-    { tag: ensureCustomElement(PageBrowserSupport), title: "Browser support" },
     { tag: ensureCustomElement(PageFaq), title: "Frequently asked questions" },
     { tag: ensureCustomElement(PageClickOutside), title: "Click outside" },
     { tag: ensureCustomElement(PageIntersect), title: "Intersect" },
@@ -99,29 +96,22 @@ describe("新文档领域页面", () => {
   it("为不同文档领域提供完整且差异化的学习结构", async () => {
     const expectations = new Map<string, ReadonlyArray<readonly [string, number]>>([
       [
-        "Install ElfUI Kit",
+        "Installation",
         [
           [".docs-checklist li", 4],
           ["elf-code-card", 6],
           ['elf-code-card[variant="workbench"]', 6],
           ['[slot="footer"]', 6],
+          ["elf-quote", 2],
           [".guide-content", 1],
         ],
       ],
       [
         "Upgrade guide",
         [
-          [".release-entry", 3],
-          ["elf-table", 1],
+          ["elf-collapse", 1],
+          ["elf-collapse-item", 3],
           ["elf-code-card", 1],
-          [".guide-content", 1],
-        ],
-      ],
-      [
-        "Browser support",
-        [
-          ["elf-table", 2],
-          [".docs-checklist li", 4],
           [".guide-content", 1],
         ],
       ],
@@ -222,24 +212,37 @@ describe("新文档领域页面", () => {
           `${pageCase.title}: ${selector}`,
         ).toBeGreaterThanOrEqual(minimum);
       }
-      if (pageCase.title === "Install ElfUI Kit") {
-        const cards = Array.from(page.shadowRoot?.querySelectorAll("elf-code-card") || []) as Array<
-          HTMLElement & { code: string }
-        >;
+      if (pageCase.title === "Installation") {
+        interface CodeCardProbe extends HTMLElement {
+          code: string;
+          items: Array<{ key: string; code: string }>;
+        }
+        const cards = Array.from(
+          page.shadowRoot?.querySelectorAll("elf-code-card") || [],
+        ) as Array<CodeCardProbe>;
         expect(cards).toHaveLength(6);
         expect(cards.every((card) => Boolean(card.shadowRoot?.querySelector(".card-header")))).toBe(
           true,
         );
         expect(
           cards.every((card) =>
-            Boolean(card.shadowRoot?.querySelector(".card-title")?.textContent),
+            Boolean(card.shadowRoot?.querySelector(".card-header")?.textContent),
           ),
         ).toBe(true);
-        expect(cards[0]?.code.split("\n")).toEqual([
-          "pnpm create elfui@beta my-app --install --router",
+        expect(cards[0]?.items.map((item) => item.key)).toEqual([
+          "scaffold",
+          "router",
+          "bare",
+          "existing",
+        ]);
+        expect(cards[0]?.items[0]?.code.split("\n")).toEqual([
+          "pnpm create elfui@beta my-app --install",
           "cd my-app",
           "pnpm dev",
         ]);
+        expect(cards[1]?.items.map((item) => item.key)).toEqual(["pnpm", "npm", "yarn"]);
+        expect(cards[1]?.items[0]?.code).toBe("pnpm add @elfui/kit");
+        expect(cards[3]?.items.map((item) => item.key)).toEqual(["utilities", "labs"]);
       }
       page.remove();
     }

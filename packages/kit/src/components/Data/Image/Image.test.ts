@@ -157,7 +157,7 @@ describe("elf-image", () => {
   it("provides motion-safe loading and preview transitions", () => {
     const cssText = readFileSync("packages/kit/src/components/Data/Image/style.scss", "utf8");
     const previewCss = readFileSync("packages/kit/src/components/Data/Image/preview.scss", "utf8");
-    expect(cssText).toContain("img.is-loaded { opacity: 1; }");
+    expect(cssText).toMatch(/img\.is-loaded\s*\{[^}]*opacity:\s*1;/u);
     expect(cssText).toContain("animation: image-pending");
     expect(cssText).toContain("@media (prefers-reduced-motion: reduce)");
     expect(previewCss).toContain("@media (prefers-reduced-motion: reduce)");

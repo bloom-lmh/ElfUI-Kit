@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { mdiViewDashboardOutline } from "@mdi/js";
 import { createOverlayInteractionController } from "../../Common/overlay/overlay-interaction-controller";
@@ -89,6 +90,20 @@ const labels = (el: MenuEl): string[] =>
   );
 
 describe("elf-menu", () => {
+  it("stays square by default and only rounds when rounded is enabled", () => {
+    const base = readFileSync(
+      "packages/kit/src/components/Navigation/Menu/style-base.scss",
+      "utf8",
+    );
+    const mode = readFileSync(
+      "packages/kit/src/components/Navigation/Menu/style-mode.scss",
+      "utf8",
+    );
+
+    expect(base).toContain("border-radius: var(--m-radius, 0)");
+    expect(mode).toContain("border-radius: var(--m-radius, 0)");
+  });
+
   it("renders Material SVG paths while preserving text icon compatibility", async () => {
     const el = document.createElement("elf-menu") as MenuEl;
     el.items = [
@@ -105,6 +120,24 @@ describe("elf-menu", () => {
     expect(icons[0]?.getAttribute("aria-hidden")).toBe("true");
     expect(icons[1]?.classList.contains("is-svg")).toBe(false);
     expect(icons[1]?.textContent?.trim()).toBe("L");
+  });
+
+  it("applies an explicit icon color to SVG menu icons", async () => {
+    const el = document.createElement("elf-menu") as MenuEl;
+    el.items = [
+      {
+        index: "/colored",
+        label: "Colored",
+        icon: mdiViewDashboardOutline,
+        iconColor: "#2e7d32",
+      },
+    ];
+    document.body.appendChild(el);
+    await tick();
+    await tick();
+
+    const icon = el.shadowRoot!.querySelector<HTMLElement>(".menu-icon")!;
+    expect(icon.style.color).toBe("#2e7d32");
   });
 
   it("渲染顶层菜单", async () => {
@@ -383,6 +416,8 @@ describe("elf-menu", () => {
     await tick();
 
     const input = el.shadowRoot!.querySelector<HTMLInputElement>(".search-input")!;
+    expect(el.shadowRoot!.querySelector(".search-field")).toBeTruthy();
+    expect(el.shadowRoot!.querySelector(".search-icon")).toBeTruthy();
     input.value = "Dashboard";
     input.dispatchEvent(new Event("input", { bubbles: true, composed: true }));
     await tick();

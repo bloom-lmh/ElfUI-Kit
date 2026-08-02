@@ -43,6 +43,7 @@ import {
   mdiFormatText,
   mdiFormSelect,
   mdiFormTextbox,
+  mdiFormatHeaderIncrease,
   mdiFrequentlyAskedQuestions,
   mdiGestureTap,
   mdiGestureTapButton,
@@ -112,7 +113,6 @@ import {
   mdiViewSplitVertical,
   mdiViewWeekOutline,
   mdiWatermark,
-  mdiWeb,
 } from "@mdi/js";
 
 const GROUP_ICONS: Readonly<Record<string, string>> = {
@@ -129,16 +129,30 @@ const GROUP_ICONS: Readonly<Record<string, string>> = {
   Labs: mdiFlaskOutline,
 };
 
+const GROUP_ICON_COLORS: Readonly<Record<string, string>> = {
+  Getting: "#1565C0",
+  Guide: "#6A1B9A",
+  Layout: "#00838F",
+  Basic: "#F57F17",
+  Form: "#2E7D32",
+  Feedback: "#C62828",
+  Data: "#0277BD",
+  Navigation: "#4527A0",
+  Picker: "#AD1457",
+  Directives: "#EF6C00",
+  Labs: "#37474F",
+};
+
 const ROUTE_ICONS: Readonly<Record<string, string>> = {
   "/overview": mdiViewGridOutline,
   "/getting-started/installation": mdiPackageDown,
   "/getting-started/upgrade-guide": mdiUpdate,
-  "/getting-started/browser-support": mdiWeb,
   "/getting-started/faq": mdiFrequentlyAskedQuestions,
   "/providers/config": mdiCogOutline,
   "/providers/theme": mdiThemeLightDark,
   "/theme-studio": mdiPaletteOutline,
   "/basic/icon": mdiEmoticonOutline,
+  "/basic/heading": mdiFormatHeaderIncrease,
   "/providers/locale": mdiTranslate,
   "/guide/accessibility": mdiHuman,
   "/guide/build": mdiHammerWrench,
@@ -244,6 +258,28 @@ export const resolveAppMenuIcon = (index: string): string => {
   if (!index.startsWith("group:")) return ROUTE_ICONS[index] || mdiShapeOutline;
   const groupKey = index.slice("group:".length).split(/\s+/u)[0] || "";
   return GROUP_ICONS[groupKey] || mdiShapeOutline;
+};
+
+/** Resolves a Material palette color for each app navigation group. */
+export const resolveAppMenuIconColor = (index: string): string => {
+  if (index.startsWith("group:")) {
+    const groupKey = index.slice("group:".length).split(/\s+/u)[0] || "";
+    return GROUP_ICON_COLORS[groupKey] || "#1565C0";
+  }
+  if (index.startsWith("/getting-started/") || index === "/overview") return "#1565C0";
+  if (index.startsWith("/guide/") || index.startsWith("/providers/") || index === "/theme-studio") {
+    return "#6A1B9A";
+  }
+  if (index.startsWith("/layout/") || index.startsWith("/utilities")) return "#00838F";
+  if (index.startsWith("/basic/")) return "#F57F17";
+  if (index.startsWith("/form/")) return "#2E7D32";
+  if (index.startsWith("/feedback/")) return "#C62828";
+  if (index.startsWith("/data/")) return "#0277BD";
+  if (index.startsWith("/navigation/")) return "#4527A0";
+  if (index.startsWith("/picker/")) return "#AD1457";
+  if (index.startsWith("/directives/")) return "#EF6C00";
+  if (index.startsWith("/labs/")) return "#37474F";
+  return "#1565C0";
 };
 
 export const appMenuIconRoutes = Object.freeze(Object.keys(ROUTE_ICONS));

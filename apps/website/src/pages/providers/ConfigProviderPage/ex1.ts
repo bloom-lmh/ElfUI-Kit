@@ -3,12 +3,8 @@ import { createDocsTranslator } from "../../docsLocale";
 
 const t = createDocsTranslator({
   title: {
-    zh: "配置优先级：基础预设 → 应用配置 → 显式属性",
-    en: "Configuration priority: preset → app config → explicit props",
-  },
-  explanation: {
-    zh: "blueprint 是可复用的基础预设；config 在应用入口覆盖预设；组件上显式传入的属性优先级最高。",
-    en: "blueprint is a reusable base preset; config overrides it at the application entry; explicit component props have the highest priority.",
+    zh: "基础预设 → 应用配置 → 显式属性",
+    en: "Preset → App config → Explicit props",
   },
   merged: { zh: "预设与应用配置的合并结果", en: "Merged preset and app config" },
   explicit: { zh: "显式属性覆盖合并结果", en: "Explicit props override the merge" },
@@ -56,7 +52,6 @@ const PageConfigProviderEx1 = defineHtml(`
   >
     <elf-config-provider :blueprint.prop=${blueprint} :config.prop=${config}>
       <div class="config-priority-demo">
-        <p class="config-demo-copy">${t("explanation")}</p>
         <div class="config-demo-actions">
           <elf-button>${t("merged")}</elf-button>
           <elf-button variant="contained" color="primary">${t("explicit")}</elf-button>

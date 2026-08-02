@@ -58,9 +58,12 @@ elf-layout {
 }
 
 .app-menu {
+  display: block;
+  width: 100%;
   height: 100%;
   border: none;
   border-radius: 0;
+  --m-radius: 0;
 }
 
 .brand {
@@ -92,6 +95,10 @@ elf-layout {
   box-shadow: 0 0 0 1px rgb(255 255 255 / 0.6);
 }
 
+:host-context([data-theme="dark"]) .brand-logo {
+  box-shadow: none;
+}
+
 .spacer {
   flex: 1;
 }
@@ -100,13 +107,42 @@ elf-layout {
   flex: 0 0 auto;
 }
 
-.skin-action {
-  min-width: 112px;
+.language-dropdown {
+  display: inline-flex;
+}
+
+.language-action {
+  min-width: 40px;
+}
+
+.language-action::part(button) {
+  width: 40px;
+  height: 40px;
+}
+
+.language-icon,
+.skin-icon {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
+
+.skin-action,
+.icon-action {
+  min-width: 40px;
   color: var(--elf-primary);
 }
 
-.icon-action {
-  min-width: 40px;
+.skin-action::part(button),
+.icon-action::part(button) {
+  width: 40px;
+  height: 40px;
+}
+
+.collapse-icon {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
 }
 
 .docs-scroll {
@@ -157,6 +193,7 @@ elf-main {
   flex: 1 1 auto;
   min-height: auto;
   overflow: visible;
+  line-height: 1.6;
 }
 
 elf-docs-toc {

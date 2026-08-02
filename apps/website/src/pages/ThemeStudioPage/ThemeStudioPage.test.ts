@@ -1,6 +1,8 @@
+import { readFileSync } from "node:fs";
 import { ensureCustomElement } from "@elfui/core";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
 
+import { resolveAppMenuIcon } from "../../app/menu-icons";
 import { PageThemeStudio } from "./index";
 
 let pageTag = "";
@@ -32,6 +34,13 @@ describe("ThemeStudioPage", () => {
     const root = page.shadowRoot!;
 
     expect(root.querySelector("h1")?.textContent).toContain("主题调色板");
+    expect(root.querySelector(".studio-icon path")?.getAttribute("d")).toBe(
+      resolveAppMenuIcon("/theme-studio"),
+    );
+    const breadcrumb = root.querySelector<HTMLElement>(".theme-breadcrumb");
+    expect(breadcrumb).toBeTruthy();
+    expect(breadcrumb?.shadowRoot?.textContent).toContain("首页");
+    expect(breadcrumb?.shadowRoot?.textContent).toContain("主题调色板");
     expect(root.querySelectorAll(".preset-card")).toHaveLength(5);
     expect(root.querySelectorAll(".material-family")).toHaveLength(19);
     expect(root.querySelectorAll(".tone-grid button")).toHaveLength(14);
@@ -89,5 +98,18 @@ describe("ThemeStudioPage", () => {
     root.querySelector<HTMLButtonElement>('[data-view="preview"]')!.click();
     await tick();
     expect(root.querySelector(".theme-studio")?.getAttribute("data-mobile-view")).toBe("preview");
+  });
+
+  it("keeps the studio hero flat without an outer shadow", () => {
+    const source = readFileSync("apps/website/src/pages/ThemeStudioPage/style.scss", "utf8");
+    const heroBlock = source.slice(source.indexOf(".studio-hero {"), source.indexOf(".eyebrow"));
+    const panelBlock = source.slice(
+      source.indexOf(".editor-panel,"),
+      source.indexOf(".editor-panel {"),
+    );
+
+    expect(heroBlock).toContain("border: 1px solid var(--elf-border);");
+    expect(heroBlock).not.toContain("box-shadow");
+    expect(panelBlock).not.toContain("box-shadow");
   });
 });

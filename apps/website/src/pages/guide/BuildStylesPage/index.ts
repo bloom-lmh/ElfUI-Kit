@@ -64,8 +64,12 @@ defineStyle(pageStyles);
 
 const PageBuildStyles = defineHtml(`
   <elf-container class="build-styles-page">
-    <h1>${t("title")}</h1>
-    <p class="page-lead">${t("description")}</p>
+    <elf-docs-hero
+      category="guide"
+      tag="Guide"
+      :title=${t("title")}
+      :description=${t("description")}
+    ></elf-docs-hero>
 
     <page-build-styles-ex1 />
     <page-build-styles-ex2 />

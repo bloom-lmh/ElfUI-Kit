@@ -17,6 +17,8 @@ interface PageHeaderEl extends HTMLElement {
   title?: string;
   content?: string;
   icon?: string;
+  titleIcon?: string;
+  titleIconColor?: string;
   mode?: string;
   variant?: string;
   align?: string;
@@ -114,6 +116,20 @@ describe("elf-page-header", () => {
     const image = el.shadowRoot!.querySelector(".hero-visual img") as HTMLImageElement;
     expect(image.getAttribute("src")).toBe("/toolbar.png");
     expect(image.getAttribute("alt")).toBe("Toolbar illustration");
+  });
+
+  it("renders a title icon before the hero title", async () => {
+    const el = await mount({
+      mode: "hero",
+      title: "Toolbar",
+      titleIcon: "M0 0h24v24H0z",
+      titleIconColor: "#2e7d32",
+    });
+
+    const icon = el.shadowRoot!.querySelector<HTMLElement>(".hero-title-icon")!;
+    expect(icon).toBeTruthy();
+    expect(icon.querySelector("path")?.getAttribute("d")).toBe("M0 0h24v24H0z");
+    expect(icon.style.color).toBe("#2e7d32");
   });
 
   it.each(["eyebrow", "tag", "description", "meta", "visual"])(

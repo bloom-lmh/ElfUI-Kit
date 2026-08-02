@@ -93,10 +93,9 @@ const t = createDocsTranslator({
   },
   unresolvedTitle: { zh: "仍未解决？", en: "Still blocked?" },
   unresolvedBody: {
-    zh: "先用浏览器支持页面确认环境，再按质量章节的最小复现与门禁方法收集证据。",
-    en: "Confirm the environment against Browser support, then collect evidence using the reproduction and gate guidance in Quality.",
+    zh: "先确认安装页的环境要求，再按质量章节的最小复现与门禁方法收集证据。",
+    en: "Confirm the environment requirements on Installation, then collect evidence using the reproduction and gate guidance in Quality.",
   },
-  browserLink: { zh: "浏览器支持", en: "Browser support" },
   qualityLink: { zh: "质量", en: "Quality" },
   upgradeLink: { zh: "升级指南", en: "Upgrade guide" },
 });
@@ -120,39 +119,101 @@ const releaseFaqs = () => [
   { name: "issue", title: t("issueQ"), content: t("issueA") },
 ];
 
-defineStyle(articleStyles);
+const groups = (): Array<{
+  key: string;
+  title: string;
+  items: Array<{ name: string; title: string; content: string }>;
+}> => [
+  { key: "setup", title: t("start"), items: setupFaqs() },
+  { key: "runtime", title: t("runtime"), items: runtimeFaqs() },
+  { key: "styling", title: t("styling"), items: stylingFaqs() },
+  { key: "release", title: t("release"), items: releaseFaqs() },
+];
+defineStyle(
+  articleStyles,
+  `
+  .faq-list {
+    display: grid;
+    gap: var(--elf-space-3);
+    margin-top: var(--elf-space-4);
+  }
+  .faq-item {
+    position: relative;
+    display: grid;
+    gap: 10px;
+    padding: 20px 22px 20px 26px;
+    border: 1px solid color-mix(in srgb, var(--elf-primary) 18%, var(--elf-border));
+    border-radius: var(--elf-radius-md);
+    background: color-mix(in srgb, var(--elf-primary) 3%, var(--elf-bg-paper));
+    transition:
+      border-color var(--elf-transition-fast),
+      background-color var(--elf-transition-fast);
+  }
+  .faq-item::before {
+    position: absolute;
+    inset: 18px auto 18px 0;
+    width: 4px;
+    border-radius: 0 4px 4px 0;
+    background: var(--elf-primary);
+    content: "";
+  }
+  .faq-item:hover {
+    border-color: color-mix(in srgb, var(--elf-primary) 36%, var(--elf-border));
+    background: color-mix(in srgb, var(--elf-primary) 6%, var(--elf-bg-paper));
+  }
+  .faq-item h3 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    color: var(--elf-text-primary);
+    font-size: var(--elf-font-size-md);
+    font-weight: 700;
+    line-height: 1.5;
+  }
+  .faq-item h3::before {
+    display: inline-grid;
+    width: 22px;
+    height: 22px;
+    flex: 0 0 auto;
+    place-items: center;
+    border-radius: 6px;
+    background: var(--elf-primary);
+    color: var(--elf-text-on-primary);
+    content: "Q";
+    font-size: 11px;
+    font-weight: 800;
+  }
+  .faq-item p {
+    margin: 0;
+    padding-inline-start: 30px;
+    color: var(--elf-text-secondary);
+    line-height: var(--docs-line-height);
+  }
+  `,
+);
 
 const PageFaq = defineHtml(`
-  <elf-container class="docs-article">
+  <elf-container class="docs-article guide-page faq-page">
     <elf-docs-hero category="getting-started" tag="FAQ" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
     <div class="guide-content">
 
-    <section class="docs-section">
-      <h2>${t("start")}</h2>
-      <elf-card class="faq-card" variant="outlined" shadow="never">
-        <elf-collapse accordion model-value="register" :items.prop=${setupFaqs()}></elf-collapse>
-      </elf-card>
-    </section>
-
-    <section class="docs-section">
-      <h2>${t("runtime")}</h2>
-      <elf-card class="faq-card" variant="outlined" shadow="never">
-        <elf-collapse accordion model-value="overlay" :items.prop=${runtimeFaqs()}></elf-collapse>
-      </elf-card>
-    </section>
-
-    <section class="docs-section">
-      <h2>${t("styling")}</h2>
-      <elf-card class="faq-card" variant="outlined" shadow="never">
-        <elf-collapse accordion model-value="theme" :items.prop=${stylingFaqs()}></elf-collapse>
-      </elf-card>
-    </section>
-
-    <section class="docs-section">
-      <h2>${t("release")}</h2>
-      <elf-card class="faq-card" variant="outlined" shadow="never">
-        <elf-collapse accordion model-value="version" :items.prop=${releaseFaqs()}></elf-collapse>
-      </elf-card>
+    <section
+      v-for="group in groups()"
+      :key="group.key"
+      class="docs-section"
+    >
+      <h2>{{ group.title }}</h2>
+      <div class="faq-list">
+        <article
+          v-for="item in group.items"
+          :key="item.name"
+          class="faq-item"
+        >
+          <h3>{{ item.title }}</h3>
+          <p>{{ item.content }}</p>
+        </article>
+      </div>
     </section>
 
     <section class="docs-next" data-docs-toc-ignore>
@@ -161,7 +222,6 @@ const PageFaq = defineHtml(`
         <p>${t("unresolvedBody")}</p>
       </div>
       <div class="docs-link-list">
-        <elf-link href="#/getting-started/browser-support">${t("browserLink")} →</elf-link>
         <elf-link href="#/quality">${t("qualityLink")} →</elf-link>
         <elf-link href="#/getting-started/upgrade-guide">${t("upgradeLink")} →</elf-link>
       </div>

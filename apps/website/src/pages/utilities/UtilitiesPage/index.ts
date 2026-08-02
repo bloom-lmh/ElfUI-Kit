@@ -8,6 +8,10 @@ import { PageUtilitiesDraggable } from "./draggable-demo";
 
 const t = createDocsTranslator({
   title: { zh: "工具类", en: "Utilities" },
+  description: {
+    zh: "按需引入的布局、排版与视觉工具类，覆盖边框、间距、弹性布局、高程、显示与打印等场景。",
+    en: "Optional utility classes for layout, typography, and visual tuning, covering borders, spacing, flex, elevation, display, and print.",
+  },
   preview: { zh: "预览", en: "preview" },
   borderRegion: { zh: "边框定义内容区域", en: "Borders define the content region" },
   skip: { zh: "跳到主要内容", en: "Skip to main content" },
@@ -336,7 +340,12 @@ defineStyle(`${utilityStyles}\n${pageStyles}`);
 
 const PageUtilities = defineHtml(`
   <elf-container>
-    <h1>${t("title")}</h1>
+    <elf-docs-hero
+      category="guide"
+      tag="Utilities"
+      :title=${t("title")}
+      :description=${t("description")}
+    ></elf-docs-hero>
 
     <main class="utility-labs">
       <article

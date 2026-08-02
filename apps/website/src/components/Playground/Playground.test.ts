@@ -1,5 +1,6 @@
 // elf-playground 测试
 
+import { readFileSync } from "node:fs";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
 beforeAll(async () => {
@@ -120,9 +121,9 @@ describe("elf-playground", () => {
     await tick();
     await tick();
 
-    expect(select.getAttribute("variant")).toBe("filled");
+    expect(select.getAttribute("variant")).toBe("outlined");
     expect(select.getAttribute("density")).toBe("comfortable");
-    expect(input.getAttribute("variant")).toBe("filled");
+    expect(input.getAttribute("variant")).toBe("outlined");
     expect(input.getAttribute("density")).toBe("comfortable");
     expect(radios.getAttribute("variant")).toBe("default");
     expect(checks.getAttribute("variant")).toBe("default");
@@ -314,5 +315,15 @@ const onChange = (event) => stuck.set(Boolean(event.detail));`);
     expect(ruler).toBeTruthy();
     expect(header?.nextElementSibling).toBe(ruler);
     expect(ruler?.querySelectorAll(".ruler-label")).toHaveLength(5);
+  });
+
+  it("keeps the card flat without a floating outer shadow", () => {
+    const source = readFileSync("apps/website/src/components/Playground/style.scss", "utf8");
+    const lightHost = source.slice(0, source.indexOf(":host-context"));
+    const darkHost = source.slice(source.indexOf(':host-context([data-theme="dark"])'));
+
+    expect(lightHost).toContain("box-shadow: none;");
+    expect(darkHost).toContain("box-shadow: none;");
+    expect(lightHost).toContain("border: 1px solid var(--elf-border);");
   });
 });

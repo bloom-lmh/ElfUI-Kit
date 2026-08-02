@@ -3,7 +3,7 @@
   width: 100%;
   gap: 0;
   padding: 0;
-  border-radius: var(--elf-radius-md);
+  border-radius: var(--m-radius, 0);
   overflow: visible;
 
   .menu-body {

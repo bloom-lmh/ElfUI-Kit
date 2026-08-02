@@ -56,7 +56,7 @@
   padding-top: 18px;
 }
 
-:host([data-has-label]:not([data-dirty]):not([data-open])) .placeholder {
+:host([data-has-label]:not([data-dirty]):not([data-open]):not(:focus-within)) .placeholder {
   color: transparent;
 }
 

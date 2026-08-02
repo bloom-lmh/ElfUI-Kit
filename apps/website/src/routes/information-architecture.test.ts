@@ -33,7 +33,6 @@ describe("文档信息架构", () => {
       expect.arrayContaining([
         "/getting-started/installation",
         "/getting-started/upgrade-guide",
-        "/getting-started/browser-support",
         "/getting-started/faq",
         "/directives/click-outside",
         "/directives/intersect",
@@ -54,7 +53,6 @@ describe("文档信息架构", () => {
     expect(groupItems("Getting started 快速入门")).toEqual([
       expect.objectContaining({ to: "/getting-started/installation" }),
       expect.objectContaining({ to: "/getting-started/upgrade-guide" }),
-      expect.objectContaining({ to: "/getting-started/browser-support" }),
       expect.objectContaining({ to: "/getting-started/faq" }),
     ]);
   });

@@ -62,6 +62,7 @@ const normalizeCompositionItem = (
     label: title,
     title,
     icon: String(elementValue(element, "icon") ?? ""),
+    iconColor: String(elementValue(element, "iconColor") ?? ""),
     disabled: elementBoolean(element, "disabled"),
     badge: String(elementValue(element, "badge") ?? ""),
     divider: false,

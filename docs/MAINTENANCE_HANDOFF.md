@@ -24,6 +24,28 @@
 
 ## 2. 已经做的工作
 
+### 2026-08-02 CodeCard 图标与表面治理、安装页重排
+
+- CodeCard 新增公开 `icons` prop，支持 file、lineNumbers、format、copy、copied、expand、collapse 的 SVG path 覆盖，默认保持 MDI；圆角统一到 `--elf-radius-md`，边框提升为 border/strong 混合，阴影移除；light 主题渲染暗色卡片，dark 主题渲染亮色卡片，Shiki 配色同步反选。
+- 安装页改为 Installation 定位：环境要求、创建项目、安装、注册、使用、验证、下一步；脚手架、包管理器和可选入口改为 `elf-code-card` 代码组，创建项目说明改为 `-` 列表并增加“已有项目”tab，说明改用 `elf-quote`；公开入口表格与代码卡片同宽，“使用组件”双卡片水平对齐；章节间距收敛，创建项目标题下保留间距，“验证安装”与“下一步”卡片同排且下一步卡片只保留单个推进链接；DocsHero 标题与章节标题共用强调条，文档段落行距统一为 `--docs-line-height: 1.7`。
+- 侧栏切换按钮改用 Backburger/Forwardburger 配套图标；Menu 搜索框升级为 40px 圆角字段，加入放大镜与聚焦光环。DocsHero 并发改动中的相对导入已修正，titleIcon/titleIconColor 使用 property 绑定。
+- 浏览器支持内容已嵌入安装页环境要求，独立 Browser support 路由、导航、图标映射与页面已移除；安装与升级指南共用 guide-page 标题样式，h3 小标题增加强调短线。
+- 后续反馈已撤销 h3 强调短线；环境要求统一行距，支持矩阵与平台能力继续使用 `elf-table`，报告兼容问题引用保持全宽。
+- 安装页 h3 改为带主色底的小节标签并统一上下边距；“编写自己的 Macro 组件？”与“报告兼容问题”引用卡片宽度对齐代码卡片。
+- 引用卡片宽度规则已修正为匹配 `.guide-content` 内任意层级的 `elf-quote`，两张卡片现在真正全宽。
+- 安装页裸段落统一用紧凑 `elf-quote` 包裹，包含环境要求、安装、注册、使用、验证等章节导语。
+- 安装页 quote 按语义区分颜色：一般说明用 info，跨浏览器注意、验证提醒和宏组件版本提醒用 warning。
+- “下一步”卡片下方新增“推荐阅读”卡片，使用 secondary 主色，右列高度与验证清单列更均衡。
+- 新增公开 `elf-heading` 标题组件，位于 `Basic/Heading`，支持 h1-h6 语义层级与 display、hero、page、section、subsection、card、overline、eyebrow、stat、label、caption 共 11 种 Material 变体；新增 `/basic/heading` 双语文档页与 3 个 Playground 案例。
+- 聚焦验证：Heading 组件与 HeadingPage、路由与信息架构共 4 个文件、16 项通过；kit/website typecheck 0 宏错误、0 TypeScript 错误；docs locale `545/545`；website build 1124 模块、kit build 436 模块通过。
+- Heading 新增 eyebrow、index、accent、chip 组合能力，文档新增“风格化标题组合”，展示 10 种编号、强调条、眉题与小标题美学组合。
+- IconPage 新增图标画廊案例，补充 18 个常用图标、尺寸阶梯、语义色和第三方原始 SVG 插槽展示；聚焦验证 Heading/HeadingPage/IconPage 共 3 个文件、10 项通过；docs locale `547/547`；website build 1126 模块、kit build 436 模块通过。
+- npm 发布前审计：`@elfui/kit` 为唯一非 private 包，tarball 仅含 LICENSE、README、lib-dist 与 package.json，website 文件数为 0；`@elfui/core@0.1.0-beta.20`、`@elfui/router@0.1.0-beta.10` 等依赖版本均可在 npm 解析；lib-dist 无 `@elfui/kit-src` 或本地路径泄漏。修复 Image 测试中依赖 SCSS 单行格式的脆弱断言，完整 Kit 测试 138 个文件、1424 项通过；包 README 已补充安装与使用说明。
+- 升级指南版本记录改为受控 `elf-collapse` 手风琴，移除 beta.7 迁移表，保留推荐门禁顺序；FAQ 中指向浏览器支持页的引用已清理，FAQ 重设计待讨论后实施。
+- 文档本地化审计由 `540/540` 变为 `539/539`，website build 1115 个模块通过。
+- 聚焦验证：CodeCard model、CodeCard、CodeCardPage、InstallationPage、information-architecture、DocsHero 共 6 个文件、26 项通过；Kit 与 website typecheck 均为 0 宏错误、0 TypeScript 错误；Prettier、ESLint、CSpell、docs locale `540/540`、website build 1116 模块、kit build 434 模块通过。
+- 浏览器截图验收未在本轮执行。
+
 ### 2026-08-01 组件文档视觉与交互统一批次
 
 - Select、Cascader、TreeSelect 与 Dropdown 的基础案例统一提供 Input 六种字段外观控制；前三者复用已有共享字段表面，Dropdown 补齐相同公开契约、分裂按钮结构、自定义背景和 Material 菜单表面。

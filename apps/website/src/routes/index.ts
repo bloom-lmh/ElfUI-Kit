@@ -29,10 +29,6 @@ export const routes: RouteRecord[] = [
     component: () => import("../pages/getting-started/UpgradeGuidePage/index"),
   },
   {
-    path: "/getting-started/browser-support",
-    component: () => import("../pages/getting-started/BrowserSupportPage/index"),
-  },
-  {
     path: "/getting-started/faq",
     component: () => import("../pages/getting-started/FaqPage/index"),
   },
@@ -137,6 +133,10 @@ export const routes: RouteRecord[] = [
   {
     path: "/basic/button",
     component: () => import("../pages/basic/ButtonPage/index"),
+  },
+  {
+    path: "/basic/heading",
+    component: () => import("../pages/basic/HeadingPage/index"),
   },
   {
     path: "/basic/link",
@@ -515,11 +515,6 @@ export const navItems: NavItem[] = [
     text: "Upgrade guide 升级指南",
     group: "Getting started 快速入门",
   },
-  {
-    to: "/getting-started/browser-support",
-    text: "Browser support 浏览器支持",
-    group: "Getting started 快速入门",
-  },
   { to: "/getting-started/faq", text: "FAQ 常见问题", group: "Getting started 快速入门" },
 
   { to: "/providers/config", text: "Global configuration 全局配置", group: "Guide 指南" },
@@ -541,6 +536,7 @@ export const navItems: NavItem[] = [
   { to: "/layout/toolbar", text: "Toolbar 工具栏", group: "Layout 布局" },
 
   { to: "/basic/button", text: "Button 按钮", group: "Basic 基础" },
+  { to: "/basic/heading", text: "Heading 标题", group: "Basic 基础" },
   { to: "/basic/link", text: "Link 链接", group: "Basic 基础" },
   { to: "/basic/text", text: "Text 文本", group: "Basic 基础" },
   { to: "/basic/quote", text: "Quote 引用", group: "Basic 基础" },

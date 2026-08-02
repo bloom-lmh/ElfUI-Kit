@@ -1,17 +1,21 @@
 import { registerComponents } from "@elfui/core";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
 
+import { Breadcrumb } from "@elfui/kit-src/components/Navigation/Breadcrumb";
 import { OverviewCard } from "@elfui/website-components/OverviewCard";
+import { DocsHero } from "@elfui/website-components/DocsHero";
+import { resolveAppMenuIcon } from "../../app/menu-icons";
 import { filterOverviewGroups, overviewCatalogGroups } from "./catalog";
 import { PageOverview } from "./index";
 
 beforeAll(() => {
   document.documentElement.lang = "zh-CN";
-  registerComponents(OverviewCard, PageOverview);
+  registerComponents(OverviewCard, PageOverview, Breadcrumb, DocsHero);
 });
 
 afterEach(() => {
   document.body.innerHTML = "";
+  history.replaceState(null, "", "/");
 });
 
 const tick = (): Promise<void> => new Promise((resolve) => queueMicrotask(resolve));
@@ -26,17 +30,32 @@ const mountPage = async (): Promise<HTMLElement> => {
   document.body.appendChild(page);
   await tick();
   await tick();
+  await new Promise((resolve) => setTimeout(resolve, 20));
   return page;
 };
 
 describe("OverviewPage", () => {
   it("lists the documented component groups and links the Button card", async () => {
+    window.location.hash = "#/overview";
     const page = await mountPage();
     const root = page.shadowRoot!;
     const cards = root.querySelectorAll("elf-overview-card");
     const button = Array.from(cards).find((card) => card.getAttribute("href") === "/basic/button");
 
-    expect(root.querySelector("h1")?.textContent).toContain("组件总览");
+    const hero = root.querySelector<HTMLElement>("elf-docs-hero")!;
+    expect(hero).toBeTruthy();
+    const pageHeader = Array.from(hero.shadowRoot!.children).find(
+      (child): child is HTMLElement =>
+        child instanceof HTMLElement && Boolean(child.shadowRoot?.querySelector("h1")),
+    )!;
+    expect(pageHeader.shadowRoot?.querySelector("h1")?.textContent).toContain("组件总览");
+    expect(pageHeader.shadowRoot?.querySelector(".hero-title-icon path")?.getAttribute("d")).toBe(
+      resolveAppMenuIcon("/overview"),
+    );
+    const breadcrumb = hero.shadowRoot!.querySelector<HTMLElement>(".docs-hero-breadcrumb");
+    expect(breadcrumb).toBeTruthy();
+    expect(breadcrumb?.shadowRoot?.textContent).toContain("首页");
+    expect(breadcrumb?.shadowRoot?.textContent).toContain("组件总览");
     expect(root.querySelectorAll(".catalog-group")).toHaveLength(10);
     expect(cards.length).toBeGreaterThan(80);
     expect(cards[0]?.getAttribute("href")).toBe("/basic/button");

@@ -3,6 +3,7 @@ import { afterEach, beforeAll, describe, expect, it } from "vitest";
 let exampleTag = "";
 let scaleExampleTag = "";
 let basicExampleTag = "";
+let teleportExampleTag = "";
 let pageTag = "";
 
 beforeAll(async () => {
@@ -11,10 +12,12 @@ beforeAll(async () => {
   const { PageAutocompleteEx5 } = await import("./ex5");
   const { PageAutocompleteEx6 } = await import("./ex6");
   const { PageAutocompleteEx1 } = await import("./ex1");
+  const { PageAutocompleteEx4 } = await import("./ex4");
   const { PageAutocomplete } = await import("./index");
   exampleTag = ensureCustomElement(PageAutocompleteEx5);
   scaleExampleTag = ensureCustomElement(PageAutocompleteEx6);
   basicExampleTag = ensureCustomElement(PageAutocompleteEx1);
+  teleportExampleTag = ensureCustomElement(PageAutocompleteEx4);
   pageTag = ensureCustomElement(PageAutocomplete);
 }, 30_000);
 
@@ -113,5 +116,20 @@ describe("AutocompletePage", () => {
     expect(text).toContain("Creatable entries and long lists");
     expect(text).toContain("Remote empty and error messages");
     expect(text).not.toMatch(/[\u3400-\u9fff]/u);
+  });
+
+  it("promotes the teleport section title into the playground title", async () => {
+    const page = document.createElement(teleportExampleTag);
+    document.body.appendChild(page);
+    await wait();
+
+    const heading = page.shadowRoot!.querySelector("h2");
+    const playground = page.shadowRoot!.querySelector<HTMLElement>("elf-playground")!;
+
+    expect(heading?.hasAttribute("hidden")).toBe(true);
+    expect(heading?.hasAttribute("data-promoted-to-playground")).toBe(true);
+    expect(playground.shadowRoot!.querySelector(".title")?.textContent).toContain(
+      "传送面板与视口定位",
+    );
   });
 });

@@ -21,6 +21,7 @@ import {
   getThemePreset,
 } from "@elfui/kit-src/components/Providers/ThemeProvider/presets";
 import { createDocsPicker, createDocsTranslator } from "../docsLocale";
+import { resolveAppMenuIcon, resolveAppMenuIconColor } from "../../app/menu-icons";
 import {
   THEME_COLOR_FIELDS,
   contrastRatio,
@@ -32,6 +33,8 @@ import styles from "./style.scss?inline";
 
 const DRAFT_KEY = "elfui-theme-studio-draft-v1";
 const pick = createDocsPicker();
+const themeStudioIcon = resolveAppMenuIcon("/theme-studio");
+const themeStudioIconColor = resolveAppMenuIconColor("/theme-studio");
 const t = createDocsTranslator({
   title: { zh: "主题调色板", en: "Theme palette" },
   eyebrow: { zh: "ElfUI 主题工作台", en: "ElfUI theme studio" },
@@ -46,6 +49,10 @@ const t = createDocsTranslator({
   advanced: { zh: "高级", en: "Advanced" },
   export: { zh: "导出配置", en: "Export theme" },
 });
+const themeBreadcrumbItems = (): Array<{ label: string; to: string }> => [
+  { label: pick("首页", "Home"), to: "/" },
+  { label: t("title"), to: "" },
+];
 
 const initialPreset = getThemePreset("material");
 const selectedPreset = useRef(initialPreset.id);
@@ -311,7 +318,10 @@ const PageThemeStudio = defineHtml(`
     <header class="studio-hero">
       <div>
         <span class="eyebrow">${t("eyebrow")}</span>
-        <h1>${t("title")}</h1>
+        <h1>
+          <svg class="studio-icon" viewBox="0 0 24 24" style="color:${themeStudioIconColor}" aria-hidden="true"><path :d=${themeStudioIcon}></path></svg>
+          ${t("title")}
+        </h1>
         <p>${t("description")}</p>
       </div>
       <div class="hero-actions">
@@ -320,6 +330,11 @@ const PageThemeStudio = defineHtml(`
         <elf-button @click=${downloadExport}><elf-icon name="⇩" size="16"></elf-icon>${pick("导出", "Export")}</elf-button>
       </div>
     </header>
+    <elf-breadcrumb
+      class="theme-breadcrumb"
+      router
+      :items.prop=${themeBreadcrumbItems()}
+    ></elf-breadcrumb>
 
     <section class="preset-section" aria-labelledby="preset-title">
       <div class="section-heading">

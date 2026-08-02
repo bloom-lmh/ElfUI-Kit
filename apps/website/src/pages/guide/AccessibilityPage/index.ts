@@ -73,8 +73,12 @@ defineStyle(pageStyles);
 
 const PageAccessibility = defineHtml(`
   <elf-container class="accessibility-page">
-    <h1>${t("title")}</h1>
-    <p class="page-lead">${t("description")}</p>
+    <elf-docs-hero
+      category="guide"
+      tag="Guide"
+      :title=${t("title")}
+      :description=${t("description")}
+    ></elf-docs-hero>
 
     <page-accessibility-ex1 />
     <page-accessibility-ex2 />

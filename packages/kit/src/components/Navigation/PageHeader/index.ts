@@ -25,6 +25,8 @@ const props = defineProps<PageHeaderProps>({
   title: { type: String, default: "Back" },
   content: { type: String, default: "" },
   icon: { type: String, default: "‹" },
+  titleIcon: { type: String, default: "" },
+  titleIconColor: { type: String, default: "" },
   mode: { type: String, default: "standard" },
   variant: { type: String, default: "plain" },
   align: { type: String, default: "start" },
@@ -46,6 +48,7 @@ const variant = (): PageHeaderVariant =>
   normalize(props.variant, ["plain", "card", "banner"], "plain");
 const align = (): PageHeaderAlign => normalize(props.align, ["start", "center"], "start");
 const tone = (): PageHeaderTone => normalize(props.tone, ["default", "primary", "dark"], "default");
+const titleIconStyle = (): string => (props.titleIconColor ? `color:${props.titleIconColor}` : "");
 const rootClass = (): unknown[] => [
   "page-header",
   `is-${mode()}`,
@@ -98,6 +101,9 @@ const PageHeader = defineHtml<PageHeaderProps, PageHeaderEmits, PageHeaderSlots>
         <div class="hero-content">
           <div class="hero-eyebrow" part="breadcrumb"><slot name="eyebrow">${props.eyebrow}</slot></div>
           <div class="hero-title-row">
+            <span v-if=${props.titleIcon} class="hero-title-icon" part="title-icon" :style=${titleIconStyle()} aria-hidden="true">
+              <svg viewBox="0 0 24 24" focusable="false"><path :d=${props.titleIcon}></path></svg>
+            </span>
             <h1 class="hero-title" part="title"><slot name="title">${props.title}</slot></h1>
             <span class="hero-tag" part="tag"><slot name="tag">${props.tag}</slot></span>
           </div>

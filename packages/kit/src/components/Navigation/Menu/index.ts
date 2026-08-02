@@ -16,6 +16,7 @@ import {
   useEffect,
   defineHtml,
 } from "@elfui/core";
+import { mdiMagnify } from "@mdi/js";
 
 import baseStyles from "./style-base.scss?inline";
 import modeStyles from "./style-mode.scss?inline";
@@ -652,6 +653,9 @@ const itemStyle = (item: MenuViewItem): Record<string, string> => {
   return { paddingLeft: `${12 + item.level * (Number(props.indent) || 20)}px` };
 };
 
+const itemIconStyle = (item: MenuViewItem): Record<string, string> =>
+  item.iconColor ? { color: item.iconColor } : {};
+
 const itemAriaCurrent = (item: MenuViewItem): "page" | undefined =>
   isActive(item.index) ? "page" : undefined;
 
@@ -817,7 +821,10 @@ const Menu = defineHtml<MenuRuntimeProps, Record<string, never>, MenuSlots>(`
 
         <div class="menu-search" v-if=${props.searchable && !isHorizontal && !isCollapsed} @input=${onCustomSearchInput}>
             <slot name="search">
-                <input class="search-input" :value=${searchText} :placeholder=${props.searchPlaceholder || locale.t("menu.search")} @input=${onSearchInput} />
+                <div class="search-field">
+                    <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true"><path :d=${mdiMagnify}></path></svg>
+                    <input class="search-input" :value=${searchText} :placeholder=${props.searchPlaceholder || locale.t("menu.search")} @input=${onSearchInput} />
+                </div>
             </slot>
         </div>
 
@@ -842,7 +849,7 @@ const Menu = defineHtml<MenuRuntimeProps, Record<string, never>, MenuSlots>(`
                         @mouseenter="onItemEnter(item)"
                         @mouseleave="onItemLeave(item)"
                     >
-                        <span v-if="item.icon" class="menu-icon" :class="{ 'is-svg': isSvgIconPath(item.icon) }" aria-hidden="true">
+                        <span v-if="item.icon" class="menu-icon" :class="{ 'is-svg': isSvgIconPath(item.icon) }" :style="itemIconStyle(item)" aria-hidden="true">
                             <svg v-if="isSvgIconPath(item.icon)" viewBox="0 0 24 24" focusable="false"><path :d="item.icon"></path></svg>
                             <span v-else>{{ item.icon }}</span>
                         </span>
@@ -883,7 +890,7 @@ const Menu = defineHtml<MenuRuntimeProps, Record<string, never>, MenuSlots>(`
                             :aria-expanded="item.hasChildren ? String(isOpen(item.index)) : undefined"
                             @click="onItemClick(item, $event)"
                         >
-                            <span v-if="item.icon" class="menu-icon" :class="{ 'is-svg': isSvgIconPath(item.icon) }" aria-hidden="true">
+                            <span v-if="item.icon" class="menu-icon" :class="{ 'is-svg': isSvgIconPath(item.icon) }" :style="itemIconStyle(item)" aria-hidden="true">
                                 <svg v-if="isSvgIconPath(item.icon)" viewBox="0 0 24 24" focusable="false"><path :d="item.icon"></path></svg>
                                 <span v-else>{{ item.icon }}</span>
                             </span>
@@ -920,7 +927,7 @@ const Menu = defineHtml<MenuRuntimeProps, Record<string, never>, MenuSlots>(`
                         @mouseenter="onItemEnter(item)"
                         @mouseleave="onItemLeave(item)"
                     >
-                        <span v-if="item.icon" class="menu-icon" :class="{ 'is-svg': isSvgIconPath(item.icon) }" aria-hidden="true">
+                        <span v-if="item.icon" class="menu-icon" :class="{ 'is-svg': isSvgIconPath(item.icon) }" :style="itemIconStyle(item)" aria-hidden="true">
                             <svg v-if="isSvgIconPath(item.icon)" viewBox="0 0 24 24" focusable="false"><path :d="item.icon"></path></svg>
                             <span v-else>{{ item.icon }}</span>
                         </span>
@@ -961,7 +968,7 @@ const Menu = defineHtml<MenuRuntimeProps, Record<string, never>, MenuSlots>(`
                         @mouseenter="onSubItemEnter(item)"
                         @mouseleave=${onSubItemLeave}
                     >
-                        <span v-if="item.icon" class="menu-icon" :class="{ 'is-svg': isSvgIconPath(item.icon) }" aria-hidden="true">
+                        <span v-if="item.icon" class="menu-icon" :class="{ 'is-svg': isSvgIconPath(item.icon) }" :style="itemIconStyle(item)" aria-hidden="true">
                             <svg v-if="isSvgIconPath(item.icon)" viewBox="0 0 24 24" focusable="false"><path :d="item.icon"></path></svg>
                             <span v-else>{{ item.icon }}</span>
                         </span>
@@ -989,7 +996,7 @@ const Menu = defineHtml<MenuRuntimeProps, Record<string, never>, MenuSlots>(`
                             :aria-disabled='item.disabled ? "true" : undefined'
                             @click="onItemClick(item, $event)"
                         >
-                            <span v-if="item.icon" class="menu-icon" :class="{ 'is-svg': isSvgIconPath(item.icon) }" aria-hidden="true">
+                            <span v-if="item.icon" class="menu-icon" :class="{ 'is-svg': isSvgIconPath(item.icon) }" :style="itemIconStyle(item)" aria-hidden="true">
                                 <svg v-if="isSvgIconPath(item.icon)" viewBox="0 0 24 24" focusable="false"><path :d="item.icon"></path></svg>
                                 <span v-else>{{ item.icon }}</span>
                             </span>

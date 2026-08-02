@@ -9,6 +9,7 @@ export interface MenuFieldNames {
   label?: string;
   title?: string;
   icon?: string;
+  iconColor?: string;
   disabled?: string;
   children?: string;
   badge?: string;
@@ -32,6 +33,7 @@ export interface MenuItem {
   label?: string;
   title?: string;
   icon?: string;
+  iconColor?: string;
   disabled?: boolean;
   children?: MenuItem[];
   badge?: string | number;
@@ -94,6 +96,7 @@ export interface SubMenuProps {
   index: string;
   title?: string;
   icon?: string;
+  iconColor?: string;
   badge?: string | number;
   disabled?: boolean;
   popperClass?: string;
@@ -112,6 +115,7 @@ export interface MenuItemProps {
   index: string;
   title?: string;
   icon?: string;
+  iconColor?: string;
   badge?: string | number;
   route?: string | Record<string, unknown>;
   disabled?: boolean;

@@ -11,7 +11,6 @@ import {
 import styles from "./style.scss?inline";
 
 const t = createDocsTranslator({
-  kicker: { zh: "组件目录", en: "Component catalog" },
   heading: { zh: "Overview 组件总览", en: "Component overview" },
   description: {
     zh: "以下是 ElfUI Kit 当前提供的组件、Provider 与指令。选择卡片即可查看交互示例、源码和 API。",
@@ -69,15 +68,22 @@ defineStyle(styles);
 
 const PageOverview = defineHtml(`
   <main class="overview">
-    <header class="intro">
-      <span class="kicker">${t("kicker")}</span>
-      <h1><span aria-hidden="true">#</span>${t("heading")}</h1>
-      <p>${t("description")}</p>
-    </header>
+    <elf-docs-hero
+      category="component"
+      tag="Overview"
+      :title=${t("heading")}
+      :description=${t("description")}
+    ></elf-docs-hero>
 
     <div class="search-field">
-      <span class="search-icon" aria-hidden="true"></span>
-      <label class="sr-only" for="overview-search">${t("searchLabel")}</label>
+      <span
+        class="search-icon"
+        aria-hidden="true"
+      ></span>
+      <label
+        class="sr-only"
+        for="overview-search"
+      >${t("searchLabel")}</label>
       <input
         id="overview-search"
         type="search"
@@ -85,13 +91,24 @@ const PageOverview = defineHtml(`
         :placeholder=${t("searchPlaceholder")}
         @input=${onSearch}
       />
-      <span class="sr-only" role="status" aria-live="polite">
+      <span
+        class="sr-only"
+        role="status"
+        aria-live="polite"
+      >
         ${resultCount()} ${t("results")}
       </span>
     </div>
 
-    <div v-if=${visibleGroups.value.length > 0} class="catalog">
-      <section v-for="group in visibleGroups.value" :key="group.id" class="catalog-group">
+    <div
+      v-if=${visibleGroups.value.length > 0}
+      class="catalog"
+    >
+      <section
+        v-for="group in visibleGroups.value"
+        :key="group.id"
+        class="catalog-group"
+      >
         <div class="group-heading">
           <div>
             <h2>{{ group.label }} <span>{{ group.items.length }}</span></h2>
@@ -124,7 +141,11 @@ const PageOverview = defineHtml(`
       </section>
     </div>
 
-    <section v-else class="empty-state" role="status">
+    <section
+      v-else
+      class="empty-state"
+      role="status"
+    >
       <span aria-hidden="true">?</span>
       <h2>${t("emptyTitle")}</h2>
       <p>${t("emptyDescription")}</p>

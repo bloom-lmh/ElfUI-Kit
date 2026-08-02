@@ -2,14 +2,17 @@ import { afterEach, beforeAll, describe, expect, it } from "vitest";
 
 let providerExampleTag = "";
 let accessibilityExampleTag = "";
+let galleryExampleTag = "";
 
 beforeAll(async () => {
   await import("../../../components");
   const { ensureCustomElement } = await import("@elfui/core");
   const { PageIconEx2 } = await import("./ex2");
   const { PageIconEx3 } = await import("./ex3");
+  const { PageIconEx4 } = await import("./ex4");
   providerExampleTag = ensureCustomElement(PageIconEx2);
   accessibilityExampleTag = ensureCustomElement(PageIconEx3);
+  galleryExampleTag = ensureCustomElement(PageIconEx4);
 });
 
 afterEach(() => {
@@ -22,6 +25,19 @@ const tick = async (): Promise<void> => {
 };
 
 describe("Icon documentation", () => {
+  it("renders the expanded icon gallery with raw SVG and size ladders", async () => {
+    const page = document.createElement(galleryExampleTag);
+    document.body.appendChild(page);
+    await tick();
+
+    expect(page.shadowRoot!.querySelector(".icon-gallery-grid")).toBeTruthy();
+    expect(page.shadowRoot!.querySelectorAll(".icon-gallery-token").length).toBeGreaterThanOrEqual(
+      18,
+    );
+    expect(page.shadowRoot!.querySelector(".icon-size-ladder")).toBeTruthy();
+    expect(page.shadowRoot!.querySelector(".icon-raw-svg-preview")).toBeTruthy();
+  });
+
   it("switches the provider set and keeps an explicit missing-icon fallback", async () => {
     const page = document.createElement(providerExampleTag);
     document.body.appendChild(page);

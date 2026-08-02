@@ -150,6 +150,26 @@ describe("elf-breadcrumb", () => {
     expect(el.shadowRoot!.querySelector(".is-current")?.textContent).toContain("Docs");
   });
 
+  it("prevents disabled router links from navigating", async () => {
+    const el = await mount({
+      router: true,
+      items: [
+        { label: "Home", to: "/", disabled: true },
+        { label: "Current", to: "/current" },
+      ],
+    });
+    const onClick = vi.fn();
+    el.addEventListener("click", onClick as unknown as EventListener);
+    const link = el.shadowRoot!.querySelector<HTMLAnchorElement>(".breadcrumb-link")!;
+    const event = new MouseEvent("click", { bubbles: true, cancelable: true });
+
+    link.dispatchEvent(event);
+    await tick();
+
+    expect(event.defaultPrevented).toBe(true);
+    expect(onClick).not.toHaveBeenCalled();
+  });
+
   it("supports compositional breadcrumb items and parent-managed separators", async () => {
     const el = document.createElement("elf-breadcrumb") as BreadcrumbEl;
     el.router = true;

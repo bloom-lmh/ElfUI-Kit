@@ -16,8 +16,10 @@ describe("CodeCard model", () => {
     expect(normalizeCodeCardLanguage("TS")).toBe("typescript");
     expect(normalizeCodeCardLanguage("shell")).toBe("bash");
     expect(normalizeCodeCardLanguage("unknown-language")).toBe("plaintext");
-    expect(resolveCodeCardTheme("material", "dark")).toBe("material-theme-palenight");
-    expect(resolveCodeCardTheme("vitesse", "light")).toBe("vitesse-light");
+    expect(resolveCodeCardTheme("github", "light")).toBe("github-dark");
+    expect(resolveCodeCardTheme("github", "dark")).toBe("github-light");
+    expect(resolveCodeCardTheme("material", "dark")).toBe("material-theme-lighter");
+    expect(resolveCodeCardTheme("vitesse", "light")).toBe("vitesse-dark");
   });
 
   it("returns line-preserving syntax tokens", async () => {

@@ -47,7 +47,7 @@ const t = createDocsTranslator({
 
 defineStyle(
   articleStyles,
-  `.labs-warning { margin-bottom: var(--elf-space-5); } .labs-heatmap { width: min(760px, 100%); }`,
+  `.labs-warning { margin-bottom: var(--elf-space-4); } .labs-heatmap { width: min(760px, 100%); }`,
 );
 
 const columns = () =>

@@ -469,7 +469,7 @@ defineStyle(styles);
 const ColorPicker = defineHtml(`
     <div :class=${["color-picker", { "is-disabled": isDisabled(), "is-open": open }]}>
         <div class="trigger">
-            <fieldset v-if=${props.label} class="field-outline" aria-hidden="true">
+            <fieldset class="field-outline" aria-hidden="true">
                 <legend><span>${props.label}</span></legend>
             </fieldset>
             <span v-if=${props.label} class="field-label">${props.label}</span>

@@ -4,6 +4,7 @@ import {
   NavigationFailureType,
   type Router,
 } from "@elfui/router";
+import { mdiBackburger, mdiForwardburger, mdiThemeLightDark, mdiTranslate } from "@mdi/js";
 import {
   defineHtml,
   defineStyle,
@@ -12,12 +13,13 @@ import {
   useComputed,
   useEffect,
   useRef,
+  useTemplateRef,
 } from "@elfui/core";
 
 import type { LocaleMessages } from "@elfui/kit-src/components/Providers/context";
 import type { ElfUIConfig } from "@elfui/kit-src/components/Providers/config";
 import { navItems } from "../../routes";
-import { resolveAppMenuIcon } from "../menu-icons";
+import { resolveAppMenuIcon, resolveAppMenuIconColor } from "../menu-icons";
 import { APP_SKINS, type AppSkin } from "../skins";
 import styles from "./style.scss?inline";
 
@@ -29,6 +31,7 @@ interface AppMenuItem {
   index: string;
   label: string;
   icon: string;
+  iconColor: string;
   children?: AppMenuItem[];
 }
 
@@ -194,6 +197,10 @@ const compactViewport = useRef(false);
 const mobileMenuOpen = useRef(false);
 const active = useRef(readCurrentPath());
 const routeLoading = useRef(false);
+const languageTrigger = useTemplateRef<HTMLElement>("languageTrigger");
+const languageDropdown = useTemplateRef<HTMLElement & { virtualRef?: HTMLElement | null }>(
+  "languageDropdown",
+);
 let removeHashListener = (): void => {};
 let removeViewportListener = (): void => {};
 let routeHookRouter: Router | null = null;
@@ -217,10 +224,22 @@ const providerConfig = (): ElfUIConfig => ({
 const text = (zh: string, en: string): string => (isEnglish() ? en : zh);
 const localizeLabel = (label: string): string =>
   isEnglish() ? englishLabel(label) : chineseLabel(label);
+const tocLabel = (): string => {
+  const item = navItems.find((entry) => entry.to === active.value);
+  return item ? localizeLabel(item.text) : text("本页目录", "On this page");
+};
 const collapseIcon = (): string =>
-  compactViewport.value ? (mobileMenuOpen.value ? "✕" : "☰") : collapsed.value ? "☰" : "✕";
-const languageLabel = (): string => (isEnglish() ? "中文" : "English");
-const skinLabel = (): string => `● ${currentSkin().label}`;
+  compactViewport.value
+    ? mobileMenuOpen.value
+      ? mdiBackburger
+      : mdiForwardburger
+    : collapsed.value
+      ? mdiForwardburger
+      : mdiBackburger;
+const languageItems = (): Array<{ label: string; command: string }> => [
+  { label: "中文", command: "zh-CN" },
+  { label: "English", command: "en-US" },
+];
 const appMessage = (key: string): string =>
   String((currentMessages().app as Record<string, string>)[key] || key);
 const isHome = (): boolean => active.value === "/" || active.value === "";
@@ -229,7 +248,12 @@ const menuItems = useComputed((): AppMenuItem[] => {
   const groups: Record<string, AppMenuItem[]> = {};
   const top: AppMenuItem[] = [];
   for (const { to, text: label, group } of navItems) {
-    const item = { index: to, label: localizeLabel(label), icon: resolveAppMenuIcon(to) };
+    const item = {
+      index: to,
+      label: localizeLabel(label),
+      icon: resolveAppMenuIcon(to),
+      iconColor: resolveAppMenuIconColor(to),
+    };
     if (group) (groups[group] ??= []).push(item);
     else top.push(item);
   }
@@ -238,6 +262,7 @@ const menuItems = useComputed((): AppMenuItem[] => {
       index: `group:${group}`,
       label: localizeLabel(group),
       icon: resolveAppMenuIcon(`group:${group}`),
+      iconColor: resolveAppMenuIconColor(`group:${group}`),
       children,
     });
   }
@@ -263,11 +288,13 @@ const cycleSkin = (): void => {
   }
 };
 
-const toggleLocale = (): void => {
-  localeName.set(isEnglish() ? "zh-CN" : "en-US");
+const setLocale = (next: string): void => {
+  const normalized = next === "en-US" ? "en-US" : "zh-CN";
+  if (normalized === localeName.value) return;
+  localeName.set(normalized);
   applyDocumentSkin();
   try {
-    localStorage.setItem(LOCALE_KEY, localeName.value);
+    localStorage.setItem(LOCALE_KEY, normalized);
   } catch {
     /* storage unavailable */
   }
@@ -282,6 +309,11 @@ const toggleLocale = (): void => {
       force: true,
     });
   }
+};
+
+const onLanguageCommand = (event: Event): void => {
+  const detail = (event as CustomEvent<{ command: unknown }>).detail;
+  setLocale(String(detail?.command ?? ""));
 };
 
 const toggleCollapsed = (): void => {
@@ -350,6 +382,9 @@ onMounted(() => {
   applyDocumentSkin();
   active.set(readCurrentPath());
   registerRouteLoadingHooks();
+  if (languageDropdown.value && languageTrigger.value) {
+    languageDropdown.value.virtualRef = languageTrigger.value;
+  }
   if (typeof window === "undefined") return;
   const syncFromHash = () => active.set(readHashPath());
   window.addEventListener("hashchange", syncFromHash);
@@ -408,9 +443,29 @@ const App = defineHtml(`
             <span>ElfUI</span>
           </button>
           <span class="spacer"></span>
-          <elf-button class="header-action" variant="text" size="sm" :title=${appMessage("language")} @click=${toggleLocale}>${languageLabel()}</elf-button>
-          <elf-button class="header-action skin-action" variant="text" size="sm" :title=${appMessage("skin")} @click=${cycleSkin}>${skinLabel()}</elf-button>
-          <elf-button class="header-action icon-action" variant="text" size="sm" :title=${appMessage("collapse")} @click=${toggleCollapsed}>${collapseIcon()}</elf-button>
+          <elf-button
+            ref="languageTrigger"
+            class="header-action language-action"
+            variant="text"
+            size="md"
+            circle
+            :aria-label=${appMessage("language")}
+            :title=${appMessage("language")}
+          >
+            <svg class="language-icon" viewBox="0 0 24 24" aria-hidden="true"><path :d=${mdiTranslate}></path></svg>
+          </elf-button>
+          <elf-dropdown
+            ref="languageDropdown"
+            class="language-dropdown"
+            virtual-triggering
+            trigger="click"
+            placement="bottom-end"
+            :items.prop=${languageItems()}
+            :showArrow.prop=${false}
+            @command=${onLanguageCommand}
+          ></elf-dropdown>
+          <elf-button class="header-action skin-action" variant="text" size="md" circle :aria-label=${appMessage("skin")} :title=${appMessage("skin")} @click=${cycleSkin}><svg class="skin-icon" viewBox="0 0 24 24" aria-hidden="true"><path :d=${mdiThemeLightDark}></path></svg></elf-button>
+          <elf-button class="header-action icon-action" variant="text" size="md" circle :aria-label=${appMessage("collapse")} :title=${appMessage("collapse")} @click=${toggleCollapsed}><svg class="collapse-icon" viewBox="0 0 24 24" aria-hidden="true"><path :d=${collapseIcon()}></path></svg></elf-button>
         </elf-header>
 
         <elf-layout direction="horizontal">
@@ -419,6 +474,7 @@ const App = defineHtml(`
               v-if=${isEnglish()}
               key="en-menu"
               class="app-menu"
+              width="100%"
               searchable
               unique-opened
               :search-placeholder=${appMessage("search")}
@@ -433,6 +489,7 @@ const App = defineHtml(`
               v-else
               key="zh-menu"
               class="app-menu"
+              width="100%"
               searchable
               unique-opened
               :search-placeholder=${appMessage("search")}
@@ -466,7 +523,7 @@ const App = defineHtml(`
                 </elf-main>
                 <elf-docs-toc
                   :routeKey=${active.value + ":" + localeName.value}
-                  :label=${text("本页目录", "On this page")}
+                  :label=${tocLabel()}
                 ></elf-docs-toc>
               </div>
             </div>

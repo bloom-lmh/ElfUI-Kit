@@ -154,6 +154,30 @@ describe("elf-code-card", () => {
     expect(root.querySelector(".card-header > .card-actions")).toBeTruthy();
   });
 
+  it("supports custom icon path overrides", async () => {
+    const card = await createCard((element) => {
+      element.code = "const custom = true;";
+      element.icons = {
+        file: "M1",
+        lineNumbers: "M2",
+        format: "M3",
+        copy: "M4",
+        copied: "M5",
+        expand: "M6",
+        collapse: "M7",
+      };
+    });
+    const root = card.shadowRoot!;
+
+    expect(root.querySelector(".file-mark path")?.getAttribute("d")).toBe("M1");
+    expect(root.querySelector('[aria-label="Hide line numbers"] path')?.getAttribute("d")).toBe(
+      "M2",
+    );
+    expect(root.querySelector('[aria-label="Format code"] path')?.getAttribute("d")).toBe("M3");
+    expect(root.querySelector('[aria-label="Copy code"] path')?.getAttribute("d")).toBe("M4");
+    expect(root.querySelector('[aria-label="Collapse code"] path')?.getAttribute("d")).toBe("M7");
+  });
+
   it("reveals focused context interactively and renders an optional footer slot", async () => {
     const footer = document.createElement("div");
     footer.slot = "footer";

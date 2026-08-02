@@ -55,3 +55,12 @@
 - The rendered `<pre><code>` loop contains no whitespace text nodes; framework `v-for` comment anchors remain non-visual.
 - All six installation examples use the workbench shell with filenames and footers, so every card has a visible header and contextual footer.
 - Focused Vitest passes 4 files / 19 tests, including exact source-line and installation-header regression coverage. Browser verification remains assigned to the user.
+
+## 2026-08-02 Icon overrides and surface polish
+
+- [x] Add the public `icons` prop for SVG path overrides of file, toolbar, and copy-state icons while keeping MDI defaults.
+- [x] Normalize all card shells to the semantic `--elf-radius-md` token and strengthen the border.
+- [x] Remove card shadows; light themes render dark cards and dark themes render light cards, with matched inverse Shiki palettes.
+- [x] Add a component regression covering every icon override path.
+- [x] The installation page now uses grouped `elf-code-card` tabs and `elf-quote` notes; docs paragraphs use one fixed line-height variable.
+- Browser screenshot acceptance remains pending.

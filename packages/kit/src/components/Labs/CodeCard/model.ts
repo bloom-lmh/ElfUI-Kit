@@ -149,11 +149,11 @@ export const resolveCodeCardTheme = (
   codeTheme: CodeCardCodeTheme,
   scheme: Exclude<CodeCardTheme, "auto">,
 ): string => {
-  if (codeTheme === "vitesse") return scheme === "dark" ? "vitesse-dark" : "vitesse-light";
+  if (codeTheme === "vitesse") return scheme === "dark" ? "vitesse-light" : "vitesse-dark";
   if (codeTheme === "material") {
-    return scheme === "dark" ? "material-theme-palenight" : "material-theme-lighter";
+    return scheme === "dark" ? "material-theme-lighter" : "material-theme-palenight";
   }
-  return scheme === "dark" ? "github-dark" : "github-light";
+  return scheme === "dark" ? "github-light" : "github-dark";
 };
 
 /** Produces line-preserving Shiki tokens for syntax rendering and line decoration. */
