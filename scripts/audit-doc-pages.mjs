@@ -1,15 +1,20 @@
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import ts from "typescript";
 
 const root = resolve(process.cwd());
-const pagesRoot = join(root, "src", "pages");
-const routesSource = readFileSync(join(root, "src", "routes", "index.ts"), "utf8");
+const websiteSourceRoot = existsSync(join(root, "apps", "website", "src"))
+  ? join(root, "apps", "website", "src")
+  : join(root, "src");
+const pagesRoot = join(websiteSourceRoot, "pages");
+const routesRoot = join(websiteSourceRoot, "routes");
+const routesSource = readFileSync(join(routesRoot, "index.ts"), "utf8");
 
-const walk = (directory) => readdirSync(directory).flatMap((entry) => {
-  const path = join(directory, entry);
-  return statSync(path).isDirectory() ? walk(path) : [path];
-});
+const walk = (directory) =>
+  readdirSync(directory).flatMap((entry) => {
+    const path = join(directory, entry);
+    return statSync(path).isDirectory() ? walk(path) : [path];
+  });
 
 const routePattern = /path:\s*"([^"]+)"[\s\S]*?component:\s*\(\)\s*=>\s*import\("([^"]+)"\)/g;
 const routes = [];
@@ -21,7 +26,13 @@ for (const match of routesSource.matchAll(routePattern)) {
 
 const stringConstants = (source, filename) => {
   const values = new Map();
-  const file = ts.createSourceFile(filename, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+  const file = ts.createSourceFile(
+    filename,
+    source,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TS,
+  );
   const visit = (node) => {
     if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && node.initializer) {
       if (ts.isStringLiteralLike(node.initializer)) {
@@ -54,12 +65,23 @@ const needsScript = (code) => ({
   event: /@[\w:-]+\s*=/.test(code),
   model: /v-model|:model-?value|:modelValue/.test(code),
   directive: /v-(?:for|if|show)\s*=/.test(code),
-  dynamic: /\$\{[^}]+\}|:[\w-]+(?:\.prop)?\s*=/.test(code)
+  dynamic: /\$\{[^}]+\}|:[\w-]+(?:\.prop)?\s*=/.test(code),
 });
 
 const ignoredIdentifiers = new Set([
-  "true", "false", "null", "undefined", "event", "Math", "Date",
-  "String", "Number", "Array", "Object", "JSON", "$event"
+  "true",
+  "false",
+  "null",
+  "undefined",
+  "event",
+  "Math",
+  "Date",
+  "String",
+  "Number",
+  "Array",
+  "Object",
+  "JSON",
+  "$event",
 ]);
 
 const expressionIdentifiers = (expression) => {
@@ -68,7 +90,7 @@ const expressionIdentifiers = (expression) => {
     `const __auditExpression = (${expression});`,
     ts.ScriptTarget.Latest,
     true,
-    ts.ScriptKind.TS
+    ts.ScriptKind.TS,
   );
   const locals = new Set(["__auditExpression"]);
   const collectBindings = (name) => {
@@ -89,11 +111,20 @@ const expressionIdentifiers = (expression) => {
   const visit = (node) => {
     if (ts.isIdentifier(node)) {
       const parent = node.parent;
-      const isPropertyName = (ts.isPropertyAccessExpression(parent) && parent.name === node)
-        || (ts.isPropertyAssignment(parent) && parent.name === node && !ts.isShorthandPropertyAssignment(parent))
-        || (ts.isMethodDeclaration(parent) && parent.name === node);
-      const isDeclaration = (ts.isVariableDeclaration(parent) || ts.isParameter(parent)) && parent.name === node;
-      if (!isPropertyName && !isDeclaration && !locals.has(node.text) && !ignoredIdentifiers.has(node.text)) {
+      const isPropertyName =
+        (ts.isPropertyAccessExpression(parent) && parent.name === node) ||
+        (ts.isPropertyAssignment(parent) &&
+          parent.name === node &&
+          !ts.isShorthandPropertyAssignment(parent)) ||
+        (ts.isMethodDeclaration(parent) && parent.name === node);
+      const isDeclaration =
+        (ts.isVariableDeclaration(parent) || ts.isParameter(parent)) && parent.name === node;
+      if (
+        !isPropertyName &&
+        !isDeclaration &&
+        !locals.has(node.text) &&
+        !ignoredIdentifiers.has(node.text)
+      ) {
         names.add(node.text);
       }
     }
@@ -125,7 +156,7 @@ const codeDependencies = (code) => {
 
 const uniqueRoutes = new Map();
 for (const route of routes) {
-  const pageDirectory = dirname(resolve(join(root, "src", "routes"), route.importPath));
+  const pageDirectory = dirname(resolve(routesRoot, route.importPath));
   const key = relative(pagesRoot, pageDirectory).replaceAll("\\", "/");
   const current = uniqueRoutes.get(key) || { page: key, routes: [], pageDirectory };
   current.routes.push(route.path);
@@ -134,7 +165,9 @@ for (const route of routes) {
 
 const pages = [];
 for (const entry of uniqueRoutes.values()) {
-  const files = walk(entry.pageDirectory).filter((file) => file.endsWith(".ts") && !file.endsWith(".test.ts"));
+  const files = walk(entry.pageDirectory).filter(
+    (file) => file.endsWith(".ts") && !file.endsWith(".test.ts"),
+  );
   const testFiles = walk(entry.pageDirectory).filter((file) => file.endsWith(".test.ts"));
   const playgrounds = [];
   let h1 = "";
@@ -154,9 +187,10 @@ for (const entry of uniqueRoutes.values()) {
       const script = scriptRef ? constants.get(scriptRef) || "" : "";
       const signals = needsScript(code);
       const dependencies = codeDependencies(code);
-      const scriptRequired = signals.event || signals.directive || /\bv-model/.test(code) || dependencies.length > 0;
-      const missingScriptDependencies = dependencies.filter((name) =>
-        !new RegExp(`\\b${name.replace(/[$]/g, "\\$")}\\b`).test(script)
+      const scriptRequired =
+        signals.event || signals.directive || /\bv-model/.test(code) || dependencies.length > 0;
+      const missingScriptDependencies = dependencies.filter(
+        (name) => !new RegExp(`\\b${name.replace(/[$]/g, "\\$")}\\b`).test(script),
       );
       playgrounds.push({
         file: relative(root, file).replaceAll("\\", "/"),
@@ -170,7 +204,7 @@ for (const entry of uniqueRoutes.values()) {
         needsScript: scriptRequired,
         signals,
         dependencies,
-        missingScriptDependencies
+        missingScriptDependencies,
       });
     }
   }
@@ -182,12 +216,14 @@ for (const entry of uniqueRoutes.values()) {
     h1,
     hasApi,
     testFiles: testFiles.map((file) => relative(root, file).replaceAll("\\", "/")),
-    playgrounds
+    playgrounds,
   });
 }
 
 pages.sort((a, b) => a.routes[0].localeCompare(b.routes[0]));
-const playgrounds = pages.flatMap((page) => page.playgrounds.map((item) => ({ page: page.page, ...item })));
+const playgrounds = pages.flatMap((page) =>
+  page.playgrounds.map((item) => ({ page: page.page, ...item })),
+);
 const result = {
   generatedAt: new Date().toISOString(),
   version: "0.0.2-beta.1",
@@ -198,11 +234,13 @@ const result = {
     withScript: playgrounds.filter((item) => item.hasScript).length,
     withoutScript: playgrounds.filter((item) => !item.hasScript).length,
     missingRequiredScript: playgrounds.filter((item) => item.needsScript && !item.hasScript).length,
-    incompleteScript: playgrounds.filter((item) => item.hasScript && item.missingScriptDependencies.length > 0).length,
-    pagesWithTests: pages.filter((page) => page.testFiles.length > 0).length
+    incompleteScript: playgrounds.filter(
+      (item) => item.hasScript && item.missingScriptDependencies.length > 0,
+    ).length,
+    pagesWithTests: pages.filter((page) => page.testFiles.length > 0).length,
   },
   missingRequiredScript: playgrounds.filter((item) => item.needsScript && !item.hasScript),
-  pages
+  pages,
 };
 
 const mode = process.argv[2] || "--json";
@@ -216,18 +254,29 @@ if (mode === "--summary") {
       playgrounds: items.length,
       withScript: items.filter((item) => item.hasScript).length,
       missingRequiredScript: items.filter((item) => item.needsScript && !item.hasScript).length,
-      pagesWithTests: categoryPages.filter((page) => page.testFiles.length > 0).length
+      pagesWithTests: categoryPages.filter((page) => page.testFiles.length > 0).length,
     };
   });
-  process.stdout.write(`${JSON.stringify({ totals: result.totals, categories: categoryRows }, null, 2)}\n`);
+  process.stdout.write(
+    `${JSON.stringify({ totals: result.totals, categories: categoryRows }, null, 2)}\n`,
+  );
 } else if (mode === "--missing-script") {
   for (const item of result.missingRequiredScript) {
-    const signals = Object.entries(item.signals).filter(([, active]) => active).map(([name]) => name).join(",");
-    process.stdout.write(`${item.page}\t${item.file}\t${item.title}\t${item.codeRef}\t${signals}\n`);
+    const signals = Object.entries(item.signals)
+      .filter(([, active]) => active)
+      .map(([name]) => name)
+      .join(",");
+    process.stdout.write(
+      `${item.page}\t${item.file}\t${item.title}\t${item.codeRef}\t${signals}\n`,
+    );
   }
 } else if (mode === "--incomplete-script") {
-  for (const item of playgrounds.filter((entry) => entry.hasScript && entry.missingScriptDependencies.length > 0)) {
-    process.stdout.write(`${item.page}\t${item.file}\t${item.title}\t${item.scriptRef}\t${item.missingScriptDependencies.join(",")}\n`);
+  for (const item of playgrounds.filter(
+    (entry) => entry.hasScript && entry.missingScriptDependencies.length > 0,
+  )) {
+    process.stdout.write(
+      `${item.page}\t${item.file}\t${item.title}\t${item.scriptRef}\t${item.missingScriptDependencies.join(",")}\n`,
+    );
   }
 } else {
   process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);

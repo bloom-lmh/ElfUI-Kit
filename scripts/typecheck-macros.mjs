@@ -8,16 +8,20 @@ const repoRoot = process.cwd();
 const formatHost = {
   getCanonicalFileName: (fileName) => fileName,
   getCurrentDirectory: () => repoRoot,
-  getNewLine: () => ts.sys.newLine
+  getNewLine: () => ts.sys.newLine,
 };
-const tsconfigPath = path.join(repoRoot, "tsconfig.lib.json");
-const localFrameworkRoot = path.resolve(repoRoot, "..", "elfui");
+const projectArgument = process.argv.slice(2).find((argument) => !argument.startsWith("--"));
+const templateTypeCheck = !process.argv.includes("--no-template-typecheck");
+const tsconfigPath = path.resolve(repoRoot, projectArgument ?? "tsconfig.lib.json");
+const configRoot = path.dirname(tsconfigPath);
+const workspaceRoot = findWorkspaceRoot(repoRoot);
+const localFrameworkRoot = path.resolve(workspaceRoot, "..", "elfui");
 const localCompilerEntry = path.join(
   localFrameworkRoot,
   "packages",
   "compiler",
   "dist",
-  "macro-component.js"
+  "macro-component.js",
 );
 const localCoreDist = path.join(localFrameworkRoot, "packages", "core", "dist");
 const useLocalFramework =
@@ -36,14 +40,14 @@ if (configFile.error) {
   process.exit(1);
 }
 
-const parsed = ts.parseJsonConfigFileContent(configFile.config, ts.sys, repoRoot, {
+const parsed = ts.parseJsonConfigFileContent(configFile.config, ts.sys, configRoot, {
   noCheck: false,
   noEmit: true,
   declaration: false,
   declarationMap: false,
   emitDeclarationOnly: false,
   incremental: false,
-  composite: false
+  composite: false,
 });
 if (parsed.errors.length > 0) {
   console.error(ts.formatDiagnosticsWithColorAndContext(parsed.errors, formatHost));
@@ -51,11 +55,11 @@ if (parsed.errors.length > 0) {
 }
 
 if (useLocalFramework) {
-  parsed.options.baseUrl = repoRoot;
+  parsed.options.baseUrl ??= configRoot;
   parsed.options.paths = {
     ...(parsed.options.paths ?? {}),
     "@elfui/core": [path.join(localCoreDist, "index.d.ts")],
-    "@elfui/core/internal": [path.join(localCoreDist, "internal.d.ts")]
+    "@elfui/core/internal": [path.join(localCoreDist, "internal.d.ts")],
   };
 }
 
@@ -73,7 +77,7 @@ for (const file of parsed.fileNames) {
   const result = compileMacroComponent(source, {
     filename,
     sourceId: filename,
-    templateTypeCheck: true
+    templateTypeCheck,
   });
   macroFileCount++;
   virtualSources.set(normalized(file), maskHtmlTemplates(source, file));
@@ -100,7 +104,7 @@ host.getSourceFile = (fileName, languageVersionOrOptions, onError) => {
     source,
     languageVersionOrOptions,
     true,
-    ts.getScriptKindFromFileName(fileName)
+    ts.getScriptKindFromFileName(fileName),
   );
 };
 
@@ -108,11 +112,11 @@ const program = ts.createProgram({
   rootNames: parsed.fileNames,
   options: parsed.options,
   projectReferences: parsed.projectReferences,
-  host
+  host,
 });
-const typescriptDiagnostics = ts.getPreEmitDiagnostics(program).filter(
-  (diagnostic) => diagnostic.category === ts.DiagnosticCategory.Error
-);
+const typescriptDiagnostics = ts
+  .getPreEmitDiagnostics(program)
+  .filter((diagnostic) => diagnostic.category === ts.DiagnosticCategory.Error);
 
 if (typescriptDiagnostics.length > 0) {
   console.error(ts.formatDiagnosticsWithColorAndContext(typescriptDiagnostics, formatHost));
@@ -130,11 +134,18 @@ if (macroErrors.length > 0 || typescriptDiagnostics.length > 0) {
 
 console.log(summary);
 
+function findWorkspaceRoot(start) {
+  let current = path.resolve(start);
+  while (true) {
+    if (existsSync(path.join(current, "pnpm-workspace.yaml"))) return current;
+    const parent = path.dirname(current);
+    if (parent === current) return start;
+    current = parent;
+  }
+}
+
 function isMacroComponent(source) {
-  return (
-    /from\s+["']@elfui\/core["']/u.test(source) &&
-    /\bdefineHtml\b/u.test(source)
-  );
+  return /from\s+["']@elfui\/core["']/u.test(source) && /\bdefineHtml\b/u.test(source);
 }
 
 function maskHtmlTemplates(source, fileName) {
@@ -143,12 +154,16 @@ function maskHtmlTemplates(source, fileName) {
     source,
     ts.ScriptTarget.Latest,
     true,
-    ts.ScriptKind.TS
+    ts.ScriptKind.TS,
   );
   const ranges = [];
 
   const visit = (node) => {
-    if (ts.isTaggedTemplateExpression(node) && ts.isIdentifier(node.tag) && node.tag.text === "html") {
+    if (
+      ts.isTaggedTemplateExpression(node) &&
+      ts.isIdentifier(node.tag) &&
+      node.tag.text === "html"
+    ) {
       ranges.push([node.template.getStart(sourceFile), node.template.getEnd()]);
       return;
     }

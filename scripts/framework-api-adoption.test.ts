@@ -4,6 +4,7 @@ import { join, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const repositoryRoot = resolve(".");
+const kitPath = (path: string): string => join("packages", "kit", path);
 const matrixPath = join(
   repositoryRoot,
   "docs",
@@ -85,20 +86,28 @@ describe("framework API adoption matrix", () => {
 
   it("locks the shared resource owners and prevents the removed duplicates", () => {
     const source = (path: string): string => readFileSync(join(repositoryRoot, path), "utf8");
-    const dialog = source("src/components/Feedback/Dialog/index.ts");
+    const dialog = source(kitPath("src/components/Feedback/Dialog/index.ts"));
 
-    expect(existsSync(join(repositoryRoot, "src/composables/useModalOverlay.ts"))).toBe(true);
-    expect(existsSync(join(repositoryRoot, "src/composables/useDismissibleOverlay.ts"))).toBe(true);
-    expect(source("src/composables/useModalOverlay.ts")).toContain("useEventListener");
-    expect(source("src/composables/useDismissibleOverlay.ts")).toContain("useEventListener");
-    expect(source("src/composables/useModalOverlay.ts")).not.toContain("document.addEventListener");
-    expect(source("src/composables/useDismissibleOverlay.ts")).not.toContain(
+    expect(existsSync(join(repositoryRoot, kitPath("src/composables/useModalOverlay.ts")))).toBe(
+      true,
+    );
+    expect(
+      existsSync(join(repositoryRoot, kitPath("src/composables/useDismissibleOverlay.ts"))),
+    ).toBe(true);
+    expect(source(kitPath("src/composables/useModalOverlay.ts"))).toContain("useEventListener");
+    expect(source(kitPath("src/composables/useDismissibleOverlay.ts"))).toContain(
+      "useEventListener",
+    );
+    expect(source(kitPath("src/composables/useModalOverlay.ts"))).not.toContain(
       "document.addEventListener",
     );
-    expect(source("src/components/Feedback/Loading/service.ts")).toContain(
+    expect(source(kitPath("src/composables/useDismissibleOverlay.ts"))).not.toContain(
+      "document.addEventListener",
+    );
+    expect(source(kitPath("src/components/Feedback/Loading/service.ts"))).toContain(
       "el.lock = options.lock ?? false",
     );
-    expect(source("src/components/Feedback/Loading/service.ts")).not.toContain(
+    expect(source(kitPath("src/components/Feedback/Loading/service.ts"))).not.toContain(
       "body.style.overflow",
     );
     expect(dialog).toContain("<Transition");

@@ -4,6 +4,8 @@ import { dirname, join, relative, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const repositoryRoot = resolve(".");
+const kitSourceRoot = join(repositoryRoot, "packages", "kit", "src");
+const kitSourcePath = (path: string): string => join(kitSourceRoot, path);
 const architecturePath = join(
   repositoryRoot,
   "docs",
@@ -69,29 +71,27 @@ const findCycle = (graph: Map<string, string[]>): string[] => {
   return [];
 };
 
-const sourceRoots = ["src/components", "src/composables", "src/utils", "src/adapters"].map((path) =>
-  join(repositoryRoot, path),
-);
+const sourceRoots = ["components", "composables", "utils", "adapters"].map(kitSourcePath);
 const lowerLayerSources = sourceRoots.flatMap(collectTypeScriptFiles);
 
 const foundationPaths = [
-  "src/utils/virtual-window.ts",
-  "src/adapters/date.ts",
-  "src/components/Common/focus/focus-scope.ts",
-  "src/components/Common/overlay/anchored-overlay.ts",
-  "src/components/Common/overlay/modal-overlay-controller.ts",
-  "src/components/Common/overlay/modal-overlay-stack.ts",
-  "src/components/Common/overlay/overlay-interaction-controller.ts",
-  "src/components/Common/overlay/overlay-protocol.ts",
-  "src/components/Common/overlay/overlay-stack.ts",
-  "src/composables/date.ts",
-  "src/composables/field-values.ts",
-  "src/composables/form.ts",
-  "src/composables/useDismissibleOverlay.ts",
-  "src/composables/useModalOverlay.ts",
-  "src/components/Providers/config.ts",
-  "src/components/Providers/service-defaults.ts",
-].map((path) => join(repositoryRoot, path));
+  "utils/virtual-window.ts",
+  "adapters/date.ts",
+  "components/Common/focus/focus-scope.ts",
+  "components/Common/overlay/anchored-overlay.ts",
+  "components/Common/overlay/modal-overlay-controller.ts",
+  "components/Common/overlay/modal-overlay-stack.ts",
+  "components/Common/overlay/overlay-interaction-controller.ts",
+  "components/Common/overlay/overlay-protocol.ts",
+  "components/Common/overlay/overlay-stack.ts",
+  "composables/date.ts",
+  "composables/field-values.ts",
+  "composables/form.ts",
+  "composables/useDismissibleOverlay.ts",
+  "composables/useModalOverlay.ts",
+  "components/Providers/config.ts",
+  "components/Providers/service-defaults.ts",
+].map(kitSourcePath);
 
 describe("architecture boundaries", () => {
   it("documents all domain owners, admitted patterns and explicit migration gaps", () => {
@@ -120,7 +120,7 @@ describe("architecture boundaries", () => {
       readModuleSpecifiers(source)
         .map((specifier) => resolveTypeScriptImport(source, specifier))
         .filter((path): path is string => Boolean(path))
-        .filter((path) => toRepositoryPath(path).startsWith("src/pages/"))
+        .filter((path) => toRepositoryPath(path).startsWith("apps/website/src/pages/"))
         .map((path) => `${toRepositoryPath(source)} -> ${toRepositoryPath(path)}`),
     );
     expect(pageImports).toEqual([]);
@@ -138,32 +138,29 @@ describe("architecture boundaries", () => {
   });
 
   it("keeps pure and Common foundation owners below component implementations", () => {
-    for (const pureOwner of ["src/utils/virtual-window.ts", "src/adapters/date.ts"]) {
-      expect(readModuleSpecifiers(join(repositoryRoot, pureOwner))).toEqual([]);
+    for (const pureOwner of ["utils/virtual-window.ts", "adapters/date.ts"]) {
+      expect(readModuleSpecifiers(kitSourcePath(pureOwner))).toEqual([]);
     }
 
-    expect(
-      readFileSync(join(repositoryRoot, "src/components/Data/virtual-window.ts"), "utf8").trim(),
-    ).toBe('export * from "../../utils/virtual-window";');
+    expect(readFileSync(kitSourcePath("components/Data/virtual-window.ts"), "utf8").trim()).toBe(
+      'export * from "../../utils/virtual-window";',
+    );
 
     const commonSources = foundationPaths.filter((path) =>
-      toRepositoryPath(path).startsWith("src/components/Common/"),
+      toRepositoryPath(path).startsWith("packages/kit/src/components/Common/"),
     );
     const invalidCommonImports = commonSources.flatMap((source) =>
       readModuleSpecifiers(source)
         .map((specifier) => resolveTypeScriptImport(source, specifier))
         .filter((path): path is string => Boolean(path))
-        .filter((path) => !toRepositoryPath(path).startsWith("src/components/Common/"))
+        .filter((path) => !toRepositoryPath(path).startsWith("packages/kit/src/components/Common/"))
         .map((path) => `${toRepositoryPath(source)} -> ${toRepositoryPath(path)}`),
     );
     expect(invalidCommonImports).toEqual([]);
   });
 
   it("keeps Provider service defaults policy-only", () => {
-    const source = readFileSync(
-      join(repositoryRoot, "src/components/Providers/service-defaults.ts"),
-      "utf8",
-    );
+    const source = readFileSync(kitSourcePath("components/Providers/service-defaults.ts"), "utf8");
     for (const forbiddenResource of [
       "document.",
       "window.",
@@ -197,12 +194,9 @@ describe("architecture boundaries", () => {
   });
 
   it("keeps Parallax observers owned by Core and shared controllers", () => {
-    const source = readFileSync(
-      join(repositoryRoot, "src/components/Data/Parallax/index.ts"),
-      "utf8",
-    );
+    const source = readFileSync(kitSourcePath("components/Data/Parallax/index.ts"), "utf8");
     const rootObserver = readFileSync(
-      join(repositoryRoot, "src/components/Data/Parallax/root-observer.ts"),
+      kitSourcePath("components/Data/Parallax/root-observer.ts"),
       "utf8",
     );
 

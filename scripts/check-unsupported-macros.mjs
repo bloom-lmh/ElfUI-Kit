@@ -4,7 +4,7 @@ import { join, relative, resolve } from "node:path";
 import ts from "typescript";
 
 const root = resolve(process.cwd());
-const sourceRoot = join(root, "src");
+const sourceRoot = resolve(root, process.argv[2] ?? "src");
 const unsupported = new Set(["fragment", "defineFragment"]);
 
 const walk = (directory) =>
@@ -85,10 +85,9 @@ for (const filename of sourceFiles) {
   }
 }
 
-findings.sort((left, right) =>
-  left.file.localeCompare(right.file) ||
-  left.line - right.line ||
-  left.column - right.column,
+findings.sort(
+  (left, right) =>
+    left.file.localeCompare(right.file) || left.line - right.line || left.column - right.column,
 );
 
 if (findings.length > 0) {

@@ -1,0 +1,92 @@
+@use "../../../styles/reset";
+
+:host {
+  display: inline-flex;
+  min-width: 0;
+  max-width: 100%;
+  vertical-align: middle;
+  color: var(--_link-color);
+  --_link-color: var(--elf-text-primary);
+  --_link-hover: var(--elf-primary);
+}
+
+:host([type="primary"]) {
+  --_link-color: var(--elf-primary);
+  --_link-hover: var(--elf-primary-hover, var(--elf-primary));
+}
+
+:host([type="success"]) {
+  --_link-color: var(--elf-success);
+  --_link-hover: var(--elf-success);
+}
+
+:host([type="warning"]) {
+  --_link-color: var(--elf-warning);
+  --_link-hover: var(--elf-warning);
+}
+
+:host([type="danger"]) {
+  --_link-color: var(--elf-danger);
+  --_link-hover: var(--elf-danger);
+}
+
+:host([type="info"]) {
+  --_link-color: var(--elf-info);
+  --_link-hover: var(--elf-info);
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  max-width: 100%;
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+  white-space: normal;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.link:hover,
+.link:focus-visible {
+  color: var(--_link-hover);
+}
+
+.link:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.link[data-underline="false"],
+.link[data-underline="false"]:hover,
+.link[data-underline="false"]:focus-visible {
+  text-decoration: none !important;
+}
+
+:host([disabled]) {
+  color: var(--elf-text-disabled);
+}
+
+:host([disabled]) .link {
+  cursor: not-allowed;
+  pointer-events: auto;
+}
+
+.icon,
+.prop-icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  line-height: 1;
+}
+
+.prop-icon,
+slot[name="icon"]::slotted(*) {
+  margin-inline-end: var(--elf-space-1);
+}

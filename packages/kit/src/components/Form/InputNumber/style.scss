@@ -1,0 +1,313 @@
+@use "../../../styles/reset";
+@use "../../../styles/field-surface" as field;
+
+:host {
+  @include field.tokens;
+  display: inline-flex;
+  width: 240px;
+  max-width: 100%;
+  color: var(--elf-text-primary);
+}
+
+:host([size="sm"]),
+:host([density="compact"]) {
+  --elf-field-control-height: 40px;
+}
+
+:host([density="comfortable"]) {
+  --elf-field-control-height: 48px;
+}
+
+:host([size="lg"]) {
+  --elf-field-control-height: 64px;
+}
+
+.input-number {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 40px 40px;
+  grid-template-rows: var(--elf-field-control-height);
+  width: 100%;
+  min-width: 0;
+  height: var(--elf-field-control-height);
+  cursor: text;
+}
+
+@include field.surface(".input-number");
+@include field.floating-label(".input-number");
+@include field.reduced-motion(".input-number");
+
+.input-number > :not(.field-outline):not(.field-label) {
+  position: relative;
+  z-index: 1;
+}
+
+input {
+  grid-column: 1;
+  grid-row: 1;
+  min-width: 0;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0 var(--elf-field-padding-end) 0 var(--elf-field-padding-start);
+  border: 0;
+  outline: 0;
+  appearance: textfield;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  letter-spacing: 0.009375em;
+}
+
+:host([data-has-label]) input {
+  padding-top: 16px;
+}
+
+:host([variant="underlined"]) input {
+  padding-inline: 0;
+}
+
+:host([data-has-label]:not([data-dirty])) .input-number:not(:focus-within) input::placeholder {
+  opacity: 0;
+}
+
+input::placeholder {
+  color: var(--elf-text-disabled);
+  opacity: 1;
+  transition: opacity var(--elf-field-motion);
+}
+
+input::-webkit-inner-spin-button,
+input::-webkit-outer-spin-button {
+  margin: 0;
+  appearance: none;
+}
+
+.control {
+  box-sizing: border-box;
+  display: grid;
+  align-self: stretch;
+  min-width: 40px;
+  min-height: 100%;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-left: 1px solid var(--elf-divider);
+  background: transparent;
+  color: var(--elf-text-secondary);
+  cursor: pointer;
+  transition:
+    background-color var(--elf-field-motion),
+    color var(--elf-field-motion);
+}
+
+.control svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-width: 1.8;
+}
+
+.control:hover:not(:disabled) {
+  background: color-mix(in srgb, currentColor 7%, transparent);
+  color: var(--elf-primary);
+}
+
+.control:focus-visible {
+  outline: 2px solid var(--elf-primary);
+  outline-offset: -3px;
+}
+
+.control:disabled,
+input:disabled {
+  color: var(--elf-text-disabled);
+  cursor: not-allowed;
+}
+
+.controls-default .decrease {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.controls-default .increase {
+  grid-column: 3;
+  grid-row: 1;
+}
+
+.controls-stacked {
+  grid-template-columns: minmax(0, 1fr) 40px;
+  grid-template-rows: repeat(2, calc(var(--elf-field-control-height) / 2));
+}
+
+.controls-stacked input {
+  grid-row: 1 / span 2;
+}
+
+.controls-stacked .increase {
+  grid-column: 2;
+  grid-row: 1;
+  border-bottom: 1px solid var(--elf-divider);
+}
+
+.controls-stacked .decrease {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.controls-stacked .control {
+  min-height: 0;
+  height: calc(var(--elf-field-control-height) / 2);
+  max-height: calc(var(--elf-field-control-height) / 2);
+  overflow: hidden;
+}
+
+.controls-stacked .increase {
+  align-self: end;
+}
+
+.controls-stacked .decrease {
+  align-self: start;
+}
+
+// The outlined fieldset reserves a small block-start area for its legend.
+// Keep controls inside the visible outline instead of letting the first
+// stacked button paint above the border gap.
+:host([variant="outlined"]) .input-number:not(.controls-stacked) .control {
+  align-self: end;
+  min-height: 0;
+  height: calc(100% - 5px);
+}
+
+:host([variant="outlined"]) .controls-stacked {
+  grid-template-rows: 5px repeat(2, minmax(0, 1fr));
+}
+
+:host([variant="outlined"]) .controls-stacked input {
+  grid-row: 1 / span 3;
+}
+
+:host([variant="outlined"]) .controls-stacked .increase {
+  grid-row: 2;
+}
+
+:host([variant="outlined"]) .controls-stacked .decrease {
+  grid-row: 3;
+}
+
+:host([variant="outlined"]) .controls-stacked .control {
+  align-self: stretch;
+  height: 100%;
+  max-height: none;
+}
+
+.controls-split {
+  grid-template-columns: 40px minmax(0, 1fr) 40px;
+}
+
+.controls-split input {
+  grid-column: 2;
+  text-align: center;
+}
+
+.controls-split .decrease {
+  grid-column: 1;
+  grid-row: 1;
+  border-right: 1px solid var(--elf-divider);
+  border-left: 0;
+}
+
+.controls-split .increase {
+  grid-column: 3;
+  grid-row: 1;
+}
+
+.controls-hidden {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.is-reverse.controls-default {
+  grid-template-columns: 40px 40px minmax(0, 1fr);
+}
+
+.is-reverse.controls-default input {
+  grid-column: 3;
+}
+
+.is-reverse.controls-default .decrease {
+  grid-column: 1;
+  border-right: 1px solid var(--elf-divider);
+  border-left: 0;
+}
+
+.is-reverse.controls-default .increase {
+  grid-column: 2;
+  border-left: 0;
+}
+
+.is-reverse.controls-stacked {
+  grid-template-columns: 40px minmax(0, 1fr);
+}
+
+.is-reverse.controls-stacked input {
+  grid-column: 2;
+}
+
+.is-reverse.controls-stacked .increase,
+.is-reverse.controls-stacked .decrease {
+  grid-column: 1;
+  border-right: 1px solid var(--elf-divider);
+  border-left: 0;
+}
+
+.is-reverse.controls-split .decrease {
+  grid-column: 3;
+  border-right: 0;
+  border-left: 1px solid var(--elf-divider);
+}
+
+.is-reverse.controls-split .increase {
+  grid-column: 1;
+  border-right: 1px solid var(--elf-divider);
+  border-left: 0;
+}
+
+.is-inset .control {
+  border-color: transparent;
+}
+
+.is-inset .control::after {
+  position: absolute;
+  inset-block: 12px;
+  left: 0;
+  width: 1px;
+  background: var(--elf-divider);
+  content: "";
+}
+
+.hide-input input {
+  visibility: hidden;
+}
+
+.hide-input:not(.controls-stacked) {
+  width: max-content;
+  grid-template-columns: 40px 40px;
+}
+
+.hide-input:not(.controls-stacked) input {
+  display: none;
+}
+
+:host([disabled]) {
+  opacity: 0.56;
+}
+
+:host([size="sm"]) {
+  width: 200px;
+}
+
+:host([size="lg"]) {
+  width: 280px;
+}

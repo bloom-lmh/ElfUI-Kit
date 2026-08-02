@@ -550,3 +550,11 @@ node C:\Users\13575\.codex\skills\elfui-kit-component-authoring\scripts\check-be
 - AppShell letter placeholders were replaced with semantic `@mdi/js` paths for every route and navigation group. `src/app/menu-icons.ts` is the route-to-icon authority and has completeness tests against `navItems`.
 - Menu renders SVG path strings as decorative 24x24 Material icons and preserves text-icon compatibility for existing consumers.
 - Focused Menu/icon tests pass 2 files / 26 tests, the targeted AppShell route assertion passes, ESLint and the 1112-module production build pass. The unrelated route-loading leave-transition assertion remains flaky when the full routing file runs; browser visual acceptance remains with the user.
+
+### 2026-08-01 Monorepo、npm 与网站发布边界
+
+- 仓库采用 pnpm monorepo：可发布组件库位于 `packages/kit`，私有文档站位于 `apps/website`；根目录 `docs` 继续保存计划、架构、交接与截图证据。
+- 历史文档中的 `src/components`、`src/composables`、`src/directives`、`src/styles` 等路径，迁移后对应 `packages/kit/src/*`；历史 `src/app`、`src/pages`、`src/routes` 对应 `apps/website/src/*`。
+- DocsHero、DocsToc、OverviewCard、Playground、PropsTable 是 website 专用展示组件，不进入 `@elfui/kit` npm 构建；共享 focus/overlay owner 继续留在 Kit。
+- 根包设为 `private: true`，`packages/kit/package.json` 是 `@elfui/kit@0.0.2-beta.1` 的唯一发布清单；`apps/website/package.json` 永久保持 `private: true`。
+- npm 打包、远端发布与 Vercel 部署的最终验证结果记录在本节后续条目中。

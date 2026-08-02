@@ -1,0 +1,57 @@
+@use "../../../styles/reset";
+
+:host {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  color: var(--elf-text-secondary);
+  font-size: var(--elf-font-size-sm);
+}
+
+.breadcrumb-item,
+.breadcrumb-link,
+.breadcrumb-text,
+.breadcrumb-separator {
+  display: inline-flex;
+  align-items: center;
+}
+
+.breadcrumb-link,
+.breadcrumb-text {
+  min-width: 0;
+  max-width: 240px;
+  height: 32px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: var(--elf-radius-sm);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-decoration: none;
+}
+
+.breadcrumb-link {
+  cursor: pointer;
+}
+.breadcrumb-link:hover {
+  background: var(--elf-bg-overlay);
+  color: var(--elf-primary);
+}
+.breadcrumb-link:focus-visible {
+  outline: 2px solid var(--elf-primary);
+  outline-offset: -2px;
+}
+:host([data-current]) .breadcrumb-text {
+  color: var(--elf-text-primary);
+  font-weight: 600;
+}
+.breadcrumb-separator {
+  min-width: 18px;
+  height: 32px;
+  justify-content: center;
+  color: var(--elf-text-disabled);
+  user-select: none;
+}
+.breadcrumb-separator-icon {
+  display: inline-flex;
+}

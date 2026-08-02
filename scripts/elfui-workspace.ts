@@ -2,7 +2,7 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
-type ElfuiMacroPlugin = typeof import("@elfui/vite-plugin")["elfuiMacroPlugin"];
+type ElfuiMacroPlugin = (typeof import("@elfui/vite-plugin"))["elfuiMacroPlugin"];
 
 interface ElfuiWorkspaceConfig {
   elfuiMacroPlugin: ElfuiMacroPlugin;
@@ -15,7 +15,8 @@ export const loadElfuiWorkspace = async (): Promise<ElfuiWorkspaceConfig> => {
     return { elfuiMacroPlugin, aliases: {} };
   }
 
-  const frameworkRoot = path.resolve(process.cwd(), "..", "elfui");
+  const workspaceRoot = path.resolve(import.meta.dirname, "..");
+  const frameworkRoot = path.resolve(workspaceRoot, "..", "elfui");
   const pluginEntry = path.join(frameworkRoot, "packages", "vite-plugin", "dist", "index.js");
   const compilerDist = path.join(frameworkRoot, "packages", "compiler", "dist");
   const coreDist = path.join(frameworkRoot, "packages", "core", "dist");
@@ -36,7 +37,7 @@ export const loadElfuiWorkspace = async (): Promise<ElfuiWorkspaceConfig> => {
     path.join(runtimeDist, "index.js"),
     path.join(runtimeDist, "internal.js"),
     reactivityEntry,
-    sharedEntry
+    sharedEntry,
   ]) {
     if (!existsSync(file)) {
       throw new Error(`Missing local ElfUI build output: ${file}`);
@@ -56,7 +57,7 @@ export const loadElfuiWorkspace = async (): Promise<ElfuiWorkspaceConfig> => {
       "@elfui/runtime/internal": path.join(runtimeDist, "internal.js"),
       "@elfui/runtime": path.join(runtimeDist, "index.js"),
       "@elfui/reactivity": reactivityEntry,
-      "@elfui/shared": sharedEntry
-    }
+      "@elfui/shared": sharedEntry,
+    },
   };
 };

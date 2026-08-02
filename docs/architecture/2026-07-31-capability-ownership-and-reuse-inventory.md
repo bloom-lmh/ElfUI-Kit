@@ -89,7 +89,7 @@ src/components/Feedback/Loading/directive.ts
 
 The public capability names are Click Outside, Intersect, Mutate, Resize, Ripple, Scroll, Tooltip, Touch, Draggable, Loading and Infinite Scroll. Component-local renderer directives remain private to their component and do not become competing public behavior owners.
 
-### Common Controllers (8)
+### Common Controllers (9)
 
 ```text
 src/components/Common/focus/focus-scope.ts
@@ -98,6 +98,7 @@ src/components/Common/overlay/modal-overlay-controller.ts
 src/components/Common/overlay/modal-overlay-stack.ts
 src/components/Common/overlay/overlay-interaction-controller.ts
 src/components/Common/overlay/overlay-protocol.ts
+src/components/Common/overlay/positioning-context.ts
 src/components/Common/overlay/overlay-stack.ts
 src/components/Common/index.ts
 ```

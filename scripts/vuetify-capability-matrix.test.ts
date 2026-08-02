@@ -13,6 +13,7 @@ const matrixPath = join(
   "2026-07-31-vuetify-capability-matrix.md",
 );
 const matrix = readFileSync(matrixPath, "utf8");
+const resolveKitOwner = (owner: string): string => join(repositoryRoot, "packages", "kit", owner);
 
 const categories = [
   "Defaults",
@@ -114,7 +115,7 @@ describe("Vuetify capability matrix", () => {
       "src/styles/_tokens.scss",
     ];
     for (const owner of localOwners) {
-      expect(existsSync(join(repositoryRoot, owner))).toBe(true);
+      expect(existsSync(resolveKitOwner(owner))).toBe(true);
       expect(matrix).toContain(owner);
     }
 

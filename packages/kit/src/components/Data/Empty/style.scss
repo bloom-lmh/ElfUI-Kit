@@ -1,0 +1,89 @@
+@use "../../../styles/reset";
+
+:host {
+  display: block;
+  color: var(--elf-text-secondary);
+  text-align: center;
+  --_empty-image-size: 160px;
+}
+
+.empty {
+  display: flex;
+  min-height: var(--elf-empty-min-height, 180px);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--elf-empty-gap, var(--elf-space-4));
+  padding: var(--elf-empty-padding, var(--elf-space-8) var(--elf-space-4));
+}
+
+:host([size="compact"]) .empty {
+  min-height: var(--elf-empty-min-height, 112px);
+  gap: var(--elf-empty-gap, var(--elf-space-2));
+  padding: var(--elf-empty-padding, var(--elf-space-4) var(--elf-space-3));
+}
+
+.image {
+  display: grid;
+  width: var(--_empty-image-size);
+  height: var(--_empty-image-size);
+  place-items: center;
+  color: var(--elf-text-disabled);
+}
+
+.image img {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.illustration {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.cloud {
+  fill: color-mix(in srgb, var(--elf-empty-illustration), transparent 38%);
+}
+
+.cloud-right {
+  fill: var(--elf-empty-illustration);
+}
+.box {
+  fill: color-mix(in srgb, var(--elf-empty-illustration-accent), white 40%);
+}
+.box-top {
+  fill: none;
+  stroke: var(--elf-empty-illustration-accent);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 3;
+}
+.spark {
+  fill: var(--elf-empty-illustration-accent);
+}
+.spark.small {
+  fill: var(--elf-empty-illustration);
+}
+
+.description {
+  max-width: min(100%, 42rem);
+  color: var(--elf-text-secondary);
+  font-size: var(--elf-font-size-md);
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+:host([size="compact"]) .description {
+  font-size: var(--elf-font-size-sm);
+}
+
+.bottom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--elf-space-2);
+}

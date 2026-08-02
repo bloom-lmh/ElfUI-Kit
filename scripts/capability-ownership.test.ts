@@ -4,6 +4,7 @@ import { basename, join, relative, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const repositoryRoot = resolve(".");
+const kitSourceRoot = join(repositoryRoot, "packages", "kit", "src");
 const inventoryPath = join(
   repositoryRoot,
   "docs",
@@ -21,12 +22,14 @@ const collectFiles = (directory: string): string[] =>
 
 /** Converts a filesystem path into the stable repository path used by the inventory. */
 const toRepositoryPath = (path: string): string =>
-  relative(repositoryRoot, path).replaceAll("\\", "/");
+  relative(repositoryRoot, path)
+    .replaceAll("\\", "/")
+    .replace(/^packages\/kit\//, "");
 
 const isNonTestTypeScript = (path: string): boolean =>
   path.endsWith(".ts") && !basename(path).includes(".test");
 
-const componentSources = collectFiles(join(repositoryRoot, "src", "components"));
+const componentSources = collectFiles(join(kitSourceRoot, "components"));
 const macroComponents = componentSources
   .filter(isNonTestTypeScript)
   .filter((path) => {
@@ -36,24 +39,24 @@ const macroComponents = componentSources
   .map(toRepositoryPath)
   .sort();
 
-const composableSources = collectFiles(join(repositoryRoot, "src", "composables"))
+const composableSources = collectFiles(join(kitSourceRoot, "composables"))
   .filter(
     (path) => isNonTestTypeScript(path) && !path.includes(`${join("composables", "__tests__")}`),
   )
   .map(toRepositoryPath);
 const directiveSources = [
-  ...collectFiles(join(repositoryRoot, "src", "directives")).filter(isNonTestTypeScript),
-  join(repositoryRoot, "src", "components", "Data", "InfiniteScroll", "directive.ts"),
-  join(repositoryRoot, "src", "components", "Feedback", "Loading", "directive.ts"),
+  ...collectFiles(join(kitSourceRoot, "directives")).filter(isNonTestTypeScript),
+  join(kitSourceRoot, "components", "Data", "InfiniteScroll", "directive.ts"),
+  join(kitSourceRoot, "components", "Feedback", "Loading", "directive.ts"),
 ].map(toRepositoryPath);
 const commonControllers = [
-  ...collectFiles(join(repositoryRoot, "src", "components", "Common", "focus")),
-  ...collectFiles(join(repositoryRoot, "src", "components", "Common", "overlay")),
-  join(repositoryRoot, "src", "components", "Common", "index.ts"),
+  ...collectFiles(join(kitSourceRoot, "components", "Common", "focus")),
+  ...collectFiles(join(kitSourceRoot, "components", "Common", "overlay")),
+  join(kitSourceRoot, "components", "Common", "index.ts"),
 ]
   .filter(isNonTestTypeScript)
   .map(toRepositoryPath);
-const providerSources = collectFiles(join(repositoryRoot, "src", "components", "Providers"))
+const providerSources = collectFiles(join(kitSourceRoot, "components", "Providers"))
   .filter(isNonTestTypeScript)
   .filter((path) => !basename(path).startsWith("probe."))
   .map(toRepositoryPath);
@@ -146,7 +149,7 @@ describe("capability ownership inventory", () => {
     ];
     const missing = [...new Set(trackedSources)].filter((path) => !inventory.includes(path));
 
-    expect(macroComponents).toHaveLength(123);
+    expect(macroComponents).toHaveLength(119);
     expect(missing).toEqual([]);
   });
 

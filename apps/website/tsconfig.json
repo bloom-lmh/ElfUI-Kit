@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@elfui/kit": ["../../packages/kit/src/library.ts"],
+      "@elfui/kit/labs": ["../../packages/kit/src/labs.ts"],
+      "@elfui/kit-src/*": ["../../packages/kit/src/*"],
+      "@elfui/website-components/*": ["src/components/*"]
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "vite.config.ts"],
+  "exclude": ["src/**/*.test.ts", "src/**/__tests__/**"]
+}

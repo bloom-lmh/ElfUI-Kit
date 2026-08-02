@@ -1,0 +1,202 @@
+@use "@elfui/kit-src/styles/reset";
+
+:host {
+  display: block;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+h2 {
+  margin: 30px 0 12px;
+  font-size: 20px;
+  letter-spacing: -0.01em;
+}
+
+.demo-stack {
+  display: grid;
+  width: 100%;
+  gap: 16px;
+}
+
+.demo-stage {
+  width: 100%;
+  padding: 18px;
+  border: 1px dashed var(--elf-border-strong);
+  border-radius: 4px;
+  background: transparent;
+}
+
+.demo-stage.is-tall {
+  min-height: 142px;
+}
+
+.demo-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 0;
+  min-height: 56px;
+  padding: 12px 14px;
+  border: 1px dashed var(--elf-border-strong);
+  border-radius: 4px;
+  background: transparent;
+  box-shadow: none;
+  color: var(--elf-text-primary);
+  text-align: center;
+}
+
+.demo-card.compact {
+  min-height: 44px;
+  padding: 10px 12px;
+}
+
+.demo-card.tone-primary {
+  border-color: color-mix(in srgb, var(--elf-primary) 64%, var(--elf-border));
+}
+
+.demo-card.tone-success {
+  border-color: color-mix(in srgb, var(--elf-success) 64%, var(--elf-border));
+}
+
+.demo-card.tone-warning {
+  border-color: color-mix(in srgb, var(--elf-warning) 64%, var(--elf-border));
+}
+
+.card-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  display: none;
+  flex: 0 0 auto;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--elf-primary) 15%, var(--elf-bg-paper));
+  color: var(--elf-primary);
+  font-weight: 800;
+}
+
+.avatar.success {
+  background: color-mix(in srgb, var(--elf-success) 16%, var(--elf-bg-paper));
+  color: var(--elf-success);
+}
+
+.card-copy {
+  display: flex;
+  min-width: 0;
+  gap: 3px;
+}
+
+.card-copy strong,
+.demo-card > strong {
+  color: var(--elf-text-primary);
+  font-size: 14px;
+}
+
+.card-copy small,
+.demo-card > small,
+.metric-label {
+  display: none;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  width: max-content;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--elf-primary);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.metric-value {
+  display: inline;
+  margin: 0;
+  color: var(--elf-text-primary);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.metric-trend {
+  display: none;
+}
+
+.mini-progress {
+  display: none;
+}
+
+.mini-progress::after {
+  display: block;
+  width: var(--progress, 68%);
+  height: 100%;
+  border-radius: 0;
+  background: var(--elf-primary);
+  content: "";
+}
+
+.grid-label {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+  color: var(--elf-text-secondary);
+  font-size: 11px;
+}
+
+.grid-label span:last-child {
+  display: none;
+}
+
+.dashboard-card {
+  min-height: 72px;
+}
+
+.bar-chart {
+  display: none;
+  align-items: end;
+  gap: 7px;
+  height: 92px;
+  margin-top: 18px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--elf-border);
+}
+
+.bar-chart i {
+  flex: 1;
+  height: var(--height);
+  border-radius: 2px 2px 0 0;
+  background: var(--elf-primary);
+}
+
+.donut {
+  display: none;
+}
+
+@media (max-width: 600px) {
+  .demo-stage {
+    padding: 12px;
+  }
+  .demo-card {
+    padding: 15px;
+  }
+
+  elf-grid-item {
+    --_xs-span: 12 !important;
+    --_xs-total: 12 !important;
+    --_xs-content-width: 100% !important;
+    --_xs-offset-width: 0 !important;
+    --_xs-shift: 0 !important;
+  }
+}

@@ -1,0 +1,168 @@
+@use "../../../styles/reset";
+
+:host {
+  display: inline-block;
+  width: var(--_image-width);
+  height: var(--_image-height);
+  color: var(--elf-text-secondary);
+  --_image-width: auto;
+  --_image-height: auto;
+}
+
+.image {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: var(--elf-radius-md);
+  background: var(--elf-bg-muted);
+}
+
+.image.is-previewable {
+  cursor: zoom-in;
+}
+
+.image.is-previewable:focus-visible {
+  outline: 3px solid var(--elf-focus-ring, var(--elf-primary));
+  outline-offset: 3px;
+}
+
+img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: var(--_image-fit);
+  opacity: 0;
+  transition: opacity 240ms ease;
+}
+
+img.is-loaded {
+  opacity: 1;
+}
+
+img.fit-fill {
+  object-fit: fill;
+}
+img.fit-contain {
+  object-fit: contain;
+}
+img.fit-cover {
+  object-fit: cover;
+}
+img.fit-none {
+  object-fit: none;
+}
+img.fit-scale-down {
+  object-fit: scale-down;
+}
+
+.pending {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  color: var(--elf-text-secondary);
+  font-size: var(--elf-font-size-sm);
+  background: linear-gradient(
+    110deg,
+    var(--elf-bg-muted) 8%,
+    var(--elf-bg-overlay) 18%,
+    var(--elf-bg-muted) 33%
+  );
+  background-size: 200% 100%;
+  animation: image-pending 1.25s linear infinite;
+}
+
+.pending-indicator {
+  width: 28px;
+  height: 28px;
+  border: 2px solid color-mix(in srgb, var(--elf-primary) 22%, transparent);
+  border-top-color: var(--elf-primary);
+  border-radius: 50%;
+  animation: image-spinner 720ms linear infinite;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@keyframes image-pending {
+  to {
+    background-position-x: -200%;
+  }
+}
+
+@keyframes image-spinner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.error {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  min-width: 120px;
+  min-height: 80px;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--elf-space-2);
+  padding: var(--elf-space-3);
+  color: var(--elf-text-secondary);
+  font-size: var(--elf-font-size-sm);
+  text-align: center;
+}
+
+.error-mark {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  color: var(--elf-danger);
+  font-weight: 800;
+  border: 1px solid color-mix(in srgb, var(--elf-danger) 38%, transparent);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--elf-danger) 10%, transparent);
+}
+
+.error button {
+  min-height: 30px;
+  padding-inline: 12px;
+  color: var(--elf-primary);
+  font: inherit;
+  border: 1px solid color-mix(in srgb, var(--elf-primary) 38%, var(--elf-border));
+  border-radius: var(--elf-radius-sm);
+  background: var(--elf-bg-paper);
+  cursor: pointer;
+}
+
+.error button:hover,
+.error button:focus-visible {
+  background: color-mix(in srgb, var(--elf-primary) 10%, var(--elf-bg-paper));
+}
+
+.error button:focus-visible {
+  outline: 2px solid var(--elf-focus-ring, var(--elf-primary));
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  img {
+    transition: none;
+  }
+  .pending,
+  .pending-indicator {
+    animation: none;
+  }
+}

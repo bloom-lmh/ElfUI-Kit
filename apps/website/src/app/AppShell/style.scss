@@ -1,0 +1,218 @@
+@use "@elfui/kit-src/styles/reset";
+
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+elf-config-provider {
+  color: var(--elf-text-primary);
+}
+
+elf-layout {
+  height: 100%;
+}
+
+.home-shell {
+  min-height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: var(--elf-bg-page, var(--elf-bg-paper));
+}
+
+.route-progress {
+  position: fixed;
+  z-index: 120;
+  inset: 0 0 auto;
+  display: block;
+  width: 100%;
+  pointer-events: none;
+}
+
+.home-route-loading {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 100vh;
+}
+
+.route-loading {
+  position: relative;
+  display: block;
+  flex: 1 1 auto;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.route-loading::part(loading) {
+  height: 100%;
+  min-height: 0;
+}
+
+.app-aside {
+  min-height: 0;
+  overflow: visible;
+}
+
+.app-menu {
+  height: 100%;
+  border: none;
+  border-radius: 0;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--elf-space-2);
+  font-size: var(--elf-font-size-lg);
+  font-weight: 600;
+  color: var(--elf-primary);
+  line-height: 1;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.brand:focus-visible {
+  outline: 2px solid var(--elf-primary);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+.brand-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  object-fit: cover;
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.6);
+}
+
+.spacer {
+  flex: 1;
+}
+
+.header-action {
+  flex: 0 0 auto;
+}
+
+.skin-action {
+  min-width: 112px;
+  color: var(--elf-primary);
+}
+
+.icon-action {
+  min-width: 40px;
+}
+
+.docs-scroll {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--elf-text-secondary) 38%, transparent) transparent;
+}
+
+.route-loading .docs-scroll {
+  flex: 1 1 auto;
+  height: 100%;
+  min-height: 0;
+}
+
+.docs-scroll::-webkit-scrollbar {
+  width: 9px;
+}
+
+.docs-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.docs-scroll::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--elf-text-secondary) 34%, transparent);
+  background-clip: padding-box;
+}
+
+.docs-scroll::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--elf-primary) 58%, transparent);
+  background-clip: padding-box;
+}
+
+.docs-layout {
+  display: flex;
+  align-items: flex-start;
+  min-width: 0;
+  min-height: 100%;
+}
+
+elf-main {
+  min-width: 0;
+  flex: 1 1 auto;
+  min-height: auto;
+  overflow: visible;
+}
+
+elf-docs-toc {
+  flex: 0 0 220px;
+}
+
+.nav-scrim {
+  display: none;
+}
+
+@media (max-width: 720px) {
+  .brand > span,
+  .skin-action {
+    display: none;
+  }
+
+  .app-aside {
+    position: fixed;
+    z-index: 50;
+    inset: 64px auto 0 0;
+    width: min(82vw, 264px) !important;
+    transform: translateX(-102%);
+    box-shadow: var(--elf-shadow-3);
+    transition: transform var(--elf-transition-base);
+  }
+
+  .app-aside.mobile-open {
+    transform: translateX(0);
+  }
+
+  .nav-scrim {
+    position: fixed;
+    z-index: 49;
+    inset: 64px 0 0;
+    display: block;
+    padding: 0;
+    border: 0;
+    background: rgb(0 0 0 / 0.36);
+  }
+
+  elf-main {
+    width: 100%;
+    padding-inline: var(--elf-space-3);
+  }
+
+  .docs-layout {
+    display: block;
+  }
+
+  elf-docs-toc {
+    display: none;
+  }
+}
+
+@media (max-width: 1180px) {
+  elf-docs-toc {
+    display: none;
+  }
+}

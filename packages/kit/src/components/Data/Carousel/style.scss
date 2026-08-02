@@ -1,0 +1,423 @@
+@use "../../../styles/reset";
+
+:host {
+  display: block;
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: var(--elf-radius-lg);
+  user-select: none;
+  background: transparent;
+}
+
+.carousel {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  overflow: hidden;
+  border-radius: inherit;
+  isolation: isolate;
+  touch-action: pan-y;
+  background: var(--elf-bg-overlay);
+}
+
+:host([direction="vertical"]) .carousel {
+  touch-action: pan-x;
+}
+
+// ───── 轨道 ──────────────────────────────────────
+.track {
+  display: flex;
+  height: 100%;
+  will-change: transform;
+  transition: transform var(--_dur, 0.5s) cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.track.is-resetting {
+  transition: none;
+}
+
+.loop-clone {
+  display: block;
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.loop-clone > * {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+::slotted(*) {
+  display: block;
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
+}
+
+:host([direction="vertical"]) .track {
+  flex-direction: column;
+  width: 100%;
+}
+
+:host([direction="vertical"]) ::slotted(*) {
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
+}
+
+:host([direction="vertical"]) .loop-clone {
+  flex-basis: 100%;
+}
+
+::slotted(img) {
+  object-fit: cover;
+}
+
+// ───── 渐隐模式 ──────────────────────────────────
+:host([effect="fade"]) .track {
+  display: grid;
+  grid-template: 1fr / 1fr;
+}
+
+:host([effect="fade"]) .loop-clone,
+:host([type="card"]) .loop-clone {
+  display: none;
+}
+
+:host([effect="fade"]) ::slotted(*) {
+  grid-area: 1 / 1;
+  transition: opacity var(--_dur, 0.6s) ease;
+}
+
+:host([type="card"]) .track {
+  position: relative;
+  display: block;
+  overflow: hidden;
+}
+
+:host([type="card"]) .carousel {
+  background: transparent;
+}
+
+:host([type="card"]) ::slotted(elf-carousel-item) {
+  position: absolute;
+  inset: 0;
+  width: 52%;
+  height: 100%;
+  margin: 0 auto;
+  transform: translateX(calc(var(--_card-offset, 0) * 88%)) scale(var(--_card-scale, 0.84));
+  opacity: var(--_card-opacity, 1);
+  z-index: var(--_card-z-index, 0);
+  pointer-events: none;
+  transition:
+    transform var(--_dur, 0.5s) cubic-bezier(0.25, 0.8, 0.25, 1),
+    opacity var(--_dur, 0.5s) ease;
+}
+
+:host([type="card"]) ::slotted(elf-carousel-item[active]) {
+  pointer-events: auto;
+}
+
+// ───── 箭头 ──────────────────────────────────────
+.arrows {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--elf-space-3);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--elf-transition-fast);
+}
+
+:host(:hover) .arrows,
+:host(:focus-within) .arrows {
+  opacity: 1;
+}
+
+:host([arrow="always"]) .arrows {
+  opacity: 1;
+}
+
+.arrow {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgb(255 255 255 / 42%);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.78);
+  color: rgba(0, 0, 0, 0.55);
+  font-size: 0;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(4px);
+  transition: all var(--elf-transition-fast);
+
+  &:hover {
+    background: #fff;
+    color: var(--elf-primary);
+    box-shadow: var(--elf-shadow-1);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.arrow:focus-visible,
+.play-control:focus-visible,
+.dot:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+
+.arrow:disabled {
+  cursor: not-allowed;
+  opacity: 0.38;
+}
+
+.play-control {
+  position: absolute;
+  z-index: 5;
+  top: 16px;
+  right: 16px;
+  display: grid;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  place-items: center;
+  color: rgb(15 23 42 / 72%);
+  border: 1px solid rgb(255 255 255 / 46%);
+  border-radius: 50%;
+  background: rgb(255 255 255 / 82%);
+  box-shadow: 0 3px 12px rgb(15 23 42 / 16%);
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+  transition:
+    background-color var(--elf-transition-fast),
+    color var(--elf-transition-fast),
+    transform var(--elf-transition-fast);
+}
+
+.play-control:hover {
+  color: var(--elf-primary);
+  background: #fff;
+}
+
+.play-control:active {
+  transform: scale(0.95);
+}
+
+.pause-icon {
+  width: 12px;
+  height: 14px;
+  border-right: 4px solid currentColor;
+  border-left: 4px solid currentColor;
+}
+
+.play-icon {
+  width: 0;
+  height: 0;
+  margin-inline-start: 3px;
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+  border-left: 11px solid currentColor;
+}
+
+.arrow span {
+  width: 10px;
+  height: 10px;
+  border-top: 2px solid currentColor;
+  border-right: 2px solid currentColor;
+}
+
+.arrow-left span {
+  transform: rotate(-135deg);
+  margin-inline-start: 4px;
+}
+.arrow-right span {
+  transform: rotate(45deg);
+  margin-inline-end: 4px;
+}
+
+:host([direction="vertical"]) .arrows {
+  flex-direction: column;
+  padding: var(--elf-space-3) 0;
+}
+
+:host([direction="vertical"]) .arrow-left span {
+  margin: 4px 0 0;
+  transform: rotate(-45deg);
+}
+
+:host([direction="vertical"]) .arrow-right span {
+  margin: 0 0 4px;
+  transform: rotate(135deg);
+}
+
+:host([direction="vertical"]) .indicators {
+  right: 20px;
+  bottom: auto;
+  left: auto;
+  top: 50%;
+  flex-direction: column;
+  transform: translateY(-50%);
+}
+
+:host([direction="vertical"][indicator-type="line"]) .dot {
+  width: 3px;
+  height: 20px;
+}
+
+:host([direction="vertical"][indicator-type="line"]) .dot.is-active {
+  width: 3px;
+  height: 32px;
+}
+
+// ───── arrow-style ───────────────────────────────
+:host([show-arrow="square"]) .arrow {
+  border-radius: var(--elf-radius-sm);
+}
+
+:host([show-arrow="ghost"]) .arrow {
+  background: transparent;
+  box-shadow: none;
+  color: rgba(255, 255, 255, 0.75);
+  width: 48px;
+  height: 48px;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    box-shadow: none;
+  }
+}
+
+// ───── 指示器 ────────────────────────────────────
+.indicators {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 14px;
+  border-radius: var(--elf-radius-pill);
+  background: rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(4px);
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border: none;
+  border-radius: 50%;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  transition: all var(--elf-transition-base);
+}
+
+.dot.is-active {
+  width: 28px;
+  border-radius: var(--elf-radius-pill);
+  background: #fff;
+}
+
+// ───── 线形指示器 ────────────────────────────────
+:host([indicator-type="line"]) .dot {
+  width: 20px;
+  height: 3px;
+  border-radius: 2px;
+}
+
+:host([indicator-type="line"]) .dot.is-active {
+  width: 32px;
+  background: #fff;
+}
+
+// ───── 数字指示器 ────────────────────────────────
+:host([indicator-type="number"]) .dot {
+  width: auto;
+  height: 28px;
+  min-width: 28px;
+  border-radius: var(--elf-radius-sm);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: var(--elf-font-size-xs);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+:host([indicator-type="number"]) .dot.is-active {
+  background: #fff;
+  color: rgba(0, 0, 0, 0.87);
+  width: auto;
+}
+
+:host([indicator-position="outside"]) {
+  overflow: visible;
+  padding-bottom: 34px;
+}
+
+:host([indicator-position="outside"]) .indicators {
+  top: auto;
+  bottom: 2px;
+  background: var(--elf-bg-overlay);
+  box-shadow: var(--elf-shadow-1);
+}
+
+:host([indicator-position="outside"]) .dot {
+  background: var(--elf-border-color, rgba(0, 0, 0, 0.25));
+}
+
+:host([indicator-position="outside"]) .dot.is-active {
+  background: var(--elf-primary);
+}
+
+// ───── 暗色主题 ──────────────────────────────────
+:root[data-theme="dark"] .arrow {
+  background: rgba(0, 0, 0, 0.65);
+  color: rgba(255, 255, 255, 0.75);
+  &:hover {
+    background: rgba(0, 0, 0, 0.85);
+    color: var(--elf-primary);
+  }
+}
+
+:root[data-theme="dark"] :host([show-arrow="ghost"]) .arrow {
+  background: transparent;
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .track,
+  :host([effect="fade"]) ::slotted(*),
+  :host([type="card"]) ::slotted(elf-carousel-item) {
+    transition-duration: 0.01ms;
+  }
+
+  .play-control,
+  .arrow,
+  .dot {
+    transition: none;
+  }
+}

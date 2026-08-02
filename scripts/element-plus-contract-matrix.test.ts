@@ -13,6 +13,7 @@ const matrixPath = join(
   "2026-07-31-element-plus-contract-matrix.md",
 );
 const matrix = readFileSync(matrixPath, "utf8");
+const resolveKitOwner = (owner: string): string => join(repositoryRoot, "packages", "kit", owner);
 
 const families = [
   "Form",
@@ -109,7 +110,7 @@ describe("Element Plus public contract matrix", () => {
       "src/components/Picker/Calendar/types.ts",
     ];
     for (const owner of owners) {
-      expect(existsSync(join(repositoryRoot, owner))).toBe(true);
+      expect(existsSync(resolveKitOwner(owner))).toBe(true);
       expect(matrix).toContain(owner);
     }
   });

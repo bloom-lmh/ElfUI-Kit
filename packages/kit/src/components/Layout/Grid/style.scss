@@ -1,0 +1,47 @@
+// elf-grid + elf-grid-item 样式
+@use "../../../styles/reset";
+
+:host {
+  display: grid;
+  grid-template-columns: repeat(var(--_cols, 12), 1fr);
+  gap: var(--_gap, 0);
+  justify-content: var(--_justify, start);
+  align-items: var(--_align, stretch);
+  box-sizing: border-box;
+}
+
+:host([auto-fit]) {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--_min-col, 220px)), 1fr));
+}
+
+:host([justify="start"]) {
+  --_justify: start;
+}
+:host([justify="end"]) {
+  --_justify: end;
+}
+:host([justify="center"]) {
+  --_justify: center;
+}
+:host([justify="space-between"]) {
+  --_justify: space-between;
+}
+:host([justify="space-around"]) {
+  --_justify: space-around;
+}
+:host([justify="space-evenly"]) {
+  --_justify: space-evenly;
+}
+
+:host([align="stretch"]) {
+  --_align: stretch;
+}
+:host([align="start"]) {
+  --_align: start;
+}
+:host([align="center"]) {
+  --_align: center;
+}
+:host([align="end"]) {
+  --_align: end;
+}

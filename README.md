@@ -2,6 +2,14 @@
 
 ELFUI-KIT is a Web Components library built on ElfUI. Components register as Custom Elements and work with native HTML or any framework.
 
+## Monorepo
+
+- `packages/kit` contains the publishable `@elfui/kit` package.
+- `apps/website` contains the private documentation website deployed to Vercel.
+- `docs` retains architecture records, implementation plans, maintenance handoff notes, and visual evidence.
+
+The website is never included in the npm package.
+
 ## Install
 
 ```bash

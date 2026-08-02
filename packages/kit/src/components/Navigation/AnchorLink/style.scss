@@ -1,0 +1,50 @@
+@use "../../../styles/reset";
+
+:host {
+  display: block;
+  --_level: 0;
+}
+.item {
+  display: block;
+  list-style: none;
+}
+.link {
+  display: flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 6px 12px 6px calc(12px + var(--_level) * 16px);
+  border-radius: var(--elf-radius-sm);
+  color: var(--elf-text-secondary);
+  font-size: var(--elf-font-size-sm);
+  text-decoration: none;
+  transition:
+    color var(--elf-transition-fast),
+    background var(--elf-transition-fast);
+}
+.link:hover {
+  color: var(--elf-primary);
+  background: var(--elf-bg-overlay);
+}
+.link:focus-visible {
+  outline: 2px solid var(--elf-primary);
+  outline-offset: -2px;
+}
+:host([data-has-default-content]) .title {
+  display: none;
+}
+:host([data-active]) .link {
+  color: var(--elf-primary);
+  font-weight: 600;
+}
+.sub-links {
+  display: block;
+}
+:host([data-direction="horizontal"]) {
+  display: inline-flex;
+}
+:host([data-direction="horizontal"]) .item {
+  display: inline-flex;
+}
+:host([data-direction="horizontal"]) .sub-links {
+  display: none;
+}

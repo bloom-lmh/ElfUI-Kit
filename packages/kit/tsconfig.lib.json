@@ -1,0 +1,22 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "noCheck": true,
+    "declaration": true,
+    "declarationMap": false,
+    "emitDeclarationOnly": true,
+    "outDir": "lib-dist",
+    "rootDir": "src"
+  },
+  "include": [
+    "src/env.d.ts",
+    "src/library.ts",
+    "src/labs.ts",
+    "src/elements.generated.d.ts",
+    "src/components/**/*.ts",
+    "src/composables/**/*.ts",
+    "src/types/**/*.ts"
+  ],
+  "exclude": ["src/**/*.test.ts", "src/**/*.test-component.ts", "src/**/__tests__/**"]
+}

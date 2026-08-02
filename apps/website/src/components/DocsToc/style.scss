@@ -1,0 +1,103 @@
+@use "@elfui/kit-src/styles/reset";
+
+:host {
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  display: block;
+  width: 220px;
+  min-width: 0;
+  padding: var(--elf-space-5) var(--elf-space-4) var(--elf-space-5) 0;
+  color: var(--elf-text-primary);
+}
+
+:host([hidden]) {
+  display: none;
+}
+
+.toc {
+  position: relative;
+  max-height: calc(100vh - 64px - 40px - var(--elf-space-8));
+  overflow: auto;
+  padding-left: var(--elf-space-4);
+  border-left: 1px solid var(--elf-divider);
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--elf-text-secondary) 36%, transparent) transparent;
+}
+
+.toc::-webkit-scrollbar {
+  width: 6px;
+}
+
+.toc::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--elf-text-secondary) 36%, transparent);
+}
+
+.label {
+  display: block;
+  margin-bottom: var(--elf-space-3);
+  font-size: var(--elf-font-size-sm);
+  font-weight: 700;
+}
+
+.items {
+  display: grid;
+  gap: 2px;
+}
+
+.item {
+  position: relative;
+  width: 100%;
+  min-height: 32px;
+  padding: var(--elf-space-1) var(--elf-space-2);
+  border: 0;
+  border-radius: var(--elf-radius-sm);
+  background: transparent;
+  color: var(--elf-text-secondary);
+  font: inherit;
+  font-size: var(--elf-font-size-xs);
+  line-height: 1.45;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    color var(--elf-transition-fast),
+    background-color var(--elf-transition-fast);
+}
+
+.item.level-3 {
+  padding-left: var(--elf-space-5);
+}
+
+.item:hover {
+  background: var(--elf-bg-overlay);
+  color: var(--elf-text-primary);
+}
+
+.item.active {
+  background: color-mix(in srgb, var(--elf-primary) 10%, transparent);
+  color: var(--elf-primary);
+  font-weight: 650;
+}
+
+.item.active::before {
+  position: absolute;
+  top: 7px;
+  bottom: 7px;
+  left: calc(-1 * var(--elf-space-4) - 1px);
+  width: 2px;
+  border-radius: 999px;
+  background: var(--elf-primary);
+  content: "";
+}
+
+.item:focus-visible {
+  outline: 2px solid var(--elf-primary);
+  outline-offset: 1px;
+}
+
+@media (max-width: 1180px) {
+  :host {
+    display: none;
+  }
+}

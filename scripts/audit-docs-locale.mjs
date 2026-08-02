@@ -1,8 +1,9 @@
-import { readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { extname, join, relative, sep } from "node:path";
 
 const root = process.cwd();
-const pagesRoot = join(root, "src", "pages");
+const workspacePagesRoot = join(root, "apps", "website", "src", "pages");
+const pagesRoot = existsSync(workspacePagesRoot) ? workspacePagesRoot : join(root, "src", "pages");
 const targetName = /^(?:index|props|ex\d+)\.ts$/;
 const reportOnly = process.argv.includes("--report-only");
 const categoryOf = (file) => {

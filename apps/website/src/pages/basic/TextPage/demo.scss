@@ -1,0 +1,227 @@
+.text-demo-status {
+  color: var(--elf-text-secondary);
+  font-size: var(--elf-font-size-sm);
+}
+
+.text-appearance-grid,
+.text-semantic-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  width: min(860px, 100%);
+  margin-inline: auto;
+}
+
+.text-demo-card,
+.text-summary-card,
+.text-semantic-map,
+.text-clamp-card {
+  box-sizing: border-box;
+  min-width: 0;
+  border: 1px solid var(--elf-divider);
+  border-radius: var(--elf-radius-md);
+  background: color-mix(in srgb, var(--elf-bg-paper) 94%, var(--elf-primary) 6%);
+}
+
+.text-demo-card {
+  display: grid;
+  align-content: start;
+  gap: 18px;
+  padding: 22px;
+}
+
+.text-demo-card-wide {
+  grid-column: 1 / -1;
+}
+
+.text-demo-card > strong,
+.text-semantic-map > strong {
+  color: var(--elf-text-primary);
+  font-size: var(--elf-font-size-sm);
+}
+
+.text-demo-row,
+.text-demo-column {
+  display: flex;
+  gap: 14px;
+}
+
+.text-demo-row {
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+
+.text-demo-column {
+  align-items: flex-start;
+  flex-direction: column;
+}
+
+.text-semantic-grid {
+  grid-template-columns: minmax(0, 1.45fr) minmax(220px, 0.55fr);
+}
+
+.text-summary-card {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  padding: clamp(24px, 4vw, 42px);
+}
+
+.text-eyebrow {
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.text-responsive-title {
+  font-size: clamp(1.35rem, 4vw, 2.1rem);
+  line-height: 1.18;
+  letter-spacing: -0.025em;
+}
+
+.text-summary-copy {
+  max-width: 60ch;
+  line-height: 1.75;
+}
+
+.text-metric-block {
+  display: grid;
+  justify-items: start;
+  gap: 5px;
+  margin-top: 12px;
+  padding-top: 20px;
+  border-top: 1px solid var(--elf-divider);
+}
+
+.text-metric-line {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 7px;
+}
+
+.text-metric-value {
+  font-size: clamp(2rem, 7vw, 3.25rem);
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.text-semantic-map {
+  display: grid;
+  align-content: center;
+  gap: 8px;
+  padding: 24px;
+  background: var(--elf-bg-paper);
+}
+
+.text-semantic-map > div {
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--elf-divider);
+  color: var(--elf-text-secondary);
+  font-size: var(--elf-font-size-sm);
+}
+
+.text-semantic-map > div:last-child {
+  border-bottom: 0;
+}
+
+.text-semantic-map code {
+  color: var(--elf-primary);
+  font:
+    600 var(--elf-font-size-xs) "JetBrains Mono",
+    Menlo,
+    Consolas,
+    monospace;
+}
+
+.text-width-switch {
+  display: inline-flex;
+  padding: 3px;
+  border: 1px solid var(--elf-border);
+  border-radius: var(--elf-radius-sm);
+  background: color-mix(in srgb, var(--elf-bg-paper) 88%, transparent);
+}
+
+.text-width-switch button {
+  min-height: 30px;
+  padding-inline: 11px;
+  color: var(--elf-text-secondary);
+  font: inherit;
+  font-size: var(--elf-font-size-xs);
+  border: 0;
+  border-radius: calc(var(--elf-radius-sm) - 2px);
+  background: transparent;
+  cursor: pointer;
+}
+
+.text-width-switch button:hover,
+.text-width-switch button:focus-visible {
+  color: var(--elf-primary);
+}
+
+.text-width-switch button:focus-visible {
+  outline: 2px solid var(--elf-focus-ring, var(--elf-primary));
+  outline-offset: 1px;
+}
+
+.text-width-switch button.active {
+  color: var(--elf-primary);
+  background: color-mix(in srgb, var(--elf-primary) 12%, var(--elf-bg-paper));
+  font-weight: 700;
+}
+
+.text-clamp-card {
+  display: grid;
+  gap: 22px;
+  width: min(100%, 440px);
+  margin-inline: auto;
+  padding: 26px;
+  transition: width 180ms ease;
+}
+
+.text-clamp-card.is-compact {
+  width: min(100%, 280px);
+}
+
+.text-clamp-card.is-wide {
+  width: min(100%, 440px);
+}
+
+.text-clamp-section {
+  display: grid;
+  gap: 9px;
+  min-width: 0;
+}
+
+.text-clamp-label {
+  color: var(--elf-text-secondary);
+  font-size: var(--elf-font-size-xs);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.text-single-line,
+.text-multiple-line {
+  width: 100%;
+  line-height: 1.65;
+}
+
+.text-accessibility-note {
+  padding-top: 16px;
+  border-top: 1px solid var(--elf-divider);
+  line-height: 1.6;
+}
+
+@media (max-width: 720px) {
+  .text-appearance-grid,
+  .text-semantic-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .text-demo-card-wide {
+    grid-column: auto;
+  }
+}
