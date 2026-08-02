@@ -20,7 +20,7 @@
     "lint:fix": "eslint . --fix",
     "spellcheck": "cspell --no-progress --show-suggestions .",
     "test": "vitest run",
-    "test:kit": "vitest run packages/kit/src",
+    "test:kit": "vitest run packages/kit/src --maxWorkers=4",
     "test:website": "vitest run apps/website/src",
     "typecheck": "pnpm typecheck:kit && pnpm typecheck:website",
     "typecheck:kit": "node scripts/check-unsupported-macros.mjs packages/kit/src && node scripts/typecheck-macros.mjs packages/kit/tsconfig.lib.json",

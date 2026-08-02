@@ -41,6 +41,7 @@
 - Heading 新增 eyebrow、index、accent、chip 组合能力，文档新增“风格化标题组合”，展示 10 种编号、强调条、眉题与小标题美学组合。
 - IconPage 新增图标画廊案例，补充 18 个常用图标、尺寸阶梯、语义色和第三方原始 SVG 插槽展示；聚焦验证 Heading/HeadingPage/IconPage 共 3 个文件、10 项通过；docs locale `547/547`；website build 1126 模块、kit build 436 模块通过。
 - npm 发布前审计：`@elfui/kit` 为唯一非 private 包，tarball 仅含 LICENSE、README、lib-dist 与 package.json，website 文件数为 0；`@elfui/core@0.1.0-beta.20`、`@elfui/router@0.1.0-beta.10` 等依赖版本均可在 npm 解析；lib-dist 无 `@elfui/kit-src` 或本地路径泄漏。修复 Image 测试中依赖 SCSS 单行格式的脆弱断言，完整 Kit 测试 138 个文件、1424 项通过；包 README 已补充安装与使用说明。
+- 首次 `npm publish` 被 `prepublishOnly` 的 `test:kit` 超时阻断，根脚本已固定 `--maxWorkers=4`，避免全组件入口并行导入超过 10 秒 hook 上限。
 - 升级指南版本记录改为受控 `elf-collapse` 手风琴，移除 beta.7 迁移表，保留推荐门禁顺序；FAQ 中指向浏览器支持页的引用已清理，FAQ 重设计待讨论后实施。
 - 文档本地化审计由 `540/540` 变为 `539/539`，website build 1115 个模块通过。
 - 聚焦验证：CodeCard model、CodeCard、CodeCardPage、InstallationPage、information-architecture、DocsHero 共 6 个文件、26 项通过；Kit 与 website typecheck 均为 0 宏错误、0 TypeScript 错误；Prettier、ESLint、CSpell、docs locale `540/540`、website build 1116 模块、kit build 434 模块通过。
