@@ -79,6 +79,34 @@ describe("elf-code-card", () => {
     expect(firstId).not.toBe(secondId);
   });
 
+  it("slides the tab indicator to the activated code-group tab", async () => {
+    const card = await createCard((element) => {
+      element.items = [
+        { key: "alpha", label: "alpha.ts", language: "typescript", code: "const alpha = 1;" },
+        { key: "beta", label: "beta.ts", language: "typescript", code: "const beta = 2;" },
+      ];
+    });
+    const root = card.shadowRoot!;
+    const tabs = Array.from(root.querySelectorAll<HTMLElement>(".code-tab"));
+    const indicator = root.querySelector<HTMLElement>(".code-tab-indicator")!;
+
+    expect(tabs).toHaveLength(2);
+    expect(indicator).toBeTruthy();
+
+    Object.defineProperty(tabs[0]!, "offsetLeft", { configurable: true, value: 0 });
+    Object.defineProperty(tabs[0]!, "offsetWidth", { configurable: true, value: 96 });
+    Object.defineProperty(tabs[1]!, "offsetLeft", { configurable: true, value: 192 });
+    Object.defineProperty(tabs[1]!, "offsetWidth", { configurable: true, value: 120 });
+    await tick();
+
+    (tabs[1] as HTMLButtonElement).click();
+    await settle();
+
+    expect(indicator.style.left).toBe("192px");
+    expect(indicator.style.width).toBe("120px");
+    expect(tabs[1]?.getAttribute("aria-selected")).toBe("true");
+  });
+
   it("expands ranges and decorates focus, diagnostics, highlights, and diffs", async () => {
     const card = await createCard((element) => {
       element.code = "one\ntwo\nthree\nfour\nfive\nsix\nseven\neight";

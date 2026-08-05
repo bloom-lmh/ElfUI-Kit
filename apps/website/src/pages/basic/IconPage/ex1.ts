@@ -8,11 +8,17 @@ import styles from "./demo.scss?inline";
 const t = createDocsTranslator({
   title: { zh: "尺寸与颜色", en: "Size and color" },
   status: {
-    zh: "容器负责尺寸与颜色，图形可来自 name 或默认插槽",
-    en: "The container controls size and color; artwork comes from name or the default slot",
+    zh: "尺寸与颜色贴合界面层级：列表行 20px，重点状态 24px，颜色使用语义 token。",
+    en: "Size and color follow the UI hierarchy: 20px for list rows, 24px for prominent states, with semantic tokens.",
   },
-  symbols: { zh: "状态图标", en: "Status icons" },
-  scale: { zh: "尺寸层级", en: "Size scale" },
+  notifications: { zh: "发布通知", en: "Release notifications" },
+  successTitle: { zh: "构建 #4821 已通过", en: "Build #4821 passed" },
+  successTime: { zh: "2 分钟前", en: "2 min ago" },
+  warningTitle: { zh: "磁盘使用率达到 86%", en: "Disk usage reached 86%" },
+  warningTime: { zh: "1 小时前", en: "1 hour ago" },
+  dangerTitle: { zh: "订单服务错误率 5.2%", en: "Order service error rate 5.2%" },
+  dangerTime: { zh: "刚刚", en: "Just now" },
+  sizeScale: { zh: "尺寸层级", en: "Size scale" },
 });
 
 const iconOptions = {
@@ -28,39 +34,84 @@ const iconOptions = {
 };
 
 const appearanceCode = `<elf-icon-provider :options.prop="iconOptions">
-  <elf-icon name="success" size="18" color="var(--elf-success)" />
-  <elf-icon name="warning" size="24" color="var(--elf-warning)" />
-  <elf-icon name="danger" size="32" color="var(--elf-danger)" />
+  <div class="icon-notice-panel">
+    <strong class="icon-notice-head">Release notifications</strong>
+    <div class="icon-notice-list">
+      <div class="icon-notice-row">
+        <elf-icon name="success" size="20" color="var(--elf-success)" />
+        <span class="icon-notice-body">
+          <strong>Build #4821 passed</strong>
+          <small>2 min ago</small>
+        </span>
+      </div>
+      <div class="icon-notice-row">
+        <elf-icon name="warning" size="24" color="var(--elf-warning)" />
+        <span class="icon-notice-body">
+          <strong>Disk usage reached 86%</strong>
+          <small>1 hour ago</small>
+        </span>
+      </div>
+      <div class="icon-notice-row">
+        <elf-icon name="danger" size="24" color="var(--elf-danger)" />
+        <span class="icon-notice-body">
+          <strong>Order service error rate 5.2%</strong>
+          <small>Just now</small>
+        </span>
+      </div>
+    </div>
+    <div class="icon-size-ladder">
+      <span>Size scale</span>
+      <elf-icon name="search" size="16"></elf-icon>
+      <elf-icon name="search" size="24"></elf-icon>
+      <elf-icon name="search" size="32"></elf-icon>
+      <elf-icon name="search" size="2.5em"></elf-icon>
+    </div>
+  </div>
 </elf-icon-provider>`;
 
-const appearanceScript = `// 未提供 aria-label 的图标默认为装饰性 aria-hidden="true"。
-// 只有图标自身承载语义时才添加 aria-label；按钮内图标应由按钮提供名称。`;
+const appearanceScript = `// 列表行图标 20px，重点状态 24px；颜色使用语义 token。
+// Rows use 20px icons; prominent states use 24px with semantic tokens.`;
 
 defineStyle(styles);
 
 const PageIconEx1 = defineHtml(`
   <elf-playground :title=${t("title")} :code=${appearanceCode} :script=${appearanceScript}>
     <span slot="status" class="icon-demo-status">${t("status")}</span>
-    <elf-icon-provider :options.prop=${iconOptions}><div class="icon-appearance-grid">
-      <article class="icon-demo-card">
-        <strong>${t("symbols")}</strong>
-        <div class="icon-demo-row">
-          <span class="icon-demo-token"><elf-icon name="success" size="18" color="var(--elf-success)"></elf-icon><small>18</small></span>
-          <span class="icon-demo-token"><elf-icon name="warning" size="24" color="var(--elf-warning)"></elf-icon><small>24</small></span>
-          <span class="icon-demo-token"><elf-icon name="danger" size="32" color="var(--elf-danger)"></elf-icon><small>32</small></span>
+    <elf-icon-provider :options.prop=${iconOptions}>
+      <div class="icon-notice-panel">
+        <strong class="icon-notice-head">${t("notifications")}</strong>
+        <div class="icon-notice-list">
+          <div class="icon-notice-row">
+            <elf-icon name="success" size="20" color="var(--elf-success)"></elf-icon>
+            <span class="icon-notice-body">
+              <strong>${t("successTitle")}</strong>
+              <small>${t("successTime")}</small>
+            </span>
+          </div>
+          <div class="icon-notice-row">
+            <elf-icon name="warning" size="24" color="var(--elf-warning)"></elf-icon>
+            <span class="icon-notice-body">
+              <strong>${t("warningTitle")}</strong>
+              <small>${t("warningTime")}</small>
+            </span>
+          </div>
+          <div class="icon-notice-row">
+            <elf-icon name="danger" size="24" color="var(--elf-danger)"></elf-icon>
+            <span class="icon-notice-body">
+              <strong>${t("dangerTitle")}</strong>
+              <small>${t("dangerTime")}</small>
+            </span>
+          </div>
         </div>
-      </article>
-
-      <article class="icon-demo-card">
-        <strong>${t("scale")}</strong>
-        <div class="icon-demo-row">
+        <div class="icon-size-ladder">
+          <span>${t("sizeScale")}</span>
           <elf-icon name="search" size="16"></elf-icon>
           <elf-icon name="search" size="24"></elf-icon>
           <elf-icon name="search" size="32"></elf-icon>
           <elf-icon name="search" size="2.5em"></elf-icon>
         </div>
-      </article>
-    </div></elf-icon-provider>
+      </div>
+    </elf-icon-provider>
   </elf-playground>
 `);
 

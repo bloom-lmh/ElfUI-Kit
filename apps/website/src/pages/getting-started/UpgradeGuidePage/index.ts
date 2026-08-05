@@ -1,7 +1,9 @@
-import { defineHtml, defineStyle, useRef } from "@elfui/core";
+import { defineHtml, defineStyle } from "@elfui/core";
 
+import "@elfui/kit/labs";
 import { createDocsTranslator } from "../../docsLocale";
 import articleStyles from "../../shared/article.scss?inline";
+import { codeCard, MD_EMBED_STYLE } from "../../shared/md-embed";
 
 const t = createDocsTranslator({
   kicker: { zh: "快速入门", en: "Getting started" },
@@ -11,11 +13,8 @@ const t = createDocsTranslator({
     en: "An upgrade is a reversible, verifiable migration—not a dependency bump. Lock versions and scope first, migrate APIs next, then run component tests and real-browser acceptance.",
   },
   scope: { zh: "适用范围", en: "Scope" },
-  scopeValue: { zh: "Framework beta 与 Kit", en: "Framework beta and Kit" },
   sequence: { zh: "执行顺序", en: "Sequence" },
-  sequenceValue: { zh: "版本 → 源码 → 回归", en: "Versions → source → regression" },
   rule: { zh: "核心原则", en: "Core rule" },
-  ruleValue: { zh: "框架缺陷不在组件侧硬绕", en: "Do not mask framework defects" },
   beforeTitle: { zh: "升级前准备", en: "Before upgrading" },
   beforeLead: {
     zh: "先记录当前可工作的版本和关键页面截图。没有基线，就无法判断升级是修复还是退化。",
@@ -40,7 +39,7 @@ const t = createDocsTranslator({
   },
   migrateTitle: { zh: "迁移公开 API", en: "Migrate public APIs" },
   migrateBody: {
-    zh: "通过静态扫描处理已删除入口，不保留双写兼容层。迁移后再运行类型检查，避免错误被构建输出淹没。",
+    zh: "通过静态扫描处理已删除入口，不保留双写兼容层。迁移后再运行类型检查。",
     en: "Use static scans to remove deleted entries without keeping dual compatibility layers. Run type checks immediately after migration.",
   },
   verifyTitle: { zh: "运行质量门禁", en: "Run quality gates" },
@@ -130,15 +129,6 @@ const t = createDocsTranslator({
   },
 });
 
-const activeFrameworkRelease = useRef("framework-beta.20");
-const activeKitRelease = useRef("v0.0.2-beta.1");
-const onFrameworkReleaseChange = (event: CustomEvent): void => {
-  activeFrameworkRelease.set(String(event.detail));
-};
-const onKitReleaseChange = (event: CustomEvent): void => {
-  activeKitRelease.set(String(event.detail));
-};
-const releaseTitle = (version: string, title: string): string => `${version} · ${title}`;
 const gateCode = [
   "node scripts/check-beta8-migration.mjs",
   "pnpm exec vitest run path/to/component.test.ts --maxWorkers=1",
@@ -147,14 +137,52 @@ const gateCode = [
   "pnpm build",
 ].join("\n");
 
+const releaseTitle = (version: string, label: string): string => `${version} · ${label}`;
+
+const markdown = (): string => `${MD_EMBED_STYLE}
+# ${t("beforeTitle")}
+
+${t("beforeLead")}
+
+- ${t("beforeOne")}
+- ${t("beforeTwo")}
+- ${t("beforeThree")}
+
+# ${t("gatesTitle")}
+
+${t("gatesLead")}
+
+${codeCard(gateCode, "bash", "Terminal")}
+
+<div class="md-embed">
+  <elf-alert type="warning" variant="soft" show-icon="false" title="${t("defectTitle")}" description="${t("defectBody")}"></elf-alert>
+</div>
+
+# ${t("doneTitle")}
+
+- ${t("doneOne")}
+- ${t("doneTwo")}
+- ${t("doneThree")}
+- ${t("doneFour")}
+
+# ${t("nextTitle")}
+
+${t("nextBody")}
+
+- <elf-link href="#/quality">${t("qualityLink")} →</elf-link>`;
+
 defineStyle(
   articleStyles,
   `
-  .upgrade-page .docs-section {
-    margin-block: clamp(1.75rem, 3vw, 2.75rem);
+  .upgrade-md {
+    width: max(85%, min(100%, 900px));
+    max-width: 100%;
+    min-width: 0;
+    margin-inline: auto;
+    box-sizing: border-box;
   }
   .release-accordion {
-    margin-top: var(--elf-space-4);
+    margin: 0 0 18px;
   }
   .release-accordion::part(collapse) {
     box-shadow: none;
@@ -178,13 +206,10 @@ defineStyle(
     color: var(--elf-text-secondary);
   }
   .release-group-title {
-    margin: var(--elf-space-7) 0 var(--elf-space-3);
+    margin: 22px 0 10px;
     font-size: var(--elf-font-size-lg);
   }
-  .release-group-title:first-child {
-    margin-top: 0;
-  }
-  .release-accordion .release-meta {
+  .release-meta {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -205,38 +230,24 @@ defineStyle(
     color: var(--elf-text-secondary);
     line-height: var(--docs-line-height);
   }
-  `,
+`,
 );
 
 const PageUpgradeGuide = defineHtml(`
   <elf-container class="docs-article guide-page upgrade-page">
     <elf-docs-hero category="getting-started" tag="Upgrade" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
-    <div class="guide-content">
-
-    <section class="docs-section release-log">
+    <div class="upgrade-md">
       <h2>${t("releasesTitle")}</h2>
-
       <h3 class="release-group-title">${t("frameworkReleasesTitle")}</h3>
-      <elf-collapse
-        class="release-accordion"
-        accordion
-        :modelValue.prop=${activeFrameworkRelease.value}
-        @update:modelValue=${onFrameworkReleaseChange}
-      >
-        <elf-collapse-item
-          name="framework-beta.20"
-          :title.prop=${releaseTitle("Framework v0.1.0-beta.20", t("beta20Title"))}
-        >
+      <elf-collapse class="release-accordion" accordion>
+        <elf-collapse-item name="framework-beta.20" :title=${releaseTitle("Framework v0.1.0-beta.20", t("beta20Title"))}>
           <p>${t("beta20Body")}</p>
           <ul>
             <li>${t("beta20One")}</li>
             <li>${t("beta20Two")}</li>
           </ul>
         </elf-collapse-item>
-        <elf-collapse-item
-          name="framework-beta.18"
-          :title.prop=${releaseTitle("Framework v0.1.0-beta.18", t("beta18Title"))}
-        >
+        <elf-collapse-item name="framework-beta.18" :title=${releaseTitle("Framework v0.1.0-beta.18", t("beta18Title"))}>
           <p>${t("beta18Body")}</p>
           <ul>
             <li>${t("beta18One")}</li>
@@ -244,18 +255,9 @@ const PageUpgradeGuide = defineHtml(`
           </ul>
         </elf-collapse-item>
       </elf-collapse>
-
       <h3 class="release-group-title">${t("kitReleasesTitle")}</h3>
-      <elf-collapse
-        class="release-accordion"
-        accordion
-        :modelValue.prop=${activeKitRelease.value}
-        @update:modelValue=${onKitReleaseChange}
-      >
-        <elf-collapse-item
-          name="v0.0.2-beta.1"
-          :title.prop=${releaseTitle("v0.0.2-beta.1", t("kitReleaseTitle"))}
-        >
+      <elf-collapse class="release-accordion" accordion>
+        <elf-collapse-item name="v0.0.2-beta.1" :title=${releaseTitle("v0.0.2-beta.1", t("kitReleaseTitle"))}>
           <div class="release-meta">
             <elf-tag size="small" type="success">${t("current")}</elf-tag>
           </div>
@@ -267,44 +269,11 @@ const PageUpgradeGuide = defineHtml(`
           </ul>
         </elf-collapse-item>
       </elf-collapse>
-    </section>
-
-    <section class="docs-section">
-      <h2>${t("beforeTitle")}</h2>
-      <p class="docs-section-lead">${t("beforeLead")}</p>
-      <ul class="docs-checklist">
-        <li>${t("beforeOne")}</li>
-        <li>${t("beforeTwo")}</li>
-        <li>${t("beforeThree")}</li>
-      </ul>
-    </section>
-
-    <section class="docs-section">
-      <h2>${t("gatesTitle")}</h2>
-      <p class="docs-section-lead">${t("gatesLead")}</p>
-      <elf-code-card class="guide-code" variant="workbench" language="bash" filename="Terminal" :code.prop="gateCode" line-numbers></elf-code-card>
-      <elf-alert type="warning" variant="soft" :showIcon.prop=${false} :title=${t("defectTitle")} :description=${t("defectBody")}></elf-alert>
-    </section>
-
-    <section class="docs-section">
-      <h2>${t("doneTitle")}</h2>
-      <ul class="docs-checklist">
-        <li>${t("doneOne")}</li>
-        <li>${t("doneTwo")}</li>
-        <li>${t("doneThree")}</li>
-        <li>${t("doneFour")}</li>
-      </ul>
-    </section>
-
-    <section class="docs-next" data-docs-toc-ignore>
-      <div>
-        <h2>${t("nextTitle")}</h2>
-        <p>${t("nextBody")}</p>
-      </div>
-      <div class="docs-link-list">
-        <elf-link href="#/quality">${t("qualityLink")} →</elf-link>
-      </div>
-    </section>
+      <elf-md-page
+        max-width="100%"
+        code-theme="material"
+        :base-heading-level=${2}
+      >${markdown()}</elf-md-page>
     </div>
   </elf-container>
 `);

@@ -18,9 +18,11 @@ const t = createDocsTranslator({
   retry: { zh: "重试", en: "Retry" },
   reset: { zh: "模拟失败", en: "Simulate failure" },
   name: { zh: "Ada Lovelace 的个人头像", en: "Profile avatar for Ada Lovelace" },
+  role: { zh: "项目负责人", en: "Project lead" },
+  status: { zh: "在线", en: "Online" },
   explanation: {
-    zh: "图片错误时仍保留完整姓名作为无障碍名称；更换 src 后会重新尝试加载。",
-    en: "The fallback keeps the full name as its accessible label; changing src retries loading.",
+    zh: "图片加载失败时保留完整姓名作为无障碍名称，头像自动回退为文字；更换 src 后重新尝试加载。",
+    en: "On image failure the full name stays as the accessible label and the avatar falls back to text. Changing src retries loading.",
   },
 });
 
@@ -57,11 +59,7 @@ defineStyle(styles);
 
 const PageAvatarEx2 = defineHtml(`
   <elf-playground :title=${t("title")} :code=${fallbackCode} :script=${fallbackScript}>
-    <span slot="status" class="avatar-demo-actions">
-      <span>${stateText()}</span>
-      <elf-button size="sm" variant="outlined" @click=${retry}>${t("retry")}</elf-button>
-      <elf-button size="sm" variant="text" @click=${reset}>${t("reset")}</elf-button>
-    </span>
+    <span slot="status" class="avatar-demo-status">${stateText()}</span>
     <div class="avatar-fallback-demo">
       <elf-avatar
         size="xl"
@@ -70,9 +68,19 @@ const PageAvatarEx2 = defineHtml(`
         :aria-label=${t("name")}
         @error=${onImageError}
       ></elf-avatar>
-      <div>
-        <strong>Ada Lovelace</strong>
+      <div class="avatar-profile-copy">
+        <div class="avatar-profile-title">
+          <strong>Ada Lovelace</strong>
+          <span class="avatar-status-chip">
+            <i></i>${t("status")}
+          </span>
+        </div>
+        <p class="avatar-profile-role">${t("role")}</p>
         <p>${t("explanation")}</p>
+        <div class="avatar-profile-actions">
+          <elf-button size="sm" variant="outlined" @click=${retry}>${t("retry")}</elf-button>
+          <elf-button size="sm" variant="text" @click=${reset}>${t("reset")}</elf-button>
+        </div>
       </div>
     </div>
   </elf-playground>

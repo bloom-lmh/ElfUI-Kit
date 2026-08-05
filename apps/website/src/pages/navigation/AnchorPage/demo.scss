@@ -1,11 +1,17 @@
 .anchor-demo-layout {
   display: grid;
-  grid-template-columns: minmax(160px, 220px) minmax(0, 1fr);
+  grid-template-columns: auto minmax(0, 1fr);
   gap: clamp(16px, 3vw, 28px);
   width: 100%;
   max-width: 900px;
   min-width: 0;
   align-items: start;
+}
+
+.anchor-demo-layout > elf-anchor {
+  width: max-content;
+  min-width: 0;
+  --anchor-min-width: 0;
 }
 
 .anchor-document {

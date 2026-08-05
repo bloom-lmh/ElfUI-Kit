@@ -4,7 +4,7 @@ import { createDocsPicker, createDocsTranslator } from "../../docsLocale";
 import demoStyles from "./demo.scss?inline";
 
 const t = createDocsTranslator({
-  title: { zh: "字段表面与状态", en: "Field surfaces and states" },
+  title: { zh: "字段状态", en: "Field states" },
   filled: { zh: "填充", en: "Filled" },
   outlined: { zh: "描边", en: "Outlined" },
   disabled: { zh: "禁用", en: "Disabled" },

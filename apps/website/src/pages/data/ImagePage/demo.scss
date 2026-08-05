@@ -39,10 +39,6 @@
   justify-items: center;
   width: min(620px, 100%);
   margin-inline: auto;
-  padding: 22px;
-  border: 1px solid var(--elf-border);
-  border-radius: var(--elf-radius-md);
-  background: color-mix(in srgb, var(--elf-bg-paper) 94%, var(--elf-primary) 6%);
 }
 
 .image-fit-note {

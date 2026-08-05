@@ -2,16 +2,32 @@
   display: block;
 }
 
-.demo-field {
-  width: min(100%, 720px);
+.dtp-card {
+  display: grid;
+  gap: 16px;
+  width: min(100%, 480px);
   margin-inline: auto;
+  padding: 20px;
+  border: 1px solid var(--elf-divider);
+  border-radius: var(--elf-radius-md);
+  background: var(--elf-bg-paper);
 }
 
-.demo-stack {
+.dtp-card-head {
   display: grid;
-  gap: var(--elf-space-4);
-  width: min(100%, 760px);
-  margin-inline: auto;
+  gap: 4px;
+}
+
+.dtp-card-title {
+  color: var(--elf-text-primary);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.dtp-card-meta {
+  color: var(--elf-text-secondary);
+  font-size: 12px;
+  line-height: 1.5;
 }
 
 .demo-state {

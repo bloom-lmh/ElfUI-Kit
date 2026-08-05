@@ -221,10 +221,9 @@ describe("elf-doc-sync", () => {
     expect(leftLines.length).toBeGreaterThan(0);
     expect(leftLines[0]!.textContent).toBe("1");
     expect(panes[0]!.querySelector(".doc-sync-ruler")).toBeTruthy();
-    expect(panes[0]!.querySelectorAll(".doc-sync-ruler-mark").length).toBeGreaterThan(0);
+    expect(panes[0]!.querySelectorAll(".doc-sync-ruler-mark").length).toBe(51);
     expect(panes[1]!.querySelector(".doc-sync-line")).toBeNull();
-    expect(element.shadowRoot!.querySelectorAll(".doc-sync-scrollbar").length).toBe(2);
-    expect(element.shadowRoot!.querySelector(".doc-sync-progress")).toBeTruthy();
+    expect(element.shadowRoot!.querySelectorAll(".doc-sync-top-progress").length).toBe(2);
     expect(element.shadowRoot!.querySelector(".doc-sync-swap")).toBeTruthy();
   });
 
@@ -271,5 +270,26 @@ describe("elf-doc-sync", () => {
     expect(panes[0]!.querySelector(".doc-sync-pane-head")!.textContent).toContain("Preview");
     expect(panes[0]!.classList.contains("is-source")).toBe(false);
     expect(panes[1]!.classList.contains("is-source")).toBe(true);
+  });
+
+  it("resizes by dragging the swap handle without swapping", async () => {
+    const element = await mount();
+    const onSwap = vi.fn();
+    element.addEventListener("swap", onSwap as EventListener);
+    const button = element.shadowRoot!.querySelector<HTMLElement>(".doc-sync-swap")!;
+
+    button.dispatchEvent(
+      new PointerEvent("pointerdown", { clientX: 0, clientY: 0, bubbles: true, pointerId: 1 }),
+    );
+    button.dispatchEvent(
+      new PointerEvent("pointermove", { clientX: 40, clientY: 0, bubbles: true, pointerId: 1 }),
+    );
+    button.dispatchEvent(
+      new PointerEvent("pointerup", { clientX: 40, clientY: 0, bubbles: true, pointerId: 1 }),
+    );
+    button.click();
+    await tick();
+
+    expect(onSwap).not.toHaveBeenCalled();
   });
 });

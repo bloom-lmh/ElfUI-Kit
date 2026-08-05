@@ -214,8 +214,9 @@
 :host([variant="outlined"][data-dirty]) .label,
 :host([variant="outlined"]) .wrapper:focus-within .label {
   top: 5px;
-  left: 12px;
-  transform: translateY(-50%) scale(var(--input-label-scale));
+  left: 14px;
+  font-size: 11px;
+  transform: translateY(-50%);
 }
 
 /* Underlined has no surface and gives the content the whole horizontal width. */

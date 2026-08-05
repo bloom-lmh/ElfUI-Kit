@@ -5,44 +5,33 @@ const t = createDocsTranslator({
   title: { zh: "组件级英文覆盖", en: "Component-level English override" },
 });
 
-const options = [
-  { label: "Design", value: "design" },
-  { label: "Development", value: "development" },
-];
-
 const code = `<elf-locale-provider name="en-US">
-  <elf-card variant="outlined" style="width:100%">
+  <elf-card variant="outlined" title="Sign in to workspace" style="width:min(380px,100%)">
     <div style="display:grid;gap:16px">
-      <elf-select :options.prop="options"></elf-select>
-      <elf-date-picker></elf-date-picker>
-      <elf-time-picker></elf-time-picker>
-      <elf-cascader></elf-cascader>
-      <elf-tree bordered></elf-tree>
-      <elf-virtual-list height="96"></elf-virtual-list>
-      <elf-upload :auto-upload="false"></elf-upload>
-      <elf-pagination total="96" show-total show-jumper></elf-pagination>
+      <elf-input label="Email" type="email" model-value="lin@elfui.dev" variant="outlined"></elf-input>
+      <elf-input label="Password" type="password" model-value="12345678" variant="outlined"></elf-input>
+      <elf-checkbox label="Remember me" model-value="true"></elf-checkbox>
+      <elf-button type="primary" block>Sign in</elf-button>
     </div>
   </elf-card>
 </elf-locale-provider>`;
 
-const script = `const options = [
-    { label: "Design", value: "design" },
-    { label: "Development", value: "development" }
-];`;
+const script = `// The English override only affects this subtree.
+// 英文覆盖只影响当前子树。`;
 
 const PageLocaleProviderEx2 = defineHtml(`
   <elf-playground :title=${t("title")} :code=${code} :script=${script}>
     <elf-locale-provider name="en-US">
-      <elf-card variant="outlined" style="width:100%">
+      <elf-card
+        variant="outlined"
+        title="Sign in to workspace"
+        style="width:min(380px,100%);margin-inline:auto"
+      >
         <div style="display:grid;gap:16px">
-          <elf-select :options.prop=${options}></elf-select>
-          <elf-date-picker></elf-date-picker>
-          <elf-time-picker></elf-time-picker>
-          <elf-cascader></elf-cascader>
-          <elf-tree bordered></elf-tree>
-          <elf-virtual-list height="96"></elf-virtual-list>
-          <elf-upload :auto-upload=${false}></elf-upload>
-          <elf-pagination total="96" show-total show-jumper></elf-pagination>
+          <elf-input label="Email" type="email" model-value="lin@elfui.dev" variant="outlined"></elf-input>
+          <elf-input label="Password" type="password" model-value="12345678" variant="outlined"></elf-input>
+          <elf-checkbox label="Remember me" :modelValue.prop=${true}></elf-checkbox>
+          <elf-button type="primary" block>Sign in</elf-button>
         </div>
       </elf-card>
     </elf-locale-provider>

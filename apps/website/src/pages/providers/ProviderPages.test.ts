@@ -58,13 +58,14 @@ const mount = async (tag: string): Promise<HTMLElement> => {
 };
 
 describe("Provider pages", () => {
-  it("英文矩阵把常见空态与占位文案交给 LocaleProvider", async () => {
+  it("英文覆盖把登录表单的标签切换为英文", async () => {
     const page = await mount(localeMatrixTag);
     const provider = page.shadowRoot!.querySelector("elf-locale-provider")!;
-    const select = provider.querySelector("elf-select")!;
-    const datePicker = provider.querySelector("elf-date-picker")!;
-    expect(select.shadowRoot?.textContent).toContain("Select");
-    expect(datePicker.shadowRoot?.textContent).toContain("Select date");
+    const inputs = Array.from(provider.querySelectorAll<HTMLElement>("elf-input"));
+    expect(inputs).toHaveLength(2);
+    expect(inputs[0]?.getAttribute("label")).toBe("Email");
+    expect(inputs[1]?.getAttribute("label")).toBe("Password");
+    expect(provider.textContent).toContain("Sign in");
   });
 
   it("嵌套 locale 同时显示英文和中文格式化结果", async () => {

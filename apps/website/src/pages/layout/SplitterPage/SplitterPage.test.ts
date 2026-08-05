@@ -41,6 +41,7 @@ describe("SplitterPage", () => {
     expect(text).toContain("水平分割");
     expect(text).toContain("上方面板比例");
     expect(text).toContain("折叠与持久化");
+    expect(text).toContain("转换与拖动");
     expect(text).toContain("面板内容");
   });
 
@@ -50,6 +51,7 @@ describe("SplitterPage", () => {
     expect(text).toContain("Horizontal split");
     expect(text).toContain("Top panel ratio");
     expect(text).toContain("Collapse and persistence");
+    expect(text).toContain("Swap and drag");
     expect(text).toContain("Panel content.");
     expect(text).not.toMatch(/[\u3400-\u9fff]/u);
   });

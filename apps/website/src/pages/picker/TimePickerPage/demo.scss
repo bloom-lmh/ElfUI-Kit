@@ -14,17 +14,32 @@
   width: min(100%, 480px);
 }
 
-.time-picker-demo-stage--form {
-  width: min(100%, 620px);
-  min-height: 260px;
+.time-picker-demo-card {
+  display: grid;
+  gap: 16px;
+  width: min(100%, 480px);
+  margin-inline: auto;
+  padding: 20px;
+  border: 1px solid var(--elf-divider);
+  border-radius: var(--elf-radius-md);
+  background: var(--elf-bg-paper);
 }
 
-.time-picker-demo-form {
-  width: 100%;
-  padding: var(--elf-space-5);
-  border: 1px solid var(--elf-divider);
-  border-radius: var(--elf-radius-lg);
-  background: var(--elf-bg-paper);
+.time-picker-demo-card-head {
+  display: grid;
+  gap: 4px;
+}
+
+.time-picker-demo-card-title {
+  color: var(--elf-text-primary);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.time-picker-demo-card-meta {
+  color: var(--elf-text-secondary);
+  font-size: 12px;
+  line-height: 1.5;
 }
 
 .time-picker-demo-note,
@@ -35,15 +50,11 @@
 }
 
 .time-picker-demo-note {
-  margin: var(--elf-space-3) 0 0;
+  margin: 0;
 }
 
 @media (max-width: 600px) {
   .time-picker-demo-stage {
     min-height: 200px;
-  }
-
-  .time-picker-demo-form {
-    padding: var(--elf-space-4);
   }
 }

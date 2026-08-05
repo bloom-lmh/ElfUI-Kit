@@ -30,6 +30,10 @@ const t = createDocsTranslator({
   item2: { zh: "Provider 配置合并完成", en: "Provider config merge shipped" },
   item3: { zh: "共享滚动策略落地", en: "Shared scroll strategy landed" },
   item4: { zh: "双语文档同步更新", en: "Bilingual docs updated" },
+  meta1: { zh: "设计系统 · 2 小时前", en: "Design system · 2 hours ago" },
+  meta2: { zh: "核心组件 · 昨天", en: "Core components · Yesterday" },
+  meta3: { zh: "文档 · 3 天前", en: "Docs · 3 days ago" },
+  meta4: { zh: "基础设施 · 上周", en: "Infrastructure · Last week" },
   bodyA: {
     zh: "组件库本周完成三批 API 对齐与回归验证，全部通过。",
     en: "Three batches of API alignment and regression checks shipped this week.",
@@ -49,16 +53,19 @@ const t = createDocsTranslator({
   threshold: { zh: "控制可见比例阈值。", en: "Controls the visible-ratio threshold." },
 });
 
-const metas = ["设计系统 · 2 小时前", "核心组件 · 昨天", "文档 · 3 天前", "基础设施 · 上周"];
+const metas = (): string[] => [t("meta1"), t("meta2"), t("meta3"), t("meta4")];
 
 const initials = ["DS", "CP", "SC", "DC"];
-const makeItem = (id: number, index: number): FeedItem => ({
-  id,
-  initials: initials[index % initials.length]!,
-  title: index % 2 ? t("item2") : t("item1"),
-  text: index % 2 ? t("bodyA") : t("bodyB"),
-  meta: metas[index % metas.length]!,
-});
+const makeItem = (id: number, index: number): FeedItem => {
+  const metaList = metas();
+  return {
+    id,
+    initials: initials[index % initials.length]!,
+    title: index % 2 ? t("item2") : t("item1"),
+    text: index % 2 ? t("bodyA") : t("bodyB"),
+    meta: metaList[index % metaList.length]!,
+  };
+};
 
 const initialItems = Array.from({ length: 8 }, (_, index) => makeItem(index + 1, index));
 const moreItems = Array.from({ length: 4 }, (_, index) => makeItem(index + 9, index + 2));

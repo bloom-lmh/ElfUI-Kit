@@ -3,7 +3,7 @@
 This file is fetched through the `src` prop.
 
 - Relative links resolve against `base`: [guide](guide.md)
-- Root-relative images stay untouched: ![logo](/logo.png)
+- Root-relative images stay untouched: <img src="/logo.png" alt="ElfUI logo" width="220">
 
 ```ts
 export const remote = true;

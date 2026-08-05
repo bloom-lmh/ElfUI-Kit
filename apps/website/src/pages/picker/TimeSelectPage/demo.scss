@@ -18,17 +18,24 @@
 .demo-card {
   display: grid;
   align-content: start;
-  gap: var(--elf-space-2);
+  gap: 16px;
   min-width: 0;
-  padding: var(--elf-space-4);
-  border: 1px solid var(--elf-border);
+  padding: 20px;
+  border: 1px solid var(--elf-divider);
   border-radius: var(--elf-radius-md);
   background: var(--elf-bg-paper);
 }
 
 .demo-card > strong {
   color: var(--elf-text-primary);
-  font-size: var(--elf-font-size-sm);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.demo-meta {
+  color: var(--elf-text-secondary);
+  font-size: 12px;
+  line-height: 1.5;
 }
 
 .demo-card > small,

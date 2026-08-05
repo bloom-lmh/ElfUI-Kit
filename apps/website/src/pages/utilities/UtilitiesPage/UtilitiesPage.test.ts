@@ -142,12 +142,15 @@ describe("UtilitiesPage", () => {
     selects[0]!.dispatchEvent(new CustomEvent("update:modelValue", { detail: "1" }));
     await tick();
     expect(spacing.querySelector(".spacing-padding-target")?.classList.contains("pa-4")).toBe(true);
-    expect(spacing.querySelector(".spacing-padding-target > strong")).toBeTruthy();
+    expect(spacing.querySelector(".spacing-padding-target > .spacing-avatar")).toBeTruthy();
+    expect(
+      spacing.querySelector(".spacing-padding-target .spacing-copy strong")?.textContent,
+    ).toContain("Atlas");
 
     selects[0]!.dispatchEvent(new CustomEvent("update:modelValue", { detail: "2" }));
     await tick();
     expect(spacing.querySelector(".spacing-gap-frame")?.classList.contains("ga-4")).toBe(true);
-    expect(spacing.querySelectorAll(".spacing-gap-frame > span")).toHaveLength(3);
+    expect(spacing.querySelectorAll(".spacing-gap-frame > button")).toHaveLength(3);
   });
 
   it("keeps responsive display utilities inside a stable preview frame", async () => {

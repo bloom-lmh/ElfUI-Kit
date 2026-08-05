@@ -5,6 +5,7 @@ import { PageSplitterEx2 } from "./ex2";
 import { PageSplitterEx3 } from "./ex3";
 import { PageSplitterEx4 } from "./ex4";
 import { PageSplitterEx5 } from "./ex5";
+import { PageSplitterEx6 } from "./ex6";
 import { PageSplitterProps } from "./props";
 
 const t = createDocsTranslator({
@@ -21,6 +22,7 @@ useComponents({
   "page-splitter-ex3": PageSplitterEx3,
   "page-splitter-ex4": PageSplitterEx4,
   "page-splitter-ex5": PageSplitterEx5,
+  "page-splitter-ex6": PageSplitterEx6,
   "page-splitter-props": PageSplitterProps,
 });
 
@@ -32,6 +34,7 @@ const PageSplitter = defineHtml(`
     <page-splitter-ex3></page-splitter-ex3>
     <page-splitter-ex4></page-splitter-ex4>
     <page-splitter-ex5></page-splitter-ex5>
+    <page-splitter-ex6></page-splitter-ex6>
     <page-splitter-props></page-splitter-props>
   </elf-container>
 `);

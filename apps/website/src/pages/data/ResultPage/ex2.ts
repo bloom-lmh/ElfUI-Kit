@@ -3,10 +3,10 @@ import { createDocsTranslator } from "../../docsLocale";
 
 const t = createDocsTranslator({
   title: { zh: "扩展操作区", en: "Extra actions" },
-  result: { zh: "发布成功", en: "Published" },
-  detail: { zh: "页面已经上线", en: "The page is now live." },
-  view: { zh: "查看页面", en: "View page" },
-  edit: { zh: "继续编辑", en: "Continue editing" },
+  result: { zh: "部署成功", en: "Deployed" },
+  detail: { zh: "v2.4.1 已发布到生产环境。", en: "v2.4.1 is live in production." },
+  view: { zh: "查看发布记录", en: "View release log" },
+  edit: { zh: "返回项目", en: "Back to project" },
 });
 
 const extraCode = `<elf-result icon="success" title="${t("result")}" sub-title="${t("detail")}">

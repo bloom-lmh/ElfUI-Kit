@@ -82,6 +82,7 @@
 }
 
 .code-tabs {
+  position: relative;
   display: flex;
   flex: 1 1 auto;
   min-width: 0;
@@ -109,19 +110,6 @@
   font: 500 13px/1 var(--elf-font-family, Inter, system-ui, sans-serif);
 }
 
-.code-tab::after {
-  position: absolute;
-  inset: auto 0 0;
-  height: 2px;
-  background: var(--elf-primary, #2563eb);
-  content: "";
-  opacity: 0;
-  transform: scaleX(0.3);
-  transition:
-    opacity 150ms ease,
-    transform 150ms ease;
-}
-
 .code-tab:hover {
   background: var(--code-card-hover);
   color: inherit;
@@ -133,11 +121,6 @@
 
 .scheme-dark .code-tab.active {
   color: var(--elf-text-primary, #f3f5f8);
-}
-
-.code-tab.active::after {
-  opacity: 1;
-  transform: scaleX(1);
 }
 
 .code-tab:focus-visible,
@@ -154,6 +137,19 @@
     SFMono-Regular,
     Consolas,
     monospace;
+}
+
+.code-tab-indicator {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--elf-primary, #2563eb);
+  pointer-events: none;
+  transition:
+    left 220ms cubic-bezier(0.2, 0, 0.2, 1),
+    width 220ms cubic-bezier(0.2, 0, 0.2, 1);
 }
 
 .card-header {
@@ -485,6 +481,10 @@
   background: var(--code-card-header);
 }
 
+.variant-window .card-header.group-header {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
 .variant-window .card-title {
   color: var(--code-card-title);
   text-align: center;
@@ -624,6 +624,23 @@
   transform: scaleY(0.985) translateY(-4px);
 }
 
+.code-card-panel-enter-active,
+.code-card-panel-leave-active {
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease;
+}
+
+.code-card-panel-enter-from {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+.code-card-panel-leave-to {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
 @media (max-width: 560px) {
   .card-header {
     min-height: 52px;
@@ -686,9 +703,11 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .code-tab::after,
+  .code-tab-indicator,
   .icon-button,
   .code-line,
+  .code-card-panel-enter-active,
+  .code-card-panel-leave-active,
   .code-card-expand-enter-active,
   .code-card-expand-leave-active {
     transition: none;

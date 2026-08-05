@@ -5,13 +5,14 @@ import demoStyles from "./demo.scss?inline";
 
 const rangeValue = useRef<[string, string]>(["09:00", "18:00"]);
 const t = createDocsTranslator({
-  title: { zh: "范围、快捷时间与清空", en: "Range, shortcuts, and clear" },
+  title: { zh: "在线客服时段", en: "Support hours" },
+  meta: { zh: "技术支持在线时间", en: "Technical support availability" },
   morning: { zh: "上午", en: "Morning" },
   workday: { zh: "工作日", en: "Workday" },
   evening: { zh: "晚上", en: "Evening" },
   start: { zh: "开始时间", en: "Start time" },
   end: { zh: "结束时间", en: "End time" },
-  selected: { zh: "已选范围", en: "Selected range" },
+  online: { zh: "在线时段", en: "Support window" },
   separator: { zh: "到", en: "to" },
 });
 const pick = createDocsPicker();
@@ -81,20 +82,26 @@ defineStyle(demoStyles);
 
 const PageTimePickerEx2 = defineHtml(`
   <elf-playground :title=${t("title")} :code=${code()} :script=${script()}>
-    <div class="time-picker-demo-stage">
-      <elf-time-picker
-        :modelValue.prop=${rangeValue}
-        is-range
-        :start-placeholder=${t("start")}
-        :end-placeholder=${t("end")}
-        :range-separator=${t("separator")}
-        :shortcuts.prop=${shortcuts()}
-        clearable
-        @update:modelValue=${updateRange}
-      ></elf-time-picker>
+    <div class="time-picker-demo-stage time-picker-demo-stage--compact">
+      <div class="time-picker-demo-card">
+        <div class="time-picker-demo-card-head">
+          <strong class="time-picker-demo-card-title">${t("title")}</strong>
+          <span class="time-picker-demo-card-meta">${t("meta")}</span>
+        </div>
+        <elf-time-picker
+          :modelValue.prop=${rangeValue}
+          is-range
+          :start-placeholder=${t("start")}
+          :end-placeholder=${t("end")}
+          :range-separator=${t("separator")}
+          :shortcuts.prop=${shortcuts()}
+          clearable
+          @update:modelValue=${updateRange}
+        ></elf-time-picker>
+      </div>
     </div>
     <span slot="status" class="demo-state" role="status" aria-live="polite">
-      ${t("selected")} · ${rangeText()}
+      ${t("online")} · ${rangeText()}
     </span>
   </elf-playground>
 `);

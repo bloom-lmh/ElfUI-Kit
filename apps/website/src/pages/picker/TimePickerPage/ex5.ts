@@ -6,7 +6,8 @@ import demoStyles from "./demo.scss?inline";
 const shift = useRef<[string, string]>(["22:30", "02:15"]);
 const touched = useRef(false);
 const t = createDocsTranslator({
-  title: { zh: "跨日范围与表单边界", en: "Cross-day range and form boundaries" },
+  title: { zh: "跨日值班", en: "Overnight shift" },
+  meta: { zh: "夜班交接 · 22:30–次日 02:15", en: "Night handover · 22:30–next day 02:15" },
   label: { zh: "跨日值班时间", en: "Overnight shift" },
   incomplete: { zh: "请选择完整值班时间", en: "Select a complete shift range" },
   waiting: { zh: "等待填写", en: "Waiting for input" },
@@ -77,8 +78,12 @@ defineStyle(demoStyles);
 
 const PageTimePickerEx5 = defineHtml(`
   <elf-playground :title=${t("title")} :code=${code()} :script=${script}>
-    <div class="time-picker-demo-stage time-picker-demo-stage--form">
-      <div class="time-picker-demo-form">
+    <div class="time-picker-demo-stage time-picker-demo-stage--compact">
+      <div class="time-picker-demo-card">
+        <div class="time-picker-demo-card-head">
+          <strong class="time-picker-demo-card-title">${t("title")}</strong>
+          <span class="time-picker-demo-card-meta">${t("meta")}</span>
+        </div>
         <elf-form label-position="top">
           <elf-form-item
             :label=${t("label")}

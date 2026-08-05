@@ -5,12 +5,14 @@ import demoStyles from "./demo.scss?inline";
 
 const value = useRef("13:30");
 const t = createDocsTranslator({
-  title: { zh: "十二小时制", en: "12-hour format" },
+  title: { zh: "海外会议", en: "Overseas meeting" },
+  meta: { zh: "与柏林团队 · 12 小时制", en: "With the Berlin team · 12-hour" },
   label: { zh: "当地时间", en: "Local time" },
   hint: {
     zh: "格式只影响展示，受控值仍保持 HH:mm。",
     en: "Formatting changes labels only; the controlled value remains HH:mm.",
   },
+  output: { zh: "受控值", en: "Controlled value" },
 });
 const pick = createDocsPicker();
 const onUpdate = (event: CustomEvent<string>): void => value.set(event.detail);
@@ -42,8 +44,9 @@ defineStyle(demoStyles);
 
 const PageTimeSelectEx2 = defineHtml(`
   <elf-playground :title=${t("title")} :code=${code()} :script=${script}>
-    <div class="demo-card" style="width:min(100%,360px);margin-inline:auto">
-      <strong>${t("label")}</strong>
+    <section class="demo-card" style="width:min(100%,360px);margin-inline:auto">
+      <strong>${t("title")}</strong>
+      <span class="demo-meta">${t("meta")}</span>
       <elf-time-select
         :modelValue.prop=${value}
         start="00:00"
@@ -55,8 +58,10 @@ const PageTimeSelectEx2 = defineHtml(`
         @update:modelValue=${onUpdate}
       ></elf-time-select>
       <small>${t("hint")}</small>
-    </div>
-    <span slot="status" class="demo-state">modelValue · ${value}</span>
+    </section>
+    <span slot="status" class="demo-state" role="status" aria-live="polite">
+      ${t("output")} · ${value}
+    </span>
   </elf-playground>
 `);
 

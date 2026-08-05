@@ -2,6 +2,7 @@
 @use "../../../styles/field-surface" as field;
 
 :host {
+  @include field.tokens;
   position: relative;
   display: inline-block;
   max-width: 100%;

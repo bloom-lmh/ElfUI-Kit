@@ -262,7 +262,6 @@ const basicRank = [
   "/basic/tag",
   "/basic/badge",
   "/basic/avatar",
-  "/basic/heading",
 ];
 
 const sourceItems = [...navItems, ...EXTRA_ITEMS];

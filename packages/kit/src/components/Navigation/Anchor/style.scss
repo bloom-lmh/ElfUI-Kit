@@ -9,7 +9,7 @@
 .anchor {
   position: relative;
   display: block;
-  min-width: 160px;
+  min-width: var(--anchor-min-width, 160px);
   padding: 4px 0 4px 12px;
 }
 

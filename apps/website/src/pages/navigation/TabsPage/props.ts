@@ -93,6 +93,15 @@ const propsRows = () => [
     ),
   },
   {
+    name: "sliderVariant",
+    type: "rounded | flat",
+    default: "rounded",
+    desc: pick(
+      "指示条样式：rounded 为圆角短条，flat 为贴住标签底边的一条平直直线。",
+      "Indicator style: rounded is a short rounded bar, flat is a single straight line along the tab bottom edge.",
+    ),
+  },
+  {
     name: "fixedTabs / centerActive / showArrows",
     type: "boolean",
     default: "false / false / false",

@@ -3,18 +3,28 @@ import { defineHtml, defineStyle, useRef } from "@elfui/core";
 import { createDocsTranslator } from "../../docsLocale";
 import styles from "./demo.scss?inline";
 
+type SlideCopyKey = "keyboard" | "touch" | "dynamic" | "city" | "mountains" | "stream";
+
 interface DemoSlide {
   id: number;
   title: string;
-  copy: string;
-  tone: string;
+  copyKey: SlideCopyKey;
+  image: string;
 }
 
+const picsum = (id: number): string => `https://picsum.photos/id/${id}/1200/520`;
+
 const INITIAL_SLIDES: DemoSlide[] = [
-  { id: 1, title: "01", copy: "Keyboard", tone: "blue" },
-  { id: 2, title: "02", copy: "Touch", tone: "violet" },
-  { id: 3, title: "03", copy: "Dynamic", tone: "green" },
+  { id: 1, title: "01", copyKey: "keyboard", image: picsum(1018) },
+  { id: 2, title: "02", copyKey: "touch", image: picsum(1015) },
+  { id: 3, title: "03", copyKey: "dynamic", image: picsum(1019) },
 ];
+
+const EXTRA_SLIDES = [
+  { copyKey: "city", image: picsum(20) },
+  { copyKey: "mountains", image: picsum(29) },
+  { copyKey: "stream", image: picsum(15) },
+] as const;
 
 const t = createDocsTranslator({
   title: { zh: "键盘、触屏与动态数据", en: "Keyboard, touch, and dynamic slides" },
@@ -26,7 +36,23 @@ const t = createDocsTranslator({
     zh: "聚焦后使用 ← →、Home、End；触屏左右滑动。动态增删会同步指示器，并在末项移除后安全回退。",
     en: "After focus, use ← →, Home, or End; swipe horizontally on touch. Dynamic changes update indicators and safely clamp a removed last slide.",
   },
+  keyboard: { zh: "键盘", en: "Keyboard" },
+  touch: { zh: "触屏", en: "Touch" },
+  dynamic: { zh: "动态数据", en: "Dynamic" },
+  city: { zh: "城市工作区", en: "City workspace" },
+  mountains: { zh: "海岸群山", en: "Coastal mountains" },
+  stream: { zh: "森林溪流", en: "Forest stream" },
 });
+
+const SLIDE_LABELS = {
+  keyboard: (): string => t("keyboard"),
+  touch: (): string => t("touch"),
+  dynamic: (): string => t("dynamic"),
+  city: (): string => t("city"),
+  mountains: (): string => t("mountains"),
+  stream: (): string => t("stream"),
+} as const;
+const copyOf = (slide: DemoSlide): string => SLIDE_LABELS[slide.copyKey]?.() ?? slide.copyKey;
 
 // State
 const dynamicSlides = useRef<DemoSlide[]>(INITIAL_SLIDES);
@@ -45,15 +71,10 @@ const onChange = (event: CustomEvent<[number, number]>): void => {
 const addSlide = (): void => {
   if (dynamicSlides.value.length >= 6) return;
   const id = nextId.value;
-  const tones = ["amber", "rose", "cyan"] as const;
+  const entry = EXTRA_SLIDES[(id - 4) % EXTRA_SLIDES.length] ?? EXTRA_SLIDES[0]!;
   dynamicSlides.set([
     ...dynamicSlides.value,
-    {
-      id,
-      title: String(id).padStart(2, "0"),
-      copy: `Slide ${id}`,
-      tone: tones[(id - 4) % tones.length] ?? "amber",
-    },
+    { id, title: String(id).padStart(2, "0"), copyKey: entry.copyKey, image: entry.image },
   ]);
   nextId.set(id + 1);
 };
@@ -88,7 +109,13 @@ const dynamicCode = `<elf-carousel
     :name="slide.id"
     :label="slide.copy"
   >
-    <article>{{ slide.title }}</article>
+    <article>
+      <img :src="slide.image" :alt="slide.copy" decoding="async" />
+      <div class="caption">
+        <span>{{ slide.title }}</span>
+        <strong>{{ slide.copy }}</strong>
+      </div>
+    </article>
   </elf-carousel-item>
 </elf-carousel>`;
 
@@ -132,11 +159,18 @@ const PageCarouselEx2 = defineHtml(`
           v-for="slide in dynamicSlides.value"
           :key="slide.id"
           :name="slide.id"
-          :label="slide.copy"
+          :label=copyOf(slide)
         >
-          <article :class="'carousel-story tone-' + slide.tone">
-            <span>{{ slide.title }}</span>
-            <strong>{{ slide.copy }}</strong>
+          <article class="carousel-story">
+            <img
+              :src="slide.image"
+              :alt=copyOf(slide)
+              decoding="async"
+            />
+            <div class="carousel-story-caption">
+              <span>{{ slide.title }}</span>
+              <strong>{{ copyOf(slide) }}</strong>
+            </div>
           </article>
         </elf-carousel-item>
       </elf-carousel>

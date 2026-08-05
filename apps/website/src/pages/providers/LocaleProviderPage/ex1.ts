@@ -81,36 +81,34 @@ useComponents({ "page-locale-provider-preview": PageLocaleProviderPreview });
 
 const PageLocaleProviderEx1 = defineHtml(`
 <elf-playground :title=${t("title")} :code=${code} :script=${localeScript}>
-      <div style="display:grid;gap:12px;width:100%;max-width:680px">
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <elf-button
-            size="sm"
-            :variant="localeMode === 'zh' ? 'contained' : 'outlined'"
-            @click="setLocale('zh')"
-            >${t("chinese")}</elf-button
-          >
-          <elf-button
-            size="sm"
-            :variant="localeMode === 'en' ? 'contained' : 'outlined'"
-            @click="setLocale('en')"
-            >${t("english")}</elf-button
-          >
-          <elf-button
-            size="sm"
-            :variant="localeMode === 'ar' ? 'contained' : 'outlined'"
-            @click="setLocale('ar')"
-            >${t("rtl")}</elf-button
-          >
-        </div>
-        <div style="direction:ltr">
-          <elf-locale-provider
-            :name="currentLocaleName()"
-            :rtl="isRtl()"
-            :messages.prop="currentMessages()"
-          >
-            <page-locale-provider-preview></page-locale-provider-preview>
-          </elf-locale-provider>
-        </div>
+      <span slot="status" style="display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <elf-button
+          size="sm"
+          :variant="localeMode === 'zh' ? 'contained' : 'outlined'"
+          @click="setLocale('zh')"
+          >${t("chinese")}</elf-button
+        >
+        <elf-button
+          size="sm"
+          :variant="localeMode === 'en' ? 'contained' : 'outlined'"
+          @click="setLocale('en')"
+          >${t("english")}</elf-button
+        >
+        <elf-button
+          size="sm"
+          :variant="localeMode === 'ar' ? 'contained' : 'outlined'"
+          @click="setLocale('ar')"
+          >${t("rtl")}</elf-button
+        >
+      </span>
+      <div style="display:flex;justify-content:center;width:100%">
+        <elf-locale-provider
+          :name="currentLocaleName()"
+          :rtl="isRtl()"
+          :messages.prop="currentMessages()"
+        >
+          <page-locale-provider-preview></page-locale-provider-preview>
+        </elf-locale-provider>
       </div>
     </elf-playground>
 `);

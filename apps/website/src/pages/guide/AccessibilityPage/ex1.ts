@@ -39,9 +39,9 @@ const PageAccessibilityEx1 = defineHtml(`
     :code=${templateCode}
     :script=${scriptCode}
   >
+    <a slot="status" class="skip-link-demo" href="#a11y-demo-main">${t("skip")}</a>
     <elf-config-provider motion="reduced">
       <section class="a11y-focus-demo" aria-labelledby="a11y-focus-title">
-        <a class="skip-link-demo" href="#a11y-demo-main">${t("skip")}</a>
         <div id="a11y-demo-main" class="focus-surface" tabindex="-1">
           <strong id="a11y-focus-title">${t("region")}</strong>
           <span>${t("hint")}</span>

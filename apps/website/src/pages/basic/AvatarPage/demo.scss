@@ -14,9 +14,9 @@
 .avatar-demo-card {
   display: grid;
   align-content: start;
-  gap: 18px;
-  min-height: 142px;
-  padding: 20px;
+  gap: 16px;
+  min-height: 150px;
+  padding: 18px 20px;
   border: 1px solid var(--elf-divider);
   border-radius: var(--elf-radius-md);
   background: color-mix(in srgb, var(--elf-bg-paper) 90%, var(--elf-primary) 10%);
@@ -26,9 +26,23 @@
   grid-column: 1 / -1;
 }
 
-.avatar-demo-card strong {
+.avatar-demo-card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.avatar-demo-card-head strong {
   color: var(--elf-text-primary);
   font-size: var(--elf-font-size-sm);
+}
+
+.avatar-demo-card-head span {
+  color: var(--elf-text-secondary);
+  font-size: var(--elf-font-size-xs);
+  line-height: 1.5;
 }
 
 .avatar-demo-row {
@@ -40,6 +54,70 @@
 
 .avatar-demo-scale {
   justify-content: space-around;
+}
+
+.avatar-member-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.avatar-member-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border: 1px solid var(--elf-divider);
+  border-radius: var(--elf-radius-sm);
+  background: var(--elf-bg-paper);
+}
+
+.avatar-member-copy {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.avatar-member-copy strong {
+  color: var(--elf-text-primary);
+  font-size: 13px;
+}
+
+.avatar-member-copy small {
+  color: var(--elf-text-secondary);
+  font-size: var(--elf-font-size-xs);
+}
+
+.avatar-profile-strip {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-around;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.avatar-profile-item {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+}
+
+.avatar-profile-label {
+  color: var(--elf-text-secondary);
+  font-size: var(--elf-font-size-xs);
+}
+
+.avatar-scale-item {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+}
+
+.avatar-scale-item span {
+  color: var(--elf-text-secondary);
+  font-size: var(--elf-font-size-xs);
 }
 
 .avatar-demo-actions {
@@ -57,17 +135,66 @@
   grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
   gap: 22px;
-  width: min(620px, 100%);
+  width: min(680px, 100%);
   margin-inline: auto;
-  padding: 24px;
+  padding: 26px;
   border: 1px solid var(--elf-divider);
   border-radius: var(--elf-radius-md);
   background: var(--elf-bg-paper);
 }
 
-.avatar-fallback-demo strong {
+.avatar-profile-copy {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.avatar-profile-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.avatar-profile-title strong {
   color: var(--elf-text-primary);
   font-size: var(--elf-font-size-lg);
+}
+
+.avatar-status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--elf-success) 12%, var(--elf-bg-paper));
+  color: var(--elf-success);
+  font-size: var(--elf-font-size-xs);
+}
+
+.avatar-status-chip i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.avatar-profile-role {
+  color: var(--elf-text-secondary);
+  font-size: var(--elf-font-size-sm);
+}
+
+.avatar-profile-copy p:not(.avatar-profile-role) {
+  margin: 0;
+  color: var(--elf-text-secondary);
+  font-size: var(--elf-font-size-sm);
+  line-height: 1.6;
+}
+
+.avatar-profile-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
 }
 
 .avatar-fallback-demo p,
@@ -82,13 +209,31 @@
   display: grid;
   justify-items: center;
   gap: 18px;
-  width: min(680px, 100%);
+  width: min(720px, 100%);
   margin-inline: auto;
-  padding: 28px 22px;
+  padding: 24px 22px 26px;
   border: 1px solid var(--elf-divider);
   border-radius: var(--elf-radius-md);
   background: color-mix(in srgb, var(--elf-bg-paper) 94%, var(--elf-primary) 6%);
   text-align: center;
+}
+
+.avatar-team-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+}
+
+.avatar-team-head strong {
+  color: var(--elf-text-primary);
+  font-size: var(--elf-font-size-sm);
+}
+
+.avatar-team-head span {
+  color: var(--elf-text-secondary);
+  font-size: var(--elf-font-size-xs);
 }
 
 .avatar-group-demo elf-avatar-group {
@@ -102,6 +247,11 @@
 
   .avatar-demo-card-wide {
     grid-column: auto;
+  }
+
+  .avatar-demo-card-head {
+    display: grid;
+    gap: 4px;
   }
 
   .avatar-demo-scale {

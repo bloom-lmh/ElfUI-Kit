@@ -534,14 +534,11 @@ const customStyleCode = `<elf-doc-sync
   right-label="Word"
 />`;
 const customStyleScript = `.doc-sync-custom {
-  --doc-sync-radius: 18px;
   --doc-sync-bg: #f3e8d2;
   --doc-sync-pane-bg: #fffaf1;
   --doc-sync-header-bg: #fdebd0;
   --doc-sync-header-color: #92400e;
   --doc-sync-accent: #b45309;
-  --doc-sync-border: #e7d3b5;
-  --doc-sync-shadow: 0 18px 40px rgb(0 0 0 / 10%);
   --doc-sync-font: Georgia, "Times New Roman", serif;
   --doc-sync-heading-font: Georgia, "Times New Roman", serif;
   --doc-sync-source-bg: #3b2f1f;
@@ -778,22 +775,32 @@ defineStyle(
   articleStyles,
   `
   .doc-sync-stage {
-    width: min(980px, 100%);
-    margin-inline: auto;
+    width: 100%;
+  }
+  .doc-sync-stage elf-doc-sync {
+    --doc-sync-border: transparent;
+    --doc-sync-radius: 10px;
+    --doc-sync-shadow: none;
+  }
+  .doc-sync-playground {
+    --elf-playground-demo-padding: 0;
+  }
+  .doc-sync-controls {
+    display: grid;
+    align-content: start;
+    gap: 8px;
+    justify-items: start;
   }
   .doc-sync-status {
     color: var(--elf-text-secondary);
     font-size: 12px;
   }
   .doc-sync-custom {
-    --doc-sync-radius: 18px;
     --doc-sync-bg: #f3e8d2;
     --doc-sync-pane-bg: #fffaf1;
     --doc-sync-header-bg: #fdebd0;
     --doc-sync-header-color: #92400e;
     --doc-sync-accent: #b45309;
-    --doc-sync-border: #e7d3b5;
-    --doc-sync-shadow: 0 18px 40px rgb(0 0 0 / 10%);
     --doc-sync-font: Georgia, "Times New Roman", serif;
     --doc-sync-heading-font: Georgia, "Times New Roman", serif;
   }
@@ -870,40 +877,40 @@ const PageLabsDocSync = defineHtml(`
   <elf-container class="docs-article">
     <elf-docs-hero category="labs" tag="DocSync" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
 
-    <elf-playground :title=${t("mdWord")} :code=${mdWordCode} :script=${mdWordScript}>
+    <elf-playground class="doc-sync-playground" :title=${t("mdWord")} :code=${mdWordCode} :script=${mdWordScript}>
       <span slot="status" class="doc-sync-status">${t("active")}: ${mdActive.value || t("none")}</span>
-      <div slot="controls" class="demo-controls">
+      <div slot="controls" class="demo-controls doc-sync-controls">
         <span class="doc-sync-status">${t("editHint")}</span>
-        <elf-switch :label=${t("lockScroll")} :modelValue.prop=${lock.value} @update:modelValue=${onLock}></elf-switch>
-        <elf-switch :label=${t("lineNumbersLabel")} :modelValue.prop=${showLines.value} @update:modelValue=${onLines}></elf-switch>
-        <elf-switch :label=${t("rulerLabel")} :modelValue.prop=${showRuler.value} @update:modelValue=${onRuler}></elf-switch>
+        <elf-checkbox :label=${t("lockScroll")} :modelValue.prop=${lock.value} @update:modelValue=${onLock}></elf-checkbox>
+        <elf-checkbox :label=${t("lineNumbersLabel")} :modelValue.prop=${showLines.value} @update:modelValue=${onLines}></elf-checkbox>
+        <elf-checkbox :label=${t("rulerLabel")} :modelValue.prop=${showRuler.value} @update:modelValue=${onRuler}></elf-checkbox>
       </div>
       <div class="doc-sync-stage">
-        <elf-doc-sync :source.prop=${mdSource()} :parse.prop=${parseMarkdown} :renderRight.prop=${renderWordBlock} :lockScroll.prop=${lock.value} :lineNumbers.prop=${showLines.value} :ruler.prop=${showRuler.value} left-label="Markdown" right-label="Word" @activate=${onMdActivate}></elf-doc-sync>
+        <elf-doc-sync height="520" :source.prop=${mdSource()} :parse.prop=${parseMarkdown} :renderRight.prop=${renderWordBlock} :lockScroll.prop=${lock.value} :lineNumbers.prop=${showLines.value} :ruler.prop=${showRuler.value} left-label="Markdown" right-label="Word" @activate=${onMdActivate}></elf-doc-sync>
       </div>
     </elf-playground>
 
-    <elf-playground :title=${t("latexWord")} :code=${latexWordCode} :script=${latexWordScript}>
+    <elf-playground class="doc-sync-playground" :title=${t("latexWord")} :code=${latexWordCode} :script=${latexWordScript}>
       <span slot="status" class="doc-sync-status">${t("active")}: ${latexActive.value || t("none")}</span>
       <div class="doc-sync-stage">
-        <elf-doc-sync :source.prop=${latexSource()} :parse.prop=${parseLatex} :renderRight.prop=${renderWordBlock} left-label="LaTeX" right-label="Word" @activate=${onLatexActivate}></elf-doc-sync>
+        <elf-doc-sync height="520" :source.prop=${latexSource()} :parse.prop=${parseLatex} :renderRight.prop=${renderWordBlock} left-label="LaTeX" right-label="Word" @activate=${onLatexActivate}></elf-doc-sync>
       </div>
     </elf-playground>
 
     <section class="docs-section">
       <h2>${t("standard")}</h2>
       <elf-quote type="info" variant="soft" :compact.prop=${true}><p>${t("standardLead")}</p></elf-quote>
-      <elf-playground :title=${t("minimal")} :code=${minimalCode} :script=${minimalScript}>
+      <elf-playground class="doc-sync-playground" :title=${t("minimal")} :code=${minimalCode} :script=${minimalScript}>
         <span slot="status" class="doc-sync-status">${t("active")}: ${minimalActive.value || t("none")}</span>
         <div class="doc-sync-stage">
-          <elf-doc-sync :source.prop=${minimalSource()} :parse.prop=${minimalParse} :renderRight.prop=${minimalRender} left-label="Source" right-label="Preview" @activate=${onMinimalActivate}></elf-doc-sync>
+          <elf-doc-sync height="520" :source.prop=${minimalSource()} :parse.prop=${minimalParse} :renderRight.prop=${minimalRender} left-label="Source" right-label="Preview" @activate=${onMinimalActivate}></elf-doc-sync>
         </div>
       </elf-playground>
       <elf-quote type="info" variant="soft" :compact.prop=${true}><p>${t("minimalLead")}</p></elf-quote>
-      <elf-playground :title=${t("customStyle")} :code=${customStyleCode} :script=${customStyleScript}>
+      <elf-playground class="doc-sync-playground" :title=${t("customStyle")} :code=${customStyleCode} :script=${customStyleScript}>
         <span slot="status" class="doc-sync-status">${t("active")}: ${customActive.value || t("none")}</span>
         <div class="doc-sync-stage">
-          <elf-doc-sync class="doc-sync-custom" :source.prop=${mdSource()} :parse.prop=${parseMarkdown} :renderRight.prop=${renderWordBlock} left-label="Markdown" right-label="Word" @activate=${onCustomActivate}></elf-doc-sync>
+          <elf-doc-sync class="doc-sync-custom" height="520" :source.prop=${mdSource()} :parse.prop=${parseMarkdown} :renderRight.prop=${renderWordBlock} left-label="Markdown" right-label="Word" @activate=${onCustomActivate}></elf-doc-sync>
         </div>
       </elf-playground>
       <elf-quote type="info" variant="soft" :compact.prop=${true}><p>${t("customStyleLead")}</p></elf-quote>

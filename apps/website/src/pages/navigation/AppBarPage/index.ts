@@ -30,6 +30,9 @@ const t = createDocsTranslator({
   inverted: { zh: "反转隐藏方向", en: "Invert hide direction" },
   threshold: { zh: "触发阈值", en: "Scroll threshold" },
   densities: { zh: "密度", en: "Density" },
+  densityDefault: { zh: "默认", en: "Default" },
+  densityComfortable: { zh: "舒适", en: "Comfortable" },
+  densityCompact: { zh: "紧凑", en: "Compact" },
   images: { zh: "图片", en: "Images" },
   prominent: { zh: "突出模式", en: "Prominent" },
   photos: { zh: "影像资料库", en: "Visual archive" },
@@ -57,6 +60,7 @@ const elevate = useRef(true);
 const fade = useRef(true);
 const inverted = useRef(false);
 const threshold = useRef(88);
+const density = useRef("default");
 const lastAction = useRef("");
 
 const appBarIconOptions = {
@@ -78,6 +82,20 @@ const onElevate = (event: Event): void => elevate.set(switchValue(event));
 const onFade = (event: Event): void => fade.set(switchValue(event));
 const onInverted = (event: Event): void => inverted.set(switchValue(event));
 const onThreshold = (event: Event): void => threshold.set(Number((event as CustomEvent).detail));
+const onDensity = (event: Event): void => {
+  const next = String((event as CustomEvent).detail || "");
+  if (next === "default" || next === "comfortable" || next === "compact") density.set(next);
+};
+const densityOptions = (): Array<{ label: string; value: string }> => [
+  { label: t("densityDefault"), value: "default" },
+  { label: t("densityComfortable"), value: "comfortable" },
+  { label: t("densityCompact"), value: "compact" },
+];
+const densityMeta = (): string => {
+  if (density.value === "comfortable") return `${t("densityComfortable")} · 56px`;
+  if (density.value === "compact") return `${t("densityCompact")} · 48px`;
+  return `${t("densityDefault")} · 64px`;
+};
 const behavior = (): string =>
   [
     hide.value && "hide",
@@ -178,9 +196,16 @@ const imageCode = `<elf-app-bar image="/architecture.jpg" image-position="center
   <elf-button slot="prepend" circle variant="text">Menu</elf-button>
   <elf-button slot="append" circle variant="text">Favorite</elf-button>
 </elf-app-bar>`;
-const densityCode = `<elf-app-bar density="default" title="Photos" />
-<elf-app-bar density="comfortable" title="Photos" />
-<elf-app-bar density="compact" title="Photos" />`;
+const densityCode = `<elf-segmented
+  size="sm"
+  :options.prop="densityOptions"
+  :model-value.prop="density"
+  @update:model-value="onDensity"
+/>
+<elf-app-bar :density.prop="density" title="Photos" border>
+  <elf-button slot="prepend" circle variant="text">Menu</elf-button>
+  <elf-button slot="append" circle variant="text">More</elf-button>
+</elf-app-bar>`;
 const prominentCode = `<elf-app-bar density="prominent" color="secondary" title="Visual archive">
   <elf-button slot="prepend" circle variant="text">Menu</elf-button>
   <elf-button slot="append" circle variant="text">More</elf-button>
@@ -279,6 +304,7 @@ defineStyle(
 
   .content-index {
     display: grid;
+    justify-self: center;
     width: 36px;
     height: 36px;
     place-items: center;
@@ -287,14 +313,15 @@ defineStyle(
     background: color-mix(in srgb, var(--elf-primary) 10%, var(--elf-bg-paper));
     color: var(--elf-primary);
     font-weight: 700;
+    line-height: 1;
   }
 
-  .content-row strong,
-  .content-row span {
+  .content-row > div strong,
+  .content-row > div span {
     display: block;
   }
 
-  .content-row span {
+  .content-row > div span {
     margin-top: 3px;
     color: var(--elf-text-secondary);
     font-size: 12px;
@@ -527,53 +554,21 @@ const PageAppBar = defineHtml(`
       :title=${t("densities")}
       :code=${densityCode}
     >
+      <span
+        slot="status"
+        class="density-picker"
+      ><elf-segmented
+          size="sm"
+          :options.prop=${densityOptions()}
+          :modelValue.prop=${density.value}
+          @update:modelValue=${onDensity}
+          :aria-label=${t("densities")}
+        ></elf-segmented></span>
       <elf-icon-provider :options.prop=${appBarIconOptions}>
         <div class="density-stage">
           <div>
-            <p class="density-label">Default · 64px</p><elf-app-bar
-              density="default"
-              :title=${t("photos")}
-              border
-            ><elf-button
-                slot="prepend"
-                circle
-                variant="text"
-              ><elf-icon
-                  name="menu"
-                  size="22"
-                ></elf-icon></elf-button><elf-button
-                slot="append"
-                circle
-                variant="text"
-              ><elf-icon
-                  name="more"
-                  size="22"
-                ></elf-icon></elf-button></elf-app-bar>
-          </div>
-          <div>
-            <p class="density-label">Comfortable · 56px</p><elf-app-bar
-              density="comfortable"
-              :title=${t("photos")}
-              border
-            ><elf-button
-                slot="prepend"
-                circle
-                variant="text"
-              ><elf-icon
-                  name="menu"
-                  size="22"
-                ></elf-icon></elf-button><elf-button
-                slot="append"
-                circle
-                variant="text"
-              ><elf-icon
-                  name="more"
-                  size="22"
-                ></elf-icon></elf-button></elf-app-bar>
-          </div>
-          <div>
-            <p class="density-label">Compact · 48px</p><elf-app-bar
-              density="compact"
+            <p class="density-label">${densityMeta()}</p><elf-app-bar
+              :density.prop=${density.value}
               :title=${t("photos")}
               border
             ><elf-button

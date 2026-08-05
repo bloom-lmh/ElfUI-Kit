@@ -2,6 +2,7 @@ export type TabsAlign = "start" | "center" | "end" | "title";
 export type TabsDensity = "compact" | "default" | "comfortable";
 export type TabsDirection = "horizontal" | "vertical";
 export type TabsType = "line" | "card" | "border-card";
+export type TabsSliderVariant = "rounded" | "flat";
 export type TabsPosition = "top" | "right" | "bottom" | "left";
 export type TabsTransition = "fade" | "slide" | "scale" | "none" | "custom";
 export type TabPaneName = string | number;
@@ -51,6 +52,7 @@ export interface TabsProps {
   color: string;
   backgroundColor: string;
   sliderColor: string;
+  sliderVariant: TabsSliderVariant;
   grow: boolean;
   fixedTabs: boolean;
   centerActive: boolean;

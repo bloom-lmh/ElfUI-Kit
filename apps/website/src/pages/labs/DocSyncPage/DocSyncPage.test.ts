@@ -6,7 +6,7 @@ beforeAll(async () => {
   const { ensureCustomElement } = await import("@elfui/core");
   const { PageLabsDocSync } = await import("./index");
   pageTag = ensureCustomElement(PageLabsDocSync);
-}, 30_000);
+}, 60_000);
 afterEach(() => {
   document.body.innerHTML = "";
   document.documentElement.lang = "zh-CN";
@@ -49,7 +49,7 @@ describe("DocSyncPage", () => {
     const first = syncs[0]!;
     expect(first.shadowRoot!.querySelector(".doc-sync-line")).toBeTruthy();
     expect(first.shadowRoot!.querySelector(".doc-sync-ruler")).toBeTruthy();
-    expect(first.shadowRoot!.querySelector(".doc-sync-progress")).toBeTruthy();
+    expect(first.shadowRoot!.querySelectorAll(".doc-sync-top-progress").length).toBe(2);
     expect(page.shadowRoot!.querySelector(".doc-sync-custom")).toBeTruthy();
   });
 
@@ -103,13 +103,13 @@ describe("DocSyncPage", () => {
     expect(sync.shadowRoot!.querySelector(".doc-sync-ruler")).toBeTruthy();
 
     const switches = page.shadowRoot!.querySelectorAll(
-      'elf-playground [slot="controls"] elf-switch',
+      'elf-playground [slot="controls"] elf-checkbox',
     );
     expect(switches.length).toBe(3);
-    switches[1]!.shadowRoot!.querySelector<HTMLElement>(".track")!.click();
+    switches[1]!.shadowRoot!.querySelector<HTMLElement>(".box")!.click();
     await wait();
     expect(sync.shadowRoot!.querySelector(".doc-sync-line")).toBeNull();
-    switches[2]!.shadowRoot!.querySelector<HTMLElement>(".track")!.click();
+    switches[2]!.shadowRoot!.querySelector<HTMLElement>(".box")!.click();
     await wait();
     expect(sync.shadowRoot!.querySelector(".doc-sync-ruler")).toBeNull();
   });

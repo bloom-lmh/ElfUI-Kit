@@ -97,7 +97,7 @@ const onUpdate = (event: CustomEvent<string>): void => active.set(event.detail);
 const onHorizontalUpdate = (event: CustomEvent<string>): void => horizontalActive.set(event.detail);
 
 const code = `<elf-anchor :items.prop="items" :modelValue.prop="active" container="#anchor-nested-scroll" :bound="24" @update:modelValue="onUpdate" />`;
-const horizontalCode = `<elf-anchor :items.prop="horizontalItems" direction="horizontal" type="underline" :marker="false" container="#anchor-horizontal-scroll" :modelValue.prop="horizontalActive" />
+const horizontalCode = `<elf-anchor :items.prop="horizontalItems" direction="horizontal" type="underline" :marker.prop="false" container="#anchor-horizontal-scroll" :modelValue.prop="horizontalActive" />
 <div class="horizontal-scroll-shell">
   <div id="anchor-horizontal-scroll" class="horizontal-scroll">
     <section v-for="section in sections" :key="section.id" :id="section.id" class="horizontal-section">
@@ -152,7 +152,7 @@ const PageAnchorEx2 = defineHtml(`
 
   <elf-playground :title=${t("horizontalTitle")} :code=${horizontalCode} :script=${script}>
     <div style="width:100%;max-width:960px;min-width:0">
-      <elf-anchor style="width:100%" :key=${t("horizontalTitle")} :items.prop=${horizontalItems()} direction="horizontal" type="underline" :marker=${false} :smooth=${false} container="#anchor-horizontal-scroll" :bound=${24} :modelValue.prop=${horizontalActive.value} @update:modelValue=${onHorizontalUpdate}></elf-anchor>
+      <elf-anchor style="width:100%" :key=${t("horizontalTitle")} :items.prop=${horizontalItems()} direction="horizontal" type="underline" :marker.prop=${false} :smooth.prop=${false} container="#anchor-horizontal-scroll" :bound=${24} :modelValue.prop=${horizontalActive.value} @update:modelValue=${onHorizontalUpdate}></elf-anchor>
       <div class="horizontal-scroll-shell">
         <div id="anchor-horizontal-scroll" class="horizontal-scroll">
           <section v-for="section in horizontalSections()" :key="section.id" :id="section.id" :class="['horizontal-section', section.tone]">

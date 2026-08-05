@@ -25,7 +25,6 @@ export type {
   SvgIconValue,
 } from "./components/Basic/Icon";
 export * from "./components/Basic/Quote";
-export * from "./components/Basic/Heading";
 export * from "./components/Data";
 export * from "./components/Feedback";
 export * from "./components/Form";

@@ -31,3 +31,9 @@
 - [x] 两个字段补上输入框自带 label（显示名称 / 工作邮箱），与 Template 代码示例一致。
 - [x] 全库审计：80 个文件含 `="${t(` 模式，编译产物检查仅 AnchorPage/ex1 实际损坏（其余均位于 code 展示字符串）。
 - [x] 验证：AnchorPage 聚焦测试 4/4 通过；Chromium 实测输入框 label 与值正确渲染、页面不再出现 `{{ t(`；截图归档 `output/playwright/anchor-basic-fields-zh.png`。
+
+## 2026-08-05 演示布局与横向无侧边标记修复
+
+- [x] 组件新增 `--anchor-min-width` CSS 变量（默认 160px）；文档示例通过 `width: max-content` + `--anchor-min-width: 0` 让锚点仅保留容纳文字的宽度，文档卡片自动变宽。
+- [x] 修复「水平滚动 / 下划线 / 无侧边标记」案例：`marker` 布尔绑定需使用 `:marker.prop=${false}`，原先 `:marker=${false}` 未生效导致左侧 track 仍渲染；`smooth` 同步改为属性绑定。
+- [x] AnchorPage 测试补充横向锚点 `marker=false` 与 track 不渲染断言。

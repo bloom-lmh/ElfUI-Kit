@@ -444,6 +444,10 @@
   will-change: width, height, transform;
 }
 
+.tabs.is-slider-flat .tab-slider {
+  border-radius: 0;
+}
+
 @media (max-width: 600px) {
   .tabs.is-vertical {
     flex-direction: column;

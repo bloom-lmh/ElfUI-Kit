@@ -3,14 +3,26 @@ import { createDocsTranslator } from "../../docsLocale";
 
 const t = createDocsTranslator({
   title: { zh: "四种状态", en: "Four states" },
-  success: { zh: "提交成功", en: "Submitted" },
-  successDetail: { zh: "配置已保存", en: "The configuration has been saved." },
-  warning: { zh: "需要确认", en: "Confirmation required" },
-  warningDetail: { zh: "请检查风险项", en: "Review the risk items." },
-  error: { zh: "提交失败", en: "Submission failed" },
-  errorDetail: { zh: "请稍后重试", en: "Try again later." },
-  info: { zh: "处理中", en: "Processing" },
-  infoDetail: { zh: "系统正在执行任务", en: "The system is running the task." },
+  success: { zh: "订单支付成功", en: "Payment successful" },
+  successDetail: {
+    zh: "订单 20260805-0012 已支付，预计明天发货。",
+    en: "Order 20260805-0012 is paid and ships tomorrow.",
+  },
+  warning: { zh: "库存不足", en: "Low stock" },
+  warningDetail: {
+    zh: "「经典款保温杯」库存仅剩 3 件，低于预警线。",
+    en: "The classic tumbler has 3 units left, below the warning threshold.",
+  },
+  error: { zh: "上传失败", en: "Upload failed" },
+  errorDetail: {
+    zh: "文件 52MB 超过 50MB 上限，请压缩后重试。",
+    en: "The 52MB file exceeds the 50MB limit; compress it and retry.",
+  },
+  info: { zh: "正在导出", en: "Exporting" },
+  infoDetail: {
+    zh: "正在生成 1,248 条销售记录，完成后自动下载。",
+    en: "Generating 1,248 sales records; the download starts when ready.",
+  },
 });
 
 const statusCode = `<elf-result icon="success" title="${t("success")}" sub-title="${t("successDetail")}" />

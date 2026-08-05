@@ -363,7 +363,7 @@ const render = (): void => {
   const source = markdownSource();
   usedFetchedSource.set(source.length > 0 && source === fetchedSource.value);
   const result = cachedRender();
-  renderedHtml.set(result.html);
+  if (result.html !== renderedHtml.peek()) renderedHtml.set(result.html);
 
   const nextToc = result.toc ?? [];
   if (JSON.stringify(nextToc) !== JSON.stringify(toc.peek())) {
@@ -385,6 +385,9 @@ const readSlot = (slot: HTMLSlotElement): void => {
     .assignedNodes({ flatten: true })
     .map((node) => node.textContent || "")
     .join("");
+  // Re-renders can transiently detach the slotted text; keep the last source
+  // so embedded interactive components are not destroyed by an empty read.
+  if (!text && slotSource.peek()) return;
   slotSource.set(text);
 };
 

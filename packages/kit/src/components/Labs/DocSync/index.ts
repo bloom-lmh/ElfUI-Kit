@@ -90,10 +90,9 @@ const leftScroll = useRef(0);
 const rightScroll = useRef(0);
 const leftSize = useRef(320);
 const rightSize = useRef(320);
-const leftThumbTop = useRef(0);
-const leftThumbHeight = useRef(0);
-const rightThumbTop = useRef(0);
-const rightThumbHeight = useRef(0);
+const draggingSplit = useRef(false);
+const dragStart = useRef({ x: 0, y: 0 });
+const suppressClick = useRef(false);
 const activeId = useRef<string | null>(null);
 const activeSide = useRef<DocSyncSide | null>(null);
 const swapped = useRef(false);
@@ -167,6 +166,43 @@ const swapPanes = (): void => {
   emit("swap");
 };
 
+const updateSplitFromPointer = (event: PointerEvent): void => {
+  const rect = host.getBoundingClientRect();
+  if (rect.width === 0) return;
+  const next = Math.min(70, Math.max(30, ((event.clientX - rect.left) / rect.width) * 100));
+  splitRatio.set(next);
+  host.style.setProperty("--_doc-sync-split", `${next}%`);
+};
+
+const onSwapPointerDown = (event: PointerEvent): void => {
+  dragStart.set({ x: event.clientX, y: event.clientY });
+  draggingSplit.set(true);
+  (event.currentTarget as HTMLElement).setPointerCapture?.(event.pointerId);
+};
+
+const onSwapPointerMove = (event: PointerEvent): void => {
+  if (!draggingSplit.value) return;
+  updateSplitFromPointer(event);
+};
+
+const onSwapPointerUp = (event: PointerEvent): void => {
+  if (!draggingSplit.value) return;
+  draggingSplit.set(false);
+  const start = dragStart.value;
+  const moved = Math.hypot(event.clientX - start.x, event.clientY - start.y) > 6;
+  if (moved) suppressClick.set(true);
+  const target = event.currentTarget as HTMLElement;
+  if (target.hasPointerCapture?.(event.pointerId)) target.releasePointerCapture?.(event.pointerId);
+};
+
+const onSwapClick = (): void => {
+  if (suppressClick.value) {
+    suppressClick.set(false);
+    return;
+  }
+  swapPanes();
+};
+
 const paneClass = (side: DocSyncSide): Record<string, boolean> => {
   const mode = modeOf(roleOf(side));
   return {
@@ -183,63 +219,31 @@ const lineLabel = (block: DocSyncBlock, index: number): string => {
   return count > 1 ? `${start}–${start + count - 1}` : String(start);
 };
 
-const rulerMarks = (): Array<{ at: number; label: string | null }> => {
-  const marks: Array<{ at: number; label: string | null }> = [];
-  for (let at = 0; at <= 100; at += 10) {
-    marks.push({ at, label: at % 20 === 0 ? String(at) : null });
+const rulerMarks = (): Array<{ label: string | null; major: boolean }> => {
+  const marks: Array<{ label: string | null; major: boolean }> = [];
+  for (let at = 0; at <= 100; at += 2) {
+    marks.push({
+      label: at % 20 === 0 ? String(at) : null,
+      major: at % 10 === 0,
+    });
   }
   return marks;
 };
 
-const rulerMarkStyle = (mark: { at: number }): Record<string, string> => ({
-  left: `${mark.at}%`,
-});
-
-const scrollbarTopOf = (side: DocSyncSide): number =>
-  side === "left" ? leftThumbTop.value : rightThumbTop.value;
-const scrollbarHeightOf = (side: DocSyncSide): number =>
-  side === "left" ? leftThumbHeight.value : rightThumbHeight.value;
-
-const scrollbarStyle = (side: DocSyncSide): Record<string, string> => ({
-  top: `${scrollbarTopOf(side)}px`,
-  height: `${scrollbarHeightOf(side)}px`,
-});
-
 const updateProgress = (): void => {
-  const viewport = leftViewport.value;
-  if (!viewport) return;
-  const ratio =
-    viewport.scrollHeight > viewport.clientHeight
-      ? viewport.scrollTop / (viewport.scrollHeight - viewport.clientHeight)
-      : 0;
-  host.style.setProperty("--_doc-sync-progress", `${Math.max(0, Math.min(1, ratio)) * 100}%`);
-};
-
-const updateScrollbar = (side: DocSyncSide): void => {
-  const viewport = viewportOf(side);
-  if (!viewport) return;
-  const client = viewport.clientHeight;
-  const total = viewport.scrollHeight;
-  if (total <= client) {
-    if (side === "left") {
-      leftThumbTop.set(0);
-      leftThumbHeight.set(0);
-    } else {
-      rightThumbTop.set(0);
-      rightThumbHeight.set(0);
-    }
-    return;
-  }
-  const height = Math.max(28, (client / total) * client);
-  const maxTop = client - height;
-  const top = (viewport.scrollTop / (total - client)) * maxTop;
-  if (side === "left") {
-    leftThumbTop.set(top);
-    leftThumbHeight.set(height);
-  } else {
-    rightThumbTop.set(top);
-    rightThumbHeight.set(height);
-  }
+  const apply = (side: DocSyncSide, viewport: HTMLElement | null): void => {
+    if (!viewport) return;
+    const ratio =
+      viewport.scrollHeight > viewport.clientHeight
+        ? viewport.scrollTop / (viewport.scrollHeight - viewport.clientHeight)
+        : 0;
+    host.style.setProperty(
+      side === "left" ? "--_doc-sync-left-progress" : "--_doc-sync-right-progress",
+      `${Math.max(0, Math.min(1, ratio)) * 100}%`,
+    );
+  };
+  apply("left", leftViewport.value);
+  apply("right", rightViewport.value);
 };
 const heightsOf = (side: DocSyncSide): number[] =>
   side === "left" ? leftHeights.value : rightHeights.value;
@@ -327,7 +331,6 @@ const onPaneScroll = (event: Event, side: DocSyncSide): void => {
   const viewport = event.currentTarget as HTMLElement;
   if (side === "left") leftScroll.set(viewport.scrollTop);
   else rightScroll.set(viewport.scrollTop);
-  updateScrollbar(side);
   updateProgress();
   if (programmatic.value === side) {
     programmatic.set(null);
@@ -512,8 +515,6 @@ const measureBlocks = (side: DocSyncSide): void => {
 useEffect(() => {
   measureBlocks("left");
   measureBlocks("right");
-  updateScrollbar("left");
-  updateScrollbar("right");
   updateProgress();
 });
 
@@ -533,8 +534,6 @@ onMounted(() => {
   if (typeof ResizeObserver === "undefined") {
     leftSize.set(left?.clientHeight || 320);
     rightSize.set(right?.clientHeight || 320);
-    updateScrollbar("left");
-    updateScrollbar("right");
     updateProgress();
     return;
   }
@@ -543,7 +542,6 @@ onMounted(() => {
       const height = Math.max(80, entry.contentRect.height);
       if (entry.target === left) leftSize.set(height);
       else if (entry.target === right) rightSize.set(height);
-      updateScrollbar(entry.target === left ? "left" : "right");
       updateProgress();
     }
   });
@@ -577,9 +575,9 @@ const DocSync = defineHtml<DocSyncProps, DocSyncEmits>(`
   <div class="doc-sync" :aria-label=${props.ariaLabel}>
     <elf-splitter class="doc-sync-splitter" :modelValue.prop=${splitRatio} :min=${30} :max=${70} @update:modelValue=${onSplitChange}>
       <section slot="first" class="doc-sync-pane" part="pane" :class=${paneClass("left")}>
-        <header class="doc-sync-pane-head" part="pane-head">${roleLabel("left")}</header>
+        <header class="doc-sync-pane-head" part="pane-head">${roleLabel("left")}<span class="doc-sync-top-progress is-left" aria-hidden="true"></span></header>
         <div v-if="props.ruler && modeOf(roleOf('left')) === 'source'" class="doc-sync-ruler" aria-hidden="true">
-          <span v-for="mark in rulerMarks()" :key="mark.at" class="doc-sync-ruler-mark" :class="{ 'has-label': mark.label != null }" :style="rulerMarkStyle(mark)">{{ mark.label }}</span>
+          <span v-for="(mark, index) in rulerMarks()" :key="index" class="doc-sync-ruler-mark" :class="{ 'has-label': mark.label != null, 'is-major': mark.major }"><b v-if="mark.label != null">{{ mark.label }}</b></span>
         </div>
         <div ref="leftViewport" class="doc-sync-viewport" @scroll=${(event: Event) => onPaneScroll(event, "left")}>
           <div class="doc-sync-spacer" :style=${spacerBeforeStyle("left")}></div>
@@ -603,13 +601,12 @@ const DocSync = defineHtml<DocSyncProps, DocSyncEmits>(`
           </div>
           <div class="doc-sync-spacer" :style=${spacerAfterStyle("left")}></div>
           <span :class=${markerClass("left")} :style=${markerStyle("left")} aria-hidden="true"></span>
-          <span class="doc-sync-scrollbar" :style=${scrollbarStyle("left")} aria-hidden="true"></span>
         </div>
       </section>
       <section slot="second" class="doc-sync-pane" part="pane" :class=${paneClass("right")}>
-        <header class="doc-sync-pane-head" part="pane-head">${roleLabel("right")}</header>
+        <header class="doc-sync-pane-head" part="pane-head">${roleLabel("right")}<span class="doc-sync-top-progress is-right" aria-hidden="true"></span></header>
         <div v-if="props.ruler && modeOf(roleOf('right')) === 'source'" class="doc-sync-ruler" aria-hidden="true">
-          <span v-for="mark in rulerMarks()" :key="mark.at" class="doc-sync-ruler-mark" :class="{ 'has-label': mark.label != null }" :style="rulerMarkStyle(mark)">{{ mark.label }}</span>
+          <span v-for="(mark, index) in rulerMarks()" :key="index" class="doc-sync-ruler-mark" :class="{ 'has-label': mark.label != null, 'is-major': mark.major }"><b v-if="mark.label != null">{{ mark.label }}</b></span>
         </div>
         <div ref="rightViewport" class="doc-sync-viewport" @scroll=${(event: Event) => onPaneScroll(event, "right")}>
           <div class="doc-sync-spacer" :style=${spacerBeforeStyle("right")}></div>
@@ -633,14 +630,20 @@ const DocSync = defineHtml<DocSyncProps, DocSyncEmits>(`
           </div>
           <div class="doc-sync-spacer" :style=${spacerAfterStyle("right")}></div>
           <span :class=${markerClass("right")} :style=${markerStyle("right")} aria-hidden="true"></span>
-          <span class="doc-sync-scrollbar" :style=${scrollbarStyle("right")} aria-hidden="true"></span>
         </div>
       </section>
     </elf-splitter>
-    <button type="button" class="doc-sync-swap" aria-label="Swap panes" @click=${swapPanes}>
+    <button
+      type="button"
+      :class=${["doc-sync-swap", { "is-dragging": draggingSplit }]}
+      aria-label="Swap panes"
+      @pointerdown=${onSwapPointerDown}
+      @pointermove=${onSwapPointerMove}
+      @pointerup=${onSwapPointerUp}
+      @click=${onSwapClick}
+    >
       <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M21 9L17 5V8H10V10H17V13M7 11L3 15L7 19V16H14V14H7V11Z"></path></svg>
     </button>
-    <span class="doc-sync-progress" aria-hidden="true"></span>
   </div>
 `);
 

@@ -22,14 +22,8 @@ const t = createDocsTranslator({
   alt: { zh: "恢复后的项目封面", en: "Recovered project cover" },
 });
 
-const recoveredSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="720" height="420" viewBox="0 0 720 420">
-  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#0f766e"/><stop offset="1" stop-color="#2563eb"/></linearGradient></defs>
-  <rect width="720" height="420" rx="28" fill="url(#g)"/>
-  <circle cx="570" cy="96" r="78" fill="#fff" fill-opacity=".12"/>
-  <path d="M94 304 235 166l96 88 68-63 124 113Z" fill="#fff" fill-opacity=".78"/>
-  <text x="92" y="96" fill="#fff" font-size="32" font-family="sans-serif" font-weight="700">Recovered asset</text>
-</svg>`;
-const recoveredSource = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(recoveredSvg)}`;
+const recoveredSource =
+  "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1040&h=560&q=80";
 
 // State
 const source = useRef("/missing-image-retry.svg");

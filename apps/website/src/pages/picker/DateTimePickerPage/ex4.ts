@@ -6,7 +6,8 @@ import demoStyles from "./demo.scss?inline";
 
 const value = useRef("2026-07-29 14:30:00");
 const t = createDocsTranslator({
-  title: { zh: "日期适配器", en: "Date adapter" },
+  title: { zh: "全球团队排期", en: "Global team schedule" },
+  meta: { zh: "en-GB 格式 · 周日起始", en: "en-GB format · Sunday first" },
   label: { zh: "本地化排期", en: "Localized schedule" },
   active: { zh: "原生适配器 · en-GB · 周日开始", en: "Native adapter · en-GB · Sunday first" },
 });
@@ -58,7 +59,11 @@ defineStyle(demoStyles);
 const PageDateTimePickerEx4 = defineHtml(`
   <elf-playground :title=${t("title")} :code=${code()} :script=${script}>
     <elf-config-provider :config.prop=${config}>
-      <div class="demo-field">
+      <div class="dtp-card">
+        <div class="dtp-card-head">
+          <strong class="dtp-card-title">${t("title")}</strong>
+          <span class="dtp-card-meta">${t("meta")}</span>
+        </div>
         <elf-date-time-picker
           :modelValue.prop=${value}
           :label=${t("label")}

@@ -55,3 +55,9 @@
 
 - [x] 移除案例页写死的左黑右白配色，改用主题 token：首个面板为主色 5% 混入 `--elf-bg-paper`，第二个面板为 `--elf-bg-paper`，文字统一 `--elf-text-primary`；仅调整演示页 `::part` 样式，不修改组件默认视觉契约。
 - [x] Chromium 验收：Material 浅色下首面板为主色 5% 混白、Midnight 深色下为主色 5% 混 `#1e1e1e`，两套主题文字均为主题色；截图归档于 `output/playwright/splitter-theme-material.png` 与 `splitter-theme-midnight.png`。
+
+## 2026-08-05 转换图标与拖动案例
+
+- [x] 新增「转换与拖动」案例（ex6）：中部圆形转换图标叠加在分隔条上，点击交换左右面板内容，按住图标左右拖动可代替分隔条调整比例（20%–80%），拖动后图标跟随分隔位置。
+- [x] 实现为演示层交互：`v-if`/`v-else` 切换两侧插槽内容，Pointer Events + `setPointerCapture` 计算比例并受控更新 `modelValue`；合成事件缺少活动指针时捕获失败已 try/catch 防御。
+- [x] 验证：SplitterPage 聚焦测试通过；宏感知 typecheck 0 宏错误、0 TS 错误；Chromium 实测点击交换、拖动 40%→65% 且手柄跟随、无控制台报错；截图归档 `output/playwright/splitter-swap-drag.png`。

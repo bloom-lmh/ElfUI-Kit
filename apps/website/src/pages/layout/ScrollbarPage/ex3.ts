@@ -51,11 +51,6 @@ const onCommandScroll = (event: CustomEvent<{ scrollTop: number }>): void => {
 };
 
 const code =
-  '<span slot="status" class="cmd-row">\n' +
-  `  <elf-button size="sm" @click=\${toTop}>${t("toTop")}</elf-button>\n` +
-  `  <elf-button size="sm" @click=\${toBottom}>${t("toBottom")}</elf-button>\n` +
-  `  <span>${t("currentPosition")}: \${position}</span>\n` +
-  "</span>\n" +
   '<elf-scrollbar class="mail-scrollbar" data-command-scrollbar :height=${220 + "px"} always @scroll=${onCommandScroll}>\n' +
   '  <ul class="mail-list">\n' +
   '    <li v-for="item in mail" :key="item.id" class="mail-item">\n' +
@@ -66,7 +61,12 @@ const code =
   "      </span>\n" +
   "    </li>\n" +
   "  </ul>\n" +
-  "</elf-scrollbar>";
+  "</elf-scrollbar>\n" +
+  '<div class="cmd-row">\n' +
+  `  <elf-button size="sm" variant="outlined" @click=\${toTop}>${t("toTop")}</elf-button>\n` +
+  `  <elf-button size="sm" variant="outlined" @click=\${toBottom}>${t("toBottom")}</elf-button>\n` +
+  `  <span class="command-status">${t("currentPosition")}: \${position}</span>\n` +
+  "</div>";
 
 const script =
   "const host = useHost();\n" +
@@ -81,11 +81,6 @@ const script =
 const PageScrollbarEx3 = defineHtml(`
     <h2>${t("playgroundTitle")}</h2>
     <elf-playground :title=${t("playgroundTitle")} :code=${code} :script=${script}>
-        <span slot="status" class="cmd-row">
-            <elf-button size="sm" variant="outlined" @click=${toTop}>${t("toTop")}</elf-button>
-            <elf-button size="sm" variant="outlined" @click=${toBottom}>${t("toBottom")}</elf-button>
-            <span class="command-status">${t("currentPosition")}: {{ position }}</span>
-        </span>
         <elf-scrollbar
             class="mail-scrollbar"
             data-command-scrollbar
@@ -103,6 +98,11 @@ const PageScrollbarEx3 = defineHtml(`
                 </li>
             </ul>
         </elf-scrollbar>
+        <div class="cmd-row">
+            <elf-button size="sm" variant="outlined" @click=${toTop}>${t("toTop")}</elf-button>
+            <elf-button size="sm" variant="outlined" @click=${toBottom}>${t("toBottom")}</elf-button>
+            <span class="command-status">${t("currentPosition")}: {{ position }}</span>
+        </div>
     </elf-playground>
 `);
 defineStyle(styles);

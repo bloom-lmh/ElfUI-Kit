@@ -28,6 +28,7 @@ words:
   - Abbrechen
   - activedescendant
   - Adaptateur
+  - appbar
   - arrowleft
   - arrowright
   - autosize
@@ -82,6 +83,7 @@ words:
   - maxlength
   - menuitemcheckbox
   - microtasks
+  - minmax
   - mouseleave
   - multiselectable
   - Nanshan
@@ -98,6 +100,7 @@ words:
   - padless
   - pascalize
   - pipefail
+  - picsum
   - playsinline
   - pointerdown
   - pointermove

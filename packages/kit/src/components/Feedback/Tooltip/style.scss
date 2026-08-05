@@ -39,90 +39,26 @@
 
   /* dark effect */
   &.dark {
-    background: rgba(33, 33, 33, 0.9);
+    background: #212121;
     color: #ffffff;
-
-    .arrow::after {
-      border-color: rgba(33, 33, 33, 0.9) transparent transparent transparent;
-    }
-
-    &.top .arrow::after {
-      border-color: rgba(33, 33, 33, 0.9) transparent transparent transparent;
-    }
-    &.bottom .arrow::after {
-      border-color: transparent transparent rgba(33, 33, 33, 0.9) transparent;
-    }
-    &.left .arrow::after {
-      border-color: transparent transparent transparent rgba(33, 33, 33, 0.9);
-    }
-    &.right .arrow::after {
-      border-color: transparent rgba(33, 33, 33, 0.9) transparent transparent;
-    }
   }
 
   /* light effect */
   &.light {
-    background: #ffffff;
+    background: var(--elf-bg-paper, #ffffff);
     color: var(--elf-text-primary, #333333);
-    border: 1px solid var(--elf-border-light, #e4e7ed);
+    border: 1px solid var(--elf-border, #e4e7ed);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-
-    .arrow::after {
-      border-color: #ffffff transparent transparent transparent;
-    }
-
-    &.top {
-      .arrow::before {
-        border-color: var(--elf-border-light, #e4e7ed) transparent transparent transparent;
-      }
-      .arrow::after {
-        border-color: #ffffff transparent transparent transparent;
-      }
-    }
-
-    &.bottom {
-      .arrow::before {
-        border-color: transparent transparent var(--elf-border-light, #e4e7ed) transparent;
-      }
-      .arrow::after {
-        border-color: transparent transparent #ffffff transparent;
-      }
-    }
-
-    &.left {
-      .arrow::before {
-        border-color: transparent transparent transparent var(--elf-border-light, #e4e7ed);
-      }
-      .arrow::after {
-        border-color: transparent transparent transparent #ffffff;
-      }
-    }
-
-    &.right {
-      .arrow::before {
-        border-color: transparent var(--elf-border-light, #e4e7ed) transparent transparent;
-      }
-      .arrow::after {
-        border-color: transparent #ffffff transparent transparent;
-      }
-    }
   }
 }
 
-/* Placements, transform origins and arrows */
+/* Arrow: a clipped triangle inheriting the bubble surface. */
 .arrow {
   position: absolute;
-  width: 0;
-  height: 0;
-
-  &::before,
-  &::after {
-    content: "";
-    position: absolute;
-    border-width: 6px;
-    border-style: solid;
-    border-color: transparent;
-  }
+  width: 12px;
+  height: 8px;
+  background: inherit;
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
 }
 
 /* placement = top */
@@ -141,18 +77,9 @@
   }
 
   .arrow {
-    bottom: -6px;
+    bottom: -8px;
     left: 50%;
     transform: translateX(-50%);
-
-    &::before {
-      top: 1px;
-      left: -6px;
-    }
-    &::after {
-      top: 0;
-      left: -6px;
-    }
   }
 }
 
@@ -172,18 +99,9 @@
   }
 
   .arrow {
-    top: -6px;
+    top: -8px;
     left: 50%;
-    transform: translateX(-50%);
-
-    &::before {
-      top: -13px;
-      left: -6px;
-    }
-    &::after {
-      top: -12px;
-      left: -6px;
-    }
+    transform: translateX(-50%) rotate(180deg);
   }
 }
 
@@ -203,18 +121,12 @@
   }
 
   .arrow {
-    right: -6px;
+    left: 100%;
     top: 50%;
+    width: 8px;
+    height: 12px;
     transform: translateY(-50%);
-
-    &::before {
-      left: 1px;
-      top: -6px;
-    }
-    &::after {
-      left: 0;
-      top: -6px;
-    }
+    clip-path: polygon(0 0, 0 100%, 100% 50%);
   }
 }
 
@@ -234,17 +146,11 @@
   }
 
   .arrow {
-    left: -6px;
+    right: 100%;
     top: 50%;
+    width: 8px;
+    height: 12px;
     transform: translateY(-50%);
-
-    &::before {
-      left: -13px;
-      top: -6px;
-    }
-    &::after {
-      left: -12px;
-      top: -6px;
-    }
+    clip-path: polygon(100% 0, 100% 100%, 0 50%);
   }
 }

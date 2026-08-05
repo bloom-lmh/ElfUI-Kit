@@ -30,6 +30,11 @@
     height: 100%;
   }
 
+  ::slotted(svg) {
+    display: block;
+    fill: currentColor;
+  }
+
   .svg-icon {
     display: block;
     fill: currentColor;

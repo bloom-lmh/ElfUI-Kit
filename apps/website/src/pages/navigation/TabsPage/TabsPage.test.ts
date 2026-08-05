@@ -118,18 +118,20 @@ describe("Tabs documentation", () => {
     }
   });
 
-  it("uses real controls and the framework Transition in the applicable examples", async () => {
+  it("uses real controls and a keyed sliding gallery in the applicable examples", async () => {
     const playgroundExample = await mount(exampleTags[6]!);
     const playground =
       playgroundExample.shadowRoot?.querySelector<PlaygroundElement>("elf-playground");
     const controls = playground?.querySelector<HTMLElement>('[slot="controls"]');
-    expect(controls?.querySelectorAll("elf-select")).toHaveLength(5);
+    expect(controls?.querySelectorAll("elf-select")).toHaveLength(6);
     expect(controls?.querySelectorAll("elf-checkbox")).toHaveLength(2);
+    expect(playground?.code).toContain("sliderVariant");
 
     const galleryExample = await mount(exampleTags[7]!);
     const galleryPlayground =
       galleryExample.shadowRoot?.querySelector<PlaygroundElement>("elf-playground");
-    expect(galleryPlayground?.code).toContain('<Transition name="tabs-gallery">');
+    expect(galleryPlayground?.code).toContain('class="tabs-gallery-grid"');
+    expect(galleryPlayground?.code).toContain('slider-variant="flat"');
   });
 
   it("updates the basic example status from the real Tabs interaction", async () => {

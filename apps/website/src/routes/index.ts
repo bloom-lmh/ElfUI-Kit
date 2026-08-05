@@ -43,10 +43,6 @@ export const routes: RouteRecord[] = [
     component: () => import("../pages/guide/BuildStylesPage/index"),
   },
   {
-    path: "/guide/markdown-page",
-    component: () => import("../pages/guide/MarkdownPageGuide/index"),
-  },
-  {
     path: "/directives/click-outside",
     component: () => import("../pages/directives/ClickOutsidePage/index"),
   },
@@ -229,10 +225,6 @@ export const routes: RouteRecord[] = [
   {
     path: "/basic/button",
     component: () => import("../pages/basic/ButtonPage/index"),
-  },
-  {
-    path: "/basic/heading",
-    component: () => import("../pages/basic/HeadingPage/index"),
   },
   {
     path: "/basic/link",
@@ -641,7 +633,6 @@ export const navItems: NavItem[] = [
   { to: "/providers/locale", text: "Internationalization 国际化", group: "Guide 指南" },
   { to: "/guide/accessibility", text: "Accessibility 无障碍", group: "Guide 指南" },
   { to: "/guide/build", text: "Build & styles 构建与样式", group: "Guide 指南" },
-  { to: "/guide/markdown-page", text: "Markdown page 文档页", group: "Guide 指南" },
   { to: "/utilities", text: "Utilities 工具类", group: "Guide 指南" },
 
   { to: "/layout/grid", text: "Grid 栅格", group: "Layout 布局" },
@@ -654,7 +645,6 @@ export const navItems: NavItem[] = [
   { to: "/layout/toolbar", text: "Toolbar 工具栏", group: "Layout 布局" },
 
   { to: "/basic/button", text: "Button 按钮", group: "Basic 基础" },
-  { to: "/basic/heading", text: "Heading 标题", group: "Basic 基础" },
   { to: "/basic/link", text: "Link 链接", group: "Basic 基础" },
   { to: "/basic/text", text: "Text 文本", group: "Basic 基础" },
   { to: "/basic/quote", text: "Quote 引用", group: "Basic 基础" },

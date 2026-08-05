@@ -141,6 +141,33 @@ describe("MdPage", () => {
     expect(content.querySelector("elf-tag")?.textContent).toBe("ElfUI");
   });
 
+  it("keeps embedded collapse state when the slot is transiently detached", async () => {
+    const markdown =
+      '<div class="md-embed"><elf-collapse accordion><elf-collapse-item name="one" title="One"><p>Body</p></elf-collapse-item></elf-collapse></div>';
+    const element = await mount(markdown);
+    const content = element.shadowRoot!.querySelector<HTMLElement>(".md-content")!;
+    const item = content.querySelector("elf-collapse-item")!;
+    const header = item.shadowRoot!.querySelector<HTMLButtonElement>(".header")!;
+
+    header.click();
+    await tick();
+    expect(header.getAttribute("aria-expanded")).toBe("true");
+
+    // Re-renders can transiently empty the slotted source; the rendered
+    // content and its interactive state must survive the detach.
+    element.textContent = "";
+    await tick();
+    expect(content.querySelector("elf-collapse-item")).toBe(item);
+
+    element.textContent = markdown;
+    await tick();
+    const restored = content.querySelector("elf-collapse-item")!;
+    expect(restored).toBe(item);
+    expect(restored.shadowRoot!.querySelector(".header")?.getAttribute("aria-expanded")).toBe(
+      "true",
+    );
+  });
+
   it("uses the content prop when the slot is empty", async () => {
     const element = document.createElement(componentTag);
     element.setAttribute("content", "# From prop");

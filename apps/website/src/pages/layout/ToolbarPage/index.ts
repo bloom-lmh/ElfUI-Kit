@@ -23,7 +23,10 @@ const t = createDocsTranslator({
   flexible: { zh: "灵活卡片工具栏", en: "Flexible and card toolbar" },
   floating: { zh: "浮动搜索", en: "Floating with search" },
   tooltips: { zh: "工具提示与快速操作", en: "Tooltips and Speed Dial" },
-  photos: { zh: "影像控制台", en: "Visual console" },
+  photos: { zh: "照片", en: "Photos" },
+  photosConsole: { zh: "影像控制台", en: "Visual console" },
+  quickActions: { zh: "快捷操作", en: "Quick actions" },
+  currentTab: { zh: "当前标签", en: "Active tab" },
   library: { zh: "海岸资料库", en: "Coastal library" },
   search: { zh: "搜索", en: "Search" },
   filter: { zh: "筛选", en: "Filter" },
@@ -89,10 +92,16 @@ const extensionHeight = useRef(72);
 const extendedTab = useRef("all");
 const extensionHeightTab = useRef("all");
 const extensionSlotTab = useRef("all");
+const prominentTab = useRef("all");
 const selectedPhotos = useRef(0);
 const searchText = useRef("");
 const toggleDensity = (): void => density.set(density.value === "compact" ? "default" : "compact");
 const action = (value: string): void => lastAction.set(value);
+const onCollapsedToggle = (event: CustomEvent<boolean>): void =>
+  collapsed.set(Boolean(event.detail));
+const onCollapsePosition = (event: CustomEvent<string>): void =>
+  collapsePosition.set(String(event.detail));
+const onLocationChange = (event: CustomEvent<string>): void => location.set(String(event.detail));
 const onBack = (): void => action(t("back"));
 const onSearch = (): void => action(t("search"));
 const onFilter = (): void => action(t("filter"));
@@ -110,6 +119,7 @@ const onExtendedTab = (event: CustomEvent): void => extendedTab.set(String(event
 const onExtensionHeightTab = (event: CustomEvent): void =>
   extensionHeightTab.set(String(event.detail));
 const onExtensionSlotTab = (event: CustomEvent): void => extensionSlotTab.set(String(event.detail));
+const onProminentTab = (event: CustomEvent): void => prominentTab.set(String(event.detail));
 const selectPhotos = (): void => selectedPhotos.set(3);
 const clearSelection = (): void => selectedPhotos.set(0);
 const selectionTitle = (): string =>
@@ -198,9 +208,16 @@ const slotRows = () =>
     name,
     desc: pick(`${name} 内容区域`, `${name} content region.`),
   }));
-const compactCode = `<elf-toolbar density="compact" title="Visual console" border>
-  <elf-button slot="append" circle variant="text">Search</elf-button>
-</elf-toolbar>`;
+const compactCode = `<div class="canvas">
+  <elf-toolbar density="compact" title="Visual console">
+    <elf-button slot="append" circle variant="text">Search</elf-button>
+  </elf-toolbar>
+  <div class="toolbar-actions">
+    <elf-button block variant="outlined">Search photos</elf-button>
+    <elf-button block variant="outlined">Filter</elf-button>
+    <elf-button block variant="text">More</elf-button>
+  </div>
+</div>`;
 const collapseCode = `<elf-toolbar :collapsed="collapsed" collapse-position="start" collapse-width="124">...</elf-toolbar>`;
 const imageCode = `<elf-toolbar image="/coast.jpg" title="Coastal library" extension-height="44">...</elf-toolbar>`;
 const locationCode = `<div class="relative">
@@ -212,9 +229,9 @@ const extendedCode = `<elf-toolbar title="Toolbar" extension-height="48">
 const prominentCode = `<elf-toolbar title="Library" density="prominent" extended color="#1e3a5f">
   <elf-button slot="prepend" circle variant="text" dark>Menu</elf-button>
   <elf-button slot="append" circle variant="text" dark>Favorite</elf-button>
-  <nav slot="extension" class="toolbar-tabs is-on-dark">
-    <span>All</span><span>Favorites</span><span>Shared</span>
-  </nav>
+  <elf-tabs slot="extension" class="toolbar-extension-tabs is-on-dark" density="compact" grow
+    background-color="transparent" color="#fff" slider-color="#fff"
+    :items.prop="tabs" :modelValue.prop="active" />
 </elf-toolbar>`;
 const extensionHeightCode = `<elf-toolbar title="Toolbar" extension-height="72">
   <elf-tabs slot="extension" density="compact" grow :items.prop="tabs" :modelValue.prop="active" />
@@ -231,7 +248,7 @@ const tabs = [
 const contextualCode = `<elf-toolbar :color="selected ? '#1e3a5f' : 'surface'" :title="selectionTitle">
   <elf-button slot="append" circle variant="text">Archive</elf-button>
 </elf-toolbar>`;
-const flexibleCode = `<elf-toolbar color="#1976d2" title="Title" extension-height="96" extended flat>
+const flexibleCode = `<elf-toolbar color="#1976d2" title="Title" flat>
   <elf-button slot="prepend" circle variant="text" dark>Menu</elf-button>
   <elf-button slot="append" circle variant="text" dark>Favorite</elf-button>
 </elf-toolbar>`;
@@ -255,10 +272,30 @@ defineStyle(
 
   .canvas {
     min-height: 240px;
+    overflow: hidden;
     border: 1px solid var(--elf-border);
     border-radius: 8px;
     background: var(--elf-bg-paper);
     box-shadow: var(--elf-shadow-1);
+  }
+
+  .canvas elf-toolbar {
+    border-radius: 0;
+  }
+
+  .toolbar-actions {
+    display: grid;
+    gap: 8px;
+    padding: 16px 18px;
+  }
+
+  .toolbar-actions-title {
+    color: var(--elf-text-secondary);
+    font-size: 12px;
+  }
+
+  .toolbar-actions elf-button {
+    justify-content: flex-start;
   }
 
   .canvas-copy {
@@ -384,6 +421,12 @@ defineStyle(
     background: var(--elf-bg-default);
   }
 
+  .extended-stage elf-toolbar.is-dark elf-icon,
+  .image-stage elf-toolbar.is-dark elf-icon,
+  .flexible-stage elf-toolbar.is-dark elf-icon {
+    color: #fff;
+  }
+
   .toolbar-extension-tabs {
     display: block;
     width: 100%;
@@ -460,15 +503,9 @@ defineStyle(
     background: color-mix(in srgb, var(--elf-primary) 5%, var(--elf-bg-default));
   }
 
-  .flexible-stage elf-toolbar {
-    padding-bottom: 54px;
-  }
-
-  .floating-panel {
-    position: relative;
-    z-index: 2;
+  .flexible-panel {
     width: calc(100% - 44px);
-    margin: -42px auto 0;
+    margin: 18px auto 0;
     padding: 22px;
     border: 1px solid var(--elf-border);
     border-radius: 8px;
@@ -476,12 +513,12 @@ defineStyle(
     box-shadow: var(--elf-shadow-2);
   }
 
-  .floating-panel h3 {
+  .flexible-panel h3 {
     margin: 0 0 8px;
     font-size: 18px;
   }
 
-  .floating-panel p {
+  .flexible-panel p {
     margin: 0;
     color: var(--elf-text-secondary);
     font-size: 13px;
@@ -561,16 +598,25 @@ const PageToolbar = defineHtml(`
         <elf-button slot="status" size="sm" variant="text"
           @click=${toggleDensity}>${t("toggleDensity")}</elf-button>
         <div class="toolbar-stage">
-          <div class="canvas"><elf-toolbar :density=${density.value} :title=${t("photos")}
-              border><elf-button slot="prepend" circle variant="text" :aria-label=${t("back")}
-                @click=${onBack}><elf-icon name="back" size="18"></elf-icon></elf-button><elf-button
-                slot="append" circle variant="text" :aria-label=${t("search")}
-                @click=${onSearch}><elf-icon name="search"
-                  size="18"></elf-icon></elf-button><elf-button slot="append" circle variant="text"
-                :aria-label=${t("filter")} @click=${onFilter}><elf-icon name="filter"
-                  size="18"></elf-icon></elf-button><elf-button slot="append" circle variant="text"
-                :aria-label=${t("more")} @click=${onMore}><elf-icon name="more"
-                  size="18"></elf-icon></elf-button></elf-toolbar>
+          <div class="canvas">
+            <elf-toolbar :density=${density.value} :title=${t("photosConsole")}>
+              <elf-button slot="prepend" circle variant="text" :aria-label=${t("back")}
+                @click=${onBack}><elf-icon name="back" size="18"></elf-icon></elf-button>
+              <elf-button slot="append" circle variant="text" :aria-label=${t("search")}
+                @click=${onSearch}><elf-icon name="search" size="18"></elf-icon></elf-button>
+            </elf-toolbar>
+            <div class="toolbar-actions">
+              <span class="toolbar-actions-title">${t("quickActions")}</span>
+              <elf-button block variant="outlined" @click=${onSearch}>
+                <elf-icon name="search" size="18"></elf-icon>${t("searchPlaceholder")}
+              </elf-button>
+              <elf-button block variant="outlined" @click=${onFilter}>
+                <elf-icon name="filter" size="18"></elf-icon>${t("filter")}
+              </elf-button>
+              <elf-button block variant="text" @click=${onMore}>
+                <elf-icon name="more" size="18"></elf-icon>${t("more")}
+              </elf-button>
+            </div>
             <div class="canvas-copy"><strong>${t("library")}</strong>${t("description")}</div>
           </div>
           <p class="action-readout">${t("action")}: ${lastAction.value || t("none")}</p>
@@ -579,8 +625,8 @@ const PageToolbar = defineHtml(`
 
       <elf-playground :title=${t("collapse")} :code=${collapseCode}>
         <div slot="controls" class="demo-controls toolbar-choice-controls">
-          <elf-checkbox :modelValue.prop=${collapsed.value} :label=${t("toggleCollapse")} @update:modelValue=${(event: CustomEvent<boolean>) => collapsed.set(Boolean(event.detail))}></elf-checkbox>
-          <elf-radio-group :modelValue.prop=${collapsePosition.value} :aria-label=${t("collapse")} @update:modelValue=${(event: CustomEvent<string>) => collapsePosition.set(String(event.detail))}>
+          <elf-checkbox :modelValue.prop=${collapsed.value} :label=${t("toggleCollapse")} @update:modelValue=${onCollapsedToggle}></elf-checkbox>
+          <elf-radio-group :modelValue.prop=${collapsePosition.value} :aria-label=${t("collapse")} @update:modelValue=${onCollapsePosition}>
             <elf-radio value="start" :label=${t("start")}></elf-radio>
             <elf-radio value="end" :label=${t("end")}></elf-radio>
           </elf-radio-group>
@@ -596,11 +642,12 @@ const PageToolbar = defineHtml(`
             <div class="collapse-controls">
               <span>${collapsed.value ? (collapsePosition.value === "start" ? t("start") : t("end")) : t("photos")}</span></div>
           </div>
+          <p class="action-readout">${t("action")}: ${lastAction.value || t("none")}</p>
         </div>
       </elf-playground>
 
       <elf-playground :title=${t("image")} :code=${imageCode}>
-        <div class="image-stage"><elf-toolbar :title=${t("library")} color="#173e6c"
+        <div class="image-stage"><elf-toolbar class="is-dark" :title=${t("library")} color="#173e6c"
             image="https://picsum.photos/seed/elfui-toolbar-sea/1400/320" image-position="center 46%"
             extension-height="44"><elf-button slot="prepend" circle variant="text" dark
               :aria-label=${t("menu")} @click=${onMenu}><elf-icon name="menu"
@@ -618,7 +665,7 @@ const PageToolbar = defineHtml(`
 
       <elf-playground :title=${t("location")} :code=${locationCode}>
         <div slot="controls" class="demo-controls toolbar-choice-controls">
-          <elf-radio-group :modelValue.prop=${location.value} :aria-label=${t("location")} @update:modelValue=${(event: CustomEvent<string>) => location.set(String(event.detail))}>
+          <elf-radio-group :modelValue.prop=${location.value} :aria-label=${t("location")} @update:modelValue=${onLocationChange}>
             <elf-radio value="top-start" :label=${t("topStart")}></elf-radio>
             <elf-radio value="top-end" :label=${t("topEnd")}></elf-radio>
             <elf-radio value="bottom-start" :label=${t("bottomStart")}></elf-radio>
@@ -634,7 +681,7 @@ const PageToolbar = defineHtml(`
       </elf-playground>
 
       <elf-playground :title=${t("extended")} :code=${extendedCode} :script=${toolbarTabsScript}>
-        <div class="extended-stage"><elf-toolbar :title=${t("photos")} color="#546e7a"
+        <div class="extended-stage"><elf-toolbar class="is-dark" :title=${t("photos")} color="#546e7a"
             extension-height="48"><elf-button slot="prepend" circle variant="text" dark
               :aria-label=${t("menu")} @click=${onMenu}><elf-icon name="menu"
                 size="18"></elf-icon></elf-button><elf-button slot="append" circle variant="text" dark
@@ -646,18 +693,23 @@ const PageToolbar = defineHtml(`
               @update:modelValue=${onExtendedTab}></elf-tabs></elf-toolbar>
           <div class="canvas-copy"><strong>${t("library")}</strong>${t("description")}</div>
         </div>
+        <p class="action-readout">${t("currentTab")}: ${extendedTab.value}</p>
       </elf-playground>
 
       <elf-playground :title=${t("prominent")} :code=${prominentCode}>
-        <div class="extended-stage"><elf-toolbar :title=${t("library")} density="prominent"
+        <div class="extended-stage"><elf-toolbar class="is-dark" :title=${t("library")} density="prominent"
             extended color="#1e3a5f"><elf-button slot="prepend" circle variant="text" dark
               :aria-label=${t("menu")} @click=${onMenu}><elf-icon name="menu"
                 size="18"></elf-icon></elf-button><elf-button slot="append" circle variant="text" dark
               :aria-label=${t("favorite")} @click=${() => action(t("favorite"))}><elf-icon
-                name="favorite" size="18"></elf-icon></elf-button><nav slot="extension"
-              class="toolbar-tabs is-on-dark"><span>${t("all")}</span><span>${t("favorites")}</span><span>${t("shared")}</span></nav></elf-toolbar>
+                name="favorite" size="18"></elf-icon></elf-button><elf-tabs slot="extension"
+              class="toolbar-extension-tabs is-on-dark" density="compact" grow
+              background-color="transparent" color="#fff" slider-color="#fff"
+              :items.prop=${extensionTabs()} :modelValue.prop=${prominentTab.value}
+              @update:modelValue=${onProminentTab}></elf-tabs></elf-toolbar>
           <div class="canvas-copy"><strong>${t("library")}</strong>${t("description")}</div>
         </div>
+        <p class="action-readout">${t("currentTab")}: ${prominentTab.value}</p>
       </elf-playground>
 
       <elf-playground :title=${t("extensionHeight")} :code=${extensionHeightCode}
@@ -670,10 +722,11 @@ const PageToolbar = defineHtml(`
               class="toolbar-extension-tabs" density="compact" grow background-color="transparent"
               :items.prop=${extensionTabs()} :modelValue.prop=${extensionHeightTab.value}
               @update:modelValue=${onExtensionHeightTab}></elf-tabs></elf-toolbar></div>
+        <p class="action-readout">${t("currentTab")}: ${extensionHeightTab.value}</p>
       </elf-playground>
 
       <elf-playground :title=${t("extensionSlot")} :code=${extensionCode} :script=${toolbarTabsScript}>
-        <div class="extended-stage"><elf-toolbar :title=${t("photos")} color="#3949ab"><elf-button
+        <div class="extended-stage"><elf-toolbar class="is-dark" :title=${t("photos")} color="#3949ab"><elf-button
               slot="prepend" circle variant="text" dark :aria-label=${t("back")}
               @click=${onBack}><elf-icon name="back" size="18"></elf-icon></elf-button><elf-tabs
               slot="extension" class="toolbar-extension-tabs is-on-dark" density="compact" grow
@@ -682,6 +735,7 @@ const PageToolbar = defineHtml(`
               @update:modelValue=${onExtensionSlotTab}></elf-tabs></elf-toolbar>
           <div class="canvas-copy">${t("description")}</div>
         </div>
+        <p class="action-readout">${t("currentTab")}: ${extensionSlotTab.value}</p>
       </elf-playground>
 
       <elf-playground :title=${t("contextual")} :code=${contextualCode}>
@@ -708,13 +762,13 @@ const PageToolbar = defineHtml(`
       </elf-playground>
 
       <elf-playground :title=${t("flexible")} :code=${flexibleCode}>
-        <div class="flexible-stage"><elf-toolbar :title=${t("library")} color="#1976d2"
-            extension-height="96" extended flat><elf-button slot="prepend" circle variant="text" dark
+        <div class="flexible-stage"><elf-toolbar class="is-dark" :title=${t("library")} color="#1976d2"
+            flat><elf-button slot="prepend" circle variant="text" dark
               :aria-label=${t("menu")} @click=${onMenu}><elf-icon name="menu"
                 size="18"></elf-icon></elf-button><elf-button slot="append" circle variant="text" dark
               :aria-label=${t("favorite")} @click=${() => action(t("favorite"))}><elf-icon name="favorite"
                 size="18"></elf-icon></elf-button></elf-toolbar>
-          <section class="floating-panel">
+          <section class="flexible-panel">
             <h3>${t("fieldNotes")}</h3>
             <p>${t("description")}</p>
           </section>

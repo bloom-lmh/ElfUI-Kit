@@ -59,6 +59,14 @@ const t = createDocsTranslator({
   designReview: { zh: "设计评审", en: "Design review" },
   unreadComments: { zh: "8 条未读评论", en: "8 unread comments" },
   responsivePanel: { zh: "响应式面板", en: "Responsive panel" },
+  shapeSend: { zh: "发送", en: "Send" },
+  flexTitle: { zh: "工作区设置", en: "Workspace settings" },
+  flexAction: { zh: "保存", en: "Save" },
+  projectName: { zh: "Atlas 项目", en: "Project Atlas" },
+  projectMeta: { zh: "上次同步 5 分钟前", en: "Last synced 5 min ago" },
+  undo: { zh: "撤销", en: "Undo" },
+  previewAction: { zh: "预览", en: "Preview" },
+  publish: { zh: "发布", en: "Publish" },
   marginArea: { zh: "外边距区域", en: "margin area" },
   paddingArea: { zh: "内边距区域", en: "padding area" },
   content: { zh: "内容", en: "content" },
@@ -363,7 +371,9 @@ const PageUtilities = defineHtml(`
             </div>
 
             <div v-else-if="entry.key === 'border-radius'" class="shape-row">
-              <div :class="['shape-sample', selectedClass(entry.key)]">EL</div><div class="shape-sample rounded-lg">UI</div><div class="shape-sample rounded-circle">24</div>
+              <span class="shape-avatar" :class="selectedClass(entry.key)">EL</span>
+              <span class="shape-tag">beta</span>
+              <button class="shape-button" type="button">{{ t('shapeSend') }}</button>
             </div>
 
             <div v-else-if="entry.key === 'content'" class="utility-concept-demo content-demo">
@@ -409,7 +419,9 @@ const PageUtilities = defineHtml(`
             </div>
 
             <div v-else-if="entry.key === 'flex'" :class="['flex-board', 'd-flex', selectedClass(entry.key)]">
-              <div :class="selectedClass(entry.key)">1</div><div>2</div><div>3</div>
+              <strong class="flex-brand">ElfUI</strong>
+              <span class="flex-grow">{{ t('flexTitle') }}</span>
+              <button class="flex-action" type="button">{{ t('flexAction') }}</button>
             </div>
 
             <article v-else-if="entry.key === 'float'" :class="['editorial-card', floatContainerClass()]">
@@ -429,13 +441,42 @@ const PageUtilities = defineHtml(`
             </div>
 
             <div v-else-if="entry.key === 'sizing'" class="sizing-board">
-              <div class="ruler"><span>0</span><span>50</span><span>100%</span></div><div :class="['sizing-panel', selectedClass(entry.key)]"><span>${t("responsivePanel")}</span><small>{{ selectedClass(entry.key) }}</small></div>
+              <div class="ruler"><span>0</span><span>50</span><span>100%</span></div>
+              <div :class="['sizing-panel', selectedClass(entry.key)]">
+                <div class="sizing-list">
+                  <strong>${t("flexTitle")}</strong>
+                  <span class="sizing-row"></span>
+                  <span class="sizing-row short"></span>
+                </div>
+              </div>
             </div>
 
             <div v-else-if="entry.key === 'spacing'" class="spacing-stage">
-              <div v-if="isGroup(entry.key, 0)" class="spacing-margin-frame"><span>${t("marginArea")}</span><div :class="['spacing-target', selectedClass(entry.key)]">${t("content")}</div></div>
-              <div v-else-if="isGroup(entry.key, 1)" class="spacing-padding-frame"><span>${t("paddingArea")}</span><div :class="['spacing-padding-target', selectedClass(entry.key)]"><strong>${t("content")}</strong></div></div>
-              <div v-else :class="['spacing-gap-frame', 'd-flex', selectedClass(entry.key)]"><span>1</span><span>2</span><span>3</span></div>
+              <div v-if="isGroup(entry.key, 0)" class="spacing-margin-frame">
+                <span>${t("marginArea")}</span>
+                <div :class="['spacing-target', selectedClass(entry.key)]">
+                  <span class="spacing-avatar">EL</span>
+                  <span class="spacing-copy">
+                    <strong>${t("projectName")}</strong>
+                    <small>${t("projectMeta")}</small>
+                  </span>
+                </div>
+              </div>
+              <div v-else-if="isGroup(entry.key, 1)" class="spacing-padding-frame">
+                <span>${t("paddingArea")}</span>
+                <div :class="['spacing-padding-target', selectedClass(entry.key)]">
+                  <span class="spacing-avatar">EL</span>
+                  <span class="spacing-copy">
+                    <strong>${t("projectName")}</strong>
+                    <small>${t("projectMeta")}</small>
+                  </span>
+                </div>
+              </div>
+              <div v-else :class="['spacing-gap-frame', 'd-flex', selectedClass(entry.key)]">
+                <button type="button">${t("undo")}</button>
+                <button type="button">${t("previewAction")}</button>
+                <button class="is-primary" type="button">${t("publish")}</button>
+              </div>
             </div>
 
             <article v-else class="type-specimen">

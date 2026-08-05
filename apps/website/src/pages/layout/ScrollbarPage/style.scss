@@ -25,6 +25,19 @@
   width: 100%;
 }
 
+.cmd-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: min(540px, 100%);
+  margin-top: 12px;
+}
+
+.command-status {
+  color: var(--elf-text-secondary);
+  font-size: var(--elf-font-size-sm);
+}
+
 .mail-item {
   box-sizing: border-box;
   width: 100%;

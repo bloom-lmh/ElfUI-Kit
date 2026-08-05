@@ -5,11 +5,12 @@ import demoStyles from "./demo.scss?inline";
 
 const value = useRef("");
 const t = createDocsTranslator({
-  title: { zh: "固定步长", en: "Fixed steps" },
+  title: { zh: "到店预约", en: "In-store booking" },
+  meta: { zh: "门店服务 · 每 15 分钟一个时段", en: "In-store service · 15-minute slots" },
   label: { zh: "预约时间", en: "Appointment time" },
   placeholder: { zh: "选择预约时间", en: "Choose a time" },
-  current: { zh: "当前时间", en: "Current time" },
-  empty: { zh: "未选择", en: "Not selected" },
+  booked: { zh: "已预约", en: "Booked" },
+  empty: { zh: "未预约", en: "Not booked" },
 });
 const pick = createDocsPicker();
 
@@ -43,7 +44,9 @@ defineStyle(demoStyles);
 
 const PageTimeSelectEx1 = defineHtml(`
   <elf-playground :title=${t("title")} :code=${code()} :script=${script}>
-    <div class="demo-field">
+    <section class="demo-card" style="width:min(100%,480px);margin-inline:auto">
+      <strong>${t("title")}</strong>
+      <span class="demo-meta">${t("meta")}</span>
       <elf-time-select
         :modelValue.prop=${value}
         start="08:30"
@@ -54,8 +57,10 @@ const PageTimeSelectEx1 = defineHtml(`
         clearable
         @update:modelValue=${onUpdate}
       ></elf-time-select>
-    </div>
-    <span slot="status" class="demo-state">${t("current")} · ${value.value || t("empty")}</span>
+    </section>
+    <span slot="status" class="demo-state" role="status" aria-live="polite">
+      ${value.value ? `${t("booked")} · ${value.value}` : t("empty")}
+    </span>
   </elf-playground>
 `);
 

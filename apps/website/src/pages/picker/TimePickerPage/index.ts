@@ -25,11 +25,16 @@ const t = createDocsTranslator({
     zh: "使用 Material 钟面输入单个时间或时间范围，并支持格式、步进、禁用规则、快捷项和表单联动。",
     en: "Enter a time or time range with a Material clock face, including formats, steps, disabled rules, shortcuts, and form integration.",
   },
+  vsTimeSelect: {
+    zh: "只需要固定步长的快捷列表？试试 TimeSelect。",
+    en: "Need only a fixed-step quick list? Try TimeSelect.",
+  },
 });
 
 const PageTimePicker = defineHtml(`
   <elf-container>
     <elf-docs-hero category="picker" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
+    <p class="docs-callout">${t("vsTimeSelect")} <elf-link href="#/picker/time-select">TimeSelect →</elf-link></p>
     <page-time-picker-ex1 />
     <page-time-picker-ex2 />
     <page-time-picker-ex3 />

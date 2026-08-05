@@ -5,8 +5,9 @@ import demoStyles from "./demo.scss?inline";
 
 const preciseTime = useRef("09-30-15");
 const t = createDocsTranslator({
-  title: { zh: "格式与步进", en: "Formats and steps" },
-  label: { zh: "精确时间", en: "Precise time" },
+  title: { zh: "秒级切片", en: "Second-precise cut" },
+  meta: { zh: "直播回放切片 · 入点精度到秒", en: "Stream replay cut · second precision" },
+  label: { zh: "切片入点", en: "Cut-in time" },
   output: { zh: "输出值", en: "Output value" },
 });
 const pick = createDocsPicker();
@@ -24,7 +25,7 @@ const code = () =>
   pick(
     `<elf-time-picker
   :modelValue.prop="preciseTime"
-  label="精确时间"
+  label="切片入点"
   format="HH:mm:ss"
   value-format="HH-mm-ss"
   :step="15"
@@ -37,7 +38,7 @@ const code = () =>
 />`,
     `<elf-time-picker
   :modelValue.prop="preciseTime"
-  label="Precise time"
+  label="Cut-in time"
   format="HH:mm:ss"
   value-format="HH-mm-ss"
   :step="15"
@@ -65,19 +66,25 @@ defineStyle(demoStyles);
 const PageTimePickerEx4 = defineHtml(`
   <elf-playground :title=${t("title")} :code=${code()} :script=${script}>
     <div class="time-picker-demo-stage time-picker-demo-stage--compact">
-      <elf-time-picker
-        :modelValue.prop=${preciseTime}
-        :label=${t("label")}
-        format="HH:mm:ss"
-        value-format="HH-mm-ss"
-        :step=${15}
-        :disabledHours.prop=${disabledHours}
-        :disabledMinutes.prop=${disabledMinutes}
-        :disabledSeconds.prop=${disabledSeconds}
-        placement="bottom-start"
-        popper-class="precision-clock"
-        @update:modelValue=${updatePreciseTime}
-      ></elf-time-picker>
+      <div class="time-picker-demo-card">
+        <div class="time-picker-demo-card-head">
+          <strong class="time-picker-demo-card-title">${t("title")}</strong>
+          <span class="time-picker-demo-card-meta">${t("meta")}</span>
+        </div>
+        <elf-time-picker
+          :modelValue.prop=${preciseTime}
+          :label=${t("label")}
+          format="HH:mm:ss"
+          value-format="HH-mm-ss"
+          :step=${15}
+          :disabledHours.prop=${disabledHours}
+          :disabledMinutes.prop=${disabledMinutes}
+          :disabledSeconds.prop=${disabledSeconds}
+          placement="bottom-start"
+          popper-class="precision-clock"
+          @update:modelValue=${updatePreciseTime}
+        ></elf-time-picker>
+      </div>
     </div>
     <span slot="status" class="demo-state" role="status" aria-live="polite">
       ${t("output")} · ${preciseTime}

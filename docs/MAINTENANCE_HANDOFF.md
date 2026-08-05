@@ -1,8 +1,8 @@
-<!-- cspell:words CodeCard Shiki Sparkline VIEWBOX Fritsch Carlson bottomnav interp docsync editstart -->
+<!-- cspell:words CodeCard Shiki Sparkline VIEWBOX Fritsch Carlson bottomnav interp docsync editstart frameless -->
 
 # ElfUI Kit 维护交接
 
-更新时间：2026-08-04
+更新时间：2026-08-05
 
 本文件是持续更新的维护交接记录。每轮工作开始时先读取，完成一个阶段后立即更新，避免依赖对话上下文。
 
@@ -23,6 +23,76 @@
 - 工作树包含多批尚未提交的维护改动。不得回退不属于当前任务的文件。
 
 ## 2. 已经做的工作
+
+### 2026-08-05 AppBar 密度案例改为标题区选择按钮
+
+- 密度案例从三张静态应用栏改为单个可交互应用栏：在 Playground 标题区（`slot="status"`）放入 `elf-segmented size="sm"`（默认 64px / 舒适 56px / 紧凑 48px），选中后通过 `:density.prop` 实时切换单个 `elf-app-bar`，下方标签同步显示当前档位与高度。新增 `density` ref、`onDensity`、`densityOptions()`、`densityMeta()`，并补充 `densityDefault/densityComfortable/densityCompact` 翻译键。
+- 代码展示 `densityCode` 同步改为分段控件 + 单个动态应用栏。
+- 测试：NavigationSurfacesPage 新增断言（标题区存在 `elf-segmented`，点击“舒适”后应用栏 `density=comfortable` 且标签为 56px）；13 项页面测试全部通过；ESLint、Prettier、`typecheck:website` 均 0 错误。
+- 浏览器验证：三档点击实测高度 66→58→50px（含 2px border），标签同步；截图归档 `output/playwright/appbar-density-default.png`、`output/playwright/appbar-density-compact.png`。
+
+### 2026-08-05 AppBar 滚动行为案例序号居中修复
+
+- 滚动行为 01/02 的序号方块（`.content-index`）未垂直水平居中：根因是紧随的 `.content-row span { display: block }` 把 `display: grid`（place-items: center）覆盖为 block，且 `margin-top: 3px` 误加到序号方块。将这两条规则限定为文本列（`.content-row > div strong/span`），序号方块恢复 grid 居中并加 `justify-self: center` / `line-height: 1`。
+- 验证：浏览器实测 01/02 数字相对方块中心水平偏移 0、垂直仅 0.5px 亚像素差，控制台 0 warning / 0 error；截图归档 `output/playwright/appbar-scroll-index-centered.png`。页面测试与构建因终端工具 14s 超时限制未在本轮跑完。
+
+### 2026-08-05 Select outlined 内容再次下移（+3px）
+
+- 视觉仍偏上，outlined trigger 内边距从 6/2 调整为 7/1，内容中心相对 trigger 中心下移 3px（value 与 arrow 偏移均为 +3px）。
+- 验证：Select 测试 30 项通过；浏览器实测 +3px、控制台 0 warning / 0 error；截图归档 `output/playwright/select-outlined-nudge-3px.png`。kit 构建因终端工具 14s 超时未在本轮跑完（纯 SCSS 微调，风险低，后续可补）。
+
+### 2026-08-05 Select outlined 内容下移微调
+
+- Select outlined 内容（文字/箭头）在完全垂直居中后视觉偏上，为 outlined trigger 增加非对称内边距（padding-top 6px / padding-bottom 2px），内容中心相对 trigger 中心下移 2px。
+- 验证：Select 测试 30 项通过；kit 构建通过；浏览器实测 value 与 arrow 中心偏移均为 +2px，控制台 0 warning / 0 error；截图归档 `output/playwright/select-outlined-nudge-down.png`。
+
+### 2026-08-05 Input/Select outlined 描边样式修正
+
+- Input outlined 聚焦时 label 不再用 `scale(0.75)`（缺口按未缩放宽度计算导致 label 偏左、右侧空隙大）：改为与 fieldset legend 一致的 11px 字号并校准 `left: 14px`，label 与缺口内容区完全对齐、左右空隙对称（实测 leftGap 0 / rightGap 0），呈现 `-标签-` 居中效果；共享 `_field-surface.scss` 的 floating-label mixin 同步修正（Select/Autocomplete/Cascader/TreeSelect 等 outlined 字段统一受益）。
+- Select outlined 文字与箭头垂直居中：移除 `data-has-label` 的非对称 `padding-top: 18px`，`.value` 行高归一，`.arrow`/`.suffix` 改为 inline-flex + `line-height: 1`；实测 value 与 arrow 中心相对 trigger 中心偏移均为 0。
+- 验证：Input 与 Select 聚焦测试 65 项通过；kit typecheck 0 错误；kit 构建通过；浏览器实测 label 缺口内对称居中、文字/箭头垂直居中，控制台 0 warning / 0 error；截图归档 `output/playwright/input-outlined-label-centered.png`、`select-outlined-centered.png`。
+
+### 2026-08-05 Anchor 演示布局修复与 Tabs 平直滑块 / 图片滑动过渡
+
+- Anchor：组件新增 `--anchor-min-width` CSS 变量（默认 160px）；三个文档案例（基础定位 / 嵌套受控 / 组合式链接）改为 `auto + 1fr` 布局，锚点仅保留容纳文字的宽度（102px / 102px / 75px），文档卡片相应变宽。
+- Anchor：修复「水平滚动 / 下划线 / 无侧边标记」案例 `:marker=${false}` 绑定未生效的问题——布尔属性需用 `:marker.prop=${false}`，`smooth` 同步改为属性绑定；实测 track 已不再渲染，AnchorPage 测试补充 `marker=false` 与 track 缺失断言。
+- Tabs：新增 `sliderVariant="rounded | flat"`，flat 为贴住标签底边的 2px 平直直线（无圆角、无内缩），水平/垂直布局均按标签完整尺寸定位；图片分类案例启用该样式。
+- Tabs：图片分类切换改为可靠的横向滑动过渡——实测发现示例中原框架 `<Transition>` 与 `:key` 重建均未触发动画，改用 `useTemplateRef` + Web Animations API 在切换时从右侧滑入（220ms），并尊重 `prefers-reduced-motion`；删除失效的 Transition 包装与 enter/leave 样式。
+- 验证：Anchor/Tabs 组件与页面 4 个测试文件 42 项通过；kit/website typecheck 0 宏错误、0 TS 错误；beta.8 扫描、Prettier、ESLint、docs locale `574/574` 通过；website（1288 模块）与 kit lib（566 模块）构建通过；真实 Chromium 确认 track 消失、flat 滑块 2px 全宽、切换 40ms 时 translateX 14.8px / 120ms 2.4px，截图归档 `output/playwright/anchor-fix-zh.png`、`tabs-fix-zh.png`。
+
+### 2026-08-05 标签页操作台新增滑块样式选项
+
+- 「标签页操作台」新增「滑块样式」Select（rounded / flat），操作台 Select 增至 6 个，Template 代码与页面测试同步更新。
+- 修复真实交互中发现的问题：`sliderVariant` 运行时切换后 `syncSlider` 未重算（几何仍是 rounded 尺寸）——effect 依赖列表补充 `props.sliderVariant`，并新增运行时切换单测。
+- 验证：Tabs/TabsPage 测试 28 项通过；kit/website typecheck 0 错误；website 构建 1288 模块通过；Chromium 实测选择「平直直线」后滑块变为 179×2、无圆角、无内缩，控制台 0 错误；截图归档 `output/playwright/tabs-playground-slider-variant-zh.png`。
+
+### 2026-08-05 删除 Heading 组件及其文档页
+
+- 按用户要求移除 `elf-heading` 组件（`packages/kit/src/components/Basic/Heading/`）与文档页（`apps/website/src/pages/basic/HeadingPage/`），同步清理全部引用：Basic 分类注册、`library.ts` 导出、路由表、侧栏菜单、`menu-icons.ts` 图标映射、组件总览目录与 `components/plan.md` 条目。
+- 原文件已整体归档至 `.local-archive/deleted-2026-08-05-heading/`（组件、页面、两张 QA 截图），且此前已全部提交至 git，可随时恢复。
+- 验证：kit/website typecheck 0 宏错误、0 TS 错误；`pnpm build`（1287 模块）与 `pnpm build:lib`（566 模块）通过；docs locale `573/573`；Prettier、ESLint 通过；全库已无 `elf-heading` / HeadingPage 功能引用（仅交接文档保留历史记录）。
+
+### 2026-08-05 DocSync Markdown 案例操作台改为垂直复选框
+
+- Markdown → Word 案例操作台由三个 `elf-switch` 改为三个 `elf-checkbox`（锁定滚动同步 / 行号 / 刻度尺），单列垂直排列、间距 8px；页面测试控件断言同步更新为 `elf-checkbox` + `.box` 点击。
+- 验证：DocSyncPage 6 项聚焦测试通过；website 构建通过；浏览器实测 3 个复选框垂直堆叠（top 468/492/516），控制台 0 warning / 0 error；截图归档 `output/playwright/docsync-controls-checkboxes.png`。
+
+### 2026-08-05 DocSync 密集刻度、行号间距、面板圆角与顶部滚动指示
+
+- 刻度尺加密到每 2% 一条（51 条）：细分 2px、每 10% 主刻度 3px、数字每 20%（0/20/…/100）；行号列靠左（28→22px）并与内容拉开（10→16px）。
+- 左右面板各自圆角（左左圆角/右右圆角，10px），案例高度 420→520px；滚动指示改到顶部：移除右侧竖滚动条与底部联合进度线，每个面板标题栏底部新增 2px 进度条（左右独立 host 变量驱动）。
+- 验证：DocSync 组件 14 项、DocSyncPage 6 项聚焦测试通过；kit/website typecheck 0 错误；website 构建通过；浏览器实测 51 刻度/6 标签、行号 22px/间距 16px、双面板圆角 10px、高度 520、顶部进度条随滚动增长，控制台 0 warning / 0 error；截图归档 `output/playwright/docsync-ruler-v3.png`、`docsync-top-progress.png`。
+
+### 2026-08-05 DocSync 尺子刻度、圆角与把手拖拽
+
+- 案例恢复 10px 圆角（无边框无阴影）；刻度尺重构为“尺子”：14px 高、每 5% 一条刻度（21 条）、数字标签每 25%、flex 首尾贴边，右端不再留白。
+- 移除中间分割线（splitter bar 0 宽透明），两栏严格一人一半；中间交换按钮改为 pointer 长按拖动调宽（30–70%，位移 >6px 抑制 click），短按仍交换，键盘交换保留。
+- 验证：DocSync 组件 14 项、DocSyncPage 6 项聚焦测试通过；kit/website typecheck 0 错误；website 构建通过；浏览器实测 21 刻度/14px/首尾贴边、两栏 184/184、拖动 70% 不触发交换、短按互换正常，控制台 0 warning / 0 error；截图归档 `output/playwright/docsync-ruler-dense.png`、`docsync-drag-resize.png`。
+
+### 2026-08-05 DocSync 案例无外框、面板直接铺满 Playground
+
+- 案例区域不再显示组件外框：Playground demo padding 置 0，`.doc-sync-stage` 全宽贴边，案例内 `elf-doc-sync` 通过 `--doc-sync-border/radius/shadow` 变量关闭边框/圆角/阴影，左右面板一人一半直接铺满；自定义样式案例脚本同步移除 radius/border/shadow 变量，预览与脚本一致。
+- 验证：DocSyncPage 6 项聚焦测试通过（beforeAll 超时提升到 60s）；浏览器实测组件 0 边框/0 圆角/无阴影、铺满预览区、交换把手居中，控制台 0 warning / 0 error；截图归档 `output/playwright/docsync-frameless-md.png`、`docsync-frameless-latex.png`。
 
 ### 2026-08-05 DocSync 行号与刻度尺开关演示
 
@@ -109,6 +179,34 @@
 - 用户反馈「虚拟触发选中后无效」：案例输入框 `modelValue` 绑死为右键提示文案，`onCommand` 更新 `selectedLabel` 后输入框不刷新；改为 `:modelValue.prop=${selectedLabel.value}` 后选中菜单项会实时显示在输入框。
 - 虚拟触发输入框补充 label「画布操作 / Canvas actions」，Template/Script 展示代码同步补 `@command` 绑定与 `selectedLabel` 状态。
 - 新增回归断言：`command` 事件后输入框 `modelValue` 更新为选中项 label；DropdownPage 测试通过；Chromium 实测右键选择「刷新画布」后输入框与状态行同步；截图 `output/playwright/dropdown-virtual-trigger-zh.png`。
+
+### 2026-08-05 Splitter / Scrollbar / Toolbar 案例批次
+
+- Splitter：新增「转换与拖动」案例（ex6）——中部转换图标点击交换左右面板，按住图标拖动可代替分隔条调整比例，图标跟随分隔位置；Pointer 捕获对合成事件做了 try/catch 防御。
+- Scrollbar：「滚动位置命令」的按钮与当前位置状态从 Playground 顶部移到滚动列表下方，操作栏紧贴内容。
+- Toolbar：紧凑案例修复头部圆角穿模并改为「影像控制台」主标题 + 垂直快捷操作；折叠与对齐的内联箭头事件处理器不生效（checkbox/radio 点击无效）改为命名处理器并补操作读数；突出案例静态导航改为受控 `elf-tabs`，三个扩展案例增加「当前标签」读数；暗色工具栏图标在 Midnight 主题下强制白色；灵活卡片移除 -42px 悬浮与 96px 空扩展区，卡片正常排在下方。
+- 验证：Splitter/Scrollbar/Toolbar 三页聚焦测试 9/9 通过；宏感知 typecheck 588 个宏文件 0 宏错误、0 TS 错误；Chromium 实测折叠 494→104px、tabs 切换读数更新、暗色图标白色、Splitter 点击交换与拖动 40%→65%、Scrollbar 按钮移位后功能不变；截图归档 `output/playwright/splitter-swap-drag.png`、`scrollbar-commands-below.png`、`toolbar-compact-vertical.png`、`toolbar-flexible-no-float.png`。
+
+### 2026-08-05 Steps 步骤内容内边距
+
+- `.step-main`（每个步骤的标题与描述内容块）由仅 `padding-inline-end: 10px` 改为 `padding: 6px 10px`，每个步骤的内容获得上下呼吸空间。
+- 验证：Steps 组件与 StepsPage 聚焦测试 15/15 通过；Prettier 通过；浏览器截图因本机 Playwright CLI 会话故障未归档（改动为纯 SCSS，不影响结构断言）。
+
+### 2026-08-05 观察器指令案例暗色主题修复
+
+- 用户反馈「交叉观察器 / 尺寸观察器 / 变更监听」的进入视口案例没有适配 dark 主题：共享 `directive-demo.scss` 使用了未定义的旧 token `--elf-border-color` / `--elf-bg-color`，浅色兜底（`#dcdfe6` / `#fff`）始终生效；改为 `--elf-border` 与 `--elf-bg-paper` 后容器在 Material/Midnight 下随主题切换。
+- 说明：`--elf-border-color` / `--elf-bg-color` 旧名在 AvatarGroup、Heatmap、Carousel 及多个页面内联样式中仍在使用（同样依赖浅色兜底），可作后续批次统一清理。
+
+### 2026-08-05 Tooltip 箭头接缝修复
+
+- 用户反馈「悬停或聚焦看得到内部的三角形」：原双三角形箭头（`::before` 描边 + `::after` 填充）在气泡边缘产生可见接缝；改为与 PopConfirm 一致的旋转方块方案（继承背景与边框、裁掉两条边、四方向旋转定位）。
+- 跟进修复：旋转方块朝内的角会继承气泡背景，而深色气泡原为半透明 `rgba(33,33,33,0.9)`，内角会在气泡内叠出可见深色小三角；深色气泡改为不透明 `#212121` 后内角与气泡同色、被完全覆盖。
+- 验证：Tooltip 组件与 TooltipPage 聚焦测试 19/19 通过；Prettier 通过；浏览器截图受 Playwright CLI 故障影响未归档。
+
+### 2026-08-05 Avatar 文档案例真实化
+
+- 用户要求「头像案例变得真实好看」：三个案例全部重做为真实产品界面——ex1 为通讯录风格成员行 + 带标签的图片/图标/徽标 + 尺寸档位标签；ex2 为项目负责人资料卡（头像、姓名、在线徽标、职务、说明、操作按钮）；ex3 为项目成员卡片（六位成员真实头像照片，保留 alt 与折叠/键盘行为）。
+- 验证：AvatarPage 聚焦测试 2/2 通过；unsupported macro 扫描 0 findings；宏感知 typecheck 588 个宏文件 0 宏错误、0 TS 错误；Prettier、ESLint 通过；浏览器截图受 Playwright CLI 故障影响未归档。
 
 ### 2026-08-03 Heading 组件改为六套内置标题套装并支持样式配置
 

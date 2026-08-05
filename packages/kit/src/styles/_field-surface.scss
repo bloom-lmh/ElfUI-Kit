@@ -248,11 +248,12 @@
   :host([variant="outlined"][data-open]) #{$label},
   :host([variant="outlined"]) #{$surface}:focus-within #{$label},
   :host([variant="outlined"]) #{$surface}:focus-visible #{$label} {
-    // Keep the scaled label centred in the outline gap. The native fieldset
-    // border sits below the host's top edge because its legend owns the gap.
+    // Match the legend's 11px font so the visible label fills the outline gap
+    // exactly and stays centred between the two border segments (-label-).
     top: 5px;
-    left: 12px;
-    transform: translateY(-50%) scale(var(--elf-field-label-scale));
+    left: 14px;
+    font-size: 11px;
+    transform: translateY(-50%);
   }
 
   :host([variant="underlined"]) #{$label} {

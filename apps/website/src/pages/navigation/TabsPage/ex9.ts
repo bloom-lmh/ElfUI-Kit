@@ -1,8 +1,9 @@
-import { defineHtml, defineStyle, useRef } from "@elfui/core";
+import { defineHtml, defineStyle, useRef, useTemplateRef } from "@elfui/core";
 import { createDocsTranslator } from "../../docsLocale";
 import styles from "./demo.scss?inline";
 
 const active = useRef("landscape");
+const galleryGrid = useTemplateRef<HTMLElement>("galleryGrid");
 const t = createDocsTranslator({
   heading: { zh: "图片分类切换", en: "Image categories" },
   landscape: { zh: "风景", en: "Landscape" },
@@ -31,19 +32,31 @@ const photoSets = (): Record<string, Photo[]> => ({
   city: makePhotos(t("city"), ["1040", "1048", "1054", "1067", "1076", "1081"]),
   abstract: makePhotos(t("abstract"), ["1084", "1080", "1069", "1060", "1057", "1031"]),
 });
-const onChange = (event: CustomEvent): void => active.set(String(event.detail || "landscape"));
+const onChange = (event: CustomEvent): void => {
+  active.set(String(event.detail || "landscape"));
+  const reducedMotion =
+    typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reducedMotion) return;
+  queueMicrotask(() => {
+    galleryGrid.value?.animate(
+      [
+        { opacity: 0, transform: "translateX(28px)" },
+        { opacity: 1, transform: "translateX(0)" },
+      ],
+      { duration: 220, easing: "cubic-bezier(0.2, 0, 0, 1)" },
+    );
+  });
+};
 const currentPhotos = (): Photo[] => {
   const photos = photoSets();
   return photos[active.value] ?? photos.landscape!;
 };
 const statusText = (): string => `${t("current")}: ${active.value}`;
 
-const code = `<elf-tabs :items.prop=\${tabs} :modelValue.prop=\${active.value} grow />
-<Transition name="tabs-gallery">
-  <div :key=\${active.value} class="gallery">
-    <img v-for="photo in currentPhotos()" :src="photo.src" loading="lazy" />
-  </div>
-</Transition>`;
+const code = `<elf-tabs :items.prop=\${tabs} :modelValue.prop=\${active.value} grow slider-variant="flat" />
+<div :key=\${active.value} class="tabs-gallery-grid">
+  <img v-for="photo in currentPhotos()" :src="photo.src" loading="lazy" />
+</div>`;
 const script = (): string => `const active = useRef("landscape");
 const tabs = [
   { label: "${t("landscape")}", value: "landscape" },
@@ -67,21 +80,19 @@ const PageTabsEx9 = defineHtml(`
         :items.prop=${tabs()}
         :modelValue.prop=${active.value}
         grow
-        transition="slide"
+        slider-variant="flat"
         @update:modelValue=${onChange}
         ></elf-tabs>
-        <Transition name="tabs-gallery">
-          <div :key=${active.value} class="tabs-gallery-grid" :aria-label=${statusText()}>
-            <img
-              v-for="photo in currentPhotos()"
-              :key="photo.id"
-              :src="photo.src"
-              :alt="photo.alt"
-              loading="lazy"
-              decoding="async"
-            />
-          </div>
-        </Transition>
+        <div ref="galleryGrid" :key=${active.value} class="tabs-gallery-grid" :aria-label=${statusText()}>
+          <img
+            v-for="photo in currentPhotos()"
+            :key="photo.id"
+            :src="photo.src"
+            :alt="photo.alt"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
       </div>
     </div>
   </elf-playground>

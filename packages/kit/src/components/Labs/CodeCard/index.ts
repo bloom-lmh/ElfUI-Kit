@@ -181,6 +181,8 @@ const codeBackground = useRef("transparent");
 const formattedOverride = useRef<FormattedOverride | null>(null);
 const language = useRef<CodeCardLanguage>(normalizeCodeCardLanguage(props.language));
 const hasFooterSlot = useRef(false);
+const indicatorLeft = useRef(0);
+const indicatorWidth = useRef(0);
 let highlightRequest = 0;
 let copiedTimer: ReturnType<typeof setTimeout> | undefined;
 let themeObserver: ReturnType<typeof createMutateController> | undefined;
@@ -438,10 +440,32 @@ const syncRenderedFooterSlot = (): void => {
   if (slot) syncFooterSlot(slot);
 };
 
+const tabsHost = (): HTMLElement | null =>
+  host.shadowRoot?.querySelector<HTMLElement>(".code-tabs") ?? null;
+
+const syncTabIndicator = (): void => {
+  const tabs = tabsHost();
+  const tab = tabs?.querySelector<HTMLElement>(".code-tab.active");
+  if (!tabs || !tab) return;
+  indicatorLeft.set(tab.offsetLeft);
+  indicatorWidth.set(tab.offsetWidth);
+};
+
+const tabIndicatorStyle = (): Record<string, string> => ({
+  left: `${indicatorLeft.value}px`,
+  width: `${indicatorWidth.value}px`,
+});
+
+useEffect(() => {
+  currentItem();
+  queueMicrotask(syncTabIndicator);
+});
+
 const select = (key: string): void => {
   const item = codeItems().find((entry) => entry.key === key);
   if (!item || item.key === currentItem().key) return;
   activeKey.set(item.key);
+  queueMicrotask(syncTabIndicator);
   copied.set(false);
   emit("tab-change", detailFor(item, normalizeCodeCardSource(item.code)));
 };
@@ -587,6 +611,8 @@ onMounted(() => {
   syncDocumentScheme();
   // Native slot assignment settles after the component's initial render transaction.
   queueMicrotask(syncRenderedFooterSlot);
+  queueMicrotask(syncTabIndicator);
+  window.addEventListener("resize", syncTabIndicator);
   themeObserver = createMutateController(document.documentElement, {
     handler: syncDocumentScheme,
     observer: {
@@ -600,6 +626,7 @@ onMounted(() => {
   return () => {
     themeObserver?.dispose();
     themeObserver = undefined;
+    window.removeEventListener("resize", syncTabIndicator);
     media?.removeEventListener?.("change", syncDocumentScheme);
   };
 });
@@ -644,6 +671,11 @@ const CodeCard = defineHtml<CodeCardProps, CodeCardEmits, CodeCardSlots>(`
             currentLanguage())).shortLabel }}</span>
           <span>{{ item.label }}</span>
         </button>
+        <i
+          class="code-tab-indicator"
+          :style=${tabIndicatorStyle()}
+          aria-hidden="true"
+        ></i>
       </div>
       <span
         v-if=${!isGrouped() && props.variant === "window"}
@@ -764,10 +796,13 @@ const CodeCard = defineHtml<CodeCardProps, CodeCardEmits, CodeCardSlots>(`
           class="language-stamp"
           aria-hidden="true"
         >${languageStamp()}</span>
-        <pre
-          class="code-scroll"
-          tabindex="0"
-        ><code><span v-for="line in renderedLines" :key="line.number" :class="lineClass(line)"><span class="diff-marker" aria-hidden="true">{{ lineMarker(line) }}</span><span v-if=${lineNumbers.value} class="line-number" aria-hidden="true">{{ line.number }}</span><span v-if="line.diagnostic" class="sr-only">{{ lineStateLabel(line) }}</span><span class="line-content"><span v-for="(token, tokenIndex) in line.tokens" :key="tokenIndex" :style="token.style">{{ token.content }}</span></span></span></code></pre>
+        <Transition name="code-card-panel" mode="out-in">
+          <pre
+            :key=${currentItem().key}
+            class="code-scroll"
+            tabindex="0"
+          ><code><span v-for="line in renderedLines" :key="line.number" :class="lineClass(line)"><span class="diff-marker" aria-hidden="true">{{ lineMarker(line) }}</span><span v-if=${lineNumbers.value} class="line-number" aria-hidden="true">{{ line.number }}</span><span v-if="line.diagnostic" class="sr-only">{{ lineStateLabel(line) }}</span><span class="line-content"><span v-for="(token, tokenIndex) in line.tokens" :key="tokenIndex" :style="token.style">{{ token.content }}</span></span></span></code></pre>
+        </Transition>
       </div>
     </Transition>
 

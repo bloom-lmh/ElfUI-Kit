@@ -72,7 +72,7 @@ describe("ToolbarPage", () => {
   it("uses interactive ElfUI tabs in every toolbar extension", async () => {
     const page = await mount();
     const tabs = page.shadowRoot!.querySelectorAll<HTMLElement>(".toolbar-extension-tabs");
-    expect(tabs).toHaveLength(3);
+    expect(tabs).toHaveLength(4);
 
     tabs[0]!.dispatchEvent(
       new CustomEvent("update:modelValue", {
@@ -85,6 +85,18 @@ describe("ToolbarPage", () => {
     expect(
       tabs[0]!.shadowRoot?.querySelector('[role="tab"][aria-selected="true"]')?.textContent,
     ).toContain("收藏");
+
+    tabs[1]!.dispatchEvent(
+      new CustomEvent("update:modelValue", {
+        detail: "shared",
+        bubbles: true,
+        composed: true,
+      }),
+    );
+    await wait();
+    expect(
+      tabs[1]!.shadowRoot?.querySelector('[role="tab"][aria-selected="true"]')?.textContent,
+    ).toContain("共享");
 
     const heightPlayground = page.shadowRoot!.querySelectorAll("elf-playground")[6]!;
     expect(heightPlayground.querySelector('input[type="range"]')?.getAttribute("min")).toBe("40");

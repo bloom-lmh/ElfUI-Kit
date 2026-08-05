@@ -4,14 +4,26 @@ import { createDocsTranslator } from "../../docsLocale";
 
 const t = createDocsTranslator({
   section: { zh: "说明块", en: "Callouts" },
-  infoTitle: { zh: "信息", en: "Information" },
-  infoBody: { zh: "这是一条补充说明。", en: "This is an info box." },
-  tipTitle: { zh: "提示", en: "Tip" },
-  tipBody: { zh: "这是一条有用的提示。", en: "This is a tip." },
-  warningTitle: { zh: "警告", en: "Warning" },
-  warningBody: { zh: "继续操作前请确认当前状态。", en: "This is a warning." },
-  dangerTitle: { zh: "危险", en: "Danger" },
-  dangerBody: { zh: "此操作可能造成不可逆的影响。", en: "This is a dangerous warning." },
+  infoTitle: { zh: "结算说明", en: "Billing note" },
+  infoBody: {
+    zh: "含税金额与运费会在结算页一并计算，提交订单前可再次核对。",
+    en: "Tax and shipping are calculated together on checkout; review them before placing the order.",
+  },
+  tipTitle: { zh: "快捷键", en: "Keyboard shortcut" },
+  tipBody: {
+    zh: "使用 Ctrl/⌘ + K 可以快速打开全局搜索，不必移动鼠标。",
+    en: "Press Ctrl/⌘ + K to open global search without reaching for the mouse.",
+  },
+  warningTitle: { zh: "注意", en: "Heads up" },
+  warningBody: {
+    zh: "删除项目前请先导出备份，删除后无法恢复。",
+    en: "Export a backup before deleting a project; deletion cannot be undone.",
+  },
+  dangerTitle: { zh: "危险操作", en: "Danger zone" },
+  dangerBody: {
+    zh: "清空数据不可撤销，请确认已完成备份并拥有负责人授权。",
+    en: "Clearing data cannot be undone; confirm the backup and an owner-approved authorization.",
+  },
 });
 
 const code = `<elf-alert type="info" variant="soft" show-icon="false" title="${t("infoTitle")}" description="${t("infoBody")}"></elf-alert>

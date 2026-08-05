@@ -62,6 +62,7 @@ describe("navigation surface documentation", () => {
     const bottomNavigation = await mount(pageTags.bottomNavigation!);
     expect(appBar.shadowRoot!.querySelectorAll("elf-switch")).toHaveLength(5);
     expect(appBar.shadowRoot!.querySelector("elf-slider")).not.toBeNull();
+    expect(appBar.shadowRoot!.querySelector(".density-picker elf-segmented")).not.toBeNull();
     expect(bottomNavigation.shadowRoot!.querySelector("elf-switch")).not.toBeNull();
     expect(
       appBar.shadowRoot!.querySelector('input[type="checkbox"], input[type="range"]'),
@@ -69,6 +70,20 @@ describe("navigation surface documentation", () => {
     expect(
       bottomNavigation.shadowRoot!.querySelector('input[type="checkbox"], input[type="range"]'),
     ).toBeNull();
+  }, 15_000);
+
+  it("switches AppBar density from the segmented control in the playground title", async () => {
+    const page = await mount(pageTags.appBar!);
+    const segmented = page.shadowRoot!.querySelector<HTMLElement>(".density-picker elf-segmented")!;
+    const options = segmented.shadowRoot!.querySelectorAll<HTMLButtonElement>(".option");
+    expect(options).toHaveLength(3);
+
+    options[1]!.click();
+    await wait();
+
+    const appBar = page.shadowRoot!.querySelector<HTMLElement>(".density-stage elf-app-bar")!;
+    expect(appBar.getAttribute("density")).toBe("comfortable");
+    expect(page.shadowRoot!.querySelector(".density-label")?.textContent).toContain("56px");
   }, 15_000);
 
   it("keeps grow and horizontal bottom-navigation selections independent", async () => {

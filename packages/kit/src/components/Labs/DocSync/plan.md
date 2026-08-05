@@ -1,4 +1,4 @@
-<!-- cspell:words syncchange docsync editstart -->
+<!-- cspell:words syncchange docsync editstart frameless -->
 
 # DocSync 双栏同步面板
 
@@ -62,4 +62,30 @@
 
 - [x] `lineNumbers` / `ruler` 本就是公开开关（默认 true、可关闭），文档 Markdown 案例控件区新增「行号」「刻度尺」两个 `elf-switch`，实时切换演示；Props 表已有对应行。
 - [x] 验证：DocSyncPage 6 项聚焦测试通过（含关闭后 `.doc-sync-line` / `.doc-sync-ruler` 消失断言）；浏览器实测两个开关关闭后行号列与刻度尺即时消失、`lineNumbers`/`ruler` 属性同步为 false，控制台 0 warning / 0 error；截图归档 `output/playwright/docsync-toggles-off.png`。
+
+## 2026-08-05 案例无外框、面板直接铺满 Playground
+
+- [x] 页面案例去掉组件外框：`.doc-sync-stage` 全宽贴边，案例内 `elf-doc-sync` 通过变量关闭边框/圆角/阴影（`--doc-sync-border/radius/shadow`），Playground demo padding 置 0，左右面板直接一人一半；自定义样式案例同步去掉 radius/border/shadow 变量，保持脚本与预览一致。
+- [x] 验证：DocSyncPage 6 项聚焦测试通过（beforeAll 超时提升到 60s）；浏览器实测组件 0 边框/0 圆角/无阴影、铺满预览区、交换把手居中于分割线，控制台 0 warning / 0 error；截图归档 `output/playwright/docsync-frameless-md.png`、`docsync-frameless-latex.png`。
+
+## 2026-08-05 尺子刻度、圆角与把手拖拽
+
+- [x] 案例恢复一点圆角（`--doc-sync-radius: 10px`，仍无边框无阴影）。
+- [x] 刻度尺重构为“尺子”：高度 21px → 14px，刻度每 5% 一条（0–100 共 21 条，主刻度 6px、细分 3px，数字标签每 25%），flex 首尾贴边，不再有右端空白。
+- [x] 中间线移除：splitter bar `flex-basis: 0` + 透明，两栏严格 50/50，按钮居中于分割边界。
+- [x] 交互重做：中间按钮支持 pointer 长按拖动调宽（30–70%，带 is-dragging 状态），位移超过 6px 抑制 click；短按仍交换面板；键盘 Enter/Space 交换保留。
+- [x] 验证：DocSync 组件 14 项、DocSyncPage 6 项聚焦测试通过；kit/website typecheck 0 错误；website 构建通过；浏览器实测 21 刻度/14px/首尾 1px、两栏 184/184、拖动 70% 不触发交换、短按互换正常，控制台 0 warning / 0 error；截图归档 `output/playwright/docsync-ruler-dense.png`、`docsync-drag-resize.png`。
+
+## 2026-08-05 密集刻度、行号间距、面板圆角与顶部滚动指示
+
+- [x] 刻度尺加密到每 2% 一条（0–100 共 51 条）：细分 2px、每 10% 主刻度 3px、数字标签每 20%（0/20/…/100），高度保持 14px。
+- [x] 行号列靠左并拉开间距：源码块 padding-left 14→8px（行号左缘 28→22px）、行号列 40px、与内容间隙 10→16px，不再贴着内容。
+- [x] 左右面板各自圆角（左面板左圆角、右面板右圆角，`--doc-sync-radius` 10px），案例高度 420→520px。
+- [x] 滚动指示移到顶部：移除右侧竖滚动条与底部联合进度线，每个面板标题栏底部新增 2px 顶部进度条（`--_doc-sync-left/right-progress` host 变量驱动，左右独立跟随各自滚动）。
+- [x] 验证：DocSync 组件 14 项、DocSyncPage 6 项聚焦测试通过；kit/website typecheck 0 错误；website 构建通过；浏览器实测 51 刻度/6 标签、行号 22px 靠左/间距 16px、双面板圆角 10px、高度 520、顶部进度条随滚动增长（44/45px），控制台 0 warning / 0 error；截图归档 `output/playwright/docsync-ruler-v3.png`、`docsync-top-progress.png`。
+
+## 2026-08-05 Markdown 案例操作台改为垂直复选框
+
+- [x] Markdown → Word 案例操作台从三个 `elf-switch` 改为三个 `elf-checkbox`（锁定滚动同步 / 行号 / 刻度尺），并垂直排列（`grid` 单列，间距 8px）。
+- [x] 验证：DocSyncPage 6 项聚焦测试通过（控件断言更新为 `elf-checkbox` + `.box` 点击）；website 构建通过；浏览器实测 3 个复选框垂直堆叠（top 468/492/516），控制台 0 warning / 0 error；截图归档 `output/playwright/docsync-controls-checkboxes.png`。
 - [x] 既有能力回归：md/latex/最小实现三种源解析、Word 渲染、双向锚点滚动、锁定开关、点击双栏高亮 + 边距条、移动端无溢出均保持正常；路由信息架构 7 项通过。全仓 typecheck 仍被并发会话的 Labs/MdOutline 模板错误与 MdPage 类型声明错误阻塞（非本组件）。

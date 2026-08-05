@@ -346,6 +346,60 @@ describe("elf-tabs", () => {
     expect(slider.style.height).toBe("40px");
   });
 
+  it("renders a flat straight-line slider variant", async () => {
+    const el = await mount({ sliderVariant: "flat" });
+    const buttons = el.shadowRoot!.querySelectorAll<HTMLElement>(".tab");
+    Object.defineProperties(buttons[0], {
+      offsetLeft: { configurable: true, value: 0 },
+      offsetTop: { configurable: true, value: 0 },
+      offsetWidth: { configurable: true, value: 100 },
+      offsetHeight: { configurable: true, value: 48 },
+    });
+    Object.defineProperties(buttons[1], {
+      offsetLeft: { configurable: true, value: 104 },
+      offsetTop: { configurable: true, value: 0 },
+      offsetWidth: { configurable: true, value: 120 },
+      offsetHeight: { configurable: true, value: 48 },
+    });
+
+    const slider = el.shadowRoot!.querySelector<HTMLElement>(".tab-slider")!;
+    el.update!();
+    await tick();
+
+    expect(el.shadowRoot!.querySelector(".tabs.is-slider-flat")).toBeTruthy();
+    expect(slider.style.transform).toBe("translate3d(0px, 0, 0)");
+    expect(slider.style.width).toBe("100px");
+    expect(slider.style.height).toBe("2px");
+
+    buttons[1]!.click();
+    await tick();
+    await tick();
+
+    expect(slider.style.transform).toBe("translate3d(104px, 0, 0)");
+    expect(slider.style.width).toBe("120px");
+  });
+
+  it("re-syncs slider geometry when the variant changes at runtime", async () => {
+    const el = await mount();
+    const buttons = el.shadowRoot!.querySelectorAll<HTMLElement>(".tab");
+    Object.defineProperties(buttons[0], {
+      offsetLeft: { configurable: true, value: 0 },
+      offsetTop: { configurable: true, value: 0 },
+      offsetWidth: { configurable: true, value: 100 },
+      offsetHeight: { configurable: true, value: 48 },
+    });
+
+    const slider = el.shadowRoot!.querySelector<HTMLElement>(".tab-slider")!;
+    el.sliderVariant = "flat";
+    await tick();
+    await tick();
+
+    expect(el.shadowRoot!.querySelector(".tabs.is-slider-flat")).toBeTruthy();
+    expect(slider.style.transform).toBe("translate3d(0px, 0, 0)");
+    expect(slider.style.width).toBe("100px");
+    expect(slider.style.height).toBe("2px");
+  });
+
   it("supports numeric names and roving keyboard navigation", async () => {
     const el = await mount({
       items: [

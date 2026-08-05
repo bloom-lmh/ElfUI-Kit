@@ -6,7 +6,9 @@ import demoStyles from "./demo.scss?inline";
 const startTime = useRef("09:00");
 const endTime = useRef("17:30");
 const t = createDocsTranslator({
-  title: { zh: "联动时间范围", en: "Linked time range" },
+  title: { zh: "场地租用", en: "Venue booking" },
+  startMeta: { zh: "多功能厅 · 08:00–20:00", en: "Multi-purpose hall · 08:00–20:00" },
+  endMeta: { zh: "同一场地 · 与开始时间联动", en: "Same venue · linked to the start" },
   start: { zh: "开始时间", en: "Start time" },
   end: { zh: "结束时间", en: "End time" },
   startHint: {
@@ -17,6 +19,7 @@ const t = createDocsTranslator({
     zh: "不能早于开始时间。",
     en: "Cannot be earlier than the start time.",
   },
+  window: { zh: "租用时段", en: "Booking window" },
 });
 const pick = createDocsPicker();
 
@@ -58,6 +61,7 @@ const PageTimeSelectEx3 = defineHtml(`
     <div class="demo-grid">
       <section class="demo-card">
         <strong>${t("start")}</strong>
+        <span class="demo-meta">${t("startMeta")}</span>
         <elf-time-select
           :modelValue.prop=${startTime}
           :maxTime.prop=${endTime}
@@ -71,6 +75,7 @@ const PageTimeSelectEx3 = defineHtml(`
       </section>
       <section class="demo-card">
         <strong>${t("end")}</strong>
+        <span class="demo-meta">${t("endMeta")}</span>
         <elf-time-select
           :modelValue.prop=${endTime}
           :minTime.prop=${startTime}
@@ -83,7 +88,9 @@ const PageTimeSelectEx3 = defineHtml(`
         <small>${t("endHint")}</small>
       </section>
     </div>
-    <span slot="status" class="demo-state">${startTime} — ${endTime}</span>
+    <span slot="status" class="demo-state" role="status" aria-live="polite">
+      ${t("window")} · ${startTime} — ${endTime}
+    </span>
   </elf-playground>
 `);
 

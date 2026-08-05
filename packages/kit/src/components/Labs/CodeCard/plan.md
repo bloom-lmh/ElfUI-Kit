@@ -74,3 +74,10 @@
 
 - The surface scheme now follows the document theme instead of inverting it: dark pages render a dark card shell with dark Shiki palettes (github-dark / material palenight / vitesse-dark), and light pages render a light shell with light palettes.
 - Swapped the token values of `scheme-light` / `scheme-dark`, updated the paired-theme unit expectations, and corrected the `theme` prop description on the demo page.
+
+## 2026-08-05 Tab indicator slide and panel transition
+
+- Code-group tabs now use a shared sliding indicator: the 2px active bar moves and resizes to the activated tab (220ms cubic-bezier) instead of fading in place on each tab.
+- Switching code-group panels animates with a 160ms fade + vertical slide (out-in), keyed by the active item.
+- Indicator position syncs on mount, tab activation, active-key changes, and window resize; reduced-motion disables both animations.
+- Added a component regression that mocks tab offsets and asserts the indicator slides to the clicked tab.

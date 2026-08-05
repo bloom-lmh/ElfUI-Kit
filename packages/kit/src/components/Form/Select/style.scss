@@ -26,6 +26,11 @@
 @include field.floating-label(".trigger");
 @include field.reduced-motion(".trigger");
 
+:host([variant="outlined"]) .trigger {
+  padding-top: 7px;
+  padding-bottom: 1px;
+}
+
 .trigger > :not(.field-outline):not(.field-label) {
   position: relative;
   z-index: 1;
@@ -52,10 +57,6 @@
   color: var(--elf-text-disabled);
 }
 
-:host([data-has-label]) .trigger {
-  padding-top: 18px;
-}
-
 :host([data-has-label]:not([data-dirty]):not([data-open]):not(:focus-within)) .placeholder {
   color: transparent;
 }
@@ -67,6 +68,7 @@
 
 .value {
   flex: 1;
+  line-height: 1.3;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -131,6 +133,7 @@
 .suffix {
   display: inline-flex;
   align-items: center;
+  line-height: 1;
   color: var(--elf-text-secondary);
   font-size: 12px;
   margin-left: auto;
@@ -138,6 +141,10 @@
 }
 
 .arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
   transition: transform var(--elf-transition-fast);
 }
 

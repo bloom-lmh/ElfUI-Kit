@@ -211,8 +211,11 @@ const t = createDocsTranslator({
     zh: "先跑聚焦测试与类型检查，再执行完整构建。",
     en: "Run focused tests and type checks before the full build.",
   },
-  footnoteText: { zh: "构建命令", en: "Build command" },
+  footnoteSentence: { zh: "正文构建命令[^1]。", en: "The build command is referenced here[^1]." },
   footnoteBody: { zh: "pnpm build && pnpm build:lib", en: "pnpm build && pnpm build:lib" },
+  publishTab: { zh: "发布", en: "publish" },
+  customVersionLabel: { zh: "版本", en: "Version" },
+  customBuildLabel: { zh: "构建", en: "Build" },
   codeLineHint: { zh: "行高亮", en: "Line highlight" },
 });
 
@@ -255,7 +258,7 @@ ${t("containerBody")}
 
 :::
 
-正文${t("footnoteText")}[^1]。
+${t("footnoteSentence")}
 
 [^1]: ${t("footnoteBody")}
 
@@ -278,7 +281,7 @@ export const version = "0.0.2-beta.1";
 \`\`\`ts [release.ts]
 export const version = "0.0.2-beta.1";
 \`\`\`
-\`\`\`bash [发布]
+\`\`\`bash [${t("publishTab")}]
 pnpm publish
 \`\`\`
 :::
@@ -355,9 +358,9 @@ const customMarkdown = (): string => `# ${t("customTitle")}
 
 ${t("customBody")}
 
-版本：@version@
+${t("customVersionLabel")}：@version@
 
-构建：__BUILD__
+${t("customBuildLabel")}：__BUILD__
 
 ::: warning ${t("customWarnTitle")}
 
@@ -485,7 +488,7 @@ export const version = "0.0.2-beta.1";
 \`\`\`ts [release.ts]
 export const version = "0.0.2-beta.1";
 \`\`\`
-\`\`\`bash [发布]
+\`\`\`bash [${t("publishTab")}]
 pnpm publish
 \`\`\`
 :::
@@ -626,7 +629,7 @@ defineStyle(
   }
   .md-remote-grid {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: 1fr;
     gap: 18px;
     align-items: start;
   }
@@ -635,11 +638,6 @@ defineStyle(
     border: 1px solid var(--elf-border);
     border-radius: var(--elf-radius-md);
     background: var(--elf-bg-paper);
-  }
-  @media (max-width: 720px) {
-    .md-remote-grid {
-      grid-template-columns: 1fr;
-    }
   }
 `,
 );
@@ -683,6 +681,7 @@ const PageLabsMdPage = defineHtml(`
           class="md-remote-demo"
           src="/md-page-demo.md"
           base="/md/"
+          max-width="100%"
           @link-click=${onRemoteLink}
         ></elf-md-page>
       </div>

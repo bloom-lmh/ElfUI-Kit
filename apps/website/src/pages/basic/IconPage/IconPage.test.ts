@@ -111,10 +111,10 @@ describe("Icon documentation", () => {
     document.body.appendChild(page);
     await tick();
 
-    expect(page.shadowRoot!.querySelector(".icon-raw-svg-preview")).toBeTruthy();
-    expect(page.shadowRoot!.querySelector(".icon-size-ladder")).toBeTruthy();
-    expect(page.shadowRoot!.querySelector(".icon-color-row")).toBeTruthy();
-    expect(page.shadowRoot!.querySelectorAll("svg path").length).toBeGreaterThanOrEqual(9);
+    expect(page.shadowRoot!.querySelector(".icon-brand-panel")).toBeTruthy();
+    expect(page.shadowRoot!.querySelectorAll(".icon-brand-button")).toHaveLength(3);
+    expect(page.shadowRoot!.querySelectorAll(".icon-brand-spec-item")).toHaveLength(3);
+    expect(page.shadowRoot!.querySelectorAll(".icon-brand-button svg path")).toHaveLength(3);
   });
 
   it("switches the provider set and keeps an explicit missing-icon fallback", async () => {

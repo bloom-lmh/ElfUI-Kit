@@ -1,5 +1,6 @@
 import { defineHtml, defineStyle } from "@elfui/core";
 
+import "@elfui/kit/labs";
 import { createDocsTranslator } from "../../docsLocale";
 import articleStyles from "../../shared/article.scss?inline";
 
@@ -14,6 +15,22 @@ const t = createDocsTranslator({
   runtime: { zh: "运行时与弹层", en: "Runtime and overlays" },
   styling: { zh: "主题与样式", en: "Theme and styling" },
   release: { zh: "升级与发布", en: "Upgrade and release" },
+  startLead: {
+    zh: "入口、编译与注册问题都发生在接入阶段；先验证导入和构建链，再看具体标签。",
+    en: "Entry, compilation, and registration issues happen at integration time; verify the import and build chain before inspecting individual tags.",
+  },
+  runtimeLead: {
+    zh: "弹层与焦点行为依赖 Provider 上下文和浮层生命周期；用最小复现区分框架问题与组件用法问题。",
+    en: "Overlay and focus behavior depends on Provider context and overlay lifecycle; use a minimal reproduction to separate framework issues from component usage.",
+  },
+  stylingLead: {
+    zh: "主题差异通常来自 Provider 作用域、token 优先级或 Shadow DOM 隔离；按公开契约定制而不是穿透样式。",
+    en: "Theme differences usually come from Provider scope, token precedence, or Shadow DOM isolation; customize through public contracts instead of piercing styles.",
+  },
+  releaseLead: {
+    zh: "升级先对齐版本与工具链，再处理 API 变更；报告问题时给出可复现的最小证据。",
+    en: "Align versions and the toolchain before upgrading, then handle API changes; report issues with reproducible minimal evidence.",
+  },
   registerQ: {
     zh: "页面显示未知的 elf-* 标签，组件没有渲染？",
     en: "The page shows an unknown elf-* tag and the component does not render?",
@@ -27,7 +44,7 @@ const t = createDocsTranslator({
     en: "defineHtml runs, but template bindings do not update reactively?",
   },
   compilerA: {
-    zh: "检查 Vite 是否启用了 elfuiMacroPlugin，以及 Core 与 Vite Plugin 是否为完全相同的 beta。宏模板依赖构建期编译，不能把动态变量传给 defineHtml。",
+    zh: "检查 Vite 是否启用了 elfuiMacroPlugin，以及 Core 中 Vite Plugin 是否为完全相同的 beta。宏模板依赖构建期编译，不能把动态变量传给 defineHtml。",
     en: "Check that Vite enables elfuiMacroPlugin and that Core and the Vite Plugin use the exact same beta. Macro templates require build-time compilation and defineHtml cannot receive a runtime template variable.",
   },
   duplicateQ: {
@@ -35,7 +52,7 @@ const t = createDocsTranslator({
     en: "The console reports a custom-element name conflict?",
   },
   duplicateA: {
-    zh: "同一个 tag 被不同构造器注册了两次。检查是否同时打包了两份 Kit/Framework，或两个库使用了相同组件前缀。不要用捕获异常来忽略冲突。",
+    zh: "同一个 tag 被不同构造函数注册了两次。检查是否同时打包了两份 Kit/Framework，或两个库使用了相同组件前缀。不要用捕获异常来忽略冲突。",
     en: "The same tag was registered by two different constructors. Check for duplicate Kit/Framework bundles or libraries sharing a component prefix. Do not suppress the conflict with a catch block.",
   },
   overlayQ: {
@@ -43,7 +60,7 @@ const t = createDocsTranslator({
     en: "Do body-level overlays lose locale, theme, or configuration?",
   },
   overlayA: {
-    zh: "不应该。Framework 会保留 Teleport 的逻辑父链和 Provider/App 上下文。若丢失，请先缩小到最小复现并作为框架问题报告，而不是在组件内复制配置。",
+    zh: "不应该。Framework 会保留 Teleport 的逻辑父链和 Provider/App 上下文。若丢失，请先缩到最小复现并作为框架问题报告，而不是在组件内复制配置。",
     en: "They should not. The Framework preserves the Teleport logical parent and Provider/App context. If context is lost, reduce it to a framework reproduction instead of copying configuration inside the component.",
   },
   focusQ: {
@@ -67,7 +84,7 @@ const t = createDocsTranslator({
     en: "Why do colors, radii, or density differ from the expected design?",
   },
   styleA: {
-    zh: "先检查 ConfigProvider、ThemeProvider 与 DefaultsProvider 的作用域和优先级。公共定制应修改语义 token 或组件公开变量，不要使用深层选择器穿透 Shadow DOM。",
+    zh: "先检查 ConfigProvider、ThemeProvider 和 DefaultsProvider 的作用域和优先级。公共定制应修改语义 token 或组件公开变量，不要使用深层选择器穿透 Shadow DOM。",
     en: "Inspect ConfigProvider, ThemeProvider, and DefaultsProvider scope and precedence first. Customize semantic tokens or public component variables instead of piercing Shadow DOM with deep selectors.",
   },
   globalCssQ: {
@@ -80,7 +97,7 @@ const t = createDocsTranslator({
   },
   versionQ: { zh: "升级后 import 立即报错？", en: "Imports fail immediately after an upgrade?" },
   versionA: {
-    zh: "beta 版本会删除旧 API。先对齐 Core、Compiler 与 Vite Plugin，再根据升级指南替换生命周期、响应式、主题和指令入口。",
+    zh: "beta 版本会删除旧 API。先对齐 Core、Compiler 和 Vite Plugin，再根据升级指南替换生命周期、响应式、主题和指令入口。",
     en: "Beta releases can remove legacy APIs. Align Core, Compiler, and the Vite Plugin first, then migrate lifecycle, reactivity, theme, and directive entries using the upgrade guide.",
   },
   issueQ: {
@@ -100,132 +117,126 @@ const t = createDocsTranslator({
   upgradeLink: { zh: "升级指南", en: "Upgrade guide" },
 });
 
-const setupFaqs = () => [
-  { name: "register", title: t("registerQ"), content: t("registerA") },
-  { name: "compiler", title: t("compilerQ"), content: t("compilerA") },
-  { name: "duplicate", title: t("duplicateQ"), content: t("duplicateA") },
-];
-const runtimeFaqs = () => [
-  { name: "overlay", title: t("overlayQ"), content: t("overlayA") },
-  { name: "focus", title: t("focusQ"), content: t("focusA") },
-  { name: "ssr", title: t("ssrQ"), content: t("ssrA") },
-];
-const stylingFaqs = () => [
-  { name: "theme", title: t("styleQ"), content: t("styleA") },
-  { name: "global-css", title: t("globalCssQ"), content: t("globalCssA") },
-];
-const releaseFaqs = () => [
-  { name: "version", title: t("versionQ"), content: t("versionA") },
-  { name: "issue", title: t("issueQ"), content: t("issueA") },
-];
+const FAQ_MD_STYLE = `<style>
+.faq-lead {
+  margin: 0 0 var(--elf-space-3);
+  color: var(--elf-text-secondary);
+  line-height: var(--docs-line-height);
+}
+.faq-next-links {
+  display: grid;
+  gap: var(--elf-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+</style>
+`;
 
-const groups = (): Array<{
-  key: string;
-  title: string;
-  items: Array<{ name: string; title: string; content: string }>;
-}> => [
-  { key: "setup", title: t("start"), items: setupFaqs() },
-  { key: "runtime", title: t("runtime"), items: runtimeFaqs() },
-  { key: "styling", title: t("styling"), items: stylingFaqs() },
-  { key: "release", title: t("release"), items: releaseFaqs() },
-];
+const groupMarkdown = (title: string, lead: string): string =>
+  `${FAQ_MD_STYLE}# ${title}\n\n<p class="faq-lead">${lead}</p>`;
+
+const closingMarkdown = (): string => `${FAQ_MD_STYLE}# ${t("unresolvedTitle")}
+
+${t("unresolvedBody")}
+
+<ul class="faq-next-links">
+  <li><elf-link href="#/quality">${t("qualityLink")} →</elf-link></li>
+  <li><elf-link href="#/getting-started/upgrade-guide">${t("upgradeLink")} →</elf-link></li>
+</ul>`;
+
 defineStyle(
   articleStyles,
   `
-  .faq-list {
-    display: grid;
-    gap: var(--elf-space-3);
-    margin-top: var(--elf-space-4);
+  .faq-md {
+    width: max(85%, min(100%, 900px));
+    max-width: 100%;
+    min-width: 0;
+    margin-inline: auto;
+    box-sizing: border-box;
   }
-  .faq-item {
-    position: relative;
-    display: grid;
-    gap: 10px;
-    padding: 20px 22px 20px 26px;
-    border: 1px solid color-mix(in srgb, var(--elf-primary) 18%, var(--elf-border));
-    border-radius: var(--elf-radius-md);
-    background: color-mix(in srgb, var(--elf-primary) 3%, var(--elf-bg-paper));
-    transition:
-      border-color var(--elf-transition-fast),
-      background-color var(--elf-transition-fast);
+  .faq-accordion {
+    margin: 0 0 26px;
   }
-  .faq-item::before {
-    position: absolute;
-    inset: 18px auto 18px 0;
-    width: 4px;
-    border-radius: 0 4px 4px 0;
-    background: var(--elf-primary);
-    content: "";
+  .faq-accordion::part(collapse) {
+    box-shadow: none;
+    border-radius: var(--elf-radius-sm);
   }
-  .faq-item:hover {
-    border-color: color-mix(in srgb, var(--elf-primary) 36%, var(--elf-border));
-    background: color-mix(in srgb, var(--elf-primary) 6%, var(--elf-bg-paper));
-  }
-  .faq-item h3 {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin: 0;
+  .faq-accordion elf-collapse-item::part(header) {
+    min-height: 54px;
     color: var(--elf-text-primary);
-    font-size: var(--elf-font-size-md);
-    font-weight: 700;
-    line-height: 1.5;
+    font-weight: 600;
   }
-  .faq-item h3::before {
-    display: inline-grid;
-    width: 22px;
-    height: 22px;
-    flex: 0 0 auto;
-    place-items: center;
-    border-radius: 6px;
-    background: var(--elf-primary);
-    color: var(--elf-text-on-primary);
-    content: "Q";
-    font-size: 11px;
-    font-weight: 800;
+  .faq-accordion elf-collapse-item::part(header):hover {
+    background: color-mix(in srgb, var(--elf-primary) 6%, transparent);
   }
-  .faq-item p {
-    margin: 0;
-    padding-inline-start: 30px;
+  .faq-accordion elf-collapse-item[data-active]::part(header) {
+    color: var(--elf-primary);
+  }
+  .faq-accordion elf-collapse-item::part(icon) {
+    color: var(--elf-primary);
+  }
+  .faq-accordion elf-collapse-item::part(body) {
     color: var(--elf-text-secondary);
+  }
+  .faq-accordion p {
+    margin: 0;
     line-height: var(--docs-line-height);
   }
-  `,
+`,
 );
 
 const PageFaq = defineHtml(`
   <elf-container class="docs-article guide-page faq-page">
     <elf-docs-hero category="getting-started" tag="FAQ" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
-    <div class="guide-content">
+    <div class="faq-md">
+      <elf-md-page
+        max-width="100%"
+        code-theme="material"
+        :base-heading-level=${2}
+      >${groupMarkdown(t("start"), t("startLead"))}</elf-md-page>
+      <elf-collapse class="faq-accordion" accordion>
+        <elf-collapse-item name="register" :title=${t("registerQ")}><p>${t("registerA")}</p></elf-collapse-item>
+        <elf-collapse-item name="compiler" :title=${t("compilerQ")}><p>${t("compilerA")}</p></elf-collapse-item>
+        <elf-collapse-item name="duplicate" :title=${t("duplicateQ")}><p>${t("duplicateA")}</p></elf-collapse-item>
+      </elf-collapse>
 
-    <section
-      v-for="group in groups()"
-      :key="group.key"
-      class="docs-section"
-    >
-      <h2>{{ group.title }}</h2>
-      <div class="faq-list">
-        <article
-          v-for="item in group.items"
-          :key="item.name"
-          class="faq-item"
-        >
-          <h3>{{ item.title }}</h3>
-          <p>{{ item.content }}</p>
-        </article>
-      </div>
-    </section>
+      <elf-md-page
+        max-width="100%"
+        code-theme="material"
+        :base-heading-level=${2}
+      >${groupMarkdown(t("runtime"), t("runtimeLead"))}</elf-md-page>
+      <elf-collapse class="faq-accordion" accordion>
+        <elf-collapse-item name="overlay" :title=${t("overlayQ")}><p>${t("overlayA")}</p></elf-collapse-item>
+        <elf-collapse-item name="focus" :title=${t("focusQ")}><p>${t("focusA")}</p></elf-collapse-item>
+        <elf-collapse-item name="ssr" :title=${t("ssrQ")}><p>${t("ssrA")}</p></elf-collapse-item>
+      </elf-collapse>
 
-    <section class="docs-next" data-docs-toc-ignore>
-      <div>
-        <h2>${t("unresolvedTitle")}</h2>
-        <p>${t("unresolvedBody")}</p>
-      </div>
-      <div class="docs-link-list">
-        <elf-link href="#/quality">${t("qualityLink")} →</elf-link>
-        <elf-link href="#/getting-started/upgrade-guide">${t("upgradeLink")} →</elf-link>
-      </div>
-    </section>
+      <elf-md-page
+        max-width="100%"
+        code-theme="material"
+        :base-heading-level=${2}
+      >${groupMarkdown(t("styling"), t("stylingLead"))}</elf-md-page>
+      <elf-collapse class="faq-accordion" accordion>
+        <elf-collapse-item name="theme" :title=${t("styleQ")}><p>${t("styleA")}</p></elf-collapse-item>
+        <elf-collapse-item name="global-css" :title=${t("globalCssQ")}><p>${t("globalCssA")}</p></elf-collapse-item>
+      </elf-collapse>
+
+      <elf-md-page
+        max-width="100%"
+        code-theme="material"
+        :base-heading-level=${2}
+      >${groupMarkdown(t("release"), t("releaseLead"))}</elf-md-page>
+      <elf-collapse class="faq-accordion" accordion>
+        <elf-collapse-item name="version" :title=${t("versionQ")}><p>${t("versionA")}</p></elf-collapse-item>
+        <elf-collapse-item name="issue" :title=${t("issueQ")}><p>${t("issueA")}</p></elf-collapse-item>
+      </elf-collapse>
+
+      <elf-md-page
+        max-width="100%"
+        code-theme="material"
+        :base-heading-level=${2}
+      >${closingMarkdown()}</elf-md-page>
     </div>
   </elf-container>
 `);

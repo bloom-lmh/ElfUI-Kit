@@ -68,7 +68,8 @@ describe("TimePicker documentation", () => {
       ),
     ).toHaveLength(6);
     expect(deepQuery(page.shadowRoot!, "h1")?.textContent).toBe("TimePicker");
-    expect(deepQuery(page.shadowRoot!, "p")?.textContent).toContain("Material clock face");
+    expect(page.shadowRoot!.querySelector(".docs-callout")?.textContent).toContain("TimeSelect");
+    expect(page.shadowRoot!.querySelector("elf-docs-hero")).toBeTruthy();
 
     const api = page.shadowRoot?.querySelector("elf-page-time-picker-props");
     const tables = api?.shadowRoot?.querySelectorAll<PropsTableElement>("elf-props-table");
@@ -102,8 +103,8 @@ describe("TimePicker documentation", () => {
 
     const playground = page.shadowRoot?.querySelector<PlaygroundElement>("elf-playground");
     const picker = page.shadowRoot?.querySelector("elf-time-picker");
-    expect(playground?.title).toBe("Single time");
-    expect(playground?.code).toContain('label="Start time"');
+    expect(playground?.title).toBe("Stream kickoff");
+    expect(playground?.code).toContain('label="Stream time"');
     expect(playground?.script).toContain('useRef("09:30")');
 
     picker?.dispatchEvent(new CustomEvent("update:modelValue", { detail: "10:15" }));

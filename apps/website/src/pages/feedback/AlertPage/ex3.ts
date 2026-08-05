@@ -3,13 +3,20 @@ import { createDocsTranslator } from "../../docsLocale";
 
 const t = createDocsTranslator({
   closableSection: { zh: "可关闭", en: "Closable" },
-  closeMe: { zh: "点 × 关闭我", en: "Click × to close me" },
+  updateTitle: { zh: "版本更新提醒", en: "Update available" },
+  updateDesc: {
+    zh: "v2.4.1 已发布，包含 12 项修复，可在更新日志中查看。",
+    en: "v2.4.1 is here with 12 fixes; see the changelog for details.",
+  },
   compactSection: { zh: "紧凑模式", en: "Compact density" },
-  compactInfo: { zh: "紧凑 info", en: "Compact info" },
-  compactSuccess: { zh: "紧凑 success", en: "Compact success" },
-  compactWarning: { zh: "紧凑 warning", en: "Compact warning" },
-  compactDanger: { zh: "紧凑 danger", en: "Compact danger" },
-  compactDescription: { zh: "带描述的紧凑模式", en: "Compact alert with a description" },
+  compactSyncing: { zh: "正在同步…", en: "Syncing…" },
+  compactSaved: { zh: "已保存到草稿箱", en: "Saved to drafts" },
+  compactOffline: { zh: "离线保存", en: "Saved offline" },
+  compactOfflineDesc: {
+    zh: "恢复连接后自动同步",
+    en: "Will sync when you are back online",
+  },
+  compactFailed: { zh: "上传失败，点击重试", en: "Upload failed — tap to retry" },
   prominentSection: { zh: "强调提示", en: "Prominent accent" },
   prominentInfoTitle: { zh: "发布窗口已确定", en: "Release window confirmed" },
   prominentInfoBody: {
@@ -32,55 +39,62 @@ const t = createDocsTranslator({
     en: "The last 5-minute error rate hit 5.2%; an alert was triggered and the on-call engineer notified.",
   },
   centerSection: { zh: "居中 + 无图标", en: "Centered without an icon" },
-  centered: { zh: "居中无图标", en: "Centered without an icon" },
+  orderSubmitted: { zh: "订单已提交", en: "Order submitted" },
+  orderSubmittedDesc: {
+    zh: "订单 20260805-0012 已提交，等待商家确认。",
+    en: "Order 20260805-0012 is submitted and awaiting merchant confirmation.",
+  },
   closeTextSection: { zh: "自定义关闭文字", en: "Custom close text" },
+  darkModeTitle: { zh: "新功能上线", en: "New feature" },
+  darkModeDesc: {
+    zh: "暗色模式已支持，可在设置中切换。",
+    en: "Dark mode is now available; switch it on in Settings.",
+  },
   understood: { zh: "知道了", en: "Got it" },
-  customClose: { zh: "使用 close-text 代替 × 图标", en: "Use close-text instead of the × icon" },
   slotsSection: { zh: "自定义插槽", en: "Custom slots" },
-  customTitle: { zh: "自定义标题", en: "Custom title" },
-  customTitleSlot: { zh: "自定义标题（title slot）", en: "Custom title (title slot)" },
-  customContent: {
-    zh: "这是 default slot 内容，替换了 description 属性",
-    en: "Default slot content replaces the description prop.",
+  favoriteTitle: { zh: "已加入收藏", en: "Added to favorites" },
+  favoriteContent: {
+    zh: "文章已保存到「稍后阅读」，可在个人中心查看。",
+    en: "The article is saved to “Read later”; find it in your profile.",
   },
 });
 
-const code4 = `<elf-alert type="info" closable title="${t("closeMe")}"></elf-alert>`;
+const code4 = `<elf-alert type="info" closable title="${t("updateTitle")}" description="${t("updateDesc")}"></elf-alert>`;
 
-const code5 = `<elf-alert type="info" center :show-icon="false" title="${t("centered")}"></elf-alert>`;
+const code5 = `<elf-alert type="success" center :show-icon="false" title="${t("orderSubmitted")}" description="${t("orderSubmittedDesc")}"></elf-alert>`;
 
-const code6 = `<elf-alert type="warning" density="compact" title="${t("compactSection")}"></elf-alert>`;
+const code6 = `<elf-alert type="info" density="compact" title="${t("compactSyncing")}"></elf-alert>`;
 
 const code7 = `<elf-alert
   type="danger"
   prominent
-  title="Order service error rate exceeded"
-  description="The last 5-minute error rate hit 5.2%; the on-call engineer was notified."
+  title="${t("prominentDangerTitle")}"
+  description="${t("prominentDangerBody")}"
 ></elf-alert>`;
 
-const closeTextCode = `<elf-alert type="info" closable close-text="${t("understood")}" title="${t("customClose")}"></elf-alert>`;
+const closeTextCode = `<elf-alert type="info" closable close-text="${t("understood")}" title="${t("darkModeTitle")}" description="${t("darkModeDesc")}"></elf-alert>`;
 
 const slotsCode = `<elf-alert type="success">
   <span slot="icon">⭐</span>
-  <span slot="title"><strong>${t("customTitle")}</strong></span>
-  ${t("customContent")}
+  <span slot="title"><strong>${t("favoriteTitle")}</strong></span>
+  ${t("favoriteContent")}
 </elf-alert>`;
 
 const PageAlertEx3 = defineHtml(`
     <h2>${t("closableSection")}</h2>
     <elf-playground title="closable" :code=${code4}>
         <div style="width:50%">
-            <elf-alert type="info" closable :title=${t("closeMe")}></elf-alert>
+            <elf-alert type="info" closable :title=${t("updateTitle")} :description=${t("updateDesc")}></elf-alert>
         </div>
     </elf-playground>
 
     <h2>${t("compactSection")}</h2>
     <elf-playground title="density=compact" :code=${code6}>
         <div style="width:50%;display:flex;flex-direction:column;gap:12px">
-            <elf-alert type="info" density="compact" :title=${t("compactInfo")}></elf-alert>
-            <elf-alert type="success" density="compact" :title=${t("compactSuccess")}></elf-alert>
-            <elf-alert type="warning" density="compact" :title=${t("compactWarning")} :description=${t("compactDescription")}></elf-alert>
-            <elf-alert type="danger" density="compact" :title=${t("compactDanger")} closable></elf-alert>
+            <elf-alert type="info" density="compact" :title=${t("compactSyncing")}></elf-alert>
+            <elf-alert type="success" density="compact" :title=${t("compactSaved")}></elf-alert>
+            <elf-alert type="warning" density="compact" :title=${t("compactOffline")} :description=${t("compactOfflineDesc")}></elf-alert>
+            <elf-alert type="danger" density="compact" :title=${t("compactFailed")} closable></elf-alert>
         </div>
     </elf-playground>
 
@@ -97,14 +111,14 @@ const PageAlertEx3 = defineHtml(`
     <h2>${t("centerSection")}</h2>
     <elf-playground title="center / show-icon=false" :code=${code5}>
         <div style="width:50%">
-            <elf-alert type="info" center :show-icon="false" :title=${t("centered")}></elf-alert>
+            <elf-alert type="success" center :show-icon="false" :title=${t("orderSubmitted")} :description=${t("orderSubmittedDesc")}></elf-alert>
         </div>
     </elf-playground>
 
     <h2>${t("closeTextSection")}</h2>
     <elf-playground title="close-text" :code=${closeTextCode}>
         <div style="width:50%">
-            <elf-alert type="info" closable :close-text=${t("understood")} :title=${t("customClose")}></elf-alert>
+            <elf-alert type="info" closable :close-text=${t("understood")} :title=${t("darkModeTitle")} :description=${t("darkModeDesc")}></elf-alert>
         </div>
     </elf-playground>
 
@@ -113,8 +127,8 @@ const PageAlertEx3 = defineHtml(`
         <div style="width:50%">
             <elf-alert type="success">
                 <span slot="icon">⭐</span>
-                <span slot="title"><strong>${t("customTitleSlot")}</strong></span>
-                ${t("customContent")}
+                <span slot="title"><strong>${t("favoriteTitle")}</strong></span>
+                ${t("favoriteContent")}
             </elf-alert>
         </div>
     </elf-playground>

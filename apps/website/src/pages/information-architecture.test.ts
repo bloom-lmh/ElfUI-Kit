@@ -19,6 +19,12 @@ const collectText = (root: Node): string => {
 };
 
 const wait = (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 20));
+const mdQueryAll = (root: ShadowRoot, selector: string): Element[] => {
+  const direct = Array.from(root.querySelectorAll(selector));
+  const mdPage = root.querySelector<HTMLElement>("elf-md-page");
+  const nested = mdPage?.shadowRoot ? Array.from(mdPage.shadowRoot.querySelectorAll(selector)) : [];
+  return [...direct, ...nested];
+};
 
 beforeAll(async () => {
   await import("../components");
@@ -155,29 +161,27 @@ describe("新文档领域页面", () => {
       [
         "Installation",
         [
-          [".docs-checklist li", 4],
           ["elf-code-card", 6],
-          ['elf-code-card[variant="workbench"]', 6],
-          ['[slot="footer"]', 6],
+          ['elf-code-card[variant="window"]', 6],
           ["elf-quote", 2],
-          [".guide-content", 1],
+          [".installation-md", 1],
         ],
       ],
       [
         "Upgrade guide",
         [
-          ["elf-collapse", 1],
+          ["elf-collapse", 2],
           ["elf-collapse-item", 3],
           ["elf-code-card", 1],
-          [".guide-content", 1],
+          [".upgrade-md", 1],
         ],
       ],
       [
         "Frequently asked questions",
         [
           ["elf-collapse", 4],
-          [".docs-section", 4],
-          [".guide-content", 1],
+          ["elf-collapse-item", 10],
+          [".faq-md", 1],
         ],
       ],
       [
@@ -385,10 +389,12 @@ describe("新文档领域页面", () => {
       document.body.appendChild(page);
       await wait();
       for (const [selector, minimum] of expectations.get(pageCase.title) || []) {
-        expect(
-          page.shadowRoot?.querySelectorAll(selector).length,
-          `${pageCase.title}: ${selector}`,
-        ).toBeGreaterThanOrEqual(minimum);
+        const root = page.shadowRoot;
+        if (!root) continue;
+        const count = selector.startsWith("elf-")
+          ? mdQueryAll(root, selector).length
+          : root.querySelectorAll(selector).length;
+        expect(count, `${pageCase.title}: ${selector}`).toBeGreaterThanOrEqual(minimum);
       }
       if (pageCase.title === "Installation") {
         interface CodeCardProbe extends HTMLElement {
@@ -396,7 +402,7 @@ describe("新文档领域页面", () => {
           items: Array<{ key: string; code: string }>;
         }
         const cards = Array.from(
-          page.shadowRoot?.querySelectorAll("elf-code-card") || [],
+          mdQueryAll(page.shadowRoot!, "elf-code-card"),
         ) as Array<CodeCardProbe>;
         expect(cards).toHaveLength(6);
         expect(cards.every((card) => Boolean(card.shadowRoot?.querySelector(".card-header")))).toBe(

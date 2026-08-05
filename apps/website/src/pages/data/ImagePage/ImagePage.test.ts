@@ -71,7 +71,7 @@ describe("Image documentation", () => {
     page.shadowRoot!.querySelector<HTMLElement>(".image-retry-error elf-button")!.click();
     await tick();
     expect(image.shadowRoot!.querySelector("img")?.getAttribute("src")).toContain(
-      "data:image/svg+xml",
+      "images.unsplash.com",
     );
   });
 

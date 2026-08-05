@@ -5,6 +5,7 @@ import styles from "./demo.scss?inline";
 
 const t = createDocsTranslator({
   title: { zh: "团队溢出与键盘提示", en: "Team overflow and keyboard tooltip" },
+  teamTitle: { zh: "项目成员", en: "Project members" },
   status: { zh: "6 位成员 · 显示 3 位", en: "6 members · 3 visible" },
   hint: {
     zh: "聚焦 +3 后按 Enter 展开成员列表，按 Esc 关闭；溢出按钮名称由 LocaleProvider 提供。",
@@ -36,6 +37,10 @@ const PageAvatarEx3 = defineHtml(`
   <elf-playground :title=${t("title")} :code=${groupCode} :script=${groupScript}>
     <span slot="status" class="avatar-demo-status">${t("status")}</span>
     <div class="avatar-group-demo">
+      <header class="avatar-team-head">
+        <strong>${t("teamTitle")}</strong>
+        <span>${t("status")}</span>
+      </header>
       <elf-avatar-group
         size="lg"
         collapse-avatars
@@ -43,12 +48,36 @@ const PageAvatarEx3 = defineHtml(`
         max-collapse-avatars="3"
         placement="bottom"
       >
-        <elf-avatar alt="Ada Lovelace" color="primary"></elf-avatar>
-        <elf-avatar alt="Grace Hopper" color="success"></elf-avatar>
-        <elf-avatar alt="Margaret Hamilton" color="#7b1fa2"></elf-avatar>
-        <elf-avatar alt="Alan Turing" color="warning"></elf-avatar>
-        <elf-avatar alt="Edsger Dijkstra" color="info"></elf-avatar>
-        <elf-avatar alt="Barbara Liskov" color="danger"></elf-avatar>
+        <elf-avatar
+          src="https://i.pravatar.cc/120?img=47"
+          alt="Ada Lovelace"
+          color="primary"
+        ></elf-avatar>
+        <elf-avatar
+          src="https://i.pravatar.cc/120?img=32"
+          alt="Grace Hopper"
+          color="success"
+        ></elf-avatar>
+        <elf-avatar
+          src="https://i.pravatar.cc/120?img=15"
+          alt="Margaret Hamilton"
+          color="#7b1fa2"
+        ></elf-avatar>
+        <elf-avatar
+          src="https://i.pravatar.cc/120?img=12"
+          alt="Alan Turing"
+          color="warning"
+        ></elf-avatar>
+        <elf-avatar
+          src="https://i.pravatar.cc/120?img=5"
+          alt="Edsger Dijkstra"
+          color="info"
+        ></elf-avatar>
+        <elf-avatar
+          src="https://i.pravatar.cc/120?img=68"
+          alt="Barbara Liskov"
+          color="danger"
+        ></elf-avatar>
       </elf-avatar-group>
       <p>${t("hint")}</p>
     </div>

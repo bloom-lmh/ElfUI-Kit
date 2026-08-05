@@ -27,6 +27,7 @@ import type {
   TabsProps,
   TabsReorderDetail,
   TabsSlots,
+  TabsSliderVariant,
   TabsTransition,
   TabsType,
 } from "./types";
@@ -47,6 +48,7 @@ export type {
   TabsProps,
   TabsReorderDetail,
   TabsSlots,
+  TabsSliderVariant,
   TabsTransition,
   TabsType,
 } from "./types";
@@ -102,6 +104,7 @@ const props = defineProps<TabsProps>({
   color: { type: String, default: "" },
   backgroundColor: { type: String, default: "" },
   sliderColor: { type: String, default: "" },
+  sliderVariant: { type: String, default: "rounded" },
   grow: { type: Boolean, default: false },
   fixedTabs: { type: Boolean, default: false },
   centerActive: { type: Boolean, default: false },
@@ -301,6 +304,7 @@ const rootClass = () => ({
   "is-stacked": Boolean(props.stacked),
   "is-closable": Boolean(props.closable) || Boolean(props.editable),
   "is-hide-slider": Boolean(props.hideSlider),
+  "is-slider-flat": sliderVariant() === "flat",
   "is-compact": (props.density as TabsDensity) === "compact",
   "is-comfortable": (props.density as TabsDensity) === "comfortable",
   "has-pane-children": hasPaneChildren.value,
@@ -325,6 +329,9 @@ const tabListRef = (): HTMLElement | null =>
 const tabBarRef = (): HTMLElement | null =>
   host.shadowRoot?.querySelector<HTMLElement>(".tab-slider") ?? null;
 
+const sliderVariant = (): TabsSliderVariant =>
+  props.sliderVariant === "flat" ? "flat" : "rounded";
+
 const syncSlider = (): void => {
   const index = viewItems().findIndex((item) => isActive(item));
   const button = tabButtons()[index];
@@ -334,21 +341,22 @@ const syncSlider = (): void => {
   }
 
   const vertical = tabPosition() === "left" || tabPosition() === "right";
+  const flat = sliderVariant() === "flat";
   if (vertical) {
     sliderStyle.set({
       opacity: "1",
-      width: "3px",
-      height: `${Math.max(0, button.offsetHeight - 16)}px`,
-      transform: `translate3d(0, ${button.offsetTop + 8}px, 0)`,
+      width: flat ? "2px" : "3px",
+      height: `${Math.max(0, button.offsetHeight - (flat ? 0 : 16))}px`,
+      transform: `translate3d(0, ${button.offsetTop + (flat ? 0 : 8)}px, 0)`,
     });
     return;
   }
 
   sliderStyle.set({
     opacity: "1",
-    width: `${Math.max(0, button.offsetWidth - 24)}px`,
-    height: "3px",
-    transform: `translate3d(${button.offsetLeft + 12}px, 0, 0)`,
+    width: `${Math.max(0, button.offsetWidth - (flat ? 0 : 24))}px`,
+    height: flat ? "2px" : "3px",
+    transform: `translate3d(${button.offsetLeft + (flat ? 0 : 12)}px, 0, 0)`,
   });
 };
 
@@ -627,6 +635,7 @@ useEffect(() => {
   void props.alignTabs;
   void props.tabPosition;
   void props.direction;
+  void props.sliderVariant;
   syncPaneChildren();
   scheduleSliderSync();
 });

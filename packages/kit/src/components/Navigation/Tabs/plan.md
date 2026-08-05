@@ -62,3 +62,10 @@
 - [x] 10 个案例和 13 个 Playground 的动态状态统一放入标题行 live region，预览复用共享水平/垂直居中舞台；操作台继续使用 5 个 Select 与 2 个 Checkbox 真实驱动配置。
 - [x] Template/Script 随当前 locale 生成，英文源码不再混入中文；图片分类切换使用框架 `<Transition>`，并覆盖 reduced motion 样式。
 - [ ] 在 `EP-03` 收敛组件内部结构性动效：数据面板与 TabPane 的 enter/leave 应审计 `<Transition>`，拖动列表只有在提供移动动画契约时才使用 `<TransitionGroup>`。当前面板是原生 section 或已挂载的 slotted Custom Element，不是动态组件实例，`<KeepAlive>` 不适用于现有契约；不得另建手写组件缓存。
+
+## 2026-08-05 平直滑块与图片分类滑动过渡
+
+- [x] 新增 `sliderVariant="rounded | flat"`：flat 将激活指示条改为贴住标签底边的 2px 平直直线（无圆角、无左右内缩），水平/垂直布局均按标签完整尺寸定位。
+- [x] 图片分类案例改用横向滑动过渡：旧面板向左滑出、新面板从右侧滑入，保留 reduced motion 降级。
+- [x] 图片分类案例的标签页使用 `slider-variant="flat"` 展示新样式；API 表新增 `sliderVariant` 行，Tabs 单测新增 flat 滑块几何断言。
+- [x] 标签页操作台新增「滑块样式」选择器（rounded / flat），操作台 Select 增至 6 个；页面测试同步更新。
