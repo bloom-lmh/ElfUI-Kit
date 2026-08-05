@@ -4,7 +4,7 @@ import styles from "./demo.scss?inline";
 defineStyle(styles);
 
 const t = createDocsTranslator({
-  title: { zh: "水平分割与受控比例", en: "Horizontal split with a controlled ratio" },
+  title: { zh: "水平分割", en: "Horizontal split" },
   listPanel: { zh: "列表面板", en: "List panel" },
   detailPanel: { zh: "详情面板", en: "Details panel" },
   currentRatio: { zh: "首个面板比例", en: "First panel ratio" },

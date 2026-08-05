@@ -70,8 +70,8 @@ const t = createDocsTranslator({
   },
   variantProp: { zh: "工具台、窗口或极简外观。", en: "Workbench, window, or minimal shell." },
   themeProp: {
-    zh: "表面明暗与文档主题相反：light 渲染暗色卡片，dark 渲染亮色卡片。",
-    en: "Surface scheme is inverted from the document theme: light renders a dark card and dark renders a light card.",
+    zh: "卡片表面跟随文档主题：dark 渲染暗色卡片与暗色代码区。",
+    en: "Card surface follows the document theme: dark renders a dark card with a dark code area.",
   },
   codeThemeProp: { zh: "Shiki 代码配色系列。", en: "Shiki syntax palette family." },
   iconsProp: {
@@ -486,28 +486,22 @@ const PageLabsCodeCard = defineHtml(`
       <aside slot="controls" class="code-card-controls" :aria-label=${t("controls")}>
         <strong>${t("controls")}</strong>
         <label>
-          <span>${t("variant")}</span>
-          <elf-select :options.prop=${variantOptions()} :modelValue.prop=${variant.value} @update:modelValue=${onVariant}></elf-select>
+          <elf-select :label=${t("variant")} :options.prop=${variantOptions()} :modelValue.prop=${variant.value} @update:modelValue=${onVariant}></elf-select>
         </label>
         <label>
-          <span>${t("surfaceTheme")}</span>
-          <elf-select :options.prop=${surfaceThemeOptions()} :modelValue.prop=${surfaceTheme.value} @update:modelValue=${onSurfaceTheme}></elf-select>
+          <elf-select :label=${t("surfaceTheme")} :options.prop=${surfaceThemeOptions()} :modelValue.prop=${surfaceTheme.value} @update:modelValue=${onSurfaceTheme}></elf-select>
         </label>
         <label>
-          <span>${t("codeTheme")}</span>
-          <elf-select :options.prop=${codeThemeOptions} :modelValue.prop=${codeTheme.value} @update:modelValue=${onCodeTheme}></elf-select>
+          <elf-select :label=${t("codeTheme")} :options.prop=${codeThemeOptions} :modelValue.prop=${codeTheme.value} @update:modelValue=${onCodeTheme}></elf-select>
         </label>
         <label>
-          <span>${t("language")}</span>
-          <elf-select :options.prop=${languageOptions} :modelValue.prop=${language.value} @update:modelValue=${onLanguageSelect}></elf-select>
+          <elf-select :label=${t("language")} :options.prop=${languageOptions} :modelValue.prop=${language.value} @update:modelValue=${onLanguageSelect}></elf-select>
         </label>
         <label>
-          <span>${t("lineNumbers")}</span>
-          <elf-select :options.prop=${lineNumberOptions()} :modelValue.prop=${lineNumbers.value ? "visible" : "hidden"} @update:modelValue=${onLineNumbersSelect}></elf-select>
+          <elf-select :label=${t("lineNumbers")} :options.prop=${lineNumberOptions()} :modelValue.prop=${lineNumbers.value ? "visible" : "hidden"} @update:modelValue=${onLineNumbersSelect}></elf-select>
         </label>
         <label>
-          <span>${t("expanded")}</span>
-          <elf-select :options.prop=${expandedOptions()} :modelValue.prop=${expanded.value ? "expanded" : "collapsed"} @update:modelValue=${onExpandedSelect}></elf-select>
+          <elf-select :label=${t("expanded")} :options.prop=${expandedOptions()} :modelValue.prop=${expanded.value ? "expanded" : "collapsed"} @update:modelValue=${onExpandedSelect}></elf-select>
         </label>
       </aside>
     </elf-playground>
@@ -581,19 +575,11 @@ const PageLabsCodeCard = defineHtml(`
       </div>
     </elf-playground>
 
-    <section class="docs-section">
-      <h2>${t("api")}</h2>
-      <elf-props-table :title=${t("props")} :rows=${propRows()}></elf-props-table>
-    </section>
-    <section class="docs-section">
-      <elf-props-table :title=${t("events")} :rows=${eventRows()}></elf-props-table>
-    </section>
-    <section class="docs-section">
-      <elf-props-table :title=${t("methods")} :rows=${methodRows()}></elf-props-table>
-    </section>
-    <section class="docs-section">
-      <elf-props-table :title=${t("slots")} :rows=${slotRows()}></elf-props-table>
-    </section>
+    <h2>${t("api")}</h2>
+    <elf-props-table :title=${t("props")} :rows=${propRows()}></elf-props-table>
+    <elf-props-table :title=${t("events")} :rows=${eventRows()}></elf-props-table>
+    <elf-props-table :title=${t("methods")} :rows=${methodRows()}></elf-props-table>
+    <elf-props-table :title=${t("slots")} :rows=${slotRows()}></elf-props-table>
   </elf-container>
 `);
 

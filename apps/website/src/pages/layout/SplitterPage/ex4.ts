@@ -5,8 +5,8 @@ defineStyle(styles);
 
 const t = createDocsTranslator({
   title: {
-    zh: "面板折叠、延迟渲染与持久化",
-    en: "Panel collapse, lazy rendering, and persistence",
+    zh: "折叠与持久化",
+    en: "Collapse and persistence",
   },
   navigation: { zh: "项目导航", en: "Project navigation" },
   workspace: { zh: "编辑工作区", en: "Editor workspace" },

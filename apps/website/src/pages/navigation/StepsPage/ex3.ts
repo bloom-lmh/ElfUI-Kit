@@ -4,7 +4,6 @@ import { createDocsTranslator } from "../../docsLocale";
 const active = useRef(0);
 const t = createDocsTranslator({
   heading: { zh: "组合式步骤", en: "Composed steps" },
-  title: { zh: "自定义步骤内容", en: "Custom step content" },
   status: { zh: "当前步骤", en: "Current step" },
   create: { zh: "创建项目", en: "Create project" },
   createDesc: { zh: "填写基础配置", en: "Enter the basics" },
@@ -29,7 +28,7 @@ const onActive = (event) => active.set(event.detail);`;
 
 const PageStepsEx3 = defineHtml(`
   <h2>{{ t("heading") }}</h2>
-  <elf-playground :title=${t("title")} :code=${code} :script=${script}>
+  <elf-playground :title=${t("heading")} :code=${code} :script=${script}>
     <span slot="status" class="demo-state">{{ t("status") }}：{{ active + 1 }}</span>
     <elf-steps :active.prop=${active.value} @update:active=${onActive} @change=${onChange}>
       <elf-step :title.prop=${t("create")} :description.prop=${t("createDesc")}></elf-step>

@@ -83,7 +83,7 @@ describe("VirtualTablePage", () => {
     await tick();
 
     expect(el.shadowRoot!.querySelector("elf-playground")?.getAttribute("title")).toBe(
-      "虚拟树行 · 受控展开",
+      "树行受控展开",
     );
     const tableV2 = el.shadowRoot!.querySelector("elf-table-v2")!;
     const table = tableV2.shadowRoot!.querySelector("elf-table")!;

@@ -112,7 +112,7 @@ describe("AutocompletePage", () => {
     document.documentElement.lang = "en-US";
     const text = await mountPage();
     expect(text).toContain("Async suggestions");
-    expect(text).toContain("Remote states");
+    expect(text).toContain("Autocomplete remote states");
     expect(text).toContain("Creatable entries and long lists");
     expect(text).toContain("Remote empty and error messages");
     expect(text).not.toMatch(/[\u3400-\u9fff]/u);

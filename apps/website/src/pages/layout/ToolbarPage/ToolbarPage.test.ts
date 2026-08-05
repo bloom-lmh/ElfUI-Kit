@@ -35,10 +35,11 @@ describe("ToolbarPage", () => {
     const page = await mount();
     const text = collectText(page);
     expect(text).toContain("紧凑工具栏");
-    expect(text).toContain("折叠与保留位置");
+    expect(text).toContain("折叠与对齐");
     expect(text).toContain("背景");
     expect(text).toContain("放置区域");
     expect(text).toContain("扩展工具栏");
+    expect(text).toContain("突出工具栏");
     expect(text).toContain("上下文操作栏");
     expect(text).toContain("浮动搜索");
     expect(text).toContain("切换 64/48px");
@@ -59,7 +60,12 @@ describe("ToolbarPage", () => {
         .shadowRoot!.querySelector<HTMLElement>('elf-icon[name="back"]')
         ?.shadowRoot?.querySelector("svg"),
     ).toBeTruthy();
-    expect(page.shadowRoot!.querySelectorAll("elf-playground")).toHaveLength(11);
+    expect(page.shadowRoot!.querySelectorAll("elf-playground")).toHaveLength(12);
+    const prominent = page.shadowRoot!.querySelector<HTMLElement>(
+      'elf-toolbar[density="prominent"]',
+    )!;
+    expect(prominent.hasAttribute("extended")).toBe(true);
+    expect(prominent.shadowRoot!.querySelector(".extension")).toBeTruthy();
     expect(pageTag).toBeTruthy();
   });
 
@@ -80,7 +86,7 @@ describe("ToolbarPage", () => {
       tabs[0]!.shadowRoot?.querySelector('[role="tab"][aria-selected="true"]')?.textContent,
     ).toContain("收藏");
 
-    const heightPlayground = page.shadowRoot!.querySelectorAll("elf-playground")[5]!;
+    const heightPlayground = page.shadowRoot!.querySelectorAll("elf-playground")[6]!;
     expect(heightPlayground.querySelector('input[type="range"]')?.getAttribute("min")).toBe("40");
   });
 
@@ -100,10 +106,11 @@ describe("ToolbarPage", () => {
     document.documentElement.lang = "en-US";
     const text = collectText(await mount());
     expect(text).toContain("Dense toolbars");
-    expect(text).toContain("Collapse and retained side");
+    expect(text).toContain("Collapse and alignment");
     expect(text).toContain("Background");
     expect(text).toContain("Location");
     expect(text).toContain("Extension height");
+    expect(text).toContain("Prominent");
     expect(text).toContain("Contextual action bar");
     expect(text).toContain("Tooltips and Speed Dial");
     expect(text).not.toMatch(/[\u3400-\u9fff]/u);

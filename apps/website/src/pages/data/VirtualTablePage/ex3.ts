@@ -6,7 +6,7 @@ import { createDocsPicker, createDocsTranslator } from "../../docsLocale";
 
 const pick = createDocsPicker();
 const t = createDocsTranslator({
-  title: { zh: "虚拟树行 · 受控展开", en: "Virtual tree rows · Controlled expansion" },
+  title: { zh: "树行受控展开", en: "Controlled tree rows" },
   initial: { zh: "等待展开操作", en: "Waiting for an expansion action" },
   expanded: { zh: "已展开", en: "expanded" },
   collapsed: { zh: "已收起", en: "collapsed" },

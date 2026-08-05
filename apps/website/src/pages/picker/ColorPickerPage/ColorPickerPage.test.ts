@@ -55,23 +55,27 @@ describe("ColorPicker documentation", () => {
     expect(portalPicker?.modelValue).toBe("#2563eb");
   });
 
-  it("drives the picker color from a slider", async () => {
+  it("drives the picker color from the HSL console sliders", async () => {
     const page = document.createElement(sliderExampleTag);
     document.body.appendChild(page);
     await tick();
     await tick();
 
-    const slider = page.shadowRoot!.querySelector<HTMLElement & { modelValue?: number }>(
-      "elf-slider",
-    )!;
+    const sliders = Array.from(
+      page.shadowRoot!.querySelectorAll<HTMLElement & { modelValue?: number }>("elf-slider"),
+    );
     const picker = page.shadowRoot!.querySelector<HTMLElement & { modelValue?: string }>(
       "elf-color-picker",
     )!;
 
-    expect(slider).toBeTruthy();
+    expect(sliders).toHaveLength(6);
     expect(picker.modelValue?.toLowerCase()).toMatch(/^#[0-9a-f]{6}$/i);
 
-    slider.dispatchEvent(new CustomEvent("update:modelValue", { detail: 0 }));
+    sliders[1]!.dispatchEvent(new CustomEvent("update:modelValue", { detail: 80 }));
+    await tick();
+    sliders[2]!.dispatchEvent(new CustomEvent("update:modelValue", { detail: 55 }));
+    await tick();
+    sliders[0]!.dispatchEvent(new CustomEvent("update:modelValue", { detail: 0 }));
     await tick();
     expect(picker.modelValue?.toLowerCase()).toBe("#e83030");
   });

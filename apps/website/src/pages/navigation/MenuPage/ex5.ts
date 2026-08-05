@@ -4,8 +4,8 @@ import { createDocsTranslator } from "../../docsLocale";
 const t = createDocsTranslator({
   section: { zh: "多级菜单（三层嵌套）", en: "Nested menu (three levels)" },
   title: {
-    zh: "Platform > Web > React / Vue / Svelte",
-    en: "Platform > Web > React / Vue / Svelte",
+    zh: "面包屑层级",
+    en: "Breadcrumb hierarchy",
   },
   signOut: { zh: "退出", en: "Sign out" },
 });

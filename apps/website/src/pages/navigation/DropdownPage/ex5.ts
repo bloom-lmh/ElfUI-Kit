@@ -16,6 +16,7 @@ const t = createDocsTranslator({
   currentCommand: { zh: "当前命令", en: "Current command" },
   notSelected: { zh: "未选择", en: "No selection" },
   rightClick: { zh: "在此区域右键打开菜单", en: "Right-click this area to open the menu" },
+  virtualLabel: { zh: "画布操作", en: "Canvas actions" },
   refreshCanvas: { zh: "刷新画布", en: "Refresh canvas" },
   copyPosition: { zh: "复制坐标", en: "Copy coordinates" },
   deleteNode: { zh: "删除节点", en: "Delete node" },
@@ -47,15 +48,21 @@ const onCommand = (event) => {
     selectedLabel.set(String(event.detail?.item?.label ?? event.detail?.command ?? "${t("notSelected")}"));
 };`;
 
-const virtualCode = `<elf-input id="dropdown-virtual-trigger" readonly variant="outlined" model-value="${t("rightClick")}" />
+const virtualCode = `<elf-input id="dropdown-virtual-trigger" readonly variant="outlined" label="${t("virtualLabel")}" :model-value="selectedLabel" />
 <elf-dropdown
   data-virtual-dropdown
   virtual-triggering
   trigger="contextmenu"
   :items=\${virtualItems}
+  @command=\${onCommand}
 />`;
 
 const virtualScript = `const host = useHost();
+const selectedLabel = useRef("${t("notSelected")}");
+
+const onCommand = (event) => {
+  selectedLabel.set(String(event.detail?.item?.label ?? event.detail?.command ?? "${t("notSelected")}"));
+};
 
 onMounted(() => {
   const root = host.shadowRoot ?? host;
@@ -111,7 +118,8 @@ const PageDropdownEx5 = defineHtml(`
         id="dropdown-virtual-trigger"
         readonly
         variant="outlined"
-        :modelValue=${t("rightClick")}
+        :label=${t("virtualLabel")}
+        :modelValue.prop=${selectedLabel.value}
         style="width:min(100%,300px)"
       ></elf-input>
       <elf-dropdown

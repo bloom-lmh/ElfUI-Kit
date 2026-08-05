@@ -132,6 +132,9 @@
   position: absolute;
   left: 50%;
   bottom: calc(100% + 8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   min-width: 28px;
   padding: 2px 6px;
   border-radius: var(--elf-radius-sm);

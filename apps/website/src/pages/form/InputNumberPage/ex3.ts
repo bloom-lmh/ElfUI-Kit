@@ -2,8 +2,7 @@ import { defineHtml, defineStyle } from "@elfui/core";
 import { createDocsTranslator } from "../../docsLocale";
 
 const t = createDocsTranslator({
-  heading: { zh: "状态", en: "States" },
-  title: { zh: "禁用、只读与无控制器", en: "Disabled, readonly, and hidden controls" },
+  heading: { zh: "禁用与只读", en: "Disabled and readonly" },
   disabled: { zh: "禁用", en: "Disabled" },
   readonly: { zh: "只读", en: "Readonly" },
   hidden: { zh: "无控制器", en: "No controls" },
@@ -17,7 +16,7 @@ defineStyle(
 
 const PageInputNumberEx3 = defineHtml(`
   <h2>${t("heading")}</h2>
-  <elf-playground :title=${t("title")} :code=${code}>
+  <elf-playground :title=${t("heading")} :code=${code}>
     <div class="state-grid">
       <elf-input-number variant="outlined" disabled :label=${t("disabled")} :modelValue.prop=${3}></elf-input-number>
       <elf-input-number variant="outlined" readonly :label=${t("readonly")} :modelValue.prop=${6}></elf-input-number>

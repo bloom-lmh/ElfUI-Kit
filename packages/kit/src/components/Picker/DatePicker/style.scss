@@ -177,7 +177,7 @@
 
 .panel {
   position: absolute;
-  top: calc(100% + 8px);
+  top: calc(100% - 1px);
   left: 0;
   z-index: 2;
   width: min(420px, calc(100vw - 32px));

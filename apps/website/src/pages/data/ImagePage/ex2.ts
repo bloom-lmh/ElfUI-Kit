@@ -138,7 +138,7 @@ const PageImageEx2 = defineHtml(`
     </div>
     <aside slot="controls" class="image-demo-controls" :aria-label=${t("controls")}>
       <strong>${t("controls")}</strong>
-      <label><span>${t("sourceState")}</span><elf-select variant="outlined" :options.prop=${sourceOptions()} :modelValue.prop=${sourceState.value} @update:modelValue=${onSourceState}></elf-select></label>
+      <label><elf-select variant="outlined" :label=${t("sourceState")} :options.prop=${sourceOptions()} :modelValue.prop=${sourceState.value} @update:modelValue=${onSourceState}></elf-select></label>
       <elf-button size="sm" variant="outlined" @click=${resetFailure}>${t("reset")}</elf-button>
       <elf-button size="sm" @click=${retryImage}>${t("retry")}</elf-button>
     </aside>

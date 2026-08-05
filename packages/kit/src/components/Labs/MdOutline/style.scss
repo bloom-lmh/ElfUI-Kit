@@ -1,0 +1,59 @@
+@use "../../../styles/reset";
+
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.md-outline {
+  min-width: 0;
+}
+
+.md-outline-list {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.md-outline-item {
+  min-width: 0;
+  padding-inline-start: calc((var(--md-outline-depth, 1) - 1) * 12px);
+}
+
+.md-outline-link {
+  display: block;
+  padding: 4px 8px;
+  overflow: hidden;
+  border-radius: var(--elf-radius-sm);
+  color: var(--elf-text-secondary);
+  font-size: 13px;
+  line-height: 1.4;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.md-outline-link:hover {
+  background: color-mix(in srgb, var(--elf-text-primary) 5%, var(--elf-bg-paper));
+  color: var(--elf-text-primary);
+}
+
+.md-outline-link:focus-visible {
+  outline: 2px solid var(--elf-focus-ring, var(--elf-primary));
+  outline-offset: 1px;
+}
+
+.md-outline-item.is-active .md-outline-link {
+  background: color-mix(in srgb, var(--elf-primary) 8%, var(--elf-bg-paper));
+  color: var(--elf-primary);
+  font-weight: 600;
+}
+
+.md-outline-empty {
+  margin: 0;
+  padding: 4px 8px;
+  color: var(--elf-text-disabled);
+  font-size: 12px;
+}

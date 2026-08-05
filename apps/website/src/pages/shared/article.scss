@@ -382,6 +382,7 @@ kbd {
 
 .docs-callout,
 .article-note {
+  box-sizing: border-box;
   margin: var(--elf-space-4) auto;
   padding: var(--elf-space-4) var(--elf-space-5);
   border-inline-start: 4px solid var(--article-accent);

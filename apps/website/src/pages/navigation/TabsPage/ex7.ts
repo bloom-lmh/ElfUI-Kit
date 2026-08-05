@@ -5,7 +5,7 @@ import styles from "./demo.scss?inline";
 
 const t = createDocsTranslator({
   section: { zh: "组合式标签面板", en: "Compositional tab panels" },
-  title: { zh: "TabPane、动态新建与关闭回退", en: "TabPane, dynamic add, and close fallback" },
+  title: { zh: "动态标签与回退", en: "Dynamic tabs and fallback" },
   current: { zh: "当前标签", en: "Current tab" },
   added: { zh: "已新增并激活", en: "Added and activated" },
   closed: { zh: "已关闭", en: "Closed" },

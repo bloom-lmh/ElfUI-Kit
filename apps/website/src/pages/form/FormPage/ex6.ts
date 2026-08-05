@@ -16,8 +16,8 @@ const t = createDocsTranslator({
   domains: { zh: "个域名", en: "domains" },
   card: { zh: "允许访问的域名", en: "Allowed domains" },
   subtitle: {
-    zh: "字段路径和校验规则会随列表索引同步",
-    en: "Field paths and validation rules stay synchronized with list indexes.",
+    zh: "动态字段校验",
+    en: "Dynamic field validation",
   },
   domain: { zh: "域名", en: "Domain" },
   remove: { zh: "移除", en: "Remove" },

@@ -6,7 +6,9 @@
 
 .card-appearance-grid,
 .card-interaction-grid,
-.card-state-grid {
+.card-state-grid,
+.card-composition-grid,
+.card-creative-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
@@ -16,14 +18,256 @@
 
 .card-appearance-grid elf-card,
 .card-interaction-grid elf-card,
-.card-state-grid elf-card {
+.card-state-grid elf-card,
+.card-composition-grid elf-card {
   height: 100%;
 }
 
 .card-appearance-grid p,
 .card-interaction-grid p,
-.card-state-grid p {
+.card-state-grid p,
+.card-composition-grid p {
   margin: 0;
+}
+
+.card-creative-grid > * {
+  height: 100%;
+}
+
+.card-3d {
+  position: relative;
+  height: 100%;
+  perspective: 1000px;
+}
+
+.card-3d > elf-card {
+  height: 100%;
+  transform-style: preserve-3d;
+  transition:
+    transform 300ms cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+.card-press {
+  position: relative;
+  height: 100%;
+  cursor: pointer;
+  user-select: none;
+}
+
+.card-press > elf-card {
+  position: relative;
+  height: 100%;
+  border: 1px solid var(--elf-divider);
+  border-radius: var(--elf-radius-md);
+  background: var(--elf-bg-paper);
+  box-shadow:
+    0 10px 0 0 color-mix(in srgb, var(--elf-text-primary) 13%, transparent),
+    0 18px 28px color-mix(in srgb, var(--elf-text-primary) 16%, transparent);
+  transform: translateY(0);
+  transition:
+    transform 180ms cubic-bezier(0.2, 0, 0.2, 1),
+    box-shadow 180ms cubic-bezier(0.2, 0, 0.2, 1),
+    border-color 180ms ease;
+  will-change: transform;
+}
+
+.card-press:hover > elf-card,
+.card-press:focus-within > elf-card {
+  border-color: color-mix(in srgb, var(--elf-primary) 55%, var(--elf-divider));
+  box-shadow:
+    0 14px 0 0 color-mix(in srgb, var(--elf-text-primary) 13%, transparent),
+    0 24px 36px color-mix(in srgb, var(--elf-text-primary) 20%, transparent);
+  transform: translateY(-3px);
+}
+
+.card-press:active > elf-card {
+  box-shadow:
+    0 2px 0 0 color-mix(in srgb, var(--elf-text-primary) 16%, transparent),
+    0 8px 12px color-mix(in srgb, var(--elf-text-primary) 14%, transparent);
+  transform: translateY(9px) scale(0.99);
+  transition-duration: 90ms;
+}
+
+.card-press:focus-visible > elf-card {
+  outline: 2px solid var(--elf-focus-ring, var(--elf-primary));
+  outline-offset: 3px;
+}
+
+.card-3d-flip {
+  perspective: 1200px;
+}
+
+.card-flip-scene {
+  position: relative;
+  height: 320px;
+  transform-style: preserve-3d;
+  transition: transform 600ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-3d-flip:hover .card-flip-scene,
+.card-3d-flip:focus-within .card-flip-scene {
+  transform: rotateY(180deg);
+}
+
+.card-flip-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.card-flip-face elf-card {
+  width: 100%;
+  height: 100%;
+}
+
+.card-flip-back {
+  transform: rotateY(180deg);
+}
+
+.card-glow {
+  position: relative;
+  height: 100%;
+  padding: 1.5px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, var(--elf-primary), var(--elf-secondary));
+  transition:
+    box-shadow 300ms ease,
+    transform 300ms ease;
+}
+
+.card-glow > elf-card {
+  height: 100%;
+}
+
+.card-glow:hover,
+.card-glow:focus-within {
+  box-shadow: 0 14px 34px color-mix(in srgb, var(--elf-primary) 32%, transparent);
+  transform: translateY(-4px);
+}
+
+.card-stack {
+  position: relative;
+  height: 100%;
+}
+
+.card-stack > elf-card {
+  position: relative;
+  z-index: 1;
+  transition:
+    transform 300ms ease,
+    box-shadow 300ms ease;
+}
+
+.card-stack:hover > elf-card,
+.card-stack:focus-within > elf-card {
+  transform: translateY(-8px) rotateX(2deg);
+}
+
+.card-stack-layer {
+  position: absolute;
+  inset: 8px 10px auto;
+  height: calc(100% - 16px);
+  border: 1px solid var(--elf-divider);
+  border-radius: var(--elf-radius-sm);
+  background: color-mix(in srgb, var(--elf-text-primary) 5%, var(--elf-bg-paper));
+  transform: rotate(2deg);
+}
+
+.card-stack-layer-2 {
+  inset: 16px 20px auto;
+  height: calc(100% - 32px);
+  background: color-mix(in srgb, var(--elf-text-primary) 8%, var(--elf-bg-paper));
+  transform: rotate(-1.5deg);
+}
+
+.card-tile {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--elf-radius-sm);
+  font-size: 17px;
+}
+
+.card-tile-primary {
+  color: var(--elf-primary);
+  background: color-mix(in srgb, var(--elf-primary) 12%, var(--elf-bg-paper));
+}
+
+.card-tile-secondary {
+  color: var(--elf-secondary);
+  background: color-mix(in srgb, var(--elf-secondary) 12%, var(--elf-bg-paper));
+}
+
+.card-tile-success {
+  color: var(--elf-success);
+  background: color-mix(in srgb, var(--elf-success) 12%, var(--elf-bg-paper));
+}
+
+.card-tile-warning {
+  color: var(--elf-warning);
+  background: color-mix(in srgb, var(--elf-warning) 12%, var(--elf-bg-paper));
+}
+
+.card-extra-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  color: var(--elf-danger);
+  background: color-mix(in srgb, var(--elf-danger) 10%, var(--elf-bg-paper));
+}
+
+.card-profile-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.card-profile-stats div {
+  display: grid;
+  gap: 2px;
+  padding: 10px 8px;
+  border-radius: var(--elf-radius-sm);
+  background: color-mix(in srgb, var(--elf-text-primary) 5%, var(--elf-bg-paper));
+  text-align: center;
+}
+
+.card-profile-stats strong {
+  color: var(--elf-text-primary);
+  font-size: 17px;
+  line-height: 1.2;
+}
+
+.card-profile-stats span {
+  color: var(--elf-text-secondary);
+  font-size: 11px;
+}
+
+.card-revenue {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.card-revenue strong {
+  color: var(--elf-text-primary);
+  font-size: 28px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.card-meta {
+  color: var(--elf-text-secondary);
+  font-size: var(--elf-font-size-xs);
 }
 
 .card-demo-actions {
@@ -115,12 +359,25 @@
 @media (max-width: 720px) {
   .card-appearance-grid,
   .card-interaction-grid,
-  .card-state-grid {
+  .card-state-grid,
+  .card-composition-grid,
+  .card-creative-grid {
     grid-template-columns: 1fr;
   }
 
   .card-demo-actions {
     align-items: flex-end;
     flex-direction: column;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-3d > elf-card,
+  .card-press > elf-card,
+  .card-flip-scene,
+  .card-glow,
+  .card-stack > elf-card {
+    transition: none;
+    transform: none;
   }
 }

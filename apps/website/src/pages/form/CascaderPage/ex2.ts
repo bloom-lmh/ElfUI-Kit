@@ -5,7 +5,7 @@ import { createRegionOptions, regionOptionsScript } from "./shared";
 
 const pick = createDocsPicker();
 const t = createDocsTranslator({
-  title: { zh: "清空与禁用", en: "Clearable and disabled" },
+  title: { zh: "Cascader 清空与禁用", en: "Cascader clearable and disabled" },
   clearable: { zh: "请选择地区", en: "Choose a region" },
   disabled: { zh: "禁用状态", en: "Disabled" },
 });

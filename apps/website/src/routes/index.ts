@@ -43,6 +43,10 @@ export const routes: RouteRecord[] = [
     component: () => import("../pages/guide/BuildStylesPage/index"),
   },
   {
+    path: "/guide/markdown-page",
+    component: () => import("../pages/guide/MarkdownPageGuide/index"),
+  },
+  {
     path: "/directives/click-outside",
     component: () => import("../pages/directives/ClickOutsidePage/index"),
   },
@@ -85,6 +89,98 @@ export const routes: RouteRecord[] = [
   {
     path: "/labs/code-card",
     component: () => import("../pages/labs/CodeCardPage/index"),
+  },
+  {
+    path: "/labs/md-page",
+    component: () => import("../pages/labs/MdPagePage/index"),
+  },
+  {
+    path: "/labs/doc-sync",
+    component: () => import("../pages/labs/DocSyncPage/index"),
+  },
+  {
+    path: "/labs/ai-chat",
+    component: () => import("../pages/labs/AiChatPage/index"),
+  },
+  {
+    path: "/labs/chat-message",
+    component: () => import("../pages/labs/ChatMessagePage/index"),
+  },
+  {
+    path: "/labs/chat-tool-call",
+    component: () => import("../pages/labs/ChatToolCallPage/index"),
+  },
+  {
+    path: "/labs/chat-composer",
+    component: () => import("../pages/labs/ChatComposerPage/index"),
+  },
+  {
+    path: "/labs/ai-loading",
+    component: () => import("../pages/labs/AiLoadingPage/index"),
+  },
+  {
+    path: "/labs/ai-thinking",
+    component: () => import("../pages/labs/AiThinkingPage/index"),
+  },
+  {
+    path: "/labs/ai-approval",
+    component: () => import("../pages/labs/AiApprovalPage/index"),
+  },
+  {
+    path: "/labs/ai-task-row",
+    component: () => import("../pages/labs/AiTaskRowPage/index"),
+  },
+  {
+    path: "/labs/ai-context-card",
+    component: () => import("../pages/labs/AiContextCardPage/index"),
+  },
+  {
+    path: "/labs/ai-recommendation",
+    component: () => import("../pages/labs/AiRecommendationPage/index"),
+  },
+  {
+    path: "/labs/ai-command-search",
+    component: () => import("../pages/labs/AiCommandSearchPage/index"),
+  },
+  {
+    path: "/labs/ai-code-block",
+    component: () => import("../pages/labs/AiCodeBlockPage/index"),
+  },
+  {
+    path: "/labs/ai-streaming-text",
+    component: () => import("../pages/labs/AiStreamingTextPage/index"),
+  },
+  {
+    path: "/labs/ai-tool-chips",
+    component: () => import("../pages/labs/AiToolChipsPage/index"),
+  },
+  {
+    path: "/labs/ai-diff-table",
+    component: () => import("../pages/labs/AiDiffTablePage/index"),
+  },
+  {
+    path: "/labs/ai-records-table",
+    component: () => import("../pages/labs/AiRecordsTablePage/index"),
+  },
+  {
+    path: "/labs/ai-filter-table",
+    component: () => import("../pages/labs/AiFilterTablePage/index"),
+  },
+  {
+    path: "/labs/ai-sidebar-nav",
+    component: () => import("../pages/labs/AiSidebarNavPage/index"),
+  },
+  {
+    path: "/labs/ai-insight-card",
+    component: () => import("../pages/labs/AiInsightCardPage/index"),
+  },
+  {
+    path: "/labs/ai-fine-tune-card",
+    component: () => import("../pages/labs/AiFineTunePage/index"),
+  },
+  {
+    path: "/labs/ai-showcase",
+    component: () => import("../pages/labs/AiShowcasePage/index"),
   },
 
   // Layout
@@ -505,6 +601,27 @@ export interface NavItem {
 
 export const navItems: NavItem[] = [
   { to: "/overview", text: "Overview 组件总览" },
+  { to: "/labs/ai-chat", text: "AI Chat 智能对话", group: "AI 组件" },
+  { to: "/labs/chat-message", text: "Chat Message 消息气泡", group: "AI 组件" },
+  { to: "/labs/chat-tool-call", text: "Chat Tool Call 工具调用", group: "AI 组件" },
+  { to: "/labs/chat-composer", text: "Chat Composer 消息输入", group: "AI 组件" },
+  { to: "/labs/ai-loading", text: "AiLoading 加载状态", group: "AI 组件" },
+  { to: "/labs/ai-thinking", text: "AiThinking 思考轨迹", group: "AI 组件" },
+  { to: "/labs/ai-approval", text: "AiApprovalCard 确认卡片", group: "AI 组件" },
+  { to: "/labs/ai-task-row", text: "AiTaskRow 任务状态", group: "AI 组件" },
+  { to: "/labs/ai-context-card", text: "AiContextCard 上下文卡片", group: "AI 组件" },
+  { to: "/labs/ai-recommendation", text: "AiRecommendationCard 推荐卡片", group: "AI 组件" },
+  { to: "/labs/ai-command-search", text: "AiCommandSearch 命令搜索", group: "AI 组件" },
+  { to: "/labs/ai-code-block", text: "AiCodeBlock 代码流", group: "AI 组件" },
+  { to: "/labs/ai-streaming-text", text: "AiStreamingText 流式回答", group: "AI 组件" },
+  { to: "/labs/ai-tool-chips", text: "AiToolChips 工具胶囊", group: "AI 组件" },
+  { to: "/labs/ai-diff-table", text: "AiDiffTable 表格差异", group: "AI 组件" },
+  { to: "/labs/ai-records-table", text: "AiRecordsTable 记录表格", group: "AI 组件" },
+  { to: "/labs/ai-filter-table", text: "AiFilterTable 筛选表格", group: "AI 组件" },
+  { to: "/labs/ai-sidebar-nav", text: "AiSidebarNav 侧栏导航", group: "AI 组件" },
+  { to: "/labs/ai-insight-card", text: "AiInsightCard 洞察卡片", group: "AI 组件" },
+  { to: "/labs/ai-fine-tune-card", text: "AiFineTuneCard 微调卡片", group: "AI 组件" },
+  { to: "/labs/ai-showcase", text: "AI Showcase 案例秀", group: "AI 组件" },
   {
     to: "/getting-started/installation",
     text: "Installation 安装",
@@ -524,6 +641,7 @@ export const navItems: NavItem[] = [
   { to: "/providers/locale", text: "Internationalization 国际化", group: "Guide 指南" },
   { to: "/guide/accessibility", text: "Accessibility 无障碍", group: "Guide 指南" },
   { to: "/guide/build", text: "Build & styles 构建与样式", group: "Guide 指南" },
+  { to: "/guide/markdown-page", text: "Markdown page 文档页", group: "Guide 指南" },
   { to: "/utilities", text: "Utilities 工具类", group: "Guide 指南" },
 
   { to: "/layout/grid", text: "Grid 栅格", group: "Layout 布局" },
@@ -600,7 +718,7 @@ export const navItems: NavItem[] = [
 
   { to: "/navigation/anchor", text: "Anchor 锚点", group: "Navigation 导航" },
   { to: "/navigation/backtop", text: "BackTop 回到顶部", group: "Navigation 导航" },
-  { to: "/navigation/breadcrumb", text: "Breadcrumb 面包屑", group: "Navigation 导航" },
+  { to: "/navigation/breadcrumb", text: "Breadcrumb 面包屑导航", group: "Navigation 导航" },
   { to: "/navigation/dropdown", text: "Dropdown 下拉菜单", group: "Navigation 导航" },
   { to: "/navigation/menu", text: "Menu 导航菜单", group: "Navigation 导航" },
   { to: "/navigation/tabs", text: "Tabs 标签页", group: "Navigation 导航" },
@@ -633,4 +751,6 @@ export const navItems: NavItem[] = [
   { to: "/labs/video", text: "Video 视频", group: "Labs 实验室" },
   { to: "/labs/heatmap", text: "Heatmap 热力图", group: "Labs 实验室" },
   { to: "/labs/code-card", text: "Code Card 代码卡片", group: "Labs 实验室" },
+  { to: "/labs/md-page", text: "MD Page 文档页", group: "Labs 实验室" },
+  { to: "/labs/doc-sync", text: "Doc Sync 双栏同步", group: "Labs 实验室" },
 ];

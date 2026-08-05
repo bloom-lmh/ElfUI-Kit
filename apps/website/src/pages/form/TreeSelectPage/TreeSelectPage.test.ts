@@ -29,6 +29,17 @@ const deepQuery = <T extends Element>(root: ParentNode, selector: string): T | n
   return null;
 };
 
+const collectText = (root: Node): string => {
+  let output = "";
+  const visit = (node: Node): void => {
+    if (node.nodeType === Node.TEXT_NODE) output += ` ${node.textContent || ""}`;
+    if (node instanceof Element && node.shadowRoot) visit(node.shadowRoot);
+    node.childNodes.forEach(visit);
+  };
+  visit(root);
+  return output.replace(/\s+/g, " ").trim();
+};
+
 describe("TreeSelectPage", () => {
   it("provides complete Template and Script sections for every capability", async () => {
     const page = document.createElement(pageTag);
@@ -81,7 +92,7 @@ describe("TreeSelectPage", () => {
     await wait(60);
 
     const page = provider.querySelector<HTMLElement>(pageTag)!;
-    expect(page.shadowRoot?.textContent).toContain("large-data virtualization");
+    expect(collectText(page)).toContain("large-data virtualization");
     const components = Array.from(page.shadowRoot?.querySelectorAll<HTMLElement>("*") ?? []).filter(
       (element) => element.shadowRoot,
     );
@@ -89,11 +100,11 @@ describe("TreeSelectPage", () => {
       Array.from(component.shadowRoot!.querySelectorAll<HTMLElement>("elf-playground")),
     );
     expect(playgrounds.map((playground) => playground.getAttribute("title"))).toEqual([
-      "Basic selection",
+      "TreeSelect basic selection",
       "Multiple selection and check strategies",
       "Search and custom matching",
       "Lazy loading and virtual tree",
-      "Form, disabled state, and field mapping",
+      "Form and field mapping",
     ]);
     expect(deepQuery(page.shadowRoot!, "elf-tree-select")?.textContent).not.toContain("选择团队");
     const api = components.find((component) =>

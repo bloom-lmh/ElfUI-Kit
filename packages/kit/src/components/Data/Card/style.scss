@@ -12,7 +12,7 @@
   min-width: 0;
   overflow: hidden;
   border: 1px solid color-mix(in srgb, var(--elf-divider) 58%, transparent);
-  border-radius: var(--elf-card-radius, var(--elf-radius-md));
+  border-radius: var(--elf-card-radius, var(--elf-radius-sm));
   background: var(--elf-bg-paper);
   color: var(--elf-text-primary);
   box-shadow:

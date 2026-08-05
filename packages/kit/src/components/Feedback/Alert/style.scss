@@ -6,11 +6,11 @@
 @keyframes alert-in {
   from {
     opacity: 0;
-    transform: translateY(-6px) scale(0.98);
+    transform: translateY(-4px);
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
   }
 }
 @keyframes alert-out {
@@ -41,13 +41,13 @@
 .alert {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   width: 100%;
-  padding: 14px 14px 14px 18px;
+  padding: 12px 14px;
   border-radius: var(--elf-radius-sm, 4px);
   font-size: inherit;
   line-height: inherit;
-  animation: alert-in 0.25s cubic-bezier(0.2, 0, 0.2, 1);
+  animation: alert-in 0.22s cubic-bezier(0.2, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
   box-sizing: border-box;
@@ -155,8 +155,8 @@
   border: 1px solid var(--alert-color-border);
   color: var(--alert-color-text);
   box-shadow:
-    0 2px 8px color-mix(in srgb, var(--alert-color) 14%, transparent),
-    0 1px 2px color-mix(in srgb, var(--alert-color) 10%, transparent);
+    0 1px 2px rgb(15 23 42 / 5%),
+    0 4px 12px rgb(15 23 42 / 8%);
 }
 
 // ==============================================
@@ -210,16 +210,39 @@
 }
 
 // ==============================================
-// Accent border (tonal, elevated, filled)
+// Prominent accent — rounded fading rail
 // ==============================================
-:host([variant="tonal"]) .alert,
-:host([variant="elevated"]) .alert,
-:host([variant="filled"]) .alert {
-  border-left: 4px solid var(--alert-color);
+:host([prominent][variant]:not([variant="filled"]):not([variant="plain"]):not([variant="soft"]))
+  .alert {
+  padding-inline-start: 16px;
+  background: color-mix(in srgb, var(--alert-color) 11%, var(--elf-bg-paper, #fff));
+  border-color: color-mix(in srgb, var(--alert-color) 30%, transparent);
 }
 
-:host([prominent]) .alert {
-  border-left-width: 8px;
+:host([prominent]) .alert::before {
+  content: "";
+  position: absolute;
+  top: 10px;
+  bottom: 10px;
+  inset-inline-start: 0;
+  width: 3px;
+  border-radius: 999px;
+  background: linear-gradient(
+    to bottom,
+    var(--alert-color),
+    color-mix(in srgb, var(--alert-color) 12%, transparent)
+  );
+}
+
+:host([prominent][variant="filled"]) .alert::before,
+:host([prominent][variant="plain"]) .alert::before,
+:host([prominent][variant="soft"]) .alert::before {
+  display: none;
+}
+
+:host([density="compact"][prominent]) .alert::before {
+  top: 6px;
+  bottom: 6px;
 }
 
 // ==============================================
@@ -230,16 +253,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
   color: var(--alert-color);
   background: var(--alert-color-icon-bg);
   margin-top: 0;
 
   svg {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
   }
 }
 
@@ -271,7 +294,6 @@
   font-size: var(--elf-font-size-sm, 14px);
   color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
   line-height: 1.5;
-  letter-spacing: 0.01em;
 }
 
 .description {
@@ -339,18 +361,19 @@
 // Density: compact
 // ==============================================
 :host([density="compact"]) .alert {
-  padding: 8px 10px 8px 14px;
+  padding: 8px 10px;
   gap: 8px;
   border-radius: var(--elf-radius-sm, 6px);
 }
 
 :host([density="compact"]) .icon {
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
 
   svg {
-    width: 15px;
-    height: 15px;
+    width: 14px;
+    height: 14px;
   }
 }
 

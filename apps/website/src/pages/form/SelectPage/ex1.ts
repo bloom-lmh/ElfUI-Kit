@@ -7,7 +7,7 @@ const single = useRef("");
 const variant = useRef("filled");
 
 const t = createDocsTranslator({
-  title: { zh: "基础单选", en: "Basic selection" },
+  title: { zh: "Select 基础单选", en: "Select basic selection" },
   label: { zh: "前端框架", en: "Frontend framework" },
   placeholder: { zh: "选择框架", en: "Choose a framework" },
   selected: { zh: "当前选择", en: "Selected" },
@@ -64,8 +64,9 @@ const PageSelectEx1 = defineHtml(`
     </span>
     <aside slot="controls" class="demo-controls" style="display:grid;gap:16px" :aria-label=${t("controls")}>
       <strong>${t("controls")}</strong>
-      <label style="display:grid;gap:8px"><span>${t("appearance")}</span><elf-select
+      <label style="display:grid;gap:8px"><elf-select
         variant="underlined"
+        :label=${t("appearance")}
         :options.prop=${variantOptions}
         :modelValue.prop=${variant.value}
         @update:modelValue=${onVariant}

@@ -86,4 +86,58 @@ describe("elf-toolbar", () => {
     expect(element.hasAttribute("absolute")).toBe(true);
     expect(element.getAttribute("location")).toBe("bottom-end");
   });
+
+  it("supports prominent density, explicit extended, and flat states", async () => {
+    const element = document.createElement("elf-toolbar") as HTMLElement & {
+      density: string;
+      extended: boolean;
+      flat: boolean;
+    };
+    Object.assign(element, { density: "prominent", extended: true, flat: true });
+    document.body.appendChild(element);
+    await tick();
+
+    expect(element.getAttribute("density")).toBe("prominent");
+    expect(element.hasAttribute("extended")).toBe(true);
+    expect(element.hasAttribute("flat")).toBe(true);
+    expect(element.shadowRoot!.querySelector(".extension")).toBeTruthy();
+  });
+
+  it("auto-detects the extension slot and hides it when extended is false", async () => {
+    const element = document.createElement("elf-toolbar");
+    const tab = document.createElement("span");
+    tab.slot = "extension";
+    element.appendChild(tab);
+    document.body.appendChild(element);
+    await tick();
+
+    expect(element.hasAttribute("extended")).toBe(true);
+    (element as HTMLElement & { extended: boolean }).extended = false;
+    await tick();
+    expect(element.hasAttribute("extended")).toBe(false);
+  });
+
+  it("keeps both prepend and append visible when collapsed", async () => {
+    const element = document.createElement("elf-toolbar") as HTMLElement & {
+      collapsed: boolean;
+      collapsePosition: string;
+    };
+    const prepend = document.createElement("span");
+    prepend.slot = "prepend";
+    const append = document.createElement("span");
+    append.slot = "append";
+    element.append(prepend, append);
+    Object.assign(element, { collapsed: true, collapsePosition: "start" });
+    document.body.appendChild(element);
+    await tick();
+
+    expect(element.getAttribute("collapse-position")).toBe("start");
+    expect(element.hasAttribute("collapsed")).toBe(true);
+    expect(element.shadowRoot!.querySelector('slot[name="prepend"]')?.assignedElements()).toEqual([
+      prepend,
+    ]);
+    expect(element.shadowRoot!.querySelector('slot[name="append"]')?.assignedElements()).toEqual([
+      append,
+    ]);
+  });
 });

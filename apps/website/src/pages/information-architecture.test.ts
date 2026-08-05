@@ -38,6 +38,25 @@ beforeAll(async () => {
     { PageLabsVideo },
     { PageLabsHeatmap },
     { PageLabsCodeCard },
+    { PageLabsMdPage },
+    { PageLabsDocSync },
+    { PageLabsAiLoading },
+    { PageLabsAiThinking },
+    { PageLabsAiApproval },
+    { PageLabsAiTaskRow },
+    { PageLabsAiContextCard },
+    { PageLabsAiRecommendation },
+    { PageLabsAiCommandSearch },
+    { PageLabsAiCodeBlock },
+    { PageLabsAiStreamingText },
+    { PageLabsAiToolChips },
+    { PageLabsAiDiffTable },
+    { PageLabsAiRecordsTable },
+    { PageLabsAiFilterTable },
+    { PageLabsAiSidebarNav },
+    { PageLabsAiInsightCard },
+    { PageLabsAiFineTune },
+    { PageLabsAiShowcase },
   ] = await Promise.all([
     import("./getting-started/InstallationPage/index"),
     import("./getting-started/UpgradeGuidePage/index"),
@@ -53,6 +72,25 @@ beforeAll(async () => {
     import("./labs/VideoPage/index"),
     import("./labs/HeatmapPage/index"),
     import("./labs/CodeCardPage/index"),
+    import("./labs/MdPagePage/index"),
+    import("./labs/DocSyncPage/index"),
+    import("./labs/AiLoadingPage/index"),
+    import("./labs/AiThinkingPage/index"),
+    import("./labs/AiApprovalPage/index"),
+    import("./labs/AiTaskRowPage/index"),
+    import("./labs/AiContextCardPage/index"),
+    import("./labs/AiRecommendationPage/index"),
+    import("./labs/AiCommandSearchPage/index"),
+    import("./labs/AiCodeBlockPage/index"),
+    import("./labs/AiStreamingTextPage/index"),
+    import("./labs/AiToolChipsPage/index"),
+    import("./labs/AiDiffTablePage/index"),
+    import("./labs/AiRecordsTablePage/index"),
+    import("./labs/AiFilterTablePage/index"),
+    import("./labs/AiSidebarNavPage/index"),
+    import("./labs/AiInsightCardPage/index"),
+    import("./labs/AiFineTunePage/index"),
+    import("./labs/AiShowcasePage/index"),
   ]);
 
   pages.push(
@@ -70,6 +108,25 @@ beforeAll(async () => {
     { tag: ensureCustomElement(PageLabsVideo), title: "Video" },
     { tag: ensureCustomElement(PageLabsHeatmap), title: "Heatmap" },
     { tag: ensureCustomElement(PageLabsCodeCard), title: "Code Card" },
+    { tag: ensureCustomElement(PageLabsMdPage), title: "MD Page" },
+    { tag: ensureCustomElement(PageLabsDocSync), title: "Doc Sync" },
+    { tag: ensureCustomElement(PageLabsAiLoading), title: "AI Loading" },
+    { tag: ensureCustomElement(PageLabsAiThinking), title: "AI Thinking" },
+    { tag: ensureCustomElement(PageLabsAiApproval), title: "AI Approval" },
+    { tag: ensureCustomElement(PageLabsAiTaskRow), title: "AI Task Row" },
+    { tag: ensureCustomElement(PageLabsAiContextCard), title: "AI Context Card" },
+    { tag: ensureCustomElement(PageLabsAiRecommendation), title: "AI Recommendation" },
+    { tag: ensureCustomElement(PageLabsAiCommandSearch), title: "AI Command Search" },
+    { tag: ensureCustomElement(PageLabsAiCodeBlock), title: "AI Code Block" },
+    { tag: ensureCustomElement(PageLabsAiStreamingText), title: "AI Streaming Text" },
+    { tag: ensureCustomElement(PageLabsAiToolChips), title: "AI Tool Chips" },
+    { tag: ensureCustomElement(PageLabsAiDiffTable), title: "AI Diff Table" },
+    { tag: ensureCustomElement(PageLabsAiRecordsTable), title: "AI Records Table" },
+    { tag: ensureCustomElement(PageLabsAiFilterTable), title: "AI Filter Table" },
+    { tag: ensureCustomElement(PageLabsAiSidebarNav), title: "AI Sidebar Nav" },
+    { tag: ensureCustomElement(PageLabsAiInsightCard), title: "AI Insight Card" },
+    { tag: ensureCustomElement(PageLabsAiFineTune), title: "AI Fine-tune Card" },
+    { tag: ensureCustomElement(PageLabsAiShowcase), title: "AI Showcase" },
   );
 }, 30_000);
 
@@ -200,6 +257,127 @@ describe("新文档领域页面", () => {
           ["elf-props-table", 3],
         ],
       ],
+      [
+        "Doc Sync",
+        [
+          ["elf-playground", 4],
+          ["elf-props-table", 3],
+          ["elf-code-card", 1],
+        ],
+      ],
+      [
+        "AI Loading",
+        [
+          ["elf-playground", 1],
+          ["elf-props-table", 2],
+        ],
+      ],
+      [
+        "AI Thinking",
+        [
+          ["elf-playground", 1],
+          ["elf-props-table", 3],
+        ],
+      ],
+      [
+        "AI Approval",
+        [
+          ["elf-playground", 1],
+          ["elf-props-table", 3],
+        ],
+      ],
+      [
+        "AI Task Row",
+        [
+          ["elf-playground", 1],
+          ["elf-props-table", 3],
+        ],
+      ],
+      [
+        "AI Context Card",
+        [
+          ["elf-playground", 1],
+          ["elf-props-table", 2],
+        ],
+      ],
+      [
+        "AI Recommendation",
+        [
+          ["elf-playground", 1],
+          ["elf-props-table", 2],
+        ],
+      ],
+      [
+        "AI Command Search",
+        [
+          ["elf-playground", 1],
+          ["elf-props-table", 3],
+        ],
+      ],
+      [
+        "AI Code Block",
+        [
+          ["elf-playground", 2],
+          ["elf-props-table", 3],
+        ],
+      ],
+      [
+        "AI Streaming Text",
+        [
+          ["elf-playground", 1],
+          ["elf-props-table", 3],
+        ],
+      ],
+      [
+        "AI Tool Chips",
+        [
+          ["elf-playground", 1],
+          ["elf-props-table", 3],
+        ],
+      ],
+      [
+        "AI Diff Table",
+        [
+          ["elf-playground", 1],
+          ["elf-props-table", 2],
+        ],
+      ],
+      [
+        "AI Records Table",
+        [
+          ["elf-playground", 1],
+          ["elf-props-table", 3],
+        ],
+      ],
+      [
+        "AI Filter Table",
+        [
+          ["elf-playground", 1],
+          ["elf-props-table", 3],
+        ],
+      ],
+      [
+        "AI Sidebar Nav",
+        [
+          ["elf-playground", 1],
+          ["elf-props-table", 3],
+        ],
+      ],
+      [
+        "AI Insight Card",
+        [
+          ["elf-playground", 1],
+          ["elf-props-table", 3],
+        ],
+      ],
+      [
+        "AI Fine-tune Card",
+        [
+          ["elf-playground", 1],
+          ["elf-props-table", 3],
+        ],
+      ],
+      ["AI Showcase", [["elf-playground", 6]]],
     ]);
 
     for (const pageCase of pages) {

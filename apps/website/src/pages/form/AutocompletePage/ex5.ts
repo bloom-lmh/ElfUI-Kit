@@ -2,7 +2,7 @@ import { defineHtml, useRef } from "@elfui/core";
 import { createDocsTranslator } from "../../docsLocale";
 
 const t = createDocsTranslator({
-  title: { zh: "远程状态", en: "Remote states" },
+  title: { zh: "Autocomplete 远程状态", en: "Autocomplete remote states" },
   playground: { zh: "防抖、空结果与错误恢复", en: "Debouncing, empty results, and error recovery" },
   loading: { zh: "正在检索成员…", en: "Searching members…" },
   empty: { zh: "没有匹配成员", en: "No matching members" },

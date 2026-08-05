@@ -296,7 +296,7 @@ export const DEFAULT_LOCALE_MESSAGES: LocaleMessages = {
     closeDialog: "关闭对话框",
     closeMessageBox: "关闭消息框",
     messageBoxTitle: "消息框",
-    breadcrumb: "面包屑",
+    breadcrumb: "面包屑导航",
     status: "状态提示",
     addTab: "新增标签",
     expandFirstPanel: "展开第一个面板",

@@ -13,6 +13,7 @@ const t = createDocsTranslator({
   },
   demo: { zh: "卡片交互反馈", en: "Card interaction feedback" },
   cardTitle: { zh: "发布设计规范", en: "Publish design guidelines" },
+  cardKicker: { zh: "设计系统 · 04", en: "Design system · 04" },
   cardBody: {
     zh: "点击卡片任意位置，观察从指针位置扩散的波纹。",
     en: "Click anywhere on the card to see the ripple expand from the pointer.",
@@ -35,22 +36,26 @@ defineStyle(
       width: min(420px, 100%);
       min-height: 190px;
       align-content: end;
-      gap: 8px;
+      gap: 10px;
       box-sizing: border-box;
       padding: 28px;
-      border: 1px solid color-mix(in srgb, var(--elf-primary) 42%, var(--elf-border));
-      border-radius: var(--elf-radius-lg);
-      background: color-mix(in srgb, var(--elf-primary) 88%, #182a4f);
-      box-shadow: 0 14px 36px color-mix(in srgb, var(--elf-primary) 24%, transparent);
+      border: 1px solid rgb(255 255 255 / 10%);
+      border-radius: 12px;
+      background: #262b36;
+      box-shadow: 0 16px 40px rgb(15 23 42 / 26%);
       color: #fff;
       cursor: pointer;
       text-align: left;
-      transition: transform 160ms ease, box-shadow 160ms ease;
+      transition:
+        transform 160ms ease,
+        border-color 160ms ease,
+        box-shadow 160ms ease;
     }
 
     .ripple-card:hover {
       transform: translateY(-2px);
-      box-shadow: 0 18px 42px color-mix(in srgb, var(--elf-primary) 30%, transparent);
+      border-color: rgb(255 255 255 / 18%);
+      box-shadow: 0 20px 48px rgb(15 23 42 / 30%);
     }
 
     .ripple-card:focus-visible {
@@ -64,6 +69,20 @@ defineStyle(
       display: grid;
       gap: 8px;
       pointer-events: none;
+    }
+
+    .ripple-card-kicker {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--elf-primary) 24%, transparent);
+      color: color-mix(in srgb, var(--elf-primary) 40%, #fff);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
     }
 
     .ripple-card-title { font-size: 21px; font-weight: 700; }
@@ -99,6 +118,7 @@ const code = `<article
   tabindex="0"
   @click="activate"
 >
+  <span class="ripple-card-kicker">Design system · 04</span>
   Publish design guidelines
 </article>`;
 
@@ -124,6 +144,7 @@ const PageRipple = defineHtml(`
         @keydown=${onCardKeydown}
       >
         <div class="ripple-card-content">
+          <span class="ripple-card-kicker">${t("cardKicker")}</span>
           <strong class="ripple-card-title">${t("cardTitle")}</strong>
           <span class="ripple-card-body">${t("cardBody")}</span>
           <span class="ripple-card-hint">${t("cardHint")}</span>
@@ -131,10 +152,8 @@ const PageRipple = defineHtml(`
       </article>
     </elf-playground>
 
-    <section class="docs-section">
-      <h2>API</h2>
-      <elf-props-table :title=${t("options")} :rows=${optionRows()} />
-    </section>
+    <h2>API</h2>
+    <elf-props-table :title=${t("options")} :rows=${optionRows()} />
   </elf-container>
 `);
 

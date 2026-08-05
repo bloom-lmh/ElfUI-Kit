@@ -6,8 +6,8 @@ const t = createDocsTranslator({
   loadingText: { zh: "正在刷新动态", en: "Refreshing activity" },
   cardTitle: { zh: "团队动态", en: "Team activity" },
   subtitle: {
-    zh: "局部刷新不会阻塞页面中的其他操作",
-    en: "Local refreshes do not block other page actions",
+    zh: "局部刷新",
+    en: "Local refresh",
   },
   designReviewed: { zh: "设计稿已评审", en: "Design review completed" },
   buildCompleted: { zh: "构建任务已完成", en: "Build task completed" },

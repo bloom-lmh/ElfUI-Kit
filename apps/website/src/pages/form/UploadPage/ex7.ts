@@ -4,7 +4,7 @@ import { createDocsTranslator } from "../../docsLocale";
 import styles from "./demo.scss?inline";
 
 const t = createDocsTranslator({
-  title: { zh: "多文件状态与失败重试", en: "Multiple-file states and retry" },
+  title: { zh: "状态与失败重试", en: "State and failure retry" },
   total: { zh: "文件总数", en: "Total files" },
   ready: { zh: "就绪", en: "Ready" },
   uploading: { zh: "上传中", en: "Uploading" },

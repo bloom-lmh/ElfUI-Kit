@@ -301,6 +301,7 @@ elf-playground {
 }
 
 .layout-shell elf-footer {
+  padding: 0;
   border-top: 1px solid color-mix(in srgb, var(--elf-success) 22%, var(--elf-divider));
   background: color-mix(in srgb, var(--elf-success) 9%, var(--elf-bg-paper));
 }

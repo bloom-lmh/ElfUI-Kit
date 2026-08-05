@@ -61,8 +61,8 @@ const rangeText = (): string => {
 const code = `<elf-table :data.prop="pageRows" :columns.prop="columns" />
 <elf-pagination
   :total="orders.length"
-  :current-page="currentPage"
-  :page-size="pageSize"
+  :currentPage.prop="currentPage"
+  :pageSize.prop="pageSize"
   @current-change="onPageChange"
   @size-change="onSizeChange"
 />`;
@@ -106,8 +106,8 @@ const PageTableEx2 = defineHtml(`
       <elf-pagination
         background
         :total=${orders.length}
-        :currentPage=${currentPage.value}
-        :pageSize=${pageSize.value}
+        :currentPage.prop=${currentPage.value}
+        :pageSize.prop=${pageSize.value}
         :pageSizes.prop=${[5, 10, 20]}
         @current-change=${onPageChange}
         @size-change=${onSizeChange}

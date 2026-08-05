@@ -49,12 +49,12 @@ describe("DropdownPage", () => {
 
     expect(playgrounds.map((playground) => playground.getAttribute("title"))).toEqual([
       "Basic command menu",
-      "Nested menu, disabled item, and persistent state",
+      "Nested menu and disabled items",
       "Trigger modes and placement",
       "Compatibility options",
       "Compositional menu and selected state",
       "Virtual trigger",
-      "Top layer / offset / flip / preventOverflow",
+      "Boundaries and flipping",
     ]);
 
     for (const playground of playgrounds) {
@@ -73,10 +73,21 @@ describe("DropdownPage", () => {
     const virtualExample = examples.find((component) =>
       component.shadowRoot?.querySelector('elf-playground[title="Virtual trigger"]'),
     )!;
-    const virtualTrigger = virtualExample.shadowRoot?.querySelector(
-      'elf-input#dropdown-virtual-trigger[readonly][variant="outlined"]',
-    );
+    const virtualTrigger = virtualExample.shadowRoot?.querySelector<
+      HTMLElement & { modelValue?: string }
+    >('elf-input#dropdown-virtual-trigger[readonly][variant="outlined"]');
     expect(virtualTrigger).toBeTruthy();
+    expect(virtualTrigger?.getAttribute("label")).toBe("Canvas actions");
+
+    const virtualDropdown =
+      virtualExample.shadowRoot?.querySelector<HTMLElement>("[data-virtual-dropdown]");
+    virtualDropdown?.dispatchEvent(
+      new CustomEvent("command", {
+        detail: { command: "refresh", item: { label: "Refresh canvas", command: "refresh" } },
+      }),
+    );
+    await wait();
+    expect(virtualTrigger?.modelValue).toBe("Refresh canvas");
 
     const propsTable = Array.from(
       page.shadowRoot?.querySelectorAll<

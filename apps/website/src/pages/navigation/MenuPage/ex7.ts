@@ -3,7 +3,7 @@ import { createDocsTranslator } from "../../docsLocale";
 
 const t = createDocsTranslator({
   section: { zh: "唯一展开", en: "Unique opened group" },
-  title: { zh: "展开当前分组时关闭其他分组", en: "Opening one group closes the others" },
+  title: { zh: "互斥展开", en: "Mutually exclusive groups" },
   current: { zh: "当前选中", en: "Selected" },
   defaultOpened: { zh: "默认展开", en: "Initially opened" },
   opened: { zh: "当前展开", en: "Opened" },
@@ -71,7 +71,7 @@ const onSelect = (event) => active.set(event.detail);
 
 const t = createDocsTranslator({
     section: { zh: "唯一展开", en: "Unique opened group" },
-    title: { zh: "展开当前分组时关闭其他分组", en: "Opening one group closes the others" },
+    title: { zh: "互斥展开", en: "Mutually exclusive groups" },
     current: { zh: "当前选中", en: "Selected" },
     defaultOpened: { zh: "默认展开", en: "Initially opened" },
     opened: { zh: "当前展开", en: "Opened" }

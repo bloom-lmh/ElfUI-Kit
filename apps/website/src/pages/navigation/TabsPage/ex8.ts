@@ -12,8 +12,7 @@ const grow = useRef(true);
 const hideSlider = useRef(false);
 
 const t = createDocsTranslator({
-  heading: { zh: "可操作 Playground", en: "Interactive playground" },
-  title: { zh: "标签页操作台", en: "Tabs playground" },
+  heading: { zh: "标签页操作台", en: "Tabs playground" },
   current: { zh: "当前标签", en: "Active tab" },
   controls: { zh: "标签页配置", en: "Tabs controls" },
   direction: { zh: "方向", en: "Direction" },
@@ -119,12 +118,12 @@ defineStyle(styles);
 
 const PageTabsEx8 = defineHtml(`
   <h2>{{ t("heading") }}</h2>
-  <elf-playground :title=${t("title")} :code=${code} :script=${script()}>
+  <elf-playground :title=${t("heading")} :code=${code} :script=${script()}>
     <span slot="status" role="status" aria-live="polite">${statusText()}</span>
     <section class="tabs-demo-stage">
       <div class="tabs-lab-preview">
         <elf-tabs
-        :key=${t("title")}
+        :key=${t("heading")}
         :items.prop=${items()}
         :modelValue.prop=${active.value}
         :direction.prop=${direction.value}
@@ -141,11 +140,11 @@ const PageTabsEx8 = defineHtml(`
     </section>
     <aside slot="controls" class="tabs-lab-config" :aria-label=${t("controls")}>
       <strong>{{ t("controls") }}</strong>
-      <label><span>{{ t("direction") }}</span><elf-select variant="outlined" :options.prop=${directionOptions()} :modelValue.prop=${direction.value} @update:modelValue=${onDirection}></elf-select></label>
-      <label><span>{{ t("alignment") }}</span><elf-select variant="outlined" :options.prop=${alignmentOptions()} :modelValue.prop=${alignment.value} @update:modelValue=${onAlignment}></elf-select></label>
-      <label><span>{{ t("activeColor") }}</span><elf-select variant="outlined" :options.prop=${colorOptions()} :modelValue.prop=${color.value} @update:modelValue=${onColor}></elf-select></label>
-      <label><span>{{ t("background") }}</span><elf-select variant="outlined" :options.prop=${backgroundOptions()} :modelValue.prop=${background.value} @update:modelValue=${onBackground}></elf-select></label>
-      <label><span>{{ t("slider") }}</span><elf-select variant="outlined" :options.prop=${sliderOptions()} :modelValue.prop=${slider.value} @update:modelValue=${onSlider}></elf-select></label>
+      <label><elf-select variant="outlined" :label=${t("direction")} :options.prop=${directionOptions()} :modelValue.prop=${direction.value} @update:modelValue=${onDirection}></elf-select></label>
+      <label><elf-select variant="outlined" :label=${t("alignment")} :options.prop=${alignmentOptions()} :modelValue.prop=${alignment.value} @update:modelValue=${onAlignment}></elf-select></label>
+      <label><elf-select variant="outlined" :label=${t("activeColor")} :options.prop=${colorOptions()} :modelValue.prop=${color.value} @update:modelValue=${onColor}></elf-select></label>
+      <label><elf-select variant="outlined" :label=${t("background")} :options.prop=${backgroundOptions()} :modelValue.prop=${background.value} @update:modelValue=${onBackground}></elf-select></label>
+      <label><elf-select variant="outlined" :label=${t("slider")} :options.prop=${sliderOptions()} :modelValue.prop=${slider.value} @update:modelValue=${onSlider}></elf-select></label>
       <elf-checkbox :modelValue.prop=${grow.value} :label=${t("grow")} @update:modelValue=${onGrow}></elf-checkbox>
       <elf-checkbox :modelValue.prop=${hideSlider.value} :label=${t("hideSlider")} @update:modelValue=${onHideSlider}></elf-checkbox>
     </aside>

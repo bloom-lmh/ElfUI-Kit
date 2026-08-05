@@ -361,7 +361,7 @@ const updateOverlayPosition = (): void => {
     },
     {
       placement: preferredPlacement,
-      offset: options.offset || [0, 8],
+      offset: options.offset || [0, -1],
       padding: options.padding ?? 8,
       flip: options.flip ?? true,
       fallbackPlacements: options.fallbackPlacements || props.fallbackPlacements,

@@ -74,8 +74,7 @@ const PageFlexEx3 = defineHtml(`
     <aside slot="controls" class="layout-playground-controls" :aria-label=${t("controls")}>
       <strong>${t("controls")}</strong>
       <label>
-        <span>${t("wrapValue")}</span>
-        <elf-select variant="outlined" :options.prop=${wrapOptions()} :modelValue.prop=${wrapMode.value} @update:modelValue=${onWrap}></elf-select>
+        <elf-select variant="outlined" :label=${t("wrapValue")} :options.prop=${wrapOptions()} :modelValue.prop=${wrapMode.value} @update:modelValue=${onWrap}></elf-select>
       </label>
     </aside>
   </elf-playground>
@@ -89,8 +88,7 @@ const PageFlexEx3 = defineHtml(`
     <aside slot="controls" class="layout-playground-controls" :aria-label=${t("controls")}>
       <strong>${t("controls")}</strong>
       <label>
-        <span>${t("alignContentValue")}</span>
-        <elf-select variant="outlined" :options.prop=${alignContentOptions()} :modelValue.prop=${alignContentMode.value} @update:modelValue=${onAlignContent}></elf-select>
+        <elf-select variant="outlined" :label=${t("alignContentValue")} :options.prop=${alignContentOptions()} :modelValue.prop=${alignContentMode.value} @update:modelValue=${onAlignContent}></elf-select>
       </label>
     </aside>
   </elf-playground>
@@ -107,8 +105,7 @@ const PageFlexEx3 = defineHtml(`
     <aside slot="controls" class="layout-playground-controls" :aria-label=${t("controls")}>
       <strong>${t("controls")}</strong>
       <label>
-        <span>${t("compatibilityValue")}</span>
-        <elf-select variant="outlined" :options.prop=${compatibilityOptions()} :modelValue.prop=${compatibilityMode.value} @update:modelValue=${onCompatibility}></elf-select>
+        <elf-select variant="outlined" :label=${t("compatibilityValue")} :options.prop=${compatibilityOptions()} :modelValue.prop=${compatibilityMode.value} @update:modelValue=${onCompatibility}></elf-select>
       </label>
     </aside>
   </elf-playground>

@@ -25,6 +25,8 @@ const t = createDocsTranslator({
   rollback: { zh: "回滚说明", en: "Rollback notes" },
   production: { zh: "生产环境", en: "Production" },
   notProvided: { zh: "暂未填写", en: "Not provided" },
+  released: { zh: "已发布", en: "Released" },
+  mode: { zh: "预览宽度", en: "Preview width" },
   hint: {
     zh: "组件根据自身宽度在 4 / 2 / 1 列间切换；长链接安全换行，null、undefined 与空字符串统一显示空值占位。",
     en: "The component responds to its own width across 4 / 2 / 1 columns; long links wrap safely and nullish or empty values share one placeholder.",
@@ -73,6 +75,7 @@ const onStatusAction = (event: Event): void => {
 
 const responsiveCode = `<elf-descriptions
   title="Release details"
+  border
   :items.prop=\${releaseDetails}
   :props.prop=\${fieldMap}
   :column=\${4}
@@ -100,30 +103,37 @@ defineStyle(styles);
 
 const PageDescriptionsEx1 = defineHtml(`
   <elf-playground :title=${t("title")} :code=${responsiveCode} :script=${responsiveScript}>
-    <div
-      slot="status"
-      class="descriptions-demo-actions"
-      @click=${onStatusAction}
-    >
+    <div slot="status" class="descriptions-status-row" @click=${onStatusAction}>
       <span role="status" aria-live="polite">${statusText()}</span>
-      <button type="button" data-width="wide" :aria-pressed=${!compact.value}>
-        ${t("wide")}
-      </button>
-      <button type="button" data-width="compact" :aria-pressed=${compact.value}>
-        ${t("compact")}
-      </button>
+      <div class="descriptions-segmented" role="group" :aria-label=${t("mode")}>
+        <button type="button" data-width="wide" :aria-pressed=${!compact.value}>
+          ${t("wide")}
+        </button>
+        <button type="button" data-width="compact" :aria-pressed=${compact.value}>
+          ${t("compact")}
+        </button>
+      </div>
     </div>
 
     <div :class=${frameClass()}>
-      <elf-descriptions
-        :title=${t("release")}
-        extra="2026-07-26 · 20:45"
-        :items.prop=${releaseDetails()}
-        :props.prop=${fieldMap}
-        :column=${4}
-        responsive
-        :empty-text=${t("notProvided")}
-      ></elf-descriptions>
+      <div class="descriptions-panel">
+        <elf-descriptions
+          :title=${t("release")}
+          border
+          :items.prop=${releaseDetails()}
+          :props.prop=${fieldMap}
+          :column=${4}
+          responsive
+          :empty-text=${t("notProvided")}
+        >
+          <template #extra>
+            <span class="descriptions-release-chip">
+              <span class="descriptions-release-dot" aria-hidden="true"></span>
+              ${t("released")} · 2026-07-26 20:45
+            </span>
+          </template>
+        </elf-descriptions>
+      </div>
       <p class="descriptions-demo-hint">${t("hint")}</p>
     </div>
   </elf-playground>

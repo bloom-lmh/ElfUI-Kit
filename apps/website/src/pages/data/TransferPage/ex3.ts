@@ -3,8 +3,8 @@ import { createDocsTranslator } from "../../docsLocale";
 
 const t = createDocsTranslator({
   title: {
-    zh: "长标签、面板底部与窄容器",
-    en: "Long labels, panel footers, and narrow containers",
+    zh: "长标签与窄容器",
+    en: "Long labels and narrow containers",
   },
   playground: {
     zh: "窄容器自动切换为纵向布局",

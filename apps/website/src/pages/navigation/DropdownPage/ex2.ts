@@ -2,7 +2,7 @@ import { defineHtml, useRef } from "@elfui/core";
 import { createDocsTranslator } from "../../docsLocale";
 
 const t = createDocsTranslator({
-  title: { zh: "子菜单、禁用项与保持展开", en: "Nested menu, disabled item, and persistent state" },
+  title: { zh: "子菜单与禁用", en: "Nested menu and disabled items" },
   keepOpen: { zh: "选择后不关闭", en: "Keep open after selection" },
   disabledItems: { zh: "禁用项", en: "Disabled items" },
   edit: { zh: "编辑资料", en: "Edit profile" },

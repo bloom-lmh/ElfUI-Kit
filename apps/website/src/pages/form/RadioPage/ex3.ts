@@ -2,7 +2,7 @@ import { defineHtml, useRef } from "@elfui/core";
 import { createDocsTranslator } from "../../docsLocale";
 
 const t = createDocsTranslator({
-  title: { zh: "禁用状态", en: "Disabled state" },
+  title: { zh: "Radio 禁用状态", en: "Radio disabled state" },
   aria: { zh: "禁用选项", en: "Disabled options" },
 });
 

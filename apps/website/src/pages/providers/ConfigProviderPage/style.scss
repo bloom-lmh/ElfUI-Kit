@@ -1,42 +1,7 @@
-.config-priority-demo {
-  display: grid;
-  gap: var(--elf-space-4);
-  width: min(100%, 680px);
-}
-
-.config-demo-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--elf-space-3);
-  align-items: center;
-}
-
 .theme-card {
   max-width: 360px;
 }
 
 .theme-card p {
   color: var(--elf-text-secondary);
-}
-
-.config-preview {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--elf-space-3);
-  width: min(100%, 560px);
-}
-
-.preview-stat {
-  display: grid;
-  gap: var(--elf-space-1);
-  padding: var(--elf-space-4);
-  border: 1px solid var(--elf-border);
-  border-radius: var(--elf-radius-md);
-  background: var(--elf-bg-paper);
-}
-
-.preview-label,
-.preview-stat small {
-  color: var(--elf-text-secondary);
-  font-size: var(--elf-font-size-sm);
 }

@@ -46,8 +46,7 @@ const PageFlexEx2 = defineHtml(`
     <aside slot="controls" class="layout-playground-controls" :aria-label=${t("controls")}>
       <strong>${t("controls")}</strong>
       <label>
-        <span>${t("justifyValue")}</span>
-        <elf-select variant="outlined" :options.prop=${justifyOptions()} :modelValue.prop=${justify.value} @update:modelValue=${onJustify}></elf-select>
+        <elf-select variant="outlined" :label=${t("justifyValue")} :options.prop=${justifyOptions()} :modelValue.prop=${justify.value} @update:modelValue=${onJustify}></elf-select>
       </label>
     </aside>
   </elf-playground>
@@ -61,8 +60,7 @@ const PageFlexEx2 = defineHtml(`
     <aside slot="controls" class="layout-playground-controls" :aria-label=${t("controls")}>
       <strong>${t("controls")}</strong>
       <label>
-        <span>${t("alignValue")}</span>
-        <elf-select variant="outlined" :options.prop=${alignOptions()} :modelValue.prop=${align.value} @update:modelValue=${onAlign}></elf-select>
+        <elf-select variant="outlined" :label=${t("alignValue")} :options.prop=${alignOptions()} :modelValue.prop=${align.value} @update:modelValue=${onAlign}></elf-select>
       </label>
     </aside>
   </elf-playground>

@@ -6,7 +6,6 @@ const controlVariant = useRef("default");
 const flags = useRef<string[]>([]);
 const t = createDocsTranslator({
   heading: { zh: "控制器外观", en: "Control variants" },
-  title: { zh: "数字输入操作台", en: "Number input playground" },
   controls: { zh: "控制器配置", en: "Control configuration" },
   variant: { zh: "控制器外观", en: "Control variant" },
   default: { zh: "默认", en: "Default" },
@@ -51,7 +50,7 @@ defineStyle(`
 
 const PageInputNumberEx2 = defineHtml(`
   <h2>${t("heading")}</h2>
-  <elf-playground :title=${t("title")} :code=${code()} :script=${script}>
+  <elf-playground :title=${t("heading")} :code=${code()} :script=${script}>
     <div class="number-preview">
       <elf-input-number
         variant="outlined"
@@ -68,7 +67,7 @@ const PageInputNumberEx2 = defineHtml(`
     </div>
     <aside slot="controls" class="number-controls" :aria-label=${t("controls")}>
       <strong>${t("controls")}</strong>
-      <label><span>${t("variant")}</span><elf-select :options.prop=${variants()} :modelValue.prop=${controlVariant.value} @update:modelValue=${onVariant}></elf-select></label>
+      <label><elf-select :label=${t("variant")} :options.prop=${variants()} :modelValue.prop=${controlVariant.value} @update:modelValue=${onVariant}></elf-select></label>
       <elf-checkbox-group :options.prop=${flagOptions()} :modelValue.prop=${flags.value} @update:modelValue=${onFlags}></elf-checkbox-group>
     </aside>
   </elf-playground>

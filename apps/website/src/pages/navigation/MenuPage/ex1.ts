@@ -4,8 +4,8 @@ import { createDocsTranslator } from "../../docsLocale";
 const t = createDocsTranslator({
   section: { zh: "基础用法", en: "Basic usage" },
   title: {
-    zh: "垂直菜单 / 多级展开 / 禁用项",
-    en: "Vertical menu / nested groups / disabled item",
+    zh: "垂直菜单",
+    en: "Vertical menu",
   },
   current: { zh: "当前选中", en: "Selected" },
 });

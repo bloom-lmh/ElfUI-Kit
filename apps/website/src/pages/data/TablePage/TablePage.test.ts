@@ -108,6 +108,30 @@ describe("TablePage", () => {
     expect(text).toContain("ELF-2026006");
   });
 
+  it("切换每页条数后表格同步显示对应行数", async () => {
+    const el = document.createElement(tablePaginationTag);
+    document.body.appendChild(el);
+    await tick();
+    await tick();
+
+    const pagination = el.shadowRoot!.querySelector("elf-pagination")!;
+    expect(pagination.pageSize).toBe(5);
+    expect(pagination.shadowRoot!.querySelector(".size-trigger")!.textContent).toContain("5 条/页");
+
+    pagination.shadowRoot!.querySelector<HTMLButtonElement>(".size-trigger")!.click();
+    await tick();
+    const option = Array.from(
+      pagination.shadowRoot!.querySelectorAll<HTMLButtonElement>('[role="option"]'),
+    ).find((button) => button.textContent?.includes("10"))!;
+    option.click();
+    await tick();
+    await tick();
+
+    const table = el.shadowRoot!.querySelector("elf-table")!;
+    expect(table.shadowRoot!.querySelectorAll("tbody tr")).toHaveLength(10);
+    expect(collectText(el)).toContain("显示 1-10 / 37 条");
+  });
+
   it("连续点击页码时直接更新表格并以最后一次选择为准", async () => {
     const el = document.createElement(tablePaginationTag);
     document.body.appendChild(el);

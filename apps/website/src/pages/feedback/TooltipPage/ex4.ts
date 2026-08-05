@@ -2,7 +2,7 @@ import { defineHtml, defineStyle, useRef } from "@elfui/core";
 import { createDocsTranslator } from "../../docsLocale";
 
 const t = createDocsTranslator({
-  title: { zh: "键盘、长内容与自动避让", en: "Keyboard, long content, and auto placement" },
+  title: { zh: "键盘与自动避让", en: "Keyboard and auto placement" },
   initialStatus: { zh: "按 Tab 聚焦右侧帮助按钮", en: "Press Tab to focus the help button" },
   focusedStatus: {
     zh: "提示已显示；按 Esc 可关闭但不会丢失焦点",

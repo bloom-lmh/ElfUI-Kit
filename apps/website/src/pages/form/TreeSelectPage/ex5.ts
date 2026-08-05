@@ -16,8 +16,8 @@ const form = useReactive({ team: "" });
 const result = useRef("");
 const t = createDocsTranslator({
   title: {
-    zh: "表单、禁用与字段映射",
-    en: "Form, disabled state, and field mapping",
+    zh: "表单与字段映射",
+    en: "Form and field mapping",
   },
   field: { zh: "发布团队", en: "Release team" },
   placeholder: { zh: "选择发布团队", en: "Choose a release team" },

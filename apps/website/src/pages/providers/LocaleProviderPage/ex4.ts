@@ -7,7 +7,7 @@ import { PageLocaleProviderPreview } from "./preview";
 useComponents({ "page-locale-provider-preview": PageLocaleProviderPreview });
 
 const t = createDocsTranslator({
-  title: { zh: "外部 i18n Adapter", en: "External i18n adapter" },
+  title: { zh: "外部 i18n", en: "External i18n" },
   status: {
     zh: "ConfigProvider · 法语目录 · Intl 格式化",
     en: "ConfigProvider · French catalog · Intl formatting",

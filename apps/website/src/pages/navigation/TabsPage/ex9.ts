@@ -5,7 +5,6 @@ import styles from "./demo.scss?inline";
 const active = useRef("landscape");
 const t = createDocsTranslator({
   heading: { zh: "图片分类切换", en: "Image categories" },
-  title: { zh: "带懒加载与过渡的图片标签页", en: "Image tabs with lazy loading and transitions" },
   landscape: { zh: "风景", en: "Landscape" },
   city: { zh: "城市", en: "City" },
   abstract: { zh: "抽象", en: "Abstract" },
@@ -59,12 +58,12 @@ defineStyle(styles);
 
 const PageTabsEx9 = defineHtml(`
   <h2>{{ t("heading") }}</h2>
-  <elf-playground :title=${t("title")} :code=${code} :script=${script()}>
+  <elf-playground :title=${t("heading")} :code=${code} :script=${script()}>
     <span slot="status" role="status" aria-live="polite">${statusText()}</span>
     <div class="tabs-demo-stage">
       <div class="tabs-gallery">
         <elf-tabs
-        :key=${t("title")}
+        :key=${t("heading")}
         :items.prop=${tabs()}
         :modelValue.prop=${active.value}
         grow

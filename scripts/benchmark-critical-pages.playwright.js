@@ -92,9 +92,12 @@ async (page) => {
         };
         return Boolean(deepFind(document, "h1"));
       });
-      await page.evaluate(() => new Promise((resolve) => {
-        requestAnimationFrame(() => requestAnimationFrame(resolve));
-      }));
+      await page.evaluate(
+        () =>
+          new Promise((resolve) => {
+            requestAnimationFrame(() => requestAnimationFrame(resolve));
+          }),
+      );
       const renderMs = Date.now() - startedAt;
       const renderLongTasks = await page.evaluate(async () => {
         await new Promise((resolve) => setTimeout(resolve, 0));
@@ -113,25 +116,19 @@ async (page) => {
           return result;
         };
         const all = deepElements(document);
-        const candidates = all.filter((element) =>
-          element.localName === input.tag
-        );
-        const nestedItemCount = (source) => Array.isArray(source)
-          ? source.reduce(
-            (sum, item) => sum + 1 + nestedItemCount(item?.children),
-            0,
-          )
-          : 0;
+        const candidates = all.filter((element) => element.localName === input.tag);
+        const nestedItemCount = (source) =>
+          Array.isArray(source)
+            ? source.reduce((sum, item) => sum + 1 + nestedItemCount(item?.children), 0)
+            : 0;
         const itemCount = (element) => {
           const sources = [element.data, element.items, element.options];
-          return Math.max(
-            0,
-            ...sources.map((source) => nestedItemCount(source)),
-          );
+          return Math.max(0, ...sources.map((source) => nestedItemCount(source)));
         };
-        const target = candidates
-          .map((element) => ({ element, count: itemCount(element) }))
-          .sort((left, right) => right.count - left.count)[0]?.element ?? null;
+        const target =
+          candidates
+            .map((element) => ({ element, count: itemCount(element) }))
+            .sort((left, right) => right.count - left.count)[0]?.element ?? null;
         if (!target) {
           return {
             targetFound: false,
@@ -140,27 +137,21 @@ async (page) => {
           };
         }
 
-        const targetElementCount = () =>
-          1 + deepElements(target.shadowRoot ?? target).length;
+        const targetElementCount = () => 1 + deepElements(target.shadowRoot ?? target).length;
         const renderedItemCount = () => {
-          const selectors = [
-            "tbody tr",
-            ".item",
-            ".tree-node",
-            ".option",
-            "[role='menuitem']",
-          ];
+          const selectors = ["tbody tr", ".item", ".tree-node", ".option", "[role='menuitem']"];
           const targetElements = deepElements(target.shadowRoot ?? target);
           return Math.max(
             0,
-            ...selectors.map((selector) =>
-              targetElements.filter((element) => element.matches(selector)).length
+            ...selectors.map(
+              (selector) => targetElements.filter((element) => element.matches(selector)).length,
             ),
           );
         };
-        const twoFrames = () => new Promise((resolve) => {
-          requestAnimationFrame(() => requestAnimationFrame(resolve));
-        });
+        const twoFrames = () =>
+          new Promise((resolve) => {
+            requestAnimationFrame(() => requestAnimationFrame(resolve));
+          });
 
         const targetNodesBefore = targetElementCount();
         const actionStartedAt = performance.now();
@@ -219,7 +210,7 @@ async (page) => {
     scenarios.map((scenario) => {
       const runs = raw[scenario.key];
       const numericKeys = Object.keys(runs[0] ?? {}).filter((key) =>
-        runs.every((run) => typeof run[key] === "number")
+        runs.every((run) => typeof run[key] === "number"),
       );
       return [
         scenario.key,
@@ -229,10 +220,7 @@ async (page) => {
           targetFound: runs.every((run) => run.targetFound === true),
           workloadSatisfied: runs.every((run) => run.workloadSatisfied === true),
           ...Object.fromEntries(
-            numericKeys.map((key) => [
-              key,
-              round(median(runs.map((run) => run[key]))),
-            ]),
+            numericKeys.map((key) => [key, round(median(runs.map((run) => run[key])))]),
           ),
         },
       ];
@@ -247,4 +235,4 @@ async (page) => {
     summary,
     raw,
   };
-}
+};

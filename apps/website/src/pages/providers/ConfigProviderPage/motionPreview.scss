@@ -1,0 +1,41 @@
+:host {
+  display: block;
+}
+
+.motion-preview {
+  display: grid;
+  gap: var(--elf-space-3);
+  padding: var(--elf-space-4);
+  border: 1px solid var(--elf-border);
+  border-radius: var(--elf-radius-md);
+  background: var(--elf-bg-paper);
+}
+
+.motion-track {
+  position: relative;
+  height: 24px;
+  border-radius: var(--elf-radius-sm);
+  background: color-mix(in srgb, var(--elf-border) 45%, transparent);
+  overflow: hidden;
+}
+
+.motion-dot {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--elf-primary);
+  transition: transform var(--elf-transition-slow);
+}
+
+.motion-dot.is-moved {
+  transform: translateX(96px);
+}
+
+.motion-hint {
+  color: var(--elf-text-secondary);
+  font-size: var(--elf-font-size-sm);
+  line-height: 1.5;
+}

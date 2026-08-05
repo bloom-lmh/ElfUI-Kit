@@ -2,7 +2,7 @@ import { defineHtml, useRef } from "@elfui/core";
 import { createDocsTranslator } from "../../docsLocale";
 
 const t = createDocsTranslator({
-  title: { zh: "基础用法", en: "Basic usage" },
+  title: { zh: "Pagination 基础用法", en: "Pagination basic usage" },
   playground: {
     zh: "页码、每页条数和跳转输入会同步状态",
     en: "Page numbers, page size, and the jump input stay synchronized.",

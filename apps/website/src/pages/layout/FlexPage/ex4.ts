@@ -72,8 +72,7 @@ const PageFlexEx4 = defineHtml(`
     <aside slot="controls" class="layout-playground-controls" :aria-label=${t("controls")}>
       <strong>${t("controls")}</strong>
       <label>
-        <span>${t("behavior")}</span>
-        <elf-select variant="outlined" :options.prop=${behaviorOptions()} :modelValue.prop=${itemBehavior.value} @update:modelValue=${onBehavior}></elf-select>
+        <elf-select variant="outlined" :label=${t("behavior")} :options.prop=${behaviorOptions()} :modelValue.prop=${itemBehavior.value} @update:modelValue=${onBehavior}></elf-select>
       </label>
     </aside>
   </elf-playground>

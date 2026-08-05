@@ -5,7 +5,7 @@ import { createRegionOptions, formatPaths, regionOptionsScript } from "./shared"
 
 const pick = createDocsPicker();
 const t = createDocsTranslator({
-  title: { zh: "多选与折叠", en: "Multiple selection" },
+  title: { zh: "Cascader 多选与折叠", en: "Cascader multiple selection" },
   current: { zh: "当前路径", en: "Current paths" },
   empty: { zh: "未选择", en: "Not selected" },
 });

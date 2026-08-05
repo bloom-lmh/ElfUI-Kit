@@ -30,6 +30,17 @@ const deepQuery = <T extends Element>(root: ParentNode, selector: string): T | n
   return null;
 };
 
+const collectText = (root: Node): string => {
+  let output = "";
+  const visit = (node: Node): void => {
+    if (node.nodeType === Node.TEXT_NODE) output += ` ${node.textContent || ""}`;
+    if (node instanceof Element && node.shadowRoot) visit(node.shadowRoot);
+    node.childNodes.forEach(visit);
+  };
+  visit(root);
+  return output.replace(/\s+/g, " ").trim();
+};
+
 describe("CascaderPage", () => {
   it("异步案例加载真实子节点并保留完整脚本", async () => {
     const page = document.createElement(exampleTag);
@@ -92,7 +103,7 @@ describe("CascaderPage", () => {
     await wait(60);
 
     const page = provider.querySelector<HTMLElement>(pageTag)!;
-    expect(page.shadowRoot?.textContent).toContain("compact deep-path trees");
+    expect(collectText(page)).toContain("compact deep-path trees");
     const components = Array.from(page.shadowRoot?.querySelectorAll<HTMLElement>("*") ?? []).filter(
       (element) => element.shadowRoot,
     );
@@ -100,9 +111,9 @@ describe("CascaderPage", () => {
       Array.from(component.shadowRoot?.querySelectorAll<HTMLElement>("elf-playground") ?? []),
     );
     expect(playgrounds.map((playground) => playground.getAttribute("title"))).toEqual([
-      "Basic selection",
-      "Clearable and disabled",
-      "Multiple selection",
+      "Cascader basic selection",
+      "Cascader clearable and disabled",
+      "Cascader multiple selection",
       "Linked checkboxes",
       "Standalone panel",
       "Path search",

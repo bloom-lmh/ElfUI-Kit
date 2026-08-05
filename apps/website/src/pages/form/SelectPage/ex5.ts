@@ -11,7 +11,7 @@ const keyword = useRef("");
 let requestVersion = 0;
 
 const t = createDocsTranslator({
-  title: { zh: "远程状态", en: "Remote states" },
+  title: { zh: "Select 远程状态", en: "Select remote states" },
   heading: { zh: "分配负责人", en: "Assign owner" },
   description: {
     zh: "忽略过期响应，避免快速输入导致结果回退。",

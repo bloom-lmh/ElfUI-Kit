@@ -13,6 +13,9 @@
 :host([density="compact"]) {
   --_density-height: 48px;
 }
+:host([density="prominent"]) {
+  --_density-height: 128px;
+}
 
 .toolbar {
   position: relative;
@@ -83,12 +86,45 @@
 }
 .extension {
   display: flex;
-  height: var(--_toolbar-extension-height, 48px);
+  height: 0;
+  overflow: hidden;
   align-items: center;
   padding-inline: var(--elf-space-4);
+  transition: height var(--elf-transition-base);
+}
+:host([extended]) .extension {
+  height: var(--_toolbar-extension-height, 48px);
+}
+:host([extended][density="prominent"]) .extension {
+  height: calc(var(--_toolbar-extension-height, 48px) * 2);
+}
+:host([extended][density="comfortable"]) .extension {
+  height: calc(var(--_toolbar-extension-height, 48px) - 4px);
+}
+:host([extended][density="compact"]) .extension {
+  height: calc(var(--_toolbar-extension-height, 48px) - 8px);
+}
+
+:host([density="prominent"]) .row {
+  align-items: flex-end;
+  padding-block-end: var(--elf-space-5);
+}
+:host([density="prominent"]) .title {
+  font-size: 28px;
+}
+:host([density="prominent"]) .prepend,
+:host([density="prominent"]) .append {
+  align-self: flex-start;
+  margin-block-start: var(--elf-space-4);
+}
+:host([density="prominent"]) .background::after {
+  opacity: 0.45;
 }
 :host([border]) .toolbar {
   border: 1px solid var(--elf-border);
+}
+:host([flat]) .toolbar {
+  box-shadow: none;
 }
 :host([rounded]) {
   border-radius: var(--elf-radius-md);
@@ -163,16 +199,11 @@
 :host([collapsed]) .row {
   padding-inline: var(--elf-space-2);
 }
-:host([collapsed]) .title,
-:host([collapsed]) .content,
-:host([collapsed]) .extension {
+:host([collapsed]) .title {
   display: none;
 }
-:host([collapsed][collapse-position="start"]) .append {
-  display: none;
-}
-:host([collapsed][collapse-position="end"]) .prepend {
-  display: none;
+:host([collapsed][collapse-position="end"]) {
+  margin-inline-start: auto;
 }
 
 ::slotted(elf-button) {
@@ -182,6 +213,7 @@
 @media (prefers-reduced-motion: reduce) {
   .toolbar,
   .row,
+  .extension,
   .background-image {
     transition: none;
   }

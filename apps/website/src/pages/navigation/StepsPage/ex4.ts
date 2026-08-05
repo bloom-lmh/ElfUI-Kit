@@ -11,7 +11,6 @@ const altLabels = useRef(false);
 
 const t = createDocsTranslator({
   heading: { zh: "步骤操作台", en: "Stepper playground" },
-  title: { zh: "线性流程与内容面板", en: "Linear flow with step content" },
   status: { zh: "当前步骤", en: "Current step" },
   controls: { zh: "步骤配置", en: "Stepper controls" },
   previous: { zh: "上一步文字", en: "Previous label" },
@@ -86,7 +85,7 @@ defineStyle(styles);
 
 const PageStepsEx4 = defineHtml(`
   <h2>{{ t("heading") }}</h2>
-  <elf-playground :title=${t("title")} :code=${code} :script=${script}>
+  <elf-playground :title=${t("heading")} :code=${code} :script=${script}>
     <span slot="status" class="demo-state">{{ t("status") }}：{{ active + 1 }} / 3</span>
     <section class="steps-lab-preview">
       <elf-steps

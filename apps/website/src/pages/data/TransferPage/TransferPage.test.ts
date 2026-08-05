@@ -71,7 +71,7 @@ describe("TransferPage", () => {
   it("renders complete English docs without Han characters", async () => {
     document.documentElement.lang = "en-US";
     const text = await mountPage();
-    expect(text).toContain("Basic usage");
+    expect(text).toContain("Transfer basic usage");
     expect(text).toContain("Virtualization and keyboard controls");
     expect(text).toContain("Typed content rendering");
     expect(text).toContain("Source records");

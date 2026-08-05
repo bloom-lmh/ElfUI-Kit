@@ -78,11 +78,48 @@ describe("文档信息架构", () => {
     expect(await loadQuote()).toHaveProperty("PageQuote");
   });
 
-  it("指令和实验组件只显示实际功能页面", () => {
+  it("指令和实验组件只显示实际功能页面，AI 组件独立成组", () => {
     expect(groupItems("Directives 指令")).toHaveLength(8);
-    expect(groupItems("Labs 实验室")).toHaveLength(3);
+    expect(groupItems("Labs 实验室")).toHaveLength(5);
+    expect(groupItems("AI 组件")).toHaveLength(21);
+    expect(navItems[0]).toEqual({ to: "/overview", text: "Overview 组件总览" });
+    expect(navItems[1]?.group).toBe("AI 组件");
     expect(paths).toEqual(
-      expect.arrayContaining(["/labs/video", "/labs/heatmap", "/labs/code-card"]),
+      expect.arrayContaining([
+        "/labs/video",
+        "/labs/heatmap",
+        "/labs/code-card",
+        "/labs/md-page",
+        "/labs/doc-sync",
+        "/labs/ai-chat",
+        "/labs/chat-message",
+        "/labs/chat-tool-call",
+        "/labs/chat-composer",
+        "/labs/ai-loading",
+        "/labs/ai-thinking",
+        "/labs/ai-approval",
+        "/labs/ai-task-row",
+        "/labs/ai-context-card",
+        "/labs/ai-recommendation",
+        "/labs/ai-command-search",
+        "/labs/ai-code-block",
+        "/labs/ai-streaming-text",
+        "/labs/ai-tool-chips",
+        "/labs/ai-diff-table",
+        "/labs/ai-records-table",
+        "/labs/ai-filter-table",
+        "/labs/ai-sidebar-nav",
+        "/labs/ai-insight-card",
+        "/labs/ai-fine-tune-card",
+        "/labs/ai-showcase",
+      ]),
+    );
+    const aiRoutes = paths.filter(
+      (path) => path.startsWith("/labs/ai-") || path.startsWith("/labs/chat-"),
+    );
+    expect(aiRoutes).toHaveLength(21);
+    expect(aiRoutes.every((path) => groupItems("AI 组件").some((item) => item.to === path))).toBe(
+      true,
     );
   });
 });

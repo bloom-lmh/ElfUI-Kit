@@ -57,7 +57,8 @@ const onGesture = ({ direction }) => setDirection(direction);`;
 const PageTouch = defineHtml(`
   <elf-container class="docs-article"><elf-docs-hero category="directives" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
     <elf-playground :title=${t("demo")} :code=${code} :script=${script}><span slot="status">${t("detected")}: ${gesture || t("idle")}</span><section v-touch=${options()} class="directive-gesture">${t("demo")}</section></elf-playground>
-    <section class="docs-section"><h2>${t("api")}</h2><elf-props-table :title=${t("api")} :rows=${optionRows()} /></section>
+    <h2>${t("api")}</h2>
+    <elf-props-table :title=${t("api")} :rows=${optionRows()} />
   </elf-container>
 `);
 export { PageTouch };

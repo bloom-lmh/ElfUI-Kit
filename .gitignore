@@ -11,3 +11,7 @@ output/
 .DS_Store
 
 .vercel
+
+.claude/
+.tmp-shots/
+.tmp-*.mjs

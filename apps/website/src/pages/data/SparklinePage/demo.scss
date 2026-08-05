@@ -1,41 +1,436 @@
-.sparkline-card {
-  display: grid;
-  gap: 28px;
-  width: min(100%, 820px);
+.sparkline-pageviews {
+  width: min(100%, 480px);
   margin-inline: auto;
-  padding: 28px;
-  border: 1px solid var(--elf-divider);
-  border-radius: 4px;
-  background: var(--elf-bg-paper);
-  box-sizing: border-box;
   min-width: 0;
+  --elf-card-radius: 12px;
 }
 
-.sparkline-card h3 {
-  margin: 0;
-  font-size: 20px;
-}
-.sparkline-chart {
+.sparkline-pageviews-head {
+  display: flex;
   width: 100%;
-  min-width: 0;
-  height: 220px;
-  padding-top: 10px;
-  overflow: hidden;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
-.sparkline-chart elf-sparkline {
+.sparkline-pageviews-copy h3 {
+  margin: 0;
+  color: var(--elf-text-primary);
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+.sparkline-pageviews-copy span {
+  display: block;
+  margin-top: 2px;
+  color: var(--elf-text-secondary);
+  font-size: 12px;
+  line-height: 1.4;
+}
+.sparkline-pageviews-chart {
+  min-width: 0;
+  height: 78px;
+}
+.sparkline-pageviews-chart elf-sparkline {
   width: 100%;
   height: 100%;
 }
 .sparkline-periods {
-  width: 100%;
+  flex: 0 0 auto;
 }
 
 @media (max-width: 520px) {
-  .sparkline-card {
-    gap: 20px;
-    padding: 18px 14px;
+  .sparkline-pageviews-head {
+    gap: 8px;
   }
-  .sparkline-chart {
-    height: 170px;
+  .sparkline-pageviews-copy span {
+    font-size: 11px;
+  }
+  .sparkline-pageviews-chart {
+    height: 70px;
+  }
+}
+
+.sparkline-metric {
+  display: grid;
+  gap: 16px;
+  width: min(100%, 820px);
+  margin-inline: auto;
+  padding: 24px 28px 20px;
+  border: 1px solid var(--elf-border);
+  border-radius: 8px;
+  background: var(--elf-bg-paper);
+  box-sizing: border-box;
+}
+
+.sparkline-metric-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.sparkline-metric-head h3 {
+  margin: 0;
+  color: var(--elf-text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+}
+.sparkline-metric-head strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 28px;
+  line-height: 1.1;
+}
+
+.sparkline-delta {
+  flex: 0 0 auto;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--elf-success) 12%, transparent);
+  color: var(--elf-success);
+  font-size: 12px;
+  font-weight: 600;
+}
+.sparkline-delta.down {
+  background: color-mix(in srgb, var(--elf-danger) 12%, transparent);
+  color: var(--elf-danger);
+}
+
+.sparkline-metric-chart {
+  height: 170px;
+  min-width: 0;
+}
+.sparkline-metric-chart elf-sparkline,
+.metric-card-chart elf-sparkline {
+  width: 100%;
+  height: 100%;
+}
+.sparkline-metric-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 14px;
+  border-top: 1px solid var(--elf-divider);
+  color: var(--elf-text-secondary);
+  font-size: 12px;
+}
+
+.sparkline-dashboard {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  width: min(100%, 900px);
+  margin-inline: auto;
+}
+.metric-card {
+  min-width: 0;
+}
+.metric-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+}
+.metric-label {
+  display: block;
+  color: var(--elf-text-secondary);
+  font-size: 12px;
+}
+.metric-value {
+  display: block;
+  margin-top: 2px;
+  font-size: 22px;
+  line-height: 1.2;
+}
+.metric-card-chart {
+  height: 96px;
+  margin-top: 12px;
+  min-width: 0;
+}
+
+@media (max-width: 720px) {
+  .sparkline-dashboard {
+    grid-template-columns: 1fr;
+  }
+  .sparkline-metric {
+    padding: 20px 16px 16px;
+  }
+  .sparkline-metric-chart {
+    height: 150px;
+  }
+}
+
+.sparkline-downloads {
+  width: min(100%, 520px);
+  margin-inline: auto;
+  --elf-card-radius: 12px;
+}
+.sparkline-downloads-head {
+  display: flex;
+  width: 100%;
+  align-items: center;
+}
+.sparkline-downloads-title strong {
+  display: block;
+  color: var(--elf-text-primary);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.sparkline-downloads-title span {
+  display: block;
+  margin-top: 2px;
+  color: var(--elf-text-secondary);
+  font-size: 12px;
+}
+.sparkline-downloads-body {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  min-width: 0;
+}
+.sparkline-downloads-value {
+  flex: 0 0 auto;
+  min-width: 108px;
+  color: var(--elf-text-primary);
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+.sparkline-downloads-chart {
+  flex: 1 1 auto;
+  height: 64px;
+  min-width: 0;
+}
+.sparkline-downloads-chart elf-sparkline,
+.sparkline-heart-chart elf-sparkline {
+  width: 100%;
+  height: 100%;
+}
+
+.sparkline-heart {
+  width: min(100%, 560px);
+  margin-inline: auto;
+  --elf-card-radius: 12px;
+}
+.sparkline-heart-head {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.sparkline-heart-kicker {
+  display: block;
+  color: var(--elf-text-secondary);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.sparkline-heart-value {
+  display: block;
+  margin-top: 2px;
+  color: var(--elf-text-primary);
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1.15;
+}
+.sparkline-heart-value em {
+  color: var(--elf-text-secondary);
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 600;
+}
+.sparkline-heart-chart {
+  height: 110px;
+  min-width: 0;
+}
+.sparkline-heart-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px 18px;
+}
+.sparkline-heart-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--elf-text-secondary);
+  font-size: 13px;
+}
+.sparkline-heart-slider {
+  display: grid;
+  grid-template-columns: auto minmax(120px, 220px);
+  align-items: center;
+  gap: 10px;
+  color: var(--elf-text-secondary);
+  font-size: 13px;
+}
+
+@media (max-width: 520px) {
+  .sparkline-downloads-body {
+    gap: 10px;
+  }
+  .sparkline-downloads-value {
+    min-width: 88px;
+    font-size: 24px;
+  }
+  .sparkline-downloads-chart {
+    height: 56px;
+  }
+  .sparkline-heart-chart {
+    height: 90px;
+  }
+  .sparkline-heart-slider {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sparkline-sales {
+  width: min(100%, 560px);
+  margin-inline: auto;
+  --elf-card-radius: 12px;
+  --elf-bg-paper: color-mix(in srgb, var(--elf-success) 78%, black);
+  --elf-text-primary: #fff;
+  --elf-text-secondary: rgb(255 255 255 / 72%);
+  color: #fff;
+}
+.sparkline-sales-chart {
+  height: 100px;
+  min-width: 0;
+}
+.sparkline-sales-chart elf-sparkline,
+.sparkline-expenses-chart elf-sparkline {
+  width: 100%;
+  height: 100%;
+}
+.sparkline-sales-title {
+  display: block;
+  margin-top: 10px;
+  font-size: 24px;
+  font-weight: 300;
+  letter-spacing: 0.01em;
+}
+.sparkline-sales-foot {
+  margin-top: 14px;
+  padding-top: 6px;
+  border-top: 1px solid rgb(255 255 255 / 18%);
+}
+.sparkline-sales-foot elf-button {
+  color: #fff;
+}
+
+.gradient-stage {
+  display: grid;
+  gap: 18px;
+  width: min(100%, 860px);
+  margin-inline: auto;
+  padding: 24px;
+  border: 1px solid var(--elf-border);
+  border-radius: 10px;
+  background: var(--elf-bg-paper);
+  box-sizing: border-box;
+}
+.gradient-chart {
+  height: 132px;
+  min-width: 0;
+}
+.gradient-chart elf-sparkline {
+  width: 100%;
+  height: 100%;
+}
+.gradient-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.gradient-chip {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 2px solid var(--elf-border);
+  border-radius: 50%;
+  background-clip: padding-box;
+  cursor: pointer;
+}
+.gradient-chip.active {
+  border-color: var(--elf-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--elf-primary) 22%, transparent);
+}
+.gradient-controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 22px;
+}
+.gradient-control {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  color: var(--elf-text-secondary);
+  font-size: 12px;
+}
+.gradient-control span {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+.gradient-control elf-slider {
+  width: 100%;
+}
+
+.sparkline-expenses {
+  width: min(100%, 480px);
+  margin-inline: auto;
+  --elf-card-radius: 12px;
+  --elf-bg-paper: #0b1220;
+  --elf-text-primary: #f8fbff;
+  --elf-text-secondary: rgb(255 255 255 / 62%);
+  --elf-divider: rgb(255 255 255 / 10%);
+  color: #f8fbff;
+}
+.sparkline-expenses-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.sparkline-expenses-kicker {
+  display: block;
+  color: var(--elf-text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.sparkline-expenses-total {
+  display: block;
+  margin-top: 4px;
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1.15;
+}
+.sparkline-expenses-hover {
+  flex: 0 0 auto;
+  padding-top: 2px;
+  color: rgb(0 229 255 / 92%);
+  font-size: 12px;
+  font-weight: 600;
+}
+.sparkline-expenses-chart {
+  height: 120px;
+  margin-top: 10px;
+  min-width: 0;
+}
+
+@media (max-width: 640px) {
+  .gradient-controls {
+    grid-template-columns: 1fr;
+  }
+  .sparkline-expenses-hover {
+    display: none;
   }
 }

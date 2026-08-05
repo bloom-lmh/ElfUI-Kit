@@ -7,7 +7,7 @@ import { opts } from "./shared";
 const clearValue = useRef("");
 
 const t = createDocsTranslator({
-  title: { zh: "清空与禁用", en: "Clear and disabled" },
+  title: { zh: "Select 清空与禁用", en: "Select clear and disabled" },
   clearable: { zh: "选择后可清空", en: "Clear after selection" },
   disabled: { zh: "选项 C 已禁用", en: "Option C is disabled" },
   optionA: { zh: "可选 A", en: "Option A" },

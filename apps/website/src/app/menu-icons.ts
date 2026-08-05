@@ -10,6 +10,10 @@ import {
   mdiBellOutline,
   mdiBlur,
   mdiBookOpenPageVariantOutline,
+  mdiBrain,
+  mdiChatProcessingOutline,
+  mdiCheckDecagramOutline,
+  mdiClipboardCheckOutline,
   mdiButtonPointer,
   mdiCalendar,
   mdiCalendarClock,
@@ -31,11 +35,14 @@ import {
   mdiCursorDefaultClickOutline,
   mdiCursorPointer,
   mdiDatabaseOutline,
+  mdiDockLeft,
   mdiDockBottom,
   mdiDockRight,
   mdiDockTop,
   mdiEmoticonOutline,
+  mdiFileDocumentOutline,
   mdiFileTreeOutline,
+  mdiFilterVariant,
   mdiFlaskOutline,
   mdiFormDropdown,
   mdiFormatListBulleted,
@@ -53,8 +60,10 @@ import {
   mdiImageOutline,
   mdiInboxOutline,
   mdiInfinity,
+  mdiLanguageMarkdown,
   mdiLinkVariant,
   mdiLoading,
+  mdiMagnify,
   mdiMapMarkerPath,
   mdiMenu,
   mdiMenuDown,
@@ -79,6 +88,8 @@ import {
   mdiRadioboxMarked,
   mdiResize,
   mdiRocketLaunchOutline,
+  mdiRobot,
+  mdiSendOutline,
   mdiSetCenter,
   mdiShapeOutline,
   mdiShieldKeyOutline,
@@ -92,9 +103,12 @@ import {
   mdiTagOutline,
   mdiTagPlusOutline,
   mdiTextLong,
+  mdiTextBoxOutline,
   mdiTextSearch,
   mdiThemeLightDark,
+  mdiThumbUpOutline,
   mdiTimelineClockOutline,
+  mdiToolboxOutline,
   mdiToggleSwitchOutline,
   mdiTools,
   mdiTooltipOutline,
@@ -127,6 +141,7 @@ const GROUP_ICONS: Readonly<Record<string, string>> = {
   Picker: mdiCursorPointer,
   Directives: mdiGestureTapButton,
   Labs: mdiFlaskOutline,
+  AI: mdiRobot,
 };
 
 const GROUP_ICON_COLORS: Readonly<Record<string, string>> = {
@@ -141,6 +156,7 @@ const GROUP_ICON_COLORS: Readonly<Record<string, string>> = {
   Picker: "#AD1457",
   Directives: "#EF6C00",
   Labs: "#37474F",
+  AI: "#7C3AED",
 };
 
 const ROUTE_ICONS: Readonly<Record<string, string>> = {
@@ -156,6 +172,7 @@ const ROUTE_ICONS: Readonly<Record<string, string>> = {
   "/providers/locale": mdiTranslate,
   "/guide/accessibility": mdiHuman,
   "/guide/build": mdiHammerWrench,
+  "/guide/markdown-page": mdiLanguageMarkdown,
   "/utilities": mdiTools,
   "/layout/grid": mdiGrid,
   "/layout/flex": mdiViewColumnOutline,
@@ -251,6 +268,29 @@ const ROUTE_ICONS: Readonly<Record<string, string>> = {
   "/labs/video": mdiPlayBoxOutline,
   "/labs/heatmap": mdiBlur,
   "/labs/code-card": mdiCodeTags,
+  "/labs/md-page": mdiLanguageMarkdown,
+  "/labs/doc-sync": mdiDockLeft,
+  "/labs/ai-chat": mdiChatProcessingOutline,
+  "/labs/chat-message": mdiMessageTextOutline,
+  "/labs/chat-tool-call": mdiToolboxOutline,
+  "/labs/chat-composer": mdiSendOutline,
+  "/labs/ai-loading": mdiLoading,
+  "/labs/ai-thinking": mdiBrain,
+  "/labs/ai-approval": mdiCheckDecagramOutline,
+  "/labs/ai-task-row": mdiClipboardCheckOutline,
+  "/labs/ai-context-card": mdiFileDocumentOutline,
+  "/labs/ai-recommendation": mdiThumbUpOutline,
+  "/labs/ai-command-search": mdiMagnify,
+  "/labs/ai-code-block": mdiCodeBraces,
+  "/labs/ai-streaming-text": mdiMessageTextOutline,
+  "/labs/ai-tool-chips": mdiTextBoxOutline,
+  "/labs/ai-diff-table": mdiTable,
+  "/labs/ai-records-table": mdiTableLarge,
+  "/labs/ai-filter-table": mdiFilterVariant,
+  "/labs/ai-sidebar-nav": mdiViewDashboardOutline,
+  "/labs/ai-insight-card": mdiChartBoxOutline,
+  "/labs/ai-fine-tune-card": mdiTuneVariant,
+  "/labs/ai-showcase": mdiViewDashboardVariantOutline,
 };
 
 /** Resolves the semantic Material Design icon path for an app navigation entry. */
@@ -278,6 +318,7 @@ export const resolveAppMenuIconColor = (index: string): string => {
   if (index.startsWith("/navigation/")) return "#4527A0";
   if (index.startsWith("/picker/")) return "#AD1457";
   if (index.startsWith("/directives/")) return "#EF6C00";
+  if (index.startsWith("/labs/ai-") || index.startsWith("/labs/chat-")) return "#7C3AED";
   if (index.startsWith("/labs/")) return "#37474F";
   return "#1565C0";
 };

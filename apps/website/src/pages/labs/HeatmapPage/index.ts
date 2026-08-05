@@ -18,6 +18,7 @@ const t = createDocsTranslator({
   demo: { zh: "团队活动", en: "Team activity" },
   selected: { zh: "当前单元格", en: "Active cell" },
   none: { zh: "尚未选择", en: "No cell selected" },
+  zoom: { zh: "缩放", en: "Zoom" },
   api: { zh: "API", en: "API" },
   props: { zh: "属性", en: "Props" },
   events: { zh: "事件", en: "Events" },
@@ -47,7 +48,10 @@ const t = createDocsTranslator({
 
 defineStyle(
   articleStyles,
-  `.labs-warning { margin-bottom: var(--elf-space-4); } .labs-heatmap { width: min(760px, 100%); }`,
+  `.labs-warning { margin-bottom: var(--elf-space-4); }
+  .labs-heatmap { width: max-content; max-width: 100%; margin-inline: auto; }
+  .labs-heatmap elf-heatmap { --elf-heatmap-border: 0; }
+  .labs-heatmap-actions { display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap; }`,
 );
 
 const columns = () =>
@@ -78,6 +82,7 @@ const thresholds = () => [
 const cellSize = useRef(32);
 const selected = useRef("");
 const grow = (): void => cellSize.set(cellSize.value === 32 ? 40 : 32);
+const zoomLabel = (): string => `${t("zoom")} ${cellSize.value}px`;
 const onCellClick = (
   event: CustomEvent<{
     row: { label: string };
@@ -121,9 +126,18 @@ const onCellClick = (event) => {
 const PageLabsHeatmap = defineHtml(`
   <elf-container class="docs-article"><elf-docs-hero category="labs" tag="Heatmap" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
     <p class="docs-callout is-warning labs-warning">${t("warning")}</p>
-    <elf-playground :title=${t("demo")} :code=${code} :script=${script}><span slot="status">${t("selected")}: ${selected || t("none")}</span><div class="labs-heatmap"><div class="docs-link-list"><elf-button @click=${grow}>32 / 40 px</elf-button></div><elf-heatmap :rows=${rows()} :columns=${columns()} :items=${items()} :thresholds=${thresholds()} :cell-size=${cellSize} :less-text=${t("less")} :more-text=${t("more")} :legend-aria-label=${t("legendFilter")} @cell-click=${onCellClick}></elf-heatmap></div></elf-playground>
-    <section class="docs-section"><h2>${t("api")}</h2><elf-props-table :title=${t("props")} :rows=${propRows()} /></section>
-    <section class="docs-section"><elf-props-table :title=${t("events")} :rows=${eventRows()} /></section>
+    <elf-playground :title=${t("demo")} :code=${code} :script=${script}>
+      <span slot="status" class="labs-heatmap-actions">
+        <span class="demo-state">${t("selected")}: ${selected || t("none")}</span>
+        <elf-button size="sm" variant="outlined" @click=${grow}>${zoomLabel()}</elf-button>
+      </span>
+      <div class="labs-heatmap">
+        <elf-heatmap :rows=${rows()} :columns=${columns()} :items=${items()} :thresholds=${thresholds()} :cell-size=${cellSize} :less-text=${t("less")} :more-text=${t("more")} :legend-aria-label=${t("legendFilter")} @cell-click=${onCellClick}></elf-heatmap>
+      </div>
+    </elf-playground>
+    <h2>${t("api")}</h2>
+    <elf-props-table :title=${t("props")} :rows=${propRows()} />
+    <elf-props-table :title=${t("events")} :rows=${eventRows()} />
   </elf-container>
 `);
 export { PageLabsHeatmap };

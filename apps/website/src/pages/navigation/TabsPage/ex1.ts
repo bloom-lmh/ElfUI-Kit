@@ -6,8 +6,8 @@ import styles from "./demo.scss?inline";
 const t = createDocsTranslator({
   section: { zh: "基础用法", en: "Basic usage" },
   title: {
-    zh: "受控选中 / 徽标 / 禁用项 / 内容面板",
-    en: "Controlled value / badge / disabled / panels",
+    zh: "受控选中",
+    en: "Controlled selection",
   },
   current: { zh: "当前", en: "Current" },
   activity: { zh: "动态", en: "Activity" },

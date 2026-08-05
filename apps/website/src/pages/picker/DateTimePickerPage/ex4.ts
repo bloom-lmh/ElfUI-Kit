@@ -6,7 +6,7 @@ import demoStyles from "./demo.scss?inline";
 
 const value = useRef("2026-07-29 14:30:00");
 const t = createDocsTranslator({
-  title: { zh: "Provider 日期适配器", en: "Provider date adapter" },
+  title: { zh: "日期适配器", en: "Date adapter" },
   label: { zh: "本地化排期", en: "Localized schedule" },
   active: { zh: "原生适配器 · en-GB · 周日开始", en: "Native adapter · en-GB · Sunday first" },
 });

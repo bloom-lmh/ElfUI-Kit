@@ -52,8 +52,7 @@ const PageGridEx4 = defineHtml(`
     <aside slot="controls" class="layout-playground-controls" :aria-label=${t("controls")}>
       <strong>${t("controls")}</strong>
       <label>
-        <span>${t("maxWidth")}</span>
-        <elf-select variant="outlined" :options.prop=${widthOptions()} :modelValue.prop=${containerWidth.value} @update:modelValue=${onWidth}></elf-select>
+        <elf-select variant="outlined" :label=${t("maxWidth")} :options.prop=${widthOptions()} :modelValue.prop=${containerWidth.value} @update:modelValue=${onWidth}></elf-select>
       </label>
     </aside>
   </elf-playground>

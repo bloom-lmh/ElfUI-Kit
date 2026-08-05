@@ -2,6 +2,10 @@
   margin-bottom: var(--elf-space-5);
 }
 
+elf-playground {
+  --elf-playground-demo-padding: 6px 10px;
+}
+
 .code-card-stage {
   width: min(860px, 100%);
   min-width: 0;
@@ -10,7 +14,7 @@
 
 .code-card-workbench {
   --elf-playground-controls-width: 288px;
-  --elf-playground-demo-padding: var(--elf-space-6);
+  --elf-playground-demo-padding: 6px 10px;
   --elf-playground-controls-demo-min-height: 0px;
   --elf-playground-demo-justify: flex-start;
 }

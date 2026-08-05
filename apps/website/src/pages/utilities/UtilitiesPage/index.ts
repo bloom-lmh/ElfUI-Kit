@@ -446,16 +446,16 @@ const PageUtilities = defineHtml(`
           <div slot="controls" class="utility-controls">
             <strong>${t("configuration")}</strong>
             <label class="config-field">
-              <span>${t("category")}</span>
               <elf-select
+                :label="t('category')"
                 :options.prop="groupOptions(entry.key)"
                 :modelValue.prop="String(labState(entry.key).groupIndex)"
                 @update:modelValue="selectGroup(entry.key, $event.detail)"
               ></elf-select>
             </label>
             <label class="config-field">
-              <span>${t("utilityClass")}</span>
               <elf-select
+                :label="t('utilityClass')"
                 :options.prop="classOptions(entry.key)"
                 :modelValue.prop="selectedClass(entry.key)"
                 @update:modelValue="selectClass(entry.key, $event.detail)"

@@ -82,4 +82,18 @@ describe("elf-bottom-navigation", () => {
     expect(element.shadowRoot!.querySelector("button")?.getAttribute("aria-current")).toBe("page");
     expect(element.shadowRoot!.querySelector(".badge")?.textContent).toBe("3");
   });
+
+  it("reflects shift and active layout flags", async () => {
+    const element = document.createElement("elf-bottom-navigation") as BottomNavigationElement & {
+      shift: boolean;
+      active: boolean;
+    };
+    element.items = items;
+    Object.assign(element, { shift: true, active: false });
+    document.body.appendChild(element);
+    await tick();
+
+    expect(element.hasAttribute("shift")).toBe(true);
+    expect(element.hasAttribute("active")).toBe(false);
+  });
 });

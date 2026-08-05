@@ -121,9 +121,9 @@ const PageDropdownEx1 = defineHtml(`
       <aside slot="controls" class="command-controls" :aria-label=${t("controls")}>
         <strong>${t("controls")}</strong>
         <label>
-          <span>${t("appearance")}</span>
           <elf-select
             variant="underlined"
+            :label=${t("appearance")}
             :options.prop=${variantOptions()}
             :modelValue.prop=${variant.value}
             @update:modelValue=${onVariant}

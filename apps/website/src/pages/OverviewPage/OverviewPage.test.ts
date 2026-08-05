@@ -56,13 +56,14 @@ describe("OverviewPage", () => {
     expect(breadcrumb).toBeTruthy();
     expect(breadcrumb?.shadowRoot?.textContent).toContain("首页");
     expect(breadcrumb?.shadowRoot?.textContent).toContain("组件总览");
-    expect(root.querySelectorAll(".catalog-group")).toHaveLength(10);
+    expect(root.querySelectorAll(".catalog-group")).toHaveLength(11);
     expect(cards.length).toBeGreaterThan(80);
     expect(cards[0]?.getAttribute("href")).toBe("/basic/button");
     expect(button?.getAttribute("title")).toContain("按钮");
     expect(button?.shadowRoot?.querySelector(".sr-only")?.textContent).toContain("打开");
     expect(button?.querySelector("[data-preview='action'][data-detail='button']")).toBeTruthy();
     expect(root.textContent).toContain("Providers 全局能力");
+    expect(root.textContent).toContain("AI 组件");
   });
 
   it("assigns component-specific previews instead of ambiguous fallbacks", () => {
@@ -77,6 +78,17 @@ describe("OverviewPage", () => {
     expect(byPath("/feedback/message-box")?.preview).toBe("overlay");
     expect(byPath("/data/divider")?.previewDetail).toBe("divider");
     expect(byPath("/labs/code-card")?.preview).toBe("surface");
+    expect(byPath("/labs/ai-chat")?.preview).toBe("chat");
+    expect(byPath("/labs/chat-composer")?.preview).toBe("chat");
+    expect(byPath("/labs/ai-loading")?.preview).toBe("progress");
+    expect(byPath("/labs/ai-diff-table")?.preview).toBe("data");
+    expect(byPath("/labs/ai-sidebar-nav")?.preview).toBe("navigation");
+    expect(byPath("/labs/ai-tool-chips")?.preview).toBe("tag");
+    expect(byPath("/labs/ai-command-search")?.preview).toBe("field");
+    expect(byPath("/labs/ai-task-row")?.preview).toBe("list");
+    expect(byPath("/labs/ai-approval")?.preview).toBe("surface");
+    expect(byPath("/labs/doc-sync")?.preview).toBe("layout");
+    expect(byPath("/labs/md-page")?.preview).toBe("text");
     expect(items.every((item) => item.previewDetail !== "unknown")).toBe(true);
   });
 

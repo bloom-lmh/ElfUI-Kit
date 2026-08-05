@@ -2,7 +2,7 @@ import { defineHtml, useRef } from "@elfui/core";
 import { createDocsTranslator } from "../../docsLocale";
 
 const t = createDocsTranslator({
-  title: { zh: "基础页头与返回事件", en: "Basic page header and back event" },
+  title: { zh: "基础页头", en: "Basic page header" },
   back: { zh: "返回", en: "Back" },
   order: { zh: "订单详情", en: "Order details" },
   edit: { zh: "编辑", en: "Edit" },

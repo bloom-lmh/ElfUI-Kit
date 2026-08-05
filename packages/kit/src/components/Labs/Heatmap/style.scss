@@ -8,7 +8,7 @@
 .heatmap {
   overflow-x: auto;
   padding: 16px;
-  border: 1px solid var(--elf-border-color, #dcdfe6);
+  border: var(--elf-heatmap-border, 1px solid var(--elf-border-color, #dcdfe6));
   border-radius: var(--elf-radius-md, 8px);
   background: var(--elf-bg-color, #fff);
 }

@@ -79,8 +79,9 @@ const PageLabsVideo = defineHtml(`
   <elf-container class="docs-article"><elf-docs-hero category="labs" tag="Video" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
     <p class="docs-callout is-warning labs-warning">${t("warning")}</p>
     <elf-playground :title=${t("demo")} :code=${code} :script=${script}><span slot="status">${t("playing")}: ${isPlaying ? t("active") : t("paused")}</span><div class="labs-video"><elf-video :src=${videoSource} :title=${t("title")} @play=${() => isPlaying.set(true)} @pause=${() => isPlaying.set(false)}></elf-video></div></elf-playground>
-    <section class="docs-section"><h2>${t("api")}</h2><elf-props-table :title=${t("props")} :rows=${propRows()} /></section>
-    <section class="docs-section"><elf-props-table :title=${t("events")} :rows=${eventRows()} /></section>
+    <h2>${t("api")}</h2>
+    <elf-props-table :title=${t("props")} :rows=${propRows()} />
+    <elf-props-table :title=${t("events")} :rows=${eventRows()} />
   </elf-container>
 `);
 export { PageLabsVideo };

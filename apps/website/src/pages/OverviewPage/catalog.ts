@@ -7,6 +7,7 @@ export type OverviewPreviewKind =
   | "avatar"
   | "badge"
   | "chart"
+  | "chat"
   | "choice"
   | "data"
   | "directive"
@@ -51,7 +52,11 @@ export interface OverviewCatalogGroup {
 
 interface GroupDefinition extends Omit<OverviewCatalogGroup, "items"> {
   pathPrefix: string;
+  predicate?: (to: string) => boolean;
 }
+
+const isAiComponentPath = (to: string): boolean =>
+  to.startsWith("/labs/ai-") || to.startsWith("/labs/chat-");
 
 const GROUP_DEFINITIONS: readonly GroupDefinition[] = [
   {
@@ -133,11 +138,23 @@ const GROUP_DEFINITIONS: readonly GroupDefinition[] = [
     id: "labs",
     name: { zh: "Labs 实验组件", en: "Labs" },
     description: {
-      zh: "验证中的数据可视化与媒体能力。",
+      zh: "数据可视化与媒体能力。",
       en: "Experimental visualization and media.",
     },
     tone: "slate",
     pathPrefix: "/labs/",
+    predicate: (to) => to.startsWith("/labs/") && !isAiComponentPath(to),
+  },
+  {
+    id: "ai",
+    name: { zh: "AI 组件", en: "AI components" },
+    description: {
+      zh: "对话、思考与生成式工作流界面。",
+      en: "Conversation, reasoning, and generative workflow surfaces.",
+    },
+    tone: "indigo",
+    pathPrefix: "/labs/",
+    predicate: isAiComponentPath,
   },
 ];
 
@@ -206,6 +223,27 @@ const resolvePreview = (path: string): OverviewPreviewKind => {
   if (detail === "video") return "media";
   if (detail === "heatmap") return "chart";
   if (detail === "code-card") return "surface";
+  if (["ai-chat", "chat-message", "chat-composer"].includes(detail)) return "chat";
+  if (["ai-loading", "ai-thinking", "ai-streaming-text"].includes(detail)) return "progress";
+  if (detail === "ai-tool-chips") return "tag";
+  if (["ai-diff-table", "ai-records-table", "ai-filter-table"].includes(detail)) return "data";
+  if (detail === "ai-sidebar-nav") return "navigation";
+  if (detail === "ai-command-search") return "field";
+  if (detail === "ai-task-row") return "list";
+  if (
+    [
+      "ai-code-block",
+      "ai-approval",
+      "ai-context-card",
+      "ai-recommendation",
+      "ai-insight-card",
+      "ai-fine-tune-card",
+      "ai-showcase",
+    ].includes(detail)
+  ) {
+    return "surface";
+  }
+  if (detail === "doc-sync") return "layout";
   return "text";
 };
 
@@ -224,6 +262,7 @@ const basicRank = [
   "/basic/tag",
   "/basic/badge",
   "/basic/avatar",
+  "/basic/heading",
 ];
 
 const sourceItems = [...navItems, ...EXTRA_ITEMS];
@@ -231,7 +270,11 @@ const sourceItems = [...navItems, ...EXTRA_ITEMS];
 export const overviewCatalogGroups: readonly OverviewCatalogGroup[] = GROUP_DEFINITIONS.map(
   (definition) => {
     const items = sourceItems
-      .filter((item) => item.to.startsWith(definition.pathPrefix))
+      .filter((item) =>
+        definition.predicate
+          ? definition.predicate(item.to)
+          : item.to.startsWith(definition.pathPrefix),
+      )
       .map((item): OverviewCatalogItem => {
         const name = splitName(item.text);
         return {

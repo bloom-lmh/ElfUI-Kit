@@ -2,7 +2,7 @@ import { defineHtml } from "@elfui/core";
 import { createDocsTranslator } from "../../docsLocale";
 
 const t = createDocsTranslator({
-  title: { zh: "禁用状态", en: "Disabled state" },
+  title: { zh: "Slider 禁用状态", en: "Slider disabled state" },
   comment: {
     zh: "禁用状态由 disabled 属性声明。",
     en: "Declare the disabled state with the disabled prop.",

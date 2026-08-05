@@ -9,8 +9,8 @@ const t = createDocsTranslator({
   playground: { zh: "完整表单", en: "Complete form" },
   card: { zh: "创建个人资料", en: "Create a profile" },
   subtitle: {
-    zh: "使用卡片组织长表单的标题和内容层级",
-    en: "Use a card to organize heading and content hierarchy in a long form.",
+    zh: "卡片分组",
+    en: "Card groups",
   },
   name: { zh: "姓名", en: "Name" },
   email: { zh: "邮箱", en: "Email" },

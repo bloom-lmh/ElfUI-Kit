@@ -38,9 +38,9 @@ const mount = async (): Promise<HTMLElement> => {
 describe("SliderPage localization", () => {
   it("中文页面覆盖全部案例、状态、源码和 API", async () => {
     const text = collectText(await mount());
-    expect(text).toContain("单值、提示与受控值");
+    expect(text).toContain("基础滑块");
     expect(text).toContain("范围、步进、刻度与间断点");
-    expect(text).toContain("自定义温度节点 0 / 30 / 100 ℃");
+    expect(text).toContain("自定义刻度");
     expect(text).toContain("当前音量");
     expect(text).toContain("暴露方法");
   });
@@ -48,9 +48,9 @@ describe("SliderPage localization", () => {
   it("英文页面覆盖全部案例、状态、源码和 API 且无汉字", async () => {
     document.documentElement.lang = "en-US";
     const text = collectText(await mount());
-    expect(text).toContain("Single value, tooltip, and controlled state");
+    expect(text).toContain("Basic slider");
     expect(text).toContain("Range, steps, marks, and stops");
-    expect(text).toContain("Custom temperature marks at 0 / 30 / 100 °C");
+    expect(text).toContain("Custom marks");
     expect(text).toContain("Current volume");
     expect(text).toContain("Expose");
     expect(text).not.toMatch(/[\u3400-\u9fff]/u);

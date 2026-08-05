@@ -18,10 +18,10 @@
   padding: 16px;
 }
 .splitter-demo-stage elf-splitter::part(first) {
-  color: #fff;
-  background: #616161;
+  color: var(--elf-text-primary);
+  background: color-mix(in srgb, var(--elf-primary) 5%, var(--elf-bg-paper));
 }
 .splitter-demo-stage elf-splitter::part(second) {
-  color: #111;
-  background: #fff;
+  color: var(--elf-text-primary);
+  background: var(--elf-bg-paper);
 }

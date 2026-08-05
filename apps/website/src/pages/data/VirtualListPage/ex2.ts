@@ -3,7 +3,7 @@ import { createDocsTranslator } from "../../docsLocale";
 
 const t = createDocsTranslator({
   section: { zh: "虚拟列表", en: "VirtualList" },
-  title: { zh: "10,000 条构建任务与自定义行", en: "10,000 build tasks with custom rows" },
+  title: { zh: "万条数据与自定义行", en: "10k items with custom rows" },
   task: { zh: "构建任务", en: "Build task" },
   running: { zh: "运行中", en: "Running" },
   completed: { zh: "已完成", en: "Completed" },

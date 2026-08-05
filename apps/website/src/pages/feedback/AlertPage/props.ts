@@ -51,7 +51,10 @@ const propsRows = [
     name: "prominent",
     type: "boolean",
     default: "false",
-    desc: pick("加粗左侧色条（8px）", "Use an 8px accent bar."),
+    desc: pick(
+      "强调样式：圆角渐隐强调条与更深表面",
+      "Prominent fading accent rail with a deeper surface.",
+    ),
   },
 ];
 

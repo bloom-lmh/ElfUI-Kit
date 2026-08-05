@@ -35,7 +35,31 @@ const t = createDocsTranslator({
   },
 });
 
-defineStyle(articleStyles, demoStyles);
+defineStyle(
+  articleStyles,
+  demoStyles,
+  `
+  .directive-log {
+    align-content: start;
+    justify-items: stretch;
+    gap: 6px;
+    min-height: 160px;
+    padding: 12px;
+  }
+
+  .directive-log p {
+    margin: 0;
+    padding: 6px 10px;
+    border: 1px dashed var(--elf-divider);
+    border-radius: 6px;
+    background: var(--elf-bg-paper);
+    color: var(--elf-text-secondary);
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+`,
+);
 const mutate = defineDirective(mutateDirective);
 const entries = useRef<string[]>(["Initial record"]);
 const count = useRef(0);
@@ -67,23 +91,21 @@ const PageMutate = defineHtml(`
     <elf-docs-hero category="directives" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
 
     <elf-playground :title=${t("demo")} :code=${code} :script=${script}>
-      <span slot="status" role="status" aria-live="polite">${t("records")}: ${count}</span>
-      <div class="directive-stack">
-        <elf-button @click=${addRecord}>${t("add")}</elf-button>
-        <section v-mutate=${options()} class="directive-demo">
-          <div><p v-for="entry in visibleEntries()" :key="entry">{{ entry }}</p></div>
-        </section>
-      </div>
+      <span slot="status" class="cmd-row">
+        <elf-button size="sm" variant="outlined" @click=${addRecord}>${t("add")}</elf-button>
+        <span class="directive-status" role="status" aria-live="polite">${t("records")}: {{ count }}</span>
+      </span>
+      <section v-mutate=${options()} class="directive-demo directive-log">
+        <p v-for="entry in visibleEntries()" :key="entry">{{ entry }}</p>
+      </section>
     </elf-playground>
 
     <p class="docs-callout">
       <strong>${t("useTitle")}</strong> ${t("useBody")}
     </p>
 
-    <section class="docs-section">
-      <h2>${t("api")}</h2>
-      <elf-props-table :title=${t("api")} :rows=${optionRows()} />
-    </section>
+    <h2>${t("api")}</h2>
+    <elf-props-table :title=${t("api")} :rows=${optionRows()} />
   </elf-container>
 `);
 export { PageMutate };

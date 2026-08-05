@@ -4,7 +4,7 @@ import { createSvgIconSet } from "@elfui/kit-src/components/Basic/Icon";
 import { createDocsTranslator } from "../../docsLocale";
 
 const t = createDocsTranslator({
-  title: { zh: "四季刻度与自定义滑块标签", en: "Season ticks and custom thumb labels" },
+  title: { zh: "自定义刻度标签", en: "Custom tick labels" },
   winter: { zh: "冬季", en: "Winter" },
   spring: { zh: "春季", en: "Spring" },
   summer: { zh: "夏季", en: "Summer" },

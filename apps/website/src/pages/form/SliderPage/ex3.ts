@@ -2,7 +2,7 @@ import { defineHtml, useRef } from "@elfui/core";
 import { createDocsTranslator } from "../../docsLocale";
 
 const t = createDocsTranslator({
-  title: { zh: "数字输入、颜色与提示格式", en: "Numeric input, color, and tooltip formatting" },
+  title: { zh: "数字输入与颜色", en: "Numeric input and color" },
   ratio: { zh: "比例", en: "Ratio" },
 });
 const value = useRef(64);

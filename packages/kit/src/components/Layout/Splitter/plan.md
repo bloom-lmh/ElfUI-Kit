@@ -50,3 +50,8 @@
 - [x] 五个 Splitter 案例统一使用占满 Playground 中央区的 `.splitter-demo-stage`，水平布局为左黑右白，垂直布局为上黑下白。
 - [x] 通过公开 `splitter` part 去除案例边框与圆角，不修改组件默认视觉契约。
 - [x] Chromium 验收：桌面 stage 与 splitter 均为 `861 x 280`，移动端均为 `259 x 280`，边框为 `0px`；截图为 `docs/screenshots/2026-07-30/splitter-desktop-light-zh.png`。
+
+## 2026-08-03 演示面板主题化
+
+- [x] 移除案例页写死的左黑右白配色，改用主题 token：首个面板为主色 5% 混入 `--elf-bg-paper`，第二个面板为 `--elf-bg-paper`，文字统一 `--elf-text-primary`；仅调整演示页 `::part` 样式，不修改组件默认视觉契约。
+- [x] Chromium 验收：Material 浅色下首面板为主色 5% 混白、Midnight 深色下为主色 5% 混 `#1e1e1e`，两套主题文字均为主题色；截图归档于 `output/playwright/splitter-theme-material.png` 与 `splitter-theme-midnight.png`。

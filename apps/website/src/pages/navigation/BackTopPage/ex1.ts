@@ -12,22 +12,53 @@ const t = createDocsTranslator({
   shown: { zh: "已显示", en: "visible" },
   hidden: { zh: "未显示", en: "hidden" },
   clicks: { zh: "点击", en: "Clicks" },
-  top: { zh: "顶部", en: "Top" },
-  topBody: {
-    zh: "向下滚动此内容区，超过阈值后会出现返回顶部按钮。",
-    en: "Scroll this panel until the BackTop button appears.",
+  appTitle: { zh: "版本记录 · ElfUI Kit", en: "Changelog · ElfUI Kit" },
+  r1: { zh: "v0.0.2-beta.1", en: "v0.0.2-beta.1" },
+  r2: { zh: "v0.0.2-beta.0", en: "v0.0.2-beta.0" },
+  r3: { zh: "v0.0.1-beta.20", en: "v0.0.1-beta.20" },
+  r4: { zh: "v0.0.1-beta.18", en: "v0.0.1-beta.18" },
+  r5: { zh: "v0.0.1-beta.16", en: "v0.0.1-beta.16" },
+  r6: { zh: "v0.0.1-beta.12", en: "v0.0.1-beta.12" },
+  n1: {
+    zh: "统一 Provider 配置入口与共享滚动策略。",
+    en: "Unified provider config entry and shared scroll strategy.",
   },
-  content: { zh: "内容区", en: "Content" },
-  contentBody: {
-    zh: "组件监听的是目标容器，不会干扰整页滚动。",
-    en: "The component observes this target without affecting page scrolling.",
+  n2: {
+    zh: "修复深色主题下的组件表面对比。",
+    en: "Fixed component surface contrast in dark themes.",
   },
-  bottom: { zh: "底部", en: "Bottom" },
-  bottomBody: {
-    zh: "点击按钮会派发 click，并将目标容器平滑滚动至零。",
-    en: "Clicking emits click and smoothly returns the target to zero.",
+  n3: {
+    zh: "新增 Alert、Quote 与 Heading 组件。",
+    en: "Added Alert, Quote, and Heading components.",
   },
+  n4: {
+    zh: "提升表格与虚拟列表的滚动稳定性。",
+    en: "Improved table and virtual list scrolling stability.",
+  },
+  n5: {
+    zh: "补齐表单组件的键盘导航覆盖。",
+    en: "Added keyboard navigation coverage for form components.",
+  },
+  n6: {
+    zh: "发布语言工具与 Vite 插件更新。",
+    en: "Released language tools and Vite plugin updates.",
+  },
+  tagFeature: { zh: "新特性", en: "Feature" },
+  tagFix: { zh: "修复", en: "Fix" },
+  tagComponent: { zh: "组件", en: "Component" },
+  tagPerf: { zh: "性能", en: "Perf" },
+  tagA11y: { zh: "无障碍", en: "A11y" },
+  tagTools: { zh: "工具", en: "Tools" },
 });
+
+const releases = [
+  { version: t("r1"), date: "2026-08-01", note: t("n1"), tag: t("tagFeature") },
+  { version: t("r2"), date: "2026-07-29", note: t("n2"), tag: t("tagFix") },
+  { version: t("r3"), date: "2026-07-25", note: t("n3"), tag: t("tagComponent") },
+  { version: t("r4"), date: "2026-07-20", note: t("n4"), tag: t("tagPerf") },
+  { version: t("r5"), date: "2026-07-12", note: t("n5"), tag: t("tagA11y") },
+  { version: t("r6"), date: "2026-07-05", note: t("n6"), tag: t("tagTools") },
+];
 
 const visible = useRef(false);
 const clickCount = useRef(0);
@@ -45,8 +76,9 @@ const onClick = (event: CustomEvent): void => {
 const code = `<elf-back-top
   :target.prop="getBasicScrollTarget"
   :visibility-height="120"
-  bottom="72px"
-  right="72px"
+  bottom="24px"
+  right="24px"
+  style="position:absolute"
   @visible-change="onVisible"
   @click="onClick"
 />`;
@@ -63,11 +95,29 @@ const PageBacktopEx1 = defineHtml(`
     <span slot="status" class="demo-state">${t("visible")}: ${visible.value ? t("shown") : t("hidden")} · ${t("clicks")}: ${clickCount.value}</span>
     <div class="backtop-demo">
       <elf-scrollbar id="backtop-basic-scroll" class="backtop-scroll" height="300px" always>
-        <section class="backtop-section"><span class="backtop-section-index">01</span><div class="backtop-section-copy"><h3>${t("top")}</h3><p>${t("topBody")}</p></div></section>
-        <section class="backtop-section"><span class="backtop-section-index">02</span><div class="backtop-section-copy"><h3>${t("content")}</h3><p>${t("contentBody")}</p></div></section>
-        <section class="backtop-section"><span class="backtop-section-index">03</span><div class="backtop-section-copy"><h3>${t("bottom")}</h3><p>${t("bottomBody")}</p></div></section>
+        <div class="backtop-app">
+          <div class="backtop-app__head">${t("appTitle")}</div>
+          <ul class="backtop-list">
+            <li v-for="item in releases" :key="item.version" class="backtop-item">
+              <span class="backtop-item__meta">
+                <strong>{{ item.version }}</strong>
+                <time>{{ item.date }}</time>
+              </span>
+              <p>{{ item.note }}</p>
+              <span class="backtop-item__tag">{{ item.tag }}</span>
+            </li>
+          </ul>
+        </div>
       </elf-scrollbar>
-      <elf-back-top :target.prop=${getBasicScrollTarget} :visibility-height=${120} bottom="72px" right="72px" @visible-change=${onVisible} @click=${onClick}></elf-back-top>
+      <elf-back-top
+        :target.prop=${getBasicScrollTarget}
+        :visibility-height=${120}
+        bottom="24px"
+        right="24px"
+        style="position:absolute"
+        @visible-change=${onVisible}
+        @click=${onClick}
+      ></elf-back-top>
     </div>
   </elf-playground>
 `);

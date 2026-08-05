@@ -4,11 +4,23 @@ async (page) => {
   const routeSource = await response.text();
   const staticRoutes = Array.from(
     routeSource.matchAll(/path:\s*"([^"]+)"/g),
-    (match) => match[1]
+    (match) => match[1],
   ).filter((path) => path !== "/" && path !== "/form/debug");
   const utilityRoutes = [
-    "borders", "border-radius", "content", "cursor", "display", "elevation", "flex",
-    "float", "opacity", "overflow", "position", "sizing", "spacing", "typography"
+    "borders",
+    "border-radius",
+    "content",
+    "cursor",
+    "display",
+    "elevation",
+    "flex",
+    "float",
+    "opacity",
+    "overflow",
+    "position",
+    "sizing",
+    "spacing",
+    "typography",
   ].map((section) => `/utilities/${section}`);
   const allRoutes = [...new Set([...staticRoutes, ...utilityRoutes])];
   const auditUrl = page.url();
@@ -54,9 +66,10 @@ async (page) => {
       Element.prototype.scrollIntoView = function scrollIntoViewImmediately(options) {
         lastScrollTarget = this;
         scrollMethodCalled = true;
-        const normalized = typeof options === "object"
-          ? { ...options, behavior: "auto" }
-          : { block: "start", behavior: "auto" };
+        const normalized =
+          typeof options === "object"
+            ? { ...options, behavior: "auto" }
+            : { block: "start", behavior: "auto" };
         nativeScrollIntoView.call(this, normalized);
       };
       HTMLElement.prototype.scrollTo = function scrollToImmediately(optionsOrX, y) {
@@ -81,9 +94,11 @@ async (page) => {
           id,
           targetCount: targets.length,
           rendered,
-          active: button.classList.contains("active") || button.getAttribute("aria-current") === "location",
+          active:
+            button.classList.contains("active") ||
+            button.getAttribute("aria-current") === "location",
           navigationCalled: scrollMethodCalled,
-          scrolledToTarget: lastScrollTarget === target
+          scrolledToTarget: lastScrollTarget === target,
         });
       }
       Element.prototype.scrollIntoView = nativeScrollIntoView;
@@ -93,7 +108,7 @@ async (page) => {
         h1: h1[0]?.textContent?.replace(/\s+/g, " ").trim() || "",
         h1Count: h1.length,
         playgrounds: playgrounds.length,
-        tocItems: items
+        tocItems: items,
       };
     });
 
@@ -122,9 +137,9 @@ async (page) => {
       playgrounds: results.reduce((sum, result) => sum + result.playgrounds, 0),
       tocItems: results.reduce((sum, result) => sum + result.tocItems.length, 0),
       failures: failures.length,
-      pageErrors: pageErrors.length
+      pageErrors: pageErrors.length,
     },
     failures,
-    pageErrors
+    pageErrors,
   };
-}
+};

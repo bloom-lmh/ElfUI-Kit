@@ -32,6 +32,26 @@ const t = createDocsTranslator({
   music: { zh: "音乐", en: "Music" },
   books: { zh: "图书", en: "Books" },
   photos: { zh: "图片", en: "Photos" },
+  videoTitle: { zh: "精选视频", en: "Featured videos" },
+  videoSummary: {
+    zh: "浏览本周热门视频，切换目的地时导航强调色会跟随当前分类。",
+    en: "Browse this week's top videos; the navigation accent follows the active destination.",
+  },
+  musicTitle: { zh: "每日推荐", en: "Daily picks" },
+  musicSummary: {
+    zh: "根据你的收听习惯生成的新歌单，随音乐分类切换强调色。",
+    en: "Fresh playlists based on your listening habits, accented by the music destination.",
+  },
+  booksTitle: { zh: "我的书架", en: "My library" },
+  booksSummary: {
+    zh: "最近在读与稍后阅读的合集，随图书分类切换强调色。",
+    en: "Currently reading and saved-for-later titles, accented by the library destination.",
+  },
+  photosTitle: { zh: "时光相册", en: "Photo gallery" },
+  photosSummary: {
+    zh: "按时间线整理的照片回忆，随图片分类切换强调色。",
+    en: "Memories organized by timeline, accented by the gallery destination.",
+  },
   overview: { zh: "今日概览", en: "Today's overview" },
   summary: {
     zh: "从底部切换目的地，内容区会立即反映当前选择。",
@@ -39,6 +59,11 @@ const t = createDocsTranslator({
   },
   selected: { zh: "当前目的地", en: "Current destination" },
   toggle: { zh: "显示或隐藏导航", en: "Show or hide navigation" },
+  hideOnScroll: { zh: "滚动隐藏", en: "Hide on scroll" },
+  visible: { zh: "显示中", en: "Visible" },
+  hidden: { zh: "已隐藏", en: "Hidden" },
+  message: { zh: "消息", en: "Message" },
+  minute: { zh: " 分钟前", en: " min ago" },
   api: { zh: "API", en: "API" },
   events: { zh: "事件", en: "Events" },
 });
@@ -49,7 +74,10 @@ const growSelected = useRef("favorites");
 const horizontalSelected = useRef("favorites");
 const mediaSelected = useRef("video");
 const visibilitySelected = useRef("favorites");
+const scrollSelected = useRef("favorites");
 const visible = useRef(true);
+const hideVisible = useRef(true);
+const lastScroll = useRef(0);
 const onVisible = (event: Event): void => visible.set(Boolean((event as CustomEvent).detail));
 const eventValue = (event: CustomEvent): string =>
   String(Array.isArray(event.detail) ? event.detail[0] : event.detail);
@@ -58,6 +86,44 @@ const onGrowSelect = (event: CustomEvent): void => growSelected.set(eventValue(e
 const onHorizontalSelect = (event: CustomEvent): void => horizontalSelected.set(eventValue(event));
 const onMediaSelect = (event: CustomEvent): void => mediaSelected.set(eventValue(event));
 const onVisibilitySelect = (event: CustomEvent): void => visibilitySelected.set(eventValue(event));
+const onScrollSelect = (event: CustomEvent): void => scrollSelected.set(eventValue(event));
+const onStageScroll = (event: Event): void => {
+  const target = event.currentTarget as HTMLElement;
+  const top = target.scrollTop;
+  if (top <= 24) hideVisible.set(true);
+  else if (top > lastScroll.value + 4) hideVisible.set(false);
+  else if (top < lastScroll.value - 4) hideVisible.set(true);
+  lastScroll.set(top);
+};
+const mediaAccents: Record<string, string> = {
+  video: "#1e88e5",
+  music: "#00897b",
+  books: "#6d4c41",
+  photos: "#5e35b1",
+};
+const mediaBackdrops: Record<string, string> = {
+  video: "linear-gradient(135deg, #0d47a1, #64b5f6)",
+  music: "linear-gradient(135deg, #00695c, #4db6ac)",
+  books: "linear-gradient(135deg, #4e342e, #bcaaa4)",
+  photos: "linear-gradient(135deg, #4527a0, #9575cd)",
+};
+const mediaCopy = (): Record<string, { title: string; summary: string }> => ({
+  video: { title: t("videoTitle"), summary: t("videoSummary") },
+  music: { title: t("musicTitle"), summary: t("musicSummary") },
+  books: { title: t("booksTitle"), summary: t("booksSummary") },
+  photos: { title: t("photosTitle"), summary: t("photosSummary") },
+});
+const mediaTitle = (): string => mediaCopy()[mediaSelected.value]?.title ?? "";
+const mediaSummary = (): string => mediaCopy()[mediaSelected.value]?.summary ?? "";
+const mediaAccent = (): string => mediaAccents[mediaSelected.value] ?? "#1e88e5";
+const mediaBackdrop = (): string => mediaBackdrops[mediaSelected.value] ?? mediaBackdrops.video!;
+const mediaAccentStyle = (): Record<string, string> => ({ color: mediaAccent() });
+const mediaBackdropStyle = (): Record<string, string> => ({ background: mediaBackdrop() });
+const feedRows = (): Array<{ title: string; time: string }> =>
+  Array.from({ length: 8 }, (_, index) => ({
+    title: `${t("message")} ${index + 1}`,
+    time: `${index + 1}${t("minute")}`,
+  }));
 const bottomNavigationIconOptions = {
   defaultSet: "mdi",
   sets: {
@@ -110,7 +176,10 @@ const propsRows = () => [
     name: "grow / horizontal / shift",
     type: "boolean",
     default: "false",
-    desc: pick("铺满、水平和隐藏非活动标签", "Grow, horizontal, and inactive-label hiding modes."),
+    desc: pick(
+      "铺满、水平，以及非活动标签淡出并位移图标的 shift 模式",
+      "Grow, horizontal, and shift modes that fade inactive labels and move icons.",
+    ),
   },
   {
     name: "color / backgroundColor",
@@ -156,8 +225,30 @@ const baseCode = `<elf-bottom-navigation
 />`;
 const growCode = `<elf-bottom-navigation grow :items.prop="items" />`;
 const horizontalCode = `<elf-bottom-navigation horizontal :items.prop="items" />`;
-const shiftCode = `<elf-bottom-navigation shift color="secondary" :items.prop="mediaItems" />`;
+const shiftCode = `<elf-bottom-navigation
+  shift
+  rounded
+  :color.prop="accent"
+  :items.prop="mediaItems"
+  :model-value.prop="selected"
+/>`;
 const visibilityCode = `<elf-bottom-navigation :active="visible" :items.prop="items" />`;
+const hideOnScrollCode = `<elf-bottom-navigation
+  :active="visible"
+  :items.prop="items"
+  :model-value.prop="selected"
+  @update:model-value="onSelect"
+/>`;
+const hideOnScrollScript = `const visible = useRef(true);
+let lastScroll = 0;
+
+const onScroll = (event) => {
+  const top = event.currentTarget.scrollTop;
+  if (top <= 24) visible.set(true);
+  else if (top > lastScroll + 4) visible.set(false);
+  else if (top < lastScroll - 4) visible.set(true);
+  lastScroll = top;
+};`;
 
 defineStyle(
   articleStyles,
@@ -174,10 +265,12 @@ defineStyle(
   .device-media { min-height: 220px; background: url("https://picsum.photos/seed/elfui-mobile-nav/520/760") center / cover; }
   .flat-stage { display: grid; width: min(760px, 100%); min-height: 160px; align-content: end; overflow: hidden; border: 1px solid var(--elf-border); border-radius: 8px; background: var(--elf-bg-default); }
   .flat-content { display: grid; min-height: 92px; place-items: center; color: var(--elf-text-secondary); font-size: 13px; }
-  .shift-stage { display: grid; width: min(760px, 100%); place-items: center; padding: 28px 10px; background: color-mix(in srgb, var(--elf-primary) 8%, var(--elf-bg-default)); }
-  .shift-stage elf-bottom-navigation { overflow: hidden; border-radius: 8px; }
   .visibility-stage { display: grid; width: min(620px, 100%); min-height: 210px; align-content: end; overflow: hidden; border: 1px solid var(--elf-border); border-radius: 8px; background: var(--elf-bg-default); }
   .visibility-stage .flat-content { min-height: 146px; }
+  .scroll-stage { display: grid; width: min(620px, 100%); height: 320px; overflow: hidden; grid-template-rows: minmax(0, 1fr) auto; border: 1px solid var(--elf-border); border-radius: 8px; background: var(--elf-bg-default); box-shadow: var(--elf-shadow-1); }
+  .scroll-feed { overflow-y: auto; overscroll-behavior: contain; background: var(--elf-bg-paper); }
+  .scroll-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 18px; border-bottom: 1px solid var(--elf-divider); color: var(--elf-text-secondary); font-size: 13px; }
+  .scroll-row strong { color: var(--elf-text-primary); font-weight: 600; }
   @media (max-width: 560px) {
     .device-content { grid-template-columns: 1fr; }
     .device-media { min-height: 130px; order: -1; }
@@ -208,12 +301,21 @@ const PageBottomNavigation = defineHtml(`
     </elf-playground>
 
     <elf-playground :title=${t("shift")} :code=${shiftCode}>
-      <span slot="status" role="status" aria-live="polite">${t("selected")}: ${mediaSelected.value}</span><elf-icon-provider :options.prop=${bottomNavigationIconOptions}><div class="shift-stage"><elf-bottom-navigation shift grow rounded color="secondary" background-color="surface" :items.prop=${mediaItems()} :modelValue.prop=${mediaSelected.value} @update:modelValue=${onMediaSelect}></elf-bottom-navigation></div></elf-icon-provider>
+      <span slot="status" role="status" aria-live="polite">${t("selected")}: ${mediaTitle()}</span><elf-icon-provider :options.prop=${bottomNavigationIconOptions}><div class="device">
+          <div class="device-content"><div class="device-copy"><span class="selection" :style=${mediaAccentStyle()}>${t("selected")}: ${mediaTitle()}</span><h3>${mediaTitle()}</h3><p>${mediaSummary()}</p></div><div class="device-media" role="img" :aria-label=${mediaTitle()} :style=${mediaBackdropStyle()}></div></div>
+          <elf-bottom-navigation shift rounded :color.prop=${mediaAccent()} background-color="surface" :items.prop=${mediaItems()} :modelValue.prop=${mediaSelected.value} @update:modelValue=${onMediaSelect}></elf-bottom-navigation>
+        </div></elf-icon-provider>
     </elf-playground>
 
     <elf-playground :title=${t("visibility")} :code=${visibilityCode}>
       <span slot="status" role="status" aria-live="polite">${visible.value ? t("toggle") : t("visibility")}</span><elf-icon-provider :options.prop=${bottomNavigationIconOptions}><div class="visibility-stage"><div class="flat-content">${t("overview")}</div><elf-bottom-navigation :active=${visible.value} :items.prop=${standardItems()} :modelValue.prop=${visibilitySelected.value} @update:modelValue=${onVisibilitySelect}></elf-bottom-navigation></div></elf-icon-provider>
       <div slot="controls" class="lab-controls"><elf-switch :label=${t("toggle")} :modelValue.prop=${visible.value} @update:modelValue=${onVisible}></elf-switch></div>
+    </elf-playground>
+
+    <elf-playground :title=${t("hideOnScroll")} :code=${hideOnScrollCode} :script=${hideOnScrollScript}>
+      <span slot="status" role="status" aria-live="polite">${hideVisible.value ? t("visible") : t("hidden")}</span><elf-icon-provider :options.prop=${bottomNavigationIconOptions}><div class="scroll-stage"><div class="scroll-feed" @scroll=${onStageScroll}>
+          <div v-for="(row, index) in feedRows()" :key="index" class="scroll-row"><strong>{{ row.title }}</strong><span>{{ row.time }}</span></div>
+        </div><elf-bottom-navigation border elevation="0" :active=${hideVisible.value} :items.prop=${standardItems()} :modelValue.prop=${scrollSelected.value} @update:modelValue=${onScrollSelect}></elf-bottom-navigation></div></elf-icon-provider>
     </elf-playground>
 
     <section class="docs-section"><h2>${t("api")}</h2><elf-props-table title="Props" :rows=${propsRows()} /><elf-props-table :title=${t("events")} :rows=${eventRows()} /></section>

@@ -1,4 +1,5 @@
 .backtop-demo {
+  position: relative;
   display: grid;
   gap: 12px;
   width: 100%;
@@ -12,55 +13,160 @@
   background: var(--elf-bg-paper);
 }
 
-.backtop-section {
+.backtop-app {
   display: grid;
-  grid-template-columns: 72px minmax(0, 1fr);
-  gap: clamp(18px, 4vw, 36px);
-  min-height: 230px;
-  box-sizing: border-box;
-  align-content: center;
-  padding: clamp(28px, 6vw, 52px);
+}
+
+.backtop-app__head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 10px 14px;
   border-bottom: 1px solid var(--elf-divider);
+  background: color-mix(in srgb, var(--elf-bg-paper) 92%, transparent);
+  backdrop-filter: blur(8px);
+  color: var(--elf-text-secondary);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.backtop-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 8px;
+  list-style: none;
+}
+
+.backtop-item {
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+  border: 1px solid var(--elf-divider);
+  border-radius: var(--elf-radius-sm);
   background: var(--elf-bg-paper);
 }
 
-.backtop-section:last-child {
-  border-bottom: 0;
+.backtop-item__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.backtop-section-index {
+.backtop-item__meta strong {
   color: var(--elf-primary);
-  font-size: 28px;
-  font-weight: 300;
-  line-height: 1;
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
-.backtop-section-copy {
-  min-width: 0;
+.backtop-item__meta time {
+  color: var(--elf-text-disabled);
+  font-size: 11px;
 }
-.backtop-section-copy h3 {
-  margin: 0 0 10px;
-  color: var(--elf-text-primary);
-  font-size: clamp(18px, 3vw, 24px);
-  font-weight: 650;
-  letter-spacing: 0;
-}
-.backtop-section-copy p {
-  max-width: 560px;
+
+.backtop-item p {
   margin: 0;
   color: var(--elf-text-secondary);
-  font-size: var(--elf-font-size-sm);
-  line-height: 1.75;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.backtop-item__tag {
+  justify-self: start;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--elf-primary) 10%, transparent);
+  color: var(--elf-primary);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.backtop-task {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--elf-divider);
+  border-radius: var(--elf-radius-sm);
+  background: var(--elf-bg-paper);
+}
+
+.backtop-task__mark {
+  flex: none;
+  position: relative;
+  width: 18px;
+  height: 18px;
+  border: 1px solid var(--elf-border);
+  border-radius: 50%;
+}
+
+.backtop-task.is-done .backtop-task__mark {
+  border-color: var(--elf-success);
+  background: color-mix(in srgb, var(--elf-success) 14%, transparent);
+}
+
+.backtop-task.is-done .backtop-task__mark::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 5px;
+  width: 6px;
+  height: 10px;
+  border-right: 2px solid var(--elf-success);
+  border-bottom: 2px solid var(--elf-success);
+  transform: rotate(45deg);
+}
+
+.backtop-task.is-active {
+  border-color: color-mix(in srgb, var(--elf-primary) 35%, var(--elf-border));
+  background: color-mix(in srgb, var(--elf-primary) 5%, var(--elf-bg-paper));
+}
+
+.backtop-task.is-active .backtop-task__mark {
+  border-color: var(--elf-primary);
+  background: color-mix(in srgb, var(--elf-primary) 16%, transparent);
+}
+
+.backtop-task__body {
+  display: grid;
+  flex: 1;
+  gap: 2px;
+  min-width: 0;
+}
+
+.backtop-task__body strong {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.backtop-task__body small {
+  color: var(--elf-text-secondary);
+  font-size: 11px;
+}
+
+.backtop-task__status {
+  color: var(--elf-text-disabled);
+  font-size: 11px;
+}
+
+.backtop-task.is-done .backtop-task__status {
+  color: var(--elf-success);
+}
+
+.backtop-task.is-active .backtop-task__status {
+  color: var(--elf-primary);
 }
 
 @media (max-width: 520px) {
-  .backtop-section {
-    grid-template-columns: 1fr;
-    gap: 14px;
-    min-height: 210px;
-    padding: 28px 24px;
+  .backtop-item,
+  .backtop-task {
+    padding: 9px 10px;
   }
-  .backtop-section-index {
-    font-size: 20px;
+
+  .backtop-item__meta {
+    flex-wrap: wrap;
   }
 }

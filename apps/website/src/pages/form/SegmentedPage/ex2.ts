@@ -2,7 +2,7 @@ import { defineHtml, useRef } from "@elfui/core";
 import { createDocsTranslator } from "../../docsLocale";
 
 const t = createDocsTranslator({
-  title: { zh: "小、中、大尺寸与块级布局", en: "Small, default, large, and block layouts" },
+  title: { zh: "尺寸与块级布局", en: "Sizes and block layout" },
   compact: { zh: "紧凑", en: "Compact" },
   standard: { zh: "默认", en: "Default" },
   relaxed: { zh: "宽松", en: "Relaxed" },

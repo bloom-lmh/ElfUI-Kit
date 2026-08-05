@@ -36,7 +36,7 @@ const filledOptions = {
 };
 
 const t = createDocsTranslator({
-  title: { zh: "Provider 图标集与未知回退", en: "Provider icon sets and unknown fallback" },
+  title: { zh: "图标集与回退", en: "Icon sets and fallback" },
   outline: { zh: "线性", en: "Outline" },
   filled: { zh: "填充", en: "Filled" },
   switchSet: { zh: "切换图标集", en: "Switch icon set" },

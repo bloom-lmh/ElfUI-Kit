@@ -2,7 +2,7 @@ import { defineHtml, useRef } from "@elfui/core";
 import { createDocsTranslator } from "../../docsLocale";
 
 const t = createDocsTranslator({
-  title: { zh: "受控值、标签与禁用项", en: "Controlled value, labels, and disabled item" },
+  title: { zh: "受控与禁用", en: "Controlled and disabled" },
   aria: { zh: "数据周期", en: "Data period" },
   today: { zh: "今日", en: "Today" },
   week: { zh: "本周", en: "This week" },

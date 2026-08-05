@@ -6,7 +6,7 @@ const selected = useRef("install");
 const expanded = useRef<string[]>(["guide"]);
 
 const t = createDocsTranslator({
-  title: { zh: "基础选择", en: "Basic selection" },
+  title: { zh: "Tree 基础选择", en: "Tree basic selection" },
   statusSelected: { zh: "当前选中", en: "Selected" },
   statusExpanded: { zh: "展开节点", en: "Expanded" },
   none: { zh: "无", en: "None" },

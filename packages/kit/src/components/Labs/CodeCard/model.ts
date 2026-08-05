@@ -136,7 +136,8 @@ const createCodeCardHighlighter = async (): Promise<CodeCardHighlighter> => {
   return highlighter.createCodeCardHighlighter();
 };
 
-const getCodeCardHighlighter = (): Promise<CodeCardHighlighter> => {
+/** Returns the shared Shiki highlighter instance used by all CodeCard and MdPage instances. */
+export const getCodeCardHighlighter = (): Promise<CodeCardHighlighter> => {
   highlighterPromise ??= createCodeCardHighlighter();
   return highlighterPromise;
 };
@@ -149,11 +150,11 @@ export const resolveCodeCardTheme = (
   codeTheme: CodeCardCodeTheme,
   scheme: Exclude<CodeCardTheme, "auto">,
 ): string => {
-  if (codeTheme === "vitesse") return scheme === "dark" ? "vitesse-light" : "vitesse-dark";
+  if (codeTheme === "vitesse") return scheme === "dark" ? "vitesse-dark" : "vitesse-light";
   if (codeTheme === "material") {
-    return scheme === "dark" ? "material-theme-lighter" : "material-theme-palenight";
+    return scheme === "dark" ? "material-theme-palenight" : "material-theme-lighter";
   }
-  return scheme === "dark" ? "github-light" : "github-dark";
+  return scheme === "dark" ? "github-dark" : "github-light";
 };
 
 /** Produces line-preserving Shiki tokens for syntax rendering and line decoration. */

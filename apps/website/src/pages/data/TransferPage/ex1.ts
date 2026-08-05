@@ -2,7 +2,7 @@ import { defineHtml, useRef } from "@elfui/core";
 import { createDocsTranslator } from "../../docsLocale";
 
 const t = createDocsTranslator({
-  title: { zh: "基础用法", en: "Basic usage" },
+  title: { zh: "Transfer 基础用法", en: "Transfer basic usage" },
   playground: {
     zh: "勾选左侧项，点击箭头移到右侧",
     en: "Check source items and use the arrow to move them to the target.",

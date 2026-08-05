@@ -23,10 +23,33 @@
 .directive-scroll {
   overflow: auto;
   width: min(520px, 100%);
-  height: 190px;
+  height: 240px;
   border: 1px solid var(--elf-border-color, #dcdfe6);
   border-radius: var(--elf-radius-sm, 4px);
   background: var(--elf-bg-color, #fff);
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--elf-text-secondary, #606266) 35%, transparent)
+    transparent;
+}
+
+.directive-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.directive-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.directive-scroll::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--elf-text-secondary, #606266) 32%, transparent);
+  background-clip: content-box;
+}
+
+.directive-scroll::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--elf-text-secondary, #606266) 48%, transparent);
+  background-clip: content-box;
 }
 
 .directive-scroll-content {
@@ -76,4 +99,11 @@
   flex-wrap: wrap;
   justify-content: center;
   gap: var(--elf-space-3, 12px);
+}
+
+.cmd-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
 }

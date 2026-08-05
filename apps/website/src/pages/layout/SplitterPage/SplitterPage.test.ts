@@ -38,18 +38,18 @@ const mountPage = async (): Promise<HTMLElement> => {
 describe("SplitterPage", () => {
   it("中文页面覆盖全部案例、运行状态、源码和 API", async () => {
     const text = collectText(await mountPage());
-    expect(text).toContain("水平分割与受控比例");
+    expect(text).toContain("水平分割");
     expect(text).toContain("上方面板比例");
-    expect(text).toContain("面板折叠、延迟渲染与持久化");
+    expect(text).toContain("折叠与持久化");
     expect(text).toContain("面板内容");
   });
 
   it("英文页面覆盖全部案例、运行状态、源码和 API 且无汉字", async () => {
     document.documentElement.lang = "en-US";
     const text = collectText(await mountPage());
-    expect(text).toContain("Horizontal split with a controlled ratio");
+    expect(text).toContain("Horizontal split");
     expect(text).toContain("Top panel ratio");
-    expect(text).toContain("Panel collapse, lazy rendering, and persistence");
+    expect(text).toContain("Collapse and persistence");
     expect(text).toContain("Panel content.");
     expect(text).not.toMatch(/[\u3400-\u9fff]/u);
   });

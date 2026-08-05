@@ -1,4 +1,4 @@
-export type ToolbarDensity = "default" | "comfortable" | "compact";
+export type ToolbarDensity = "default" | "comfortable" | "compact" | "prominent";
 export type ToolbarCollapsePosition = "start" | "end";
 export type ToolbarLocation =
   | "top"
@@ -23,6 +23,8 @@ export interface ToolbarProps {
   elevation: number;
   height: string | number;
   extensionHeight: string | number;
+  extended: boolean | null;
+  flat: boolean;
   border: boolean;
   rounded: boolean;
   collapsed: boolean;

@@ -60,7 +60,7 @@ describe("PageHeaderPage", () => {
   it("中文页面覆盖案例、运行状态、源码和 API", async () => {
     const page = await mountPage();
     const text = collectText(page);
-    expect(text).toContain("基础页头与返回事件");
+    expect(text).toContain("基础页头");
     expect(text).toContain("自定义页头插槽");
     expect(text).toContain("等待返回操作");
     expect(text).toContain("右侧扩展操作");
@@ -84,7 +84,7 @@ describe("PageHeaderPage", () => {
     document.documentElement.lang = "en-US";
     const page = await mountPage();
     const text = collectText(page);
-    expect(text).toContain("Basic page header and back event");
+    expect(text).toContain("Basic page header");
     expect(text).toContain("Custom page-header slots");
     expect(text).toContain("Analytics card");
     expect(text).toContain("Workspace card");

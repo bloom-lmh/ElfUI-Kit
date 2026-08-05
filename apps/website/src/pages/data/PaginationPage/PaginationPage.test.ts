@@ -43,7 +43,7 @@ describe("PaginationPage locale", () => {
   it("renders complete English docs without Han characters", async () => {
     document.documentElement.lang = "en-US";
     const text = await mount();
-    expect(text).toContain("Basic usage");
+    expect(text).toContain("Pagination basic usage");
     expect(text).toContain("Size overlay and navigation icons");
     expect(text).toContain("Total item count");
     expect(text).not.toMatch(/[\u3400-\u9fff]/u);

@@ -6,7 +6,7 @@ const t = createDocsTranslator({
   currentHash: { zh: "当前哈希", en: "Current hash" },
   components: { zh: "组件", en: "Components" },
   navigation: { zh: "导航", en: "Navigation" },
-  breadcrumb: { zh: "面包屑", en: "Breadcrumb" },
+  breadcrumb: { zh: "面包屑导航", en: "Breadcrumb" },
   api: { zh: "API", en: "API" },
 });
 

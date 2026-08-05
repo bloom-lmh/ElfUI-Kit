@@ -47,6 +47,18 @@ afterAll(() => {
 
 const wait = (ms = 20): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
 
+const deepQuery = <T extends Element>(root: ParentNode, selector: string): T | null => {
+  const direct = root.querySelector<T>(selector);
+  if (direct) return direct;
+  for (const element of Array.from(root.querySelectorAll("*"))) {
+    if (element.shadowRoot) {
+      const nested = deepQuery<T>(element.shadowRoot, selector);
+      if (nested) return nested;
+    }
+  }
+  return null;
+};
+
 const mount = async (tag: string): Promise<HTMLElement> => {
   const element = document.createElement(tag);
   document.body.appendChild(element);
@@ -58,8 +70,8 @@ const mount = async (tag: string): Promise<HTMLElement> => {
 describe("Upload documentation", () => {
   it("renders nine examples and localized public API tables", async () => {
     const page = await mount(pageTag);
-    expect(page.shadowRoot?.querySelector("h1")?.textContent).toBe("Upload");
-    expect(page.shadowRoot?.querySelector("p")?.textContent).toContain(
+    expect(deepQuery(page.shadowRoot!, "h1")?.textContent).toBe("Upload");
+    expect(deepQuery(page.shadowRoot!, "p")?.textContent).toContain(
       "controlled lists, drag and drop",
     );
     expect(

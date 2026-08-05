@@ -59,19 +59,28 @@ const mount = async (): Promise<HTMLElement> => {
 };
 
 describe("HeadingPage", () => {
-  it("renders Chinese documentation with all heading variants", async () => {
+  it("renders Chinese documentation with all heading suites", async () => {
     const page = await mount();
     const text = collectText(page);
 
     expect(text).toContain("标题");
-    expect(text).toContain("标题族 · 文档蓝");
-    expect(text).toContain("标题族 · 编辑杂志");
-    expect(text).toContain("标题族 · 开发者终端");
-    expect(countTags(page, "elf-playground")).toBe(3);
-    expect(countTags(page, "elf-heading")).toBeGreaterThanOrEqual(30);
-    expect(countClass(page, "heading-family-docs")).toBe(1);
-    expect(countClass(page, "heading-family-editorial")).toBe(1);
-    expect(countClass(page, "heading-family-terminal")).toBe(1);
+    expect(text).toContain("标题套装 · 文档指南");
+    expect(text).toContain("标题套装 · 编辑杂志");
+    expect(text).toContain("标题套装 · 开发者终端");
+    expect(text).toContain("标题套装 · 品牌展示");
+    expect(text).toContain("标题套装 · 霓虹");
+    expect(text).toContain("标题套装 · 极简");
+    expect(text).toContain("标题样式配置");
+    expect(text).toContain("Markdown 转换");
+    expect(countTags(page, "elf-playground")).toBe(7);
+    expect(countTags(page, "elf-heading")).toBeGreaterThanOrEqual(40);
+    expect(countClass(page, "heading-suite-guide")).toBe(1);
+    expect(countClass(page, "heading-suite-editorial")).toBe(1);
+    expect(countClass(page, "heading-suite-terminal")).toBe(1);
+    expect(countClass(page, "heading-suite-brand")).toBe(1);
+    expect(countClass(page, "heading-suite-neon")).toBe(1);
+    expect(countClass(page, "heading-suite-minimal")).toBe(1);
+    expect(countClass(page, "heading-suite-config")).toBe(1);
   });
 
   it("renders complete English documentation without Han characters", async () => {
@@ -80,9 +89,14 @@ describe("HeadingPage", () => {
     const text = collectText(page);
 
     expect(text).toContain("Heading");
-    expect(text).toContain("Heading family · Documentation blue");
-    expect(text).toContain("Heading family · Editorial serif");
-    expect(text).toContain("Heading family · Developer terminal");
+    expect(text).toContain("Heading suite · Guide");
+    expect(text).toContain("Heading suite · Editorial");
+    expect(text).toContain("Heading suite · Developer terminal");
+    expect(text).toContain("Heading suite · Brand");
+    expect(text).toContain("Heading suite · Neon");
+    expect(text).toContain("Heading suite · Minimal");
+    expect(text).toContain("Heading style configuration");
+    expect(text).toContain("Markdown conversion");
     expect(text).not.toMatch(/[\u3400-\u9fff]/u);
   });
 });

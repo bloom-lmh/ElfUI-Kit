@@ -4,7 +4,12 @@
 
 ## 本轮记录
 
-- [x] 第四阶段：重写样式（借鉴 Vuetify），5 种变体 tonal/elevated/outlined/filled/plain，新增 density（compact）、prominent（8px 粗色条），页面示例统一 50% 宽度垂直排布，PropsTable 同步更新。
+- [x] 第四阶段：重写样式（借鉴 Vuetify），5 种变体 tonal/elevated/outlined/filled/plain，新增 density（compact）、prominent（渐变强调条），页面示例统一 50% 宽度垂直排布，PropsTable 同步更新。
+
+## 2026-08-03 强调样式重设计
+
+- [x] 移除 tonal/elevated/filled 的 4px/8px 粗色左边框与彩色阴影；`prominent` 改为 3px 圆角渐隐强调条与更深表面；图标气泡改为 32px 圆角方形磁贴；`elevated` 阴影收敛为中性。
+- [x] 同步页面章节名（粗色强调条 → 强调提示）与 PropsTable 描述；Alert 聚焦测试通过，浏览器验证与截图归档。
 
 ## 对标定位
 

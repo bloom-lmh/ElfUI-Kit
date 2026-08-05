@@ -1,0 +1,112 @@
+:host {
+  display: block;
+  color: var(--elf-text-primary, #1f2937);
+  font-family: var(--elf-font-family, sans-serif);
+}
+
+.filter-table {
+  box-sizing: border-box;
+  overflow: hidden;
+  width: 100%;
+  border: 1px solid var(--elf-border, #d7dee8);
+  border-radius: 12px;
+  background: var(--elf-bg-paper, #fff);
+  box-shadow: var(--elf-shadow-1, 0 1px 2px rgb(0 0 0 / 0.05));
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--elf-divider, #e2e8f0);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  border: 1px solid var(--elf-border, #d7dee8);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--elf-text-secondary, #64748b);
+  cursor: pointer;
+  font: 600 12px/1.4 var(--elf-font-family, sans-serif);
+}
+
+.chip:hover,
+.chip:focus-visible {
+  border-color: var(--elf-primary, #409eff);
+  color: var(--elf-primary, #409eff);
+  outline: none;
+}
+
+.chip.active {
+  border-color: var(--elf-primary, #409eff);
+  background: color-mix(in srgb, var(--elf-primary, #409eff) 10%, transparent);
+  color: var(--elf-primary, #409eff);
+}
+
+.count {
+  min-width: 16px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--elf-text-secondary, #64748b) 13%, transparent);
+  font-size: 10.5px;
+  text-align: center;
+}
+
+.chip.active .count {
+  background: color-mix(in srgb, var(--elf-primary, #409eff) 16%, transparent);
+}
+
+.scroll {
+  overflow: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+
+th {
+  padding: 8px 12px;
+  background: var(--elf-bg-overlay, #f1f5f9);
+  color: var(--elf-text-secondary, #64748b);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-align: start;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+td {
+  padding: 9px 12px;
+  border-top: 1px solid var(--elf-divider, #e2e8f0);
+  white-space: nowrap;
+}
+
+tr {
+  cursor: pointer;
+  transition: background var(--elf-transition-fast, 160ms) ease;
+}
+
+tr:hover {
+  background: color-mix(in srgb, var(--elf-text-secondary, #64748b) 5%, transparent);
+}
+
+.empty {
+  margin: 0;
+  padding: 18px 12px;
+  color: var(--elf-text-disabled, #94a3b8);
+  font-size: 12.5px;
+  text-align: center;
+}
+
+.foot {
+  padding: 8px 12px;
+  border-top: 1px solid var(--elf-divider, #e2e8f0);
+}

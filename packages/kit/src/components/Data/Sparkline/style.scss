@@ -1,37 +1,121 @@
 @use "../../../styles/reset";
 
 :host {
-  display: block;
+  display: flex;
+  flex-direction: column;
   width: 100%;
   min-width: 0;
   aspect-ratio: var(--sparkline-aspect, 3 / 1);
 }
 
 .sparkline {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
+}
+
+.sparkline-svg-wrap {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+}
+.sparkline-svg {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   overflow: visible;
 }
+.sparkline-svg-wrap:focus-visible {
+  outline: 2px solid var(--elf-focus-ring, var(--elf-primary));
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.sparkline-markers,
+.sparkline-hover {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.sparkline-marker {
+  position: absolute;
+  width: var(--sparkline-marker-size, 8px);
+  height: var(--sparkline-marker-size, 8px);
+  border: 2px solid var(--sparkline-marker-stroke, #fff);
+  border-radius: 50%;
+  background: var(--sparkline-color);
+  box-sizing: border-box;
+  transform: translate(-50%, -50%);
+}
+.sparkline-crosshair {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: color-mix(in srgb, var(--sparkline-color) 55%, transparent);
+}
+.sparkline-hover-marker {
+  position: absolute;
+  width: calc(var(--sparkline-marker-size, 8px) + 8px);
+  height: calc(var(--sparkline-marker-size, 8px) + 8px);
+  border: 2px solid var(--sparkline-marker-stroke, #fff);
+  border-radius: 50%;
+  background: var(--sparkline-color);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--sparkline-color) 25%, transparent);
+  box-sizing: border-box;
+  transform: translate(-50%, -50%);
+}
+.sparkline-bar-highlight {
+  position: absolute;
+  background: color-mix(in srgb, var(--sparkline-color) 12%, transparent);
+}
+
+.sparkline-labels {
+  display: flex;
+  flex: 0 0 auto;
+  justify-content: space-between;
+  gap: 6px;
+  padding-top: 6px;
+  font-size: var(--sparkline-label-size, 7px);
+  line-height: 1.4;
+  color: var(--sparkline-label-color, var(--elf-text-secondary));
+  white-space: nowrap;
+}
+
 .line,
 .area {
   vector-effect: non-scaling-stroke;
 }
 .line {
   fill: none;
-  stroke: var(--sparkline-color);
+  stroke: var(--sparkline-stroke, var(--sparkline-color));
   stroke-width: var(--sparkline-line-width);
   stroke-linecap: var(--sparkline-linecap);
   stroke-linejoin: round;
 }
 .area {
-  fill: var(--sparkline-fill-color);
+  fill: var(--sparkline-fill, var(--sparkline-fill-color));
+  stroke: none;
+}
+.bar {
+  fill: var(--sparkline-fill, var(--sparkline-color));
   stroke: none;
 }
 .line.is-auto-draw {
   stroke-dasharray: 1000;
   stroke-dashoffset: 1000;
-  animation: sparkline-draw var(--sparkline-draw-duration) ease-out forwards;
+  animation: sparkline-draw var(--sparkline-draw-duration) var(--sparkline-draw-easing, ease)
+    forwards;
+}
+.bar.is-auto-draw {
+  transform-box: fill-box;
+  transform-origin: var(--sparkline-bar-origin, bottom);
+  animation: sparkline-bar-rise var(--sparkline-draw-duration) var(--sparkline-draw-easing, ease)
+    both;
 }
 
 @keyframes sparkline-draw {
@@ -40,9 +124,21 @@
   }
 }
 
+@keyframes sparkline-bar-rise {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .line.is-auto-draw {
     animation: none;
     stroke-dashoffset: 0;
+  }
+  .bar.is-auto-draw {
+    animation: none;
   }
 }

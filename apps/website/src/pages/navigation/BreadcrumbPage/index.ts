@@ -6,7 +6,7 @@ import { PageBreadcrumbEx3 } from "./ex3";
 import { PageBreadcrumbProps } from "./props";
 
 const t = createDocsTranslator({
-  title: { zh: "面包屑", en: "Breadcrumb" },
+  title: { zh: "面包屑导航", en: "Breadcrumb" },
   description: {
     zh: "显示当前页面在信息层级中的位置，适合详情页、配置页和多级导航场景。",
     en: "Show the current page's position in the information hierarchy for detail pages, settings, and multi-level navigation.",

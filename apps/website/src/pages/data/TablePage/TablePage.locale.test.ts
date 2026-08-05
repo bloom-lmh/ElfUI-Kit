@@ -92,6 +92,18 @@ const collectText = (root: Node): string => {
   return text.replace(/\s+/g, " ").trim();
 };
 
+const deepQuery = <T extends Element>(root: ParentNode, selector: string): T | null => {
+  const direct = root.querySelector<T>(selector);
+  if (direct) return direct;
+  for (const element of Array.from(root.querySelectorAll("*"))) {
+    if (element.shadowRoot) {
+      const nested = deepQuery<T>(element.shadowRoot, selector);
+      if (nested) return nested;
+    }
+  }
+  return null;
+};
+
 describe("Table documentation locale", () => {
   it("renders all 22 examples and the public API section", async () => {
     const page = await mount(pageTag);
@@ -100,8 +112,8 @@ describe("Table documentation locale", () => {
       (_, index) => `elf-page-table-ex${index + 1}`,
     ).join(", ");
 
-    expect(page.shadowRoot?.querySelector("h1")?.textContent).toBe("Table");
-    expect(page.shadowRoot?.querySelector("p")?.textContent).toContain("sorting, selection");
+    expect(deepQuery(page.shadowRoot!, "h1")?.textContent).toBe("Table");
+    expect(deepQuery(page.shadowRoot!, "p")?.textContent).toContain("sorting, selection");
     expect(page.shadowRoot?.querySelectorAll(exampleSelector)).toHaveLength(22);
     expect(page.shadowRoot?.querySelector("elf-page-table-props")).toBeTruthy();
   });

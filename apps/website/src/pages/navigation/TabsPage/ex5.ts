@@ -6,8 +6,8 @@ import styles from "./demo.scss?inline";
 const t = createDocsTranslator({
   section: { zh: "布局变体：侧边导航", en: "Layout: side navigation" },
   title: {
-    zh: "垂直布局、舒适密度与内容面板",
-    en: "Vertical layout, comfortable density, and panels",
+    zh: "垂直布局",
+    en: "Vertical layout",
   },
   current: { zh: "当前", en: "Current" },
   profile: { zh: "资料", en: "Profile" },

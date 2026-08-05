@@ -18,26 +18,27 @@ beforeAll(async () => {
   document.documentElement.lang = "en-US";
   await import("../../../components");
   const { ensureCustomElement } = await import("@elfui/core");
-  const [pageModule, propsModule, ...exampleModules] = await Promise.all([
-    import("./index"),
-    import("./props"),
-    import("./ex1"),
-    import("./ex2"),
-    import("./ex3"),
-    import("./ex4"),
-    import("./ex5"),
-    import("./ex6"),
-    import("./ex7"),
-    import("./ex8"),
-    import("./ex9"),
-    import("./ex10"),
-  ]);
+  const [pageModule, propsModule, ex1, ex2, ex3, ex4, ex5, ex7, ex8, ex9, ex10] = await Promise.all(
+    [
+      import("./index"),
+      import("./props"),
+      import("./ex1"),
+      import("./ex2"),
+      import("./ex3"),
+      import("./ex4"),
+      import("./ex5"),
+      import("./ex7"),
+      import("./ex8"),
+      import("./ex9"),
+      import("./ex10"),
+    ],
+  );
 
   pageTag = ensureCustomElement(pageModule.PageTabs);
   propsTag = ensureCustomElement(propsModule.PageTabsProps);
-  for (const [index, module] of exampleModules.entries()) {
-    const component = module[`PageTabsEx${index + 1}` as keyof typeof module];
-    exampleTags.push(ensureCustomElement(component));
+  for (const module of [ex1, ex2, ex3, ex4, ex5, ex7, ex8, ex9, ex10]) {
+    const name = Object.keys(module).find((key) => key.startsWith("PageTabsEx"))!;
+    exampleTags.push(ensureCustomElement(module[name as keyof typeof module]));
   }
 }, 30_000);
 
@@ -59,15 +60,26 @@ const mount = async (tag: string): Promise<HTMLElement> => {
   return element;
 };
 
+const deepQuery = <T extends Element>(root: ParentNode, selector: string): T | null => {
+  const direct = root.querySelector<T>(selector);
+  if (direct) return direct;
+  for (const element of Array.from(root.querySelectorAll("*"))) {
+    if (!element.shadowRoot) continue;
+    const nested = deepQuery<T>(element.shadowRoot, selector);
+    if (nested) return nested;
+  }
+  return null;
+};
+
 describe("Tabs documentation", () => {
-  it("renders ten examples and complete localized API tables", async () => {
+  it("renders nine examples and complete localized API tables", async () => {
     const page = await mount(pageTag);
-    expect(page.shadowRoot?.querySelector("h1")?.textContent).toBe("Tabs");
+    expect(deepQuery(page.shadowRoot!, "h1")?.textContent).toBe("Tabs");
     expect(
       page.shadowRoot?.querySelectorAll(
-        "elf-page-tabs-ex1, elf-page-tabs-ex2, elf-page-tabs-ex3, elf-page-tabs-ex4, elf-page-tabs-ex5, elf-page-tabs-ex6, elf-page-tabs-ex7, elf-page-tabs-ex8, elf-page-tabs-ex9, elf-page-tabs-ex10",
+        "elf-page-tabs-ex1, elf-page-tabs-ex2, elf-page-tabs-ex3, elf-page-tabs-ex4, elf-page-tabs-ex5, elf-page-tabs-ex7, elf-page-tabs-ex8, elf-page-tabs-ex9, elf-page-tabs-ex10",
       ),
-    ).toHaveLength(10);
+    ).toHaveLength(9);
 
     const propsPage = await mount(propsTag);
     const tables = propsPage.shadowRoot?.querySelectorAll<PropsTableElement>("elf-props-table");
@@ -107,14 +119,14 @@ describe("Tabs documentation", () => {
   });
 
   it("uses real controls and the framework Transition in the applicable examples", async () => {
-    const playgroundExample = await mount(exampleTags[7]!);
+    const playgroundExample = await mount(exampleTags[6]!);
     const playground =
       playgroundExample.shadowRoot?.querySelector<PlaygroundElement>("elf-playground");
     const controls = playground?.querySelector<HTMLElement>('[slot="controls"]');
     expect(controls?.querySelectorAll("elf-select")).toHaveLength(5);
     expect(controls?.querySelectorAll("elf-checkbox")).toHaveLength(2);
 
-    const galleryExample = await mount(exampleTags[8]!);
+    const galleryExample = await mount(exampleTags[7]!);
     const galleryPlayground =
       galleryExample.shadowRoot?.querySelector<PlaygroundElement>("elf-playground");
     expect(galleryPlayground?.code).toContain('<Transition name="tabs-gallery">');

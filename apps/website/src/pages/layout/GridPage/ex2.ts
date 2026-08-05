@@ -49,8 +49,7 @@ const PageGridEx2 = defineHtml(`
     <aside slot="controls" class="layout-playground-controls" :aria-label=${t("controls")}>
       <strong>${t("controls")}</strong>
       <label>
-        <span>${t("gapValue")}</span>
-        <elf-select variant="outlined" :options.prop=${gapOptions()} :modelValue.prop=${gridGap.value} @update:modelValue=${onGap}></elf-select>
+        <elf-select variant="outlined" :label=${t("gapValue")} :options.prop=${gapOptions()} :modelValue.prop=${gridGap.value} @update:modelValue=${onGap}></elf-select>
       </label>
     </aside>
   </elf-playground>

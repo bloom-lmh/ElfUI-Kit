@@ -2,7 +2,7 @@ import { defineHtml, useRef } from "@elfui/core";
 import { createDocsTranslator } from "../../docsLocale";
 
 const t = createDocsTranslator({
-  title: { zh: "单值、提示与受控值", en: "Single value, tooltip, and controlled state" },
+  title: { zh: "基础滑块", en: "Basic slider" },
   current: { zh: "当前值", en: "Current value" },
 });
 const value = useRef(36);

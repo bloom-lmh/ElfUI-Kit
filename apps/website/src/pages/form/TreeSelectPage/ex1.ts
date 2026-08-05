@@ -7,7 +7,7 @@ import demoStyles from "./demo.scss?inline";
 const selected = useRef("");
 const variant = useRef("filled");
 const t = createDocsTranslator({
-  title: { zh: "基础单选", en: "Basic selection" },
+  title: { zh: "TreeSelect 基础单选", en: "TreeSelect basic selection" },
   label: { zh: "负责团队", en: "Owning team" },
   placeholder: { zh: "选择团队", en: "Choose a team" },
   platform: { zh: "平台研发", en: "Platform engineering" },
@@ -97,7 +97,7 @@ const PageTreeSelectEx1 = defineHtml(`
     <span slot="status" class="demo-state">${t("selected")} · ${selected.value || t("none")}</span>
     <aside slot="controls" class="demo-controls" :aria-label=${t("controls")}>
       <strong>${t("controls")}</strong>
-      <label><span>${t("appearance")}</span><elf-select variant="underlined"
+      <label><elf-select variant="underlined" :label=${t("appearance")}
         :options.prop=${variantOptions} :modelValue.prop=${variant.value}
         @update:modelValue=${onVariant}></elf-select></label>
     </aside>

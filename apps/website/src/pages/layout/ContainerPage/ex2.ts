@@ -8,8 +8,8 @@ const t = createDocsTranslator({
   content: { zh: "居中的正文内容", en: "Centered article content" },
   layoutLabel: { zh: "工作台布局", en: "Workspace layout" },
   heading: {
-    zh: "全宽承载背景，内容保持舒适阅读宽度",
-    en: "Use the full width for the background while keeping content comfortably readable",
+    zh: "全宽背景",
+    en: "Full-width background",
   },
   description: {
     zh: "外层虚线框表示全宽容器，内层虚线框表示限宽并居中的正文。",

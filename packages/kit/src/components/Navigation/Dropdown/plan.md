@@ -44,3 +44,10 @@
 
 - [x] 本地与 Teleport 定位的默认 offset 从 6px 收敛为 0，顶部/底部面板与输入式触发器直接相接；显式 Popper offset 仍保持调用方优先。
 - [x] Dropdown 模型、组件与页面回归进入当前 7 文件 / 68 项通过批次。
+
+## 2026-08-04 虚拟触发案例选中反馈修复
+
+- [x] 修复「虚拟触发」案例选中后无效：输入框 `modelValue` 之前绑死为右键提示文案，`onCommand` 更新 `selectedLabel` 后输入框从不刷新；改为 `:modelValue.prop=${selectedLabel.value}` 绑定，选中菜单项后输入框实时显示选中项 label。
+- [x] 虚拟触发输入框补充 `label`（画布操作 / Canvas actions），与 Template/Script 展示代码同步。
+- [x] 新增回归断言：`command` 事件触发后虚拟触发输入框 `modelValue` 更新为选中项 label，且带 label 属性；DropdownPage 测试通过。
+- [x] Chromium 实测右键打开菜单并选择「刷新画布」后输入框显示刷新画布、状态行显示当前命令；截图归档 `output/playwright/dropdown-virtual-trigger-zh.png`。

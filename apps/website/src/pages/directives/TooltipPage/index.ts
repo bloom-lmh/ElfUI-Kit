@@ -46,7 +46,8 @@ const tooltip = defineDirective(tooltipDirective);`;
 const PageTooltipDirective = defineHtml(`
   <elf-container class="docs-article"><elf-docs-hero category="directives" :title=${t("title")} :description=${t("description")}></elf-docs-hero>
     <elf-playground :title=${t("demo")} :code=${code} :script=${script}><div class="directive-tooltip-row"><elf-button v-tooltip=${t("top")} type="button">${t("top")}</elf-button><elf-button v-tooltip=${rightTip()} type="button">${t("right")}</elf-button></div></elf-playground>
-    <section class="docs-section"><h2>${t("api")}</h2><elf-props-table :title=${t("api")} :rows=${optionRows()} /></section>
+    <h2>${t("api")}</h2>
+    <elf-props-table :title=${t("api")} :rows=${optionRows()} />
   </elf-container>
 `);
 export { PageTooltipDirective };

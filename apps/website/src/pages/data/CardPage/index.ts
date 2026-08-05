@@ -4,12 +4,16 @@ import { createDocsTranslator } from "../../docsLocale";
 import { PageCardEx1 } from "./ex1";
 import { PageCardEx2 } from "./ex2";
 import { PageCardEx3 } from "./ex3";
+import { PageCardEx4 } from "./ex4";
+import { PageCardEx5 } from "./ex5";
 import { PageCardProps } from "./props";
 
 useComponents({
   "page-card-ex1": PageCardEx1,
   "page-card-ex2": PageCardEx2,
   "page-card-ex3": PageCardEx3,
+  "page-card-ex4": PageCardEx4,
+  "page-card-ex5": PageCardEx5,
   "page-card-props": PageCardProps,
 });
 
@@ -27,6 +31,8 @@ const PageCard = defineHtml(`
     <page-card-ex1 />
     <page-card-ex2 />
     <page-card-ex3 />
+    <page-card-ex4 />
+    <page-card-ex5 />
     <page-card-props />
   </elf-container>
 `);

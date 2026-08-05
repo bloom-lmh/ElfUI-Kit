@@ -127,3 +127,12 @@
 - [x] 应用 775 模块、发布库 252 模块构建通过。
 - [x] 真实浏览器验证键盘激活、嵌套收藏、禁用状态、加载切换、图片失败恢复、中英文与暗色主题；控制台 0 error / 0 warning。
 - [x] 截图：`card-keyboard-nested-action.png`、`card-loading-media-recovery.png`、`card-loading-media-dark-en.png`。
+
+## 2026-08-03 圆角收敛与组合案例
+
+- [x] 卡片默认圆角从 `--elf-radius-md` 收敛到 `--elf-radius-sm`（4px），与 Element Plus / Vuetify 卡片规范对齐；保留 `--elf-card-radius` 覆盖入口。
+- [x] “Surface 与内容密度”案例更名为“内容与密度”，重做四张层级 / 密度卡片视觉。
+- [x] 新增“组合卡片”案例：媒体封面、个人资料、数据指标、横向布局四张卡片。
+- [x] “组合卡片”封面与头像改为本地真实图片（`apps/website/public/cards/`），`image` prop 接管加载与失败兜底。
+- [x] 新增“创意卡片”案例：3D 悬停倾斜、3D 翻转、渐变辉光、层叠相册堆；纯 CSS 实现并适配 `prefers-reduced-motion`。
+- [x] 页面测试补充组合案例断言；Prettier / 宏扫描 / 聚焦测试通过。

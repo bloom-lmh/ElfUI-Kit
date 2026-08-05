@@ -16,7 +16,7 @@ const t = createDocsTranslator({
   passwordMin: { zh: "密码至少 6 位", en: "Password must be at least 6 characters" },
   welcome: { zh: "欢迎回来", en: "Welcome back" },
   invalid: { zh: "请检查登录信息", en: "Check your login details" },
-  subtitle: { zh: "使用你的 ElfUI 账号继续", en: "Continue with your ElfUI account" },
+  subtitle: { zh: "登录卡片", en: "Sign-in card" },
   remember: { zh: "保持登录", en: "Keep me signed in" },
   login: { zh: "登录", en: "Sign in" },
   hint: { zh: "至少 6 位", en: "At least 6 characters" },

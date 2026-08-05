@@ -6,12 +6,14 @@ import { PageIconEx1 } from "./ex1";
 import { PageIconEx2 } from "./ex2";
 import { PageIconEx3 } from "./ex3";
 import { PageIconEx4 } from "./ex4";
+import { PageIconEx5 } from "./ex5";
 
 useComponents({
   "page-icon-ex1": PageIconEx1,
   "page-icon-ex2": PageIconEx2,
   "page-icon-ex3": PageIconEx3,
   "page-icon-ex4": PageIconEx4,
+  "page-icon-ex5": PageIconEx5,
 });
 
 const t = createDocsTranslator({
@@ -70,7 +72,8 @@ defineStyle(
   page-icon-ex1,
   page-icon-ex2,
   page-icon-ex3,
-  page-icon-ex4 { display: block; width: 100%; }
+  page-icon-ex4,
+  page-icon-ex5 { display: block; width: 100%; }
 `,
 );
 
@@ -104,6 +107,7 @@ const PageIcon = defineHtml(`
     <page-icon-ex2 />
     <page-icon-ex3 />
     <page-icon-ex4 />
+    <page-icon-ex5 />
     <h2>API</h2>
     <elf-props-table :title=${t("iconProps")} :rows=${iconPropsRows()} />
     <elf-props-table :title=${t("providerProps")} :rows=${providerPropsRows()} />

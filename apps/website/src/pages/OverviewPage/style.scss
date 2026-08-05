@@ -18,6 +18,10 @@
   padding-block: 0 80px;
 }
 
+.overview elf-docs-hero {
+  width: 100%;
+}
+
 h2,
 p {
   margin: 0;
@@ -1264,6 +1268,33 @@ p {
     15px 14px 0 var(--preview-accent),
     30px 14px 0 var(--preview-accent),
     45px 14px 0 var(--preview-accent);
+}
+
+[data-preview="chat"] .preview-main {
+  top: 16px;
+  left: 14px;
+  width: 48px;
+  height: 26px;
+  border-radius: 12px 12px 12px 3px;
+  background: var(--preview-soft);
+}
+
+[data-preview="chat"] .preview-secondary {
+  right: 14px;
+  bottom: 16px;
+  width: 54px;
+  height: 26px;
+  border-radius: 12px 12px 3px 12px;
+  background: var(--preview-accent);
+}
+
+[data-preview="chat"] .preview-tertiary {
+  top: 41px;
+  left: 40px;
+  width: 14px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--elf-border-strong);
 }
 
 [data-preview="media"] .preview-main {

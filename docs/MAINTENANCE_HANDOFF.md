@@ -1,8 +1,8 @@
-<!-- cspell:words CodeCard Shiki Sparkline VIEWBOX -->
+<!-- cspell:words CodeCard Shiki Sparkline VIEWBOX Fritsch Carlson bottomnav interp docsync editstart -->
 
 # ElfUI Kit 维护交接
 
-更新时间：2026-08-01
+更新时间：2026-08-04
 
 本文件是持续更新的维护交接记录。每轮工作开始时先读取，完成一个阶段后立即更新，避免依赖对话上下文。
 
@@ -23,6 +23,162 @@
 - 工作树包含多批尚未提交的维护改动。不得回退不属于当前任务的文件。
 
 ## 2. 已经做的工作
+
+### 2026-08-05 DocSync 行号与刻度尺开关演示
+
+- `lineNumbers` / `ruler` 本就是公开开关（默认 true、可关闭），Markdown 案例控件区新增「行号」「刻度尺」两个 `elf-switch`，实时演示关闭效果；Props 表已含两行。
+- 验证：DocSyncPage 6 项聚焦测试通过（含关闭后行号列/刻度尺消失断言）；浏览器实测开关关闭后即时消失、属性同步 false，控制台 0 warning / 0 error；截图归档 `output/playwright/docsync-toggles-off.png`。
+
+### 2026-08-05 DocSync 分割线圆形交换把手
+
+- 分割线升级：中央 34px 圆形把手（swap-horizontal 图标），拖拽仍走 `elf-splitter` 调整宽度，把手通过 `--_doc-sync-split` host CSS 变量实时跟随分割线。
+- 点击把手左右面板角色互换：标题、左暗右亮主题、行号列、刻度尺、渲染器整套镜像（左侧变 Word 亮色、右侧变 Markdown 深色编辑器）；滚动锚点/点击高亮/双击编辑基于 block id，互换后继续工作；新增 `swap` 事件。
+- 验证：DocSync 组件 13 项、DocSyncPage 5 项聚焦测试通过；全仓 typecheck 0 错误；kit 与 website 构建通过；浏览器实测按钮居中、拖拽 70% 后按钮精确跟随、点击互换后标题/明暗/行号镜像正确，控制台 0 warning / 0 error；截图归档 `output/playwright/docsync-swap-handle.png`、`docsync-swapped.png`。
+
+### 2026-08-05 DocSync 编辑器 × 文档双主题（左暗右亮、行号、刻度尺、统一滚动）
+
+- 视觉重构为“左编辑器、右文档”：左面板默认深色代码编辑器（等宽字体、`--doc-sync-source-*` 变量、块级行号列），右面板保持亮色纸张阅读；块模型新增 `line` 起始行号，多行块行号显示起止（如代码块 `13–15`）。
+- 新增顶部刻度尺（`ruler` 默认 true，0–100 刻度 + 数字标签）与 `lineNumbers`（默认 true）两个开关；隐藏原生滚动条，改用两侧 3px 自定义细滚动条（悬停显示）＋容器底部联合进度线（`--_doc-sync-progress` 直接写 host CSS 变量，跟随左侧滚动比例）。
+- 页面解析器补行号，Props/CSS 变量表补新开关与 `--doc-sync-source-*` 变量；自定义样式案例同步覆盖源码面板暖色变量。
+- 验证：DocSync 组件 12 项、DocSyncPage 4 项聚焦测试通过；全仓 typecheck 0 错误；kit 与 website 构建通过；浏览器实测左暗右亮、行号区间、刻度尺 11 刻度/6 标签、细滚动条与进度线随滚动更新（37.9%）、编辑同步回归正常，控制台 0 warning / 0 error；截图归档 `output/playwright/docsync-editor-theme.png`、`docsync-editor-scrolled.png`、`docsync-custom-theme-new.png`。
+
+### 2026-08-04 DocSync 双击编辑同步与面板视觉升级
+
+- 新增双击编辑：`editable`（默认 true），双击任意块进入编辑，左右面板同时显示同一草稿 textarea，输入实时镜像；Esc 取消，Ctrl/⌘+Enter 或失焦保存；提交后双栏同步渲染并派发 `editstart` / `edit` 事件。列表按行、表格按 `|` 分隔编辑。
+- 面板视觉升级：公开 `--doc-sync-*` CSS 变量（容器/面板/标题栏/边框/圆角/阴影/强调色/字体），面板头加强调色圆点、块悬停与激活渐变、分割条改为发丝线 + 强调色悬停；页面新增「自定义面板样式」暖纸主题案例（仅用 CSS 变量换肤）与 CSS 变量 API 表。
+- 验证：DocSync 组件 10 项、DocSyncPage 4 项聚焦测试通过；website typecheck 0 错误；ESLint、CSpell 通过；浏览器实测双击编辑双栏同步、失焦提交、Esc 取消、自定义变量生效、分割条与标题点样式正确，控制台 0 warning / 0 error；截图归档 `output/playwright/docsync-panels-polished.png`、`docsync-editing.png`、`docsync-custom-style.png`。
+
+### 2026-08-04 DocSync 双栏同步面板：插拔契约与文档页
+
+- 仓库已有并行会话实现的 `Labs/DocSync`（块模型 + FNV-1a 内容寻址 id + 虚拟窗口 + 双向锚点滚动 + 点击高亮/边距条 + 键盘），本批在其基础上补齐已确认的内容无关插拔契约：`source + parse`（自定义解析器，source 变化自动重新解析）与 `renderLeft/renderRight`（自定义渲染器，字符串视为可信 HTML，缺省回退内置 source/preview），`blocks` 直连模式保留。
+- 渲染内容统一经本地 `v-doc-sync-content` 指令挂载；修复模板作用域 `split` ref 与 prop 同名遮蔽（改名 `splitRatio`），宏模板类型检查通过。
+- 新增 `Labs/DocSyncPage`：Markdown → Word、LaTeX → Word 两个真实案例（同一 `renderWordBlock` + 两个自定义解析器，验证“换内容不换组件”）、滚动锁定开关、激活状态、开放标准 CodeCard（块模型/解析器/渲染器）与完整 API/Events/Expose 表；注册 `/labs/doc-sync` 路由、导航、`mdiDockLeft` 图标与信息架构测试；演示源文本双语。
+- 记录宏编译器坑：多行模板字面量会被编译器重新缩进，导致 Markdown/LaTeX 按行首解析错位；演示源文本改用 `\n` join 数组规避。
+- 开放标准以案例展示：在「开放标准」章节新增「最小实现」Playground，用十几行的 `parse` + `render` 函数实时演示同步阅读与点击高亮，协议 CodeCard 保留为规范参考。
+- LaTeX 与最小实现案例加长到可滚动：LaTeX 源扩为六节（含 `tabular` 表格，`parseLatex` 新增表格行收集），最小实现扩为 16 项发布清单，Markdown 源补 FAQ 一节；三个案例左右双栏均真实可滚动（内容高 627–861px、视口 351px），滚动同步肉眼可验证。
+- 验证：DocSync 组件 8 项、DocSyncPage 3 项、路由信息架构 7 项聚焦测试通过；ESLint、CSpell 通过；浏览器实测三种源解析（md/latex/最小实现）与渲染、双向锚点滚动、锁定开关、点击双栏高亮 + 边距条、移动端无溢出，控制台 0 warning / 0 error；截图归档 `output/playwright/docsync-md-word.png`、`docsync-latex-word-long.png`、`docsync-minimal-long.png`。全仓 typecheck 仍被并发会话的 Labs/MdOutline 模板错误与 MdPage markdown-it 类型声明错误阻塞，页面信息架构套件另有 Intersect 页硬编码中文与 FAQ 时序两个既有失败，均与 DocSync 无关。
+
+### 2026-08-04 BottomNavigation Shift 模式对齐 Vuetify 并改进案例
+
+- Shift 行为对齐 Vuetify v4.1.7：非选中项标签从「`width:0` + `visibility:hidden` 塌陷隐藏」改为「`opacity:0` 淡出且保留占位」，图标按 Vuetify 公式下移 8px（24px 图标三分之一），`.icon`/`.label` 增加过渡，选中切换不再生硬跳动。
+- Shift 案例重做对齐 `prop-shift`：手机设备容器 + 视频/音乐/图书/图片四个目的地，每个目的地有专属强调色与文案；切换目的地时导航强调色、内容标题和摘要实时联动。
+- 新增「滚动隐藏」案例对齐 `prop-hide-on-scroll`：消息列表向下滚动隐藏导航、向上滚动或回到顶部恢复，演示 `active` 的滚动联动用法。
+- 验证：BottomNavigation 组件 6 项、NavigationSurfacesPage 12 项聚焦测试通过；全仓 typecheck 0 宏错误 / 0 TS 错误；浏览器实测 shift 位移/淡出、强调色联动、滚动隐藏与恢复正常，控制台 0 warning / 0 error；截图归档于 `output/playwright/bottomnav-shift.png`、`bottomnav-hide-on-scroll*.png`。验证期间被并发会话的 MdPage/menu-icons 改动短暂阻塞（`mdiMarkdown` 在 @mdi/js 7.4.47 不存在），非本任务引入。
+
+### 2026-08-04 Sparkline 补充自定义标签、渐变配置与内嵌支出案例
+
+- 补齐 Vuetify Sparkline 剩余三个代表性示例：ex6「自定义标签」对齐 `misc-custom-labels`（绿色卡片 + ¥/$ 货币化标签 + `padding=24` + 圆头平滑 + 报表按钮）；ex7「渐变与填充配置」对齐 `prop-fill`（6 组色板 + 填充开关 + 线宽/平滑/内边距滑杆实时驱动图表）；ex8「支出与内嵌趋势」对齐 `prop-inset`（深色卡片 + `inset` + `fill` + 渐变 + `show-markers` + `interactive` 悬停显示月份与金额），并补齐 `inset` 的公开演示。
+- 页面现有 8 个案例：动画、柱状、仪表盘、交互悬停、心率、自定义标签、渐变配置、内嵌支出；API 表无需新增属性。
+- 验证：Sparkline 页面测试 4 项通过；全仓 typecheck 0 宏错误 / 0 TS 错误；浏览器实测色板切换与填充开关生效、悬停读数更新、移动端无溢出，控制台 0 warning / 0 error；截图归档于 `output/playwright/sparkline-custom-labels-ex6.png`、`sparkline-gradient-playground-ex7.png`、`sparkline-inset-expenses-ex8*.png`。
+
+### 2026-08-04 Toolbar 对齐 Vuetify VToolbar（prominent、extended、flat、折叠语义）
+
+- 对标 Vuetify v4.1.7 `VToolbar` 源码与官方示例，补齐差距：新增 `density="prominent"`（主行 128px、标题 28px 底部对齐、prepend/append 顶部对齐）、`extended: boolean | null`（true 强制显示可空扩展区 / false 强制隐藏 / null 自动检测插槽）、`flat`（去除投影）。
+- 扩展区高度随密度缩放（comfortable -4px、compact -8px、prominent 加倍），并将扩展区从 `v-show` 瞬时切换改为 `height` 过渡动画（对齐 Vuetify `VExpandTransition` 视觉）。
+- 折叠语义修正为 Vuetify 行为：`collapse-position` 从「保留哪一侧」改为「折叠后对齐哪一侧」（默认 `start`），折叠时只隐藏标题，prepend/append 均保留，超宽内容由 `overflow: hidden` 裁剪。
+- 文档页新增「突出工具栏」案例，灵活卡片案例改用 `extended flat`，折叠案例文案与代码同步；API 表补充 prominent/extended/flat。
+- 验证：Toolbar 组件 11 项、页面 4 项聚焦测试通过；kit typecheck 0 宏错误 / 0 TS 错误；kit 与 website build 通过；浏览器实测 prominent 128px/标题 28px/扩展区 96px、折叠后标题隐藏且两侧按钮保留、`end` 对齐右移、扩展区 height 过渡、移动端无溢出，控制台 0 warning / 0 error；截图归档 `output/playwright/toolbar-prominent*.png`。
+
+### 2026-08-04 Heading 增加 Markdown 列表标题
+
+- `elf-heading` 新增 `markdown="bullet | ordered"`：bullet 渲染 `-` 前缀，ordered 在同一编号范围内按层级自动生成 `1.` `2.` `3.`；`index` 仍优先覆盖。纯函数 `formatMarkdownNumber` 位于 `Heading/numbering.ts`。
+- 配套规则：guide 的 level 3 在 markdown 模式下不套胶囊，marker 前置并使用主色；terminal 的 `#` 前缀在有 marker 时自动隐藏；neon 的 `[]` 包裹在 bullet 模式关闭；guide 示例新增「Markdown 转换」区块，API 表新增 `markdown` 行。
+- 验证：Heading 组件 12 项 + HeadingPage 2 项测试通过；kit/website typecheck 0 宏错误、0 TS 错误（此前 Labs 存量错误已修复）；Prettier、ESLint、beta.8 扫描通过；真实 Chromium 页面 0 error / 0 warning，`1.` `2.` `3.` 与 `-` 主色前置渲染确认，截图归档 `output/playwright/heading-markdown-zh.png`。
+
+### 2026-08-04 ConfigProvider「配置优先级」与「显示与动效偏好」案例重做
+
+- 「配置优先级」改为交互式三层演示：三个 `elf-switch` 分别控制基础预设、应用配置与显式属性，目标按钮与「当前生效值」面板实时显示每一层胜出的属性及来源（如关闭显式属性后 variant 回落为 blueprint 的 outlined、color 回落为 config 的 success）；样式移入独立 `ex1.scss`。
+- 「显示与动效偏好」拆为两个真实效果区：显示区通过 `mobileBreakpoint` 下拉在相同窗口宽度下切换双栏/单栏布局，并显示断点、移动端与阈值状态；动效区并排展示 `motion: full` 与 `motion: reduced` 的圆点过渡对照，验证 ConfigProvider 通过主题过渡 token 全局控制动效。
+- 子预览组件（display/motion preview）各自带 `defineStyle` 与独立样式，修复旧案例依赖 index.ts 页面样式、样式无法进入子组件 Shadow DOM 的问题。
+- 验证：ProviderPages 9/9 通过；unsupported macro 扫描 0 findings；宏感知 typecheck 591 个宏文件 0 宏错误、0 TypeScript 错误；Prettier、ESLint 通过；Chromium 实测三层开关、移动端阈值切换、动效对照均符合预期；截图归档于 `output/playwright/config-priority-demo.png` 与 `output/playwright/config-display-motion-demo.png`。
+
+### 2026-08-04 Table 分页联动案例状态不同步修复
+
+- 用户反馈「展示 10 条但实际只有 5 条」：`TablePage/ex2.ts` 用 `:currentPage=` / `:pageSize=` 属性绑定，值没有到达 `elf-pagination` 的 props（浏览器实测 `pagination.pageSize` 为 undefined），组件内部回落到默认 10 条/页，而页面状态仍是 5；改为 `.prop` 属性绑定后触发器、表格行数与状态行完全同步。
+- 新增回归测试：初始断言 `pageSize === 5` 与「5 条/页」，切到 10 后表格渲染 10 行、状态「显示 1-10 / 37 条」；TablePage 聚焦测试 2 文件 18 项通过；Chromium 实测同步生效，截图 `output/playwright/table-pagination-sync.png`。
+- 说明：浏览器验收期间发现 dev 站点另有既有阻塞——`menu-icons.ts` 引用了 `@mdi/js` 不存在的 `mdiMarkdown` 导出（Heading 工作引入）；验证时临时替换为 `mdiLanguageMarkdown`，验证后已逐字节恢复。另外昨天记录的 8 个缺失 Labs 页面今日已补齐。
+
+### 2026-08-04 Anchor 基础定位案例字段插值修复
+
+- 用户反馈「显示名称 / 工作邮箱」字段内容显示 `{{ t(`：根因是宏模板 `model-value="${t("nameValue")}"` 的嵌套引号被编译器截断（编译产物为 `setAttribute("model-value", "{{ t(")` + 多余 `nameValue` 属性）；改为 `:label=${t(...)}` + `:modelValue.prop=${t(...)}` 后输入框正确渲染 label 与值。
+- 全库审计 `="${t(` 模式：80 个文件命中，编译产物检查仅 AnchorPage/ex1 实际损坏（其余均位于 code 展示字符串，非宏模板）；审计脚本留在 `output/audit-broken-interp.mjs`（gitignored，删除被本机策略拦截）。
+- 验证：AnchorPage 聚焦测试 4/4 通过；Chromium 实测字段 label（显示名称/工作邮箱）与值（林沐涵/lin@elfui.dev）正确渲染，页面不再出现 `{{ t(`；截图 `output/playwright/anchor-basic-fields-zh.png`。
+
+### 2026-08-04 Dropdown 虚拟触发案例选中反馈修复
+
+- 用户反馈「虚拟触发选中后无效」：案例输入框 `modelValue` 绑死为右键提示文案，`onCommand` 更新 `selectedLabel` 后输入框不刷新；改为 `:modelValue.prop=${selectedLabel.value}` 后选中菜单项会实时显示在输入框。
+- 虚拟触发输入框补充 label「画布操作 / Canvas actions」，Template/Script 展示代码同步补 `@command` 绑定与 `selectedLabel` 状态。
+- 新增回归断言：`command` 事件后输入框 `modelValue` 更新为选中项 label；DropdownPage 测试通过；Chromium 实测右键选择「刷新画布」后输入框与状态行同步；截图 `output/playwright/dropdown-virtual-trigger-zh.png`。
+
+### 2026-08-03 Heading 组件改为六套内置标题套装并支持样式配置
+
+- 移除 11 种 Material variant 与三套手写演示（文档蓝/编辑杂志/开发者终端）；`elf-heading` 改为 `family` + `level` 驱动的配套标题体系，现内置六套：`guide`（文档指南）、`editorial`（编辑杂志）、`terminal`（开发者终端）、`brand`（品牌展示）、`neon`（霓虹）、`minimal`（极简）。guide 的 level 2 默认带主色强调条、level 3 默认胶囊小节；brand 的 level 1 默认渐变文字；`accent` / `chip` / `gradient` 支持显式 `false` 关闭。
+- 新增 `numbered` 自动序号：同一页面/容器内按层级递增，guide/brand 为 `01` / `01.1`，editorial/minimal 为 `1` / `1.1`，terminal/neon 为 `01` / `01.01`（neon 渲染为 `[01]` 发光样式）；`index` 仍可手动覆盖；容器可用 `data-heading-scope` 指定编号范围。
+- 新增样式配置 props：`line-height`（数字为倍率）、`margin-top` / `margin-bottom` / `font-size` / `letter-spacing`（数字换算 px），通过 host 属性 + CSS 变量覆盖，不破坏套装默认值。
+- 重做 `/basic/heading` 文档页：7 个 Playground 用安装页、文章、API 文档、营销落地页、科技控制台、工作台与样式配置的真实页面骨架展示；API 表同步更新。
+- 验证：Heading 组件 10 项 + HeadingPage 2 项测试通过；unsupported macro 扫描 0 findings；Prettier、ESLint 通过；docs locale `575/575`；真实 Chromium 页面 0 error / 0 warning，截图归档 `output/playwright/heading-suites-zh.png`。
+- 说明：`pnpm typecheck:kit` / `typecheck:website` 仍被工作区未提交的 Labs AI 组件存量类型错误阻断（AiRecordsTable、AiSidebarNav、AiStreamingText、Labs/index.ts），与本次改动无关。
+
+### 2026-08-03 Sparkline 对齐 Vuetify VSparkline 并补充柱状与仪表盘案例
+
+- 调研 Vuetify v4.1.7 `VSparkline` 源码与文档：官方仅提供迷你图表组件（`trend` 趋势线 / `bar` 柱状），没有完整图表库；完整图表需第三方（如 ECharts）。`gradient` 停靠点数组会反转、`gradient-direction` 映射到 `linearGradient` 向量、柱状图正负值基线、`min`/`max` 与 `padding` 语义均按官方行为对齐。
+- 组件新增公开 API：`type`、`gradient`、`gradientDirection`、`labels`、`showLabels`、`labelSize`、`autoLineWidth`、`padding`、`min`、`max`；柱状支持 `smooth` 圆角、首帧升起动画（`transform-box: fill-box`）与负值原点。
+- 标签渲染为 Shadow DOM 内 HTML 行而非 SVG `<text>`，避免 `preserveAspectRatio="none"` 拉伸文字；缺失标签回退到数据值，`label-size` 默认 7px 与 Vuetify 一致。
+- 修复多实例动画帧号共享问题：`frame` 由模块级 `let` 改为 `useRef`，仪表盘 4 图同时首帧绘制不再互相取消。
+- 页面新增 ex2「柱状迷你图」（近 7 日营收：渐变柱、星期标签、自动柱宽、首帧绘制）与 ex3「仪表盘卡片与标签」（收入面积渐变、活跃用户柱状、转化率渐变线、订单横向渐变柱），ex1 随后按 Vuetify 官方示例重做（见下节）；API 表补齐全部公开属性。
+- 验证：Sparkline 组件 4 项、页面 2 项聚焦测试通过；kit/website typecheck 宏扫描 0 findings，kit 0 TS 错误（website 仅 4 个既有 Labs 页 TS 错误，非本批引入）；kit 与 website build 通过；浏览器桌面/移动实测柱宽、渐变填充、标签不溢出、卡片单列堆叠，控制台 0 warning / 0 error；截图归档于 `output/playwright/sparkline-*.png`。
+
+### 2026-08-03 Sparkline ex1 动画案例对齐 Vuetify prop-animation
+
+- ex1 重做：卡片从 820px 大卡片收敛为 480px 紧凑卡片（`elf-card variant="outlined" density="comfortable"` + `--elf-card-radius: 12px`），头部为标题 + 周期副标题 + 右上角 `elf-segmented size="sm"`，图表高度从 220px 收敛到 78px，完整对应 Vuetify `prop-animation.vue` 的「Page Views」示例。
+- 数据与默认周期改为 Vuetify 官方值：默认 `monthly`，weekly/monthly/quarterly 三组数据与官方一致；切换周期时副标题同步（最近 7 天 / 最近 12 个月 / 最近 6 个季度）。
+- 示例属性改为 kebab-case 字符串（`auto-draw-duration="800"`、`line-width="2"`、`smooth="4"`、`stroke-linecap="round"`），规避宏模板 `:camelCase=${number}` 生成小写属性导致映射失败的问题；页面测试同步更新为官方数据并覆盖默认 monthly 与切换 quarterly。
+- 验证：页面测试 2/2 通过；浏览器实测卡片 482px、图表 78px、分段控件右对齐且切换后数据/副标题/激活态同步；移动端 390px 下分段换行但不溢出；控制台 0 warning / 0 error；截图归档于 `output/playwright/sparkline-pageviews-*.png`。
+
+### 2026-08-03 Sparkline 继续对齐 Vuetify（交互、标记、单调平滑）
+
+- 继续研读 Vuetify v4.1.7 Sparkline 全部示例（usage / animation / fill / inset / smooth-mode / custom-labels / dashboard-card / heart-rate / interactive），补齐最有价值的能力：`interactive` + `update:currentIndex`（pointermove 最近点、聚焦默认末点、方向键切换、趋势十字线 + 悬停标记、柱状整列高亮）、`showMarkers`/`markerSize`/`markerStroke`、`inset`、`smoothMode="monotone"`、`itemValue`、`autoDrawEasing`。
+- 标记采用 HTML 百分比定位圆点而非 SVG `<circle>`，避免 `preserveAspectRatio="none"` 非等比缩放把圆拉成椭圆；monotone 算法移植为纯模块 `packages/kit/src/components/Data/Sparkline/monotone.ts`（Fritsch-Carlson）。
+- 页面新增 ex4「交互悬停」（每周下载量卡片：fill + 渐变 + min/padding + interactive，悬停/键盘联动头部数值与周区间，对齐 Vuetify misc-interactive）与 ex5「心率与平滑模式」（三色渐变 + autoDraw + showMarkers + animation + monotone 开关 + 平滑滑杆 + 重新测量，对齐 misc-heart-rate 与 prop-smooth-mode）；API 表新增对应 props 与 Events 表。
+- 验证：Sparkline 组件 7 项、页面 3 项聚焦测试通过；kit typecheck 0 宏错误 / 0 TS 错误；kit 与 website build 通过；浏览器实测悬停更新头部、键盘切换、离开复位、重新测量数据变化、monotone 切换、移动端无溢出，控制台 0 warning / 0 error；截图归档于 `output/playwright/sparkline-interactive-ex4.png`、`sparkline-heart-ex5.png`、`sparkline-heart-mobile.png`。
+
+### 2026-08-03 Splitter 演示面板主题化与主页定位文案
+
+- Splitter 演示页左侧面板从写死 `#616161` 灰色改为主题化表面：首个面板使用主色 5% 混入 `--elf-bg-paper`，第二个面板使用 `--elf-bg-paper`，文字统一 `--elf-text-primary`；仅调整演示页 `::part` 样式，不修改组件默认视觉契约。
+- 主页 hero 文案改为「构建精致界面，原生 Web Components 组件库。」，英文同步为 "Ship polished interfaces, a native Web Components library."，移除旧文案「不再绑定框架 / without framework lock-in」。
+- 验证：SplitterPage 与 HomePage 聚焦测试 5/5 通过；Prettier、ESLint 通过；Chromium 实测 Material/Midnight 两套主题下首个面板计算背景均随主题变化，中英文主页文案均在真实浏览器确认；截图归档于 `output/playwright/splitter-theme-*.png`。
+
+### 2026-08-03 ConfigProvider 程序化滚动案例内容升级
+
+- 将「程序化滚动 · 共享滚动策略」预览改为真实应用风格：项目简报卡片（负责人、截止、任务 6/8、进度 72%）、实现任务清单（已完成/进行中/待开始状态）与评审卡片（评论 + 批准操作）；滚动区域高度 320px，全部文案中英文本地化，滚动目标仍为 `#config-goto-review`。
+- 同步 ProviderPages 测试中两处过期断言：页面文案已于 2026-07-30 改为「基础预设 → 应用配置 → 显式属性」，测试仍期待旧标题，导致 9 项中 2 项在 HEAD 即失败。
+- 验证：ProviderPages 9/9 通过；unsupported macro 扫描 697 个源文件 0 findings；Prettier、ESLint 通过。
+
+### 2026-08-03 国际化组件级英文覆盖案例整理
+
+- 将「组件级英文覆盖」的控件网格用 `elf-card variant="outlined"` 包裹，并让网格项顶部对齐，预览不再显得零散；案例 Template 代码与真实预览同步。
+- 验证：ProviderPages 9/9 通过；Prettier、ESLint 通过；浏览器页面 0 error / 0 warning。
+
+### 2026-08-03 Alert 强调样式重设计
+
+- 移除 Alert tonal/elevated/filled 的 4px/8px 粗色左边框与彩色发光阴影；`prominent` 改为 3px 圆角渐隐强调条 + 更深表面，图标从 40px 圆形气泡改为 32px 圆角方形磁贴，`elevated` 阴影收敛为中性阴影。
+- 页面章节「粗色强调条」更名为「强调提示」，PropsTable 描述同步；Alert 测试 14 项通过，浏览器验证截图归档。
+
+### 2026-08-03 指令页真实化与选择器细节修正
+
+- 交叉观察器：示例改为「推荐阅读」信息流，滚动到底部哨兵进入视口后追加 4 条（8→12），滚动条改为细圆角样式；同时修正 `onIntersect` 未先判断可见性就追加数据的问题。
+- 变更监听：「添加 DOM 节点」按钮移入 Playground 标题栏（status slot），记录列表改为日志样式。
+- 波纹：卡片从大面积蓝色 + 16px 圆角改为中性深色表面 + 12px 圆角 + 主色小标签，阴影中性化。
+- 滚动：示例改为「版本记录」列表，容器内加入吸顶进度条与位置/进度状态。
+- 颜色选择器：新增「RGB 滑块微调」案例（R/G/B 三个滑块 + 色块预览 + 选择器双向同步）。
+- 日期选择器：展开面板与输入框不再有 8px 间隙，CSS `top` 与锚定 `offset` 同步改为 -1px 贴合。
+- 验证：DatePicker 与 ColorPicker 页面测试 25 项通过；Prettier、ESLint、unsupported macro 扫描通过；浏览器逐页验证交互，截图归档于 `output/playwright/`。
+
+### 2026-08-03 BackTop 案例真实化与按钮定位修正
+
+- 基础用法示例改为「版本记录」长列表（6 条发布记录 + 吸顶标题），自定义外观示例改为「本周任务」清单（完成/进行中/待开始状态），两处均保留 `elf-scrollbar` 容器与滚动阈值演示。
+- 按钮位置修正：BackTop 组件默认 `position: fixed` 会固定到视口右下角，与演示容器脱节；示例改为 `style="position:absolute"` + `bottom/right=24px`，按钮现在锚定在演示容器内右下角，视觉上像真实 App 的 FAB。
+- 验证：BackTopPage 与 BackTop 组件测试 8 项通过；Prettier、ESLint 通过；浏览器实测按钮距容器右下 24px、滚动后正常显示，截图归档于 `output/playwright/`。
 
 ### 2026-08-02 CodeCard 图标与表面治理、安装页重排
 
@@ -447,6 +603,7 @@
 
 ## 4. 当前问题
 
+- dev 站点被未完成的 Labs 路由阻塞：`apps/website/src/routes/index.ts` 引用了 8 个尚未创建的 Ai*Page（AiLoading/AiThinking/AiApproval/AiTaskRow/AiContextCard/AiRecommendation/AiCommandSearch/AiCodeBlock），站点在 dev 下无法挂载；本轮验证期间临时指向 AiChatPage 并在截图后原样恢复，补齐页面或摘除路由前浏览器验收无法进行。
 - TableV2 完整性脚本仍按 `TableV2Page` 命名查找，不能识别实际的 `VirtualTablePage`，因此会给出 demo page false negative；实际页面和页面测试存在。
 - TableV2 性能基线旧中位数来自拆分前的 `/data/table`；脚本已改为 `/data/virtual-table`，后续需重新跑 5 次中位数再替换旧页面级计时。
 - 当前 authoring skill 的框架参考文件名仍为 `framework-beta15.md`，内容版本说明落后于仓库 beta.20；实际依赖以 `package.json` 为准。

@@ -44,6 +44,17 @@ afterAll(() => {
 
 const tick = (): Promise<void> => new Promise((resolve) => queueMicrotask(resolve));
 
+const deepQuery = <T extends Element>(root: ParentNode, selector: string): T | null => {
+  const direct = root.querySelector<T>(selector);
+  if (direct) return direct;
+  for (const element of Array.from(root.querySelectorAll("*"))) {
+    if (!element.shadowRoot) continue;
+    const nested = deepQuery<T>(element.shadowRoot, selector);
+    if (nested) return nested;
+  }
+  return null;
+};
+
 describe("TimePicker documentation", () => {
   it("renders six focused examples and complete API tables", async () => {
     const page = document.createElement(pageTag);
@@ -56,8 +67,8 @@ describe("TimePicker documentation", () => {
         "elf-page-time-picker-ex1, elf-page-time-picker-ex2, elf-page-time-picker-ex3, elf-page-time-picker-ex4, elf-page-time-picker-ex5, elf-page-time-picker-ex6",
       ),
     ).toHaveLength(6);
-    expect(page.shadowRoot?.querySelector("h1")?.textContent).toBe("TimePicker");
-    expect(page.shadowRoot?.querySelector("p")?.textContent).toContain("Material clock face");
+    expect(deepQuery(page.shadowRoot!, "h1")?.textContent).toBe("TimePicker");
+    expect(deepQuery(page.shadowRoot!, "p")?.textContent).toContain("Material clock face");
 
     const api = page.shadowRoot?.querySelector("elf-page-time-picker-props");
     const tables = api?.shadowRoot?.querySelectorAll<PropsTableElement>("elf-props-table");

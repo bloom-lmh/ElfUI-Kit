@@ -7,7 +7,7 @@ import styles from "./demo.scss?inline";
 const navigationState = useRef<"ready" | "current" | "button" | "icon">("ready");
 
 const t = createDocsTranslator({
-  title: { zh: "Router 与 hash 导航", en: "Router and hash navigation" },
+  title: { zh: "路由导航", en: "Router navigation" },
   ready: { zh: "等待导航", en: "Ready to navigate" },
   current: { zh: "当前页：Link", en: "Current page: Link" },
   button: { zh: "即将前往 Button", en: "Navigating to Button" },

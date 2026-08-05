@@ -19,7 +19,7 @@ const classicCode = `<elf-layout>
     <elf-aside width="144px">${t("aside")}</elf-aside>
     <elf-main>${t("main")}</elf-main>
   </elf-layout>
-  <elf-footer height="36px">${t("footer")}</elf-footer>
+  <elf-footer height="48px">${t("footer")}</elf-footer>
 </elf-layout>`;
 
 const systemCode = `<elf-layout>
@@ -39,7 +39,7 @@ const PageLayoutShellEx2 = defineHtml(`
           <elf-aside width="144px">${t("aside")}</elf-aside>
           <elf-main><span class="region-label">${t("main")}</span><div class="shell-skeleton"><span></span><span></span><span></span><span></span></div></elf-main>
         </elf-layout>
-        <elf-footer height="36px">${t("footer")}</elf-footer>
+        <elf-footer height="48px">${t("footer")}</elf-footer>
       </elf-layout>
     </div>
   </elf-playground>

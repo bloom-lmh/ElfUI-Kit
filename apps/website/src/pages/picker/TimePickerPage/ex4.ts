@@ -5,7 +5,7 @@ import demoStyles from "./demo.scss?inline";
 
 const preciseTime = useRef("09-30-15");
 const t = createDocsTranslator({
-  title: { zh: "格式、秒级步进与禁用项", en: "Formats, second steps, and disabled values" },
+  title: { zh: "格式与步进", en: "Formats and steps" },
   label: { zh: "精确时间", en: "Precise time" },
   output: { zh: "输出值", en: "Output value" },
 });

@@ -21,8 +21,8 @@ const t = createDocsTranslator({
   score: { zh: "通过率 98.6%", en: "Pass rate 98.6%" },
   media: { zh: "媒体失败与重试", en: "Media failure and retry" },
   mediaSubtitle: {
-    zh: "封面失败不会压缩卡片结构",
-    en: "A failed cover never collapses the card structure",
+    zh: "封面回退",
+    en: "Cover fallback",
   },
   mediaAlt: { zh: "ElfUI 项目封面", en: "ElfUI project cover" },
   unavailable: { zh: "封面暂时不可用", en: "Cover is temporarily unavailable" },

@@ -59,7 +59,7 @@ describe("TooltipPage", () => {
     const text = collectText(page);
     expect(text).toContain("不同弹出位置");
     expect(text).toContain("不同触发方式");
-    expect(text).toContain("键盘、长内容与自动避让");
+    expect(text).toContain("键盘与自动避让");
     expect(text).toContain("长按提示与手势取消");
     expect(text).toContain("触屏长按触发时间");
   });
@@ -70,7 +70,7 @@ describe("TooltipPage", () => {
     const text = collectText(page);
     expect(text).toContain("Placements");
     expect(text).toContain("Trigger modes");
-    expect(text).toContain("Keyboard, long content, and auto placement");
+    expect(text).toContain("Keyboard and auto placement");
     expect(text).toContain("Long-press tooltip and gesture cancellation");
     expect(text).toContain("Touch long-press delay, in milliseconds.");
     expect(text).not.toMatch(/[\u3400-\u9fff]/u);

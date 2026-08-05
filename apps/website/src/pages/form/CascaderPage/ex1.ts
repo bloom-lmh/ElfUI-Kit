@@ -5,7 +5,7 @@ import { createRegionOptions, formatPaths, regionOptionsScript } from "./shared"
 
 const pick = createDocsPicker();
 const t = createDocsTranslator({
-  title: { zh: "基础选择", en: "Basic selection" },
+  title: { zh: "Cascader 基础选择", en: "Cascader basic selection" },
   label: { zh: "地区", en: "Region" },
   current: { zh: "当前路径", en: "Current path" },
   empty: { zh: "未选择", en: "Not selected" },
@@ -55,8 +55,7 @@ const PageCascaderEx1 = defineHtml(`
     <span slot="status" class="demo-state">${t("current")} · ${status}</span>
     <aside slot="controls" class="demo-controls" style="display:grid;gap:12px" :aria-label=${t("controls")}>
       <strong>${t("controls")}</strong>
-      <span>${t("appearance")}</span>
-      <elf-select variant="underlined" :options.prop=${variantOptions} :modelValue.prop=${variant.value}
+      <elf-select variant="underlined" :label=${t("appearance")} :options.prop=${variantOptions} :modelValue.prop=${variant.value}
         @update:modelValue=${onVariant}></elf-select>
     </aside>
   </elf-playground>

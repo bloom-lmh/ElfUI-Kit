@@ -7,7 +7,7 @@ const t = createDocsTranslator({
   latest: { zh: "最近导航", en: "Last navigation" },
   home: { zh: "首页", en: "Home" },
   components: { zh: "组件", en: "Components" },
-  breadcrumb: { zh: "面包屑", en: "Breadcrumb" },
+  breadcrumb: { zh: "面包屑导航", en: "Breadcrumb" },
 });
 
 const current = useRef(t("idle"));

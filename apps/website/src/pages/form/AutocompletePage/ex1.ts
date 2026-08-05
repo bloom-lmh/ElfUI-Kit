@@ -112,7 +112,7 @@ const PageAutocompleteEx1 = defineHtml(`
       </div>
       <aside slot="controls" class="autocomplete-controls" :aria-label=${t("controls")}>
         <strong>${t("controls")}</strong>
-        <label><span>${t("appearance")}</span><elf-select :options.prop=${variantOptions()} :modelValue.prop=${variant.value} @update:modelValue=${onVariant}></elf-select></label>
+        <label><elf-select :label=${t("appearance")} :options.prop=${variantOptions()} :modelValue.prop=${variant.value} @update:modelValue=${onVariant}></elf-select></label>
         <elf-checkbox-group :options.prop=${flagOptions()} :modelValue.prop=${flags.value} @update:modelValue=${onFlags}></elf-checkbox-group>
       </aside>
     </elf-playground>

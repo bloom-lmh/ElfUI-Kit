@@ -35,7 +35,7 @@
   box-shadow: none;
 }
 
-.card.scheme-light {
+.card.scheme-dark {
   --elf-bg-default: #111318;
   --elf-bg-paper: #191c22;
   --elf-bg-overlay: #242830;
@@ -58,7 +58,7 @@
   color-scheme: dark;
 }
 
-.card.scheme-dark {
+.card.scheme-light {
   --elf-bg-default: #f7f8fa;
   --elf-bg-paper: #fff;
   --elf-bg-overlay: #f1f3f6;
@@ -284,11 +284,11 @@
   max-height: 560px;
   margin: 0;
   overflow: auto;
-  padding: 12px 0;
+  padding: 10px 0;
   background: transparent;
   color: inherit;
   font:
-    13px/24px "JetBrains Mono",
+    13px/20px "JetBrains Mono",
     "Cascadia Code",
     SFMono-Regular,
     Consolas,
@@ -305,8 +305,8 @@
 .code-line {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  min-height: 24px;
-  padding-inline: 8px 20px;
+  min-height: 20px;
+  padding-inline: 8px 16px;
   transition:
     filter 150ms ease,
     opacity 150ms ease,
@@ -392,7 +392,7 @@
 }
 
 .line-number {
-  padding-inline-end: 8px;
+  padding-inline-end: 6px;
   color: color-mix(in srgb, var(--code-card-foreground) 44%, transparent);
   text-align: end;
   user-select: none;
@@ -400,7 +400,7 @@
 
 .line-content {
   min-width: 0;
-  padding-inline-start: 6px;
+  padding-inline-start: 4px;
   border-inline-start: 1px solid color-mix(in srgb, var(--code-card-foreground) 15%, transparent);
   white-space: pre;
 }
@@ -443,13 +443,13 @@
 .variant-workbench .code-scroll {
   min-height: 0;
   padding-block: 10px;
-  font-size: 14px;
-  line-height: 24px;
+  font-size: 13px;
+  line-height: 20px;
 }
 
 .variant-workbench .code-line {
-  min-height: 24px;
-  padding-inline-end: 24px;
+  min-height: 20px;
+  padding-inline-end: 20px;
 }
 
 .window-lights {
@@ -532,8 +532,8 @@
 }
 
 .variant-minimal .code-scroll {
-  min-height: 112px;
-  padding-block: 14px;
+  min-height: 72px;
+  padding-block: 10px;
 }
 
 .variant-minimal .code-line {

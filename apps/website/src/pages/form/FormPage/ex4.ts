@@ -12,13 +12,13 @@ const settings = useReactive({
 
 const t = createDocsTranslator({
   section: { zh: "布局与禁用态", en: "Layout and disabled state" },
-  title: { zh: "标签布局与整表禁用", en: "Label layout and form-wide disabled state" },
+  title: { zh: "标签布局与禁用", en: "Label layout and disabled state" },
   enable: { zh: "启用表单", en: "Enable form" },
   disable: { zh: "禁用表单", en: "Disable form" },
   cardTitle: { zh: "环境配置", en: "Environment settings" },
   cardSubtitle: {
-    zh: "整表禁用会传递到所有表单控件",
-    en: "Form-wide disabled state is inherited by every control",
+    zh: "整表禁用",
+    en: "Form-wide disabled state",
   },
   environment: { zh: "环境", en: "Environment" },
   development: { zh: "开发环境", en: "Development" },

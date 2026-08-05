@@ -544,3 +544,10 @@ Table 与 TableV2 的渲染模型不同：前者使用原生表格语义，后�
 - [x] 全新 in-app Chromium 标签页完成控制层责任归类：顶层原生语言按钮可正常切换；Table 基础选择、自定义排序、树展开、虚拟排序及案例外层 `elf-button` 均无法通过 Playwright、真实坐标或可见节点点击获得焦点或触发状态。Vite 实际编译产物已生成正式事件监听，聚焦测试 8 个文件、90 项通过，控制台 0 warning / 0 error，因此不在 Table 中增加事件 workaround。
 - [ ] 真实用户交互仍需在能够向嵌套 Shadow DOM 投递事件的独立 Chromium 会话或人工操作中复核选择、排序、筛选、树展开和虚拟窗口；诊断截图 `table-shadow-dom-control-limitation.png` 与 `table-virtual-control-limitation.png` 只证明页面、控件与状态判据可见，不得记为交互通过。
 - [ ] 行排序、过滤、虚拟窗口、树展开与选择会共同改变 keyed rows；是否使用 `<TransitionGroup>` 继续归 `EP-05`，需先覆盖快速数据替换、虚拟换窗、树展开、焦点和 reduced motion，当前批次不添加手写动画或无测试迁移。
+
+## 2026-08-04 分页联动案例绑定修复
+
+- [x] 修复「分页联动」案例的分页状态不同步：模板用 `:currentPage=` / `:pageSize=` 属性绑定，属性没有到达 `elf-pagination` 的 props（实测 `pagination.pageSize` 为 undefined），组件内部按默认 10 条/页渲染，而页面状态仍是 5，导致触发器显示「10 条/页」、表格只有 5 行。
+- [x] 改为 `.prop` 属性绑定（`currentPage.prop` / `pageSize.prop`），与 PaginationPage 正常案例保持一致；Template 代码串同步修正。
+- [x] 新增回归测试：初始断言 `pageSize === 5` 与「5 条/页」，切换到 10 后表格渲染 10 行且状态为「显示 1-10 / 37 条」。
+- [x] 验证：TablePage 聚焦测试 2 文件 18 项通过；Chromium 实测选择「10 条/页」后 `pageSizeProp=10`、表格 10 行、状态同步；截图归档 `output/playwright/table-pagination-sync.png`。

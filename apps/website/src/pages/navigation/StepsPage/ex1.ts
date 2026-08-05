@@ -4,7 +4,6 @@ import { createDocsTranslator } from "../../docsLocale";
 const active = useRef(0);
 const t = createDocsTranslator({
   heading: { zh: "线性步骤", en: "Linear stepper" },
-  title: { zh: "按顺序完成流程", en: "Complete a guided flow" },
   status: { zh: "当前步骤", en: "Current step" },
   account: { zh: "账户", en: "Account" },
   accountDesc: { zh: "填写账户信息", en: "Enter account details" },
@@ -38,7 +37,7 @@ const onActive = (event) => active.set(event.detail);`;
 
 const PageStepsEx1 = defineHtml(`
   <h2>{{ t("heading") }}</h2>
-  <elf-playground :title=${t("title")} :code=${code} :script=${script}>
+  <elf-playground :title=${t("heading")} :code=${code} :script=${script}>
     <span slot="status" class="demo-state">{{ t("status") }}：{{ active + 1 }}</span>
     <elf-steps
       show-panels

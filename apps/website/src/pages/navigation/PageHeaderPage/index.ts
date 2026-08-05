@@ -110,7 +110,7 @@ const eventsRows = [
 ];
 
 const slotsRows = [
-  { name: "breadcrumb", desc: pick("标准页头面包屑区域", "Standard breadcrumb region.") },
+  { name: "breadcrumb", desc: pick("标准页头面包屑导航区域", "Standard breadcrumb region.") },
   { name: "icon", desc: pick("返回图标或卡片前导图标", "Return icon or card-leading icon.") },
   { name: "title", desc: pick("返回文本或 Hero 标题", "Return text or hero title.") },
   { name: "content", desc: pick("标准页头标题内容", "Standard heading content.") },

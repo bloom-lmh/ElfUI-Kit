@@ -92,9 +92,9 @@ const PageProgressEx1 = defineHtml(`
     <div class="progress-preview"><elf-progress :type.prop=${progressType.value} :percentage.prop=${progress.value} :label.prop=${showLabel.value ? t("loading") : ""} :labelPosition.prop=${labelPosition.value} :color.prop=${color.value} :hideValue.prop=${hideValue.value} :indeterminate.prop=${indeterminate.value} size="148" transition-duration="0.45"></elf-progress></div>
     <aside slot="controls" class="progress-controls" :aria-label=${t("controls")}>
       <h3>${t("controls")}</h3>
-      <label class="control"><b>${t("type")}</b><elf-select :options.prop=${typeOptions()} :modelValue.prop=${progressType.value} @update:modelValue=${onType}></elf-select></label>
+      <label class="control"><elf-select :label=${t("type")} :options.prop=${typeOptions()} :modelValue.prop=${progressType.value} @update:modelValue=${onType}></elf-select></label>
       <label class="control"><span><b>${t("value")}</b><output>${progress.value}%</output></span><elf-slider min="0" max="100" step="1" :modelValue.prop=${progress.value} @update:modelValue=${onProgress}></elf-slider></label>
-      <label class="control"><b>${t("color")}</b><elf-select :options.prop=${colorOptions()} :modelValue.prop=${color.value} @update:modelValue=${onColor}></elf-select></label>
+      <label class="control"><elf-select :label=${t("color")} :options.prop=${colorOptions()} :modelValue.prop=${color.value} @update:modelValue=${onColor}></elf-select></label>
       <label class="control"><b>${t("labelPosition")}</b><elf-radio-group :modelValue.prop=${labelPosition.value} @update:modelValue=${onPosition}><elf-radio value="top" :label=${t("top")}></elf-radio><elf-radio value="bottom" :label=${t("bottom")}></elf-radio></elf-radio-group></label>
       <div class="checks"><elf-checkbox :modelValue.prop=${!showLabel.value} :label=${t("hideLabel")} @update:modelValue=${onHideLabel}></elf-checkbox><elf-checkbox :modelValue.prop=${hideValue.value} :label=${t("hideValue")} @update:modelValue=${onHideValue}></elf-checkbox><elf-checkbox :modelValue.prop=${indeterminate.value} :label=${t("indeterminate")} @update:modelValue=${onIndeterminate}></elf-checkbox></div>
     </aside>

@@ -1,0 +1,107 @@
+:host {
+  display: block;
+}
+
+.priority-demo {
+  display: grid;
+  gap: var(--elf-space-4);
+  width: min(100%, 680px);
+  margin: 0 auto;
+}
+
+.priority-intro {
+  color: var(--elf-text-secondary);
+  font-size: var(--elf-font-size-sm);
+  line-height: 1.6;
+}
+
+.priority-layers {
+  display: grid;
+  gap: var(--elf-space-2);
+}
+
+.priority-layer {
+  display: flex;
+  align-items: center;
+  gap: var(--elf-space-3);
+  padding: var(--elf-space-3) var(--elf-space-4);
+  border: 1px solid var(--elf-border);
+  border-radius: var(--elf-radius-md);
+  background: var(--elf-bg-paper);
+}
+
+.priority-layer-copy {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.priority-layer-copy strong {
+  color: var(--elf-text-primary);
+}
+
+.priority-layer-copy small {
+  color: var(--elf-text-secondary);
+  font-size: var(--elf-font-size-sm);
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  line-height: 1.5;
+}
+
+.priority-stage {
+  display: grid;
+  gap: var(--elf-space-3);
+  padding: var(--elf-space-4);
+  border: 1px solid var(--elf-border);
+  border-radius: var(--elf-radius-md);
+  background: var(--elf-bg-paper);
+}
+
+.priority-stage-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--elf-space-3);
+  flex-wrap: wrap;
+}
+
+.priority-rule {
+  color: var(--elf-text-secondary);
+  font-size: var(--elf-font-size-sm);
+}
+
+.priority-effective {
+  display: grid;
+  gap: var(--elf-space-2);
+  padding-top: var(--elf-space-3);
+  border-top: 1px solid var(--elf-divider);
+}
+
+.priority-effective-title {
+  color: var(--elf-text-secondary);
+  font-size: var(--elf-font-size-sm);
+}
+
+.priority-effective-row {
+  display: flex;
+  align-items: center;
+  gap: var(--elf-space-2);
+  flex-wrap: wrap;
+  color: var(--elf-text-secondary);
+  font-size: var(--elf-font-size-sm);
+}
+
+.priority-effective-row b {
+  min-width: 52px;
+  color: var(--elf-text-primary);
+}
+
+.priority-effective-row code {
+  padding: 2px 8px;
+  border-radius: var(--elf-radius-sm);
+  background: color-mix(in srgb, var(--elf-primary) 10%, var(--elf-bg-paper));
+  color: var(--elf-primary);
+}
+
+.priority-effective-row em {
+  font-style: normal;
+  color: var(--elf-text-secondary);
+}

@@ -42,8 +42,7 @@ const PageFlexEx1 = defineHtml(`
     <aside slot="controls" class="layout-playground-controls" :aria-label=${t("controls")}>
       <strong>${t("controls")}</strong>
       <label>
-        <span>${t("directionValue")}</span>
-        <elf-select variant="outlined" :options.prop=${directionOptions()} :modelValue.prop=${direction.value} @update:modelValue=${onDirection}></elf-select>
+        <elf-select variant="outlined" :label=${t("directionValue")} :options.prop=${directionOptions()} :modelValue.prop=${direction.value} @update:modelValue=${onDirection}></elf-select>
       </label>
     </aside>
   </elf-playground>
@@ -57,8 +56,7 @@ const PageFlexEx1 = defineHtml(`
     <aside slot="controls" class="layout-playground-controls" :aria-label=${t("controls")}>
       <strong>${t("controls")}</strong>
       <label>
-        <span>${t("gapValue")}</span>
-        <elf-select variant="outlined" :options.prop=${gapOptions()} :modelValue.prop=${itemGap.value} @update:modelValue=${onGap}></elf-select>
+        <elf-select variant="outlined" :label=${t("gapValue")} :options.prop=${gapOptions()} :modelValue.prop=${itemGap.value} @update:modelValue=${onGap}></elf-select>
       </label>
     </aside>
   </elf-playground>

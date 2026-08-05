@@ -4,8 +4,8 @@ import { createDocsTranslator } from "../../docsLocale";
 const t = createDocsTranslator({
   section: { zh: "锚定浮层与视口碰撞", en: "Anchored overlay and viewport collision" },
   title: {
-    zh: "top layer / offset / flip / preventOverflow",
-    en: "Top layer / offset / flip / preventOverflow",
+    zh: "边界与避让",
+    en: "Boundaries and flipping",
   },
   waiting: { zh: "等待选择", en: "Waiting for selection" },
   detail: { zh: "查看详情", en: "View details" },

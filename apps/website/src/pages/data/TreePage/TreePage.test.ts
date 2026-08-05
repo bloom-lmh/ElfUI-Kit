@@ -26,6 +26,17 @@ const tick = (): Promise<void> => new Promise((resolve) => queueMicrotask(resolv
 const wait = (duration: number): Promise<void> =>
   new Promise((resolve) => setTimeout(resolve, duration));
 
+const collectText = (root: Node): string => {
+  let output = "";
+  const visit = (node: Node): void => {
+    if (node.nodeType === Node.TEXT_NODE) output += ` ${node.textContent || ""}`;
+    if (node instanceof Element && node.shadowRoot) visit(node.shadowRoot);
+    node.childNodes.forEach(visit);
+  };
+  visit(root);
+  return output.replace(/\s+/g, " ").trim();
+};
+
 describe("TreePage", () => {
   it("异步目录只在展开时加载子节点", async () => {
     const page = document.createElement(lazyTreeTag);
@@ -88,7 +99,7 @@ describe("TreePage", () => {
     await tick();
 
     const page = provider.querySelector<HTMLElement>(treePageTag)!;
-    expect(page.shadowRoot!.textContent).toContain("Present and manage hierarchical data");
+    expect(collectText(page)).toContain("Present and manage hierarchical data");
 
     const pageSections = Array.from(page.shadowRoot!.querySelectorAll<HTMLElement>("*")).filter(
       (element) => element.shadowRoot,
@@ -97,7 +108,7 @@ describe("TreePage", () => {
       Array.from(section.shadowRoot?.querySelectorAll<HTMLElement>("elf-playground") ?? []),
     );
     expect(playgrounds.map((playground) => playground.getAttribute("title"))).toEqual([
-      "Basic selection",
+      "Tree basic selection",
       "Cascading checks",
       "Strict checks",
       "Permission editor",

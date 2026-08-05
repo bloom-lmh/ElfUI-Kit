@@ -6,8 +6,8 @@ import demoStyles from "./demo.scss?inline";
 const fallbackTime = useRef("12:30");
 const t = createDocsTranslator({
   title: {
-    zh: "限制范围、只读输入与清空回退",
-    en: "Limits, non-editable input, and clear fallback",
+    zh: "只读与回退",
+    en: "Readonly and fallback",
   },
   label: { zh: "值班开始", en: "Shift start" },
   waiting: { zh: "等待打开", en: "Waiting to open" },

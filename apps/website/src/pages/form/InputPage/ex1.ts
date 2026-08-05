@@ -147,14 +147,16 @@ const PageInputEx1 = defineHtml(`
       :aria-label=${t("controls")}
     >
       <strong>${t("controls")}</strong>
-      <label><span>${t("variant")}</span><elf-select
+      <label><elf-select
           variant="underlined"
+          :label=${t("variant")}
           :options.prop=${variantOptions()}
           :modelValue.prop=${variant.value}
           @update:modelValue=${onVariant}
         ></elf-select></label>
-      <label><span>${t("density")}</span><elf-select
+      <label><elf-select
           variant="underlined"
+          :label=${t("density")}
           :options.prop=${densityOptions()}
           :modelValue.prop=${density.value}
           @update:modelValue=${onDensity}

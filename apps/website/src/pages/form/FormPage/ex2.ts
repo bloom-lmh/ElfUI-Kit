@@ -16,8 +16,8 @@ const t = createDocsTranslator({
   owners: { zh: "全部负责人", en: "All owners" },
   card: { zh: "服务筛选", en: "Service filters" },
   subtitle: {
-    zh: "紧凑条件适合放在卡片内容区",
-    en: "Compact conditions fit naturally in a card content area.",
+    zh: "紧凑条件区",
+    en: "Compact conditions",
   },
   keyword: { zh: "关键词", en: "Keyword" },
   keywordHint: { zh: "服务名或负责人", en: "Service or owner" },

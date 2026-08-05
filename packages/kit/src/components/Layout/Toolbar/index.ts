@@ -38,10 +38,12 @@ const props = defineProps<ToolbarProps>({
   elevation: { type: Number, default: 0 },
   height: { type: [String, Number], default: "" },
   extensionHeight: { type: [String, Number], default: 48 },
+  extended: { type: Boolean, default: null },
+  flat: { type: Boolean, default: false },
   border: { type: Boolean, default: false },
   rounded: { type: Boolean, default: false },
   collapsed: { type: Boolean, default: false },
-  collapsePosition: { type: String, default: "end" },
+  collapsePosition: { type: String, default: "start" },
   collapseWidth: { type: [String, Number], default: 112 },
   floating: { type: Boolean, default: false },
   absolute: { type: Boolean, default: false },
@@ -52,7 +54,9 @@ const props = defineProps<ToolbarProps>({
 const hasExtension = useRef(false);
 
 const density = (): ToolbarDensity =>
-  props.density === "comfortable" || props.density === "compact" ? props.density : "default";
+  props.density === "comfortable" || props.density === "compact" || props.density === "prominent"
+    ? props.density
+    : "default";
 const collapsePosition = (): ToolbarCollapsePosition =>
   props.collapsePosition === "start" ? "start" : "end";
 const location = (): ToolbarLocation => {
@@ -80,6 +84,8 @@ const onExtensionSlotChange = (event: Event): void => {
       .some((node) => node.nodeType !== Node.TEXT_NODE || Boolean(node.textContent?.trim())),
   );
 };
+const extended = (): boolean =>
+  props.extended === true || (props.extended === null && hasExtension.value);
 
 useHostAttr("density", density);
 useHostAttr("collapse-position", collapsePosition);
@@ -87,6 +93,8 @@ useHostAttr("location", location);
 useHostFlag("border", () => props.border);
 useHostFlag("rounded", () => props.rounded);
 useHostFlag("collapsed", () => props.collapsed);
+useHostFlag("extended", extended);
+useHostFlag("flat", () => props.flat);
 useHostFlag("floating", () => props.floating);
 useHostFlag("absolute", () => props.absolute);
 useHostFlag("fixed", () => props.fixed);
@@ -115,7 +123,7 @@ const Toolbar = defineHtml<ToolbarProps, Record<string, never>, ToolbarSlots>(`
       <div class="content" part="content"><slot></slot></div>
       <div class="append" part="append"><slot name="append"></slot></div>
     </div>
-    <div class="extension" part="extension" v-show=${hasExtension}>
+    <div class="extension" part="extension">
       <slot name="extension" @slotchange=${onExtensionSlotChange}></slot>
     </div>
   </div>

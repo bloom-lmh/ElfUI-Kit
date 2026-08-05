@@ -41,17 +41,21 @@ const mount = async (tag: string): Promise<HTMLElement> => {
 describe("navigation surface documentation", () => {
   it.each([
     ["appBar", "滚动行为", "图片", "突出模式"],
-    ["bottomNavigation", "颜色", "铺满", "Shift 模式"],
+    ["bottomNavigation", "颜色", "铺满", "Shift 模式", "滚动隐藏"],
     ["footer", "公司页脚", "靛蓝页脚", "青绿页脚"],
-  ])("renders %s Chinese examples under the global theme", async (key, first, second, third) => {
-    const page = await mount(pageTags[key]!);
-    const text = collectText(page);
-    expect(text).toContain(first);
-    expect(text).toContain(second);
-    expect(text).toContain(third);
-    expect(text).not.toContain("切换预览明暗");
-    expect(page.shadowRoot!.querySelector("elf-theme-provider")).toBeNull();
-  });
+  ])(
+    "renders %s Chinese examples under the global theme",
+    async (key, first, second, third, fourth) => {
+      const page = await mount(pageTags[key]!);
+      const text = collectText(page);
+      expect(text).toContain(first);
+      expect(text).toContain(second);
+      expect(text).toContain(third);
+      if (fourth) expect(text).toContain(fourth);
+      expect(text).not.toContain("切换预览明暗");
+      expect(page.shadowRoot!.querySelector("elf-theme-provider")).toBeNull();
+    },
+  );
 
   it("uses ElfUI controls for configurable navigation examples", async () => {
     const appBar = await mount(pageTags.appBar!);
@@ -86,21 +90,39 @@ describe("navigation surface documentation", () => {
     ).toBe("favorites");
   });
 
+  it("hides the bottom navigation while scrolling down", async () => {
+    const page = await mount(pageTags.bottomNavigation!);
+    const feed = page.shadowRoot!.querySelector<HTMLElement>(".scroll-feed")!;
+    const nav = feed.parentElement!.querySelector<HTMLElement>("elf-bottom-navigation")!;
+    expect(nav.hasAttribute("active")).toBe(true);
+
+    feed.scrollTop = 120;
+    feed.dispatchEvent(new Event("scroll"));
+    await wait();
+    expect(nav.hasAttribute("active")).toBe(false);
+
+    feed.scrollTop = 40;
+    feed.dispatchEvent(new Event("scroll"));
+    await wait();
+    expect(nav.hasAttribute("active")).toBe(true);
+  });
+
   it.each([
     ["appBar", "Scroll behavior", "Prominent"],
-    ["bottomNavigation", "Color", "Grow"],
+    ["bottomNavigation", "Color", "Grow", "Hide on scroll"],
     ["footer", "Company footer", "Indigo footer"],
-  ])("renders %s English examples", async (key, first, second) => {
+  ])("renders %s English examples", async (key, first, second, third) => {
     document.documentElement.lang = "en-US";
     const text = collectText(await mount(pageTags[key]!));
     expect(text).toContain(first);
     expect(text).toContain(second);
+    if (third) expect(text).toContain(third);
     expect(text).not.toMatch(/[\u3400-\u9fff]/u);
   });
 
   it.each([
     ["appBar", 4],
-    ["bottomNavigation", 5],
+    ["bottomNavigation", 6],
     ["footer", 3],
   ])("renders the complete %s example set", async (key, count) => {
     const page = await mount(pageTags[key]!);

@@ -1,0 +1,170 @@
+:host {
+  display: inline-block;
+  vertical-align: middle;
+  color: var(--elf-text-primary, #1f2937);
+  font-family: var(--elf-font-family, sans-serif);
+}
+
+.ai-loading {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 22px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 4px);
+  gap: 1.5px;
+  line-height: 0;
+}
+
+.cell {
+  width: 4px;
+  height: 4px;
+  border-radius: 1px;
+  background: currentColor;
+  opacity: 0.14;
+  animation: ai-loading-pixel 650ms ease-in-out infinite;
+}
+
+.cell.is-round {
+  border-radius: 50%;
+}
+
+.cell.is-dim {
+  opacity: 0.07;
+  animation: none;
+}
+
+:host([data-variant="dots"]) .grid {
+  grid-template-columns: repeat(3, 5px);
+  gap: 2px;
+}
+
+:host([data-variant="dots"]) .cell {
+  width: 5px;
+  height: 5px;
+  animation: ai-loading-dot 900ms ease-in-out infinite;
+}
+
+:host([data-variant="orbit"]) .grid {
+  position: relative;
+  grid-template-columns: none;
+  gap: 0;
+  width: 18px;
+  height: 18px;
+}
+
+:host([data-variant="orbit"]) .cell {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  transform: translate(-50%, -50%);
+}
+
+:host([data-variant="orbit"]) .cell:nth-child(1) {
+  transform: translate(-50%, -50%) rotate(0deg) translateX(7px);
+}
+
+:host([data-variant="orbit"]) .cell:nth-child(2) {
+  transform: translate(-50%, -50%) rotate(45deg) translateX(7px);
+}
+
+:host([data-variant="orbit"]) .cell:nth-child(3) {
+  transform: translate(-50%, -50%) rotate(90deg) translateX(7px);
+}
+
+:host([data-variant="orbit"]) .cell:nth-child(4) {
+  transform: translate(-50%, -50%) rotate(315deg) translateX(7px);
+}
+
+:host([data-variant="orbit"]) .cell:nth-child(5) {
+  transform: translate(-50%, -50%);
+}
+
+:host([data-variant="orbit"]) .cell:nth-child(6) {
+  transform: translate(-50%, -50%) rotate(270deg) translateX(7px);
+}
+
+:host([data-variant="orbit"]) .cell:nth-child(7) {
+  transform: translate(-50%, -50%) rotate(225deg) translateX(7px);
+}
+
+:host([data-variant="orbit"]) .cell:nth-child(8) {
+  transform: translate(-50%, -50%) rotate(180deg) translateX(7px);
+}
+
+:host([data-variant="orbit"]) .cell:nth-child(9) {
+  transform: translate(-50%, -50%) rotate(135deg) translateX(7px);
+}
+
+.label {
+  background-image: linear-gradient(
+    90deg,
+    var(--elf-text-disabled, #94a3b8) 35%,
+    var(--elf-text-primary, #1f2937) 50%,
+    var(--elf-text-disabled, #94a3b8) 65%
+  );
+  background-size: 200% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  animation: ai-loading-shimmer 1.4s linear infinite;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.timer {
+  color: var(--elf-text-disabled, #94a3b8);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes ai-loading-pixel {
+  0%,
+  100% {
+    opacity: 0.14;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes ai-loading-dot {
+  0%,
+  100% {
+    opacity: 0.2;
+    transform: translateY(0);
+  }
+  40% {
+    opacity: 1;
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes ai-loading-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cell {
+    animation: none;
+  }
+  .label {
+    animation: none;
+  }
+}

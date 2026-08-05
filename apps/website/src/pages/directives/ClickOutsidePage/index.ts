@@ -152,10 +152,8 @@ const PageClickOutside = defineHtml(`
 
     <elf-quote type="info" :title=${t("excludeNoteTitle")}>${t("excludeNoteBody")}</elf-quote>
 
-    <section class="docs-section">
-      <h2>API</h2>
-      <elf-props-table :title=${t("options")} :rows=${optionRows()} />
-    </section>
+    <h2>API</h2>
+    <elf-props-table :title=${t("options")} :rows=${optionRows()} />
 
     <p class="docs-callout is-warning">
       <strong>${t("a11yTitle")}</strong> ${t("a11yBody")}

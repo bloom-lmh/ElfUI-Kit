@@ -10,11 +10,27 @@ const t = createDocsTranslator({
   compactWarning: { zh: "紧凑 warning", en: "Compact warning" },
   compactDanger: { zh: "紧凑 danger", en: "Compact danger" },
   compactDescription: { zh: "带描述的紧凑模式", en: "Compact alert with a description" },
-  prominentSection: { zh: "粗色强调条", en: "Prominent accent" },
-  prominentInfo: { zh: "信息强调提示", en: "Prominent info" },
-  prominentSuccess: { zh: "成功强调提示", en: "Prominent success" },
-  prominentWarning: { zh: "警告强调提示", en: "Prominent warning" },
-  prominentDanger: { zh: "错误强调提示", en: "Prominent danger" },
+  prominentSection: { zh: "强调提示", en: "Prominent accent" },
+  prominentInfoTitle: { zh: "发布窗口已确定", en: "Release window confirmed" },
+  prominentInfoBody: {
+    zh: "v2.4 将于周五 22:00 发布，预计 30 分钟完成，期间登录服务会短暂中断。",
+    en: "v2.4 ships Friday at 22:00 and takes about 30 minutes; sign-in may briefly interrupt.",
+  },
+  prominentSuccessTitle: { zh: "生产构建已就绪", en: "Production build ready" },
+  prominentSuccessBody: {
+    zh: "构建 #4821 已通过自动化测试与灰度验证，可以标记为可发布版本。",
+    en: "Build #4821 passed automated and canary checks and is ready to release.",
+  },
+  prominentWarningTitle: { zh: "磁盘空间即将不足", en: "Disk space running low" },
+  prominentWarningBody: {
+    zh: "预发环境使用率已达 86%，剩余空间约支持 6 天，请本周扩容或清理构建产物。",
+    en: "Staging usage is at 86%; about 6 days remain. Please expand or clean build artifacts this week.",
+  },
+  prominentDangerTitle: { zh: "订单服务错误率超限", en: "Order service error rate exceeded" },
+  prominentDangerBody: {
+    zh: "最近 5 分钟错误率为 5.2%，已触发自动告警并通知值班人员。",
+    en: "The last 5-minute error rate hit 5.2%; an alert was triggered and the on-call engineer notified.",
+  },
   centerSection: { zh: "居中 + 无图标", en: "Centered without an icon" },
   centered: { zh: "居中无图标", en: "Centered without an icon" },
   closeTextSection: { zh: "自定义关闭文字", en: "Custom close text" },
@@ -35,7 +51,12 @@ const code5 = `<elf-alert type="info" center :show-icon="false" title="${t("cent
 
 const code6 = `<elf-alert type="warning" density="compact" title="${t("compactSection")}"></elf-alert>`;
 
-const code7 = `<elf-alert type="info" prominent title="${t("prominentSection")}"></elf-alert>`;
+const code7 = `<elf-alert
+  type="danger"
+  prominent
+  title="Order service error rate exceeded"
+  description="The last 5-minute error rate hit 5.2%; the on-call engineer was notified."
+></elf-alert>`;
 
 const closeTextCode = `<elf-alert type="info" closable close-text="${t("understood")}" title="${t("customClose")}"></elf-alert>`;
 
@@ -65,11 +86,11 @@ const PageAlertEx3 = defineHtml(`
 
     <h2>${t("prominentSection")}</h2>
     <elf-playground title="prominent" :code=${code7}>
-        <div style="width:50%;display:flex;flex-direction:column;gap:12px">
-            <elf-alert type="info" prominent :title=${t("prominentInfo")}></elf-alert>
-            <elf-alert type="success" prominent :title=${t("prominentSuccess")}></elf-alert>
-            <elf-alert type="warning" prominent :title=${t("prominentWarning")}></elf-alert>
-            <elf-alert type="danger" prominent :title=${t("prominentDanger")}></elf-alert>
+        <div style="width:min(680px,100%);display:flex;flex-direction:column;gap:12px">
+            <elf-alert type="info" prominent :title=${t("prominentInfoTitle")} :description=${t("prominentInfoBody")}></elf-alert>
+            <elf-alert type="success" prominent :title=${t("prominentSuccessTitle")} :description=${t("prominentSuccessBody")}></elf-alert>
+            <elf-alert type="warning" prominent :title=${t("prominentWarningTitle")} :description=${t("prominentWarningBody")}></elf-alert>
+            <elf-alert type="danger" prominent :title=${t("prominentDangerTitle")} :description=${t("prominentDangerBody")}></elf-alert>
         </div>
     </elf-playground>
 

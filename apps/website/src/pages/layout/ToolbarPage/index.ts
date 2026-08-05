@@ -12,10 +12,11 @@ const t = createDocsTranslator({
     en: "Arrange titles, contextual tools, and extension navigation with density, collapse, backgrounds, and container positioning.",
   },
   compact: { zh: "紧凑工具栏", en: "Dense toolbars" },
-  collapse: { zh: "折叠与保留位置", en: "Collapse and retained side" },
+  collapse: { zh: "折叠与对齐", en: "Collapse and alignment" },
   image: { zh: "背景", en: "Background" },
   location: { zh: "放置区域", en: "Location" },
   extended: { zh: "扩展工具栏", en: "Extended" },
+  prominent: { zh: "突出工具栏", en: "Prominent" },
   extensionHeight: { zh: "扩展区高度", en: "Extension height" },
   extensionSlot: { zh: "扩展插槽", en: "Extension" },
   contextual: { zh: "上下文操作栏", en: "Contextual action bar" },
@@ -32,8 +33,8 @@ const t = createDocsTranslator({
   signOut: { zh: "退出", en: "Sign out" },
   toggleDensity: { zh: "切换 64/48px", en: "Toggle 64/48px" },
   toggleCollapse: { zh: "展开或折叠", en: "Expand or collapse" },
-  start: { zh: "保留起始侧", en: "Keep start" },
-  end: { zh: "保留结束侧", en: "Keep end" },
+  start: { zh: "对齐起始", en: "Align start" },
+  end: { zh: "对齐结束", en: "Align end" },
   all: { zh: "全部", en: "All" },
   favorites: { zh: "收藏", en: "Favorites" },
   shared: { zh: "共享", en: "Shared" },
@@ -81,7 +82,7 @@ const toolbarIconOptions = {
 
 const density = useRef("compact");
 const collapsed = useRef(false);
-const collapsePosition = useRef("end");
+const collapsePosition = useRef("start");
 const location = useRef("top-start");
 const lastAction = useRef("");
 const extensionHeight = useRef(72);
@@ -127,9 +128,12 @@ const propsRows = () => [
   },
   {
     name: "density",
-    type: "default | comfortable | compact",
+    type: "default | comfortable | compact | prominent",
     default: "default",
-    desc: pick("64、56 或 48px 主行", "64, 56, or 48px main row."),
+    desc: pick(
+      "64、56、48 或 128px 主行；突出密度下扩展区加倍",
+      "64, 56, 48, or 128px main row; the extension doubles when prominent.",
+    ),
   },
   {
     name: "image / imageAlt",
@@ -146,8 +150,11 @@ const propsRows = () => [
   {
     name: "collapsed / collapsePosition / collapseWidth",
     type: "mixed",
-    default: "false / end / 112",
-    desc: pick("折叠状态、保留侧和最大宽度", "Collapsed state, retained side, and maximum width."),
+    default: "false / start / 112",
+    desc: pick(
+      "折叠状态、折叠后对齐侧和最大宽度",
+      "Collapsed state, alignment side when collapsed, and maximum width.",
+    ),
   },
   {
     name: "absolute / fixed / location",
@@ -170,6 +177,21 @@ const propsRows = () => [
     default: "surface / 0 / false",
     desc: pick("表面、层级与内联形态", "Surface, elevation, and inline form."),
   },
+  {
+    name: "extended",
+    type: "boolean | null",
+    default: pick("null（自动）", "null (auto)"),
+    desc: pick(
+      "显式控制扩展区；null 时按插槽内容自动显示",
+      "Explicitly show the extension; null auto-detects the extension slot.",
+    ),
+  },
+  {
+    name: "flat",
+    type: "boolean",
+    default: "false",
+    desc: pick("移除投影，即使设置了 elevation", "Remove the shadow even when elevation is set."),
+  },
 ];
 const slotRows = () =>
   ["prepend", "title", "default", "append", "extension", "background"].map((name) => ({
@@ -179,13 +201,20 @@ const slotRows = () =>
 const compactCode = `<elf-toolbar density="compact" title="Visual console" border>
   <elf-button slot="append" circle variant="text">Search</elf-button>
 </elf-toolbar>`;
-const collapseCode = `<elf-toolbar :collapsed="collapsed" collapse-position="end" collapse-width="124">...</elf-toolbar>`;
+const collapseCode = `<elf-toolbar :collapsed="collapsed" collapse-position="start" collapse-width="124">...</elf-toolbar>`;
 const imageCode = `<elf-toolbar image="/coast.jpg" title="Coastal library" extension-height="44">...</elf-toolbar>`;
 const locationCode = `<div class="relative">
   <elf-toolbar absolute floating location="bottom-end">...</elf-toolbar>
 </div>`;
 const extendedCode = `<elf-toolbar title="Toolbar" extension-height="48">
   <elf-tabs slot="extension" density="compact" grow :items.prop="tabs" :modelValue.prop="active" />
+</elf-toolbar>`;
+const prominentCode = `<elf-toolbar title="Library" density="prominent" extended color="#1e3a5f">
+  <elf-button slot="prepend" circle variant="text" dark>Menu</elf-button>
+  <elf-button slot="append" circle variant="text" dark>Favorite</elf-button>
+  <nav slot="extension" class="toolbar-tabs is-on-dark">
+    <span>All</span><span>Favorites</span><span>Shared</span>
+  </nav>
 </elf-toolbar>`;
 const extensionHeightCode = `<elf-toolbar title="Toolbar" extension-height="72">
   <elf-tabs slot="extension" density="compact" grow :items.prop="tabs" :modelValue.prop="active" />
@@ -202,8 +231,9 @@ const tabs = [
 const contextualCode = `<elf-toolbar :color="selected ? '#1e3a5f' : 'surface'" :title="selectionTitle">
   <elf-button slot="append" circle variant="text">Archive</elf-button>
 </elf-toolbar>`;
-const flexibleCode = `<elf-toolbar color="#1976d2" title="Title" extension-height="96">
-  <nav slot="extension">...</nav>
+const flexibleCode = `<elf-toolbar color="#1976d2" title="Title" extension-height="96" extended flat>
+  <elf-button slot="prepend" circle variant="text" dark>Menu</elf-button>
+  <elf-button slot="append" circle variant="text" dark>Favorite</elf-button>
 </elf-toolbar>`;
 const floatingCode = `<elf-toolbar floating rounded elevation="3">
   <input type="search" placeholder="Search" />
@@ -564,7 +594,7 @@ const PageToolbar = defineHtml(`
                 :aria-label=${t("more")} @click=${onMore}><elf-icon name="more"
                   size="18"></elf-icon></elf-button></elf-toolbar>
             <div class="collapse-controls">
-              <span>${collapsed.value ? t("collapse") : t("photos")}</span></div>
+              <span>${collapsed.value ? (collapsePosition.value === "start" ? t("start") : t("end")) : t("photos")}</span></div>
           </div>
         </div>
       </elf-playground>
@@ -618,6 +648,18 @@ const PageToolbar = defineHtml(`
         </div>
       </elf-playground>
 
+      <elf-playground :title=${t("prominent")} :code=${prominentCode}>
+        <div class="extended-stage"><elf-toolbar :title=${t("library")} density="prominent"
+            extended color="#1e3a5f"><elf-button slot="prepend" circle variant="text" dark
+              :aria-label=${t("menu")} @click=${onMenu}><elf-icon name="menu"
+                size="18"></elf-icon></elf-button><elf-button slot="append" circle variant="text" dark
+              :aria-label=${t("favorite")} @click=${() => action(t("favorite"))}><elf-icon
+                name="favorite" size="18"></elf-icon></elf-button><nav slot="extension"
+              class="toolbar-tabs is-on-dark"><span>${t("all")}</span><span>${t("favorites")}</span><span>${t("shared")}</span></nav></elf-toolbar>
+          <div class="canvas-copy"><strong>${t("library")}</strong>${t("description")}</div>
+        </div>
+      </elf-playground>
+
       <elf-playground :title=${t("extensionHeight")} :code=${extensionHeightCode}
         :script=${toolbarTabsScript}>
         <div slot="controls" class="demo-controls extension-height-controls">
@@ -667,11 +709,11 @@ const PageToolbar = defineHtml(`
 
       <elf-playground :title=${t("flexible")} :code=${flexibleCode}>
         <div class="flexible-stage"><elf-toolbar :title=${t("library")} color="#1976d2"
-            extension-height="96"><elf-button slot="prepend" circle variant="text" dark
+            extension-height="96" extended flat><elf-button slot="prepend" circle variant="text" dark
               :aria-label=${t("menu")} @click=${onMenu}><elf-icon name="menu"
                 size="18"></elf-icon></elf-button><elf-button slot="append" circle variant="text" dark
               :aria-label=${t("favorite")} @click=${() => action(t("favorite"))}><elf-icon name="favorite"
-                size="18"></elf-icon></elf-button><span slot="extension"></span></elf-toolbar>
+                size="18"></elf-icon></elf-button></elf-toolbar>
           <section class="floating-panel">
             <h3>${t("fieldNotes")}</h3>
             <p>${t("description")}</p>

@@ -2,7 +2,7 @@ import { defineHtml, useRef } from "@elfui/core";
 import { createDocsTranslator } from "../../docsLocale";
 
 const t = createDocsTranslator({
-  title: { zh: "自定义温度节点 0 / 30 / 100 ℃", en: "Custom temperature marks at 0 / 30 / 100 °C" },
+  title: { zh: "自定义刻度", en: "Custom marks" },
   temperature: { zh: "温度", en: "Temperature" },
 });
 const value = useRef(30);

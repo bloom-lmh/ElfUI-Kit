@@ -43,7 +43,7 @@ describe("ContainerPage", () => {
     expect(text).toContain("最大宽度档位");
     expect(text).toContain("内边距档位");
     expect(text).toContain("全宽外壳与居中正文");
-    expect(text).toContain("全宽承载背景");
+    expect(text).toContain("全宽背景");
     expect(text).toContain("取消最大宽度限制并填满父容器");
   });
 
@@ -55,7 +55,7 @@ describe("ContainerPage", () => {
     expect(text).toContain("Maximum-width presets");
     expect(text).toContain("Padding presets");
     expect(text).toContain("Full-width shell with centered content");
-    expect(text).toContain("Use the full width for the background");
+    expect(text).toContain("Full-width background");
     expect(text).toContain("Remove the maximum-width limit and fill the parent.");
     expect(text).not.toMatch(/[\u3400-\u9fff]/u);
   });

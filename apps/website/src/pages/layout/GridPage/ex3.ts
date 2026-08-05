@@ -72,8 +72,7 @@ const PageGridEx3 = defineHtml(`
     <aside slot="controls" class="layout-playground-controls" :aria-label=${t("controls")}>
       <strong>${t("controls")}</strong>
       <label>
-        <span>${t("mode")}</span>
-        <elf-select variant="outlined" :options.prop=${offsetOptions()} :modelValue.prop=${offsetMode.value} @update:modelValue=${onOffsetMode}></elf-select>
+        <elf-select variant="outlined" :label=${t("mode")} :options.prop=${offsetOptions()} :modelValue.prop=${offsetMode.value} @update:modelValue=${onOffsetMode}></elf-select>
       </label>
     </aside>
   </elf-playground>

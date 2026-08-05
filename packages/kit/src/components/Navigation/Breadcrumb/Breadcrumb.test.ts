@@ -44,7 +44,7 @@ const text = (el: BreadcrumbEl): string =>
     .join(" ");
 
 describe("elf-breadcrumb", () => {
-  it("渲染面包屑和分隔符", async () => {
+  it("渲染面包屑导航和分隔符", async () => {
     const el = await mount();
 
     expect(text(el)).toContain("首页 /");

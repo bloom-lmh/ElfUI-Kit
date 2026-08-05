@@ -4,7 +4,7 @@ import styles from "./demo.scss?inline";
 defineStyle(styles);
 
 const t = createDocsTranslator({
-  title: { zh: "禁用状态", en: "Disabled state" },
+  title: { zh: "Splitter 禁用状态", en: "Splitter disabled state" },
   disabledPanel: { zh: "禁用拖动", en: "Dragging disabled" },
   fixedPanel: { zh: "固定区域", en: "Fixed region" },
   note: { zh: "分隔条不可调整", en: "The separator cannot be resized" },

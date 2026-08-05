@@ -47,6 +47,18 @@ afterAll(() => {
 const wait = (ms = 20): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
 const tick = (): Promise<void> => new Promise((resolve) => queueMicrotask(resolve));
 
+const deepQuery = <T extends Element>(root: ParentNode, selector: string): T | null => {
+  const direct = root.querySelector<T>(selector);
+  if (direct) return direct;
+  for (const element of Array.from(root.querySelectorAll("*"))) {
+    if (element.shadowRoot) {
+      const nested = deepQuery<T>(element.shadowRoot, selector);
+      if (nested) return nested;
+    }
+  }
+  return null;
+};
+
 describe("DatePicker documentation", () => {
   it("renders eight focused examples and complete localized API tables", async () => {
     const page = document.createElement(pageTag);
@@ -59,8 +71,8 @@ describe("DatePicker documentation", () => {
         "elf-page-date-picker-ex1, elf-page-date-picker-ex2, elf-page-date-picker-ex3, elf-page-date-picker-ex4, elf-page-date-picker-ex5, elf-page-date-picker-ex6, elf-page-date-picker-ex7, elf-page-date-picker-ex8",
       ),
     ).toHaveLength(8);
-    expect(page.shadowRoot?.querySelector("h1")?.textContent).toBe("DatePicker");
-    expect(page.shadowRoot?.querySelector("p")?.textContent).toContain("shared Calendar");
+    expect(deepQuery(page.shadowRoot!, "h1")?.textContent).toBe("DatePicker");
+    expect(deepQuery(page.shadowRoot!, "p")?.textContent).toContain("shared Calendar");
 
     const api = page.shadowRoot?.querySelector("elf-page-date-picker-props");
     const tables = api?.shadowRoot?.querySelectorAll<PropsTableElement>("elf-props-table");

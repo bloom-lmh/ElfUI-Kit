@@ -108,13 +108,13 @@ const slotsRows = () => [
 defineStyle(`
   .quote-demo-stack {
     display: grid;
-    width: min(100%, 760px);
+    width: max(85%, min(100%, 900px));
     gap: 14px;
   }
 
   .quote-comparison {
     display: grid;
-    width: min(100%, 820px);
+    width: max(85%, min(100%, 900px));
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 18px;
   }

@@ -64,3 +64,13 @@
 - [x] Add a component regression covering every icon override path.
 - [x] The installation page now uses grouped `elf-code-card` tabs and `elf-quote` notes; docs paragraphs use one fixed line-height variable.
 - Browser screenshot acceptance remains pending.
+
+## 2026-08-04 Code snippet vertical breathing room
+
+- The internal code snippet now keeps 10px of top/bottom padding inside the scroll area (previously 3px), so the first and last lines no longer sit flush against the card edge.
+- Default, workbench, and minimal shells share the same 10px block padding.
+
+## 2026-08-05 Theme normalization
+
+- The surface scheme now follows the document theme instead of inverting it: dark pages render a dark card shell with dark Shiki palettes (github-dark / material palenight / vitesse-dark), and light pages render a light shell with light palettes.
+- Swapped the token values of `scheme-light` / `scheme-dark`, updated the paired-theme unit expectations, and corrected the `theme` prop description on the demo page.

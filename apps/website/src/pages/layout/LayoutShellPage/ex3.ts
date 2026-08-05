@@ -22,7 +22,7 @@ const nestedCode = `<elf-layout direction="horizontal">
       <elf-aside width="156px">${t("subNavigation")}</elf-aside>
       <elf-main>${t("main")}</elf-main>
     </elf-layout>
-    <elf-footer height="36px">${t("footer")}</elf-footer>
+    <elf-footer height="48px">${t("footer")}</elf-footer>
   </elf-layout>
 </elf-layout>`;
 
@@ -47,7 +47,7 @@ const PageLayoutShellEx3 = defineHtml(`
             <elf-aside class="secondary-region" width="156px">${t("subNavigation")}</elf-aside>
             <elf-main><span class="region-label">${t("main")}</span><div class="shell-skeleton"><span></span><span></span><span></span><span></span></div></elf-main>
           </elf-layout>
-          <elf-footer height="36px">${t("footer")}</elf-footer>
+          <elf-footer height="48px">${t("footer")}</elf-footer>
         </elf-layout>
       </elf-layout>
     </div>

@@ -448,6 +448,7 @@ defineStyle(
   }
   .installation-next {
     display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--elf-space-4);
     align-content: start;
     min-width: 0;
@@ -456,6 +457,7 @@ defineStyle(
   .installation-next-card {
     position: relative;
     overflow: hidden;
+    box-sizing: border-box;
     width: 100%;
     padding: var(--elf-space-6);
     border: 1px solid color-mix(in srgb, var(--elf-primary) 24%, var(--elf-border));
@@ -493,6 +495,7 @@ defineStyle(
   .installation-reading-card {
     position: relative;
     overflow: hidden;
+    box-sizing: border-box;
     width: 100%;
     padding: var(--elf-space-4);
     border: 1px solid color-mix(in srgb, var(--elf-success) 26%, var(--elf-border));
@@ -529,10 +532,7 @@ defineStyle(
     font-weight: 700;
   }
   .installation-verify-row {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(300px, 420px);
-    gap: clamp(24px, 4vw, 48px);
-    align-items: start;
+    display: block;
   }
   .guide-stage {
     display: grid;
@@ -544,7 +544,7 @@ defineStyle(
     border-radius: var(--elf-radius-sm);
   }
   @media (max-width: 900px) {
-    .installation-verify-row {
+    .installation-next {
       grid-template-columns: 1fr;
     }
   }

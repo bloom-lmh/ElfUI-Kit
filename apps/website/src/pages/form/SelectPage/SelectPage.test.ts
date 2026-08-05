@@ -33,6 +33,17 @@ const deepQuery = <T extends Element>(root: ParentNode, selector: string): T | n
   return null;
 };
 
+const collectText = (root: Node): string => {
+  let output = "";
+  const visit = (node: Node): void => {
+    if (node.nodeType === Node.TEXT_NODE) output += ` ${node.textContent || ""}`;
+    if (node instanceof Element && node.shadowRoot) visit(node.shadowRoot);
+    node.childNodes.forEach(visit);
+  };
+  visit(root);
+  return output.replace(/\s+/g, " ").trim();
+};
+
 describe("SelectPage", () => {
   it("远程案例提供完整脚本，并真实呈现加载失败状态", async () => {
     const page = document.createElement(exampleTag);
@@ -87,7 +98,7 @@ describe("SelectPage", () => {
     await wait(40);
 
     const page = provider.querySelector<HTMLElement>(pageTag)!;
-    expect(page.shadowRoot?.textContent).toContain("large-data virtualization");
+    expect(collectText(page)).toContain("large-data virtualization");
 
     const components = Array.from(page.shadowRoot?.querySelectorAll<HTMLElement>("*") ?? []).filter(
       (element) => element.shadowRoot,
@@ -96,11 +107,11 @@ describe("SelectPage", () => {
       Array.from(component.shadowRoot?.querySelectorAll<HTMLElement>("elf-playground") ?? []),
     );
     expect(playgrounds.map((playground) => playground.getAttribute("title"))).toEqual([
-      "Basic selection",
-      "Clear and disabled",
-      "Multiple and collapsed tags",
+      "Select basic selection",
+      "Select clear and disabled",
+      "Select multiple and collapsed tags",
       "Search and field mapping",
-      "Remote states",
+      "Select remote states",
       "Virtualized options",
     ]);
 

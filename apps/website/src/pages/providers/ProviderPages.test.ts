@@ -103,22 +103,31 @@ describe("Provider pages", () => {
   it("ConfigProvider 中文页面展示一站式配置、命名主题和断点", async () => {
     const page = await mount(configProviderTag);
     const text = collectText(page);
-    expect(text).toContain("配置优先级：基础预设 → 应用配置 → 显式属性");
-    expect(text).toContain("blueprint 是可复用的基础预设");
+    expect(text).toContain("配置优先级");
+    expect(text).toContain("目标按钮");
+    expect(text).toContain("当前生效值");
+    expect(text).toContain("移动端阈值");
+    expect(text).toContain("完整动效");
+    expect(text).toContain("减少动效");
+    expect(text).toContain("可复用的基础预设；config 中的同名配置会覆盖它");
     expect(text).toContain("命名主题");
     expect(text).toContain("显示与动效偏好");
-    expect(text).toContain("程序化滚动 · 共享滚动策略");
+    expect(text).toContain("共享滚动策略");
   });
 
   it("ConfigProvider 英文页面覆盖案例、预览和 API 文案", async () => {
     document.documentElement.lang = "en-US";
     const page = await mount(configProviderTag);
     const text = collectText(page);
-    expect(text).toContain("Configuration priority");
-    expect(text).toContain("blueprint is a reusable base preset");
+    expect(text).toContain("Config priority");
+    expect(text).toContain("Precedence: explicit props > app config > blueprint");
+    expect(text).toContain("Mobile threshold");
+    expect(text).toContain("Full motion");
+    expect(text).toContain("Reduced motion");
+    expect(text).toContain("Reusable base preset; matching config values override it.");
     expect(text).toContain("Named theme");
     expect(text).toContain("Display and motion preferences");
-    expect(text).toContain("Programmatic scrolling · shared strategy");
+    expect(text).toContain("Shared scroll strategy");
     expect(text).toContain("Field value semantics");
     expect(text).toContain("Shared emptyValues and valueOnClear semantics across fields.");
     expect(text).toContain("Reusable base preset; matching config values override it.");
@@ -143,7 +152,7 @@ describe("Provider pages", () => {
     expect(text).toContain("Switching locale and RTL");
     expect(text).toContain("Component-level English override");
     expect(text).toContain("Nested scopes and formatting");
-    expect(text).toContain("External i18n adapter");
+    expect(text).toContain("External i18n");
     expect(text).toContain("Adaptateur i18n externe");
     expect(text).toContain("Valider");
     expect(text).toContain("Lokaler deutscher Freigabebereich");

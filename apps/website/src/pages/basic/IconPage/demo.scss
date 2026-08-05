@@ -140,6 +140,7 @@
 }
 
 .icon-gallery-token {
+  position: relative;
   display: grid;
   justify-items: center;
   align-content: center;
@@ -151,6 +152,20 @@
   border-radius: var(--elf-radius-sm);
   background: var(--elf-bg-paper);
   color: var(--elf-text-secondary);
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.icon-gallery-token:hover {
+  border-color: var(--elf-primary);
+  color: var(--elf-text-primary);
+}
+
+.icon-gallery-token:focus-visible {
+  outline: 2px solid var(--elf-primary);
+  outline-offset: 2px;
 }
 
 .icon-gallery-token small {
@@ -193,6 +208,76 @@
   background: var(--elf-bg-paper);
 }
 
+.icon-gallery-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 28px;
+}
+
+.icon-gallery-hint,
+.icon-gallery-count {
+  color: var(--elf-text-secondary);
+  font-size: var(--elf-font-size-xs);
+}
+
+.icon-gallery-count {
+  font-variant-numeric: tabular-nums;
+}
+
+.icon-gallery-empty {
+  padding: 36px 16px;
+  text-align: center;
+  color: var(--elf-text-secondary);
+  font-size: var(--elf-font-size-sm);
+  border: 1px dashed var(--elf-divider);
+  border-radius: var(--elf-radius-sm);
+}
+
+.icon-gallery-search {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.icon-gallery-search elf-icon-provider {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.icon-gallery-search elf-input {
+  width: 200px;
+}
+
+.icon-raw-svg-token {
+  display: inline-grid;
+  justify-items: center;
+  gap: 6px;
+  min-width: 64px;
+  padding: 10px;
+  border: 1px solid var(--elf-divider);
+  border-radius: var(--elf-radius-sm);
+  background: var(--elf-bg-paper);
+}
+
+.icon-raw-svg-token small {
+  color: var(--elf-text-secondary);
+  font-size: var(--elf-font-size-xs);
+}
+
+.icon-color-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 16px;
+  border: 1px solid var(--elf-divider);
+  border-radius: var(--elf-radius-sm);
+  background: var(--elf-bg-paper);
+}
+
 @media (max-width: 720px) {
   .icon-appearance-grid,
   .icon-provider-preview {
@@ -208,6 +293,14 @@
   }
 
   .icon-gallery-panel {
+    width: 100%;
+  }
+
+  .icon-gallery-search {
+    width: 100%;
+  }
+
+  .icon-gallery-search elf-input {
     width: 100%;
   }
 }

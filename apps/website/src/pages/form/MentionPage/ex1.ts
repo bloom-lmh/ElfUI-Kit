@@ -85,8 +85,8 @@ const PageMentionEx1 = defineHtml(`
       </div>
       <aside slot="controls" class="mention-controls" :aria-label=${p("提及配置", "Mention controls")}>
         <strong>${p("提及配置", "Mention controls")}</strong>
-        <label><span>${p("外观", "Variant")}</span><elf-select :options.prop=${variantOptions} :modelValue.prop=${variant.value} @update:modelValue=${onVariant}></elf-select></label>
-        <label><span>${p("面板位置", "Panel placement")}</span><elf-select :options.prop=${placementOptions} :modelValue.prop=${placement.value} @update:modelValue=${onPlacement}></elf-select></label>
+        <label><elf-select :label=${p("外观", "Variant")} :options.prop=${variantOptions} :modelValue.prop=${variant.value} @update:modelValue=${onVariant}></elf-select></label>
+        <label><elf-select :label=${p("面板位置", "Panel placement")} :options.prop=${placementOptions} :modelValue.prop=${placement.value} @update:modelValue=${onPlacement}></elf-select></label>
         <elf-checkbox-group :options.prop=${flagOptions} :modelValue.prop=${flags.value} @update:modelValue=${onFlags}></elf-checkbox-group>
       </aside>
     </elf-playground>

@@ -7,7 +7,7 @@ const multiple = useRef<string[]>([]);
 const limited = useRef<string[]>(["vue"]);
 
 const t = createDocsTranslator({
-  title: { zh: "多选与折叠", en: "Multiple and collapsed tags" },
+  title: { zh: "Select 多选与折叠", en: "Select multiple and collapsed tags" },
   multiple: { zh: "选择多个框架", en: "Choose multiple frameworks" },
   limited: { zh: "最多选择 2 项", en: "Choose up to 2 items" },
   selected: { zh: "已选择", en: "Selected" },

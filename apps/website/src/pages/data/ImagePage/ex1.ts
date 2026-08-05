@@ -56,7 +56,7 @@ const PageImageEx1 = defineHtml(`
     </div>
     <aside slot="controls" class="image-demo-controls" :aria-label=${t("controls")}>
       <strong>${t("controls")}</strong>
-      <label><span>${t("fit")}</span><elf-select variant="outlined" :options.prop=${fitOptions()} :modelValue.prop=${fit.value} @update:modelValue=${onFit}></elf-select></label>
+      <label><elf-select variant="outlined" :label=${t("fit")} :options.prop=${fitOptions()} :modelValue.prop=${fit.value} @update:modelValue=${onFit}></elf-select></label>
       <small class="image-fit-note">* ${t("fitNote")}</small>
       <label><span>${t("width")}</span><elf-input-number variant="outlined" :modelValue.prop=${width.value} :min=${180} :max=${520} :step=${20} @update:modelValue=${onWidth}></elf-input-number></label>
       <label><span>${t("height")}</span><elf-input-number variant="outlined" :modelValue.prop=${height.value} :min=${132} :max=${360} :step=${12} @update:modelValue=${onHeight}></elf-input-number></label>

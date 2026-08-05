@@ -31,8 +31,8 @@ const t = createDocsTranslator({
   fields: { zh: "个字段", en: "fields" },
   card: { zh: "新建项目", en: "Create project" },
   subtitle: {
-    zh: "校验结果与操作按钮保持在同一张卡片中",
-    en: "Keep validation results and actions in the same card.",
+    zh: "校验与操作",
+    en: "Validation and actions",
   },
   selectOwner: { zh: "请选择负责人", en: "Select an owner" },
   submit: { zh: "提交", en: "Submit" },

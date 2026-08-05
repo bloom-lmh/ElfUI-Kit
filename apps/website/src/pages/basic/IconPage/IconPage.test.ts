@@ -1,8 +1,9 @@
-import { afterEach, beforeAll, describe, expect, it } from "vitest";
+import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
 let providerExampleTag = "";
 let accessibilityExampleTag = "";
 let galleryExampleTag = "";
+let rawSvgExampleTag = "";
 
 beforeAll(async () => {
   await import("../../../components");
@@ -10,9 +11,11 @@ beforeAll(async () => {
   const { PageIconEx2 } = await import("./ex2");
   const { PageIconEx3 } = await import("./ex3");
   const { PageIconEx4 } = await import("./ex4");
+  const { PageIconEx5 } = await import("./ex5");
   providerExampleTag = ensureCustomElement(PageIconEx2);
   accessibilityExampleTag = ensureCustomElement(PageIconEx3);
   galleryExampleTag = ensureCustomElement(PageIconEx4);
+  rawSvgExampleTag = ensureCustomElement(PageIconEx5);
 });
 
 afterEach(() => {
@@ -24,18 +27,94 @@ const tick = async (): Promise<void> => {
   await new Promise<void>((resolve) => queueMicrotask(resolve));
 };
 
+const searchInputOf = (page: HTMLElement): HTMLInputElement => {
+  const search = page.shadowRoot!.querySelector<HTMLElement>('[slot="status"] elf-input')!;
+  return search.shadowRoot!.querySelector<HTMLInputElement>("input")!;
+};
+
 describe("Icon documentation", () => {
-  it("renders the expanded icon gallery with raw SVG and size ladders", async () => {
+  it("renders a 72-icon gallery and filters it from the header search box", async () => {
     const page = document.createElement(galleryExampleTag);
     document.body.appendChild(page);
     await tick();
 
-    expect(page.shadowRoot!.querySelector(".icon-gallery-grid")).toBeTruthy();
-    expect(page.shadowRoot!.querySelectorAll(".icon-gallery-token").length).toBeGreaterThanOrEqual(
-      18,
-    );
-    expect(page.shadowRoot!.querySelector(".icon-size-ladder")).toBeTruthy();
+    expect(page.shadowRoot!.querySelectorAll(".icon-gallery-token").length).toBe(72);
+    expect(page.shadowRoot!.querySelector('[slot="status"] elf-input')).toBeTruthy();
+
+    const input = searchInputOf(page);
+    input.value = "star";
+    input.dispatchEvent(new Event("input", { bubbles: true, composed: true }));
+    await tick();
+
+    const filtered = page.shadowRoot!.querySelectorAll(".icon-gallery-token");
+    expect(filtered.length).toBe(1);
+    expect(filtered[0]!.textContent).toContain("star");
+
+    input.value = "zzzz";
+    input.dispatchEvent(new Event("input", { bubbles: true, composed: true }));
+    await tick();
+
+    expect(page.shadowRoot!.querySelectorAll(".icon-gallery-token").length).toBe(0);
+    expect(page.shadowRoot!.querySelector(".icon-gallery-empty")).toBeTruthy();
+
+    input.value = "";
+    input.dispatchEvent(new Event("input", { bubbles: true, composed: true }));
+    await tick();
+
+    expect(page.shadowRoot!.querySelectorAll(".icon-gallery-token").length).toBe(72);
+  });
+
+  it("copies the icon code when a gallery token is clicked", async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: { writeText },
+    });
+    const page = document.createElement(galleryExampleTag);
+    document.body.appendChild(page);
+    await tick();
+
+    const star = Array.from(
+      page.shadowRoot!.querySelectorAll<HTMLElement>(".icon-gallery-token"),
+    ).find((token) => token.dataset.name === "star")!;
+    star.click();
+    await tick();
+
+    expect(writeText).toHaveBeenCalledWith('<elf-icon name="star" size="20"></elf-icon>');
+    const updated = Array.from(
+      page.shadowRoot!.querySelectorAll<HTMLElement>(".icon-gallery-token"),
+    ).find((token) => token.dataset.name === "star")!;
+    expect(updated.querySelector("small")?.textContent).toContain("已复制");
+  });
+
+  it("copies the icon code with Enter on a focused gallery token", async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: { writeText },
+    });
+    const page = document.createElement(galleryExampleTag);
+    document.body.appendChild(page);
+    await tick();
+
+    const home = Array.from(
+      page.shadowRoot!.querySelectorAll<HTMLElement>(".icon-gallery-token"),
+    ).find((token) => token.dataset.name === "home")!;
+    home.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
+    await tick();
+
+    expect(writeText).toHaveBeenCalledWith('<elf-icon name="home" size="20"></elf-icon>');
+  });
+
+  it("renders third-party SVG through the default slot with size and color control", async () => {
+    const page = document.createElement(rawSvgExampleTag);
+    document.body.appendChild(page);
+    await tick();
+
     expect(page.shadowRoot!.querySelector(".icon-raw-svg-preview")).toBeTruthy();
+    expect(page.shadowRoot!.querySelector(".icon-size-ladder")).toBeTruthy();
+    expect(page.shadowRoot!.querySelector(".icon-color-row")).toBeTruthy();
+    expect(page.shadowRoot!.querySelectorAll("svg path").length).toBeGreaterThanOrEqual(9);
   });
 
   it("switches the provider set and keeps an explicit missing-icon fallback", async () => {

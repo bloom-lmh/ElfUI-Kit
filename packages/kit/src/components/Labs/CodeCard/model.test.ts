@@ -16,10 +16,12 @@ describe("CodeCard model", () => {
     expect(normalizeCodeCardLanguage("TS")).toBe("typescript");
     expect(normalizeCodeCardLanguage("shell")).toBe("bash");
     expect(normalizeCodeCardLanguage("unknown-language")).toBe("plaintext");
-    expect(resolveCodeCardTheme("github", "light")).toBe("github-dark");
-    expect(resolveCodeCardTheme("github", "dark")).toBe("github-light");
-    expect(resolveCodeCardTheme("material", "dark")).toBe("material-theme-lighter");
-    expect(resolveCodeCardTheme("vitesse", "light")).toBe("vitesse-dark");
+    expect(resolveCodeCardTheme("github", "light")).toBe("github-light");
+    expect(resolveCodeCardTheme("github", "dark")).toBe("github-dark");
+    expect(resolveCodeCardTheme("material", "light")).toBe("material-theme-lighter");
+    expect(resolveCodeCardTheme("material", "dark")).toBe("material-theme-palenight");
+    expect(resolveCodeCardTheme("vitesse", "light")).toBe("vitesse-light");
+    expect(resolveCodeCardTheme("vitesse", "dark")).toBe("vitesse-dark");
   });
 
   it("returns line-preserving syntax tokens", async () => {

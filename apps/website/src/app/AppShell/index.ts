@@ -49,7 +49,7 @@ const APP_MESSAGES: Record<string, LocaleMessages> = {
     home: {
       eyebrow: "面向产品团队的 Web Components",
       titleLead: "构建精致界面，",
-      titleAccent: "不再绑定框架。",
+      titleAccent: "原生 Web Components 组件库。",
       description:
         "ElfUI 将稳定的组件契约、Material 设计语言与原生 Web 标准组合在一起，让设计系统真正跨项目复用。",
       primaryAction: "浏览组件",
@@ -103,7 +103,7 @@ const APP_MESSAGES: Record<string, LocaleMessages> = {
     home: {
       eyebrow: "Web Components for product teams",
       titleLead: "Ship polished interfaces,",
-      titleAccent: "without framework lock-in.",
+      titleAccent: "a native Web Components library.",
       description:
         "ElfUI combines stable component contracts, Material design language, and native web standards so your design system can travel across products.",
       primaryAction: "Explore components",
@@ -184,6 +184,7 @@ const englishLabel = (label: string): string => {
 };
 
 const chineseLabel = (label: string): string => {
+  if (label === "AI 组件") return label;
   const firstChinese = label.search(/[\u3400-\u9fff]/u);
   return firstChinese >= 0 ? label.slice(firstChinese).trim() : label;
 };
