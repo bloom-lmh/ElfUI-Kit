@@ -2,7 +2,7 @@
 
 # ElfUI Kit 维护交接
 
-更新时间：2026-08-05
+更新时间：2026-08-06
 
 本文件是持续更新的维护交接记录。每轮工作开始时先读取，完成一个阶段后立即更新，避免依赖对话上下文。
 
@@ -23,6 +23,15 @@
 - 工作树包含多批尚未提交的维护改动。不得回退不属于当前任务的文件。
 
 ## 2. 已经做的工作
+
+### 2026-08-06 AI 案例页图标尺寸、对齐与 Codex 移除批次
+
+- AiLoading：`.ai-loading` 由 `inline-flex` 改为 `display: flex`。根因是文档页继承 `line-height: 1.6`（25.6px），inline-flex 行被基线挤到 line box 底部，网格相对 host 下移 5.25px；改为 block 级 flex 后 host 高度收敛为 22px、网格/文字/计时器中心完全重合（偏移 0）。
+- AiTaskRow：`.status-icon` 16px→12px、`.step-icon` 12px→10px，勾选 `rotate(-45deg)` 的 translate 与 failed X 笔画按比例调小；实测 status 包围盒 25.5→19.8px、step 19.8→17px。
+- AiContextCard：`.source-icon` 由 14×17px 窄高改为 14×14px 正方形（doc 变体 13×16→13×13），去除"被压缩"观感，保留折叠角文档语义。
+- AiToolChips：`.item-icon` 16px→12px，success 勾选 translate 同步调整；实测包围盒 25.5→19.8px。
+- AiShowcase：整段删除"完整 Codex 案例"（翻译键、CODEX_STEPS/codex* 状态与数据、codexCode/codexScript、`.codex-*` 样式、`<h2>codex>` 模板块与 `onUnmounted`/`useTemplateRef`/`useRef` 未用 import），保留 neon/terminal/cream/midnight/gradient 五个换肤案例，页面从 0.0.2-beta.1 的 875 行收敛到 435 行。
+- 验证：4 个 AI 组件测试 16 项通过；路由信息架构测试 7 项通过；unsupported macro 扫描 728 文件 0 findings；`typecheck:website` 588 个宏文件 0 宏错误、0 TS 错误；真实 Chromium（CDP）逐一实测图标尺寸与垂直居中偏移，控制台 0 error；截图归档 `output/playwright/ai-loading-center-fixed.png`、`ai-task-row-icons-smaller.png`、`ai-context-card-source-icon-square.png`、`ai-tool-chips-item-icon-smaller.png`、`ai-showcase-no-codex.png`。
 
 ### 2026-08-05 AppBar 密度案例改为标题区选择按钮
 

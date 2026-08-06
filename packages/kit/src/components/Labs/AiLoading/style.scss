@@ -6,7 +6,9 @@
 }
 
 .ai-loading {
-  display: inline-flex;
+  /* Block-level so an inherited line-height (e.g. 1.6 in docs) cannot add a
+     taller line box around the flex row and push it off vertical center. */
+  display: flex;
   align-items: center;
   gap: 10px;
   min-height: 22px;

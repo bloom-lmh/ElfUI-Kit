@@ -67,7 +67,7 @@
   flex: 0 0 auto;
   position: relative;
   width: 14px;
-  height: 17px;
+  height: 14px;
   border: 1.5px solid var(--elf-text-secondary, #64748b);
   border-radius: 2px;
 }
@@ -100,7 +100,7 @@
 
 :host([data-kind="doc"]) .source-icon {
   width: 13px;
-  height: 16px;
+  height: 13px;
 }
 
 .source-kind {

@@ -124,8 +124,8 @@
 .item-icon {
   position: relative;
   flex: 0 0 auto;
-  width: 16px;
-  height: 16px;
+  width: 12px;
+  height: 12px;
   border: 1.5px solid var(--elf-text-secondary, #64748b);
   border-radius: 4px;
 }
@@ -154,7 +154,7 @@
   border-bottom: 2px solid var(--elf-success, #4caf50);
   border-left: 2px solid var(--elf-success, #4caf50);
   border-radius: 0;
-  transform: rotate(-45deg) translate(1px, -3px);
+  transform: rotate(-45deg) translate(1px, -2px);
 }
 
 .item[data-status="error"] .item-icon {
