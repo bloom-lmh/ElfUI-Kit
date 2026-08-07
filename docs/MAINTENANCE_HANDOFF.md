@@ -24,6 +24,12 @@
 
 ## 2. 已经做的工作
 
+### 2026-08-07 版本升级 0.0.2-beta.2 + Vercel 部署配置确认
+
+- `packages/kit/package.json` 版本 `0.0.2-beta.1 → 0.0.2-beta.2`，交接基线同步；提交 `fd48409` 已推送 GitHub/Gitee。
+- 新 tag `v0.0.2-beta.2` 已推送双远程；GitHub Release 工作流触发后将发布 `@elfui/kit@0.0.2-beta.2`（npm tag `beta`，`--provenance` 信任发布）并创建 GitHub Release。
+- Vercel：`vercel.json` 已配置（`framework: vite`、`installCommand: pnpm install --frozen-lockfile`、`buildCommand: pnpm build:website`、`outputDirectory: apps/website/dist`），风格对齐 elfui-docs（其仅配置 `outputDirectory: .vitepress/dist` + `cleanUrls`）。`.vercel/project.json` 已链接 `elfui-kit` 项目（projectId/orgId 在本地）。本地无 Vercel CLI 凭证，部署依赖 GitHub 集成自动触发，或用户 `npx vercel login` 后手动 `npx vercel --prod`。
+
 ### 2026-08-07 DocSync 全面下架
 
 - 按用户决定彻底移除 DocSync：删除 kit `Labs/DocSync` 组件目录（6 个文件：index/model/types/style/plan/测试）与网站 `labs/DocSyncPage` 目录（index + 测试），清理 `scripts/wire-api-builder.mjs` 中 `labs/DocSyncPage` 映射。
