@@ -16,7 +16,7 @@
 
 ### 仓库基线
 
-- Kit 版本：`0.0.2-beta.1`。
+- Kit 版本：`0.0.2-beta.2`。
 - `@elfui/core`、`@elfui/compiler`、`@elfui/vite-plugin` 已统一到 `0.1.0-beta.20`。
 - `@elfui/router` 当前为 `0.1.0-beta.10`。
 - `typecheck` 同时执行 unsupported macro 扫描和 macro-aware TypeScript 检查。
