@@ -24,6 +24,12 @@
 
 ## 2. 已经做的工作
 
+### 2026-08-07 DocSync 全面下架
+
+- 按用户决定彻底移除 DocSync：删除 kit `Labs/DocSync` 组件目录（6 个文件：index/model/types/style/plan/测试）与网站 `labs/DocSyncPage` 目录（index + 测试），清理 `scripts/wire-api-builder.mjs` 中 `labs/DocSyncPage` 映射。
+- 路由、nav、menu-icons 此前已按用户未提交改动移除 `/labs/doc-sync`；`Labs/index.ts` 注册/导出在文件丢失事件中已回退为不含 DocSync（发布产物本来就不含）。
+- 验证：`pnpm typecheck:website` / `typecheck:kit` 均 0 错误；Labs 测试 26 文件 144 项通过；全量 website **405/409**，DocSyncPage 5 项失败消失，剩余 4 项均为既有基线（routing 2、no-demo-gradients 1、IA 英文覆盖 1 并行超时）。
+
 ### 2026-08-07 收口发布：多 agent 明暗主题 QA + 死代码审计 + 路由下架确认
 
 - **明暗主题 QA（theme_light_dark_qa）**：146/146 路由 light/dark 切换全部通过（`data-theme` 切换、真实渲染、背景色变化、按钮轮换、0 pageerror）；静态样式无破坏暗色的硬编码背景，约 15 处硬编码白/黑均为有意设计。审计脚本 `scripts/theme-light-dark-audit.playwright.js` 可复跑。

@@ -138,7 +138,6 @@ const INLINE_PAGE_TAGS = {
   "labs/ChatMessagePage": "elf-chat-message",
   "labs/ChatToolCallPage": "elf-chat-tool-call",
   "labs/CodeCardPage": "elf-code-card",
-  "labs/DocSyncPage": "elf-doc-sync",
   "labs/HeatmapPage": "elf-heatmap",
   "labs/MdPagePage": "elf-md-page",
   "labs/VideoPage": "elf-video",
