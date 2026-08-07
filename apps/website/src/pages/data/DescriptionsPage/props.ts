@@ -128,11 +128,12 @@ const itemSlotsRows = () => [
 ];
 
 const PageDescriptionsProps = defineHtml(`
-  <h2>API</h2>
-  <elf-props-table :title=${t("props")} :rows=${propsRows()} />
-  <elf-props-table :title=${t("slots")} :rows=${slotsRows()} />
-  <elf-props-table :title=${t("itemProps")} :rows=${itemPropsRows()} />
-  <elf-props-table :title=${t("itemSlots")} :rows=${itemSlotsRows()} />
+  <elf-api-builder component="elf-descriptions" title="API">
+  <elf-props-table role="props" :title=${t("props")} :rows=${propsRows()} />
+  <elf-props-table role="slots" :title=${t("slots")} :rows=${slotsRows()} />
+  <elf-props-table role="props" component="elf-descriptions-item" :title=${t("itemProps")} :rows=${itemPropsRows()} />
+  <elf-props-table role="slots" component="elf-descriptions-item" :title=${t("itemSlots")} :rows=${itemSlotsRows()} />
+  </elf-api-builder>
 `);
 
 export { PageDescriptionsProps };

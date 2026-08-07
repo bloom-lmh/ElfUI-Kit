@@ -2,7 +2,7 @@
 
 # ElfUI Kit 维护交接
 
-更新时间：2026-08-06
+更新时间：2026-08-07
 
 本文件是持续更新的维护交接记录。每轮工作开始时先读取，完成一个阶段后立即更新，避免依赖对话上下文。
 
@@ -23,6 +23,154 @@
 - 工作树包含多批尚未提交的维护改动。不得回退不属于当前任务的文件。
 
 ## 2. 已经做的工作
+
+### 2026-08-07 收口发布：多 agent 明暗主题 QA + 死代码审计 + 路由下架确认
+
+- **明暗主题 QA（theme_light_dark_qa）**：146/146 路由 light/dark 切换全部通过（`data-theme` 切换、真实渲染、背景色变化、按钮轮换、0 pageerror）；静态样式无破坏暗色的硬编码背景，约 15 处硬编码白/黑均为有意设计。审计脚本 `scripts/theme-light-dark-audit.playwright.js` 可复跑。
+- **死代码审计（dead_code_audit）**：高置信度 6 项（VirtualListPage/ex1.ts、layout/demo-cards.scss、4 处无引用 demo 类）；不可达页 2 组（Container/Space 路由指向 Grid/Flex，需用户拍板；DocSync 确认按用户未提交改动**从路由与导航下架**）；kit 无死样式；docs 历史归档建议保留。报告 `docs/audits/2026-08-07-dead-code.md`。
+- **路由状态**：`/labs/doc-sync` 路由与 navItem 按用户意图移除（与 menu-icons.ts 未提交改动一致）；`menu-icons.test` / `routes` IA / `pages` IA 三项 12/12 通过。
+- **发布门禁**：`pnpm typecheck:website` 0 错误；全量 website **409/418**，剩余 9 失败 = DocSyncPage 5（恢复基线，浏览器正常）+ routing 2（既有）+ no-demo-gradients 1（既有）+ pages IA 英文覆盖 1（全量并行负载超时，隔离通过）。
+
+### 2026-08-07 收口发布前置：API 表复合行拆分 + 全组件说明补全（api_table_cleanup）
+
+- **复合属性行拆分**：全站 API 表（props/events/methods/slots/expose，含组件页、指令页、服务页、Labs、Providers、CSS 变量表）中 `name: "a / b"` 一行多属性的写法全部拆为独立行，共拆分 **405 行**（63 个文件），`type`/`default` 按位置同步拆分（`|` 类型联合不拆）；单行行与多行行、`defineHtml` 内联 `:rows=${[...]}` 均支持。
+- **说明补全**：API 表 0 空 desc、0 缺 desc；TablePage 119 条纯中文说明全部转为 `pick(zh, en)` 并补英文，拆分产生的重复组说明同步细化为各自属性的准确中英文；4 个 picker 名为 `p` 的文件（Checkbox/InputOtp/InputTag/Mention）已适配 `p()`；FlexPage/GridPage/SpacePage 补充 `createDocsPicker` 声明；0 空 zh/en、0 空页面 description。
+- **测试同步**：FormPage 表格行数断言 `[15,13,7,5,9] → [17,13,8,6,10]`；UploadPage/TabsPage 复合行名断言改为拆分后名称。
+- **验证**：`pnpm typecheck:website` 0 宏错误/0 TS 错误；pages 范围 ESLint 通过；prettier 全 pages 通过；`audit-docs-locale` 574/574；聚焦测试（Form/Upload/Tabs/ApiBuilder/PropsTable/覆盖审计）36/36。全量 `pnpm lint` 仍被并行主题审计脚本 `scripts/theme-light-dark-audit.playwright.js` 的 1 个未使用变量阻断；spellcheck 已补充 `modelvalue`/`wolai` 两个文档词。
+- **工具与过程备注**：一次性脚本在 git 忽略的 `output/audit/`（split-props.mjs / repair*.mjs），可复跑审计；拆分曾因解析器 `}` 提前入表达式产生单行行损坏，已由 repair2/3/4 修复并经 prettier + typecheck 双重验证，当前 0 残留。
+
+### 2026-08-07 API 构建器覆盖收口审计 + DocSync 文件丢失事件
+
+- **覆盖审计完成**：全部 **111 个元素组件文档页**已接入 `elf-api-builder`（67 个 `props.ts` 页 + 44 个内联 `index.ts` 页，含全部 Labs/Providers 与 Icon/Link/Quote/Sparkline/VirtualList/Rate/Upload/Masonry/Space/Toolbar/AppBar/BottomNavigation/Dropdown/Footer/PageHeader/ColorPicker 等）；13 个非元素页（Message/Notification/MessageBox 服务页、8 个指令页、2 个指南页）保持普通表格；`scripts/api-builder-coverage.test.ts` 扩展为同时扫描 `props.ts` 与 `index.ts` 防回归。
+- **内联页迁移**：`wire-api-builder.mjs` 支持 `index.ts` 内联表（API h2 替换为构建器、表尾精确闭合）；子组件归组新增 `elf-icon-provider` / `elf-md-outline` / `elf-dropdown-item`；Provider 配置/上下文表（ElfUIConfig / Locale Context / Theme Context）与 DocSync `cssVars` 不参与勾选。
+- **IA 测试修正**：AI Showcase 页面实际只有 5 个真实案例（其余 `elf-playground` 出现在代码示例字符串中），期望 6→5；隔离复跑 3/3 通过。
+- **DocSync 文件丢失事件**：工作树中 `DocSyncPage/index.ts` + 测试与 kit `Labs/DocSync` 全部 6 个文件被意外删除（非本批命令所致），已从 git HEAD 恢复；HEAD 基线在 happy-dom 下 `elf-doc-sync` 注册缺失，导致 DocSyncPage 5 项测试失败（浏览器渲染正常，其余 labs 组件注册正常）。此前未提交的 DocSync 修复（见下方历史记录）需按需重建。
+- 验证：`pnpm typecheck:website` 0 错误；覆盖审计 + IA 测试 6/6；全量 website **410/418**，剩余 8 失败 = routing 2 项（既有）+ no-demo-gradients 1 项（既有 5 个旧文件）+ DocSyncPage 5 项（恢复基线后）。
+
+### 2026-08-07 API 构建器：移除预览功能
+
+- 删除预览按钮与眼睛图标、`elf-dialog` 预览对话框、`previewOpen`/`previewHost`/`onPreview` 及 watch 填充逻辑，清理 `.api-builder-dialog-preview` 样式；动作栏保留「复制」「清空」两个无边框彩色图标按钮（成对标签生成逻辑不变）。
+- 测试删除 `preview opens a dialog with the rendered component` 用例；ApiBuilder `plan.md` 行为说明同步（复制/清空/成对标签）。
+- 验证：ApiBuilder/PropsTable/CardPage/覆盖审计 26 项测试通过；`pnpm typecheck:website` 0 错误；Prettier/ESLint/CSpell 通过；真实 Chromium 确认动作栏仅 2 个按钮、0 个 dialog、控制台无新报错。
+
+### 2026-08-07 API 构建器：生成代码统一成对结束标签
+
+- `codegen.ts` 不再输出自闭合 `/>`：无论是否选择插槽，生成结果统一为 `<elf-card ...></elf-card>` 成对标签（无子内容时开标签后直接闭合）。
+- 测试同步：`always emits paired closing tags` 断言 `>` + `</elf-card>` 且不含 `/>`；多组件片段断言改为成对标签；ApiBuilder `plan.md` 行为说明更新。
+- 验证：codegen/ApiBuilder/PropsTable/CardPage 测试通过；`pnpm typecheck:website` 0 错误；Prettier/ESLint 通过。
+
+### 2026-08-07 CardPage 3D 倾斜 + API 构建器全站接入
+
+- **3D 倾斜（替换点击按压）**：`.card-press` 改为鼠标跟随倾斜——`onPressMove` 按指针相对卡片的位置计算 `rotateX/rotateY`（±16°），`:style` 绑定 `perspective(720px)`，四个角分别得到不同倾斜方向（右上/左下/右下实测 `rotateX/Y` 正负组合正确），`mouseleave` 回弹归零；删除 `:active` 按压规则，文案/示例代码同步（`creativeCode`/`creativeScript`）。
+- **API 构建器全站接入**：`elf-api-builder` 从 CardPage 试点扩展到全部元素组件文档页（66 个页面批量迁移 + CardPage 共 67 个）；新增 `scripts/wire-api-builder.mjs` 一次性迁移脚本（幂等，可重跑）与 `scripts/api-builder-coverage.test.ts` 防回归审计（纯函数式服务页 Message/Notification/MessageBox 保持普通表格）。
+- **多组件片段生成**：`elf-props-table` 新增 `component` 属性，`registerTable/setSelected/isSelected` 按 `role + component` 归组；`codegen.ts` 按组件输出多个独立片段（实测 Form 页同时勾选 elf-form 与 elf-form-item 生成两个片段）。子组件表（avatar-group/carousel-item/collapse-item/descriptions-item/list-item/countdown/grid-item/splitter-panel/checkbox-group/radio-group/form-item/menu-item/sub-menu/menu-item-group/step/tab-pane/breadcrumb-item/anchor-link/spacer/cascader-panel）均带 `component` 归组；Parts/Service/Directive/FormRule/Column/TourStep/TimelineItem 等非元素表不参与勾选。
+- **动作按钮无边框 + 彩色图标**：`.api-builder-*` 去掉边框，改 30×30 圆角幽灵按钮（悬停底色、按压缩放）；复制/预览/清空/已复制为两色渐变 SVG（蓝文档、紫粉眼球、琥珀红圆 ✕、翠绿圆对勾），复制成功态变 success 色。
+- **CheckboxPage 结构修复**：该页 API 区原含「状态映射与无障碍」章节标题与一个 Playground 案例，迁移后手工恢复章节标题并把构建器移到 Playground 之后（原 `<h2>API</h2>` 由构建器标题接管）；FormPage 测试改为穿透 `elf-api-builder` shadow 断言标题。
+- 验证：全量 `pnpm test:website` 419 项中 414 通过，剩余 5 项均为交接记录中的既有失败（routing 2、IA code-card 1、no-demo-gradients 的 6 个旧文件，隔离复跑确认，本批未新增）；`pnpm typecheck:website` 0 宏错误 / 0 TS 错误；Prettier/ESLint 通过；真实 Chromium 实测四角倾斜方向与回弹、Button/Form/Table 页构建器勾选列与行数据、多组件代码生成、预览对话框 teleport 渲染真实组件、图标无边框、控制台无新报错；截图归档 `output/playwright/api-builder-button.png`、`api-builder-form.png`、`api-builder-table.png`、`card-creative-tilt-default.png`、`card-creative-tilt-corner.png`。
+
+### 2026-08-07 CardPage API 构建器：标题行对齐 85% + MDI 图标美化
+
+- `.api-builder-head` 宽度改为 `max(85%, min(100%, 900px))` 并居中，与 `elf-props-table` 的 `:host` 宽度公式一致，标题行与表格左边界完全对齐（实测 876px / left 304px 相同）。
+- 复制/预览/清空/已复制从文本符号（⧉/⛶/✕/✓）改为**两色渐变 SVG 图标**（`v-html` 注入静态字符串）：复制为蓝/天蓝双层文档（`#38BDF8→#2563EB`）、预览为紫粉渐变眼球（`mdiEyeOutline` 轮廓 + `#A78BFA→#EC4899` 虹膜 + 白色高光）、清空为琥珀红渐变圆形 ✕（`#FBBF24→#EF4444`）、复制成功为翠绿圆形对勾（`#34D399→#059669`）；复制成功态按钮变 success 色（`.is-copied`），图标带轻微 drop-shadow。
+- 验证：ApiBuilder 7 项 + CardPage 4 项测试通过；`pnpm typecheck:website` 0 宏错误 / 0 TS 错误；Prettier/ESLint 通过；真实 Chromium 确认标题行与表格同宽同左边界、3 个渐变 SVG 渲染为 16px、控制台无报错；截图归档 `output/playwright/card-api-builder-color.png`。
+
+### 2026-08-07 CardPage 创意卡片：灵感徽章重设计（两轮）+ 3D 按压改角压
+
+- **灵感徽章重设计**：第一轮“圆章徽记 + 缎带 + 星光”徽章风经用户反馈后改为**极简编辑风**——去掉圆章/缎带/散落星光，改为 34px 渐变圆角图标块（✦）+ 大写 `IDEA` eyebrow + 22px 大字标题 + 悬停展开的渐变下划线；卡片从流动描边改为细主题色边框 + 两团柔和光晕（`.card-glow::before/::after` 径向渐变，悬停放大变亮）。`--elf-card-radius: 16px` 统一圆角。
+- **3D 按压改角压**：`.card-press > elf-card` 从整卡下沉改为以左下角为轴（`transform-origin: 0 100%`）的 3D 倾斜——`:active` 为 `perspective(720px) translateY(6px) rotateX(7deg) rotateY(-5deg)`，模拟实体按键一角被按下；hover 保留轻微抬升与前倾。
+- 文案同步：状态行“辉光→徽章”，tilt/glow 中英文说明更新；`creativeCode` / `creativeScript` 示例与实时模板保持一致。
+- 验证：CardPage 聚焦测试 4 项通过；`pnpm typecheck:website` 0 宏错误 / 0 TS 错误；Prettier/ESLint 通过；真实 Chromium 实测光晕悬停 opacity 0.5→0.85、图标旋转、下划线 `scaleX(0.55)→1`、`:active` 角压规则生效、正文/徽章无溢出、控制台无报错；截图归档 `output/playwright/card-creative-editorial.png`、`card-creative-editorial-hover.png`、`card-creative-press-hover.png`。
+
+### 2026-08-07 DocSync 四组件交互增强
+
+- **组件删除**：结构块（component/columns/divider/image）支持两种删除——选中后按 Backspace/Delete 键盘删除（`onBlockKeydown` 新增分支，`deleteBlock` 复用），以及结构块悬停时右上角显示 × 删除按钮（`.doc-sync-delete`，点击 `onDeleteBlock`）。实测 Delete 删除 24→21 块。
+- **md 序号**：源码面板列表/todo 块 textarea 显示 Markdown 语法——`sourceBlockText` 输出 `- item`（无序）、`1. item`（有序，`meta.ordered`）、`- [ ] item`（todo）；`applyEditedValue` 解析 md 前缀回 `items`。新增「有序列表」slash 命令（`meta.ordered: true`）。
+- **表格左码右表**：结构块 component 在源码面板渲染**组件标签代码**（`<elf-table data="..." >`，`.doc-sync-component-code` 等宽代码样式），预览面板渲染真实组件。`blockMarkup` 对 component 在 source 模式输出代码、preview 输出组件。
+- **slash 键盘导航**：确认 slash 面板打开时 ArrowUp/Down 移动高亮、Enter 选中、Escape 关闭（`onEditorKeydown` slash 分支），实测"正文→标题 1"移动正常。
+- 验证：DocSync 组件 20 项 + DocSyncPage 6 项测试通过；typecheck 0 错误；Prettier/ESLint 通过；真实 Chromium 实测删除按钮+键盘删除、`- / 1. / - [ ]` md 语法、左码右表、slash 键盘导航，控制台 0 error。
+
+### 2026-08-07 DocSync 五项交互修正
+
+- **点击块无下划线**：移除 `.doc-sync-editor` 聚焦时的 `border-bottom-color`（及编辑器常驻 border），点击块不再显示下划线。
+- **组件块占满整行**：组件/结构块（component/columns/divider/image）在源码面板不再走「行号列 + flex」布局，新增 `is-structural` class（`display:block`、不渲染行号列），实测 elf-table 从 142px 占满到 198px。根因：结构块被 flex + 行号列挤压。
+- **/ 面板定位修正**：`.doc-sync-slash` 从 `position:fixed` 改回 `absolute`，坐标用 `getBoundingClientRect` 相对 host 容器计算。根因：`fixed` 受 Playground 的 `backdrop-filter` 影响（fixed 相对含 filter 的祖先），导致面板偏离 374px；修复后紧贴 `/` 下方（gap 4px、左对齐）。
+- **slash 直接插入组件**：移除内置 `table` 块类型命令，`/表格` 现在插入 `elf-table` 组件（`component` 块，`blockMarkup` 渲染 `meta.props`）；页面 `componentCommands` 扩展至 10 个真实 kit 组件（卡片/告警/标签/进度/分隔条/表格/列表/折叠/标签页/时间线），带示例 props。
+- **shift+enter 行内换行**：确认无 shift 的 Enter 建块、shift+enter 走默认换行且 auto-resize 高度增长（21→42px），块内多行不折叠。
+- **行号只显示起始行**：`lineLabel` 移除多行块 `start–end` 区间（如 13–15），只显示起始行号。
+- 验证：DocSync 组件 20 项 + DocSyncPage 6 项测试通过；typecheck 0 错误；Prettier/ESLint 通过；真实 Chromium 实测点击无下划线、elf-table 198px 占满、slash 紧贴 / 下方、插入 elf-table 双栏渲染、shift+enter 高度自适应、行号单一数字，控制台 0 error。
+
+### 2026-08-07 DocSync 七项视觉与交互修复
+
+- **块高度贴合内容**：`.doc-sync-editor` 设 `font-size:13px`、`line-height:1.6`（约 21px）、`min-height:0`；新增 `resizeEditor`（force reflow + scrollHeight 保底 lineHeight），输入与虚拟窗口测量时 auto-resize，单行块从 52px 收敛到 21px。
+- **/ 面板触发与定位**：`onSlashInput` 改为任意位置输入 `/` 触发（正则 `/(?:^|\s)\/([^\s/]*)$/`），不再要求整行；`.doc-sync-slash` 改 `position:fixed`，用 `getBoundingClientRect` 屏幕坐标锚定在 textarea 下方（`slashAnchorLeft/Top`）。
+- **组件插入生效**：`applySlashCommand` 替换后给 built 补 id（`newBlockId`），`focusBlockId` 设 id 让块聚焦有反馈。
+- **四面圆角统一**：删除 `.doc-sync-pane:first-of-type/:last-of-type` 单侧圆角规则（`::part(pane)` 死选择器不匹配），统一由 splitter 容器 `--doc-sync-radius` 控制。
+- **拖动图标改宽度**：splitter 加静态 `model-value` attribute 让守卫（`hasAttribute("model-value")`）通过，配合 `.prop` 绑定 `splitRatio`；实测左面板 242→302px。根因：splitter effect 守卫 `!host.hasAttribute("model-value")` 忽略外部 `.prop` 改值，且宏把 `:modelValue` 渲染成 `modelvalue`（无连字符）不匹配。
+- **去除 workspace 外框**：`.doc-sync-workspace` padding 18→8px，去掉 warm/office 背景色；glass/vintage 大阴影减弱（24px→4px）；warm/office 阴影继承 `.doc-sync-stage elf-doc-sync` 的 `none`。
+- **中间圆形进度环**：swap 按钮加 SVG ring（track + progress，`pathLength=100` + dashoffset 按 `progressValue`），`updateProgress` 写 `progressValue`；滚动时环进度实时更新（dashoffset 100→94）。中间保留 swap 图标（z-index 盖在环上）。
+- 验证：DocSync 组件 20 项 + DocSyncPage 6 项测试通过；typecheck 0 错误；Prettier/ESLint 通过；真实 Chromium 实测块 21px、/ 任意触发+面板下方、elf-card 双栏渲染、圆角 0、拖拽 242→302px、无外框、环形进度随滚动更新，控制台 0 error；截图归档 `output/playwright/docsync-fixes.png`。
+
+### 2026-08-07 elf-api-builder：API 表格勾选构建器（CardPage 试点）
+
+- 新增 `apps/website/src/components/ApiBuilder/`（文档站内部基建，非 Kit 对外组件）：`elf-api-builder` 包裹一组带 `role` 的 `elf-props-table`，用户勾选 API 行即用**默认值**生成元素标记，可复制或用对话框预览真实组件。
+- **复用 Table 内置 selection**：`PropsTable` 在构建器内（带 `role`）时列首加 `{ type: "selection" }` 列（多选 + 表头全选），`@selection-change` 的 `event.detail` 把选中行同步给构建器 `setSelected(role, names)`；不带 `role` 或不在构建器内时行为完全不变（向后兼容）。
+- 生成规则：属性布尔输出裸属性名、其余输出 `name="默认值"`；事件 `@click="handleClick"`；插槽 default 占位文本、具名 `<span slot="footer">Footer</span>`；方法 `<!-- ref.value.openPreview() -->` 注释附注；无插槽自闭合 `<elf-card />`；**每个属性/事件/方法各占一行**（`<elf-card\nvariant="elevated"\n/>`）。
+- 页面接线：`CardPage/props.ts` 的 API 区改为 `<elf-api-builder component="elf-card" title="API">` 包裹三张表（原 `<h2>API</h2>` 移入 builder，由 builder 渲染标题行）；`components/index.ts` 注册 ApiBuilder。
+- 布局（按用户多轮反馈收敛）：**不用 Card 容器、不用代码卡片**；builder 渲染标题行「API」+ 右侧三个图标按钮——**复制 ⧉**（`navigator.clipboard` 直接复制生成标记，成功变 ✓）、**预览 ⛶**（`elf-dialog` 弹出渲染真实组件）、**清空 ✕**；生成的标记不落屏展示，仅复制/预览用；下方属性表格恢复 PropsTable 默认 85% 居中宽度；PropsTable 在构建器模式下**不再提升标题**（`active()` 提前 return）。
+- 预览实现坑：`elf-dialog` 内容 `v-if=${model.value}`（open 才渲染）且 teleport 到 body，`previewHost` ref 在 open 前为空；用 `watch(() => previewOpen.value, ..., { flush: "post" })` 打开后填充。`v-model:open` 必须传 **ref 本身**（`v-model:open=${previewOpen}`）而非 `.value`，否则 set 不生效。
+- 设计文档 `docs/plans/2026-08-07-api-builder-design.md`；组件 plan.md 同步。
+- 验证：ApiBuilder 组件 10 项 + codegen 纯函数 6 项 + PropsTable 5 项 + CardPage 4 项测试通过（29 项）；typecheck 0 宏错误 / 0 TS 错误；ESLint/Prettier/CSpell 通过；真实 Chromium 实测标题行「API」+ 右侧复制/预览/清空图标、勾选 variant 后 `code()` 返回多行 `<elf-card\nvariant="elevated"\n/>`、复制按钮变 ✓、预览对话框 teleport 到 body 渲染真实 `<elf-card>`、清空复位、控制台 0 error。
+- 说明：全量 website 测试的 4 个失败（routing 菜单序 2 项、IA DocSync code-card 1 项、no-demo-gradients 1 项）均为**改动前既有失败**，已在 baseline HEAD 复现，与本任务无关。
+
+### 2026-08-07 DocSync 升级为 Notion/wolai 风格块编辑器
+
+- **回车建块**：源码面板 textarea 内 Enter 在当前块后插入新块（Shift+Enter 块内换行）；空块 Backspace 合并到上一块。新增 `insertBlockAfter`/`onEditorKeydown`，插入后 `focusBlockId` effect 滚动并聚焦新块。
+- **/ 斜杠命令面板**：textarea 输入 `/` 弹出命令面板（`BUILTIN_COMMANDS`：正文/标题1-3/无序列表/待办/引用/代码块/公式/表格/分割线/图片/两栏/三栏/四栏），ArrowUp/Down 导航、Enter 选中、Escape 关闭、鼠标点击/悬浮选择；选中后把当前块替换为目标类型。参照 `elf-ai-command-search` 交互。
+- **分栏**：新增 `columns` 块类型（2/3/4 栏），`blockMarkup` 渲染 `--doc-sync-cols` 网格，双栏（源码/预览）都渲染；分栏各栏为子块数组。
+- **自定义 web component 注册**：新增 `components` prop（`DocSyncComponentRegistry`），页面通过 `componentCommands` 注册 kit 组件（卡片/告警/标签/进度/分隔条）；`component` 块类型渲染 `<tag>`，`renderBlock` 对结构类块（columns/component/divider/image）强制走内置渲染，自定义渲染器只处理文本类 → **双栏都渲染插入的组件**。
+- **样式**：`.doc-sync-block` 及源码块 border-radius 设为 0；删除 `.is-synced::before` 左侧竖线（保留 box-shadow inset 作为激活指示）；新增 `.doc-sync-todo`、`.doc-sync-component`、`.doc-sync-columns`、`.doc-sync-slash` 等样式。
+- 新增块类型：`todo`、`component`、`columns`；`TEXT_BLOCK_TYPES` 判断哪些块走 textarea 编辑（结构类块渲染只读结构）。
+- 验证：DocSync 组件 20 项 + DocSyncPage 6 项测试通过（新增回车建块/Shift+Enter/slash 菜单测试）；typecheck 0 错误；Prettier/ESLint 通过；真实 Chromium 实测 `/` 面板弹出选择、四栏插入双栏渲染、卡片组件双栏渲染、Enter 建块、圆角 0 无 ::before，控制台 0 error；截图归档 `output/playwright/docsync-block-editor.png`。
+
+### 2026-08-07 DocSync 五项交互与页面调整
+
+- **全屏模式**：6 个案例的 Playground `slot="status"` 加全屏按钮（`⛶`，`aria-label` 全屏），点击切换当前 workspace 为 `position: fixed` 全屏；页面新增 `.doc-fullscreen-btn`、`.doc-sync-status-row`、`.doc-sync-workspace.is-fullscreen` 样式与 `toggleFullscreen/fullscreenClass/fullscreenPressed` 逻辑。
+- **始终可编辑**：组件编辑从「双击块进入 textarea」改为「源码面板每个块常驻 textarea」，直接输入实时同步双栏。删除 `editingId/editingSide/editingText/focusEditor`、`onBlockDblClick/commitEdit/cancelEdit/onEditorKeydown`，新增 `onLiveEdit(side, block, event)` 与 `blockText()`、`editablePane(side)`；`.doc-sync-editor` 改为透明无边框常驻样式（聚焦显示强调色底线）。`editable=false` 时源码面板仍走 renderLeft/内置渲染。
+- **删终端 + 标题**：删除黑客终端案例（`terminalSource/Parse/Render/Code/Script`、状态 refs、`.is-terminal` 与 `.doc-terminal-*` 样式、翻译键）与「风格探索」章节标题/lead，玻璃拟态与复古报刊案例直接平铺。
+- **删 code-card**：删除开放标准章节 customStyle 案例下的 `elf-code-card`（块模型/解析器/渲染器三张代码卡），同时清理 `standardItems/CodeCardItem/modelCode/parserCode/rendererCode` 与对应翻译键；customStyle 预览与代码展示组保留。
+- **高亮条圆角**：`.doc-sync-block.is-synced::before`（左侧 3px 高亮条）的 `border-radius` 移除。
+- 验证：DocSync 组件 17 项 + DocSyncPage 6 项测试通过（编辑测试改为直接输入、editable=false 回归、案例数 7→6）；typecheck 0 错误；Prettier/ESLint 通过；真实 Chromium 实测全屏切换 `position: fixed`、textarea 直接输入双栏同步、终端/标题/code-card 消失、高亮条 `border-radius: 0`，控制台 0 error；截图归档 `output/playwright/docsync-editable-fullscreen.png`。
+
+### 2026-08-07 DocSync 风格探索：黑客终端 / 玻璃拟态 AI / 复古报刊
+
+- 按用户要求新增三种创意风格案例，组成「风格探索」章节（三个 Playground），与既有暖白/蓝白形成质感对比。
+- **黑客终端**：深色 `#0a0f0d` 底 + 荧光绿 `#3ddc84`，macOS 红黄绿标题圆点，命令带 `$` prompt，等宽字体；内容为 git/部署命令回放（新 `terminalSource`/`terminalParse`/`terminalRender`，左右同渲染器）。
+- **玻璃拟态 AI**：深蓝紫渐变 `#0f172a→#1e1b4b` + `backdrop-filter` 毛玻璃半透明面板 + 漂浮光斑，靛蓝紫 `#818cf8` 强调；内容为 AI 思考/工具调用/洞察报告（`aiSource`/`aiParse`/`aiRender`）。
+- **复古报刊**：米黄纸 `#f3ead9` + 橙色油墨 `#c2410c`，Georgia 衬线、主标题橙色下划线、首字下沉；内容为报纸文章（`vintageSource`/`vintageParse`/`vintageRender`）。
+- **关键修复（重复踩坑）**：新渲染器最初输出页面自定义类（`.doc-vintage-*` 等），因内容注入组件 shadow DOM、页面样式跨 boundary 无法命中（与 `doc-sync-word-*` 同根因）；改为渲染器复用组件已下沉的 `.doc-sync-word-*` / `.doc-sync-code` 基类 + 少量特化类，特化类样式下沉组件 style.scss 由 `--doc-sync-*` 变量驱动。
+- 验证：DocSync 组件 16 项 + DocSyncPage 6 项测试通过（断言 4→7 个 syncs/playground，补三个 workspace 存在性）；typecheck 0 错误；Prettier/ESLint 通过；真实 Chromium 实测复古橙色下划线 `2px solid #c2410c`、终端荧光绿 `$` prompt、玻璃紫色工具卡片均生效，控制台 0 error；截图归档 `output/playwright/docsync-style-gallery.png`。
+
+### 2026-08-07 DocSync 工具栏源码泄漏修复
+
+- 用户反馈工具栏按钮渲染成 `<span>` 源码文本：`defineHtml` 模板里 `${warmTools()}` 返回 HTML 字符串，宏模板插值是**文本插值（escape）**，HTML 被当纯文本显示。
+- 修复：工具栏注入点改为 `<span class="doc-*-tools-host" v-html=${warmTools()}></span>`（框架支持 `v-html` 指令，同 MdPage 用法）；顺带删除左 header-extra 误重复的 div。
+- 验证：CDP 实测暖白 9 个编辑工具按钮、蓝白 10 个工具栏按钮 + 4 个下拉按钮全部渲染为真实 DOM，0 处源码泄漏；DocSync 组件 16 项 + DocSyncPage 6 项测试通过；typecheck 0 错误；Prettier/ESLint 通过；截图更新 `output/playwright/docsync-warm-editorial.png`。
+
+### 2026-08-07 DocSync 按桌面设计图校准
+
+- 用户确认「以桌面设计图为准」覆盖之前规范文字的矛盾点，校准两处外壳：
+- 图1（暖白风）右栏 Word 标题栏改深蓝 `#245c91` 白字：组件左右 header 的 part 拆分为 `pane-head-left` / `pane-head-right`，页面用 `::part(pane-head-right)` 单独着色；按设计图右栏不放工具栏按钮（移除 warmWordTools），仅保留 Word 品牌。
+- 图2（蓝白风）代码块改浅绿背景白字：右栏 Word 代码块 `.doc-sync-word-code` 变量改 `#e7f5e9` 背景 + `#155724` 文字；左栏源码编辑器改白色（覆盖 `--doc-sync-source-*` 变量），并新增 `--doc-sync-code-bg/color` 变量让组件内置 source 代码块可换肤。
+- parseLatex 新增 `\begin{verbatim}` 代码块支持（code 块类型 + 行号）；latexSource 中英文各补一段 `pnpm add @elfui/kit` verbatim；案例2 新增 `renderLatexSource` 自定义左渲染器，把 code 渲染成浅绿代码卡片。
+- 验证：DocSync 组件 16 项 + DocSyncPage 6 项测试通过；typecheck 0 宏错误 / 0 TS 错误；Prettier/ESLint 通过；真实 Chromium 实测右栏深蓝标题栏 `#245c91`、两栏浅绿代码块 `#e7f5e9`、左栏白色编辑器，控制台 0 error；截图更新 `output/playwright/docsync-warm-editorial.png`、`docsync-office-blue.png`。
+
+### 2026-08-06 DocSync 双栏外壳重设计：暖白编辑出版风 + 蓝白专业办公风
+
+- 按用户提供的两张 UI 设计图与两套完整设计规范，重做 DocSync 页全部 4 个案例外壳：Markdown → Word 用「图1 暖白编辑出版风」，LaTeX → Word 用「图3 蓝白专业办公风」，最小实现统一蓝白外壳，自定义面板样式改为暖纸主题变量演示。
+- 组件扩展：`DocSyncSlots`（`left/right-header-extra`、`left/right-footer`）；`defineHtml` 扩为三泛型；header 新增 `.doc-sync-pane-title`（flex:1 撑开让 extra slot 靠右）；footer 用 `footerEmpty()` 从 host light DOM 检测并加 `is-empty` 类隐藏（不依赖 slotchange，happy-dom 兼容）；中间按钮尺寸变量化 `--doc-sync-swap-size`（svg 按比例缩放）。
+- **关键机制修复**：页面里定义的 `.doc-sync-word-*` Word 渲染样式从未生效（定义在页面 shadow DOM，内容注入组件 shadow DOM，跨 boundary 无法命中，实测标题字体为默认 Roboto 而非页面定义的 Georgia）。将整套 Word 渲染样式下沉到组件 style.scss，用 `--doc-sync-word-*` 变量驱动。
+- **第二个机制坑**：CSS 变量设在外壳父容器（`.doc-sync-workspace`）无法穿透组件 `:host` 里的默认值（`:host { --doc-sync-swap-size: 34px }` 会阻断继承，`--doc-sync-heading-font: inherit` 却能穿透）。修复：外壳变量直接设在 host 元素（`.doc-sync-workspace.is-warm elf-doc-sync { --x: v }`），与既有 `.doc-sync-custom` 模式一致。
+- 验证：DocSync 组件 16 项、DocSyncPage 6 项测试通过；typecheck 0 宏错误 / 0 TS 错误；Prettier/ESLint 通过；真实 Chromium（CDP）实测两套外壳变量穿透（暖白 swap 48px/衬线标题/深棕标题色、蓝白 swap 52px/蓝色标题 `#0757bd`）、滚动同步/双击编辑/交换回归正常，控制台 0 error；截图归档 `output/playwright/docsync-warm-editorial.png`、`docsync-office-blue.png`。
 
 ### 2026-08-06 AI 案例页图标尺寸、对齐与 Codex 移除批次
 

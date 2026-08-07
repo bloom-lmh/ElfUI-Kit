@@ -100,12 +100,13 @@ const directiveRows = () => [
 ];
 
 const PageInfiniteScrollProps = defineHtml(`
-  <h2>API</h2>
-  <elf-props-table :title=${t("props")} :rows=${propsRows()} />
-  <elf-props-table :title=${t("events")} :rows=${eventRows()} />
-  <elf-props-table :title=${t("slots")} :rows=${slotRows()} />
-  <elf-props-table :title=${t("exposes")} :rows=${exposeRows()} />
+  <elf-api-builder component="elf-infinite-scroll" title="API">
+  <elf-props-table role="props" :title=${t("props")} :rows=${propsRows()} />
+  <elf-props-table role="events" :title=${t("events")} :rows=${eventRows()} />
+  <elf-props-table role="slots" :title=${t("slots")} :rows=${slotRows()} />
+  <elf-props-table role="methods" :title=${t("exposes")} :rows=${exposeRows()} />
   <elf-props-table :title=${t("directives")} :rows=${directiveRows()} />
+  </elf-api-builder>
 `);
 
 export { PageInfiniteScrollProps };

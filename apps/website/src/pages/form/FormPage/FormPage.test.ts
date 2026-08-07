@@ -79,12 +79,13 @@ describe("FormPage", () => {
     const apiTables = tables as Array<
       HTMLElement & { rows?: Array<{ name?: string }>; title?: string }
     >;
+    const builder = propsPage.shadowRoot!.querySelector<HTMLElement>("elf-api-builder")!;
     expect(
-      Array.from(propsPage.shadowRoot!.querySelectorAll("h2")).map((heading) =>
+      Array.from(builder.shadowRoot!.querySelectorAll("h2")).map((heading) =>
         heading.textContent?.trim(),
       ),
     ).toEqual(["API"]);
-    expect(apiTables.map((table) => table.rows?.length)).toEqual([15, 13, 7, 5, 9]);
+    expect(apiTables.map((table) => table.rows?.length)).toEqual([17, 13, 8, 6, 10]);
     expect(apiTables.map((table) => table.title)).toContain("elf-form Expose");
     expect(apiTables.flatMap((table) => table.rows ?? []).map((row) => row.name)).toContain(
       "setInitialValue(value?)",

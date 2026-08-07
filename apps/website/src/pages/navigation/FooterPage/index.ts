@@ -68,9 +68,27 @@ const onSocial = (event: MouseEvent): void =>
 
 const propsRows = () => [
   {
-    name: "height / width / maxWidth",
+    name: "height",
     type: "string | number",
-    default: "60px / 100% / auto",
+    default: "60px",
+    desc: pick(
+      "兼容布局高度并约束页脚宽度",
+      "Layout-compatible height and footer width constraints.",
+    ),
+  },
+  {
+    name: "width",
+    type: "string | number",
+    default: "100%",
+    desc: pick(
+      "兼容布局高度并约束页脚宽度",
+      "Layout-compatible height and footer width constraints.",
+    ),
+  },
+  {
+    name: "maxWidth",
+    type: "string | number",
+    default: "auto",
     desc: pick(
       "兼容布局高度并约束页脚宽度",
       "Layout-compatible height and footer width constraints.",
@@ -83,19 +101,49 @@ const propsRows = () => [
     desc: pick("页脚地标的无障碍名称", "Accessible name for the footer landmark."),
   },
   {
-    name: "color / elevation",
-    type: "string / number",
-    default: "surface / 0",
+    name: "color",
+    type: "string",
+    default: "surface",
     desc: pick("自动对比前景色和阴影层级", "Automatic foreground contrast and elevation."),
   },
   {
-    name: "border / rounded / padless",
+    name: "elevation",
+    type: "number",
+    default: "0",
+    desc: pick("自动对比前景色和阴影层级", "Automatic foreground contrast and elevation."),
+  },
+  {
+    name: "border",
     type: "boolean",
     default: "false",
     desc: pick("边框、圆角与无内边距表面", "Bordered, rounded, and padless surfaces."),
   },
   {
-    name: "fixed / absolute / inset",
+    name: "rounded",
+    type: "boolean",
+    default: "false",
+    desc: pick("边框、圆角与无内边距表面", "Bordered, rounded, and padless surfaces."),
+  },
+  {
+    name: "padless",
+    type: "boolean",
+    default: "false",
+    desc: pick("边框、圆角与无内边距表面", "Bordered, rounded, and padless surfaces."),
+  },
+  {
+    name: "fixed",
+    type: "boolean",
+    default: "false",
+    desc: pick("底部定位和内嵌边距", "Bottom positioning and inset spacing."),
+  },
+  {
+    name: "absolute",
+    type: "boolean",
+    default: "false",
+    desc: pick("底部定位和内嵌边距", "Bottom positioning and inset spacing."),
+  },
+  {
+    name: "inset",
     type: "boolean",
     default: "false",
     desc: pick("底部定位和内嵌边距", "Bottom positioning and inset spacing."),
@@ -173,7 +221,8 @@ const PageFooter = defineHtml(`
       <span slot="status" role="status" aria-live="polite">${t("status")}: ${lastAction.value || t("none")}</span><elf-icon-provider :options.prop=${footerIconOptions}><div class="footer-stage"><elf-footer height="auto" color="#009688" rounded padless><div class="reference-footer teal-footer"><div class="teal-social-band"><strong>${t("social")}</strong><div class="social-actions"><elf-button circle variant="text" aria-label="Facebook" @click=${onSocial}><elf-icon name="facebook" size="18"></elf-icon></elf-button><elf-button circle variant="text" aria-label="X" @click=${onSocial}><elf-icon name="twitter" size="18"></elf-icon></elf-button><elf-button circle variant="text" aria-label="LinkedIn" @click=${onSocial}><elf-icon name="linkedin" size="18"></elf-icon></elf-button><elf-button circle variant="text" aria-label="Instagram" @click=${onSocial}><elf-icon name="instagram" size="18"></elf-icon></elf-button></div></div><div class="teal-copyright"><span>2026 — <strong>ElfUI</strong></span></div></div></elf-footer></div></elf-icon-provider>
     </elf-playground>
 
-    <section class="docs-section"><h2>${t("api")}</h2><elf-props-table title="Props" :rows=${propsRows()} /><elf-props-table :title=${t("slots")} :rows=${slotRows()} /></section>
+    <section class="docs-section"><elf-api-builder component="elf-footer" title="API"><elf-props-table role="props" title="Props" :rows=${propsRows()} /><elf-props-table role="slots" :title=${t("slots")} :rows=${slotRows()} />
+  </elf-api-builder></section>
   </elf-container>
 `);
 

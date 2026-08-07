@@ -55,7 +55,8 @@ const splitterRows = () => [
 
 const panelRows = () => [
   { name: "size", type: "number", default: "50", desc: t("panelSize") },
-  { name: "min / max", type: "number", default: "0 / 100", desc: t("panelRange") },
+  { name: "min", type: "number", default: "0", desc: t("panelRange") },
+  { name: "max", type: "number", default: "100", desc: t("panelRange") },
   { name: "collapsible", type: "boolean", default: "false", desc: t("panelCollapse") },
   { name: "resizable", type: "boolean", default: "true", desc: t("panelResize") },
   { name: "lazy", type: "boolean", default: "false", desc: t("lazy") },
@@ -70,18 +71,21 @@ const slotRows = () => [
 const panelSlotRows = () => [{ name: "default", type: "—", default: "—", desc: t("panelDefault") }];
 
 const eventRows = () => [
-  { name: "update:modelValue / change", type: "CustomEvent<number>", desc: t("update") },
-  { name: "resize-start / resize-end", type: "CustomEvent<number>", desc: t("lifecycle") },
+  { name: "update:modelValue", type: "CustomEvent<number>", desc: t("update") },
+  { name: "change", type: "CustomEvent<number>", desc: t("update") },
+  { name: "resize-start", type: "CustomEvent<number>", desc: t("lifecycle") },
+  { name: "resize-end", type: "CustomEvent<number>", desc: t("lifecycle") },
   { name: "collapse", type: "CustomEvent<boolean>", desc: t("collapse") },
 ];
 
 const PageSplitterProps = defineHtml(`
-  <h2>API</h2>
-  <elf-props-table title="elf-splitter Props" :rows=${splitterRows()} />
-  <elf-props-table title="elf-splitter-panel Props" :rows=${panelRows()} />
-  <elf-props-table title="elf-splitter Slots" :rows=${slotRows()} />
-  <elf-props-table title="elf-splitter-panel Slots" :rows=${panelSlotRows()} />
-  <elf-props-table title="Events" :rows=${eventRows()} />
+  <elf-api-builder component="elf-splitter" title="API">
+  <elf-props-table role="props" title="elf-splitter Props" :rows=${splitterRows()} />
+  <elf-props-table role="props" component="elf-splitter-panel" title="elf-splitter-panel Props" :rows=${panelRows()} />
+  <elf-props-table role="slots" title="elf-splitter Slots" :rows=${slotRows()} />
+  <elf-props-table role="slots" component="elf-splitter-panel" title="elf-splitter-panel Slots" :rows=${panelSlotRows()} />
+  <elf-props-table role="events" title="Events" :rows=${eventRows()} />
+  </elf-api-builder>
 `);
 
 export { PageSplitterProps };

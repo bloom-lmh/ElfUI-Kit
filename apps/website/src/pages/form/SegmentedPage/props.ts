@@ -24,21 +24,45 @@ const rows = [
     desc: pick("对象选项字段映射", "Object-option field mapping."),
   },
   {
-    name: "size / block / disabled",
-    type: "string / boolean / boolean",
-    default: "'' / false / false",
+    name: "size",
+    type: "string",
+    default: "''",
     desc: pick("外观与禁用状态", "Appearance and disabled state."),
   },
   {
-    name: "name / id",
-    type: "string / string",
-    default: "'' / ''",
+    name: "block",
+    type: "boolean",
+    default: "false",
+    desc: pick("外观与禁用状态", "Appearance and disabled state."),
+  },
+  {
+    name: "disabled",
+    type: "boolean",
+    default: "false",
+    desc: pick("外观与禁用状态", "Appearance and disabled state."),
+  },
+  {
+    name: "name",
+    type: "string",
+    default: "''",
     desc: pick("表单名称和 radiogroup 标识", "Form name and radiogroup identifier."),
   },
   {
-    name: "aria-label / label",
-    type: "string / string",
-    default: "'' / ''",
+    name: "id",
+    type: "string",
+    default: "''",
+    desc: pick("表单名称和 radiogroup 标识", "Form name and radiogroup identifier."),
+  },
+  {
+    name: "aria-label",
+    type: "string",
+    default: "''",
+    desc: pick("radiogroup 无障碍标签", "Accessible label for the radiogroup."),
+  },
+  {
+    name: "label",
+    type: "string",
+    default: "''",
     desc: pick("radiogroup 无障碍标签", "Accessible label for the radiogroup."),
   },
   {
@@ -49,8 +73,20 @@ const rows = [
   },
 ];
 const PageSegmentedProps = defineHtml(`
-  <h2>API</h2>
-  <elf-props-table title="Props" :rows=${rows} />
-  <elf-props-table title="Events" :rows=${[{ name: "update:modelValue / change", type: "(value) => void", desc: pick("选中值变化", "Selected value changed.") }]} />
+  <elf-api-builder component="elf-segmented" title="API">
+  <elf-props-table role="props" title="Props" :rows=${rows} />
+  <elf-props-table role="events" title="Events" :rows=${[
+    {
+      name: "update:modelValue",
+      type: "(value) => void",
+      desc: pick("选中值变化", "Selected value changed."),
+    },
+    {
+      name: "change",
+      type: "(value) => void",
+      desc: pick("选中值变化", "Selected value changed."),
+    },
+  ]} />
+  </elf-api-builder>
 `);
 export { PageSegmentedProps };

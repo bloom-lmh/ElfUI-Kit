@@ -54,11 +54,12 @@ const exposesRows = () => [
 const slotsRows = () => [{ name: "default", type: "—", default: "—", desc: t("defaultSlot") }];
 
 const PageStickyProps = defineHtml(`
-  <h2>API</h2>
-  <elf-props-table title="Props" :rows=${propsRows()}></elf-props-table>
-  <elf-props-table title="Events" :rows=${eventsRows()}></elf-props-table>
-  <elf-props-table title="Slots" :rows=${slotsRows()}></elf-props-table>
-  <elf-props-table title="Expose" :rows=${exposesRows()}></elf-props-table>
+  <elf-api-builder component="elf-sticky" title="API">
+  <elf-props-table role="props" title="Props" :rows=${propsRows()}></elf-props-table>
+  <elf-props-table role="events" title="Events" :rows=${eventsRows()}></elf-props-table>
+  <elf-props-table role="slots" title="Slots" :rows=${slotsRows()}></elf-props-table>
+  <elf-props-table role="methods" title="Expose" :rows=${exposesRows()}></elf-props-table>
+  </elf-api-builder>
 `);
 
 export { PageStickyProps };

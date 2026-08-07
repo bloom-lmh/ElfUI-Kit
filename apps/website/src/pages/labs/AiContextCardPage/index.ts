@@ -128,9 +128,10 @@ const PageLabsAiContextCard = defineHtml(`
         ></elf-ai-context-card>
       </div>
     </elf-playground>
-    <h2>${t("api")}</h2>
-    <elf-props-table :title=${t("props")} :rows=${propRows()}></elf-props-table>
-    <elf-props-table :title=${t("events")} :rows=${eventRows()}></elf-props-table>
+    <elf-api-builder component="elf-ai-context-card" title="API">
+    <elf-props-table role="props" :title=${t("props")} :rows=${propRows()}></elf-props-table>
+    <elf-props-table role="events" :title=${t("events")} :rows=${eventRows()}></elf-props-table>
+  </elf-api-builder>
   </elf-container>
 `);
 

@@ -1,17 +1,17 @@
-import { defineHtml, defineStyle } from "@elfui/core";
+import { defineHtml, defineStyle, useComputed, useRef, useTemplateRef } from "@elfui/core";
 
 import { createDocsTranslator } from "../../docsLocale";
 import styles from "./demo.scss?inline";
 
 const t = createDocsTranslator({
   title: { zh: "创意卡片", en: "Creative cards" },
-  status: { zh: "3D 按压 · 翻转 · 辉光 · 层叠", en: "3D press · Flip · Glow · Stacked" },
+  status: { zh: "3D 倾斜 · 翻转 · 徽章 · 层叠", en: "3D tilt · Flip · Badge · Stacked" },
   tiltTitle: { zh: "云端漫步", en: "Mountain escape" },
   tiltSubtitle: { zh: "川西 · 海拔 4200m", en: "Western Sichuan · 4,200m" },
   tiltAlt: { zh: "雪山与云海", en: "Snow peaks above the clouds" },
   tiltCopy: {
-    zh: "按下时卡片像实体按键一样下沉，松手后回弹，底部投影同步收缩。",
-    en: "Press and hold to sink the card like a physical key; release to spring back as the bottom shadow compresses.",
+    zh: "鼠标在卡片上移动时，卡片朝指针所在的一角倾斜，四个角都跟随。",
+    en: "Move the cursor across the card and it tilts toward the nearest corner, following the pointer on all four corners.",
   },
   flipTitle: { zh: "城市夜景", en: "City lights" },
   flipSubtitle: { zh: "上海 · 外滩", en: "Shanghai · The Bund" },
@@ -24,8 +24,8 @@ const t = createDocsTranslator({
   flipAction: { zh: "查看攻略", en: "View guide" },
   glowTitle: { zh: "灵感徽章", en: "Idea badge" },
   glowCopy: {
-    zh: "渐变描边在悬停时泛起辉光，适合突出推荐与精选内容。",
-    en: "A gradient border glows on hover, perfect for featured content.",
+    zh: "小徽章点缀、大字标题与柔和渐变光晕，简洁突出推荐与精选内容。",
+    en: "A tiny badge, a strong headline, and a soft gradient glow keep featured content focused.",
   },
   glowTag: { zh: "推荐", en: "Featured" },
   stackTitle: { zh: "年度精选", en: "Year in review" },
@@ -42,10 +42,34 @@ const MOUNTAIN_COVER = "/cards/mountain.jpg";
 const CITY_COVER = "/cards/city.jpg";
 const TRAVEL_COVER = "/cards/travel.jpg";
 
-const creativeCode = `<div class="card-press" tabindex="0" aria-label="Press the card">
+const pressCardRef = useTemplateRef<HTMLElement>("pressCard");
+const tiltX = useRef(0);
+const tiltY = useRef(0);
+
+const pressStyle = useComputed(() => ({
+  transform: `perspective(720px) rotateX(${tiltY.value.toFixed(2)}deg) rotateY(${tiltX.value.toFixed(2)}deg)`,
+}));
+
+/** 鼠标在卡片上移动时，卡片朝指针所在的一角倾斜，四个角都跟随。 */
+const onPressMove = (event: MouseEvent): void => {
+  const el = pressCardRef.value;
+  if (!el) return;
+  const rect = el.getBoundingClientRect();
+  const x = (event.clientX - rect.left) / rect.width - 0.5;
+  const y = (event.clientY - rect.top) / rect.height - 0.5;
+  tiltX.set(x * 16);
+  tiltY.set(y * -16);
+};
+
+const onPressLeave = (): void => {
+  tiltX.set(0);
+  tiltY.set(0);
+};
+
+const creativeCode = `<div class="card-press" ref="pressCard" tabindex="0" aria-label="Tilt the card" @mousemove="onMove" @mouseleave="onLeave">
   <elf-card variant="flat" title="Mountain escape" subtitle="Western Sichuan · 4,200m"
-    image="/cards/mountain.jpg" image-alt="Snow peaks above the clouds">
-    <p>Press and hold to sink the card like a physical key; release to spring back.</p>
+    image="/cards/mountain.jpg" image-alt="Snow peaks above the clouds" :style.prop="cardStyle">
+    <p>Move the cursor across the card and it tilts toward the nearest corner.</p>
   </elf-card>
 </div>
 
@@ -68,9 +92,18 @@ const creativeCode = `<div class="card-press" tabindex="0" aria-label="Press the
 
 <div class="card-glow">
   <elf-card variant="flat" title="Idea badge">
-    <p>A gradient border glows on hover, perfect for featured content.</p>
+    <template #title>
+      <span class="card-badge">
+        <span class="card-badge-icon" aria-hidden="true">✦</span>
+        <span class="card-badge-heading">
+          <small>IDEA</small>
+          <strong>Idea badge</strong>
+        </span>
+      </span>
+    </template>
+    <p class="card-badge-copy">A tiny badge, a strong headline, and a soft gradient glow keep featured content focused.</p>
     <template #footer>
-      <elf-tag type="primary" size="sm">Featured</elf-tag>
+      <span class="card-badge-chip">✦ Featured</span>
     </template>
   </elf-card>
 </div>
@@ -87,8 +120,21 @@ const creativeCode = `<div class="card-press" tabindex="0" aria-label="Press the
   </elf-card>
 </div>`;
 
-const creativeScript = `// Pure CSS 3D press: a chunky bottom shadow simulates a raised key,
-// and :active sinks the card while the shadow compresses.`;
+const creativeScript = `const cardRef = useTemplateRef("pressCard");
+const tiltX = useRef(0);
+const tiltY = useRef(0);
+const cardStyle = useComputed(() => ({
+  transform: \`perspective(720px) rotateX(\${tiltY.value}deg) rotateY(\${tiltX.value}deg)\`,
+}));
+
+const onMove = (event: MouseEvent): void => {
+  const rect = event.currentTarget.getBoundingClientRect();
+  const x = (event.clientX - rect.left) / rect.width - 0.5;
+  const y = (event.clientY - rect.top) / rect.height - 0.5;
+  tiltX.set(x * 16);
+  tiltY.set(y * -16);
+};
+const onLeave = (): void => { tiltX.set(0); tiltY.set(0); };`;
 
 defineStyle(styles);
 
@@ -96,8 +142,9 @@ const PageCardEx5 = defineHtml(`
   <elf-playground :title=${t("title")} :code=${creativeCode} :script=${creativeScript}>
     <span slot="status" class="card-demo-status">${t("status")}</span>
     <div class="card-creative-grid">
-      <div class="card-press" tabindex="0" :aria-label=${t("tiltTitle")}>
+      <div class="card-press" ref="pressCard" tabindex="0" :aria-label=${t("tiltTitle")} @mousemove=${onPressMove} @mouseleave=${onPressLeave}>
         <elf-card
+          :style=${pressStyle}
           variant="flat"
           :title=${t("tiltTitle")}
           :subtitle=${t("tiltSubtitle")}
@@ -133,9 +180,18 @@ const PageCardEx5 = defineHtml(`
 
       <div class="card-glow">
         <elf-card variant="flat" :title=${t("glowTitle")}>
-          <p>${t("glowCopy")}</p>
+          <template #title>
+            <span class="card-badge">
+              <span class="card-badge-icon" aria-hidden="true">✦</span>
+              <span class="card-badge-heading">
+                <small>IDEA</small>
+                <strong>${t("glowTitle")}</strong>
+              </span>
+            </span>
+          </template>
+          <p class="card-badge-copy">${t("glowCopy")}</p>
           <template #footer>
-            <elf-tag type="primary" size="sm">${t("glowTag")}</elf-tag>
+            <span class="card-badge-chip">✦ ${t("glowTag")}</span>
           </template>
         </elf-card>
       </div>

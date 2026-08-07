@@ -47,7 +47,13 @@ const propsRows = () => [
   { name: "size", type: "sm | md | lg", default: "md", desc: t("size") },
   { name: "clickable", type: "boolean", default: "true", desc: t("clickable") },
   {
-    name: "alternativeLabel / altLabels",
+    name: "alternativeLabel",
+    type: "boolean",
+    default: "false",
+    desc: t("alternative"),
+  },
+  {
+    name: "altLabels",
     type: "boolean",
     default: "false",
     desc: t("alternative"),
@@ -87,12 +93,13 @@ const methodsRows = () => [
 ];
 
 const PageStepsProps = defineHtml(`
-  <h2>API</h2>
-  <elf-props-table title="Props" :rows=${propsRows()}></elf-props-table>
-  <elf-props-table title="StepItem / Step Props" :rows=${itemRows()}></elf-props-table>
-  <elf-props-table title="Slots" :rows=${slotsRows()}></elf-props-table>
-  <elf-props-table title="Events" :rows=${eventsRows()}></elf-props-table>
-  <elf-props-table title="Methods" :rows=${methodsRows()}></elf-props-table>
+  <elf-api-builder component="elf-steps" title="API">
+  <elf-props-table role="props" title="Props" :rows=${propsRows()}></elf-props-table>
+  <elf-props-table role="props" component="elf-step" title="StepItem / Step Props" :rows=${itemRows()}></elf-props-table>
+  <elf-props-table role="slots" title="Slots" :rows=${slotsRows()}></elf-props-table>
+  <elf-props-table role="events" title="Events" :rows=${eventsRows()}></elf-props-table>
+  <elf-props-table role="methods" title="Methods" :rows=${methodsRows()}></elf-props-table>
+  </elf-api-builder>
 `);
 
 export { PageStepsProps };

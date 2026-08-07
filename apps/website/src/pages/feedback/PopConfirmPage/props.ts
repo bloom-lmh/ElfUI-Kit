@@ -142,8 +142,16 @@ const methodsRows = [
   { name: "hide()", type: "() => void", desc: pick("关闭气泡", "Close the popover.") },
   { name: "toggle()", type: "() => void", desc: pick("切换显示状态", "Toggle visibility.") },
   {
-    name: "confirm() / cancel()",
-    type: "() => Promise<void> / () => void",
+    name: "confirm()",
+    type: "() => Promise<void>",
+    desc: pick(
+      "驱动自定义操作区的确认和取消",
+      "Drive confirmation and cancellation from custom actions.",
+    ),
+  },
+  {
+    name: "cancel()",
+    type: "() => void",
     desc: pick(
       "驱动自定义操作区的确认和取消",
       "Drive confirmation and cancellation from custom actions.",
@@ -157,11 +165,12 @@ const methodsRows = [
 ];
 
 const PagePopConfirmProps = defineHtml(`
-  <h2>API</h2>
-  <elf-props-table title="Props" :rows=${propsRows}></elf-props-table>
-  <elf-props-table title="Events" :rows=${eventsRows}></elf-props-table>
-  <elf-props-table title="Slots" :rows=${slotsRows}></elf-props-table>
-  <elf-props-table title="Expose" :rows=${methodsRows}></elf-props-table>
+  <elf-api-builder component="elf-pop-confirm" title="API">
+  <elf-props-table role="props" title="Props" :rows=${propsRows}></elf-props-table>
+  <elf-props-table role="events" title="Events" :rows=${eventsRows}></elf-props-table>
+  <elf-props-table role="slots" title="Slots" :rows=${slotsRows}></elf-props-table>
+  <elf-props-table role="methods" title="Expose" :rows=${methodsRows}></elf-props-table>
+  </elf-api-builder>
 `);
 
 export { PagePopConfirmProps };

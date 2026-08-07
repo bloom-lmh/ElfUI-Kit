@@ -47,11 +47,12 @@ const exposeRows = () => [
 const slotRows = () => [{ name: "default", type: "—", default: "—", desc: t("defaultSlot") }];
 
 const PageScrollbarProps = defineHtml(`
-  <h2>API</h2>
-  <elf-props-table title="elf-scrollbar Props" :rows=${scrollbarRows()} />
-  <elf-props-table title="Events" :rows=${eventRows()} />
-  <elf-props-table title="Slots" :rows=${slotRows()} />
-  <elf-props-table title="Expose" :rows=${exposeRows()} />
+  <elf-api-builder component="elf-scrollbar" title="API">
+  <elf-props-table role="props" title="elf-scrollbar Props" :rows=${scrollbarRows()} />
+  <elf-props-table role="events" title="Events" :rows=${eventRows()} />
+  <elf-props-table role="slots" title="Slots" :rows=${slotRows()} />
+  <elf-props-table role="methods" title="Expose" :rows=${exposeRows()} />
+  </elf-api-builder>
 `);
 
 export { PageScrollbarProps };

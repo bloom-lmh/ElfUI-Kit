@@ -117,8 +117,8 @@ const PageMasonry = defineHtml(`
         </article>
       </elf-masonry>
     </elf-playground>
-    <h2>API</h2>
-    <elf-props-table title="Masonry Props" :rows=${[
+    <elf-api-builder component="elf-masonry" title="API">
+    <elf-props-table role="props" title="Masonry Props" :rows=${[
       { name: "columns", type: "number", default: "3", desc: t("columnsDescription") },
       {
         name: "min-column-width",
@@ -128,9 +128,10 @@ const PageMasonry = defineHtml(`
       },
       { name: "gap", type: "token | CSS length", default: "md", desc: t("gapDescription") },
     ]}></elf-props-table>
-    <elf-props-table title="Slots" :rows=${[
+    <elf-props-table role="slots" title="Slots" :rows=${[
       { name: "default", type: "—", default: "—", desc: t("slotDescription") },
     ]}></elf-props-table>
+  </elf-api-builder>
   </elf-container>
 `);
 

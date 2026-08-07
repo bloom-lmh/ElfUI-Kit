@@ -107,10 +107,11 @@ const slotsRows = () => [
 ];
 
 const PageCardProps = defineHtml(`
-  <h2>API</h2>
-  <elf-props-table :title=${t("props")} :rows=${propsRows()} />
-  <elf-props-table :title=${t("events")} :rows=${eventsRows()} />
-  <elf-props-table :title=${t("slots")} :rows=${slotsRows()} />
+  <elf-api-builder component="elf-card" title="API">
+    <elf-props-table role="props" :title=${t("props")} :rows=${propsRows()} />
+    <elf-props-table role="events" :title=${t("events")} :rows=${eventsRows()} />
+    <elf-props-table role="slots" :title=${t("slots")} :rows=${slotsRows()} />
+  </elf-api-builder>
 `);
 
 export { PageCardProps };

@@ -91,10 +91,6 @@ export const routes: RouteRecord[] = [
     component: () => import("../pages/labs/MdPagePage/index"),
   },
   {
-    path: "/labs/doc-sync",
-    component: () => import("../pages/labs/DocSyncPage/index"),
-  },
-  {
     path: "/labs/ai-chat",
     component: () => import("../pages/labs/AiChatPage/index"),
   },
@@ -742,5 +738,4 @@ export const navItems: NavItem[] = [
   { to: "/labs/heatmap", text: "Heatmap 热力图", group: "Labs 实验室" },
   { to: "/labs/code-card", text: "Code Card 代码卡片", group: "Labs 实验室" },
   { to: "/labs/md-page", text: "MD Page 文档页", group: "Labs 实验室" },
-  { to: "/labs/doc-sync", text: "Doc Sync 双栏同步", group: "Labs 实验室" },
 ];

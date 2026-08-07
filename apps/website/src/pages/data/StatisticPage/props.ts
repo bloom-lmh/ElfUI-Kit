@@ -32,16 +32,34 @@ const statisticRows = [
     desc: pick("增长动画缓动", "Growth animation easing"),
   },
   {
-    name: "title / prefix / suffix",
+    name: "title",
+    type: "string",
+    default: "''",
+    desc: pick("标题和数值前后缀", "Title and value affixes"),
+  },
+  {
+    name: "prefix",
+    type: "string",
+    default: "''",
+    desc: pick("标题和数值前后缀", "Title and value affixes"),
+  },
+  {
+    name: "suffix",
     type: "string",
     default: "''",
     desc: pick("标题和数值前后缀", "Title and value affixes"),
   },
   { name: "precision", type: "number", default: "-", desc: pick("小数位数", "Decimal precision") },
   {
-    name: "group-separator / decimal-separator",
+    name: "group-separator",
     type: "string",
-    default: "',' / '.'",
+    default: "','",
+    desc: pick("数值分隔符", "Number separators"),
+  },
+  {
+    name: "decimal-separator",
+    type: "string",
+    default: "'.'",
     desc: pick("数值分隔符", "Number separators"),
   },
   {
@@ -74,7 +92,19 @@ const countdownRows = [
     ),
   },
   {
-    name: "title / prefix / suffix",
+    name: "title",
+    type: "string",
+    default: "''",
+    desc: pick("倒计时文本", "Countdown text"),
+  },
+  {
+    name: "prefix",
+    type: "string",
+    default: "''",
+    desc: pick("倒计时文本", "Countdown text"),
+  },
+  {
+    name: "suffix",
     type: "string",
     default: "''",
     desc: pick("倒计时文本", "Countdown text"),
@@ -106,9 +136,10 @@ const countdownEvents = [
 ];
 
 const PageStatisticProps = defineHtml(`
-  <h2>API</h2>
-  <elf-props-table title="Statistic Props" :rows=${statisticRows} />
-  <elf-props-table title="Countdown Props" :rows=${countdownRows} />
-  <elf-props-table title="Countdown Events" :rows=${countdownEvents} />
+  <elf-api-builder component="elf-statistic" title="API">
+  <elf-props-table role="props" title="Statistic Props" :rows=${statisticRows} />
+  <elf-props-table role="props" component="elf-countdown" title="Countdown Props" :rows=${countdownRows} />
+  <elf-props-table role="events" component="elf-countdown" title="Countdown Events" :rows=${countdownEvents} />
+  </elf-api-builder>
 `);
 export { PageStatisticProps };

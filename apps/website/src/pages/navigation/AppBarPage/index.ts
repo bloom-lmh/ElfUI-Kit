@@ -114,9 +114,15 @@ const onMore = (): void => action(t("more"));
 
 const propsRows = () => [
   {
-    name: "title / ariaLabel",
+    name: "title",
     type: "string",
-    default: "'' / Application bar",
+    default: "''",
+    desc: pick("标题和无障碍名称", "Title and accessible name."),
+  },
+  {
+    name: "ariaLabel",
+    type: "string",
+    default: "Application bar",
     desc: pick("标题和无障碍名称", "Title and accessible name."),
   },
   {
@@ -126,15 +132,27 @@ const propsRows = () => [
     desc: pick("64、56、48 或 128px 主行", "64, 56, 48, or 128px main row."),
   },
   {
-    name: "image / imageAlt",
+    name: "image",
     type: "string",
     default: "''",
     desc: pick("背景图片及替代文本", "Background image and alternative text."),
   },
   {
-    name: "imagePosition / imageOpacity",
-    type: "string / number",
-    default: "center / 1",
+    name: "imageAlt",
+    type: "string",
+    default: "''",
+    desc: pick("背景图片及替代文本", "Background image and alternative text."),
+  },
+  {
+    name: "imagePosition",
+    type: "string",
+    default: "center",
+    desc: pick("图片构图位置与透明度", "Image framing and opacity."),
+  },
+  {
+    name: "imageOpacity",
+    type: "number",
+    default: "1",
     desc: pick("图片构图位置与透明度", "Image framing and opacity."),
   },
   {
@@ -147,25 +165,67 @@ const propsRows = () => [
     ),
   },
   {
-    name: "scrollTarget / scrollThreshold",
-    type: "target / number",
-    default: "window / 300",
+    name: "scrollTarget",
+    type: "target",
+    default: "window",
     desc: pick("滚动容器和触发距离", "Scroll container and activation distance."),
   },
   {
-    name: "color / elevation",
-    type: "string / number",
-    default: "surface / 0",
+    name: "scrollThreshold",
+    type: "number",
+    default: "300",
+    desc: pick("滚动容器和触发距离", "Scroll container and activation distance."),
+  },
+  {
+    name: "color",
+    type: "string",
+    default: "surface",
     desc: pick("主题表面与阴影层级", "Theme surface and elevation."),
   },
   {
-    name: "height / extensionHeight",
+    name: "elevation",
+    type: "number",
+    default: "0",
+    desc: pick("主题表面与阴影层级", "Theme surface and elevation."),
+  },
+  {
+    name: "height",
     type: "string | number",
-    default: "auto / 48",
+    default: "auto",
     desc: pick("主行和扩展区高度", "Main-row and extension heights."),
   },
   {
-    name: "border / rounded / fixed / sticky / collapsed",
+    name: "extensionHeight",
+    type: "string | number",
+    default: "48",
+    desc: pick("主行和扩展区高度", "Main-row and extension heights."),
+  },
+  {
+    name: "border",
+    type: "boolean",
+    default: "false",
+    desc: pick("表面、定位与显式折叠状态", "Surface, positioning, and explicit collapse states."),
+  },
+  {
+    name: "rounded",
+    type: "boolean",
+    default: "false",
+    desc: pick("表面、定位与显式折叠状态", "Surface, positioning, and explicit collapse states."),
+  },
+  {
+    name: "fixed",
+    type: "boolean",
+    default: "false",
+    desc: pick("表面、定位与显式折叠状态", "Surface, positioning, and explicit collapse states."),
+  },
+  {
+    name: "sticky",
+    type: "boolean",
+    default: "false",
+    desc: pick("表面、定位与显式折叠状态", "Surface, positioning, and explicit collapse states."),
+  },
+  {
+    name: "collapsed",
     type: "boolean",
     default: "false",
     desc: pick("表面、定位与显式折叠状态", "Surface, positioning, and explicit collapse states."),
@@ -712,16 +772,17 @@ const PageAppBar = defineHtml(`
     </elf-playground>
 
     <section class="docs-section">
-      <h2>${t("api")}</h2><elf-props-table
+      <elf-api-builder component="elf-app-bar" title="API"><elf-props-table role="props"
         title="Props"
         :rows=${propsRows()}
-      /><elf-props-table
+      /><elf-props-table role="events"
         title="Events"
         :rows=${eventRows()}
-      /><elf-props-table
+      /><elf-props-table role="slots"
         :title=${t("slots")}
         :rows=${slotRows()}
       />
+  </elf-api-builder>
     </section>
   </elf-container>
 `);

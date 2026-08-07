@@ -68,12 +68,13 @@ const exposesRows = () => [
 ];
 
 const PageCollapseProps = defineHtml(`
-  <h2>API</h2>
-  <elf-props-table :title=${t("collapseProps")} :rows=${propsRows()} />
-  <elf-props-table :title=${t("collapseEvents")} :rows=${eventsRows()} />
-  <elf-props-table :title=${t("itemProps")} :rows=${itemRows()} />
-  <elf-props-table :title=${t("itemSlots")} :rows=${slotsRows()} />
-  <elf-props-table :title=${t("itemExposes")} :rows=${exposesRows()} />
+  <elf-api-builder component="elf-collapse" title="API">
+  <elf-props-table role="props" :title=${t("collapseProps")} :rows=${propsRows()} />
+  <elf-props-table role="events" :title=${t("collapseEvents")} :rows=${eventsRows()} />
+  <elf-props-table role="props" component="elf-collapse-item" :title=${t("itemProps")} :rows=${itemRows()} />
+  <elf-props-table role="slots" component="elf-collapse-item" :title=${t("itemSlots")} :rows=${slotsRows()} />
+  <elf-props-table role="methods" component="elf-collapse-item" :title=${t("itemExposes")} :rows=${exposesRows()} />
+  </elf-api-builder>
 `);
 
 export { PageCollapseProps };

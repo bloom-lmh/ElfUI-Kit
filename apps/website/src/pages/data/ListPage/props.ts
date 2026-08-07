@@ -89,12 +89,13 @@ const exposeRows = () => [
 ];
 
 const PageListProps = defineHtml(`
-  <h2>${t("api")}</h2>
-  <elf-props-table :title=${t("props")} :rows.prop=${listProps()} />
-  <elf-props-table :title=${t("itemProps")} :rows.prop=${itemProps()} />
-  <elf-props-table :title=${t("events")} :rows.prop=${eventRows()} />
-  <elf-props-table :title=${t("slots")} :rows.prop=${slotRows()} />
-  <elf-props-table :title=${t("exposes")} :rows.prop=${exposeRows()} />
+  <elf-api-builder component="elf-list" title="API">
+  <elf-props-table role="props" :title=${t("props")} :rows.prop=${listProps()} />
+  <elf-props-table role="props" component="elf-list-item" :title=${t("itemProps")} :rows.prop=${itemProps()} />
+  <elf-props-table role="events" :title=${t("events")} :rows.prop=${eventRows()} />
+  <elf-props-table role="slots" :title=${t("slots")} :rows.prop=${slotRows()} />
+  <elf-props-table role="methods" :title=${t("exposes")} :rows.prop=${exposeRows()} />
+  </elf-api-builder>
 `);
 
 export { PageListProps };

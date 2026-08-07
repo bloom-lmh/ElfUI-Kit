@@ -58,7 +58,13 @@ const propsRows = [
     desc: pick("标题计数模板", "Header count templates"),
   },
   {
-    name: "left-default-checked / right-default-checked",
+    name: "left-default-checked",
+    type: "string[]",
+    default: "[]",
+    desc: pick("初始勾选键值", "Initial selectable checked keys"),
+  },
+  {
+    name: "right-default-checked",
     type: "string[]",
     default: "[]",
     desc: pick("初始勾选键值", "Initial selectable checked keys"),
@@ -122,7 +128,12 @@ const eventsRows = [
     desc: pick("一次穿梭操作完成", "A transfer completed"),
   },
   {
-    name: "left-check-change / right-check-change",
+    name: "left-check-change",
+    type: "(checkedKeys, changedKeys) => void",
+    desc: pick("面板勾选状态变化", "Panel checked state changed"),
+  },
+  {
+    name: "right-check-change",
     type: "(checkedKeys, changedKeys) => void",
     desc: pick("面板勾选状态变化", "Panel checked state changed"),
   },
@@ -140,7 +151,12 @@ const exposesRows = [
     desc: pick("按键值滚动并聚焦面板选项", "Scroll and focus a panel option by key"),
   },
   {
-    name: "leftPanel / rightPanel",
+    name: "leftPanel",
+    type: "{ query: string }",
+    desc: pick("当前过滤查询视图", "Current filter query views"),
+  },
+  {
+    name: "rightPanel",
     type: "{ query: string }",
     desc: pick("当前过滤查询视图", "Current filter query views"),
   },
@@ -148,23 +164,34 @@ const exposesRows = [
 
 const slotsRows = [
   {
-    name: "left-footer / right-footer",
+    name: "left-footer",
     type: "unknown",
     desc: pick("面板底部内容", "Panel footer content"),
   },
   {
-    name: "left-empty / right-empty",
+    name: "right-footer",
+    type: "unknown",
+    desc: pick("面板底部内容", "Panel footer content"),
+  },
+  {
+    name: "left-empty",
+    type: "unknown",
+    desc: pick("面板空态内容", "Panel empty content"),
+  },
+  {
+    name: "right-empty",
     type: "unknown",
     desc: pick("面板空态内容", "Panel empty content"),
   },
 ];
 
 const PageTransferProps = defineHtml(`
-  <h2>API</h2>
-  <elf-props-table title="Props" :rows.prop=${propsRows} />
-  <elf-props-table title="Events" :rows.prop=${eventsRows} />
-  <elf-props-table title="Expose" :rows.prop=${exposesRows} />
-  <elf-props-table title="Slots" :rows.prop=${slotsRows} />
+  <elf-api-builder component="elf-transfer" title="API">
+  <elf-props-table role="props" title="Props" :rows.prop=${propsRows} />
+  <elf-props-table role="events" title="Events" :rows.prop=${eventsRows} />
+  <elf-props-table role="methods" title="Expose" :rows.prop=${exposesRows} />
+  <elf-props-table role="slots" title="Slots" :rows.prop=${slotsRows} />
+  </elf-api-builder>
 `);
 
 export { PageTransferProps };

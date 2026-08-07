@@ -65,7 +65,13 @@ const propsRows = [
 
 const configRows = [
   {
-    name: "defaults / defaultsOptions",
+    name: "defaults",
+    type: "ProviderDefaults",
+    default: "{}",
+    desc: pick("按组件下发默认属性及合并策略", "Component defaults and merge strategy."),
+  },
+  {
+    name: "defaultsOptions",
     type: "ProviderDefaults",
     default: "{}",
     desc: pick("按组件下发默认属性及合并策略", "Component defaults and merge strategy."),
@@ -169,9 +175,10 @@ const PageConfigProvider = defineHtml(`
     <page-config-provider-ex5 />
     <page-config-provider-ex6 />
 
-    <h2>API</h2>
-    <elf-props-table title="ConfigProvider Props" :rows="propsRows"></elf-props-table>
+    <elf-api-builder component="elf-config-provider" title="API">
+    <elf-props-table role="props" title="ConfigProvider Props" :rows="propsRows"></elf-props-table>
     <elf-props-table title="ElfUIConfig" :rows="configRows"></elf-props-table>
+  </elf-api-builder>
   </elf-container>
 `);
 

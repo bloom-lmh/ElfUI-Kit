@@ -70,9 +70,15 @@ const propsRows = [
     desc: pick("按钮类型", "Trigger button type."),
   },
   {
-    name: "showTimeout / hideTimeout",
+    name: "showTimeout",
     type: "number",
-    default: "120 / 180",
+    default: "120",
+    desc: pick("hover 展开和关闭延迟", "Hover open and close delays."),
+  },
+  {
+    name: "hideTimeout",
+    type: "number",
+    default: "180",
     desc: pick("hover 展开和关闭延迟", "Hover open and close delays."),
   },
   {
@@ -82,9 +88,18 @@ const propsRows = [
     desc: pick("键盘触发键", "Keyboard keys that open the menu."),
   },
   {
-    name: "virtualTriggering / virtualRef",
-    type: "boolean / DropdownVirtualRef",
-    default: "false / -",
+    name: "virtualTriggering",
+    type: "boolean",
+    default: "false",
+    desc: pick(
+      "使用外部元素或虚拟矩形作为触发目标",
+      "Use an external element or virtual rectangle as the anchor.",
+    ),
+  },
+  {
+    name: "virtualRef",
+    type: "DropdownVirtualRef",
+    default: "-",
     desc: pick(
       "使用外部元素或虚拟矩形作为触发目标",
       "Use an external element or virtual rectangle as the anchor.",
@@ -97,8 +112,14 @@ const propsRows = [
     desc: pick("菜单最大高度", "Maximum menu height."),
   },
   {
-    name: "popperClass / popperStyle",
-    type: "string / object",
+    name: "popperClass",
+    type: "string",
+    default: "-",
+    desc: pick("弹层自定义样式", "Custom overlay class and styles."),
+  },
+  {
+    name: "popperStyle",
+    type: "object",
     default: "-",
     desc: pick("弹层自定义样式", "Custom overlay class and styles."),
   },
@@ -118,9 +139,18 @@ const propsRows = [
     desc: pick("点击外部是否关闭", "Close when an outside pointer interaction occurs."),
   },
   {
-    name: "teleported / appendTo",
-    type: "boolean / string | HTMLElement",
-    default: "true / body",
+    name: "teleported",
+    type: "boolean",
+    default: "true",
+    desc: pick(
+      "使用原生 top layer 脱离裁切，并声明承载目标",
+      "Use the native top layer to escape clipping and declare the target container.",
+    ),
+  },
+  {
+    name: "appendTo",
+    type: "string | HTMLElement",
+    default: "body",
     desc: pick(
       "使用原生 top layer 脱离裁切，并声明承载目标",
       "Use the native top layer to escape clipping and declare the target container.",
@@ -131,7 +161,12 @@ const propsRows = [
 const slotsRows = [
   { name: "default", type: "unknown", desc: pick("自定义触发内容", "Custom trigger content.") },
   {
-    name: "trigger / main",
+    name: "trigger",
+    type: "unknown",
+    desc: pick("ElfUI 兼容触发器与分裂主按钮", "ElfUI-compatible trigger and split main action."),
+  },
+  {
+    name: "main",
     type: "unknown",
     desc: pick("ElfUI 兼容触发器与分裂主按钮", "ElfUI-compatible trigger and split main action."),
   },
@@ -162,8 +197,14 @@ const itemRows = [
     desc: pick("显示上分割线", "Show a divider above the item."),
   },
   {
-    name: "icon / icon slot",
-    type: "string / unknown",
+    name: "icon",
+    type: "string",
+    default: "''",
+    desc: pick("图标或自定义图标", "Icon name or custom icon content."),
+  },
+  {
+    name: "icon slot",
+    type: "unknown",
     default: "''",
     desc: pick("图标或自定义图标", "Icon name or custom icon content."),
   },
@@ -232,12 +273,13 @@ const PageDropdown = defineHtml(`
 
     <page-dropdown-ex6 />
 
-    <h2>API</h2>
-    <elf-props-table title="Dropdown Props" :rows=${propsRows}></elf-props-table>
-    <elf-props-table title="Dropdown Events" :rows=${eventsRows}></elf-props-table>
-    <elf-props-table title="Dropdown Expose" :rows=${exposeRows}></elf-props-table>
-    <elf-props-table title="Dropdown Slots" :rows=${slotsRows}></elf-props-table>
-    <elf-props-table title="DropdownItem Props / Slots" :rows=${itemRows}></elf-props-table>
+    <elf-api-builder component="elf-dropdown" title="API">
+    <elf-props-table role="props" title="Dropdown Props" :rows=${propsRows}></elf-props-table>
+    <elf-props-table role="events" title="Dropdown Events" :rows=${eventsRows}></elf-props-table>
+    <elf-props-table role="methods" title="Dropdown Expose" :rows=${exposeRows}></elf-props-table>
+    <elf-props-table role="slots" title="Dropdown Slots" :rows=${slotsRows}></elf-props-table>
+    <elf-props-table role="props" component="elf-dropdown-item" title="DropdownItem Props / Slots" :rows=${itemRows}></elf-props-table>
+  </elf-api-builder>
   </elf-container>
 `);
 

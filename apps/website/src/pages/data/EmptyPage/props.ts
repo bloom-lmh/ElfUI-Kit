@@ -49,9 +49,10 @@ const slotsRows = () => [
 ];
 
 const PageEmptyProps = defineHtml(`
-  <h2>API</h2>
-  <elf-props-table :title=${t("props")} :rows=${propsRows()} />
-  <elf-props-table :title=${t("slots")} :rows=${slotsRows()} />
+  <elf-api-builder component="elf-empty" title="API">
+  <elf-props-table role="props" :title=${t("props")} :rows=${propsRows()} />
+  <elf-props-table role="slots" :title=${t("slots")} :rows=${slotsRows()} />
+  </elf-api-builder>
 `);
 
 export { PageEmptyProps };

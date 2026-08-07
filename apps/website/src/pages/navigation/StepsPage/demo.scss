@@ -17,7 +17,7 @@
   height: 100%;
 }
 
-.steps-lab-config > label:not(.steps-lab-toggle) {
+.steps-lab-config > label {
   display: grid;
   gap: 6px;
 }
@@ -25,11 +25,4 @@
 .steps-lab-config label > span {
   color: var(--elf-text-secondary);
   font-size: var(--elf-font-size-xs);
-}
-
-.steps-lab-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
 }

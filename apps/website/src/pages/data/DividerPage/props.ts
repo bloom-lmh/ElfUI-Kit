@@ -49,9 +49,10 @@ const propsRows = () => [
 const slotsRows = () => [{ name: "default", desc: t("content") }];
 
 const PageDividerProps = defineHtml(`
-  <h2>API</h2>
-  <elf-props-table :title=${t("props")} :rows=${propsRows()} />
-  <elf-props-table :title=${t("slots")} :rows=${slotsRows()} />
+  <elf-api-builder component="elf-divider" title="API">
+  <elf-props-table role="props" :title=${t("props")} :rows=${propsRows()} />
+  <elf-props-table role="slots" :title=${t("slots")} :rows=${slotsRows()} />
+  </elf-api-builder>
 `);
 
 export { PageDividerProps };

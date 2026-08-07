@@ -26,7 +26,7 @@ const pick = createDocsPicker();
 
 const propsRows = () => [
   {
-    name: "modelValue / fileList",
+    name: "modelValue",
     type: "UploadFileItem[]",
     default: "[]",
     desc: pick(
@@ -35,45 +35,126 @@ const propsRows = () => [
     ),
   },
   {
-    name: "action / method / name",
+    name: "fileList",
+    type: "UploadFileItem[]",
+    default: "[]",
+    desc: pick(
+      "受控文件列表；fileList 提供 Element Plus 的 v-model:file-list 兼容入口。",
+      "The controlled file list; fileList provides the Element Plus-compatible v-model:file-list entry.",
+    ),
+  },
+  {
+    name: "action",
     type: "string",
-    default: "'' / post / file",
+    default: "''",
     desc: pick(
       "设置默认 XHR 请求地址、HTTP 方法和表单字段名。",
       "Set the default XHR endpoint, HTTP method, and form field name.",
     ),
   },
   {
-    name: "headers / data / withCredentials",
-    type: "Headers | object / object | Function / boolean",
-    default: "{} / {} / false",
+    name: "method",
+    type: "string",
+    default: "post",
+    desc: pick(
+      "设置默认 XHR 请求地址、HTTP 方法和表单字段名。",
+      "Set the default XHR endpoint, HTTP method, and form field name.",
+    ),
+  },
+  {
+    name: "name",
+    type: "string",
+    default: "file",
+    desc: pick(
+      "设置默认 XHR 请求地址、HTTP 方法和表单字段名。",
+      "Set the default XHR endpoint, HTTP method, and form field name.",
+    ),
+  },
+  {
+    name: "headers",
+    type: "Headers | object",
+    default: "{}",
     desc: pick(
       "为默认或自定义请求提供请求头、附加数据和凭证策略；data 函数可按文件异步解析。",
       "Provide headers, additional data, and credentials for default or custom requests; data functions may resolve asynchronously per file.",
     ),
   },
   {
-    name: "accept / crossorigin",
-    type: "string / '' | anonymous | use-credentials",
-    default: "'' / ''",
+    name: "data",
+    type: "object | Function",
+    default: "{}",
+    desc: pick(
+      "为默认或自定义请求提供请求头、附加数据和凭证策略；data 函数可按文件异步解析。",
+      "Provide headers, additional data, and credentials for default or custom requests; data functions may resolve asynchronously per file.",
+    ),
+  },
+  {
+    name: "withCredentials",
+    type: "boolean",
+    default: "false",
+    desc: pick(
+      "为默认或自定义请求提供请求头、附加数据和凭证策略；data 函数可按文件异步解析。",
+      "Provide headers, additional data, and credentials for default or custom requests; data functions may resolve asynchronously per file.",
+    ),
+  },
+  {
+    name: "accept",
+    type: "string",
+    default: "''",
     desc: pick(
       "限制可选择文件类型，并配置图片预览的跨源模式。",
       "Restrict selectable file types and configure cross-origin image previews.",
     ),
   },
   {
-    name: "multiple / directory / drag",
+    name: "crossorigin",
+    type: "'' | anonymous | use-credentials",
+    default: "''",
+    desc: pick(
+      "限制可选择文件类型，并配置图片预览的跨源模式。",
+      "Restrict selectable file types and configure cross-origin image previews.",
+    ),
+  },
+  {
+    name: "multiple",
     type: "boolean",
-    default: "false / false / false",
+    default: "false",
     desc: pick(
       "启用多选、目录选择和带键盘语义的拖拽区域。",
       "Enable multiple selection, directory selection, and a keyboard-accessible drop zone.",
     ),
   },
   {
-    name: "disabled / validateEvent",
+    name: "directory",
     type: "boolean",
-    default: "false / true",
+    default: "false",
+    desc: pick(
+      "启用多选、目录选择和带键盘语义的拖拽区域。",
+      "Enable multiple selection, directory selection, and a keyboard-accessible drop zone.",
+    ),
+  },
+  {
+    name: "drag",
+    type: "boolean",
+    default: "false",
+    desc: pick(
+      "启用多选、目录选择和带键盘语义的拖拽区域。",
+      "Enable multiple selection, directory selection, and a keyboard-accessible drop zone.",
+    ),
+  },
+  {
+    name: "disabled",
+    type: "boolean",
+    default: "false",
+    desc: pick(
+      "合并组件与 Form 禁用状态，并控制列表变化时是否触发表单校验。",
+      "Merge component and Form disabled state, and control Form validation on list changes.",
+    ),
+  },
+  {
+    name: "validateEvent",
+    type: "boolean",
+    default: "true",
     desc: pick(
       "合并组件与 Form 禁用状态，并控制列表变化时是否触发表单校验。",
       "Merge component and Form disabled state, and control Form validation on list changes.",
@@ -89,43 +170,88 @@ const propsRows = () => [
     ),
   },
   {
-    name: "limit / maxSize / fileNamePattern",
-    type: "number / number / string",
-    default: "0 / 0 / ''",
+    name: "limit",
+    type: "number",
+    default: "0",
     desc: pick(
       "限制文件数量、单文件字节数和文件名正则；0 或空字符串表示不限制。",
       "Limit file count, per-file bytes, and filename pattern; zero or an empty string disables the limit.",
     ),
   },
   {
-    name: "chunkSize / chunkRequest",
-    type: "number / (options) => void | Promise<void>",
-    default: "0 / -",
+    name: "maxSize",
+    type: "number",
+    default: "0",
+    desc: pick(
+      "限制文件数量、单文件字节数和文件名正则；0 或空字符串表示不限制。",
+      "Limit file count, per-file bytes, and filename pattern; zero or an empty string disables the limit.",
+    ),
+  },
+  {
+    name: "fileNamePattern",
+    type: "string",
+    default: "''",
+    desc: pick(
+      "限制文件数量、单文件字节数和文件名正则；0 或空字符串表示不限制。",
+      "Limit file count, per-file bytes, and filename pattern; zero or an empty string disables the limit.",
+    ),
+  },
+  {
+    name: "chunkSize",
+    type: "number",
+    default: "0",
     desc: pick(
       "按稳定边界切分原始文件，并把每个 Blob 与索引、范围和进度回调交给请求适配器。",
       "Slice the raw file at stable boundaries and pass each Blob, index, range, and progress callback to the request adapter.",
     ),
   },
   {
-    name: "listType / showFileList",
-    type: "text | picture | picture-card / boolean",
-    default: "text / true",
+    name: "chunkRequest",
+    type: "(options) => void | Promise<void>",
+    default: "-",
+    desc: pick(
+      "按稳定边界切分原始文件，并把每个 Blob 与索引、范围和进度回调交给请求适配器。",
+      "Slice the raw file at stable boundaries and pass each Blob, index, range, and progress callback to the request adapter.",
+    ),
+  },
+  {
+    name: "listType",
+    type: "text | picture | picture-card",
+    default: "text",
     desc: pick(
       "选择文件列表外观，或隐藏内置列表以组合自定义选择表面。",
       "Choose the file-list presentation or hide the built-in list for a custom selection surface.",
     ),
   },
   {
-    name: "buttonText / tip",
+    name: "showFileList",
+    type: "boolean",
+    default: "true",
+    desc: pick(
+      "选择文件列表外观，或隐藏内置列表以组合自定义选择表面。",
+      "Choose the file-list presentation or hide the built-in list for a custom selection surface.",
+    ),
+  },
+  {
+    name: "buttonText",
     type: "string",
-    default: "'' / ''",
+    default: "''",
     desc: pick(
       "覆盖内置选择按钮和辅助说明；空值使用 Provider 文案或 tip 插槽。",
       "Override the built-in choose button and guidance; empty values use Provider copy or the tip slot.",
     ),
   },
   {
-    name: "beforeUpload / beforeRemove",
+    name: "tip",
+    type: "string",
+    default: "''",
+    desc: pick(
+      "覆盖内置选择按钮和辅助说明；空值使用 Provider 文案或 tip 插槽。",
+      "Override the built-in choose button and guidance; empty values use Provider copy or the tip slot.",
+    ),
+  },
+  {
+    name: "beforeUpload",
     type: "Function",
     default: "-",
     desc: pick(
@@ -134,7 +260,16 @@ const propsRows = () => [
     ),
   },
   {
-    name: "httpRequest / customRequest",
+    name: "beforeRemove",
+    type: "Function",
+    default: "-",
+    desc: pick(
+      "在加入上传队列或移除文件前同步、异步放行操作。",
+      "Allow or reject queue insertion and file removal synchronously or asynchronously.",
+    ),
+  },
+  {
+    name: "httpRequest",
     type: "(options: UploadRequestOptions) => UploadRequestResult",
     default: "-",
     desc: pick(
@@ -143,7 +278,16 @@ const propsRows = () => [
     ),
   },
   {
-    name: "onPreview / onRemove / onChange / onExceed",
+    name: "customRequest",
+    type: "(options: UploadRequestOptions) => UploadRequestResult",
+    default: "-",
+    desc: pick(
+      "替换默认 XHR，并可返回 abort handle 参与组件统一取消和卸载清理。",
+      "Replace the default XHR and optionally return an abort handle for unified cancellation and unmount cleanup.",
+    ),
+  },
+  {
+    name: "onPreview",
     type: "Function",
     default: "-",
     desc: pick(
@@ -152,7 +296,52 @@ const propsRows = () => [
     ),
   },
   {
-    name: "onProgress / onSuccess / onError",
+    name: "onRemove",
+    type: "Function",
+    default: "-",
+    desc: pick(
+      "Element Plus 风格回调属性，分别接收预览、移除、列表变化和超限 payload。",
+      "Element Plus-style callback props for preview, removal, list changes, and limit-exceeded payloads.",
+    ),
+  },
+  {
+    name: "onChange",
+    type: "Function",
+    default: "-",
+    desc: pick(
+      "Element Plus 风格回调属性，分别接收预览、移除、列表变化和超限 payload。",
+      "Element Plus-style callback props for preview, removal, list changes, and limit-exceeded payloads.",
+    ),
+  },
+  {
+    name: "onExceed",
+    type: "Function",
+    default: "-",
+    desc: pick(
+      "Element Plus 风格回调属性，分别接收预览、移除、列表变化和超限 payload。",
+      "Element Plus-style callback props for preview, removal, list changes, and limit-exceeded payloads.",
+    ),
+  },
+  {
+    name: "onProgress",
+    type: "Function",
+    default: "-",
+    desc: pick(
+      "接收进度、成功响应和错误，并携带当前文件与完整文件列表。",
+      "Receive progress, success responses, and errors with the current file and complete file list.",
+    ),
+  },
+  {
+    name: "onSuccess",
+    type: "Function",
+    default: "-",
+    desc: pick(
+      "接收进度、成功响应和错误，并携带当前文件与完整文件列表。",
+      "Receive progress, success responses, and errors with the current file and complete file list.",
+    ),
+  },
+  {
+    name: "onError",
     type: "Function",
     default: "-",
     desc: pick(
@@ -164,7 +353,15 @@ const propsRows = () => [
 
 const eventsRows = () => [
   {
-    name: "update:modelValue / update:fileList",
+    name: "update:modelValue",
+    type: "(files: UploadFileItem[]) => void",
+    desc: pick(
+      "请求提交新的受控文件列表。",
+      "Request a new controlled file list through either compatibility channel.",
+    ),
+  },
+  {
+    name: "update:fileList",
     type: "(files: UploadFileItem[]) => void",
     desc: pick(
       "请求提交新的受控文件列表。",
@@ -198,7 +395,7 @@ const eventsRows = () => [
     desc: pick("上传进度归一化为 0 至 100。", "Upload progress normalized from 0 to 100."),
   },
   {
-    name: "success / error",
+    name: "success",
     type: "(result, file, files) => void",
     desc: pick(
       "报告请求完成响应或错误及其文件上下文。",
@@ -206,7 +403,20 @@ const eventsRows = () => [
     ),
   },
   {
-    name: "remove / preview",
+    name: "error",
+    type: "(result, file, files) => void",
+    desc: pick(
+      "报告请求完成响应或错误及其文件上下文。",
+      "Report a completed response or error with its file context.",
+    ),
+  },
+  {
+    name: "remove",
+    type: "(file, files?) => void",
+    desc: pick("报告移除和预览命令。", "Report remove and preview commands."),
+  },
+  {
+    name: "preview",
     type: "(file, files?) => void",
     desc: pick("报告移除和预览命令。", "Report remove and preview commands."),
   },
@@ -306,11 +516,12 @@ const PageUpload = defineHtml(`
 
     <page-upload-ex6 />
 
-    <h2>API</h2>
-    <elf-props-table :title=${t("props")} :rows=${propsRows()}></elf-props-table>
-    <elf-props-table :title=${t("events")} :rows=${eventsRows()}></elf-props-table>
-    <elf-props-table :title=${t("methods")} :rows=${methodsRows()}></elf-props-table>
-    <elf-props-table :title=${t("slots")} :rows=${slotsRows()}></elf-props-table>
+    <elf-api-builder component="elf-upload" title="API">
+    <elf-props-table role="props" :title=${t("props")} :rows=${propsRows()}></elf-props-table>
+    <elf-props-table role="events" :title=${t("events")} :rows=${eventsRows()}></elf-props-table>
+    <elf-props-table role="methods" :title=${t("methods")} :rows=${methodsRows()}></elf-props-table>
+    <elf-props-table role="slots" :title=${t("slots")} :rows=${slotsRows()}></elf-props-table>
+  </elf-api-builder>
   </elf-container>
 `);
 

@@ -180,10 +180,11 @@ const PageColorPicker = defineHtml(`
     <page-color-picker-ex3 />
     <page-color-picker-ex4 />
     <page-color-picker-ex5 />
-    <h2>API</h2>
-    <elf-props-table :title=${t("props")} :rows=${propsRows()}></elf-props-table>
-    <elf-props-table :title=${t("events")} :rows=${eventsRows()}></elf-props-table>
-    <elf-props-table :title=${t("methods")} :rows=${methodsRows()}></elf-props-table>
+    <elf-api-builder component="elf-color-picker" title="API">
+    <elf-props-table role="props" :title=${t("props")} :rows=${propsRows()}></elf-props-table>
+    <elf-props-table role="events" :title=${t("events")} :rows=${eventsRows()}></elf-props-table>
+    <elf-props-table role="methods" :title=${t("methods")} :rows=${methodsRows()}></elf-props-table>
+  </elf-api-builder>
   </elf-container>
 `);
 

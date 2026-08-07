@@ -28,7 +28,7 @@
   height: 100%;
 }
 
-.tabs-lab-config > label:not(.tabs-lab-toggle) {
+.tabs-lab-config > label {
   display: grid;
   gap: 6px;
 }
@@ -36,13 +36,6 @@
 .tabs-lab-config label > span {
   color: var(--elf-text-secondary);
   font-size: var(--elf-font-size-xs);
-}
-
-.tabs-lab-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
 }
 
 .tabs-gallery {

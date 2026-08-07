@@ -85,7 +85,7 @@ describe("Tabs documentation", () => {
     const tables = propsPage.shadowRoot?.querySelectorAll<PropsTableElement>("elf-props-table");
     expect(tables).toHaveLength(6);
     expect(tables?.[0]?.rows?.[0]?.desc).toContain("Data-driven tabs");
-    expect(tables?.[2]?.rows?.some((row) => row.name === "tabListRef / tabBarRef")).toBe(true);
+    expect(tables?.[2]?.rows?.some((row) => row.name === "tabListRef")).toBe(true);
   });
 
   it("keeps every preview centered and every changing state in the title row", async () => {

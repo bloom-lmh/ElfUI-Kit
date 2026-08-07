@@ -695,14 +695,15 @@ const PageLabsMdPage = defineHtml(`
         code-theme="vitesse"
       >${customMarkdown()}</elf-md-page>
     </elf-playground>
-    <h2>${t("api")}</h2>
-    <elf-props-table :title=${t("props")} :rows=${propRows()} />
-    <elf-props-table :title=${t("events")} :rows=${eventRows()} />
-    <elf-props-table :title=${t("methods")} :rows=${methodRows()} />
+    <elf-api-builder component="elf-md-page" title="API">
+    <elf-props-table role="props" :title=${t("props")} :rows=${propRows()} />
+    <elf-props-table role="events" :title=${t("events")} :rows=${eventRows()} />
+    <elf-props-table role="methods" :title=${t("methods")} :rows=${methodRows()} />
     <h3>${t("outlineApiTitle")}</h3>
-    <elf-props-table :title=${t("outlineProps")} :rows=${outlinePropRows()} />
-    <elf-props-table :title=${t("outlineEvents")} :rows=${outlineEventRows()} />
-    <elf-props-table :title=${t("outlineMethods")} :rows=${outlineMethodRows()} />
+    <elf-props-table role="props" component="elf-md-outline" :title=${t("outlineProps")} :rows=${outlinePropRows()} />
+    <elf-props-table role="events" component="elf-md-outline" :title=${t("outlineEvents")} :rows=${outlineEventRows()} />
+    <elf-props-table role="methods" component="elf-md-outline" :title=${t("outlineMethods")} :rows=${outlineMethodRows()} />
+  </elf-api-builder>
   </elf-container>
 `);
 

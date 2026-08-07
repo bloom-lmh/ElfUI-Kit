@@ -60,7 +60,13 @@ const optsRows = [
     desc: pick("持续毫秒数，0 表示保持显示", "Duration in milliseconds; 0 keeps it open."),
   },
   {
-    name: "showClose / closable",
+    name: "showClose",
+    type: "boolean",
+    default: "true",
+    desc: pick("显示关闭按钮", "Show the close button."),
+  },
+  {
+    name: "closable",
     type: "boolean",
     default: "true",
     desc: pick("显示关闭按钮", "Show the close button."),
@@ -96,7 +102,13 @@ const optsRows = [
     desc: pick("宿主层级", "Host stacking context."),
   },
   {
-    name: "onClick / onClose",
+    name: "onClick",
+    type: "() => void",
+    default: "undefined",
+    desc: pick("点击和关闭生命周期回调", "Click and close lifecycle callbacks."),
+  },
+  {
+    name: "onClose",
     type: "() => void",
     default: "undefined",
     desc: pick("点击和关闭生命周期回调", "Click and close lifecycle callbacks."),

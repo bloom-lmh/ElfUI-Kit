@@ -243,7 +243,6 @@ const resolvePreview = (path: string): OverviewPreviewKind => {
   ) {
     return "surface";
   }
-  if (detail === "doc-sync") return "layout";
   return "text";
 };
 

@@ -93,8 +93,9 @@ const PageVirtualList = defineHtml(`
     <h2>${t("section")}</h2>
     <page-virtual-list-ex2></page-virtual-list-ex2>
     <page-virtual-list-ex3></page-virtual-list-ex3>
-    <h2>${t("api")}</h2>
-    <elf-props-table :title=${t("props")} :rows.prop=${rows()}></elf-props-table>
+    <elf-api-builder component="elf-virtual-list" title="API">
+    <elf-props-table role="props" :title=${t("props")} :rows.prop=${rows()}></elf-props-table>
+  </elf-api-builder>
   </elf-container>
 `);
 export { PageVirtualList };

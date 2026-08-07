@@ -59,25 +59,38 @@ const groupPropsRows = () => [
   { name: "effect", type: "light | dark", default: "light", desc: t("effect") },
   { name: "placement", type: "top | bottom", default: "top", desc: t("placement") },
   {
-    name: "popper-class / popper-style",
-    type: "string / Record<string, string | number>",
-    default: "'' / {}",
+    name: "popper-class",
+    type: "string",
+    default: "''",
     desc: t("custom"),
   },
   {
-    name: "collapse-class / collapse-style",
-    type: "string / Record<string, string | number>",
-    default: "'' / {}",
+    name: "popper-style",
+    type: "Record<string, string | number>",
+    default: "{}",
+    desc: t("custom"),
+  },
+  {
+    name: "collapse-class",
+    type: "string",
+    default: "''",
+    desc: t("custom"),
+  },
+  {
+    name: "collapse-style",
+    type: "Record<string, string | number>",
+    default: "{}",
     desc: t("custom"),
   },
 ];
 
 const PageAvatarProps = defineHtml(`
-  <h2>API</h2>
-  <elf-props-table :title=${t("props")} :rows=${propsRows()} />
-  <elf-props-table :title=${t("events")} :rows=${eventsRows()} />
-  <elf-props-table :title=${t("slots")} :rows=${slotsRows()} />
-  <elf-props-table :title=${t("groupProps")} :rows=${groupPropsRows()} />
+  <elf-api-builder component="elf-avatar" title="API">
+  <elf-props-table role="props" :title=${t("props")} :rows=${propsRows()} />
+  <elf-props-table role="events" :title=${t("events")} :rows=${eventsRows()} />
+  <elf-props-table role="slots" :title=${t("slots")} :rows=${slotsRows()} />
+  <elf-props-table role="props" component="elf-avatar-group" :title=${t("groupProps")} :rows=${groupPropsRows()} />
+  </elf-api-builder>
 `);
 
 export { PageAvatarProps };

@@ -349,11 +349,12 @@ const slotsRows = () => [
 ];
 
 const PageTreeProps = defineHtml(`
-  <h2>API</h2>
-  <elf-props-table title="Props" :rows.prop=${propsRows()} />
-  <elf-props-table title="Events" :rows.prop=${eventsRows()} />
-  <elf-props-table title="Slots" :rows.prop=${slotsRows()} />
-  <elf-props-table title="Methods" :rows.prop=${methodsRows()} />
+  <elf-api-builder component="elf-tree" title="API">
+  <elf-props-table role="props" title="Props" :rows.prop=${propsRows()} />
+  <elf-props-table role="events" title="Events" :rows.prop=${eventsRows()} />
+  <elf-props-table role="slots" title="Slots" :rows.prop=${slotsRows()} />
+  <elf-props-table role="methods" title="Methods" :rows.prop=${methodsRows()} />
+  </elf-api-builder>
 `);
 
 export { PageTreeProps };

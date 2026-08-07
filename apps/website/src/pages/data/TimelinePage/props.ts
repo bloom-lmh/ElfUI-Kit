@@ -44,12 +44,27 @@ const itemRows = [
     desc: pick("节点垂直居中", "Vertically center the node"),
   },
   {
-    name: "title / content",
+    name: "title",
     type: "string",
     desc: pick("主侧标题与内容", "Primary-side title and content"),
   },
   {
-    name: "title2 / content2 / timestamp2",
+    name: "content",
+    type: "string",
+    desc: pick("主侧标题与内容", "Primary-side title and content"),
+  },
+  {
+    name: "title2",
+    type: "string",
+    desc: pick("双侧模式的次要内容", "Secondary content in two-sided mode"),
+  },
+  {
+    name: "content2",
+    type: "string",
+    desc: pick("双侧模式的次要内容", "Secondary content in two-sided mode"),
+  },
+  {
+    name: "timestamp2",
     type: "string",
     desc: pick("双侧模式的次要内容", "Secondary content in two-sided mode"),
   },
@@ -111,11 +126,12 @@ const partRows = [
 ];
 
 const PageTimelineProps = defineHtml(`
-  <h2>API</h2>
-  <elf-props-table title="Props" :rows.prop=${propsRows} />
+  <elf-api-builder component="elf-timeline" title="API">
+  <elf-props-table role="props" title="Props" :rows.prop=${propsRows} />
   <elf-props-table title="TimelineItem" :rows.prop=${itemRows} />
-  <elf-props-table title="Slots" :rows.prop=${slotRows} />
+  <elf-props-table role="slots" title="Slots" :rows.prop=${slotRows} />
   <elf-props-table title="CSS Parts" :rows.prop=${partRows} />
+  </elf-api-builder>
 `);
 
 export { PageTimelineProps };

@@ -82,8 +82,8 @@ describe("Upload documentation", () => {
 
     const tables = page.shadowRoot?.querySelectorAll<PropsTableElement>("elf-props-table");
     expect(tables).toHaveLength(4);
-    expect(tables?.[0]?.rows?.some((row) => row.name === "chunkSize / chunkRequest")).toBe(true);
-    expect(tables?.[1]?.rows?.some((row) => row.name === "success / error")).toBe(true);
+    expect(tables?.[0]?.rows?.some((row) => row.name === "chunkSize")).toBe(true);
+    expect(tables?.[1]?.rows?.some((row) => row.name === "success")).toBe(true);
     expect(tables?.[3]?.rows?.some((row) => row.name === "dropzone")).toBe(true);
     expect(tables?.[0]?.rows?.[0]?.desc).toContain("controlled file list");
   });

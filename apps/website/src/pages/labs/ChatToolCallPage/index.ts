@@ -106,10 +106,11 @@ const PageChatToolCall = defineHtml(`
         <elf-chat-tool-call name="send_email" status="error" :error=${t("failed")} :default-expanded.prop=${true}></elf-chat-tool-call>
       </div>
     </elf-playground>
-    <h2>${t("api")}</h2>
-    <elf-props-table :title=${t("props")} :rows=${propRows()}></elf-props-table>
-    <elf-props-table :title=${t("events")} :rows=${eventRows()}></elf-props-table>
-    <elf-props-table :title=${t("expose")} :rows=${exposeRows()}></elf-props-table>
+    <elf-api-builder component="elf-chat-tool-call" title="API">
+    <elf-props-table role="props" :title=${t("props")} :rows=${propRows()}></elf-props-table>
+    <elf-props-table role="events" :title=${t("events")} :rows=${eventRows()}></elf-props-table>
+    <elf-props-table role="methods" :title=${t("expose")} :rows=${exposeRows()}></elf-props-table>
+  </elf-api-builder>
   </elf-container>
 `);
 

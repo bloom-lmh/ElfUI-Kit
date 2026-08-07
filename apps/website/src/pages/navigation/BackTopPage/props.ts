@@ -48,11 +48,12 @@ const methodsRows = [{ name: "scrollToTop", type: "() => void", desc: t("method"
 const slotsRows = [{ name: "default", desc: t("slot") }];
 
 const PageBacktopProps = defineHtml(`
-  <h2>API</h2>
-  <elf-props-table title="Props" :rows=${propsRows}></elf-props-table>
-  <elf-props-table title="Events" :rows=${eventsRows}></elf-props-table>
-  <elf-props-table title="Methods" :rows=${methodsRows}></elf-props-table>
-  <elf-props-table title="Slots" :rows=${slotsRows}></elf-props-table>
+  <elf-api-builder component="elf-back-top" title="API">
+  <elf-props-table role="props" title="Props" :rows=${propsRows}></elf-props-table>
+  <elf-props-table role="events" title="Events" :rows=${eventsRows}></elf-props-table>
+  <elf-props-table role="methods" title="Methods" :rows=${methodsRows}></elf-props-table>
+  <elf-props-table role="slots" title="Slots" :rows=${slotsRows}></elf-props-table>
+  </elf-api-builder>
 `);
 
 export { PageBacktopProps };

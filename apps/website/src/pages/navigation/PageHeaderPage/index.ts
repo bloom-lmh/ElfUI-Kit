@@ -79,19 +79,37 @@ const propsRows = [
     desc: pick("Hero 表面色调", "Hero surface tone."),
   },
   {
-    name: "eyebrow / tag",
+    name: "eyebrow",
     type: "string",
     default: "''",
     desc: pick("上眉标题与英文标签", "Eyebrow copy and compact tag."),
   },
   {
-    name: "description / version",
+    name: "tag",
+    type: "string",
+    default: "''",
+    desc: pick("上眉标题与英文标签", "Eyebrow copy and compact tag."),
+  },
+  {
+    name: "description",
     type: "string",
     default: "''",
     desc: pick("说明文字与元信息", "Description and metadata."),
   },
   {
-    name: "image / imageAlt",
+    name: "version",
+    type: "string",
+    default: "''",
+    desc: pick("说明文字与元信息", "Description and metadata."),
+  },
+  {
+    name: "image",
+    type: "string",
+    default: "''",
+    desc: pick("Hero 视觉图片与替代文本", "Hero visual image and alternative text."),
+  },
+  {
+    name: "imageAlt",
     type: "string",
     default: "''",
     desc: pick("Hero 视觉图片与替代文本", "Hero visual image and alternative text."),
@@ -114,8 +132,10 @@ const slotsRows = [
   { name: "icon", desc: pick("返回图标或卡片前导图标", "Return icon or card-leading icon.") },
   { name: "title", desc: pick("返回文本或 Hero 标题", "Return text or hero title.") },
   { name: "content", desc: pick("标准页头标题内容", "Standard heading content.") },
-  { name: "eyebrow / tag", desc: pick("Hero 上眉标题与标签", "Hero eyebrow and tag regions.") },
-  { name: "description / meta", desc: pick("Hero 说明与元信息", "Hero description and metadata.") },
+  { name: "eyebrow", desc: pick("Hero 上眉标题与标签", "Hero eyebrow and tag regions.") },
+  { name: "tag", desc: pick("Hero 上眉标题与标签", "Hero eyebrow and tag regions.") },
+  { name: "description", desc: pick("Hero 说明与元信息", "Hero description and metadata.") },
+  { name: "meta", desc: pick("Hero 说明与元信息", "Hero description and metadata.") },
   { name: "visual", desc: pick("Hero 装饰或插画区域", "Hero decoration or illustration region.") },
   { name: "extra", desc: pick("右侧扩展操作", "Trailing actions.") },
 ];
@@ -147,10 +167,11 @@ const PagePageHeader = defineHtml(`
     <page-page-header-ex2 />
     <page-page-header-ex3 />
 
-    <h2 class="page-header-api-title">API</h2>
-    <elf-props-table title="Props" :rows=${propsRows}></elf-props-table>
-    <elf-props-table title="Events" :rows=${eventsRows}></elf-props-table>
-    <elf-props-table title="Slots" :rows=${slotsRows}></elf-props-table>
+    <elf-api-builder component="elf-page-header" title="API">
+    <elf-props-table role="props" title="Props" :rows=${propsRows}></elf-props-table>
+    <elf-props-table role="events" title="Events" :rows=${eventsRows}></elf-props-table>
+    <elf-props-table role="slots" title="Slots" :rows=${slotsRows}></elf-props-table>
+  </elf-api-builder>
   </elf-container>
 `);
 

@@ -135,9 +135,10 @@ const PageLabsHeatmap = defineHtml(`
         <elf-heatmap :rows=${rows()} :columns=${columns()} :items=${items()} :thresholds=${thresholds()} :cell-size=${cellSize} :less-text=${t("less")} :more-text=${t("more")} :legend-aria-label=${t("legendFilter")} @cell-click=${onCellClick}></elf-heatmap>
       </div>
     </elf-playground>
-    <h2>${t("api")}</h2>
-    <elf-props-table :title=${t("props")} :rows=${propRows()} />
-    <elf-props-table :title=${t("events")} :rows=${eventRows()} />
+    <elf-api-builder component="elf-heatmap" title="API">
+    <elf-props-table role="props" :title=${t("props")} :rows=${propRows()} />
+    <elf-props-table role="events" :title=${t("events")} :rows=${eventRows()} />
+  </elf-api-builder>
   </elf-container>
 `);
 export { PageLabsHeatmap };

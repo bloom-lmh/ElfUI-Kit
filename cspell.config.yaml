@@ -36,6 +36,7 @@ words:
   - Backtop
   - Backburger
   - binhai
+  - bformrule
   - Britta
   - cascaders
   - Ccircle
@@ -125,6 +126,8 @@ words:
   - subnav
   - tablev
   - tigen
+  - timelineitem
+  - tourstep
   - touchmove
   - transitionend
   - treegrid
@@ -219,3 +222,7 @@ words:
   - frontmatter
   - bottomnav
   - esbuild
+  - codegen
+  - api-builder
+  - modelvalue
+  - wolai

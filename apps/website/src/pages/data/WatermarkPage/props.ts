@@ -16,9 +16,15 @@ const propsRows = [
     desc: pick("水印图片地址，优先于文字", "Watermark image URL, preferred over text"),
   },
   {
-    name: "width / height",
+    name: "width",
     type: "number",
-    default: "120 / 64",
+    default: "120",
+    desc: pick("单个水印平铺尺寸", "Watermark tile size"),
+  },
+  {
+    name: "height",
+    type: "number",
+    default: "64",
     desc: pick("单个水印平铺尺寸", "Watermark tile size"),
   },
   {
@@ -28,21 +34,39 @@ const propsRows = [
     desc: pick("水印旋转角度", "Watermark rotation"),
   },
   {
-    name: "gap-x / gap-y",
+    name: "gap-x",
     type: "number",
-    default: "100 / 100",
+    default: "100",
     desc: pick("水印间距", "Watermark spacing"),
   },
   {
-    name: "offset-x / offset-y",
+    name: "gap-y",
     type: "number",
-    default: "gap / 2",
+    default: "100",
+    desc: pick("水印间距", "Watermark spacing"),
+  },
+  {
+    name: "offset-x",
+    type: "number",
+    default: "gap",
     desc: pick("首个水印偏移", "First watermark offset"),
   },
   {
-    name: "font-size / font-color",
-    type: "number / string",
-    default: "16 / rgba(0,0,0,0.15)",
+    name: "offset-y",
+    type: "number",
+    default: "2",
+    desc: pick("首个水印偏移", "First watermark offset"),
+  },
+  {
+    name: "font-size",
+    type: "number",
+    default: "16",
+    desc: pick("旧版字号和颜色属性", "Legacy font size and color props"),
+  },
+  {
+    name: "font-color",
+    type: "string",
+    default: "rgba(0,0,0,0.15)",
     desc: pick("旧版字号和颜色属性", "Legacy font size and color props"),
   },
   {
@@ -75,10 +99,11 @@ const propsRows = [
 ];
 
 const PageWatermarkProps = defineHtml(`
-  <h2>API</h2>
-  <elf-props-table title="Props" :rows=${propsRows} />
-  <elf-props-table title="Slots" :rows=${[{ name: "default", desc: pick("承载水印的内容", "Content covered by the watermark") }]} />
-  <elf-props-table title="Expose" :rows=${[{ name: "refresh()", desc: pick("立即重建并同步水印覆盖层", "Rebuild and synchronize the watermark overlay immediately") }]} />
+  <elf-api-builder component="elf-watermark" title="API">
+  <elf-props-table role="props" title="Props" :rows=${propsRows} />
+  <elf-props-table role="slots" title="Slots" :rows=${[{ name: "default", desc: pick("承载水印的内容", "Content covered by the watermark") }]} />
+  <elf-props-table role="methods" title="Expose" :rows=${[{ name: "refresh()", desc: pick("立即重建并同步水印覆盖层", "Rebuild and synchronize the watermark overlay immediately") }]} />
+  </elf-api-builder>
 `);
 
 export { PageWatermarkProps };

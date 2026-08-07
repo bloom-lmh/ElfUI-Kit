@@ -65,17 +65,32 @@ const propsRows = [
     desc: pick("字符计数位置", "Character-count placement."),
   },
   {
-    name: "clearable / clear-icon",
-    type: "boolean / string",
+    name: "clearable",
+    type: "boolean",
     desc: pick("显示清空操作并配置图标", "Shows the clear action and configures its icon."),
   },
   {
-    name: "formatter / parser",
+    name: "clear-icon",
+    type: "string",
+    desc: pick("显示清空操作并配置图标", "Shows the clear action and configures its icon."),
+  },
+  {
+    name: "formatter",
     type: "(value: string) => string",
     desc: pick("显示格式化与输入解析函数", "Display formatter and input parser."),
   },
   {
-    name: "prefix-icon / suffix-icon",
+    name: "parser",
+    type: "(value: string) => string",
+    desc: pick("显示格式化与输入解析函数", "Display formatter and input parser."),
+  },
+  {
+    name: "prefix-icon",
+    type: "string",
+    desc: pick("前缀与后缀图标", "Prefix and suffix icons."),
+  },
+  {
+    name: "suffix-icon",
     type: "string",
     desc: pick("前缀与后缀图标", "Prefix and suffix icons."),
   },
@@ -91,11 +106,22 @@ const propsRows = [
     desc: pick("浏览器手动缩放方向", "Browser manual-resize direction."),
   },
   {
-    name: "autocomplete / autofocus / form",
-    type: "string / boolean / string",
+    name: "autocomplete",
+    type: "string",
     desc: pick("原生文本域属性", "Native textarea attributes."),
   },
-  { name: "aria-label / label", type: "string", desc: pick("无障碍标签", "Accessible label.") },
+  {
+    name: "autofocus",
+    type: "boolean",
+    desc: pick("原生文本域属性", "Native textarea attributes."),
+  },
+  {
+    name: "form",
+    type: "string",
+    desc: pick("原生文本域属性", "Native textarea attributes."),
+  },
+  { name: "aria-label", type: "string", desc: pick("无障碍标签", "Accessible label.") },
+  { name: "label", type: "string", desc: pick("无障碍标签", "Accessible label.") },
   {
     name: "tabindex",
     type: "string | number",
@@ -113,7 +139,17 @@ const propsRows = [
     desc: pick("原生文本域内联样式", "Inline styles for the native textarea."),
   },
   {
-    name: "inputmode / id / name",
+    name: "inputmode",
+    type: "string",
+    desc: pick("原生输入模式与表单标识", "Native input mode and form identifiers."),
+  },
+  {
+    name: "id",
+    type: "string",
+    desc: pick("原生输入模式与表单标识", "Native input mode and form identifiers."),
+  },
+  {
+    name: "name",
     type: "string",
     desc: pick("原生输入模式与表单标识", "Native input mode and form identifiers."),
   },
@@ -140,12 +176,27 @@ const eventsRows = [
     desc: pick("按键按下时触发", "Emitted on keydown."),
   },
   {
-    name: "mouseenter / mouseleave",
+    name: "mouseenter",
     type: "(e: MouseEvent) => void",
     desc: pick("指针进入或离开时触发", "Emitted when the pointer enters or leaves."),
   },
   {
-    name: "compositionstart / compositionupdate / compositionend",
+    name: "mouseleave",
+    type: "(e: MouseEvent) => void",
+    desc: pick("指针进入或离开时触发", "Emitted when the pointer enters or leaves."),
+  },
+  {
+    name: "compositionstart",
+    type: "(e: CompositionEvent) => void",
+    desc: pick("输入法组合状态变化时触发", "Emitted when IME composition state changes."),
+  },
+  {
+    name: "compositionupdate",
+    type: "(e: CompositionEvent) => void",
+    desc: pick("输入法组合状态变化时触发", "Emitted when IME composition state changes."),
+  },
+  {
+    name: "compositionend",
     type: "(e: CompositionEvent) => void",
     desc: pick("输入法组合状态变化时触发", "Emitted when IME composition state changes."),
   },
@@ -153,23 +204,56 @@ const eventsRows = [
 
 const slotsRows = [
   {
-    name: "prefix / suffix",
+    name: "prefix",
     desc: pick("文本域顶部的辅助内容", "Supporting content above the textarea."),
   },
   {
-    name: "prepend / append",
+    name: "suffix",
+    desc: pick("文本域顶部的辅助内容", "Supporting content above the textarea."),
+  },
+  {
+    name: "prepend",
+    desc: pick("组合文本域两侧内容", "Content attached to either side of the compound field."),
+  },
+  {
+    name: "append",
     desc: pick("组合文本域两侧内容", "Content attached to either side of the compound field."),
   },
 ];
 
 const exposesRows = [
   {
-    name: "focus / blur / select / clear",
+    name: "focus",
     type: "() => void",
     desc: pick("控制焦点、选择与清空", "Controls focus, selection, and clearing."),
   },
   {
-    name: "input / ref / textarea",
+    name: "blur",
+    type: "() => void",
+    desc: pick("控制焦点、选择与清空", "Controls focus, selection, and clearing."),
+  },
+  {
+    name: "select",
+    type: "() => void",
+    desc: pick("控制焦点、选择与清空", "Controls focus, selection, and clearing."),
+  },
+  {
+    name: "clear",
+    type: "() => void",
+    desc: pick("控制焦点、选择与清空", "Controls focus, selection, and clearing."),
+  },
+  {
+    name: "input",
+    type: "() => HTMLTextAreaElement | null",
+    desc: pick("访问原生文本域", "Returns the native textarea."),
+  },
+  {
+    name: "ref",
+    type: "() => HTMLTextAreaElement | null",
+    desc: pick("访问原生文本域", "Returns the native textarea."),
+  },
+  {
+    name: "textarea",
     type: "() => HTMLTextAreaElement | null",
     desc: pick("访问原生文本域", "Returns the native textarea."),
   },
@@ -191,11 +275,12 @@ const exposesRows = [
 ];
 
 const PageTextareaProps = defineHtml(`
-  <h2>${t("api")}</h2>
-  <elf-props-table :title=${t("props")} :rows=${propsRows} />
-  <elf-props-table :title=${t("events")} :rows=${eventsRows} />
-  <elf-props-table :title=${t("slots")} :rows=${slotsRows} />
-  <elf-props-table :title=${t("expose")} :rows=${exposesRows} />
+  <elf-api-builder component="elf-textarea" title="API">
+  <elf-props-table role="props" :title=${t("props")} :rows=${propsRows} />
+  <elf-props-table role="events" :title=${t("events")} :rows=${eventsRows} />
+  <elf-props-table role="slots" :title=${t("slots")} :rows=${slotsRows} />
+  <elf-props-table role="methods" :title=${t("expose")} :rows=${exposesRows} />
+  </elf-api-builder>
 `);
 
 export { PageTextareaProps };

@@ -12,7 +12,16 @@ const propsRows = () => [
     desc: pick("受控日期或日期范围。", "Controlled date or date range."),
   },
   {
-    name: "viewDate / defaultValue",
+    name: "viewDate",
+    type: "string",
+    default: "''",
+    desc: pick(
+      "控制当前视图月份，以及空值时的初始月份。",
+      "Control the visible month and the initial month for an empty value.",
+    ),
+  },
+  {
+    name: "defaultValue",
     type: "string",
     default: "''",
     desc: pick(
@@ -101,22 +110,33 @@ const slotsRows = () => [
     desc: pick("自定义页脚月份摘要。", "Customize the footer month summary."),
   },
   {
-    name: "prev-month / next-month",
+    name: "prev-month",
     type: "unknown",
     desc: pick("自定义月份导航图标。", "Customize month navigation icons."),
   },
   {
-    name: "prev-year / next-year",
+    name: "next-month",
+    type: "unknown",
+    desc: pick("自定义月份导航图标。", "Customize month navigation icons."),
+  },
+  {
+    name: "prev-year",
+    type: "unknown",
+    desc: pick("自定义年份导航图标。", "Customize year navigation icons."),
+  },
+  {
+    name: "next-year",
     type: "unknown",
     desc: pick("自定义年份导航图标。", "Customize year navigation icons."),
   },
 ];
 
 const PageCalendarProps = defineHtml(`
-  <h2>API</h2>
-  <elf-props-table title="elf-calendar Props" :rows=${propsRows()}></elf-props-table>
-  <elf-props-table title="elf-calendar Events" :rows=${eventsRows()}></elf-props-table>
-  <elf-props-table title="elf-calendar Slots" :rows=${slotsRows()}></elf-props-table>
+  <elf-api-builder component="elf-calendar" title="API">
+  <elf-props-table role="props" title="elf-calendar Props" :rows=${propsRows()}></elf-props-table>
+  <elf-props-table role="events" title="elf-calendar Events" :rows=${eventsRows()}></elf-props-table>
+  <elf-props-table role="slots" title="elf-calendar Slots" :rows=${slotsRows()}></elf-props-table>
+  </elf-api-builder>
 `);
 
 export { PageCalendarProps };

@@ -95,8 +95,10 @@ const exposesRows = () => [
   { name: "activeIndex", type: "number", desc: t("activeIndex") },
   { name: "isPlaying", type: "boolean", desc: t("isPlaying") },
   { name: "setActiveItem", type: "(index | name | label) => void", desc: t("setActiveItem") },
-  { name: "prev / next", type: "() => void", desc: t("prevNext") },
-  { name: "play / pause", type: "() => void", desc: t("playPause") },
+  { name: "prev", type: "() => void", desc: t("prevNext") },
+  { name: "next", type: "() => void", desc: t("prevNext") },
+  { name: "play", type: "() => void", desc: t("playPause") },
+  { name: "pause", type: "() => void", desc: t("playPause") },
 ];
 
 const itemRows = () => [
@@ -106,11 +108,12 @@ const itemRows = () => [
 ];
 
 const PageCarouselProps = defineHtml(`
-  <h2>API</h2>
-  <elf-props-table :title=${t("props")} :rows=${propsRows()} />
-  <elf-props-table :title=${t("events")} :rows=${eventsRows()} />
-  <elf-props-table :title=${t("exposes")} :rows=${exposesRows()} />
-  <elf-props-table :title=${t("itemProps")} :rows=${itemRows()} />
+  <elf-api-builder component="elf-carousel" title="API">
+  <elf-props-table role="props" :title=${t("props")} :rows=${propsRows()} />
+  <elf-props-table role="events" :title=${t("events")} :rows=${eventsRows()} />
+  <elf-props-table role="methods" :title=${t("exposes")} :rows=${exposesRows()} />
+  <elf-props-table role="props" component="elf-carousel-item" :title=${t("itemProps")} :rows=${itemRows()} />
+  </elf-api-builder>
 `);
 
 export { PageCarouselProps };

@@ -23,7 +23,19 @@ const propsRows = [
     desc: pick("内置主题、系统主题或命名主题", "Built-in, system, or named theme."),
   },
   {
-    name: "primary / secondary / surface",
+    name: "primary",
+    type: "string",
+    default: "",
+    desc: pick("常用 token 快捷覆盖", "Shorthand overrides for common tokens."),
+  },
+  {
+    name: "secondary",
+    type: "string",
+    default: "",
+    desc: pick("常用 token 快捷覆盖", "Shorthand overrides for common tokens."),
+  },
+  {
+    name: "surface",
     type: "string",
     default: "",
     desc: pick("常用 token 快捷覆盖", "Shorthand overrides for common tokens."),
@@ -53,7 +65,19 @@ const propsRows = [
 
 const contextRows = [
   {
-    name: "theme / isDark / tokens",
+    name: "theme",
+    type: "readonly",
+    default: "-",
+    desc: pick("当前合并后的主题上下文", "Current merged theme context."),
+  },
+  {
+    name: "isDark",
+    type: "readonly",
+    default: "-",
+    desc: pick("当前合并后的主题上下文", "Current merged theme context."),
+  },
+  {
+    name: "tokens",
     type: "readonly",
     default: "-",
     desc: pick("当前合并后的主题上下文", "Current merged theme context."),
@@ -88,9 +112,10 @@ const PageThemeProvider = defineHtml(`
 
     <page-theme-provider-ex4 />
 
-    <h2>API</h2>
-    <elf-props-table title="ThemeProvider Props" :rows="propsRows"></elf-props-table>
+    <elf-api-builder component="elf-theme-provider" title="API">
+    <elf-props-table role="props" title="ThemeProvider Props" :rows="propsRows"></elf-props-table>
     <elf-props-table title="Theme Context" :rows="contextRows"></elf-props-table>
+  </elf-api-builder>
   </elf-container>
 `);
 

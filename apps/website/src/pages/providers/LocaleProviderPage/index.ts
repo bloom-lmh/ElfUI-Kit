@@ -87,9 +87,10 @@ const PageLocaleProvider = defineHtml(`
     <page-locale-provider-ex2 />
     <page-locale-provider-ex3 />
     <page-locale-provider-ex4 />
-    <h2>API</h2>
-    <elf-props-table title="LocaleProvider Props" :rows="propsRows"></elf-props-table>
+    <elf-api-builder component="elf-locale-provider" title="API">
+    <elf-props-table role="props" title="LocaleProvider Props" :rows="propsRows"></elf-props-table>
     <elf-props-table title="Locale Context" :rows="contextRows"></elf-props-table>
+  </elf-api-builder>
   </elf-container>
 `);
 

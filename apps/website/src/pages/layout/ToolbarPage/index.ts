@@ -131,9 +131,15 @@ const onSearchInput = (event: Event): void =>
 
 const propsRows = () => [
   {
-    name: "title / ariaLabel",
+    name: "title",
     type: "string",
-    default: "'' / Toolbar",
+    default: "''",
+    desc: pick("标题和工具栏无障碍名称", "Title and accessible toolbar name."),
+  },
+  {
+    name: "ariaLabel",
+    type: "string",
+    default: "Toolbar",
     desc: pick("标题和工具栏无障碍名称", "Title and accessible toolbar name."),
   },
   {
@@ -146,43 +152,121 @@ const propsRows = () => [
     ),
   },
   {
-    name: "image / imageAlt",
+    name: "image",
     type: "string",
     default: "''",
     desc: pick("背景图片和替代文本", "Background image and alternative text."),
   },
   {
-    name: "imagePosition / imageOpacity",
-    type: "string / number",
-    default: "center / 1",
+    name: "imageAlt",
+    type: "string",
+    default: "''",
+    desc: pick("背景图片和替代文本", "Background image and alternative text."),
+  },
+  {
+    name: "imagePosition",
+    type: "string",
+    default: "center",
     desc: pick("背景构图和透明度", "Background framing and opacity."),
   },
   {
-    name: "collapsed / collapsePosition / collapseWidth",
+    name: "imageOpacity",
+    type: "number",
+    default: "1",
+    desc: pick("背景构图和透明度", "Background framing and opacity."),
+  },
+  {
+    name: "collapsed",
     type: "mixed",
-    default: "false / start / 112",
+    default: "false",
     desc: pick(
       "折叠状态、折叠后对齐侧和最大宽度",
       "Collapsed state, alignment side when collapsed, and maximum width.",
     ),
   },
   {
-    name: "absolute / fixed / location",
+    name: "collapsePosition",
     type: "mixed",
-    default: "false / false / top",
+    default: "start",
+    desc: pick(
+      "折叠状态、折叠后对齐侧和最大宽度",
+      "Collapsed state, alignment side when collapsed, and maximum width.",
+    ),
+  },
+  {
+    name: "collapseWidth",
+    type: "mixed",
+    default: "112",
+    desc: pick(
+      "折叠状态、折叠后对齐侧和最大宽度",
+      "Collapsed state, alignment side when collapsed, and maximum width.",
+    ),
+  },
+  {
+    name: "absolute",
+    type: "mixed",
+    default: "false",
     desc: pick(
       "在相对容器或视口中的放置位置",
       "Placement within a relative container or viewport.",
     ),
   },
   {
-    name: "height / extensionHeight",
+    name: "fixed",
+    type: "mixed",
+    default: "false",
+    desc: pick(
+      "在相对容器或视口中的放置位置",
+      "Placement within a relative container or viewport.",
+    ),
+  },
+  {
+    name: "location",
+    type: "mixed",
+    default: "top",
+    desc: pick(
+      "在相对容器或视口中的放置位置",
+      "Placement within a relative container or viewport.",
+    ),
+  },
+  {
+    name: "height",
     type: "string | number",
-    default: "auto / 48",
+    default: "auto",
     desc: pick("主行和扩展区域高度", "Main-row and extension heights."),
   },
   {
-    name: "color / elevation / border / rounded / floating",
+    name: "extensionHeight",
+    type: "string | number",
+    default: "48",
+    desc: pick("主行和扩展区域高度", "Main-row and extension heights."),
+  },
+  {
+    name: "color",
+    type: "mixed",
+    default: "surface / 0 / false",
+    desc: pick("表面、层级与内联形态", "Surface, elevation, and inline form."),
+  },
+  {
+    name: "elevation",
+    type: "mixed",
+    default: "surface / 0 / false",
+    desc: pick("表面、层级与内联形态", "Surface, elevation, and inline form."),
+  },
+  {
+    name: "border",
+    type: "mixed",
+    default: "surface / 0 / false",
+    desc: pick("表面、层级与内联形态", "Surface, elevation, and inline form."),
+  },
+  {
+    name: "rounded",
+    type: "mixed",
+    default: "surface / 0 / false",
+    desc: pick("表面、层级与内联形态", "Surface, elevation, and inline form."),
+  },
+  {
+    name: "floating",
     type: "mixed",
     default: "surface / 0 / false",
     desc: pick("表面、层级与内联形态", "Surface, elevation, and inline form."),
@@ -803,8 +887,9 @@ const PageToolbar = defineHtml(`
       </elf-playground>
 
       <section class="docs-section">
-        <h2>${t("api")}</h2><elf-props-table title="Props" :rows=${propsRows()} /><elf-props-table
+        <elf-api-builder component="elf-toolbar" title="API"><elf-props-table role="props" title="Props" :rows=${propsRows()} /><elf-props-table role="slots"
           :title=${t("slots")} :rows=${slotRows()} />
+  </elf-api-builder>
       </section>
     </elf-icon-provider>
   </elf-container>

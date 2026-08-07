@@ -1,7 +1,8 @@
 import { defineHtml } from "@elfui/core";
 
-import { createDocsTranslator } from "../../docsLocale";
+import { createDocsTranslator, createDocsPicker } from "../../docsLocale";
 
+const pick = createDocsPicker();
 const t = createDocsTranslator({
   alignment: {
     zh: "Space 兼容别名，优先于 align",
@@ -26,13 +27,24 @@ const t = createDocsTranslator({
 });
 
 const propsRows = () => [
-  { name: "direction", type: "row|row-reverse|column|column-reverse", default: "row" },
+  {
+    name: "direction",
+    type: "row|row-reverse|column|column-reverse",
+    default: "row",
+    desc: pick("布局方向", "Layout direction."),
+  },
   {
     name: "justify",
     type: "flex-start|flex-end|center|space-between|space-around|space-evenly",
     default: "flex-start",
+    desc: pick("主轴对齐方式", "Main-axis alignment."),
   },
-  { name: "align", type: "stretch|flex-start|flex-end|center|baseline", default: "stretch" },
+  {
+    name: "align",
+    type: "stretch|flex-start|flex-end|center|baseline",
+    default: "stretch",
+    desc: pick("对齐方式", "Alignment."),
+  },
   {
     name: "align-content",
     type: "stretch|flex-start|flex-end|center|space-between|space-around|space-evenly",
@@ -40,7 +52,12 @@ const propsRows = () => [
     desc: t("alignContent"),
   },
   { name: "alignment", type: "FlexAlign", default: "''", desc: t("alignment") },
-  { name: "gap", type: "preset|string|number|[number, number]", default: "0" },
+  {
+    name: "gap",
+    type: "preset|string|number|[number, number]",
+    default: "0",
+    desc: pick("间距", "Gap size."),
+  },
   { name: "size", type: "preset|string|number|[number, number]", default: "''", desc: t("size") },
   { name: "wrap", type: "boolean|nowrap|wrap|wrap-reverse", default: "false", desc: t("wrap") },
   { name: "inline", type: "boolean", default: "false", desc: t("inline") },
@@ -50,14 +67,17 @@ const propsRows = () => [
 
 const slotsRows = () => [{ name: "default", type: "-", default: "-", desc: t("defaultSlot") }];
 const spacerRows = () => [
-  { name: "props / events / slots", type: "—", default: "—", desc: "flex-grow: 1" },
+  { name: "props", type: "—", default: "—", desc: "flex-grow: 1" },
+  { name: "events", type: "—", default: "—", desc: "flex-grow: 1" },
+  { name: "slots", type: "—", default: "—", desc: "flex-grow: 1" },
 ];
 
 const PageFlexProps = defineHtml(`
-  <h2>API</h2>
-  <elf-props-table title="Props" :rows=${propsRows()} />
-  <elf-props-table title="Slots" :rows=${slotsRows()} />
-  <elf-props-table title="elf-spacer" :rows=${spacerRows()} />
+  <elf-api-builder component="elf-flex" title="API">
+  <elf-props-table role="props" title="Props" :rows=${propsRows()} />
+  <elf-props-table role="slots" title="Slots" :rows=${slotsRows()} />
+  <elf-props-table role="props" component="elf-spacer" title="elf-spacer" :rows=${spacerRows()} />
+  </elf-api-builder>
 `);
 
 export { PageFlexProps };

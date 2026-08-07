@@ -161,19 +161,31 @@ const propsRows = () => [
     ),
   },
   {
-    name: "modelValue / defaultValue",
+    name: "modelValue",
     type: "string | number | null",
     default: "null",
     desc: pick("受控值和非受控初始值", "Controlled value and uncontrolled initial value."),
   },
   {
-    name: "active / mandatory",
+    name: "defaultValue",
+    type: "string | number | null",
+    default: "null",
+    desc: pick("受控值和非受控初始值", "Controlled value and uncontrolled initial value."),
+  },
+  {
+    name: "active",
     type: "boolean",
-    default: "true / false",
+    default: "true",
     desc: pick("显隐状态和强制选中", "Visibility and required selection."),
   },
   {
-    name: "grow / horizontal / shift",
+    name: "mandatory",
+    type: "boolean",
+    default: "false",
+    desc: pick("显隐状态和强制选中", "Visibility and required selection."),
+  },
+  {
+    name: "grow",
     type: "boolean",
     default: "false",
     desc: pick(
@@ -182,21 +194,72 @@ const propsRows = () => [
     ),
   },
   {
-    name: "color / backgroundColor",
+    name: "horizontal",
+    type: "boolean",
+    default: "false",
+    desc: pick(
+      "铺满、水平，以及非活动标签淡出并位移图标的 shift 模式",
+      "Grow, horizontal, and shift modes that fade inactive labels and move icons.",
+    ),
+  },
+  {
+    name: "shift",
+    type: "boolean",
+    default: "false",
+    desc: pick(
+      "铺满、水平，以及非活动标签淡出并位移图标的 shift 模式",
+      "Grow, horizontal, and shift modes that fade inactive labels and move icons.",
+    ),
+  },
+  {
+    name: "color",
     type: "string",
-    default: "primary / surface",
+    default: "primary",
     desc: pick("选中反馈色和表面色", "Selection feedback and surface colors."),
   },
   {
-    name: "height / elevation / border / rounded",
+    name: "backgroundColor",
+    type: "string",
+    default: "surface",
+    desc: pick("选中反馈色和表面色", "Selection feedback and surface colors."),
+  },
+  {
+    name: "height",
     type: "mixed",
     default: "64 / 2 / false",
     desc: pick("尺寸和表面层级", "Dimensions and surface treatment."),
   },
   {
-    name: "fixed / safeArea",
+    name: "elevation",
+    type: "mixed",
+    default: "64 / 2 / false",
+    desc: pick("尺寸和表面层级", "Dimensions and surface treatment."),
+  },
+  {
+    name: "border",
+    type: "mixed",
+    default: "64 / 2 / false",
+    desc: pick("尺寸和表面层级", "Dimensions and surface treatment."),
+  },
+  {
+    name: "rounded",
+    type: "mixed",
+    default: "64 / 2 / false",
+    desc: pick("尺寸和表面层级", "Dimensions and surface treatment."),
+  },
+  {
+    name: "fixed",
     type: "boolean",
-    default: "false / true",
+    default: "false",
+    desc: pick(
+      "固定到视口底部并预留设备安全区",
+      "Fix to the viewport bottom and reserve device safe area.",
+    ),
+  },
+  {
+    name: "safeArea",
+    type: "boolean",
+    default: "true",
     desc: pick(
       "固定到视口底部并预留设备安全区",
       "Fix to the viewport bottom and reserve device safe area.",
@@ -318,7 +381,8 @@ const PageBottomNavigation = defineHtml(`
         </div><elf-bottom-navigation border elevation="0" :active=${hideVisible.value} :items.prop=${standardItems()} :modelValue.prop=${scrollSelected.value} @update:modelValue=${onScrollSelect}></elf-bottom-navigation></div></elf-icon-provider>
     </elf-playground>
 
-    <section class="docs-section"><h2>${t("api")}</h2><elf-props-table title="Props" :rows=${propsRows()} /><elf-props-table :title=${t("events")} :rows=${eventRows()} /></section>
+    <section class="docs-section"><elf-api-builder component="elf-bottom-navigation" title="API"><elf-props-table role="props" title="Props" :rows=${propsRows()} /><elf-props-table role="events" :title=${t("events")} :rows=${eventRows()} />
+  </elf-api-builder></section>
   </elf-container>
 `);
 

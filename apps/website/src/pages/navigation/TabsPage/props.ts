@@ -15,36 +15,81 @@ const propsRows = () => [
     ),
   },
   {
-    name: "modelValue / defaultValue",
+    name: "modelValue",
     type: "TabPaneName | ''",
-    default: "'' / ''",
+    default: "''",
     desc: pick(
       "受控激活值与非受控初始值；空值时回退到首个可用标签。",
       "Controlled active value and uncontrolled initial value; empty values fall back to the first enabled tab.",
     ),
   },
   {
-    name: "alignTabs / grow / stretch",
-    type: "TabsAlign / boolean / boolean",
-    default: "start / false / false",
+    name: "defaultValue",
+    type: "TabPaneName | ''",
+    default: "''",
+    desc: pick(
+      "受控激活值与非受控初始值；空值时回退到首个可用标签。",
+      "Controlled active value and uncontrolled initial value; empty values fall back to the first enabled tab.",
+    ),
+  },
+  {
+    name: "alignTabs",
+    type: "TabsAlign",
+    default: "start",
     desc: pick(
       "控制导航整体对齐、等分铺满和 Element Plus 兼容的拉伸布局。",
       "Control navigation alignment, equal-width growth, and Element Plus-compatible stretching.",
     ),
   },
   {
-    name: "density / stacked",
-    type: "TabsDensity / boolean",
-    default: "default / false",
+    name: "grow",
+    type: "boolean",
+    default: "false",
+    desc: pick(
+      "控制导航整体对齐、等分铺满和 Element Plus 兼容的拉伸布局。",
+      "Control navigation alignment, equal-width growth, and Element Plus-compatible stretching.",
+    ),
+  },
+  {
+    name: "stretch",
+    type: "boolean",
+    default: "false",
+    desc: pick(
+      "控制导航整体对齐、等分铺满和 Element Plus 兼容的拉伸布局。",
+      "Control navigation alignment, equal-width growth, and Element Plus-compatible stretching.",
+    ),
+  },
+  {
+    name: "density",
+    type: "TabsDensity",
+    default: "default",
     desc: pick(
       "调整标签密度，并可将图标与标题垂直排列。",
       "Adjust tab density and optionally stack icons above labels.",
     ),
   },
   {
-    name: "direction / tabPosition",
-    type: "TabsDirection / TabsPosition",
-    default: "horizontal / auto",
+    name: "stacked",
+    type: "boolean",
+    default: "false",
+    desc: pick(
+      "调整标签密度，并可将图标与标题垂直排列。",
+      "Adjust tab density and optionally stack icons above labels.",
+    ),
+  },
+  {
+    name: "direction",
+    type: "TabsDirection",
+    default: "horizontal",
+    desc: pick(
+      "设置方向或显式位置；自动位置在水平模式为 top，在垂直模式为 left。",
+      "Set the direction or explicit position; auto resolves to top horizontally and left vertically.",
+    ),
+  },
+  {
+    name: "tabPosition",
+    type: "TabsPosition",
+    default: "auto",
     desc: pick(
       "设置方向或显式位置；自动位置在水平模式为 top，在垂直模式为 left。",
       "Set the direction or explicit position; auto resolves to top horizontally and left vertically.",
@@ -57,9 +102,27 @@ const propsRows = () => [
     desc: pick("选择线型、卡片或带边框卡片表面。", "Choose line, card, or bordered-card surfaces."),
   },
   {
-    name: "closable / addable / editable",
+    name: "closable",
     type: "boolean",
-    default: "false / false / false",
+    default: "false",
+    desc: pick(
+      "分别启用关闭、新增，或同时启用两种编辑命令。",
+      "Enable close, add, or both editing commands respectively.",
+    ),
+  },
+  {
+    name: "addable",
+    type: "boolean",
+    default: "false",
+    desc: pick(
+      "分别启用关闭、新增，或同时启用两种编辑命令。",
+      "Enable close, add, or both editing commands respectively.",
+    ),
+  },
+  {
+    name: "editable",
+    type: "boolean",
+    default: "false",
     desc: pick(
       "分别启用关闭、新增，或同时启用两种编辑命令。",
       "Enable close, add, or both editing commands respectively.",
@@ -84,9 +147,27 @@ const propsRows = () => [
     ),
   },
   {
-    name: "color / backgroundColor / sliderColor",
+    name: "color",
     type: "string",
-    default: "'' / '' / ''",
+    default: "''",
+    desc: pick(
+      "覆盖激活色、导航表面色与指示条色；空值使用语义主题 token。",
+      "Override active, navigation-surface, and indicator colors; empty values use semantic theme tokens.",
+    ),
+  },
+  {
+    name: "backgroundColor",
+    type: "string",
+    default: "''",
+    desc: pick(
+      "覆盖激活色、导航表面色与指示条色；空值使用语义主题 token。",
+      "Override active, navigation-surface, and indicator colors; empty values use semantic theme tokens.",
+    ),
+  },
+  {
+    name: "sliderColor",
+    type: "string",
+    default: "''",
     desc: pick(
       "覆盖激活色、导航表面色与指示条色；空值使用语义主题 token。",
       "Override active, navigation-surface, and indicator colors; empty values use semantic theme tokens.",
@@ -102,9 +183,27 @@ const propsRows = () => [
     ),
   },
   {
-    name: "fixedTabs / centerActive / showArrows",
+    name: "fixedTabs",
     type: "boolean",
-    default: "false / false / false",
+    default: "false",
+    desc: pick(
+      "启用固定标签宽度、激活项居中滚动和前后翻页控制。",
+      "Enable fixed tab widths, centered active scrolling, and previous/next controls.",
+    ),
+  },
+  {
+    name: "centerActive",
+    type: "boolean",
+    default: "false",
+    desc: pick(
+      "启用固定标签宽度、激活项居中滚动和前后翻页控制。",
+      "Enable fixed tab widths, centered active scrolling, and previous/next controls.",
+    ),
+  },
+  {
+    name: "showArrows",
+    type: "boolean",
+    default: "false",
     desc: pick(
       "启用固定标签宽度、激活项居中滚动和前后翻页控制。",
       "Enable fixed tab widths, centered active scrolling, and previous/next controls.",
@@ -120,18 +219,36 @@ const propsRows = () => [
     ),
   },
   {
-    name: "showPanels / hideSlider",
+    name: "showPanels",
     type: "boolean",
-    default: "false / false",
+    default: "false",
     desc: pick(
       "显示数据驱动内容面板，或隐藏持久化激活指示条。",
       "Show data-driven content panels or hide the persistent active indicator.",
     ),
   },
   {
-    name: "transition / transitionDuration",
-    type: "TabsTransition / number",
-    default: "fade / 180",
+    name: "hideSlider",
+    type: "boolean",
+    default: "false",
+    desc: pick(
+      "显示数据驱动内容面板，或隐藏持久化激活指示条。",
+      "Show data-driven content panels or hide the persistent active indicator.",
+    ),
+  },
+  {
+    name: "transition",
+    type: "TabsTransition",
+    default: "fade",
+    desc: pick(
+      "选择面板进入动效并设置毫秒时长；custom 使用宿主 CSS 变量。",
+      "Choose the panel enter motion and duration in milliseconds; custom uses host CSS variables.",
+    ),
+  },
+  {
+    name: "transitionDuration",
+    type: "number",
+    default: "180",
     desc: pick(
       "选择面板进入动效并设置毫秒时长；custom 使用宿主 CSS 变量。",
       "Choose the panel enter motion and duration in milliseconds; custom uses host CSS variables.",
@@ -179,13 +296,31 @@ const eventsRows = () => [
     ),
   },
   {
-    name: "tab-remove / tab-add / edit",
+    name: "tab-remove",
     type: "(value?) => void",
     desc: pick("报告关闭、新增及统一编辑命令。", "Report close, add, and unified edit commands."),
   },
   {
-    name: "update:items / tab-reorder",
-    type: "(items) / (TabsReorderDetail)",
+    name: "tab-add",
+    type: "(value?) => void",
+    desc: pick("报告关闭、新增及统一编辑命令。", "Report close, add, and unified edit commands."),
+  },
+  {
+    name: "edit",
+    type: "(value?) => void",
+    desc: pick("报告关闭、新增及统一编辑命令。", "Report close, add, and unified edit commands."),
+  },
+  {
+    name: "update:items",
+    type: "(items)",
+    desc: pick(
+      "拖动完成后分别提交完整顺序与起点、终点、值和数据详情。",
+      "After dragging, emit the complete order and the source, target, value, and item details.",
+    ),
+  },
+  {
+    name: "tab-reorder",
+    type: "(TabsReorderDetail)",
     desc: pick(
       "拖动完成后分别提交完整顺序与起点、终点、值和数据详情。",
       "After dragging, emit the complete order and the source, target, value, and item details.",
@@ -200,7 +335,7 @@ const methodsRows = () => [
     desc: pick("读取当前激活名称。", "Read the current active name."),
   },
   {
-    name: "select(value) / setActive(value)",
+    name: "select(value)",
     type: "(value: TabPaneName) => void",
     desc: pick(
       "通过完整守卫流程选择指定标签。",
@@ -208,7 +343,15 @@ const methodsRows = () => [
     ),
   },
   {
-    name: "removeTab(value) / add()",
+    name: "setActive(value)",
+    type: "(value: TabPaneName) => void",
+    desc: pick(
+      "通过完整守卫流程选择指定标签。",
+      "Select a tab through the complete guard pipeline.",
+    ),
+  },
+  {
+    name: "removeTab(value)",
     type: "Function",
     desc: pick(
       "触发关闭或新增命令，不直接改写外部集合。",
@@ -216,7 +359,23 @@ const methodsRows = () => [
     ),
   },
   {
-    name: "scrollToActiveTab() / removeFocus()",
+    name: "add()",
+    type: "Function",
+    desc: pick(
+      "触发关闭或新增命令，不直接改写外部集合。",
+      "Emit close or add commands without mutating the external collection.",
+    ),
+  },
+  {
+    name: "scrollToActiveTab()",
+    type: "Function",
+    desc: pick(
+      "滚动到激活项或移除导航焦点。",
+      "Scroll to the active tab or remove navigation focus.",
+    ),
+  },
+  {
+    name: "removeFocus()",
     type: "Function",
     desc: pick(
       "滚动到激活项或移除导航焦点。",
@@ -229,7 +388,15 @@ const methodsRows = () => [
     desc: pick("重新测量指示条并返回其边界。", "Remeasure the indicator and return its bounds."),
   },
   {
-    name: "tabListRef / tabBarRef",
+    name: "tabListRef",
+    type: "HTMLElement | null",
+    desc: pick(
+      "只读访问标签列表与激活指示条元素。",
+      "Read-only access to the tab list and active indicator elements.",
+    ),
+  },
+  {
+    name: "tabBarRef",
     type: "HTMLElement | null",
     desc: pick(
       "只读访问标签列表与激活指示条元素。",
@@ -240,15 +407,39 @@ const methodsRows = () => [
 
 const paneRows = () => [
   {
-    name: "label / name",
-    type: "string / TabPaneName",
-    default: "'' / index",
+    name: "label",
+    type: "string",
+    default: "''",
     desc: pick("组合面板的标题与稳定名称。", "The composed pane label and stable name."),
   },
   {
-    name: "disabled / closable / lazy",
+    name: "name",
+    type: "TabPaneName",
+    default: "index",
+    desc: pick("组合面板的标题与稳定名称。", "The composed pane label and stable name."),
+  },
+  {
+    name: "disabled",
     type: "boolean",
-    default: "false / false / false",
+    default: "false",
+    desc: pick(
+      "控制禁用、单项关闭，以及首次激活后才创建内容。",
+      "Control disabled, per-pane close, and first-activation lazy rendering.",
+    ),
+  },
+  {
+    name: "closable",
+    type: "boolean",
+    default: "false",
+    desc: pick(
+      "控制禁用、单项关闭，以及首次激活后才创建内容。",
+      "Control disabled, per-pane close, and first-activation lazy rendering.",
+    ),
+  },
+  {
+    name: "lazy",
+    type: "boolean",
+    default: "false",
     desc: pick(
       "控制禁用、单项关闭，以及首次激活后才创建内容。",
       "Control disabled, per-pane close, and first-activation lazy rendering.",
@@ -266,7 +457,7 @@ const slotsRows = () => [
     ),
   },
   {
-    name: "add-icon / addIcon",
+    name: "add-icon",
     type: "unknown",
     desc: pick(
       "自定义新增命令内容；addIcon 是兼容别名。",
@@ -274,7 +465,15 @@ const slotsRows = () => [
     ),
   },
   {
-    name: "prev-control / next-control",
+    name: "addIcon",
+    type: "unknown",
+    desc: pick(
+      "自定义新增命令内容；addIcon 是兼容别名。",
+      "Customize add-command content; addIcon is a compatibility alias.",
+    ),
+  },
+  {
+    name: "prev-control",
     type: "unknown",
     desc: pick(
       "替换完整翻页控制，同时保留相对切换命令。",
@@ -282,7 +481,20 @@ const slotsRows = () => [
     ),
   },
   {
-    name: "prev-icon / next-icon",
+    name: "next-control",
+    type: "unknown",
+    desc: pick(
+      "替换完整翻页控制，同时保留相对切换命令。",
+      "Replace complete pagination controls while retaining relative navigation commands.",
+    ),
+  },
+  {
+    name: "prev-icon",
+    type: "unknown",
+    desc: pick("仅替换内置翻页按钮图标。", "Replace only the built-in pagination icons."),
+  },
+  {
+    name: "next-icon",
     type: "unknown",
     desc: pick("仅替换内置翻页按钮图标。", "Replace only the built-in pagination icons."),
   },
@@ -305,13 +517,14 @@ const paneSlotsRows = () => [
 ];
 
 const PageTabsProps = defineHtml(`
-  <h2>API</h2>
-  <elf-props-table title="elf-tabs Props" :rows=${propsRows()}></elf-props-table>
-  <elf-props-table title="elf-tabs Events" :rows=${eventsRows()}></elf-props-table>
-  <elf-props-table title="elf-tabs Methods" :rows=${methodsRows()}></elf-props-table>
-  <elf-props-table title="elf-tabs Slots" :rows=${slotsRows()}></elf-props-table>
-  <elf-props-table title="elf-tab-pane Props" :rows=${paneRows()}></elf-props-table>
-  <elf-props-table title="elf-tab-pane Slots" :rows=${paneSlotsRows()}></elf-props-table>
+  <elf-api-builder component="elf-tabs" title="API">
+  <elf-props-table role="props" title="elf-tabs Props" :rows=${propsRows()}></elf-props-table>
+  <elf-props-table role="events" title="elf-tabs Events" :rows=${eventsRows()}></elf-props-table>
+  <elf-props-table role="methods" title="elf-tabs Methods" :rows=${methodsRows()}></elf-props-table>
+  <elf-props-table role="slots" title="elf-tabs Slots" :rows=${slotsRows()}></elf-props-table>
+  <elf-props-table role="props" component="elf-tab-pane" title="elf-tab-pane Props" :rows=${paneRows()}></elf-props-table>
+  <elf-props-table role="slots" component="elf-tab-pane" title="elf-tab-pane Slots" :rows=${paneSlotsRows()}></elf-props-table>
+  </elf-api-builder>
 `);
 
 export { PageTabsProps };

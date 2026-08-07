@@ -1,7 +1,8 @@
 import { defineHtml } from "@elfui/core";
 
-import { createDocsTranslator } from "../../docsLocale";
+import { createDocsTranslator, createDocsPicker } from "../../docsLocale";
 
+const pick = createDocsPicker();
 const t = createDocsTranslator({
   columns: { zh: "总列数", en: "Total number of columns" },
   gutter: {
@@ -26,20 +27,31 @@ const t = createDocsTranslator({
 
 const containerRows = () => [
   { name: "max-width", type: "xs|sm|md|lg|xl|full", default: "lg", desc: t("maxWidth") },
-  { name: "padding", type: "0|sm|md|lg", default: "md" },
-  { name: "fluid", type: "boolean", default: "false" },
+  { name: "padding", type: "0|sm|md|lg", default: "md", desc: pick("内边距", "Padding.") },
+  {
+    name: "fluid",
+    type: "boolean",
+    default: "false",
+    desc: pick("占满可用宽度", "Fill available width."),
+  },
 ];
 
 const gridRows = () => [
   { name: "columns", type: "number", default: "12", desc: t("columns") },
-  { name: "gap", type: "0|xs|sm|md|lg|xl", default: "0" },
+  { name: "gap", type: "0|xs|sm|md|lg|xl", default: "0", desc: pick("间距", "Gap size.") },
   { name: "gutter", type: "number|string", default: "—", desc: t("gutter") },
   {
     name: "justify",
     type: "start|end|center|space-between|space-around|space-evenly",
     default: "start",
+    desc: pick("主轴对齐方式", "Main-axis alignment."),
   },
-  { name: "align", type: "stretch|start|center|end", default: "stretch" },
+  {
+    name: "align",
+    type: "stretch|start|center|end",
+    default: "stretch",
+    desc: pick("对齐方式", "Alignment."),
+  },
   { name: "auto-fit", type: "boolean", default: "false", desc: t("autoFit") },
   { name: "min-column-width", type: "string", default: "220px", desc: t("minColumnWidth") },
 ];
@@ -50,7 +62,31 @@ const itemRows = () => [
   { name: "push", type: "number", default: "0", desc: t("push") },
   { name: "pull", type: "number", default: "0", desc: t("pull") },
   {
-    name: "xs / sm / md / lg / xl",
+    name: "xs",
+    type: "number | { span, offset, push, pull }",
+    default: "—",
+    desc: t("responsive"),
+  },
+  {
+    name: "sm",
+    type: "number | { span, offset, push, pull }",
+    default: "—",
+    desc: t("responsive"),
+  },
+  {
+    name: "md",
+    type: "number | { span, offset, push, pull }",
+    default: "—",
+    desc: t("responsive"),
+  },
+  {
+    name: "lg",
+    type: "number | { span, offset, push, pull }",
+    default: "—",
+    desc: t("responsive"),
+  },
+  {
+    name: "xl",
     type: "number | { span, offset, push, pull }",
     default: "—",
     desc: t("responsive"),
@@ -58,12 +94,13 @@ const itemRows = () => [
 ];
 
 const PageGridProps = defineHtml(`
-  <h2>API</h2>
-  <elf-props-table title="elf-container Props" :rows=${containerRows()} />
-  <elf-props-table title="elf-grid Props" :rows=${gridRows()} /><elf-props-table
+  <elf-api-builder component="elf-grid" title="API">
+  <elf-props-table role="props" component="elf-container" title="elf-container Props" :rows=${containerRows()} />
+  <elf-props-table role="props" title="elf-grid Props" :rows=${gridRows()} /><elf-props-table role="props" component="elf-grid-item"
     title="elf-grid-item Props"
     :rows=${itemRows()}
   />
+  </elf-api-builder>
 `);
 
 export { PageGridProps };

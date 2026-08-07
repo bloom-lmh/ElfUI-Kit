@@ -83,11 +83,12 @@ const slotsRows = [
 ];
 
 const PageBreadcrumbProps = defineHtml(`
-  <h2>API</h2>
-  <elf-props-table title="Props" :rows=${propsRows}></elf-props-table>
-  <elf-props-table title="Events" :rows=${eventsRows}></elf-props-table>
-  <elf-props-table title="BreadcrumbItem Props" :rows=${itemRows}></elf-props-table>
-  <elf-props-table title="Slots" :rows=${slotsRows}></elf-props-table>
+  <elf-api-builder component="elf-breadcrumb" title="API">
+  <elf-props-table role="props" title="Props" :rows=${propsRows}></elf-props-table>
+  <elf-props-table role="events" title="Events" :rows=${eventsRows}></elf-props-table>
+  <elf-props-table role="props" component="elf-breadcrumb-item" title="BreadcrumbItem Props" :rows=${itemRows}></elf-props-table>
+  <elf-props-table role="slots" title="Slots" :rows=${slotsRows}></elf-props-table>
+  </elf-api-builder>
 `);
 
 export { PageBreadcrumbProps };

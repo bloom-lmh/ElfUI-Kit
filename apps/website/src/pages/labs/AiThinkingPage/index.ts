@@ -83,8 +83,10 @@ const eventRows = () => [
 ];
 
 const exposeRows = () => [
-  { name: "expand / collapse", desc: t("expandedDesc") },
-  { name: "toggle / isExpanded", desc: t("toggleMethod") },
+  { name: "expand", desc: t("expandedDesc") },
+  { name: "collapse", desc: t("expandedDesc") },
+  { name: "toggle", desc: t("toggleMethod") },
+  { name: "isExpanded", desc: t("toggleMethod") },
 ];
 
 defineStyle(
@@ -127,10 +129,11 @@ const PageLabsAiThinking = defineHtml(`
         </div>
       </div>
     </elf-playground>
-    <h2>${t("api")}</h2>
-    <elf-props-table :title=${t("props")} :rows=${propRows()}></elf-props-table>
-    <elf-props-table :title=${t("events")} :rows=${eventRows()}></elf-props-table>
-    <elf-props-table :title=${t("expose")} :rows=${exposeRows()}></elf-props-table>
+    <elf-api-builder component="elf-ai-thinking" title="API">
+    <elf-props-table role="props" :title=${t("props")} :rows=${propRows()}></elf-props-table>
+    <elf-props-table role="events" :title=${t("events")} :rows=${eventRows()}></elf-props-table>
+    <elf-props-table role="methods" :title=${t("expose")} :rows=${exposeRows()}></elf-props-table>
+  </elf-api-builder>
   </elf-container>
 `);
 

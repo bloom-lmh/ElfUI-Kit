@@ -47,19 +47,32 @@ const rows = () => [
   { name: "color", type: "string", default: "''", desc: t("color") },
   { name: "track-color", type: "string", default: "''", desc: t("track") },
   { name: "duration", type: "number", default: "3", desc: t("duration") },
-  { name: "width / size", type: "number", default: "126", desc: t("size") },
+  { name: "width", type: "number", default: "126", desc: t("size") },
+  { name: "size", type: "number", default: "126", desc: t("size") },
   { name: "stroke-width", type: "number", default: "6", desc: t("stroke") },
   { name: "stroke-linecap", type: "butt | round | square", default: "round", desc: t("linecap") },
   { name: "show-text", type: "boolean", default: "true", desc: t("showText") },
   {
-    name: "label / label-position",
-    type: "string / top | bottom | start | end",
-    default: "'' / top",
+    name: "label",
+    type: "string",
+    default: "''",
+    desc: `${t("label")} / ${t("labelPosition")}`,
+  },
+  {
+    name: "label-position",
+    type: "top | bottom | start | end",
+    default: "top",
     desc: `${t("label")} / ${t("labelPosition")}`,
   },
   { name: "hide-value", type: "boolean", default: "false", desc: t("hideValue") },
   {
-    name: "text-inside / reverse",
+    name: "text-inside",
+    type: "boolean",
+    default: "false",
+    desc: `${t("inside")} / ${t("reverse")}`,
+  },
+  {
+    name: "reverse",
     type: "boolean",
     default: "false",
     desc: `${t("inside")} / ${t("reverse")}`,
@@ -68,8 +81,14 @@ const rows = () => [
   { name: "striped-flow", type: "boolean", default: "false", desc: t("flow") },
   { name: "indeterminate", type: "boolean", default: "false", desc: t("indeterminate") },
   {
-    name: "format / value-format",
-    type: "function / string template",
+    name: "format",
+    type: "function",
+    default: "-",
+    desc: t("format"),
+  },
+  {
+    name: "value-format",
+    type: "string template",
     default: "-",
     desc: t("format"),
   },
@@ -80,6 +99,7 @@ const slotRows = () => [
   { name: "value", desc: t("valueSlot") },
 ];
 const PageProgressProps = defineHtml(
-  `<h2>API</h2><elf-props-table title="Props" :rows.prop=${rows()}></elf-props-table><elf-props-table title="Slots" :rows.prop=${slotRows()}></elf-props-table>`,
+  `<elf-api-builder component="elf-progress" title="API"><elf-props-table role="props" title="Props" :rows.prop=${rows()}></elf-props-table><elf-props-table role="slots" title="Slots" :rows.prop=${slotRows()}></elf-props-table>
+  </elf-api-builder>`,
 );
 export { PageProgressProps };

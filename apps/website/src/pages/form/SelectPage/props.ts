@@ -33,9 +33,15 @@ const propsRows = () => [
     desc: pick("对象值的唯一标识字段。", "Identity field for object values."),
   },
   {
-    name: "variant / label",
-    type: "FieldVariant / string",
-    default: "filled / ''",
+    name: "variant",
+    type: "FieldVariant",
+    default: "filled",
+    desc: pick("字段表面样式与浮动标签。", "Field surface and floating label."),
+  },
+  {
+    name: "label",
+    type: "string",
+    default: "''",
     desc: pick("字段表面样式与浮动标签。", "Field surface and floating label."),
   },
   {
@@ -58,9 +64,15 @@ const propsRows = () => [
     desc: pick("禁用交互。", "Disable interaction."),
   },
   {
-    name: "clearable / valueOnClear",
-    type: "boolean / SelectValue",
-    default: "false / -",
+    name: "clearable",
+    type: "boolean",
+    default: "false",
+    desc: pick("允许清空并配置清空后的值。", "Allow clearing and configure the cleared value."),
+  },
+  {
+    name: "valueOnClear",
+    type: "SelectValue",
+    default: "-",
     desc: pick("允许清空并配置清空后的值。", "Allow clearing and configure the cleared value."),
   },
   {
@@ -76,21 +88,39 @@ const propsRows = () => [
     desc: pick("启用多选。", "Enable multiple selection."),
   },
   {
-    name: "collapseTags / maxCollapseTags",
-    type: "boolean / number",
-    default: "false / 1",
+    name: "collapseTags",
+    type: "boolean",
+    default: "false",
     desc: pick("折叠多选标签并限制可见数量。", "Collapse multiple tags and limit visible tags."),
   },
   {
-    name: "collapseTagsTooltip / tagTooltip",
+    name: "maxCollapseTags",
+    type: "number",
+    default: "1",
+    desc: pick("折叠多选标签并限制可见数量。", "Collapse multiple tags and limit visible tags."),
+  },
+  {
+    name: "collapseTagsTooltip",
     type: "boolean",
     default: "false",
     desc: pick("为折叠项或单个标签提供提示。", "Show tooltips for collapsed or individual tags."),
   },
   {
-    name: "tagType / tagEffect",
+    name: "tagTooltip",
+    type: "boolean",
+    default: "false",
+    desc: pick("为折叠项或单个标签提供提示。", "Show tooltips for collapsed or individual tags."),
+  },
+  {
+    name: "tagType",
     type: "string",
-    default: "info / light",
+    default: "info",
+    desc: pick("标签视觉语义。", "Tag visual semantics."),
+  },
+  {
+    name: "tagEffect",
+    type: "string",
+    default: "light",
     desc: pick("标签视觉语义。", "Tag visual semantics."),
   },
   {
@@ -100,13 +130,19 @@ const propsRows = () => [
     desc: pick("多选数量上限，0 表示不限。", "Multiple selection limit; 0 means unlimited."),
   },
   {
-    name: "filterable / filterMethod",
-    type: "boolean / Function",
-    default: "false / -",
+    name: "filterable",
+    type: "boolean",
+    default: "false",
     desc: pick("启用过滤并可替换匹配策略。", "Enable filtering with a custom matching strategy."),
   },
   {
-    name: "allowCreate / defaultFirstOption",
+    name: "filterMethod",
+    type: "Function",
+    default: "-",
+    desc: pick("启用过滤并可替换匹配策略。", "Enable filtering with a custom matching strategy."),
+  },
+  {
+    name: "allowCreate",
     type: "boolean",
     default: "false",
     desc: pick(
@@ -115,25 +151,64 @@ const propsRows = () => [
     ),
   },
   {
-    name: "remote / remoteMethod / debounce",
-    type: "boolean / Function / number",
-    default: "false / - / 300",
+    name: "defaultFirstOption",
+    type: "boolean",
+    default: "false",
+    desc: pick(
+      "允许创建选项并支持回车选择首项。",
+      "Allow option creation and Enter selection of the first option.",
+    ),
+  },
+  {
+    name: "remote",
+    type: "boolean",
+    default: "false",
     desc: pick("远程搜索及其防抖调用。", "Remote search and debounced invocation."),
   },
   {
-    name: "remoteShowSuffix / reserveKeyword",
+    name: "remoteMethod",
+    type: "Function",
+    default: "-",
+    desc: pick("远程搜索及其防抖调用。", "Remote search and debounced invocation."),
+  },
+  {
+    name: "debounce",
+    type: "number",
+    default: "300",
+    desc: pick("远程搜索及其防抖调用。", "Remote search and debounced invocation."),
+  },
+  {
+    name: "remoteShowSuffix",
     type: "boolean",
-    default: "false / true",
+    default: "false",
     desc: pick("远程搜索后缀与关键字保留策略。", "Remote suffix and keyword retention behavior."),
   },
   {
-    name: "loading / loadingText",
-    type: "boolean / string",
-    default: "false / 本地化",
+    name: "reserveKeyword",
+    type: "boolean",
+    default: "true",
+    desc: pick("远程搜索后缀与关键字保留策略。", "Remote suffix and keyword retention behavior."),
+  },
+  {
+    name: "loading",
+    type: "boolean",
+    default: "false",
     desc: pick("远程加载状态与文案。", "Remote loading state and copy."),
   },
   {
-    name: "noDataText / noMatchText",
+    name: "loadingText",
+    type: "string",
+    default: "本地化",
+    desc: pick("远程加载状态与文案。", "Remote loading state and copy."),
+  },
+  {
+    name: "noDataText",
+    type: "string",
+    default: "本地化",
+    desc: pick("空数据和无匹配状态文案。", "Empty-data and no-match copy."),
+  },
+  {
+    name: "noMatchText",
     type: "string",
     default: "本地化",
     desc: pick("空数据和无匹配状态文案。", "Empty-data and no-match copy."),
@@ -145,15 +220,27 @@ const propsRows = () => [
     desc: pick("下拉面板最大高度。", "Maximum dropdown height."),
   },
   {
-    name: "virtual / virtualThreshold",
-    type: "boolean / number",
-    default: "false / 100",
+    name: "virtual",
+    type: "boolean",
+    default: "false",
     desc: pick("启用虚拟化及其最小数据量。", "Enable virtualization and its minimum item count."),
   },
   {
-    name: "itemHeight / overscan",
+    name: "virtualThreshold",
     type: "number",
-    default: "40 / 4",
+    default: "100",
+    desc: pick("启用虚拟化及其最小数据量。", "Enable virtualization and its minimum item count."),
+  },
+  {
+    name: "itemHeight",
+    type: "number",
+    default: "40",
+    desc: pick("虚拟项高度与视口缓冲项数。", "Virtual item height and viewport overscan."),
+  },
+  {
+    name: "overscan",
+    type: "number",
+    default: "4",
     desc: pick("虚拟项高度与视口缓冲项数。", "Virtual item height and viewport overscan."),
   },
   {
@@ -163,15 +250,36 @@ const propsRows = () => [
     desc: pick("下拉面板宽度跟随输入框。", "Match dropdown width to the field."),
   },
   {
-    name: "effect / popperClass / popperStyle",
-    type: "string / string / object",
-    default: "light / - / -",
+    name: "effect",
+    type: "string",
+    default: "light",
     desc: pick("面板主题和自定义样式。", "Dropdown theme and custom styling."),
   },
   {
-    name: "persistent / offset",
-    type: "boolean / number",
-    default: "false / 0",
+    name: "popperClass",
+    type: "string",
+    default: "-",
+    desc: pick("面板主题和自定义样式。", "Dropdown theme and custom styling."),
+  },
+  {
+    name: "popperStyle",
+    type: "object",
+    default: "-",
+    desc: pick("面板主题和自定义样式。", "Dropdown theme and custom styling."),
+  },
+  {
+    name: "persistent",
+    type: "boolean",
+    default: "false",
+    desc: pick(
+      "关闭后保留面板 DOM 及垂直间距。",
+      "Keep dropdown DOM after close and set vertical offset.",
+    ),
+  },
+  {
+    name: "offset",
+    type: "number",
+    default: "0",
     desc: pick(
       "关闭后保留面板 DOM 及垂直间距。",
       "Keep dropdown DOM after close and set vertical offset.",
@@ -190,7 +298,25 @@ const propsRows = () => [
     desc: pick("变化和失焦时触发表单校验。", "Trigger form validation on change and blur."),
   },
   {
-    name: "tabindex / id / name / autocomplete",
+    name: "tabindex",
+    type: "string | number",
+    default: "-",
+    desc: pick("原生控件与表单属性。", "Native control and form attributes."),
+  },
+  {
+    name: "id",
+    type: "string | number",
+    default: "-",
+    desc: pick("原生控件与表单属性。", "Native control and form attributes."),
+  },
+  {
+    name: "name",
+    type: "string | number",
+    default: "-",
+    desc: pick("原生控件与表单属性。", "Native control and form attributes."),
+  },
+  {
+    name: "autocomplete",
     type: "string | number",
     default: "-",
     desc: pick("原生控件与表单属性。", "Native control and form attributes."),
@@ -205,8 +331,13 @@ const eventsRows = () => [
   },
   { name: "change", type: "(value) => void", desc: pick("选择值变化。", "Selection changed.") },
   {
-    name: "clear / remove-tag",
-    type: "() => void / (value) => void",
+    name: "clear",
+    type: "() => void",
+    desc: pick("清空或移除多选标签。", "Clear or remove a multiple tag."),
+  },
+  {
+    name: "remove-tag",
+    type: "(value) => void",
     desc: pick("清空或移除多选标签。", "Clear or remove a multiple tag."),
   },
   {
@@ -215,7 +346,12 @@ const eventsRows = () => [
     desc: pick("面板打开状态变化。", "Dropdown visibility changed."),
   },
   {
-    name: "focus / blur",
+    name: "focus",
+    type: "(event) => void",
+    desc: pick("组合框焦点事件。", "Combobox focus events."),
+  },
+  {
+    name: "blur",
     type: "(event) => void",
     desc: pick("组合框焦点事件。", "Combobox focus events."),
   },
@@ -238,13 +374,25 @@ const eventsRows = () => [
 
 const slotsRows = () => [
   {
-    name: "header / footer",
+    name: "header",
     type: "HTMLElement",
     default: "-",
     desc: pick("面板固定头部和底部内容。", "Fixed dropdown header and footer content."),
   },
   {
-    name: "loading / empty",
+    name: "footer",
+    type: "HTMLElement",
+    default: "-",
+    desc: pick("面板固定头部和底部内容。", "Fixed dropdown header and footer content."),
+  },
+  {
+    name: "loading",
+    type: "HTMLElement",
+    default: "本地化",
+    desc: pick("加载和空状态。", "Loading and empty states."),
+  },
+  {
+    name: "empty",
     type: "HTMLElement",
     default: "本地化",
     desc: pick("加载和空状态。", "Loading and empty states."),
@@ -263,7 +411,13 @@ const slotsRows = () => [
     desc: pick("选项标签内容。", "Option label content."),
   },
   {
-    name: "clear-icon / suffix-icon",
+    name: "clear-icon",
+    type: "HTMLElement",
+    default: "内置图标",
+    desc: pick("清空和后缀图标。", "Clear and suffix icons."),
+  },
+  {
+    name: "suffix-icon",
     type: "HTMLElement",
     default: "内置图标",
     desc: pick("清空和后缀图标。", "Clear and suffix icons."),
@@ -272,13 +426,31 @@ const slotsRows = () => [
 
 const methodsRows = () => [
   {
-    name: "open() / close() / toggle()",
+    name: "open()",
     type: "Function",
     default: "-",
     desc: pick("控制下拉面板。", "Control the dropdown."),
   },
   {
-    name: "focus() / blur()",
+    name: "close()",
+    type: "Function",
+    default: "-",
+    desc: pick("控制下拉面板。", "Control the dropdown."),
+  },
+  {
+    name: "toggle()",
+    type: "Function",
+    default: "-",
+    desc: pick("控制下拉面板。", "Control the dropdown."),
+  },
+  {
+    name: "focus()",
+    type: "Function",
+    default: "-",
+    desc: pick("控制组合框焦点。", "Control combobox focus."),
+  },
+  {
+    name: "blur()",
     type: "Function",
     default: "-",
     desc: pick("控制组合框焦点。", "Control combobox focus."),
@@ -301,11 +473,12 @@ const methodsRows = () => [
 ];
 
 const PageSelectProps = defineHtml(`
-  <h2>API</h2>
-  <elf-props-table title="elf-select Props" :rows=${propsRows()}></elf-props-table>
-  <elf-props-table title="elf-select Events" :rows=${eventsRows()}></elf-props-table>
-  <elf-props-table title="elf-select Slots" :rows=${slotsRows()}></elf-props-table>
-  <elf-props-table title="elf-select Methods" :rows=${methodsRows()}></elf-props-table>
+  <elf-api-builder component="elf-select" title="API">
+  <elf-props-table role="props" title="elf-select Props" :rows=${propsRows()}></elf-props-table>
+  <elf-props-table role="events" title="elf-select Events" :rows=${eventsRows()}></elf-props-table>
+  <elf-props-table role="slots" title="elf-select Slots" :rows=${slotsRows()}></elf-props-table>
+  <elf-props-table role="methods" title="elf-select Methods" :rows=${methodsRows()}></elf-props-table>
+  </elf-api-builder>
 `);
 
 export { PageSelectProps };

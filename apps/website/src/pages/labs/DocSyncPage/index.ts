@@ -605,8 +605,8 @@ const propsRows = () => [
     ),
   },
   {
-    name: "source / parse",
-    type: "unknown / (source) => DocSyncBlock[]",
+    name: "source",
+    type: "unknown",
     default: "null",
     desc: pick(
       "原始内容与自定义解析器，解析结果自动归一化为带稳定 id 的块模型",
@@ -614,7 +614,25 @@ const propsRows = () => [
     ),
   },
   {
-    name: "renderLeft / renderRight",
+    name: "parse",
+    type: "(source) => DocSyncBlock[]",
+    default: "null",
+    desc: pick(
+      "原始内容与自定义解析器，解析结果自动归一化为带稳定 id 的块模型",
+      "Raw content and a custom parser; parsed blocks are normalized with stable ids.",
+    ),
+  },
+  {
+    name: "renderLeft",
+    type: "(block, index) => Node | string",
+    default: pick("内置 source / preview", "built-in source / preview"),
+    desc: pick(
+      "自定义渲染器，返回字符串视为可信 HTML；缺省使用内置渲染",
+      "Custom pane renderers; strings are trusted HTML; built-in rendering is the fallback.",
+    ),
+  },
+  {
+    name: "renderRight",
     type: "(block, index) => Node | string",
     default: pick("内置 source / preview", "built-in source / preview"),
     desc: pick(
@@ -647,13 +665,25 @@ const propsRows = () => [
     desc: pick("源码面板顶部显示刻度尺", "Show a ruler above the source pane."),
   },
   {
-    name: "leftMode / rightMode",
+    name: "leftMode",
     type: "source | preview",
-    default: "source / preview",
+    default: "source",
     desc: pick("内置渲染模式：源码视图或文档预览", "Built-in rendering mode: source or preview."),
   },
   {
-    name: "leftLabel / rightLabel",
+    name: "rightMode",
+    type: "source | preview",
+    default: "preview",
+    desc: pick("内置渲染模式：源码视图或文档预览", "Built-in rendering mode: source or preview."),
+  },
+  {
+    name: "leftLabel",
+    type: "string",
+    default: "''",
+    desc: pick("面板标题", "Pane header labels."),
+  },
+  {
+    name: "rightLabel",
     type: "string",
     default: "''",
     desc: pick("面板标题", "Pane header labels."),
@@ -665,18 +695,33 @@ const propsRows = () => [
     desc: pick("关闭双向滚动跟随", "Disable bidirectional scroll following."),
   },
   {
-    name: "overscan / estimatedHeight",
+    name: "overscan",
     type: "number",
-    default: "6 / 28",
+    default: "6",
     desc: pick(
       "虚拟滚动预渲染窗口与首屏高度预估",
       "Virtual-window overscan and initial height estimate.",
     ),
   },
   {
-    name: "split / height",
-    type: "number / string | number",
-    default: "50 / 420",
+    name: "estimatedHeight",
+    type: "number",
+    default: "28",
+    desc: pick(
+      "虚拟滚动预渲染窗口与首屏高度预估",
+      "Virtual-window overscan and initial height estimate.",
+    ),
+  },
+  {
+    name: "split",
+    type: "number",
+    default: "50",
+    desc: pick("初始分割比例与面板高度", "Initial split ratio and panel height."),
+  },
+  {
+    name: "height",
+    type: "string | number",
+    default: "420",
     desc: pick("初始分割比例与面板高度", "Initial split ratio and panel height."),
   },
   {
@@ -736,7 +781,11 @@ const cssVarRows = () => [
   { name: "--doc-sync-bg", desc: pick("面板容器背景", "Panel container background.") },
   { name: "--doc-sync-pane-bg", desc: pick("左右面板背景", "Left and right pane background.") },
   {
-    name: "--doc-sync-header-bg / --doc-sync-header-color",
+    name: "--doc-sync-header-bg",
+    desc: pick("面板标题栏背景与文字色", "Pane header background and text color."),
+  },
+  {
+    name: "--doc-sync-header-color",
     desc: pick("面板标题栏背景与文字色", "Pane header background and text color."),
   },
   { name: "--doc-sync-border", desc: pick("容器与分割线颜色", "Container and divider color.") },
@@ -750,18 +799,40 @@ const cssVarRows = () => [
     ),
   },
   {
-    name: "--doc-sync-font / --doc-sync-heading-font",
+    name: "--doc-sync-font",
     desc: pick("正文字体与标题字体", "Body font and heading font."),
   },
   {
-    name: "--doc-sync-source-bg / --doc-sync-source-color / --doc-sync-source-muted",
+    name: "--doc-sync-heading-font",
+    desc: pick("正文字体与标题字体", "Body font and heading font."),
+  },
+  {
+    name: "--doc-sync-source-bg",
     desc: pick(
       "源码面板背景、文字与弱化文字色",
       "Source-pane background, text, and muted text colors.",
     ),
   },
   {
-    name: "--doc-sync-source-header-bg / --doc-sync-ruler-bg",
+    name: "--doc-sync-source-color",
+    desc: pick(
+      "源码面板背景、文字与弱化文字色",
+      "Source-pane background, text, and muted text colors.",
+    ),
+  },
+  {
+    name: "--doc-sync-source-muted",
+    desc: pick(
+      "源码面板背景、文字与弱化文字色",
+      "Source-pane background, text, and muted text colors.",
+    ),
+  },
+  {
+    name: "--doc-sync-source-header-bg",
+    desc: pick("源码面板标题栏与刻度尺背景", "Source-pane header and ruler background."),
+  },
+  {
+    name: "--doc-sync-ruler-bg",
     desc: pick("源码面板标题栏与刻度尺背景", "Source-pane header and ruler background."),
   },
   {
@@ -918,11 +989,12 @@ const PageLabsDocSync = defineHtml(`
     </section>
 
     <section class="docs-section">
-      <h2>${t("api")}</h2>
-      <elf-props-table :title=${t("props")} :rows=${propsRows()} />
-      <elf-props-table :title=${t("events")} :rows=${eventRows()} />
-      <elf-props-table :title=${t("expose")} :rows=${exposeRows()} />
+      <elf-api-builder component="elf-doc-sync" title="API">
+      <elf-props-table role="props" :title=${t("props")} :rows=${propsRows()} />
+      <elf-props-table role="events" :title=${t("events")} :rows=${eventRows()} />
+      <elf-props-table role="methods" :title=${t("expose")} :rows=${exposeRows()} />
       <elf-props-table :title=${t("cssVars")} :rows=${cssVarRows()} />
+  </elf-api-builder>
     </section>
   </elf-container>
 `);

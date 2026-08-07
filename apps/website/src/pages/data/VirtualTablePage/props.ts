@@ -12,8 +12,14 @@ const t = createDocsTranslator({
 
 const propsRows = () => [
   {
-    name: "data / columns",
-    type: "TableRow[] / TableV2Column[]",
+    name: "data",
+    type: "TableRow[]",
+    default: "[]",
+    desc: pick("虚拟正文数据与类型化列配置", "Virtual body data and typed column definitions"),
+  },
+  {
+    name: "columns",
+    type: "TableV2Column[]",
     default: "[]",
     desc: pick("虚拟正文数据与类型化列配置", "Virtual body data and typed column definitions"),
   },
@@ -33,15 +39,27 @@ const propsRows = () => [
     desc: pick("固定或逐行计算的虚拟行高", "Fixed or per-row virtual height"),
   },
   {
-    name: "header-height / footer-height",
+    name: "header-height",
     type: "number",
-    default: "44 / 0",
+    default: "44",
     desc: pick("表头与页脚占用高度", "Reserved header and footer heights"),
   },
   {
-    name: "height / overscan",
-    type: "string | number / number",
-    default: "400 / 6",
+    name: "footer-height",
+    type: "number",
+    default: "0",
+    desc: pick("表头与页脚占用高度", "Reserved header and footer heights"),
+  },
+  {
+    name: "height",
+    type: "string | number",
+    default: "400",
+    desc: pick("表格总高度与窗口缓冲行数", "Total table height and virtual overscan"),
+  },
+  {
+    name: "overscan",
+    type: "number",
+    default: "6",
     desc: pick("表格总高度与窗口缓冲行数", "Total table height and virtual overscan"),
   },
   {
@@ -72,9 +90,15 @@ const propsRows = () => [
     desc: pick("每个层级的缩进像素", "Indent in pixels per hierarchy level"),
   },
   {
-    name: "loading / empty-text",
-    type: "boolean / string",
-    default: "false / ''",
+    name: "loading",
+    type: "boolean",
+    default: "false",
+    desc: pick("遮罩状态与空状态文案", "Overlay state and empty-state copy"),
+  },
+  {
+    name: "empty-text",
+    type: "string",
+    default: "''",
     desc: pick("遮罩状态与空状态文案", "Overlay state and empty-state copy"),
   },
 ];
@@ -94,7 +118,23 @@ const eventsRows = () => [
     desc: pick("单行展开状态变化", "One row changed expansion state"),
   },
   {
-    name: "column-sort / rows-rendered / end-reached",
+    name: "column-sort",
+    type: "events",
+    desc: pick(
+      "排序、虚拟窗口和触底通知",
+      "Sorting, virtual-window, and end-reached notifications",
+    ),
+  },
+  {
+    name: "rows-rendered",
+    type: "events",
+    desc: pick(
+      "排序、虚拟窗口和触底通知",
+      "Sorting, virtual-window, and end-reached notifications",
+    ),
+  },
+  {
+    name: "end-reached",
     type: "events",
     desc: pick(
       "排序、虚拟窗口和触底通知",
@@ -122,10 +162,11 @@ const slotsRows = () => [
 ];
 
 const PageVirtualTableProps = defineHtml(`
-  <h2>${t("api")}</h2>
-  <elf-props-table :title=${t("props")} :rows.prop=${propsRows()}></elf-props-table>
-  <elf-props-table :title=${t("events")} :rows.prop=${eventsRows()}></elf-props-table>
-  <elf-props-table :title=${t("slots")} :rows.prop=${slotsRows()}></elf-props-table>
+  <elf-api-builder component="elf-table-v2" title="API">
+  <elf-props-table role="props" :title=${t("props")} :rows.prop=${propsRows()}></elf-props-table>
+  <elf-props-table role="events" :title=${t("events")} :rows.prop=${eventsRows()}></elf-props-table>
+  <elf-props-table role="slots" :title=${t("slots")} :rows.prop=${slotsRows()}></elf-props-table>
+  </elf-api-builder>
 `);
 
 export { PageVirtualTableProps };

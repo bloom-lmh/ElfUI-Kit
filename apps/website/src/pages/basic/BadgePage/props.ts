@@ -92,9 +92,10 @@ const slotsRows = [
 ];
 
 const PageBadgeProps = defineHtml(`
-  <h2>${t("api")}</h2>
-  <elf-props-table :title=${t("props")} :rows=${propsRows} />
-  <elf-props-table :title=${t("slots")} :rows=${slotsRows} />
+  <elf-api-builder component="elf-badge" title="API">
+  <elf-props-table role="props" :title=${t("props")} :rows=${propsRows} />
+  <elf-props-table role="slots" :title=${t("slots")} :rows=${slotsRows} />
+  </elf-api-builder>
 `);
 
 export { PageBadgeProps };

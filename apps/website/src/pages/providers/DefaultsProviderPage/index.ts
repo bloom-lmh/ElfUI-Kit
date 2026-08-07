@@ -63,8 +63,9 @@ const PageDefaultsProvider = defineHtml(`
 
     <page-defaults-provider-ex3 />
 
-    <h2>API</h2>
-    <elf-props-table title="DefaultsProvider Props" :rows="propsRows"></elf-props-table>
+    <elf-api-builder component="elf-defaults-provider" title="API">
+    <elf-props-table role="props" title="DefaultsProvider Props" :rows="propsRows"></elf-props-table>
+  </elf-api-builder>
   </elf-container>
 `);
 

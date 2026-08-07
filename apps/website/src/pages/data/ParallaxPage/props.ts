@@ -38,10 +38,11 @@ const exposeRows = [
 ];
 
 const PageParallaxProps = defineHtml(`
-  <h2>API</h2>
-  <elf-props-table title="Props" :rows.prop=${propsRows} />
-  <elf-props-table title="Slots" :rows.prop=${slotsRows} />
-  <elf-props-table title="Expose" :rows.prop=${exposeRows} />
+  <elf-api-builder component="elf-parallax" title="API">
+  <elf-props-table role="props" title="Props" :rows.prop=${propsRows} />
+  <elf-props-table role="slots" title="Slots" :rows.prop=${slotsRows} />
+  <elf-props-table role="methods" title="Expose" :rows.prop=${exposeRows} />
+  </elf-api-builder>
 `);
 
 export { PageParallaxProps };

@@ -142,7 +142,7 @@ const serviceRows = [
     ),
   },
   {
-    name: "text / background / variant / plain",
+    name: "text",
     type: "LoadingOptions",
     desc: pick(
       "配置文案、背景和内置动效",
@@ -150,7 +150,36 @@ const serviceRows = [
     ),
   },
   {
-    name: "svg / svgViewBox",
+    name: "background",
+    type: "LoadingOptions",
+    desc: pick(
+      "配置文案、背景和内置动效",
+      "Configure copy, background, and the built-in animation.",
+    ),
+  },
+  {
+    name: "variant",
+    type: "LoadingOptions",
+    desc: pick(
+      "配置文案、背景和内置动效",
+      "Configure copy, background, and the built-in animation.",
+    ),
+  },
+  {
+    name: "plain",
+    type: "LoadingOptions",
+    desc: pick(
+      "配置文案、背景和内置动效",
+      "Configure copy, background, and the built-in animation.",
+    ),
+  },
+  {
+    name: "svg",
+    type: "string",
+    desc: pick("配置自定义 SVG path", "Configure a custom SVG path."),
+  },
+  {
+    name: "svgViewBox",
     type: "string",
     desc: pick("配置自定义 SVG path", "Configure a custom SVG path."),
   },
@@ -160,7 +189,12 @@ const serviceRows = [
     desc: pick("添加到服务宿主元素的类名", "Class added to the service host element."),
   },
   {
-    name: "close() / setText()",
+    name: "close()",
+    type: "LoadingInstance",
+    desc: pick("关闭实例或更新加载文案", "Close the instance or update its loading text."),
+  },
+  {
+    name: "setText()",
     type: "LoadingInstance",
     desc: pick("关闭实例或更新加载文案", "Close the instance or update its loading text."),
   },
@@ -178,12 +212,13 @@ const directiveRows = [
 ];
 
 const PageLoadingProps = defineHtml(`
-  <h2>API</h2>
-  <elf-props-table title="Props" :rows=${propsRows}></elf-props-table>
-  <elf-props-table title="Events" :rows=${eventsRows}></elf-props-table>
-  <elf-props-table title="Slots" :rows=${slotsRows}></elf-props-table>
+  <elf-api-builder component="elf-loading" title="API">
+  <elf-props-table role="props" title="Props" :rows=${propsRows}></elf-props-table>
+  <elf-props-table role="events" title="Events" :rows=${eventsRows}></elf-props-table>
+  <elf-props-table role="slots" title="Slots" :rows=${slotsRows}></elf-props-table>
   <elf-props-table title="Service" :rows=${serviceRows}></elf-props-table>
   <elf-props-table title="Directive" :rows=${directiveRows}></elf-props-table>
+  </elf-api-builder>
 `);
 
 export { PageLoadingProps };

@@ -107,18 +107,24 @@ const slotsRows = [
 
 const methodsRows = [
   {
-    name: "close() / handleClose()",
+    name: "close()",
+    type: "() => void",
+    desc: pick("执行 before-close 后请求关闭。", "Run before-close and request closing."),
+  },
+  {
+    name: "handleClose()",
     type: "() => void",
     desc: pick("执行 before-close 后请求关闭。", "Run before-close and request closing."),
   },
 ];
 
 const PageDialogProps = defineHtml(`
-  <h2>API</h2>
-  <elf-props-table :title=${t("props")} :rows=${propsRows}></elf-props-table>
-  <elf-props-table :title=${t("events")} :rows=${eventsRows}></elf-props-table>
-  <elf-props-table :title=${t("slots")} :rows=${slotsRows}></elf-props-table>
-  <elf-props-table :title=${t("methods")} :rows=${methodsRows}></elf-props-table>
+  <elf-api-builder component="elf-dialog" title="API">
+  <elf-props-table role="props" :title=${t("props")} :rows=${propsRows}></elf-props-table>
+  <elf-props-table role="events" :title=${t("events")} :rows=${eventsRows}></elf-props-table>
+  <elf-props-table role="slots" :title=${t("slots")} :rows=${slotsRows}></elf-props-table>
+  <elf-props-table role="methods" :title=${t("methods")} :rows=${methodsRows}></elf-props-table>
+  </elf-api-builder>
 `);
 
 export { PageDialogProps };

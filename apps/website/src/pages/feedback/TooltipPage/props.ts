@@ -109,7 +109,12 @@ const slotsRows = [
 
 const methodsRows = [
   {
-    name: "show() / hide()",
+    name: "show()",
+    type: "() => void",
+    desc: pick("命令式控制显隐", "Show or hide the tooltip imperatively."),
+  },
+  {
+    name: "hide()",
     type: "() => void",
     desc: pick("命令式控制显隐", "Show or hide the tooltip imperatively."),
   },
@@ -129,11 +134,12 @@ const methodsRows = [
 ];
 
 const PageTooltipProps = defineHtml(`
-  <h2>API</h2>
-  <elf-props-table title="Props" :rows="propsRows"></elf-props-table>
-  <elf-props-table title="Events" :rows=${eventsRows}></elf-props-table>
-  <elf-props-table title="Slots" :rows=${slotsRows}></elf-props-table>
-  <elf-props-table title="Expose" :rows=${methodsRows}></elf-props-table>
+  <elf-api-builder component="elf-tooltip" title="API">
+  <elf-props-table role="props" title="Props" :rows="propsRows"></elf-props-table>
+  <elf-props-table role="events" title="Events" :rows=${eventsRows}></elf-props-table>
+  <elf-props-table role="slots" title="Slots" :rows=${slotsRows}></elf-props-table>
+  <elf-props-table role="methods" title="Expose" :rows=${methodsRows}></elf-props-table>
+  </elf-api-builder>
 `);
 
 export { PageTooltipProps };

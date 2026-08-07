@@ -87,7 +87,6 @@ describe("OverviewPage", () => {
     expect(byPath("/labs/ai-command-search")?.preview).toBe("field");
     expect(byPath("/labs/ai-task-row")?.preview).toBe("list");
     expect(byPath("/labs/ai-approval")?.preview).toBe("surface");
-    expect(byPath("/labs/doc-sync")?.preview).toBe("layout");
     expect(byPath("/labs/md-page")?.preview).toBe("text");
     expect(items.every((item) => item.previewDetail !== "unknown")).toBe(true);
   });

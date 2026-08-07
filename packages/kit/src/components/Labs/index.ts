@@ -21,7 +21,6 @@ import { ChatComposer } from "./ChatComposer";
 import { ChatMessage } from "./ChatMessage";
 import { ChatToolCall } from "./ChatToolCall";
 import { CodeCard } from "./CodeCard";
-import { DocSync } from "./DocSync";
 import { Heatmap } from "./Heatmap";
 import { MdPage } from "./MdPage";
 import { MdOutline } from "./MdOutline";
@@ -31,7 +30,6 @@ registerComponents(
   Video,
   Heatmap,
   CodeCard,
-  DocSync,
   MdPage,
   MdOutline,
   AiChat,
@@ -102,7 +100,6 @@ export * from "./ChatComposer";
 export * from "./ChatMessage";
 export * from "./ChatToolCall";
 export * from "./CodeCard";
-export * from "./DocSync";
 export * from "./Heatmap";
 export * from "./MdPage";
 export * from "./MdOutline";

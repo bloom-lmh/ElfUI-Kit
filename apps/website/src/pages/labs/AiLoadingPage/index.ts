@@ -122,9 +122,10 @@ const PageLabsAiLoading = defineHtml(`
         </div>
       </div>
     </elf-playground>
-    <h2>${t("api")}</h2>
-    <elf-props-table :title=${t("props")} :rows=${propRows()}></elf-props-table>
-    <elf-props-table :title=${t("expose")} :rows=${exposeRows()}></elf-props-table>
+    <elf-api-builder component="elf-ai-loading" title="API">
+    <elf-props-table role="props" :title=${t("props")} :rows=${propRows()}></elf-props-table>
+    <elf-props-table role="methods" :title=${t("expose")} :rows=${exposeRows()}></elf-props-table>
+  </elf-api-builder>
   </elf-container>
 `);
 

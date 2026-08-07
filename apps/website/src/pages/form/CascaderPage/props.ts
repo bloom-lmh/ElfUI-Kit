@@ -234,12 +234,13 @@ const panelRows = (): ApiRow[] => [
 ];
 
 const PageCascaderProps = defineHtml(`
-  <h2>${t("api")}</h2>
-  <elf-props-table :title=${t("props")} :rows=${propsRows()}></elf-props-table>
-  <elf-props-table :title=${t("events")} :rows=${eventRows()}></elf-props-table>
-  <elf-props-table :title=${t("methods")} :rows=${methodRows()}></elf-props-table>
-  <elf-props-table :title=${t("slots")} :rows=${slotRows()}></elf-props-table>
-  <elf-props-table :title=${t("panel")} :rows=${panelRows()}></elf-props-table>
+  <elf-api-builder component="elf-cascader" title="API">
+  <elf-props-table role="props" :title=${t("props")} :rows=${propsRows()}></elf-props-table>
+  <elf-props-table role="events" :title=${t("events")} :rows=${eventRows()}></elf-props-table>
+  <elf-props-table role="methods" :title=${t("methods")} :rows=${methodRows()}></elf-props-table>
+  <elf-props-table role="slots" :title=${t("slots")} :rows=${slotRows()}></elf-props-table>
+  <elf-props-table role="props" component="elf-cascader-panel" :title=${t("panel")} :rows=${panelRows()}></elf-props-table>
+  </elf-api-builder>
 `);
 
 export { PageCascaderProps };

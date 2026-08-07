@@ -45,7 +45,6 @@ beforeAll(async () => {
     { PageLabsHeatmap },
     { PageLabsCodeCard },
     { PageLabsMdPage },
-    { PageLabsDocSync },
     { PageLabsAiLoading },
     { PageLabsAiThinking },
     { PageLabsAiApproval },
@@ -79,7 +78,6 @@ beforeAll(async () => {
     import("./labs/HeatmapPage/index"),
     import("./labs/CodeCardPage/index"),
     import("./labs/MdPagePage/index"),
-    import("./labs/DocSyncPage/index"),
     import("./labs/AiLoadingPage/index"),
     import("./labs/AiThinkingPage/index"),
     import("./labs/AiApprovalPage/index"),
@@ -115,7 +113,6 @@ beforeAll(async () => {
     { tag: ensureCustomElement(PageLabsHeatmap), title: "Heatmap" },
     { tag: ensureCustomElement(PageLabsCodeCard), title: "Code Card" },
     { tag: ensureCustomElement(PageLabsMdPage), title: "MD Page" },
-    { tag: ensureCustomElement(PageLabsDocSync), title: "Doc Sync" },
     { tag: ensureCustomElement(PageLabsAiLoading), title: "AI Loading" },
     { tag: ensureCustomElement(PageLabsAiThinking), title: "AI Thinking" },
     { tag: ensureCustomElement(PageLabsAiApproval), title: "AI Approval" },
@@ -381,7 +378,9 @@ describe("新文档领域页面", () => {
           ["elf-props-table", 3],
         ],
       ],
-      ["AI Showcase", [["elf-playground", 6]]],
+      // 页面含 5 个真实案例（霓虹/终端/奶油/午夜/渐变）；其余 elf-playground
+      // 只是代码示例字符串，不应计入 DOM 计数。
+      ["AI Showcase", [["elf-playground", 5]]],
     ]);
 
     for (const pageCase of pages) {

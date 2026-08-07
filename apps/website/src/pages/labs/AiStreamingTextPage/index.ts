@@ -98,7 +98,19 @@ const propRows = () => [
   { name: "streaming", type: "boolean", default: "false", desc: t("streamingDesc") },
   { name: "stream-speed", type: "number", default: "40", desc: t("speedDesc") },
   {
-    name: "show-sources / show-actions / show-follow-ups",
+    name: "show-sources",
+    type: "boolean",
+    default: "true",
+    desc: t("showDesc"),
+  },
+  {
+    name: "show-actions",
+    type: "boolean",
+    default: "true",
+    desc: t("showDesc"),
+  },
+  {
+    name: "show-follow-ups",
     type: "boolean",
     default: "true",
     desc: t("showDesc"),
@@ -174,10 +186,11 @@ const PageLabsAiStreamingText = defineHtml(`
         <p class="ai-stream-note">${t("lastAction")}: ${lastAction || t("none")} · ${t("lastFollowUp")}: ${lastFollowUp || t("none")}</p>
       </div>
     </elf-playground>
-    <h2>${t("api")}</h2>
-    <elf-props-table :title=${t("props")} :rows=${propRows()}></elf-props-table>
-    <elf-props-table :title=${t("events")} :rows=${eventRows()}></elf-props-table>
-    <elf-props-table :title=${t("expose")} :rows=${exposeRows()}></elf-props-table>
+    <elf-api-builder component="elf-ai-streaming-text" title="API">
+    <elf-props-table role="props" :title=${t("props")} :rows=${propRows()}></elf-props-table>
+    <elf-props-table role="events" :title=${t("events")} :rows=${eventRows()}></elf-props-table>
+    <elf-props-table role="methods" :title=${t("expose")} :rows=${exposeRows()}></elf-props-table>
+  </elf-api-builder>
   </elf-container>
 `);
 

@@ -120,16 +120,6 @@
   font-size: var(--elf-font-size-xs);
 }
 
-.avatar-demo-actions {
-  display: inline-flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 8px;
-  flex-wrap: wrap;
-  color: var(--elf-text-secondary);
-  font-size: var(--elf-font-size-sm);
-}
-
 .avatar-fallback-demo {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);

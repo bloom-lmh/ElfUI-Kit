@@ -75,7 +75,8 @@ const propsRows = () => [
     default: "fill",
     desc: t("fit"),
   },
-  { name: "width / height", type: "number | string", default: "auto", desc: t("size") },
+  { name: "width", type: "number | string", default: "auto", desc: t("size") },
+  { name: "height", type: "number | string", default: "auto", desc: t("size") },
   { name: "lazy", type: "boolean", default: "false", desc: t("lazy") },
   { name: "preview-src-list", type: "string[]", default: "[]", desc: t("list") },
   { name: "initial-index", type: "number", default: "0", desc: t("initial") },
@@ -104,11 +105,12 @@ const exposesRows = () => [
 ];
 
 const PageImageProps = defineHtml(`
-  <h2>API</h2>
-  <elf-props-table :title=${t("props")} :rows=${propsRows()} />
-  <elf-props-table :title=${t("events")} :rows=${eventsRows()} />
-  <elf-props-table :title=${t("slots")} :rows=${slotsRows()} />
-  <elf-props-table :title=${t("exposes")} :rows=${exposesRows()} />
+  <elf-api-builder component="elf-image" title="API">
+  <elf-props-table role="props" :title=${t("props")} :rows=${propsRows()} />
+  <elf-props-table role="events" :title=${t("events")} :rows=${eventsRows()} />
+  <elf-props-table role="slots" :title=${t("slots")} :rows=${slotsRows()} />
+  <elf-props-table role="methods" :title=${t("exposes")} :rows=${exposesRows()} />
+  </elf-api-builder>
 `);
 
 export { PageImageProps };

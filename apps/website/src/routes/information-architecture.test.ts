@@ -80,7 +80,7 @@ describe("文档信息架构", () => {
 
   it("指令和实验组件只显示实际功能页面，AI 组件独立成组", () => {
     expect(groupItems("Directives 指令")).toHaveLength(8);
-    expect(groupItems("Labs 实验室")).toHaveLength(5);
+    expect(groupItems("Labs 实验室")).toHaveLength(4);
     expect(groupItems("AI 组件")).toHaveLength(21);
     expect(navItems[0]).toEqual({ to: "/overview", text: "Overview 组件总览" });
     expect(navItems[1]?.group).toBe("AI 组件");
@@ -90,7 +90,6 @@ describe("文档信息架构", () => {
         "/labs/heatmap",
         "/labs/code-card",
         "/labs/md-page",
-        "/labs/doc-sync",
         "/labs/ai-chat",
         "/labs/chat-message",
         "/labs/chat-tool-call",

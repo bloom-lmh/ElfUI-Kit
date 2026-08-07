@@ -162,10 +162,11 @@ const PageChatMessage = defineHtml(`
         <elf-chat-message role="user" :content=${t("outlineText")} name="Mina" shape="outline"></elf-chat-message>
       </div>
     </elf-playground>
-    <h2>${t("api")}</h2>
-    <elf-props-table :title=${t("props")} :rows=${propRows()}></elf-props-table>
-    <elf-props-table :title=${t("events")} :rows=${eventRows()}></elf-props-table>
-    <elf-props-table :title=${t("expose")} :rows=${exposeRows()}></elf-props-table>
+    <elf-api-builder component="elf-chat-message" title="API">
+    <elf-props-table role="props" :title=${t("props")} :rows=${propRows()}></elf-props-table>
+    <elf-props-table role="events" :title=${t("events")} :rows=${eventRows()}></elf-props-table>
+    <elf-props-table role="methods" :title=${t("expose")} :rows=${exposeRows()}></elf-props-table>
+  </elf-api-builder>
   </elf-container>
 `);
 

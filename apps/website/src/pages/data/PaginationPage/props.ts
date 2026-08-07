@@ -71,13 +71,28 @@ const propsRows = [
     desc: pick("旧版紧凑尺寸别名", "Legacy compact-size alias"),
   },
   {
-    name: "prev-text / next-text",
+    name: "prev-text",
     type: "string",
     default: "''",
     desc: pick("自定义导航文案", "Custom navigation labels"),
   },
   {
-    name: "prev-icon / next-icon",
+    name: "next-text",
+    type: "string",
+    default: "''",
+    desc: pick("自定义导航文案", "Custom navigation labels"),
+  },
+  {
+    name: "prev-icon",
+    type: "string",
+    default: "''",
+    desc: pick(
+      "导航图标文本，命名 SVG 插槽优先",
+      "Navigation icon text; named SVG slots take precedence",
+    ),
+  },
+  {
+    name: "next-icon",
     type: "string",
     default: "''",
     desc: pick(
@@ -156,7 +171,12 @@ const eventsRows = [
     desc: pick("页码或每页条数变化完成", "A page or size change completed"),
   },
   {
-    name: "prev-click / next-click",
+    name: "prev-click",
+    type: "(targetPage: number) => void",
+    desc: pick("导航按钮被激活", "Navigation button activated"),
+  },
+  {
+    name: "next-click",
     type: "(targetPage: number) => void",
     desc: pick("导航按钮被激活", "Navigation button activated"),
   },
@@ -193,12 +213,13 @@ const partsRows = [
 ];
 
 const PagePaginationProps = defineHtml(`
-  <h2>API</h2>
-  <elf-props-table title="Props" :rows.prop=${propsRows}></elf-props-table>
-  <elf-props-table title="Events" :rows.prop=${eventsRows}></elf-props-table>
-  <elf-props-table title="Slots" :rows.prop=${slotsRows}></elf-props-table>
-  <elf-props-table title="Expose" :rows.prop=${methodsRows}></elf-props-table>
+  <elf-api-builder component="elf-pagination" title="API">
+  <elf-props-table role="props" title="Props" :rows.prop=${propsRows}></elf-props-table>
+  <elf-props-table role="events" title="Events" :rows.prop=${eventsRows}></elf-props-table>
+  <elf-props-table role="slots" title="Slots" :rows.prop=${slotsRows}></elf-props-table>
+  <elf-props-table role="methods" title="Expose" :rows.prop=${methodsRows}></elf-props-table>
   <elf-props-table title="Parts" :rows.prop=${partsRows}></elf-props-table>
+  </elf-api-builder>
 `);
 
 export { PagePaginationProps };

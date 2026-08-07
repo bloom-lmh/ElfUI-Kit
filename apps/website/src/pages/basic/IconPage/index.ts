@@ -108,10 +108,11 @@ const PageIcon = defineHtml(`
     <page-icon-ex3 />
     <page-icon-ex4 />
     <page-icon-ex5 />
-    <h2>API</h2>
-    <elf-props-table :title=${t("iconProps")} :rows=${iconPropsRows()} />
-    <elf-props-table :title=${t("providerProps")} :rows=${providerPropsRows()} />
-    <elf-props-table :title=${t("slots")} :rows=${slotsRows()} />
+    <elf-api-builder component="elf-icon" title="API">
+    <elf-props-table role="props" :title=${t("iconProps")} :rows=${iconPropsRows()} />
+    <elf-props-table role="props" component="elf-icon-provider" :title=${t("providerProps")} :rows=${providerPropsRows()} />
+    <elf-props-table role="slots" :title=${t("slots")} :rows=${slotsRows()} />
+  </elf-api-builder>
   </elf-container>
 `);
 

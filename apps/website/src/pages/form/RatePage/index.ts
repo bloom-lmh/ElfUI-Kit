@@ -31,7 +31,13 @@ const propsRows = [
     desc: pick("再次点击当前分可清空", "Clear by clicking the current value again."),
   },
   {
-    name: "showText / showScore",
+    name: "showText",
+    type: "boolean",
+    default: "false",
+    desc: pick("展示描述或分数", "Show descriptive text or a score."),
+  },
+  {
+    name: "showScore",
     type: "boolean",
     default: "false",
     desc: pick("展示描述或分数", "Show descriptive text or a score."),
@@ -43,25 +49,61 @@ const propsRows = [
     desc: pick("自定义评分符号", "Custom rating character."),
   },
   {
-    name: "low-threshold / high-threshold",
+    name: "low-threshold",
     type: "number",
-    default: "2 / 4",
+    default: "2",
     desc: pick("分段阈值", "Segment thresholds."),
   },
   {
-    name: "colors / icons",
+    name: "high-threshold",
+    type: "number",
+    default: "4",
+    desc: pick("分段阈值", "Segment thresholds."),
+  },
+  {
+    name: "colors",
     type: "string[]",
     default: "[]",
     desc: pick("分段颜色与图标", "Segment colors and icons."),
   },
   {
-    name: "void-icon / disabled-void-icon",
+    name: "icons",
+    type: "string[]",
+    default: "[]",
+    desc: pick("分段颜色与图标", "Segment colors and icons."),
+  },
+  {
+    name: "void-icon",
     type: "string",
     default: "''",
     desc: pick("空值与禁用空值图标", "Empty and disabled-empty icons."),
   },
   {
-    name: "text-color / id / aria-label / label",
+    name: "disabled-void-icon",
+    type: "string",
+    default: "''",
+    desc: pick("空值与禁用空值图标", "Empty and disabled-empty icons."),
+  },
+  {
+    name: "text-color",
+    type: "string",
+    default: "''",
+    desc: pick("文本颜色与标识属性", "Text color and identifier attributes."),
+  },
+  {
+    name: "id",
+    type: "string",
+    default: "''",
+    desc: pick("文本颜色与标识属性", "Text color and identifier attributes."),
+  },
+  {
+    name: "aria-label",
+    type: "string",
+    default: "''",
+    desc: pick("文本颜色与标识属性", "Text color and identifier attributes."),
+  },
+  {
+    name: "label",
     type: "string",
     default: "''",
     desc: pick("文本颜色与标识属性", "Text color and identifier attributes."),
@@ -93,11 +135,16 @@ const PageRate = defineHtml(`
 
     <page-rate-ex4 />
 
-    <h2>API</h2>
-    <elf-props-table title="Props" :rows=${propsRows}></elf-props-table>
-    <elf-props-table title="Events" :rows=${[
+    <elf-api-builder component="elf-rate" title="API">
+    <elf-props-table role="props" title="Props" :rows=${propsRows}></elf-props-table>
+    <elf-props-table role="events" title="Events" :rows=${[
       {
-        name: "update:modelValue / change",
+        name: "update:modelValue",
+        type: "(value: number) => void",
+        desc: pick("评分变化时触发", "Emitted when the rating changes."),
+      },
+      {
+        name: "change",
         type: "(value: number) => void",
         desc: pick("评分变化时触发", "Emitted when the rating changes."),
       },
@@ -112,7 +159,7 @@ const PageRate = defineHtml(`
         desc: pick("清空评分时触发", "Emitted after clearing the rating."),
       },
     ]}></elf-props-table>
-    <elf-props-table title="Expose" :rows=${[
+    <elf-props-table role="methods" title="Expose" :rows=${[
       {
         name: "setCurrentValue",
         type: "(value: number) => void",
@@ -124,6 +171,7 @@ const PageRate = defineHtml(`
         desc: pick("重置当前评分", "Reset the current rating."),
       },
     ]}></elf-props-table>
+  </elf-api-builder>
   </elf-container>
 `);
 

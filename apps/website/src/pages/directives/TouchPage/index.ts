@@ -38,7 +38,25 @@ const options = () => ({ handler: onGesture, threshold: 28 });
 const optionRows = () => [
   { name: "handler", type: "(detail) => void", default: "—", desc: t("handler") },
   {
-    name: "left / right / up / down",
+    name: "left",
+    type: "(detail) => void",
+    default: "—",
+    desc: t("directions"),
+  },
+  {
+    name: "right",
+    type: "(detail) => void",
+    default: "—",
+    desc: t("directions"),
+  },
+  {
+    name: "up",
+    type: "(detail) => void",
+    default: "—",
+    desc: t("directions"),
+  },
+  {
+    name: "down",
     type: "(detail) => void",
     default: "—",
     desc: t("directions"),

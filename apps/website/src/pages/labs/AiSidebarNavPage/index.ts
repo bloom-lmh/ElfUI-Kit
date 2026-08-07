@@ -81,12 +81,19 @@ const propRows = () => [
   { name: "sections", type: "AiSidebarSection[]", default: "[]", desc: t("sectionsDesc") },
   { name: "active-key", type: "string", default: "''", desc: t("activeKeyDesc") },
   {
-    name: "new-task-label / search-placeholder",
+    name: "new-task-label",
     type: "string",
     default: "''",
     desc: t("labelsDesc"),
   },
-  { name: "show-search / show-new-task", type: "boolean", default: "true", desc: t("labelsDesc") },
+  {
+    name: "search-placeholder",
+    type: "string",
+    default: "''",
+    desc: t("labelsDesc"),
+  },
+  { name: "show-search", type: "boolean", default: "true", desc: t("labelsDesc") },
+  { name: "show-new-task", type: "boolean", default: "true", desc: t("labelsDesc") },
   { name: "labels", type: "Partial<AiSidebarNavLabels>", default: "{}", desc: t("labelsDesc") },
   { name: "aria-label", type: "string", default: "''", desc: t("ariaLabelDesc") },
 ];
@@ -130,10 +137,11 @@ const PageLabsAiSidebarNav = defineHtml(`
         ></elf-ai-sidebar-nav>
       </div>
     </elf-playground>
-    <h2>${t("api")}</h2>
-    <elf-props-table :title=${t("props")} :rows=${propRows()}></elf-props-table>
-    <elf-props-table :title=${t("events")} :rows=${eventRows()}></elf-props-table>
-    <elf-props-table :title=${t("expose")} :rows=${exposeRows()}></elf-props-table>
+    <elf-api-builder component="elf-ai-sidebar-nav" title="API">
+    <elf-props-table role="props" :title=${t("props")} :rows=${propRows()}></elf-props-table>
+    <elf-props-table role="events" :title=${t("events")} :rows=${eventRows()}></elf-props-table>
+    <elf-props-table role="methods" :title=${t("expose")} :rows=${exposeRows()}></elf-props-table>
+  </elf-api-builder>
   </elf-container>
 `);
 

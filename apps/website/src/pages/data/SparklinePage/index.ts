@@ -73,9 +73,15 @@ const propsRows = () => [
   { name: "itemValue", type: "string", default: "value", desc: t("itemValue") },
   { name: "type", type: "trend | bar", default: "trend", desc: t("type") },
   {
-    name: "width / height",
+    name: "width",
     type: "number",
-    default: "300 / 100",
+    default: "300",
+    desc: `${t("width")} / ${t("height")}`,
+  },
+  {
+    name: "height",
+    type: "number",
+    default: "100",
     desc: `${t("width")} / ${t("height")}`,
   },
   { name: "color", type: "string", default: "var(--elf-primary)", desc: t("color") },
@@ -172,9 +178,10 @@ const PageSparkline = defineHtml(`
     <page-sparkline-ex6></page-sparkline-ex6>
     <page-sparkline-ex7></page-sparkline-ex7>
     <page-sparkline-ex8></page-sparkline-ex8>
-    <h2>API</h2>
-    <elf-props-table title="Sparkline Props" :rows.prop=${propsRows()}></elf-props-table>
-    <elf-props-table title="Sparkline Events" :rows.prop=${eventRows()}></elf-props-table>
+    <elf-api-builder component="elf-sparkline" title="API">
+    <elf-props-table role="props" title="Sparkline Props" :rows.prop=${propsRows()}></elf-props-table>
+    <elf-props-table role="events" title="Sparkline Events" :rows.prop=${eventRows()}></elf-props-table>
+  </elf-api-builder>
   </elf-container>
 `);
 

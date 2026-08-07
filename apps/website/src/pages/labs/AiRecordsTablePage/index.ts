@@ -111,15 +111,27 @@ const propRows = () => [
   { name: "rows", type: "AiRecordRow[]", default: "[]", desc: t("rowsDesc") },
   { name: "selectable", type: "boolean", default: "true", desc: t("selectableDesc") },
   {
-    name: "sort-by / sort-order",
-    type: "string / 'asc' | 'desc'",
-    default: "'' / 'asc'",
+    name: "sort-by",
+    type: "string",
+    default: "''",
     desc: t("sortDesc"),
   },
   {
-    name: "show-footer / footer-text",
-    type: "boolean / string",
-    default: "true / ''",
+    name: "sort-order",
+    type: "'asc' | 'desc'",
+    default: "'asc'",
+    desc: t("sortDesc"),
+  },
+  {
+    name: "show-footer",
+    type: "boolean",
+    default: "true",
+    desc: t("footerDesc"),
+  },
+  {
+    name: "footer-text",
+    type: "string",
+    default: "''",
     desc: t("footerDesc"),
   },
   {
@@ -179,10 +191,11 @@ const PageLabsAiRecordsTable = defineHtml(`
         <p class="ai-records-note">${t("selected")}: ${selectedIds.value.length} · Aurora, Blue Fig, Cacao Norte</p>
       </div>
     </elf-playground>
-    <h2>${t("api")}</h2>
-    <elf-props-table :title=${t("props")} :rows=${propRows()}></elf-props-table>
-    <elf-props-table :title=${t("events")} :rows=${eventRows()}></elf-props-table>
-    <elf-props-table :title=${t("expose")} :rows=${exposeRows()}></elf-props-table>
+    <elf-api-builder component="elf-ai-records-table" title="API">
+    <elf-props-table role="props" :title=${t("props")} :rows=${propRows()}></elf-props-table>
+    <elf-props-table role="events" :title=${t("events")} :rows=${eventRows()}></elf-props-table>
+    <elf-props-table role="methods" :title=${t("expose")} :rows=${exposeRows()}></elf-props-table>
+  </elf-api-builder>
   </elf-container>
 `);
 

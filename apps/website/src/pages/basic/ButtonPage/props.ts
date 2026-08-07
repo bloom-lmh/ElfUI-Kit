@@ -64,7 +64,43 @@ const propsRows = () => [
     desc: t("shape"),
   },
   {
-    name: "text / bg / link / round / circle / plain / dashed",
+    name: "text",
+    type: "boolean",
+    default: "false",
+    desc: t("styleAlias"),
+  },
+  {
+    name: "bg",
+    type: "boolean",
+    default: "false",
+    desc: t("styleAlias"),
+  },
+  {
+    name: "link",
+    type: "boolean",
+    default: "false",
+    desc: t("styleAlias"),
+  },
+  {
+    name: "round",
+    type: "boolean",
+    default: "false",
+    desc: t("styleAlias"),
+  },
+  {
+    name: "circle",
+    type: "boolean",
+    default: "false",
+    desc: t("styleAlias"),
+  },
+  {
+    name: "plain",
+    type: "boolean",
+    default: "false",
+    desc: t("styleAlias"),
+  },
+  {
+    name: "dashed",
     type: "boolean",
     default: "false",
     desc: t("styleAlias"),
@@ -91,10 +127,11 @@ const slotsRows = () => [
 ];
 
 const PageButtonProps = defineHtml(`
-  <h2>API</h2>
-  <elf-props-table :title=${t("props")} :rows=${propsRows()} />
-  <elf-props-table :title=${t("events")} :rows=${eventsRows()} />
-  <elf-props-table :title=${t("slots")} :rows=${slotsRows()} />
+  <elf-api-builder component="elf-button" title="API">
+  <elf-props-table role="props" :title=${t("props")} :rows=${propsRows()} />
+  <elf-props-table role="events" :title=${t("events")} :rows=${eventsRows()} />
+  <elf-props-table role="slots" :title=${t("slots")} :rows=${slotsRows()} />
+  </elf-api-builder>
 `);
 
 export { PageButtonProps };

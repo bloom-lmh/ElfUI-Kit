@@ -160,7 +160,10 @@ const ChatComposer = defineHtml(`
       ></textarea>
     </div>
     <div class="bar">
-      <span v-if=${hint()} class="hint">${hint()}</span>
+      <span
+        v-if=${hint()}
+        class="hint"
+      >${hint()}</span>
       <span class="spacer"></span>
       <button
         v-if=${props.loading}
@@ -170,7 +173,10 @@ const ChatComposer = defineHtml(`
         :title=${label("stop")}
         @click=${onStop}
       >
-        <span class="stop-icon" aria-hidden="true"></span>
+        <span
+          class="stop-icon"
+          aria-hidden="true"
+        ></span>
       </button>
       <button
         v-else
@@ -181,7 +187,10 @@ const ChatComposer = defineHtml(`
         :disabled=${sendDisabled()}
         @click=${send}
       >
-        <span class="send-icon" aria-hidden="true"></span>
+        <span
+          class="send-icon"
+          aria-hidden="true"
+        ></span>
       </button>
     </div>
   </div>

@@ -575,11 +575,12 @@ const PageLabsCodeCard = defineHtml(`
       </div>
     </elf-playground>
 
-    <h2>${t("api")}</h2>
-    <elf-props-table :title=${t("props")} :rows=${propRows()}></elf-props-table>
-    <elf-props-table :title=${t("events")} :rows=${eventRows()}></elf-props-table>
-    <elf-props-table :title=${t("methods")} :rows=${methodRows()}></elf-props-table>
-    <elf-props-table :title=${t("slots")} :rows=${slotRows()}></elf-props-table>
+    <elf-api-builder component="elf-code-card" title="API">
+    <elf-props-table role="props" :title=${t("props")} :rows=${propRows()}></elf-props-table>
+    <elf-props-table role="events" :title=${t("events")} :rows=${eventRows()}></elf-props-table>
+    <elf-props-table role="methods" :title=${t("methods")} :rows=${methodRows()}></elf-props-table>
+    <elf-props-table role="slots" :title=${t("slots")} :rows=${slotRows()}></elf-props-table>
+  </elf-api-builder>
   </elf-container>
 `);
 

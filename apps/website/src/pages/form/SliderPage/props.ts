@@ -225,11 +225,12 @@ const slotsRows = [
 ];
 
 const PageSliderProps = defineHtml(`
-  <h2>${t("api")}</h2>
-  <elf-props-table :title=${t("props")} :rows.prop=${propsRows}></elf-props-table>
-  <elf-props-table :title=${t("events")} :rows.prop=${eventsRows}></elf-props-table>
-  <elf-props-table :title=${t("slots")} :rows.prop=${slotsRows}></elf-props-table>
-  <elf-props-table :title=${t("expose")} :rows.prop=${methodsRows}></elf-props-table>
+  <elf-api-builder component="elf-slider" title="API">
+  <elf-props-table role="props" :title=${t("props")} :rows.prop=${propsRows}></elf-props-table>
+  <elf-props-table role="events" :title=${t("events")} :rows.prop=${eventsRows}></elf-props-table>
+  <elf-props-table role="slots" :title=${t("slots")} :rows.prop=${slotsRows}></elf-props-table>
+  <elf-props-table role="methods" :title=${t("expose")} :rows.prop=${methodsRows}></elf-props-table>
+  </elf-api-builder>
 `);
 
 export { PageSliderProps };
