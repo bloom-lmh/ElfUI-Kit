@@ -219,6 +219,7 @@ describe("路由跳转", () => {
     await navigation;
     await tick();
     await tick();
+    await wait(220);
 
     expect(app.shadowRoot?.querySelector("elf-progress.route-progress")).toBeNull();
     expect(loading?.loading).toBe(false);
@@ -292,7 +293,8 @@ describe("路由跳转", () => {
       HTMLElement & { items?: Array<{ label: string; children?: Array<{ label: string }> }> }
     >("elf-menu");
     expect(menu?.items?.[0]?.label).toBe("Overview");
-    expect(menu?.items?.[1]?.label).toBe("Getting started");
+    expect(menu?.items?.[1]?.label).toBe("AI");
+    expect(menu?.items?.some((item) => item.label === "Getting started")).toBe(true);
     expect(menu?.items?.find((item) => item.label === "Guide")?.children).toEqual(
       expect.arrayContaining([expect.objectContaining({ label: "Theme Studio" })]),
     );

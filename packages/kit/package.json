@@ -26,7 +26,18 @@
   "sideEffects": [
     "./lib-dist/elfui-kit.js",
     "./lib-dist/labs.js",
-    "./lib-dist/utilities.css"
+    "./lib-dist/utilities.css",
+    "./src/library.ts",
+    "./src/components/index.ts",
+    "./src/components/Basic/index.ts",
+    "./src/components/Data/index.ts",
+    "./src/components/Feedback/index.ts",
+    "./src/components/Form/register.ts",
+    "./src/components/Layout/index.ts",
+    "./src/components/Navigation/index.ts",
+    "./src/components/Picker/index.ts",
+    "./src/components/Providers/index.ts",
+    "./src/styles/utilities.scss"
   ],
   "scripts": {
     "build": "pnpm typecheck && vite build && tsc -p tsconfig.lib.json && node ../../scripts/prepare-package.mjs packages/kit",

@@ -1,5 +1,6 @@
-import { defineHtml, defineStyle } from "@elfui/core";
+import { defineHtml, defineStyle, useComponents } from "@elfui/core";
 
+import { Link } from "@elfui/kit-src/components/Basic/Link";
 import { useLocaleProvider } from "@elfui/kit-src/components/Providers/context";
 import { createDocsPicker, createDocsTranslator } from "../docsLocale";
 import styles from "./style.scss?inline";
@@ -44,6 +45,7 @@ const t = (key: keyof typeof HOME_MESSAGES): string => {
 };
 const pick = createDocsPicker();
 
+useComponents({ "elf-link": Link });
 defineStyle(styles);
 
 const PageHome = defineHtml(`

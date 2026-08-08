@@ -11,13 +11,26 @@ import {
   onMounted,
   onUnmounted,
   useComputed,
+  useComponents,
   useEffect,
   useRef,
   useTemplateRef,
 } from "@elfui/core";
 
+import { Progress } from "@elfui/kit-src/components/Data/Progress";
+import { Loading } from "@elfui/kit-src/components/Feedback/Loading";
+import { Aside } from "@elfui/kit-src/components/Layout/Aside";
+import { Footer } from "@elfui/kit-src/components/Layout/Footer";
+import { Header } from "@elfui/kit-src/components/Layout/Header";
+import { Layout } from "@elfui/kit-src/components/Layout/Layout";
+import { Main } from "@elfui/kit-src/components/Layout/Main";
+import { Dropdown } from "@elfui/kit-src/components/Navigation/Dropdown";
+import { Menu } from "@elfui/kit-src/components/Navigation/Menu";
+import { ConfigProvider } from "@elfui/kit-src/components/Providers/ConfigProvider";
+import { LocaleProvider } from "@elfui/kit-src/components/Providers/LocaleProvider";
 import type { LocaleMessages } from "@elfui/kit-src/components/Providers/context";
 import type { ElfUIConfig } from "@elfui/kit-src/components/Providers/config";
+import { DocsToc } from "../../components/DocsToc";
 import { navItems } from "../../routes";
 import { resolveAppMenuIcon, resolveAppMenuIconColor } from "../menu-icons";
 import { APP_SKINS, type AppSkin } from "../skins";
@@ -34,6 +47,24 @@ interface AppMenuItem {
   iconColor: string;
   children?: AppMenuItem[];
 }
+
+// Button intentionally comes from the application-level @elfui/kit registration.
+// Importing it in this macro module makes the compiler resolve native <button> tags
+// to the component's unprefixed short name.
+useComponents({
+  "elf-config-provider": ConfigProvider,
+  "elf-locale-provider": LocaleProvider,
+  "elf-progress": Progress,
+  "elf-layout": Layout,
+  "elf-loading": Loading,
+  "elf-header": Header,
+  "elf-dropdown": Dropdown,
+  "elf-aside": Aside,
+  "elf-menu": Menu,
+  "elf-main": Main,
+  "elf-docs-toc": DocsToc,
+  "elf-footer": Footer,
+});
 
 const APP_MESSAGES: Record<string, LocaleMessages> = {
   "zh-CN": {

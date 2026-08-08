@@ -1,5 +1,3 @@
-import "@elfui/kit";
-
 import { createMemoryHistory, createRouter, setActiveRouter } from "@elfui/router";
 import { registerComponents } from "@elfui/core";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
