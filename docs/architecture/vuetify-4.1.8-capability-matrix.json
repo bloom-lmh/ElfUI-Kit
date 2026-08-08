@@ -1,0 +1,357 @@
+{
+  "schemaVersion": 1,
+  "kind": "capability",
+  "upstream": {
+    "name": "Vuetify",
+    "package": "vuetify",
+    "version": "4.1.8",
+    "documentation": ["https://vuetifyjs.com/en/"],
+    "source": ["https://github.com/vuetifyjs/vuetify/tree/v4.1.8/packages/vuetify/src"]
+  },
+  "elfui": {
+    "package": "@elfui/kit",
+    "version": "0.0.2-beta.2"
+  },
+  "scope": "Cross-component ownership and alignment per NEXT_GENERATION_PLAN.md Batch 5 (NG-500–NG-510) and Batch 3 (NG-305, NG-307). Components must consume the listed owner instead of creating a local copy of the capability.",
+  "entries": [
+    {
+      "id": "vuetify.defaults",
+      "name": "Defaults",
+      "upstream": {
+        "documentation": ["https://vuetifyjs.com/en/api/vuetify/#defaults"],
+        "source": [
+          "https://github.com/vuetifyjs/vuetify/blob/v4.1.8/packages/vuetify/src/framework.ts"
+        ]
+      },
+      "elfuiOwner": {
+        "current": [
+          "packages/kit/src/components/Providers/DefaultsProvider/index.ts",
+          "packages/kit/src/components/Providers/defaults.ts",
+          "packages/kit/src/components/Providers/config.ts"
+        ],
+        "plannedTask": "NG-503"
+      },
+      "status": "equivalent",
+      "difference": "Kit exposes blueprint → config → explicit props priority chain. Opted-in components, ConfigProvider, and service option readers consume the shared owner.",
+      "tests": ["packages/kit/src/components/Providers/DefaultsProvider/DefaultsProvider.test.ts"],
+      "docs": ["apps/website/src/pages/providers/DefaultsProviderPage/index.ts"]
+    },
+    {
+      "id": "vuetify.theme",
+      "name": "Theme",
+      "upstream": {
+        "documentation": ["https://vuetifyjs.com/en/features/theme/"],
+        "source": [
+          "https://github.com/vuetifyjs/vuetify/blob/v4.1.8/packages/vuetify/src/composables/theme.ts"
+        ]
+      },
+      "elfuiOwner": {
+        "current": [
+          "packages/kit/src/components/Providers/ThemeProvider/index.ts",
+          "packages/kit/src/components/Providers/context.ts",
+          "packages/kit/src/styles/_tokens.scss"
+        ],
+        "plannedTask": "NG-504"
+      },
+      "status": "equivalent",
+      "difference": "Kit creates CSS variables, theme classes, and system-theme updates. Token schema and preset closure remain open per NG-504.",
+      "tests": [
+        "packages/kit/src/components/Providers/ThemeProvider/ThemeProvider.test.ts",
+        "packages/kit/src/components/Providers/ThemeProvider/material-colors.test.ts"
+      ],
+      "docs": ["apps/website/src/pages/providers/ThemeProviderPage/index.ts"]
+    },
+    {
+      "id": "vuetify.locale",
+      "name": "Locale",
+      "upstream": {
+        "documentation": ["https://vuetifyjs.com/en/features/internationalization/"],
+        "source": [
+          "https://github.com/vuetifyjs/vuetify/blob/v4.1.8/packages/vuetify/src/composables/locale.ts"
+        ]
+      },
+      "elfuiOwner": {
+        "current": [
+          "packages/kit/src/components/Providers/LocaleProvider/index.ts",
+          "packages/kit/src/components/Providers/locale-context.ts",
+          "packages/kit/src/components/Providers/context.ts"
+        ],
+        "plannedTask": "NG-507"
+      },
+      "status": "equivalent",
+      "difference": "Kit creates locale and RTL instances via LocaleProvider. Component API alignment remains in per-component NG-* tasks.",
+      "tests": ["packages/kit/src/components/Providers/LocaleProvider/LocaleProvider.test.ts"],
+      "docs": ["apps/website/src/pages/providers/LocaleProviderPage/index.ts"]
+    },
+    {
+      "id": "vuetify.icons",
+      "name": "Icons",
+      "upstream": {
+        "documentation": ["https://vuetifyjs.com/en/features/icon-fonts/"],
+        "source": [
+          "https://github.com/vuetifyjs/vuetify/blob/v4.1.8/packages/vuetify/src/composables/icons.tsx"
+        ]
+      },
+      "elfuiOwner": {
+        "current": [
+          "packages/kit/src/components/Providers/IconProvider/index.ts",
+          "packages/kit/src/components/Basic/Icon/registry.ts"
+        ],
+        "plannedTask": "NG-508"
+      },
+      "status": "equivalent",
+      "difference": "Kit defines IconSet with alias support via IconProvider and resolveIcon registry. Components consume icons through the shared IconProvider. Component-specific icon aliases remain per NG-506.",
+      "tests": ["packages/kit/src/components/Providers/IconProvider/IconProvider.test.ts"],
+      "docs": ["apps/website/src/pages/basic/IconPage/index.ts"]
+    },
+    {
+      "id": "vuetify.display",
+      "name": "Display",
+      "upstream": {
+        "documentation": ["https://vuetifyjs.com/en/features/display-and-platform/"],
+        "source": [
+          "https://github.com/vuetifyjs/vuetify/blob/v4.1.8/packages/vuetify/src/composables/display.ts"
+        ]
+      },
+      "elfuiOwner": {
+        "current": [
+          "packages/kit/src/components/Providers/ConfigProvider/index.ts",
+          "packages/kit/src/components/Providers/config.ts"
+        ],
+        "plannedTask": "NG-501"
+      },
+      "status": "equivalent",
+      "difference": "ConfigProvider owns width, height, breakpoint, mobile, and reduced-motion state. Platform ownership and hydration-safe initialization remain planned per NG-501 and NG-502.",
+      "tests": ["packages/kit/src/components/Providers/ConfigProvider/ConfigProvider.test.ts"],
+      "docs": ["apps/website/src/pages/providers/ConfigProviderPage/index.ts"]
+    },
+    {
+      "id": "vuetify.layout",
+      "name": "Layout",
+      "upstream": {
+        "documentation": ["https://vuetifyjs.com/en/features/application-layout/"],
+        "source": [
+          "https://github.com/vuetifyjs/vuetify/blob/v4.1.8/packages/vuetify/src/composables/layout.ts"
+        ]
+      },
+      "elfuiOwner": {
+        "current": [],
+        "plannedTask": "NG-500"
+      },
+      "status": "implement",
+      "difference": "No shared Kit owner; AppBar, BottomNavigation, Footer, Aside, and Main currently own local structure. Vuetify layout registers/unregisters layout items and calculates position, priority, size, active state, z-index, and content insets.",
+      "tests": [
+        "packages/kit/src/components/Layout/Layout/Layout.test.ts",
+        "packages/kit/src/components/Navigation/AppBar/AppBar.test.ts",
+        "packages/kit/src/components/Navigation/BottomNavigation/BottomNavigation.test.ts"
+      ],
+      "docs": [
+        "apps/website/src/pages/navigation/AppBarPage/index.ts",
+        "apps/website/src/pages/navigation/BottomNavigationPage/index.ts",
+        "apps/website/src/pages/navigation/FooterPage/index.ts"
+      ]
+    },
+    {
+      "id": "vuetify.platform",
+      "name": "Platform",
+      "upstream": {
+        "documentation": ["https://vuetifyjs.com/en/features/display-and-platform/"],
+        "source": [
+          "https://github.com/vuetifyjs/vuetify/blob/v4.1.8/packages/vuetify/src/composables/display.ts"
+        ]
+      },
+      "elfuiOwner": {
+        "current": [],
+        "plannedTask": "NG-502"
+      },
+      "status": "implement",
+      "difference": "ConfigProvider exposes display dimensions only; there is no complete platform owner. Vuetify exposes DisplayPlatform and safe SSR/user-agent detection.",
+      "tests": ["packages/kit/src/components/Providers/ConfigProvider/ConfigProvider.test.ts"],
+      "docs": ["apps/website/src/pages/providers/ConfigProviderPage/index.ts"]
+    },
+    {
+      "id": "vuetify.date",
+      "name": "Date",
+      "upstream": {
+        "documentation": ["https://vuetifyjs.com/en/features/dates/"],
+        "source": [
+          "https://github.com/vuetifyjs/vuetify/blob/v4.1.8/packages/vuetify/src/composables/date/date.ts"
+        ]
+      },
+      "elfuiOwner": {
+        "current": ["packages/kit/src/adapters/date.ts", "packages/kit/src/composables/date.ts"],
+        "plannedTask": "NG-508"
+      },
+      "status": "equivalent",
+      "difference": "Kit owns adapter options, locale coupling, and useDateAdapter() through ConfigProvider. Picker contracts are owned by NG-440.",
+      "tests": ["packages/kit/src/adapters/date.test.ts"],
+      "docs": ["apps/website/src/pages/picker/DatePickerPage/index.ts"]
+    },
+    {
+      "id": "vuetify.goto",
+      "name": "GoTo",
+      "upstream": {
+        "documentation": ["https://vuetifyjs.com/en/features/scrolling/"],
+        "source": [
+          "https://github.com/vuetifyjs/vuetify/blob/v4.1.8/packages/vuetify/src/composables/goto.ts"
+        ]
+      },
+      "elfuiOwner": {
+        "current": [
+          "packages/kit/src/composables/goTo.ts",
+          "packages/kit/src/composables/useGoTo.ts"
+        ],
+        "plannedTask": "NG-508"
+      },
+      "status": "equivalent",
+      "difference": "Kit owns container discovery, easing, cancellation, and goTo function. useGoTo() composable wires ConfigProvider defaults. The Scroll directive consumes the same scroll utilities.",
+      "tests": ["packages/kit/src/composables/goTo.test.ts"],
+      "docs": ["apps/website/src/pages/providers/ConfigProviderPage/index.ts"]
+    },
+    {
+      "id": "vuetify.overlay",
+      "name": "Overlay",
+      "upstream": {
+        "documentation": ["https://vuetifyjs.com/en/components/overlays/"],
+        "source": [
+          "https://github.com/vuetifyjs/vuetify/blob/v4.1.8/packages/vuetify/src/composables/stack.ts"
+        ]
+      },
+      "elfuiOwner": {
+        "current": [
+          "packages/kit/src/components/Common/overlay/overlay-protocol.ts",
+          "packages/kit/src/components/Common/overlay/overlay-stack.ts",
+          "packages/kit/src/components/Common/overlay/overlay-interaction-controller.ts",
+          "packages/kit/src/components/Common/overlay/anchored-overlay.ts"
+        ],
+        "plannedTask": "NG-509"
+      },
+      "status": "equivalent",
+      "difference": "Kit owns stack registration, z-index, focus scope, and overlay interaction controller. Container, z-index, scaled-coordinate, and Visual Viewport closure remain planned per NG-509.",
+      "tests": [
+        "packages/kit/src/components/Common/overlay/overlay-protocol.test.ts",
+        "packages/kit/src/components/Common/overlay/anchored-overlay.test.ts",
+        "packages/kit/src/components/Common/overlay/modal-overlay-controller.test.ts",
+        "packages/kit/src/components/Common/overlay/positioning-context.test.ts"
+      ],
+      "docs": ["docs/architecture/2026-07-31-vuetify-capability-matrix.md"]
+    },
+    {
+      "id": "vuetify.services",
+      "name": "Services",
+      "upstream": {
+        "documentation": ["https://vuetifyjs.com/en/components/application/"],
+        "source": [
+          "https://github.com/vuetifyjs/vuetify/blob/v4.1.8/packages/vuetify/src/framework.ts"
+        ]
+      },
+      "elfuiOwner": {
+        "current": ["packages/kit/src/components/Providers/service-defaults.ts"],
+        "plannedTask": "NG-307"
+      },
+      "status": "non-goal",
+      "difference": "Vuetify does not provide a cross-component service registry. Kit implements its own service facade with service-defaults controller for Message, Notification, MessageBox, and Loading. This is a Web Components-native imperative service layer, not a Vuetify parity target. Detached overlay lifecycle closure tracked by NG-307.",
+      "tests": ["packages/kit/src/components/Providers/service-defaults.test.ts"],
+      "docs": ["apps/website/src/pages/providers/ConfigProviderPage/index.ts"]
+    },
+    {
+      "id": "vuetify.directives",
+      "name": "Directives",
+      "upstream": {
+        "documentation": ["https://vuetifyjs.com/en/directives/"],
+        "source": [
+          "https://github.com/vuetifyjs/vuetify/blob/v4.1.8/packages/vuetify/src/directives/index.ts"
+        ]
+      },
+      "elfuiOwner": {
+        "current": [
+          "packages/kit/src/directives/index.ts",
+          "packages/kit/src/directives/click-outside.ts",
+          "packages/kit/src/directives/observers.ts",
+          "packages/kit/src/directives/interactions.ts",
+          "packages/kit/src/directives/draggable.ts"
+        ],
+        "plannedTask": "NG-305"
+      },
+      "status": "equivalent",
+      "difference": "Kit exports Click Outside, Intersect, Mutate, Resize, Ripple, Scroll, Touch, Tooltip, plus Kit-owned Draggable, Loading, and Infinite Scroll. The extra capabilities are Kit-owned and are not a parity defect.",
+      "tests": [
+        "packages/kit/src/directives/click-outside.test.ts",
+        "packages/kit/src/directives/draggable.test.ts",
+        "packages/kit/src/directives/interactions.test.ts",
+        "packages/kit/src/directives/observers.test.ts"
+      ],
+      "docs": [
+        "apps/website/src/pages/directives/ClickOutsidePage/index.ts",
+        "apps/website/src/pages/directives/IntersectPage/index.ts",
+        "apps/website/src/pages/directives/MutatePage/index.ts",
+        "apps/website/src/pages/directives/ResizePage/index.ts",
+        "apps/website/src/pages/directives/RipplePage/index.ts",
+        "apps/website/src/pages/directives/ScrollPage/index.ts",
+        "apps/website/src/pages/directives/TooltipPage/index.ts"
+      ]
+    },
+    {
+      "id": "vuetify.aliases",
+      "name": "Aliases",
+      "upstream": {
+        "documentation": ["https://vuetifyjs.com/en/features/aliasing/"],
+        "source": [
+          "https://github.com/vuetifyjs/vuetify/blob/v4.1.8/packages/vuetify/src/framework.ts"
+        ]
+      },
+      "elfuiOwner": {
+        "current": [],
+        "plannedTask": "NG-506"
+      },
+      "status": "implement",
+      "difference": "No shared alias resolver or registration contract in the current Kit. resolveComponentTag() is a Core tag resolver, not a Kit alias registry. Vuetify registers aliases as components, preserves aliasName, and merges aliases with blueprint options. Do not replace Custom Element registration with string substitution.",
+      "tests": ["scripts/vuetify-capability-matrix.test.ts"],
+      "docs": ["docs/architecture/2026-07-31-vuetify-capability-matrix.md"]
+    },
+    {
+      "id": "vuetify.tokens",
+      "name": "Tokens",
+      "upstream": {
+        "documentation": ["https://vuetifyjs.com/en/features/theme/"],
+        "source": [
+          "https://github.com/vuetifyjs/vuetify/blob/v4.1.8/packages/vuetify/src/composables/theme.ts"
+        ]
+      },
+      "elfuiOwner": {
+        "current": [
+          "packages/kit/src/styles/_tokens.scss",
+          "packages/kit/src/components/Providers/context.ts",
+          "packages/kit/src/components/Providers/ThemeProvider/index.ts"
+        ],
+        "plannedTask": "NG-504"
+      },
+      "status": "equivalent",
+      "difference": "Vuetify generates on-colors, variations, and scoped utility classes from theme tokens. Kit generates theme variables and semantic tokens via ThemeProvider and _tokens.scss. Component-level CSS custom properties and Style API closure remain planned per NG-504 and NG-600.",
+      "tests": [
+        "packages/kit/src/components/Providers/ThemeProvider/ThemeProvider.test.ts",
+        "packages/kit/src/components/Providers/ThemeProvider/material-colors.test.ts"
+      ],
+      "docs": ["apps/website/src/pages/providers/ThemeProviderPage/index.ts"]
+    },
+    {
+      "id": "vuetify.ssr",
+      "name": "SSR / Hydration",
+      "upstream": {
+        "documentation": ["https://vuetifyjs.com/en/features/theme/"],
+        "source": [
+          "https://github.com/vuetifyjs/vuetify/blob/v4.1.8/packages/vuetify/src/composables/ssrBoot.ts",
+          "https://github.com/vuetifyjs/vuetify/blob/v4.1.8/packages/vuetify/src/composables/hydration.ts"
+        ]
+      },
+      "elfuiOwner": {
+        "current": [],
+        "plannedTask": "NG-502"
+      },
+      "status": "implement",
+      "difference": "ConfigProvider has display.ssr dimensions and Core provides lifecycle/SSR primitives; Kit has no single platform/hydration owner. Vuetify coordinates initial display state, boot classes, and hydration checks.",
+      "tests": ["packages/kit/src/components/Providers/ConfigProvider/ConfigProvider.test.ts"],
+      "docs": ["docs/architecture/2026-07-31-vuetify-capability-matrix.md"]
+    }
+  ]
+}

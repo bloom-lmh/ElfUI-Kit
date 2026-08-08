@@ -1,0 +1,267 @@
+{
+  "schemaVersion": 1,
+  "kind": "contract",
+  "upstream": {
+    "name": "Element Plus",
+    "package": "element-plus",
+    "version": "2.14.4",
+    "documentation": ["https://element-plus.org/en-US/component/overview.html"],
+    "source": ["https://unpkg.com/element-plus@2.14.4/"]
+  },
+  "elfui": {
+    "package": "@elfui/kit",
+    "version": "0.0.2-beta.2"
+  },
+  "scope": "High-risk component families with shared Form boundary. This matrix records contract status per NEXT_GENERATION_PLAN.md Batch 4 (NG-400–NG-443). Components must consume the listed owner instead of duplicating capability locally.",
+  "entries": [
+    {
+      "id": "element-plus.form",
+      "name": "Form",
+      "upstream": {
+        "documentation": ["https://element-plus.org/en-US/component/form.html"],
+        "source": ["https://unpkg.com/element-plus@2.14.4/es/components/form/src/form.mjs"]
+      },
+      "elfuiOwner": {
+        "current": [
+          "packages/kit/src/components/Form/Form/types.ts",
+          "packages/kit/src/components/Form/Form/index.ts",
+          "packages/kit/src/composables/form.ts"
+        ],
+        "plannedTask": "NG-100"
+      },
+      "status": "equivalent",
+      "difference": "Explicit field props override inherited Form/FormItem state. Kit additionally exposes a native submit event boundary. Native form association gap tracked by NG-101; must not replace Form validation.",
+      "tests": ["packages/kit/src/components/Form/__tests__/Form.test.ts"],
+      "docs": ["apps/website/src/pages/form/FormPage/index.ts"]
+    },
+    {
+      "id": "element-plus.date-picker",
+      "name": "DatePicker",
+      "upstream": {
+        "documentation": ["https://element-plus.org/en-US/component/date-picker.html"],
+        "source": ["https://unpkg.com/element-plus@2.14.4/es/components/date-picker/src/props.mjs"]
+      },
+      "elfuiOwner": {
+        "current": [
+          "packages/kit/src/components/Picker/DatePicker/types.ts",
+          "packages/kit/src/components/Picker/DatePicker/index.ts"
+        ],
+        "plannedTask": "NG-440"
+      },
+      "status": "equivalent",
+      "difference": "Kit defaults to type='date', modelValue='', singlePanel=true, clearable=false, editable=true, teleported=true. Explicit modelValue is the controlled source. Value and default differences verified.",
+      "tests": ["packages/kit/src/components/Picker/DatePicker/DatePicker.test.ts"],
+      "docs": ["apps/website/src/pages/picker/DatePickerPage/index.ts"]
+    },
+    {
+      "id": "element-plus.time-picker",
+      "name": "TimePicker",
+      "upstream": {
+        "documentation": ["https://element-plus.org/en-US/component/time-picker.html"],
+        "source": [
+          "https://unpkg.com/element-plus@2.14.4/es/components/time-picker/src/common/props.mjs"
+        ]
+      },
+      "elfuiOwner": {
+        "current": [
+          "packages/kit/src/components/Picker/TimePicker/types.ts",
+          "packages/kit/src/components/Picker/TimePicker/index.ts"
+        ],
+        "plannedTask": "NG-440"
+      },
+      "status": "equivalent",
+      "difference": "Kit defaults to modelValue='', range=false, step=60, format=valueFormat='HH:mm', clearable=true, saveOnBlur=true, teleported=true. Explicit model wins.",
+      "tests": ["packages/kit/src/components/Picker/TimePicker/TimePicker.test.ts"],
+      "docs": ["apps/website/src/pages/picker/TimePickerPage/index.ts"]
+    },
+    {
+      "id": "element-plus.tabs",
+      "name": "Tabs",
+      "upstream": {
+        "documentation": ["https://element-plus.org/en-US/component/tabs.html"],
+        "source": ["https://unpkg.com/element-plus@2.14.4/es/components/tabs/src/tabs.mjs"]
+      },
+      "elfuiOwner": {
+        "current": [
+          "packages/kit/src/components/Navigation/Tabs/types.ts",
+          "packages/kit/src/components/Navigation/Tabs/index.ts"
+        ],
+        "plannedTask": "NG-442"
+      },
+      "status": "equivalent",
+      "difference": "Explicit modelValue wins; otherwise defaultValue, then first enabled pane. Kit defaults to line, horizontal, start alignment, transition='fade'. Tabs owns roving focus, orientation keys, disabled panes, focus IDs, and ARIA tab and panel relationships.",
+      "tests": ["packages/kit/src/components/Navigation/Tabs/Tabs.test.ts"],
+      "docs": ["apps/website/src/pages/navigation/TabsPage/index.ts"]
+    },
+    {
+      "id": "element-plus.upload",
+      "name": "Upload",
+      "upstream": {
+        "documentation": ["https://element-plus.org/en-US/component/upload.html"],
+        "source": ["https://unpkg.com/element-plus@2.14.4/es/components/upload/src/upload.mjs"]
+      },
+      "elfuiOwner": {
+        "current": [
+          "packages/kit/src/components/Form/Upload/types.ts",
+          "packages/kit/src/components/Form/Upload/index.ts"
+        ],
+        "plannedTask": "NG-410"
+      },
+      "status": "equivalent",
+      "difference": "modelValue is primary; fileList is the compatibility input. Kit defaults to autoUpload=true, method='post', name='file', empty list. Public boundary equivalent but internal convergence (state machine, request adapter, resource cleanup) tracked by NG-410 through NG-412.",
+      "tests": ["packages/kit/src/components/Form/Upload/Upload.test.ts"],
+      "docs": ["apps/website/src/pages/form/UploadPage/index.ts"]
+    },
+    {
+      "id": "element-plus.table",
+      "name": "Table",
+      "upstream": {
+        "documentation": ["https://element-plus.org/en-US/component/table.html"],
+        "source": [
+          "https://unpkg.com/element-plus@2.14.4/es/components/table/src/table/defaults.mjs"
+        ]
+      },
+      "elfuiOwner": {
+        "current": [
+          "packages/kit/src/components/Data/Table/types.ts",
+          "packages/kit/src/components/Data/Table/index.ts",
+          "packages/kit/src/components/Data/Table/column-model.ts",
+          "packages/kit/src/components/Data/Table/row-model.ts",
+          "packages/kit/src/components/Data/Table/selection-model.ts",
+          "packages/kit/src/components/Data/Table/sort-filter.ts"
+        ],
+        "plannedTask": "NG-430"
+      },
+      "status": "equivalent",
+      "difference": "Controlled selectedKeys/expandedRowKeys override default key arrays; explicit sort props override defaultSort. Kit defaults to fixed layout and non-virtual rendering. Public boundary equivalent but internal convergence (single selection state, model split, hot path) tracked by NG-430 through NG-434.",
+      "tests": [
+        "packages/kit/src/components/Data/Table/Table.test.ts",
+        "packages/kit/src/components/Data/Table/column-model.test.ts",
+        "packages/kit/src/components/Data/Table/row-model.test.ts",
+        "packages/kit/src/components/Data/Table/selection-model.test.ts",
+        "packages/kit/src/components/Data/Table/sort-filter.test.ts"
+      ],
+      "docs": ["apps/website/src/pages/data/TablePage/index.ts"]
+    },
+    {
+      "id": "element-plus.cascader",
+      "name": "Cascader",
+      "upstream": {
+        "documentation": ["https://element-plus.org/en-US/component/cascader.html"],
+        "source": [
+          "https://unpkg.com/element-plus@2.14.4/es/components/cascader-panel/src/config.mjs"
+        ]
+      },
+      "elfuiOwner": {
+        "current": [],
+        "plannedTask": "NG-421"
+      },
+      "status": "implement",
+      "difference": "Kit currently emits change(CascaderChangeDetail) instead of Element Plus change(value). Update, expand, clear, remove-tag, focus/blur, and visible payloads are typed. Form/field, shared overlay, virtual window, tree mode, keyboard path, and ARIA ownership are present but still mixed in the component/panel layer.",
+      "tests": ["packages/kit/src/components/Form/Cascader/Cascader.test.ts"],
+      "docs": ["apps/website/src/pages/form/CascaderPage/index.ts"]
+    },
+    {
+      "id": "element-plus.tree",
+      "name": "Tree",
+      "upstream": {
+        "documentation": ["https://element-plus.org/en-US/component/tree.html"],
+        "source": ["https://unpkg.com/element-plus@2.14.4/es/components/tree/src/tree.mjs"]
+      },
+      "elfuiOwner": {
+        "current": [
+          "packages/kit/src/components/Data/Tree/types.ts",
+          "packages/kit/src/components/Data/Tree/index.ts",
+          "packages/kit/src/components/Data/Tree/tree-collection.ts"
+        ],
+        "plannedTask": "NG-420"
+      },
+      "status": "equivalent",
+      "difference": "Controlled expandedKeys/checkedKeys override defaults; current selection is component-owned unless public model supplied. Node click/expand/collapse/check/current/context menu/load and drag transaction events are public. Payload audit remains open.",
+      "tests": [
+        "packages/kit/src/components/Data/Tree/Tree.test.ts",
+        "packages/kit/src/components/Data/Tree/tree-collection.test.ts"
+      ],
+      "docs": ["apps/website/src/pages/data/TreePage/index.ts"]
+    },
+    {
+      "id": "element-plus.menu",
+      "name": "Menu",
+      "upstream": {
+        "documentation": ["https://element-plus.org/en-US/component/menu.html"],
+        "source": ["https://unpkg.com/element-plus@2.14.4/es/components/menu/src/menu.mjs"]
+      },
+      "elfuiOwner": {
+        "current": [
+          "packages/kit/src/components/Navigation/Menu/types.ts",
+          "packages/kit/src/components/Navigation/Menu/index.ts",
+          "packages/kit/src/components/Navigation/Menu/model.ts",
+          "packages/kit/src/components/Navigation/Menu/composition-adapter.ts"
+        ],
+        "plannedTask": "NG-443"
+      },
+      "status": "equivalent",
+      "difference": "Explicit modelValue wins over defaultActive; defaultOpeneds initializes open paths. Kit defaults to vertical, light, non-collapsed, click trigger. Element Plus routerResult is Vue Router-specific and not copied.",
+      "tests": [
+        "packages/kit/src/components/Navigation/Menu/Menu.test.ts",
+        "packages/kit/src/components/Navigation/Menu/composition-adapter.test.ts",
+        "packages/kit/src/components/Navigation/Menu/model.test.ts"
+      ],
+      "docs": ["apps/website/src/pages/navigation/MenuPage/index.ts"]
+    },
+    {
+      "id": "element-plus.select",
+      "name": "Select",
+      "upstream": {
+        "documentation": ["https://element-plus.org/en-US/component/select.html"],
+        "source": ["https://unpkg.com/element-plus@2.14.4/es/components/select/src/select.mjs"]
+      },
+      "elfuiOwner": {
+        "current": [
+          "packages/kit/src/components/Form/Select/types.ts",
+          "packages/kit/src/components/Form/Select/index.ts"
+        ],
+        "plannedTask": "NG-422"
+      },
+      "status": "equivalent",
+      "difference": "Explicit modelValue is controlled; defaults include clearable=false, multiple=false, reserveKeyword=true, and no virtual window until requested or option count crosses threshold. Field/Form state uses shared composables; Select owns active option and listbox keyboard/ARIA.",
+      "tests": ["packages/kit/src/components/Form/Select/Select.test.ts"],
+      "docs": ["apps/website/src/pages/form/SelectPage/index.ts"]
+    },
+    {
+      "id": "element-plus.scoped-slots",
+      "name": "Scoped Slots",
+      "upstream": {
+        "documentation": [
+          "https://element-plus.org/en-US/component/transfer.html",
+          "https://element-plus.org/en-US/component/tree.html",
+          "https://element-plus.org/en-US/component/segmented.html",
+          "https://element-plus.org/en-US/component/calendar.html"
+        ],
+        "source": [
+          "https://unpkg.com/element-plus@2.14.4/es/components/transfer/src/transfer.mjs",
+          "https://unpkg.com/element-plus@2.14.4/es/components/tree/src/tree.mjs",
+          "https://unpkg.com/element-plus@2.14.4/es/components/segmented/src/segmented.mjs",
+          "https://unpkg.com/element-plus@2.14.4/es/components/calendar/src/calendar.mjs"
+        ]
+      },
+      "elfuiOwner": {
+        "current": [],
+        "plannedTask": "NG-403"
+      },
+      "status": "implement",
+      "difference": "Typed renderer callbacks already cover Transfer and Tree. Segmented and Calendar local slot bindings must not be invented before the compiler contract is proven. useScopedSlot and template-local variable behavior require minimal reproductions for all four consumers. No fake slot event or empty expose method is accepted.",
+      "tests": [
+        "packages/kit/src/components/Data/Transfer/Transfer.test.ts",
+        "packages/kit/src/components/Form/Segmented/Segmented.test.ts",
+        "packages/kit/src/components/Picker/Calendar/Calendar.test.ts"
+      ],
+      "docs": [
+        "apps/website/src/pages/data/TransferPage/index.ts",
+        "apps/website/src/pages/data/TreePage/index.ts",
+        "apps/website/src/pages/form/SegmentedPage/index.ts",
+        "apps/website/src/pages/picker/CalendarPage/index.ts"
+      ]
+    }
+  ]
+}
