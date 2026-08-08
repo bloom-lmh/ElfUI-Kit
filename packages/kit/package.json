@@ -35,7 +35,7 @@
   },
   "dependencies": {
     "@elfui/core": "0.1.0-beta.21",
-    "@elfui/router": "0.1.0-beta.10",
+    "@elfui/router": "0.1.0-beta.11",
     "@mdi/js": "^7.4.47",
     "dompurify": "^3.2.4",
     "markdown-it": "^14.1.0",

@@ -21,8 +21,8 @@ importers:
         specifier: 0.1.0-beta.21
         version: 0.1.0-beta.21
       '@elfui/router':
-        specifier: 0.1.0-beta.10
-        version: 0.1.0-beta.10(@elfui/core@0.1.0-beta.21)
+        specifier: 0.1.0-beta.11
+        version: 0.1.0-beta.11(@elfui/core@0.1.0-beta.21)
       '@elfui/vite-plugin':
         specifier: 0.1.0-beta.21
         version: 0.1.0-beta.21
@@ -84,8 +84,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/kit
       '@elfui/router':
-        specifier: 0.1.0-beta.10
-        version: 0.1.0-beta.10(@elfui/core@0.1.0-beta.21)
+        specifier: 0.1.0-beta.11
+        version: 0.1.0-beta.11(@elfui/core@0.1.0-beta.21)
       '@mdi/js':
         specifier: ^7.4.47
         version: 7.4.47
@@ -109,8 +109,8 @@ importers:
         specifier: 0.1.0-beta.21
         version: 0.1.0-beta.21
       '@elfui/router':
-        specifier: 0.1.0-beta.10
-        version: 0.1.0-beta.10(@elfui/core@0.1.0-beta.21)
+        specifier: 0.1.0-beta.11
+        version: 0.1.0-beta.11(@elfui/core@0.1.0-beta.21)
       '@mdi/js':
         specifier: ^7.4.47
         version: 7.4.47
@@ -499,10 +499,10 @@ packages:
   '@elfui/reactivity@0.1.0-beta.21':
     resolution: {integrity: sha512-guNDH/eSfPt1ockfp13Tvl+4hb1TbRsdiIO1ErlzP/3/xnD6HApgcfXlF1NvLlKjtHdQHlMdzVDZc6Ftw6mGNQ==}
 
-  '@elfui/router@0.1.0-beta.10':
-    resolution: {integrity: sha512-SlLcTqb2tYBw94TNHp0r4iFzfMB3EJhBVZuV7RxnaWKfKzYwpGrYRK04xELRuWxoSBkkeUzfQhTHeVcp+oJGzw==}
+  '@elfui/router@0.1.0-beta.11':
+    resolution: {integrity: sha512-AriQTUXXOMG4tGmApuyx/eTvFR/hBqTd+pCdXMUS2UYvd36ZsWzET+QSnIW8FCVTIE+3z0mBT1BLtsFh69hgnA==}
     peerDependencies:
-      '@elfui/core': '>=0.1.0-beta.9 <0.2.0'
+      '@elfui/core': '>=0.1.0-beta.11 <0.2.0'
 
   '@elfui/runtime@0.1.0-beta.21':
     resolution: {integrity: sha512-hLeGqC2LhV85n++P+OFrCccAkjWecxITEaadAfSw2qPxwT4yXcUB1qKbLNIIjNA6KacX6M+pTHa6eX/zHFoD7w==}
@@ -2927,7 +2927,7 @@ snapshots:
     dependencies:
       '@elfui/shared': 0.1.0-beta.21
 
-  '@elfui/router@0.1.0-beta.10(@elfui/core@0.1.0-beta.21)':
+  '@elfui/router@0.1.0-beta.11(@elfui/core@0.1.0-beta.21)':
     dependencies:
       '@elfui/core': 0.1.0-beta.21
 

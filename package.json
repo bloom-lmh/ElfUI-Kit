@@ -35,7 +35,7 @@
     "@commitlint/config-conventional": "^21.2.0",
     "@elfui/compiler": "0.1.0-beta.21",
     "@elfui/core": "0.1.0-beta.21",
-    "@elfui/router": "0.1.0-beta.10",
+    "@elfui/router": "0.1.0-beta.11",
     "@elfui/vite-plugin": "0.1.0-beta.21",
     "@eslint/js": "^10.0.1",
     "commitizen": "^4.3.2",
