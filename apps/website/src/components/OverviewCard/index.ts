@@ -1,6 +1,5 @@
-import { defineHtml, defineProps, defineStyle, useComponents } from "@elfui/core";
+import { defineHtml, defineProps, defineStyle } from "@elfui/core";
 
-import { Link } from "@elfui/kit-src/components/Basic/Link";
 import styles from "./style.scss?inline";
 import type { OverviewCardProps, OverviewCardSlots } from "./types";
 
@@ -13,7 +12,6 @@ const props = defineProps<OverviewCardProps>({
   ariaLabel: { type: String, default: "" },
 });
 
-useComponents(Link);
 defineStyle(styles);
 
 const OverviewCard = defineHtml<OverviewCardProps, Record<string, never>, OverviewCardSlots>(`

@@ -1,14 +1,47 @@
 import { defineHtml, defineStyle } from "@elfui/core";
 
 import { useLocaleProvider } from "@elfui/kit-src/components/Providers/context";
-import { createDocsPicker } from "../docsLocale";
+import { createDocsPicker, createDocsTranslator } from "../docsLocale";
 import styles from "./style.scss?inline";
+
+const HOME_MESSAGES = {
+  eyebrow: { zh: "面向产品团队的 Web Components", en: "Web Components for product teams" },
+  titleLead: { zh: "构建精致界面，", en: "Ship polished interfaces," },
+  titleAccent: {
+    zh: "原生 Web Components 组件库。",
+    en: "a native Web Components library.",
+  },
+  description: {
+    zh: "ElfUI 将稳定的组件契约、Material 设计语言与原生 Web 标准组合在一起，让设计系统真正跨项目复用。",
+    en: "ElfUI combines stable component contracts, Material design language, and native web standards so your design system can travel across products.",
+  },
+  primaryAction: { zh: "浏览组件", en: "Explore components" },
+  secondaryAction: { zh: "查看 Provider", en: "View Providers" },
+  proofLabel: { zh: "项目指标", en: "Project metrics" },
+  proofComponents: { zh: "组件与模式", en: "components & patterns" },
+  proofTests: { zh: "自动化测试", en: "automated tests" },
+  proofRuntime: { zh: "框架依赖", en: "framework dependencies" },
+  visualLabel: { zh: "ElfUI 仪表盘界面预览", en: "ElfUI dashboard interface preview" },
+  live: { zh: "实时", en: "Live" },
+  visualEyebrow: { zh: "工作空间", en: "Workspace" },
+  visualTitle: { zh: "运营概览", en: "Operations overview" },
+  metricRevenue: { zh: "本月收入", en: "Monthly revenue" },
+  metricUsers: { zh: "活跃用户", en: "Active users" },
+  metricActivity: { zh: "项目活跃度", en: "Project activity" },
+  metricWeek: { zh: "最近 7 天", en: "Last 7 days" },
+  visualReady: { zh: "系统运行正常", en: "All systems operational" },
+} as const;
 
 // Injected context
 const locale = useLocaleProvider();
 
 // Derived content
-const t = (key: string): string => locale.t(`home.${key}`);
+const fallbackT = createDocsTranslator(HOME_MESSAGES);
+const t = (key: keyof typeof HOME_MESSAGES): string => {
+  const path = `home.${key}`;
+  const translated = locale.t(path);
+  return translated === path ? fallbackT(key) : translated;
+};
 const pick = createDocsPicker();
 
 defineStyle(styles);

@@ -5,6 +5,12 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    groups:
+      elfui-framework:
+        patterns:
+          - "@elfui/compiler"
+          - "@elfui/core"
+          - "@elfui/vite-plugin"
   - package-ecosystem: github-actions
     directory: "/"
     schedule:

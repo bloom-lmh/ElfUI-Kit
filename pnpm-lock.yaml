@@ -15,17 +15,17 @@ importers:
         specifier: ^21.2.0
         version: 21.2.0
       '@elfui/compiler':
-        specifier: 0.1.0-beta.20
-        version: 0.1.0-beta.20
+        specifier: 0.1.0-beta.21
+        version: 0.1.0-beta.21
       '@elfui/core':
-        specifier: 0.1.0-beta.20
-        version: 0.1.0-beta.20
+        specifier: 0.1.0-beta.21
+        version: 0.1.0-beta.21
       '@elfui/router':
         specifier: 0.1.0-beta.10
-        version: 0.1.0-beta.10(@elfui/core@0.1.0-beta.20)
+        version: 0.1.0-beta.10(@elfui/core@0.1.0-beta.21)
       '@elfui/vite-plugin':
-        specifier: 0.1.0-beta.20
-        version: 0.1.0-beta.20
+        specifier: 0.1.0-beta.21
+        version: 0.1.0-beta.21
       '@eslint/js':
         specifier: ^10.0.1
         version: 10.0.1(eslint@10.8.0(jiti@2.6.1))
@@ -78,21 +78,21 @@ importers:
   apps/website:
     dependencies:
       '@elfui/core':
-        specifier: 0.1.0-beta.20
-        version: 0.1.0-beta.20
+        specifier: 0.1.0-beta.21
+        version: 0.1.0-beta.21
       '@elfui/kit':
         specifier: workspace:*
         version: link:../../packages/kit
       '@elfui/router':
         specifier: 0.1.0-beta.10
-        version: 0.1.0-beta.10(@elfui/core@0.1.0-beta.20)
+        version: 0.1.0-beta.10(@elfui/core@0.1.0-beta.21)
       '@mdi/js':
         specifier: ^7.4.47
         version: 7.4.47
     devDependencies:
       '@elfui/vite-plugin':
-        specifier: 0.1.0-beta.20
-        version: 0.1.0-beta.20
+        specifier: 0.1.0-beta.21
+        version: 0.1.0-beta.21
       sass-embedded:
         specifier: ^1.83.0
         version: 1.100.0
@@ -106,11 +106,11 @@ importers:
   packages/kit:
     dependencies:
       '@elfui/core':
-        specifier: 0.1.0-beta.20
-        version: 0.1.0-beta.20
+        specifier: 0.1.0-beta.21
+        version: 0.1.0-beta.21
       '@elfui/router':
         specifier: 0.1.0-beta.10
-        version: 0.1.0-beta.10(@elfui/core@0.1.0-beta.20)
+        version: 0.1.0-beta.10(@elfui/core@0.1.0-beta.21)
       '@mdi/js':
         specifier: ^7.4.47
         version: 7.4.47
@@ -137,11 +137,11 @@ importers:
         version: 4.4.1
     devDependencies:
       '@elfui/compiler':
-        specifier: 0.1.0-beta.20
-        version: 0.1.0-beta.20
+        specifier: 0.1.0-beta.21
+        version: 0.1.0-beta.21
       '@elfui/vite-plugin':
-        specifier: 0.1.0-beta.20
-        version: 0.1.0-beta.20
+        specifier: 0.1.0-beta.21
+        version: 0.1.0-beta.21
       '@types/markdown-it':
         specifier: ^14.1.2
         version: 14.1.2
@@ -487,31 +487,31 @@ packages:
     resolution: {integrity: sha512-LY1lFiZLTQF/ma1ilfKmRmFmEOw0RfYhyl0UMhY7/d93b+kiDMhxP/9Qir4+5LyiRncaE3++ZcWno9Hya+ssRg==}
     engines: {node: '>=20'}
 
-  '@elfui/compiler-template@0.1.0-beta.20':
-    resolution: {integrity: sha512-mW29MPvyYSVbCm5GAWhN44j7TJVOQX00ixCQB5Po6B1UySmnzeZWr1/8k7F6nhj0BGFY5Ld1SqCe3242wL8VkA==}
+  '@elfui/compiler-template@0.1.0-beta.21':
+    resolution: {integrity: sha512-spCwzWjS7bmuEjnfahyyx/+2Szr8HDETEPagyZPZj0FgwqOUfldoeRQgqPRV5Y8415mSLtrIJkGlrrqLE2OXaw==}
 
-  '@elfui/compiler@0.1.0-beta.20':
-    resolution: {integrity: sha512-W1Zp1EkwsUqUnadU7zOddKYocSPJ88AO/auTy0L1USLbYk64ljai0Rl16ewQCxWR1ohlYJRTQ/3zZQU7kNNasw==}
+  '@elfui/compiler@0.1.0-beta.21':
+    resolution: {integrity: sha512-jyXDxaN8ND5qVLYBTvAV/Ikt8DOGyFPrvPuVlpyO44AEe9PBJBFJ+r0yfQ96rUAd95KDWfrL5gu8o9S0UwOmqQ==}
 
-  '@elfui/core@0.1.0-beta.20':
-    resolution: {integrity: sha512-w+otxJc0jGebbQhRlgWVi+a/hhYuC7lwn7/Xdg5pK3HcC7xpx3krjMXkF11IYXx7Fe72qDG8U1im7/hb85qkfA==}
+  '@elfui/core@0.1.0-beta.21':
+    resolution: {integrity: sha512-E8g8Pdk0T+bsDWLfqUgV9L1+l+Hb4TjrFpK9vzdyTNWsDmVAgFxa+tNckonX1LyN2UrTTUsbfSDUp8zWkDEV6Q==}
 
-  '@elfui/reactivity@0.1.0-beta.20':
-    resolution: {integrity: sha512-nvVBKT3kouVY7KIWvFTU+HySTicS8mqf701M+y1DfCA6liIml5hDqBs+YJpyF3UucRChsdHZz0bUkJKOfqzJBQ==}
+  '@elfui/reactivity@0.1.0-beta.21':
+    resolution: {integrity: sha512-guNDH/eSfPt1ockfp13Tvl+4hb1TbRsdiIO1ErlzP/3/xnD6HApgcfXlF1NvLlKjtHdQHlMdzVDZc6Ftw6mGNQ==}
 
   '@elfui/router@0.1.0-beta.10':
     resolution: {integrity: sha512-SlLcTqb2tYBw94TNHp0r4iFzfMB3EJhBVZuV7RxnaWKfKzYwpGrYRK04xELRuWxoSBkkeUzfQhTHeVcp+oJGzw==}
     peerDependencies:
       '@elfui/core': '>=0.1.0-beta.9 <0.2.0'
 
-  '@elfui/runtime@0.1.0-beta.20':
-    resolution: {integrity: sha512-w1aJulS0zipvmel4+NEZYpwdpKpYtibNX6x36IA99UkuORcjDyoNSeCJSfpHNFTYqE7hNEVkyCPgvjs/2IP3dw==}
+  '@elfui/runtime@0.1.0-beta.21':
+    resolution: {integrity: sha512-hLeGqC2LhV85n++P+OFrCccAkjWecxITEaadAfSw2qPxwT4yXcUB1qKbLNIIjNA6KacX6M+pTHa6eX/zHFoD7w==}
 
-  '@elfui/shared@0.1.0-beta.20':
-    resolution: {integrity: sha512-dtnhyIy5JPq7vmhvv2Zmrw4YuIMLO8OT3diIXlP/m9wg6jWJ2mJWfKlaIyJlubckVC91YlmQ7JoCLqFweM26PQ==}
+  '@elfui/shared@0.1.0-beta.21':
+    resolution: {integrity: sha512-8t6OfW4Y1if9tzOsLbka34mH5Q6R5/k2SAbsMgQUK4h41t7wC1D/XP/IRSqoBGL/YpjCvABRz4Wpxx7YHEji/g==}
 
-  '@elfui/vite-plugin@0.1.0-beta.20':
-    resolution: {integrity: sha512-76KKjDOkPV2KnDnOCF+y2lSRHETYQu0RelhCnTs0cQ7mXNfy7ocP1zRiWY+yKWscZR2Jv21cjvl2MmakTpbzDw==}
+  '@elfui/vite-plugin@0.1.0-beta.21':
+    resolution: {integrity: sha512-VEPh2Rjb1qBXRIR3XuAi/hyiKZqE7ZG8ot6AUGIpEGOqTYi2gwwFLUinNGXHZw0zIPAXHCjWzIvqo68w9qUJSg==}
 
   '@esbuild/aix-ppc64@0.28.1':
     resolution: {integrity: sha512-Svl7tq8k/08+p6CXPpRjQ1fKX+1odH/BQbb48fV6fj3CWHhsoIOoY87w1oHXm0qEpkIK3ZfVgp0hed3XBXzXMQ==}
@@ -2909,37 +2909,37 @@ snapshots:
 
   '@cspell/url@9.8.0': {}
 
-  '@elfui/compiler-template@0.1.0-beta.20': {}
+  '@elfui/compiler-template@0.1.0-beta.21': {}
 
-  '@elfui/compiler@0.1.0-beta.20':
+  '@elfui/compiler@0.1.0-beta.21':
     dependencies:
-      '@elfui/compiler-template': 0.1.0-beta.20
-      '@elfui/reactivity': 0.1.0-beta.20
-      '@elfui/runtime': 0.1.0-beta.20
+      '@elfui/compiler-template': 0.1.0-beta.21
+      '@elfui/reactivity': 0.1.0-beta.21
+      '@elfui/runtime': 0.1.0-beta.21
       typescript: 5.9.3
 
-  '@elfui/core@0.1.0-beta.20':
+  '@elfui/core@0.1.0-beta.21':
     dependencies:
-      '@elfui/reactivity': 0.1.0-beta.20
-      '@elfui/runtime': 0.1.0-beta.20
+      '@elfui/reactivity': 0.1.0-beta.21
+      '@elfui/runtime': 0.1.0-beta.21
 
-  '@elfui/reactivity@0.1.0-beta.20':
+  '@elfui/reactivity@0.1.0-beta.21':
     dependencies:
-      '@elfui/shared': 0.1.0-beta.20
+      '@elfui/shared': 0.1.0-beta.21
 
-  '@elfui/router@0.1.0-beta.10(@elfui/core@0.1.0-beta.20)':
+  '@elfui/router@0.1.0-beta.10(@elfui/core@0.1.0-beta.21)':
     dependencies:
-      '@elfui/core': 0.1.0-beta.20
+      '@elfui/core': 0.1.0-beta.21
 
-  '@elfui/runtime@0.1.0-beta.20':
+  '@elfui/runtime@0.1.0-beta.21':
     dependencies:
-      '@elfui/reactivity': 0.1.0-beta.20
+      '@elfui/reactivity': 0.1.0-beta.21
 
-  '@elfui/shared@0.1.0-beta.20': {}
+  '@elfui/shared@0.1.0-beta.21': {}
 
-  '@elfui/vite-plugin@0.1.0-beta.20':
+  '@elfui/vite-plugin@0.1.0-beta.21':
     dependencies:
-      '@elfui/compiler': 0.1.0-beta.20
+      '@elfui/compiler': 0.1.0-beta.21
 
   '@esbuild/aix-ppc64@0.28.1':
     optional: true

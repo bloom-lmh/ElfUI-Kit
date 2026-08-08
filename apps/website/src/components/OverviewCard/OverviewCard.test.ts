@@ -1,3 +1,5 @@
+import "@elfui/kit";
+
 import { createMemoryHistory, createRouter, setActiveRouter } from "@elfui/router";
 import { registerComponents } from "@elfui/core";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
@@ -16,6 +18,7 @@ afterEach(() => {
 const tick = async (): Promise<void> => {
   await new Promise<void>((resolve) => queueMicrotask(resolve));
   await new Promise<void>((resolve) => queueMicrotask(resolve));
+  await new Promise<void>((resolve) => setTimeout(resolve, 20));
 };
 const cardTag = (): string =>
   String(
@@ -41,7 +44,7 @@ describe("OverviewCard", () => {
     document.body.appendChild(card);
     await tick();
 
-    const link = card.shadowRoot?.querySelector("elf-link");
+    const link = card.shadowRoot?.querySelector<HTMLElement>(".card");
     const anchor = link?.shadowRoot?.querySelector<HTMLAnchorElement>("a");
     expect(anchor?.getAttribute("href")).toBe("/basic/button");
     expect(anchor?.getAttribute("aria-label")).toBeNull();
@@ -75,7 +78,7 @@ describe("OverviewCard", () => {
     document.body.appendChild(card);
     await tick();
 
-    card.shadowRoot?.querySelector("elf-link")?.shadowRoot?.querySelector("a")?.click();
+    card.shadowRoot?.querySelector<HTMLElement>(".card")?.shadowRoot?.querySelector("a")?.click();
     await router.isReady();
     await tick();
 

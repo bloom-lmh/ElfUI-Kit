@@ -93,6 +93,7 @@ beforeAll(async () => {
 
 afterEach(() => {
   document.body.innerHTML = "";
+  document.documentElement.removeAttribute("lang");
 });
 
 const tick = (): Promise<void> => new Promise((resolve) => queueMicrotask(resolve));
@@ -155,5 +156,17 @@ describe("HomePage localization", () => {
     expect(links[0]?.getAttribute("to")).toBe("/overview");
     expect(links[0]?.shadowRoot?.querySelector("a")?.getAttribute("href")).toBe("/overview");
     expect(page?.shadowRoot?.querySelector(".principles, .starter")).toBeNull();
+  });
+
+  it("falls back to document locale when an async router boundary cannot inject the Provider", async () => {
+    document.documentElement.lang = "zh-CN";
+    const page = document.createElement(homeTag()) as HTMLElement;
+    document.body.appendChild(page);
+    await tick();
+
+    const text = collectText(page);
+    expect(text).toContain("构建精致界面");
+    expect(text).toContain("浏览组件");
+    expect(text).not.toContain("home.titleLead");
   });
 });
