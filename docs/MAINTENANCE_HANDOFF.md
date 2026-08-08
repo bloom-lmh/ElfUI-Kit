@@ -2,7 +2,7 @@
 
 # ElfUI Kit 维护交接
 
-更新时间：2026-08-07
+更新时间：2026-08-08
 
 本文件是持续更新的维护交接记录。每轮工作开始时先读取，完成一个阶段后立即更新，避免依赖对话上下文。
 
@@ -12,7 +12,7 @@
 2. 对齐 Vuetify 的跨组件能力、Provider 与设计系统边界。
 3. 优化组件封装、顶层架构、测试与真实浏览器截图验收。
 4. 框架问题只建立最小复现并上报，不在组件中写时序或 DOM workaround。
-5. 持续推进 `docs/plans/2026-07-29_elfui-v0.0.2-beta.1-remaining-work-and-architecture-plan.md`。
+5. 严格按唯一事实源 `docs/NEXT_GENERATION_PLAN.md` 从上到下推进；不得恢复日期计划或组件级 `plan.md`。
 
 ### 仓库基线
 
@@ -62,13 +62,13 @@
 ### 2026-08-07 API 构建器：移除预览功能
 
 - 删除预览按钮与眼睛图标、`elf-dialog` 预览对话框、`previewOpen`/`previewHost`/`onPreview` 及 watch 填充逻辑，清理 `.api-builder-dialog-preview` 样式；动作栏保留「复制」「清空」两个无边框彩色图标按钮（成对标签生成逻辑不变）。
-- 测试删除 `preview opens a dialog with the rendered component` 用例；ApiBuilder `plan.md` 行为说明同步（复制/清空/成对标签）。
+- 测试删除 `preview opens a dialog with the rendered component` 用例；当时的 ApiBuilder 计划记录同步了复制/清空/成对标签行为，该旧记录现已由 Git 保存。
 - 验证：ApiBuilder/PropsTable/CardPage/覆盖审计 26 项测试通过；`pnpm typecheck:website` 0 错误；Prettier/ESLint/CSpell 通过；真实 Chromium 确认动作栏仅 2 个按钮、0 个 dialog、控制台无新报错。
 
 ### 2026-08-07 API 构建器：生成代码统一成对结束标签
 
 - `codegen.ts` 不再输出自闭合 `/>`：无论是否选择插槽，生成结果统一为 `<elf-card ...></elf-card>` 成对标签（无子内容时开标签后直接闭合）。
-- 测试同步：`always emits paired closing tags` 断言 `>` + `</elf-card>` 且不含 `/>`；多组件片段断言改为成对标签；ApiBuilder `plan.md` 行为说明更新。
+- 测试同步：`always emits paired closing tags` 断言 `>` + `</elf-card>` 且不含 `/>`；多组件片段断言改为成对标签；当时的 ApiBuilder 计划记录也已同步，现由 Git 保存。
 - 验证：codegen/ApiBuilder/PropsTable/CardPage 测试通过；`pnpm typecheck:website` 0 错误；Prettier/ESLint 通过。
 
 ### 2026-08-07 CardPage 3D 倾斜 + API 构建器全站接入
@@ -130,7 +130,7 @@
 - 页面接线：`CardPage/props.ts` 的 API 区改为 `<elf-api-builder component="elf-card" title="API">` 包裹三张表（原 `<h2>API</h2>` 移入 builder，由 builder 渲染标题行）；`components/index.ts` 注册 ApiBuilder。
 - 布局（按用户多轮反馈收敛）：**不用 Card 容器、不用代码卡片**；builder 渲染标题行「API」+ 右侧三个图标按钮——**复制 ⧉**（`navigator.clipboard` 直接复制生成标记，成功变 ✓）、**预览 ⛶**（`elf-dialog` 弹出渲染真实组件）、**清空 ✕**；生成的标记不落屏展示，仅复制/预览用；下方属性表格恢复 PropsTable 默认 85% 居中宽度；PropsTable 在构建器模式下**不再提升标题**（`active()` 提前 return）。
 - 预览实现坑：`elf-dialog` 内容 `v-if=${model.value}`（open 才渲染）且 teleport 到 body，`previewHost` ref 在 open 前为空；用 `watch(() => previewOpen.value, ..., { flush: "post" })` 打开后填充。`v-model:open` 必须传 **ref 本身**（`v-model:open=${previewOpen}`）而非 `.value`，否则 set 不生效。
-- 设计文档 `docs/plans/2026-08-07-api-builder-design.md`；组件 plan.md 同步。
+- 设计结论由本节、实现与测试共同保留；旧的独立设计计划和组件计划已在 2026-08-08 统一移出工作树，历史版本可从 Git 追溯。
 - 验证：ApiBuilder 组件 10 项 + codegen 纯函数 6 项 + PropsTable 5 项 + CardPage 4 项测试通过（29 项）；typecheck 0 宏错误 / 0 TS 错误；ESLint/Prettier/CSpell 通过；真实 Chromium 实测标题行「API」+ 右侧复制/预览/清空图标、勾选 variant 后 `code()` 返回多行 `<elf-card\nvariant="elevated"\n/>`、复制按钮变 ✓、预览对话框 teleport 到 body 渲染真实 `<elf-card>`、清空复位、控制台 0 error。
 - 说明：全量 website 测试的 4 个失败（routing 菜单序 2 项、IA DocSync code-card 1 项、no-demo-gradients 1 项）均为**改动前既有失败**，已在 baseline HEAD 复现，与本任务无关。
 
@@ -237,7 +237,7 @@
 
 ### 2026-08-05 删除 Heading 组件及其文档页
 
-- 按用户要求移除 `elf-heading` 组件（`packages/kit/src/components/Basic/Heading/`）与文档页（`apps/website/src/pages/basic/HeadingPage/`），同步清理全部引用：Basic 分类注册、`library.ts` 导出、路由表、侧栏菜单、`menu-icons.ts` 图标映射、组件总览目录与 `components/plan.md` 条目。
+- 按用户要求移除 `elf-heading` 组件（`packages/kit/src/components/Basic/Heading/`）与文档页（`apps/website/src/pages/basic/HeadingPage/`），同步清理全部引用：Basic 分类注册、`library.ts` 导出、路由表、侧栏菜单、`menu-icons.ts` 图标映射、组件总览目录与当时的组件清单。
 - 原文件已整体归档至 `.local-archive/deleted-2026-08-05-heading/`（组件、页面、两张 QA 截图），且此前已全部提交至 git，可随时恢复。
 - 验证：kit/website typecheck 0 宏错误、0 TS 错误；`pnpm build`（1287 模块）与 `pnpm build:lib`（566 模块）通过；docs locale `573/573`；Prettier、ESLint 通过；全库已无 `elf-heading` / HeadingPage 功能引用（仅交接文档保留历史记录）。
 
@@ -570,7 +570,7 @@
 - 原案例中混入 Template 的 JavaScript 已拆回可运行的 Template 与 Script，章节标题、Playground 可见标题和 DocsToc 保持一致。
 - 浏览器交互发现 body 级 Message 的关闭按钮在英文文档中仍使用中文。根因是服务直接创建 host 并挂到 `document.body`，不在 LocaleProvider 子树内；这是 Kit 默认 locale 架构缺口，不是 beta.18 框架问题。
 - `DEFAULT_LOCALE_CONTEXT` 现在在无显式 Provider 时跟随 `document.documentElement.lang` / `dir`；显式 LocaleProvider 仍然优先。修复位于默认 locale 契约层，没有页面 workaround、全局可变 registry 或手写 Provider/Teleport 桥。
-- 新增默认 context、脱离 Provider 的 Message / Notification 关闭标签回归测试，并把服务本地化验收写入两个组件的 `plan.md`。
+- 新增默认 context、脱离 Provider 的 Message / Notification 关闭标签回归测试，并把服务本地化验收写入当时的组件计划；该历史计划现由 Git 保存。
 
 验证结果：
 
