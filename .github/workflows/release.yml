@@ -58,12 +58,17 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          name=$(node -p "require('./packages/kit/package.json').name")
-          version=$(node -p "require('./packages/kit/package.json').version")
+          name=$(node -p "require('./package.json').name")
+          version=$(node -p "require('./package.json').version")
+          echo "publishing $name@$version"
           if npm view "$name@$version" version >/dev/null 2>&1; then
             echo "skip existing $name@$version"
           else
-            npm publish --provenance --access public --tag "${{ steps.release.outputs.npm-tag }}"
+            npm publish --provenance --access public --tag "${{ steps.release.outputs.npm-tag }}" 2>&1 | tee /tmp/npm-publish.log || {
+              echo "==== npm publish failed ===="
+              cat /tmp/npm-publish.log
+              exit 1
+            }
           fi
         working-directory: packages/kit
       - name: Create GitHub release
