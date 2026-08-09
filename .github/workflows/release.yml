@@ -63,13 +63,9 @@ jobs:
           if npm view "$name@$version" version >/dev/null 2>&1; then
             echo "skip existing $name@$version"
           else
-            pack_dir="$RUNNER_TEMP/elfui-kit-package"
-            mkdir -p "$pack_dir"
-            pnpm --dir packages/kit pack --pack-destination "$pack_dir"
-            tarball=$(find "$pack_dir" -maxdepth 1 -name '*.tgz' -print -quit)
-            test -n "$tarball"
-            npm publish "$tarball" --provenance --access public --tag "${{ steps.release.outputs.npm-tag }}"
+            npm publish --provenance --access public --tag "${{ steps.release.outputs.npm-tag }}"
           fi
+        working-directory: packages/kit
       - name: Create GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
