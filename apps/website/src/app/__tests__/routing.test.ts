@@ -1,3 +1,4 @@
+import { registerAllComponents } from "@elfui/kit";
 // 路由集成回归测试 — 跑通 elf-link 点击 → router-view 切换页面
 //
 // 这个测试模拟用户报告的"点击导航无响应"问题
@@ -12,6 +13,7 @@ import { TestHome } from "./test-home-fixture";
 let createRouterForTest: typeof createRouterFactory;
 
 beforeAll(async () => {
+  registerAllComponents();
   await import("../../components");
   const { App } = await import("../AppShell/index");
   const { createRouter } = await import("@elfui/router");

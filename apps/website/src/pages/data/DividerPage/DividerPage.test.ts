@@ -1,9 +1,11 @@
+import { registerAllComponents } from "@elfui/kit";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
 
 let stylesExampleTag = "";
 let rtlExampleTag = "";
 
 beforeAll(async () => {
+  registerAllComponents();
   await import("../../../components");
   const { ensureCustomElement } = await import("@elfui/core");
   const { PageDividerEx1 } = await import("./ex1");

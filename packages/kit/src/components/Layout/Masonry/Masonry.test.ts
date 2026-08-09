@@ -1,7 +1,9 @@
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
 
 beforeAll(async () => {
-  await import("../index");
+  await import("../../../register-all").then(({ registerAllComponents }) =>
+    registerAllComponents(),
+  );
 });
 
 beforeEach(() => {

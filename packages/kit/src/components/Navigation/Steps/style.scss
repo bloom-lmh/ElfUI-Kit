@@ -4,8 +4,16 @@
   display: block;
   width: 100%;
   min-width: 0;
-  color: var(--elf-text-primary);
-  font-family: var(--elf-font-family);
+  color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
+  font-family: var(
+    --elf-font-family,
+    "Roboto",
+    "Helvetica Neue",
+    Arial,
+    "PingFang SC",
+    "Microsoft YaHei",
+    sans-serif
+  );
 }
 
 .stepper {
@@ -14,10 +22,10 @@
 
 .stepper.has-panels {
   overflow: hidden;
-  border: 1px solid var(--elf-divider);
-  border-radius: var(--elf-radius-sm);
-  background: var(--elf-bg-paper);
-  box-shadow: var(--elf-shadow-1);
+  border: 1px solid var(--elf-divider, rgba(0, 0, 0, 0.08));
+  border-radius: var(--elf-radius-sm, 4px);
+  background: var(--elf-bg-paper, #ffffff);
+  box-shadow: var(--elf-shadow-1, 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24));
 }
 
 .steps {
@@ -27,13 +35,13 @@
   box-sizing: border-box;
   width: 100%;
   min-width: 0;
-  color: var(--elf-text-secondary);
+  color: var(--elf-text-secondary, rgba(0, 0, 0, 0.6));
 }
 
 .stepper.has-panels .steps {
   min-height: 88px;
   padding: 0 clamp(16px, 3vw, 32px);
-  border-bottom: 1px solid var(--elf-divider);
+  border-bottom: 1px solid var(--elf-divider, rgba(0, 0, 0, 0.08));
   box-shadow: 0 2px 4px rgb(0 0 0 / 6%);
 }
 
@@ -63,15 +71,15 @@
   gap: 10px;
   padding: 8px 12px;
   border: 0;
-  border-radius: var(--elf-radius-sm);
+  border-radius: var(--elf-radius-sm, 4px);
   background: transparent;
   color: inherit;
   font: inherit;
   text-align: left;
   cursor: default;
   transition:
-    color var(--elf-transition-fast),
-    background-color var(--elf-transition-fast);
+    color var(--elf-transition-fast, 150ms cubic-bezier(0.4, 0, 0.2, 1)),
+    background-color var(--elf-transition-fast, 150ms cubic-bezier(0.4, 0, 0.2, 1));
 }
 
 .step-item.is-clickable .step-button {
@@ -79,12 +87,12 @@
 }
 
 .step-item.is-clickable .step-button:hover {
-  background: color-mix(in srgb, var(--elf-primary) 7%, transparent);
+  background: color-mix(in srgb, var(--elf-primary, #1976d2) 7%, transparent);
 }
 
 .step-button:focus-visible,
 .stepper-action:focus-visible {
-  outline: 2px solid color-mix(in srgb, var(--elf-primary) 72%, transparent);
+  outline: 2px solid color-mix(in srgb, var(--elf-primary, #1976d2) 72%, transparent);
   outline-offset: 2px;
 }
 
@@ -101,14 +109,14 @@
   place-items: center;
   border: 0;
   border-radius: 50%;
-  background: var(--elf-border);
-  color: var(--elf-text-secondary);
+  background: var(--elf-border, rgba(0, 0, 0, 0.12));
+  color: var(--elf-text-secondary, rgba(0, 0, 0, 0.6));
   font-size: 13px;
   font-weight: 700;
   line-height: 1;
   transition:
-    background-color var(--elf-transition-fast),
-    color var(--elf-transition-fast);
+    background-color var(--elf-transition-fast, 150ms cubic-bezier(0.4, 0, 0.2, 1)),
+    color var(--elf-transition-fast, 150ms cubic-bezier(0.4, 0, 0.2, 1));
 }
 
 .step-icon svg {
@@ -128,12 +136,12 @@
   min-width: 0;
   gap: 2px;
   padding: 6px 10px;
-  background: var(--elf-bg-paper);
+  background: var(--elf-bg-paper, #ffffff);
 }
 
 .step-title {
   overflow: hidden;
-  color: var(--elf-text-primary);
+  color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
   font-size: 15px;
   font-weight: 600;
   line-height: 1.4;
@@ -143,7 +151,7 @@
 
 .step-description {
   overflow: hidden;
-  color: var(--elf-text-secondary);
+  color: var(--elf-text-secondary, rgba(0, 0, 0, 0.6));
   font-size: 12px;
   line-height: 1.4;
   text-overflow: ellipsis;
@@ -164,36 +172,40 @@
 }
 
 .step-tail-track {
-  background: var(--elf-divider);
+  background: var(--elf-divider, rgba(0, 0, 0, 0.08));
 }
 .step-tail-progress {
-  background: var(--elf-primary);
+  background: var(--elf-primary, #1976d2);
   transition:
     width 220ms cubic-bezier(0.2, 0, 0, 1),
     height 220ms cubic-bezier(0.2, 0, 0, 1);
 }
 
 .step-item.is-finish .step-icon {
-  background: var(--elf-primary);
+  background: var(--elf-primary, #1976d2);
   color: var(--elf-text-on-primary, #fff);
 }
 
 .step-item.is-process .step-icon {
-  background: color-mix(in srgb, var(--elf-text-primary) 84%, var(--elf-bg-paper));
-  color: var(--elf-bg-paper);
+  background: color-mix(
+    in srgb,
+    var(--elf-text-primary, rgba(0, 0, 0, 0.87)) 84%,
+    var(--elf-bg-paper, #ffffff)
+  );
+  color: var(--elf-bg-paper, #ffffff);
 }
 
 .step-item.is-process .step-title {
-  color: var(--elf-text-primary);
+  color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
 }
 
 .step-item.is-error .step-icon {
-  background: var(--elf-danger);
+  background: var(--elf-danger, #d32f2f);
   color: #fff;
 }
 
 .step-item.is-error .step-title {
-  color: var(--elf-danger);
+  color: var(--elf-danger, #d32f2f);
 }
 .step-item.is-disabled {
   opacity: 0.4;
@@ -205,7 +217,12 @@
   overflow-y: hidden;
   overscroll-behavior-inline: contain;
   scrollbar-width: thin;
-  scrollbar-color: color-mix(in srgb, var(--elf-text-secondary) 30%, transparent) transparent;
+  scrollbar-color: color-mix(
+      in srgb,
+      var(--elf-text-secondary, rgba(0, 0, 0, 0.6)) 30%,
+      transparent
+    )
+    transparent;
 }
 
 .steps.is-horizontal .step-item {
@@ -296,8 +313,8 @@
 .steps.is-simple {
   min-height: 64px;
   padding: 4px;
-  border: 1px solid var(--elf-divider);
-  background: var(--elf-bg-paper);
+  border: 1px solid var(--elf-divider, rgba(0, 0, 0, 0.08));
+  background: var(--elf-bg-paper, #ffffff);
 }
 
 .steps.is-simple .step-button {
@@ -315,12 +332,12 @@
 .stepper-panel {
   min-height: 210px;
   padding: clamp(28px, 5vw, 48px);
-  background: var(--elf-bg-paper);
+  background: var(--elf-bg-paper, #ffffff);
 }
 
 .stepper-panel h3 {
   margin: 0 0 12px;
-  color: var(--elf-text-primary);
+  color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
   font-size: clamp(21px, 3vw, 28px);
   line-height: 1.3;
 }
@@ -328,7 +345,7 @@
 .stepper-panel p {
   max-width: 68ch;
   margin: 0;
-  color: var(--elf-text-secondary);
+  color: var(--elf-text-secondary, rgba(0, 0, 0, 0.6));
   line-height: 1.75;
 }
 
@@ -349,26 +366,26 @@
   gap: 8px;
   padding: 0 18px;
   border: 0;
-  border-radius: var(--elf-radius-sm);
+  border-radius: var(--elf-radius-sm, 4px);
   background: transparent;
-  color: var(--elf-text-primary);
+  color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
   font: inherit;
   font-weight: 650;
   cursor: pointer;
 }
 
 .stepper-action:hover:not(:disabled) {
-  background: var(--elf-bg-overlay);
+  background: var(--elf-bg-overlay, rgba(0, 0, 0, 0.04));
 }
 
 .stepper-action.is-next {
   margin-inline-start: auto;
-  background: var(--elf-primary);
+  background: var(--elf-primary, #1976d2);
   color: var(--elf-text-on-primary, #fff);
 }
 
 .stepper-action.is-next:hover:not(:disabled) {
-  background: var(--elf-primary-hover, var(--elf-primary));
+  background: var(--elf-primary-hover, var(--elf-primary, #1976d2));
 }
 
 .stepper-action:disabled {

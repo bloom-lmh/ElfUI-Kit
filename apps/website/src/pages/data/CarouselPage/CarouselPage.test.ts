@@ -1,9 +1,11 @@
+import { registerAllComponents } from "@elfui/kit";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
 let playbackExampleTag = "";
 let dynamicExampleTag = "";
 
 beforeAll(async () => {
+  registerAllComponents();
   await import("../../../components");
   const { ensureCustomElement } = await import("@elfui/core");
   const { PageCarouselEx1 } = await import("./ex1");

@@ -41,5 +41,5 @@ slot {
   content: var(--_spacer-content);
   display: inline-block;
   margin-inline-start: var(--_gap, 8px);
-  color: var(--elf-text-disabled);
+  color: var(--elf-text-disabled, rgba(0, 0, 0, 0.38));
 }

@@ -1,8 +1,10 @@
+import { registerAllComponents } from "@elfui/kit";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
 
 let exampleTag = "";
 
 beforeAll(async () => {
+  registerAllComponents();
   await import("../../../components");
   const { ensureCustomElement } = await import("@elfui/core");
   const { PageConfigProviderEx5 } = await import("./ex5");
@@ -22,8 +24,7 @@ const deepQueryAll = <T extends Element>(root: ParentNode, selector: string): T[
 };
 
 afterEach(async () => {
-  const { ElfMessage, ElfMessageBox, ElfNotification } =
-    await import("@elfui/kit-src/components/Feedback");
+  const { ElfMessage, ElfMessageBox, ElfNotification } = await import("@elfui/kit");
   ElfMessage.closeAll();
   ElfNotification.closeAll();
   ElfMessageBox.closeAll();

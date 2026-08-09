@@ -1,6 +1,5 @@
 import { defineHtml, defineStyle, useRef } from "@elfui/core";
 
-import "@elfui/kit/labs";
 import { createDocsTranslator } from "../../docsLocale";
 import articleStyles from "../../shared/article.scss?inline";
 
@@ -63,7 +62,9 @@ const code = `<elf-chat-composer
   @send="onSend"
   @stop="onStop"
 />`;
-const script = `import "@elfui/kit/labs";
+const script = `import { registerAllComponents } from "@elfui/kit";
+
+registerAllComponents();
 
 const onSend = (content) => streamToAgent(content);
 const onStop = () => abortGeneration();`;

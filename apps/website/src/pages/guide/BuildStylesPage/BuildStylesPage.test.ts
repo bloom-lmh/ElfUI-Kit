@@ -1,8 +1,10 @@
+import { registerAllComponents } from "@elfui/kit";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
 
 let pageTag = "";
 
 beforeAll(async () => {
+  registerAllComponents();
   await import("../../../components");
   const { ensureCustomElement } = await import("@elfui/core");
   const { PageBuildStyles } = await import("./index");
@@ -38,20 +40,20 @@ const mount = async (): Promise<HTMLElement> => {
 describe("Build and styles guide", () => {
   it("中文页面覆盖入口、层级、源码和公开契约", async () => {
     const text = collectText(await mount());
-    expect(text).toContain("入口与摇树边界");
-    expect(text).toContain("重置与 CSS 层");
+    expect(text).toContain("唯一入口与摇树边界");
+    expect(text).toContain("组件内样式与主题覆盖");
     expect(text).toContain("构建契约");
-    expect(text).toContain("@elfui/kit/styles/utilities.css");
+    expect(text).toContain("registerAllComponents");
     expect(text).not.toContain("@elfui/kit/components/");
   });
 
   it("英文页面覆盖入口、层级、源码和公开契约且无汉字", async () => {
     document.documentElement.lang = "en-US";
     const text = collectText(await mount());
-    expect(text).toContain("Entries and tree-shaking boundaries");
-    expect(text).toContain("Reset and CSS Layers");
+    expect(text).toContain("Single entry and tree-shaking boundary");
+    expect(text).toContain("Embedded styles and theme overrides");
     expect(text).toContain("Build contract");
-    expect(text).toContain("Theme and customization");
+    expect(text).toContain("theme() installs, replaces, and disposes");
     expect(text).not.toMatch(/[\u3400-\u9fff]/u);
   });
 });

@@ -4,7 +4,9 @@ import { readFileSync } from "node:fs";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
 
 beforeAll(async () => {
-  await import("../../../components");
+  await import("../../../register-all").then(({ registerAllComponents }) =>
+    registerAllComponents(),
+  );
 });
 
 afterEach(() => {

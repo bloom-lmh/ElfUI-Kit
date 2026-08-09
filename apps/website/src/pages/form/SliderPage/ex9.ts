@@ -1,6 +1,6 @@
 import { mdiSnowflake, mdiWeatherSunny } from "@mdi/js";
 import { defineHtml, useRef } from "@elfui/core";
-import { createSvgIconSet } from "@elfui/kit-src/components/Basic/Icon";
+import { createSvgIconSet } from "@elfui/kit";
 import { createDocsTranslator } from "../../docsLocale";
 
 const t = createDocsTranslator({

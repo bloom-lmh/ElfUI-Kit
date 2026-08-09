@@ -7,7 +7,7 @@ import {
   defineStyle,
   onMounted,
   onUnmounted,
-  registerComponents,
+  useComponents,
   useEffect,
   useHost,
   useRef,
@@ -53,7 +53,7 @@ import type {
   CodeCardSlots,
 } from "./types";
 
-registerComponents(Select);
+useComponents(Select);
 
 export {
   CODE_CARD_LANGUAGES,

@@ -1,5 +1,5 @@
 // Select 页面共享数据
-import type { SelectOption } from "@elfui/kit-src/components/Form";
+import type { SelectOption } from "@elfui/kit";
 
 export const opts: SelectOption[] = [
   { value: "vue", label: "Vue 3" },

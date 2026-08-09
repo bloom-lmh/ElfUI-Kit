@@ -1,3 +1,4 @@
+import { registerAllComponents } from "@elfui/kit";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
 let providerExampleTag = "";
@@ -6,6 +7,7 @@ let galleryExampleTag = "";
 let rawSvgExampleTag = "";
 
 beforeAll(async () => {
+  registerAllComponents();
   await import("../../../components");
   const { ensureCustomElement } = await import("@elfui/core");
   const { PageIconEx2 } = await import("./ex2");

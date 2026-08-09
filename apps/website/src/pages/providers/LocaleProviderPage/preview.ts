@@ -1,9 +1,6 @@
 import { defineHtml, inject } from "@elfui/core";
 
-import {
-  DEFAULT_LOCALE_CONTEXT,
-  LOCALE_PROVIDER_KEY,
-} from "@elfui/kit-src/components/Providers/context";
+import { DEFAULT_LOCALE_CONTEXT, LOCALE_PROVIDER_KEY } from "@elfui/kit";
 
 const locale = inject(LOCALE_PROVIDER_KEY, DEFAULT_LOCALE_CONTEXT) ?? DEFAULT_LOCALE_CONTEXT;
 

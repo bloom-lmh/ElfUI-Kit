@@ -1,6 +1,6 @@
 import { defineHtml } from "@elfui/core";
-import { ElfMessage } from "@elfui/kit-src/components/Feedback/Message";
-import { useThemeProvider } from "@elfui/kit-src/components/Providers/context";
+import { ElfMessage } from "@elfui/kit";
+import { useThemeProvider } from "@elfui/kit";
 import { createDocsTranslator } from "../../docsLocale";
 
 const t = createDocsTranslator({

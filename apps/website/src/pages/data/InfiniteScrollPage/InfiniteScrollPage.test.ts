@@ -1,3 +1,4 @@
+import { registerAllComponents } from "@elfui/kit";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
 
 let asyncExampleTag = "";
@@ -5,6 +6,7 @@ let containerExampleTag = "";
 let directiveExampleTag = "";
 
 beforeAll(async () => {
+  registerAllComponents();
   await import("../../../components");
   const { ensureCustomElement } = await import("@elfui/core");
   const { PageInfiniteScrollEx1 } = await import("./ex1");

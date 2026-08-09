@@ -3,14 +3,14 @@
 :host {
   display: inline-flex;
   align-items: center;
-  color: var(--elf-text-primary);
-  font-size: var(--elf-font-size-sm);
+  color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
+  font-size: var(--elf-font-size-sm, 14px);
 }
 
 .rate {
   display: inline-flex;
   align-items: center;
-  gap: var(--elf-space-2);
+  gap: var(--elf-space-2, 8px);
 }
 
 .stars {
@@ -27,36 +27,36 @@
   height: 24px;
   border: 0;
   background: transparent;
-  color: var(--rate-void-color, var(--elf-text-disabled));
+  color: var(--rate-void-color, var(--elf-text-disabled, rgba(0, 0, 0, 0.38)));
   font-size: 20px;
   line-height: 1;
   cursor: pointer;
   transition:
-    color var(--elf-transition-fast),
-    transform var(--elf-transition-fast);
+    color var(--elf-transition-fast, 150ms cubic-bezier(0.4, 0, 0.2, 1)),
+    transform var(--elf-transition-fast, 150ms cubic-bezier(0.4, 0, 0.2, 1));
 
   &:hover {
     transform: scale(1.08);
   }
 
   &:focus-visible {
-    outline: 2px solid var(--elf-primary);
+    outline: 2px solid var(--elf-primary, #1976d2);
     outline-offset: 2px;
-    border-radius: var(--elf-radius-sm);
+    border-radius: var(--elf-radius-sm, 4px);
   }
 }
 
 .star.is-full,
 .star.is-half {
-  color: var(--rate-item-color, var(--rate-color, var(--elf-warning)));
+  color: var(--rate-item-color, var(--rate-color, var(--elf-warning, #ef6c00)));
 }
 
 .star.is-half .symbol {
   color: transparent;
   background: linear-gradient(
     90deg,
-    var(--rate-color, var(--elf-warning)) 50%,
-    var(--rate-void-color, var(--elf-text-disabled)) 50%
+    var(--rate-color, var(--elf-warning, #ef6c00)) 50%,
+    var(--rate-void-color, var(--elf-text-disabled, rgba(0, 0, 0, 0.38))) 50%
   );
   background-clip: text;
   -webkit-background-clip: text;
@@ -78,15 +78,15 @@
 :host([readonly]) .star {
   cursor: default;
   transform: none;
-  color: var(--rate-disabled-color, var(--elf-text-disabled));
+  color: var(--rate-disabled-color, var(--elf-text-disabled, rgba(0, 0, 0, 0.38)));
 }
 
 :host([disabled]) .star.is-half .symbol,
 :host([readonly]) .star.is-half .symbol {
   background: linear-gradient(
     90deg,
-    var(--rate-disabled-color, var(--elf-text-disabled)) 50%,
-    var(--rate-void-color, var(--elf-text-disabled)) 50%
+    var(--rate-disabled-color, var(--elf-text-disabled, rgba(0, 0, 0, 0.38))) 50%,
+    var(--rate-void-color, var(--elf-text-disabled, rgba(0, 0, 0, 0.38))) 50%
   );
   background-clip: text;
   -webkit-background-clip: text;
@@ -94,8 +94,8 @@
 
 .text {
   min-width: 48px;
-  color: var(--elf-text-secondary);
-  font-size: var(--elf-font-size-sm);
+  color: var(--elf-text-secondary, rgba(0, 0, 0, 0.6));
+  font-size: var(--elf-font-size-sm, 14px);
 }
 
 .clear {
@@ -105,14 +105,14 @@
   width: 24px;
   height: 24px;
   border: 0;
-  border-radius: var(--elf-radius-sm);
+  border-radius: var(--elf-radius-sm, 4px);
   background: transparent;
-  color: var(--elf-text-disabled);
+  color: var(--elf-text-disabled, rgba(0, 0, 0, 0.38));
   cursor: pointer;
 
   &:hover {
-    background: var(--elf-bg-overlay);
-    color: var(--elf-danger);
+    background: var(--elf-bg-overlay, rgba(0, 0, 0, 0.04));
+    color: var(--elf-danger, #d32f2f);
   }
 }
 

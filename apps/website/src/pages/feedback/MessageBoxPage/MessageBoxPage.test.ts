@@ -1,12 +1,14 @@
+import { registerAllComponents } from "@elfui/kit";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
 
-import type { MessageBoxElement } from "@elfui/kit-src/components/Feedback/MessageBox/types";
+import type { MessageBoxElement } from "@elfui/kit";
 
 let pageTag = "";
 let providerExampleTag = "";
 let promptExampleTag = "";
 
 beforeAll(async () => {
+  registerAllComponents();
   await import("../../../components");
   const { ensureCustomElement } = await import("@elfui/core");
   const { PageMessageBox } = await import("./index");
@@ -63,7 +65,7 @@ const mount = async (tag: string): Promise<HTMLElement> => {
 };
 
 afterEach(async () => {
-  const { ElfMessageBox } = await import("@elfui/kit-src/components/Feedback");
+  const { ElfMessageBox } = await import("@elfui/kit");
   ElfMessageBox.closeAll();
   await wait(220);
   document.body.innerHTML = "";

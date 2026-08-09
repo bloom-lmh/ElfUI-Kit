@@ -35,8 +35,6 @@ export type {
   MessageBoxType,
 } from "./types";
 
-registerComponents(MessageBoxElement);
-
 const DEFAULT_Z_INDEX = 10000;
 const activeBoxes = new Set<MessageBoxHost>();
 
@@ -93,6 +91,7 @@ const createMessageBox = (
   input: MessageBoxOptions,
   defaults?: Partial<MessageBoxOptions>,
 ): Promise<MessageBoxResult> => {
+  registerComponents(MessageBoxElement);
   const options = resolveServiceOptions(defaults, input);
   const host = document.createElement("elf-message-box") as MessageBoxHost;
   const node = contentNode(options.message);

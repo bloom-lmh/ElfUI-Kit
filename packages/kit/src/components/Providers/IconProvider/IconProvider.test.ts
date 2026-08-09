@@ -3,7 +3,9 @@ import { afterEach, beforeAll, describe, expect, it } from "vitest";
 import { createSvgIconSet, resetIcons, resolveIcon } from "../../Basic/Icon";
 
 beforeAll(async () => {
-  await import("../../index");
+  await import("../../../register-all").then(({ registerAllComponents }) =>
+    registerAllComponents(),
+  );
 });
 
 afterEach(() => {

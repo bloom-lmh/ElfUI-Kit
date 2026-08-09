@@ -31,7 +31,8 @@ const selectGradient = (index: number): void => gradient.set(palettes[index] ?? 
 const isGradientActive = (palette: string[]): boolean =>
   JSON.stringify(palette) === JSON.stringify(gradient.value);
 const chipStyle = (palette: string[]): Record<string, string> => ({
-  background: palette.length > 1 ? `linear-gradient(0deg, ${palette.join(", ")})` : palette[0]!,
+  background: palette[0]!,
+  borderColor: palette.at(-1) ?? palette[0]!,
 });
 const paletteLabel = (index: number): string => `${t("swatch")} ${index + 1}`;
 const onFill = (event: CustomEvent<boolean>): void => fill.set(Boolean(event.detail));

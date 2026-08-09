@@ -37,8 +37,6 @@ export type {
   MessageType,
 } from "./types";
 
-registerComponents(MessageElement);
-
 const STACK_GAP = 12;
 const DEFAULT_OFFSET = 20;
 const DEFAULT_Z_INDEX = 2000;
@@ -78,6 +76,7 @@ const createMessage = (
   type?: MessageType,
   defaults?: Partial<MessageOptions>,
 ): MessageHandle => {
+  registerComponents(MessageElement);
   const normalized: MessageOptions =
     typeof options === "string" ? { message: options } : { ...options };
   const opts = resolveServiceOptions(defaults, normalized);

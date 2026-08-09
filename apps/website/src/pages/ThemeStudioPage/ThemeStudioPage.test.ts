@@ -1,3 +1,4 @@
+import { registerAllComponents } from "@elfui/kit";
 import { readFileSync } from "node:fs";
 import { ensureCustomElement } from "@elfui/core";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
@@ -8,6 +9,7 @@ import { PageThemeStudio } from "./index";
 let pageTag = "";
 
 beforeAll(async () => {
+  registerAllComponents();
   await import("../../components");
   document.documentElement.lang = "zh-CN";
   pageTag = ensureCustomElement(PageThemeStudio);

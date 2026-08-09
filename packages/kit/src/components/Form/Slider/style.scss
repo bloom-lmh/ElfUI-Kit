@@ -2,8 +2,8 @@
 
 :host {
   display: block;
-  color: var(--elf-text-primary);
-  font-size: var(--elf-font-size-sm);
+  color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
+  font-size: var(--elf-font-size-sm, 14px);
 }
 
 :host([disabled]),
@@ -12,7 +12,7 @@
 }
 
 .slider {
-  --slider-color: var(--elf-primary);
+  --slider-color: var(--elf-primary, #1976d2);
   --slider-track-size: 4px;
   --slider-thumb-size: 18px;
   --slider-start: 0%;
@@ -43,7 +43,7 @@
   left: 0;
   height: var(--slider-track-size);
   border-radius: 999px;
-  background: var(--elf-bg-overlay);
+  background: var(--elf-bg-overlay, rgba(0, 0, 0, 0.04));
   transform: translateY(-50%);
 }
 
@@ -73,11 +73,11 @@
   top: 0;
   bottom: 0;
   border-radius: inherit;
-  background: color-mix(in srgb, var(--elf-border-strong), transparent 28%);
-  transition: background var(--elf-transition-fast);
+  background: color-mix(in srgb, var(--elf-border-strong, rgba(0, 0, 0, 0.23)), transparent 28%);
+  transition: background var(--elf-transition-fast, 150ms cubic-bezier(0.4, 0, 0.2, 1));
 
   &.is-active {
-    background: color-mix(in srgb, var(--elf-border-strong), transparent 28%);
+    background: color-mix(in srgb, var(--elf-border-strong, rgba(0, 0, 0, 0.23)), transparent 28%);
   }
 
   &.is-active::after {
@@ -113,18 +113,18 @@
   height: var(--slider-thumb-size);
   border: 2px solid var(--slider-color);
   border-radius: 50%;
-  background: var(--elf-bg-paper);
-  box-shadow: var(--elf-shadow-1);
+  background: var(--elf-bg-paper, #ffffff);
+  box-shadow: var(--elf-shadow-1, 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24));
   pointer-events: none;
   transform: translate(-50%, -50%);
   transition:
-    border-color var(--elf-transition-fast),
-    box-shadow var(--elf-transition-fast);
+    border-color var(--elf-transition-fast, 150ms cubic-bezier(0.4, 0, 0.2, 1)),
+    box-shadow var(--elf-transition-fast, 150ms cubic-bezier(0.4, 0, 0.2, 1));
 
   &.is-active {
     box-shadow:
       0 0 0 5px color-mix(in srgb, var(--slider-color), transparent 82%),
-      var(--elf-shadow-1);
+      var(--elf-shadow-1, 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24));
   }
 }
 
@@ -137,9 +137,9 @@
   justify-content: center;
   min-width: 28px;
   padding: 2px 6px;
-  border-radius: var(--elf-radius-sm);
-  background: var(--elf-text-primary);
-  color: var(--elf-bg-paper);
+  border-radius: var(--elf-radius-sm, 4px);
+  background: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
+  color: var(--elf-bg-paper, #ffffff);
   font-size: 11px;
   line-height: 18px;
   text-align: center;
@@ -187,7 +187,8 @@
   z-index: 3;
   width: 6px;
   height: 6px;
-  border: 1px solid color-mix(in srgb, var(--elf-text-primary) 18%, transparent);
+  border: 1px solid
+    color-mix(in srgb, var(--elf-text-primary, rgba(0, 0, 0, 0.87)) 18%, transparent);
   border-radius: 50%;
   background: #ffffff;
   box-shadow: 0 0 0 1px rgb(0 0 0 / 4%);
@@ -205,7 +206,7 @@
 .mark {
   position: absolute;
   top: 0;
-  color: var(--elf-text-secondary);
+  color: var(--elf-text-secondary, rgba(0, 0, 0, 0.6));
   font-size: 11px;
   line-height: 18px;
   transform: translateX(-50%);
@@ -217,13 +218,13 @@
   width: 100%;
   height: 34px;
   padding: 0 10px;
-  border: 1px solid var(--elf-border);
-  border-radius: var(--elf-radius-sm);
-  background: var(--elf-bg-paper);
-  color: var(--elf-text-primary);
+  border: 1px solid var(--elf-border, rgba(0, 0, 0, 0.12));
+  border-radius: var(--elf-radius-sm, 4px);
+  background: var(--elf-bg-paper, #ffffff);
+  color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
   font: inherit;
   outline: none;
-  transition: border-color var(--elf-transition-fast);
+  transition: border-color var(--elf-transition-fast, 150ms cubic-bezier(0.4, 0, 0.2, 1));
 
   &:focus {
     border-color: var(--slider-color);
@@ -231,12 +232,12 @@
 
   &.size-sm {
     height: 28px;
-    font-size: var(--elf-font-size-xs);
+    font-size: var(--elf-font-size-xs, 12px);
   }
 
   &.size-lg {
     height: 40px;
-    font-size: var(--elf-font-size-md);
+    font-size: var(--elf-font-size-md, 16px);
   }
 
   &.without-controls {
@@ -360,7 +361,7 @@
   }
 
   .segment.is-active {
-    background: color-mix(in srgb, var(--elf-border-strong), transparent 28%);
+    background: color-mix(in srgb, var(--elf-border-strong, rgba(0, 0, 0, 0.23)), transparent 28%);
   }
 
   .segment.is-active::after {

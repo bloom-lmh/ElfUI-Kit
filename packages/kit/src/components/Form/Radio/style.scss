@@ -4,8 +4,8 @@
 
 :host {
   display: inline-flex;
-  font-size: var(--elf-font-size-sm);
-  color: var(--elf-text-primary);
+  font-size: var(--elf-font-size-sm, 14px);
+  color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
   user-select: none;
 }
 
@@ -22,7 +22,7 @@
   cursor: inherit;
   display: inline-flex;
   align-items: center;
-  gap: var(--elf-space-2);
+  gap: var(--elf-space-2, 8px);
   min-height: 28px;
   margin: 0;
   padding: 0;
@@ -40,13 +40,13 @@
   justify-content: center;
   width: 16px;
   height: 16px;
-  border: 1px solid var(--elf-border-strong);
+  border: 1px solid var(--elf-border-strong, rgba(0, 0, 0, 0.23));
   border-radius: 50%;
-  background: var(--elf-bg-paper);
+  background: var(--elf-bg-paper, #ffffff);
   flex-shrink: 0;
   transition:
-    background-color var(--elf-transition-fast),
-    border-color var(--elf-transition-fast);
+    background-color var(--elf-transition-fast, 150ms cubic-bezier(0.4, 0, 0.2, 1)),
+    border-color var(--elf-transition-fast, 150ms cubic-bezier(0.4, 0, 0.2, 1));
 
   &::after {
     content: "";
@@ -55,13 +55,13 @@
     border-radius: 50%;
     background: white;
     transform: scale(0);
-    transition: transform var(--elf-transition-fast);
+    transition: transform var(--elf-transition-fast, 150ms cubic-bezier(0.4, 0, 0.2, 1));
   }
 }
 
 :host([data-checked]) .dot {
-  background: var(--_radio-fill, var(--elf-primary));
-  border-color: var(--_radio-fill, var(--elf-primary));
+  background: var(--_radio-fill, var(--elf-primary, #1976d2));
+  border-color: var(--_radio-fill, var(--elf-primary, #1976d2));
 
   &::after {
     transform: scale(1);
@@ -69,7 +69,7 @@
 }
 
 .control:focus-visible .dot {
-  outline: 2px solid var(--elf-primary);
+  outline: 2px solid var(--elf-primary, #1976d2);
   outline-offset: 2px;
 }
 
@@ -79,17 +79,17 @@
 
 // border 风格（按钮型）
 :host([border]) {
-  border: 1px solid var(--elf-border);
-  border-radius: var(--elf-radius-sm);
+  border: 1px solid var(--elf-border, rgba(0, 0, 0, 0.12));
+  border-radius: var(--elf-radius-sm, 4px);
 }
 
 :host([border]) .control {
-  padding: var(--elf-space-1) var(--elf-space-3);
+  padding: var(--elf-space-1, 4px) var(--elf-space-3, 12px);
 }
 
 :host([border][data-checked]) {
-  border-color: var(--_radio-fill, var(--elf-primary));
-  color: var(--_radio-text-color, var(--elf-primary));
+  border-color: var(--_radio-fill, var(--elf-primary, #1976d2));
+  color: var(--_radio-text-color, var(--elf-primary, #1976d2));
 }
 
 :host([data-button]) {
@@ -97,11 +97,11 @@
 }
 
 :host([data-button]:first-of-type) {
-  border-radius: var(--elf-radius-sm) 0 0 var(--elf-radius-sm);
+  border-radius: var(--elf-radius-sm, 4px) 0 0 var(--elf-radius-sm, 4px);
 }
 
 :host([data-button]:last-of-type) {
-  border-radius: 0 var(--elf-radius-sm) var(--elf-radius-sm) 0;
+  border-radius: 0 var(--elf-radius-sm, 4px) var(--elf-radius-sm, 4px) 0;
 }
 
 :host([data-button]) .dot {
@@ -109,5 +109,5 @@
 }
 
 :host([data-button][data-checked]) .control {
-  background: var(--_radio-fill, var(--elf-primary));
+  background: var(--_radio-fill, var(--elf-primary, #1976d2));
 }

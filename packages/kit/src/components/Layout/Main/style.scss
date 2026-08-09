@@ -6,7 +6,7 @@
   min-width: 0;
   min-height: 0;
   overflow-y: auto;
-  padding: var(--elf-space-4) var(--elf-space-6);
+  padding: var(--elf-space-4, 16px) var(--elf-space-6, 24px);
   background: var(--elf-layout-main-bg, transparent);
   box-sizing: border-box;
 }

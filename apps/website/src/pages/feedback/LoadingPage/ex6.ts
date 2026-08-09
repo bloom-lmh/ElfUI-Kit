@@ -1,5 +1,5 @@
 import { defineDirective, defineHtml, useRef } from "@elfui/core";
-import { loadingDirective } from "@elfui/kit-src/components/Feedback/Loading/directive";
+import { loadingDirective } from "@elfui/kit";
 import { createDocsTranslator } from "../../docsLocale";
 
 const t = createDocsTranslator({

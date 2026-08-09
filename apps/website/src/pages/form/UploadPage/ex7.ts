@@ -1,5 +1,5 @@
 import { defineHtml, defineStyle, useRef } from "@elfui/core";
-import type { UploadFileItem } from "@elfui/kit-src/components/Form";
+import type { UploadFileItem } from "@elfui/kit";
 import { createDocsTranslator } from "../../docsLocale";
 import styles from "./demo.scss?inline";
 

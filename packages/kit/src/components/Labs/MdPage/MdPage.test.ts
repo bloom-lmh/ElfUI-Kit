@@ -3,7 +3,9 @@ import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 let componentTag = "";
 
 beforeAll(async () => {
-  await import("../../../components");
+  await import("../../../register-all").then(({ registerAllComponents }) =>
+    registerAllComponents(),
+  );
   const { ensureCustomElement } = await import("@elfui/core");
   const { MdPage } = await import("./index");
   componentTag = ensureCustomElement(MdPage);

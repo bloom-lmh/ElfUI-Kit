@@ -6,8 +6,8 @@
   position: relative;
   display: inline-block;
   max-width: 100%;
-  color: var(--elf-text-primary);
-  font-size: var(--elf-font-size-sm);
+  color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
+  font-size: var(--elf-font-size-sm, 14px);
 }
 
 .time-picker {
@@ -33,7 +33,7 @@
   min-height: 52px;
   padding: 0 12px;
   outline: none;
-  color: var(--elf-text-primary);
+  color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
   font: inherit;
   text-align: left;
   cursor: pointer;
@@ -58,7 +58,7 @@
   height: 15px;
   border: 1.5px solid currentColor;
   border-radius: 50%;
-  color: var(--elf-text-secondary);
+  color: var(--elf-text-secondary, rgba(0, 0, 0, 0.6));
 }
 
 .clock-icon::before,
@@ -84,11 +84,11 @@
 }
 
 .field-value.is-placeholder {
-  color: var(--elf-text-disabled);
+  color: var(--elf-text-disabled, rgba(0, 0, 0, 0.38));
 }
 
 .separator {
-  color: var(--elf-text-disabled);
+  color: var(--elf-text-disabled, rgba(0, 0, 0, 0.38));
 }
 
 .clear,
@@ -98,8 +98,8 @@
   padding: 0 10px;
   border: 0;
   border-radius: 10px;
-  background: var(--elf-bg-overlay);
-  color: var(--elf-text-secondary);
+  background: var(--elf-bg-overlay, rgba(0, 0, 0, 0.04));
+  color: var(--elf-text-secondary, rgba(0, 0, 0, 0.6));
   font: inherit;
   cursor: pointer;
 }
@@ -107,8 +107,8 @@
 .clear:hover,
 .shortcut:hover,
 .panel-actions button:hover {
-  background: color-mix(in srgb, var(--elf-primary) 10%, transparent);
-  color: var(--elf-primary);
+  background: color-mix(in srgb, var(--elf-primary, #1976d2) 10%, transparent);
+  color: var(--elf-primary, #1976d2);
 }
 
 .panel {
@@ -117,9 +117,9 @@
   width: 320px;
   max-width: calc(100vw - 32px);
   overflow: hidden;
-  border: 1px solid var(--elf-divider);
+  border: 1px solid var(--elf-divider, rgba(0, 0, 0, 0.08));
   border-radius: 20px;
-  background: var(--elf-bg-paper);
+  background: var(--elf-bg-paper, #ffffff);
   box-shadow: 0 18px 52px rgb(0 0 0 / 18%);
 }
 
@@ -156,7 +156,7 @@
   align-items: center;
   gap: 4px;
   padding: 18px 18px 10px;
-  color: var(--elf-text-disabled);
+  color: var(--elf-text-disabled, rgba(0, 0, 0, 0.38));
   font-size: 28px;
   font-weight: 750;
 }
@@ -170,15 +170,15 @@
   min-height: 58px;
   border: 0;
   border-radius: 14px;
-  background: var(--elf-bg-overlay);
-  color: var(--elf-text-secondary);
+  background: var(--elf-bg-overlay, rgba(0, 0, 0, 0.04));
+  color: var(--elf-text-secondary, rgba(0, 0, 0, 0.6));
   font: inherit;
   cursor: pointer;
 }
 
 .digital-part.is-active {
-  background: color-mix(in srgb, var(--elf-primary) 14%, var(--elf-bg-paper));
-  color: var(--elf-primary);
+  background: color-mix(in srgb, var(--elf-primary, #1976d2) 14%, var(--elf-bg-paper, #ffffff));
+  color: var(--elf-primary, #1976d2);
 }
 
 .period-switch {
@@ -193,15 +193,15 @@
   border: 0;
   border-radius: 8px;
   background: transparent;
-  color: var(--elf-text-disabled);
+  color: var(--elf-text-disabled, rgba(0, 0, 0, 0.38));
   font: inherit;
   font-size: 11px;
   cursor: pointer;
 }
 
 .period-switch button.is-active {
-  background: color-mix(in srgb, var(--elf-primary) 12%, transparent);
-  color: var(--elf-primary);
+  background: color-mix(in srgb, var(--elf-primary, #1976d2) 12%, transparent);
+  color: var(--elf-primary, #1976d2);
 }
 
 .clock-face {
@@ -213,10 +213,10 @@
   background:
     radial-gradient(
       circle at center,
-      color-mix(in srgb, var(--elf-primary) 10%, transparent) 0 3px,
+      color-mix(in srgb, var(--elf-primary, #1976d2) 10%, transparent) 0 3px,
       transparent 4px
     ),
-    var(--elf-bg-overlay);
+    var(--elf-bg-overlay, rgba(0, 0, 0, 0.04));
 }
 
 .clock-center {
@@ -226,7 +226,7 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--elf-primary);
+  background: var(--elf-primary, #1976d2);
   transform: translate(-50%, -50%);
 }
 
@@ -241,7 +241,7 @@
   border: 0;
   border-radius: 50%;
   background: transparent;
-  color: var(--elf-text-primary);
+  color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
   font: inherit;
   font-size: 12px;
   font-weight: 650;
@@ -252,14 +252,14 @@
 .clock-number:hover,
 .clock-number:focus-visible {
   outline: none;
-  background: color-mix(in srgb, var(--elf-primary) 11%, transparent);
-  color: var(--elf-primary);
+  background: color-mix(in srgb, var(--elf-primary, #1976d2) 11%, transparent);
+  color: var(--elf-primary, #1976d2);
 }
 
 .clock-number.is-active {
-  background: var(--elf-primary);
+  background: var(--elf-primary, #1976d2);
   color: #fff;
-  box-shadow: 0 5px 14px color-mix(in srgb, var(--elf-primary) 30%, transparent);
+  box-shadow: 0 5px 14px color-mix(in srgb, var(--elf-primary, #1976d2) 30%, transparent);
 }
 
 .clock-number:disabled {
@@ -270,7 +270,7 @@
 
 .clock-number:disabled:hover {
   background: transparent;
-  color: var(--elf-text-primary);
+  color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
 }
 
 .shortcuts {
@@ -278,7 +278,7 @@
   gap: 6px;
   padding: 10px 14px;
   overflow-x: auto;
-  border-top: 1px solid var(--elf-divider);
+  border-top: 1px solid var(--elf-divider, rgba(0, 0, 0, 0.08));
 }
 
 .shortcut {
@@ -290,13 +290,13 @@
   align-items: center;
   justify-content: space-between;
   padding: 10px 14px 12px;
-  border-top: 1px solid var(--elf-divider);
-  color: var(--elf-text-disabled);
+  border-top: 1px solid var(--elf-divider, rgba(0, 0, 0, 0.08));
+  color: var(--elf-text-disabled, rgba(0, 0, 0, 0.38));
   font-size: 11px;
 }
 
 .panel-actions button {
-  background: var(--elf-primary);
+  background: var(--elf-primary, #1976d2);
   color: #fff;
   font-weight: 700;
 }

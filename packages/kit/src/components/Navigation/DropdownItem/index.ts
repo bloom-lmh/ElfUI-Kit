@@ -3,7 +3,7 @@ import { defineHtml, defineProps, defineStyle, useHost, useHostFlag } from "@elf
 import styles from "./style.scss?inline";
 import type {
   DropdownCommand,
-  DropdownItem,
+  DropdownItem as DropdownItemData,
   DropdownItemProps,
   DropdownItemSlots,
 } from "../Dropdown/types";
@@ -33,7 +33,7 @@ const onClick = (event: MouseEvent): void => {
   event.preventDefault();
   event.stopPropagation();
   if (props.disabled) return;
-  const item: DropdownItem = {
+  const item: DropdownItemData = {
     label: label(),
     command: props.command as DropdownCommand,
     disabled: false,

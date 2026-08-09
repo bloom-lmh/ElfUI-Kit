@@ -1,8 +1,5 @@
 import { defineHtml, useRef } from "@elfui/core";
-import type {
-  TableV2Column,
-  TableV2RowsRenderedDetail,
-} from "@elfui/kit-src/components/Data/TableV2";
+import type { TableV2Column, TableV2RowsRenderedDetail } from "@elfui/kit";
 import { createDocsPicker, createDocsTranslator } from "../../docsLocale";
 
 const pick = createDocsPicker();

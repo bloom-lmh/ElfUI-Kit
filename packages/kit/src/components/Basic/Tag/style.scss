@@ -13,19 +13,19 @@
   align-items: center;
   min-width: 0;
   max-width: 100%;
-  gap: var(--elf-space-1);
-  font-size: var(--elf-font-size-xs);
+  gap: var(--elf-space-1, 4px);
+  font-size: var(--elf-font-size-xs, 12px);
   line-height: 1;
   padding: 2px 8px;
   height: 22px;
-  border-radius: var(--elf-radius-sm);
+  border-radius: var(--elf-radius-sm, 4px);
   border: 1px solid transparent;
   white-space: nowrap;
   user-select: none;
   transition:
-    background-color var(--elf-transition-fast),
-    color var(--elf-transition-fast),
-    border-color var(--elf-transition-fast);
+    background-color var(--elf-transition-fast, 150ms cubic-bezier(0.4, 0, 0.2, 1)),
+    color var(--elf-transition-fast, 150ms cubic-bezier(0.4, 0, 0.2, 1)),
+    border-color var(--elf-transition-fast, 150ms cubic-bezier(0.4, 0, 0.2, 1));
 }
 
 .label {
@@ -40,7 +40,7 @@
 }
 
 .tag:focus-visible {
-  outline: 2px solid var(--elf-focus-ring, var(--elf-primary));
+  outline: 2px solid var(--elf-focus-ring, var(--elf-primary, #1976d2));
   outline-offset: 2px;
 }
 
@@ -51,40 +51,40 @@
   height: 18px;
 }
 :host([size="lg"]) .tag {
-  font-size: var(--elf-font-size-sm);
+  font-size: var(--elf-font-size-sm, 14px);
   padding: 4px 12px;
   height: 28px;
 }
 
 /* round */
 :host([round]) .tag {
-  border-radius: var(--elf-radius-pill);
+  border-radius: var(--elf-radius-pill, 999px);
 }
 
 /* 颜色 — 默认 primary */
 :host([color="primary"]),
 :host(:not([color])) {
-  --_color: var(--elf-primary);
+  --_color: var(--elf-primary, #1976d2);
   --_bg: rgba(25, 118, 210, 0.1);
 }
 :host([color="secondary"]) {
-  --_color: var(--elf-secondary);
+  --_color: var(--elf-secondary, #d81b60);
   --_bg: rgba(216, 27, 96, 0.1);
 }
 :host([color="success"]) {
-  --_color: var(--elf-success);
+  --_color: var(--elf-success, #2e7d32);
   --_bg: rgba(46, 125, 50, 0.1);
 }
 :host([color="warning"]) {
-  --_color: var(--elf-warning);
+  --_color: var(--elf-warning, #ef6c00);
   --_bg: rgba(237, 108, 2, 0.1);
 }
 :host([color="danger"]) {
-  --_color: var(--elf-danger);
+  --_color: var(--elf-danger, #d32f2f);
   --_bg: rgba(211, 47, 47, 0.1);
 }
 :host([color="info"]) {
-  --_color: var(--elf-info);
+  --_color: var(--elf-info, #0288d1);
   --_bg: rgba(2, 136, 209, 0.1);
 }
 
@@ -99,7 +99,7 @@
 /* variant: filled */
 :host([variant="filled"]) .tag {
   background: var(--_color);
-  color: var(--elf-text-on-primary);
+  color: var(--elf-text-on-primary, #ffffff);
   border-color: var(--_color);
 }
 
@@ -116,7 +116,7 @@
 
 :host([checked]) .tag {
   background: var(--_color);
-  color: var(--elf-text-on-primary);
+  color: var(--elf-text-on-primary, #ffffff);
   border-color: var(--_color);
 }
 

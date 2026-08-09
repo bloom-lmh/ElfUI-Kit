@@ -1,6 +1,6 @@
 import { defineHtml, defineStyle, useRef, useTemplateRef } from "@elfui/core";
 
-import type { InfiniteScrollExposes } from "@elfui/kit-src/components/Data/InfiniteScroll";
+import type { InfiniteScrollExposes } from "@elfui/kit";
 import { createDocsTranslator } from "../../docsLocale";
 import styles from "./demo.scss?inline";
 

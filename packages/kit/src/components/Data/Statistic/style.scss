@@ -2,24 +2,24 @@
 
 :host {
   display: inline-block;
-  color: var(--elf-text-primary);
+  color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
 }
 
 .statistic {
   display: inline-flex;
   flex-direction: column;
-  gap: var(--elf-space-1);
+  gap: var(--elf-space-1, 4px);
 }
 
 .title {
-  color: var(--elf-text-secondary);
-  font-size: var(--elf-font-size-sm);
+  color: var(--elf-text-secondary, rgba(0, 0, 0, 0.6));
+  font-size: var(--elf-font-size-sm, 14px);
 }
 
 .value {
   display: inline-flex;
   align-items: baseline;
-  gap: var(--elf-space-1);
+  gap: var(--elf-space-1, 4px);
   font-size: 28px;
   font-weight: 700;
   line-height: 1.2;
@@ -27,7 +27,7 @@
 
 .prefix,
 .suffix {
-  color: var(--elf-text-secondary);
+  color: var(--elf-text-secondary, rgba(0, 0, 0, 0.6));
   font-size: 0.65em;
   font-weight: 500;
 }

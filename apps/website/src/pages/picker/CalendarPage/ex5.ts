@@ -1,6 +1,6 @@
 import { defineHtml, defineStyle, useRef } from "@elfui/core";
 
-import type { CalendarDateCell } from "@elfui/kit-src/components/Picker/Calendar";
+import type { CalendarDateCell } from "@elfui/kit";
 import { createDocsPicker, createDocsTranslator } from "../../docsLocale";
 import demoStyles from "./demo.scss?inline";
 

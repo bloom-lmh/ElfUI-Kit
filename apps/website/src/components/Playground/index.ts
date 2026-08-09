@@ -23,7 +23,7 @@ import {
 } from "@elfui/core";
 
 import styles from "./style.scss?inline";
-import { useLocaleProvider } from "@elfui/kit-src/components/Providers/context";
+import { useLocaleProvider } from "@elfui/kit";
 import type { PlaygroundEmits, PlaygroundProps, PlaygroundSlots } from "./types";
 
 export type {

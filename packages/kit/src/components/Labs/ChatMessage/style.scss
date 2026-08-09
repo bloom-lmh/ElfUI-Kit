@@ -1,6 +1,8 @@
+@use "../../../styles/reset";
+
 :host {
   display: block;
-  color: var(--elf-text-primary);
+  color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
   font-family: var(--elf-font-family, sans-serif);
 }
 

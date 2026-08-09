@@ -1,6 +1,6 @@
 import { defineEmits, defineHtml, defineProps } from "@elfui/core";
 
-import { useMessageBox } from "@elfui/kit-src/components/Feedback";
+import { useMessageBox } from "@elfui/kit";
 
 const props = defineProps<{
   openLabel: string;

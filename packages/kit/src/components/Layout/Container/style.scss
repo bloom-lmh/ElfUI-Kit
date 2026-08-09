@@ -6,7 +6,7 @@
   width: 100%;
   margin-inline: auto;
   box-sizing: border-box;
-  padding: var(--elf-space-4);
+  padding: var(--elf-space-4, 16px);
   max-width: 1200px;
 }
 
@@ -35,7 +35,7 @@
 
 @media (max-width: 600px) {
   :host(:not([padding="0"])) {
-    padding-inline: var(--elf-space-3);
+    padding-inline: var(--elf-space-3, 12px);
   }
 }
 
@@ -43,11 +43,11 @@
   padding: 0;
 }
 :host([padding="sm"]) {
-  padding: var(--elf-space-3);
+  padding: var(--elf-space-3, 12px);
 }
 :host([padding="md"]) {
-  padding: var(--elf-space-4);
+  padding: var(--elf-space-4, 16px);
 }
 :host([padding="lg"]) {
-  padding: var(--elf-space-6);
+  padding: var(--elf-space-6, 24px);
 }

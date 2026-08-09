@@ -27,7 +27,7 @@ import {
   mdiWeatherNight,
 } from "@mdi/js";
 
-import { createSvgIconSet } from "@elfui/kit-src/components/Basic/Icon";
+import { createSvgIconSet } from "@elfui/kit";
 
 export const timelineIconOptions = {
   defaultSet: "mdi",

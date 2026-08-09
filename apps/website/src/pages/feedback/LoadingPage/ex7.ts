@@ -1,6 +1,6 @@
 import { defineHtml } from "@elfui/core";
 
-import { ElfLoading } from "@elfui/kit-src/components/Feedback/Loading/service";
+import { ElfLoading } from "@elfui/kit";
 import { createDocsTranslator } from "../../docsLocale";
 
 const t = createDocsTranslator({

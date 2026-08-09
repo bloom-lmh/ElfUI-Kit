@@ -6,7 +6,7 @@ import type {
   TableHeaderCellContext,
   TableRow,
   TableRowContext,
-} from "@elfui/kit-src/components/Data/Table";
+} from "@elfui/kit";
 import { createDocsPicker, createDocsTranslator } from "../../docsLocale";
 import demoStyles from "./demo.scss?inline";
 

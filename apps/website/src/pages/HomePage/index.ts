@@ -1,7 +1,7 @@
 import { defineHtml, defineStyle, useComponents } from "@elfui/core";
 
-import { Link } from "@elfui/kit-src/components/Basic/Link";
-import { useLocaleProvider } from "@elfui/kit-src/components/Providers/context";
+import { Link } from "@elfui/kit";
+import { useLocaleProvider } from "@elfui/kit";
 import { createDocsPicker, createDocsTranslator } from "../docsLocale";
 import styles from "./style.scss?inline";
 

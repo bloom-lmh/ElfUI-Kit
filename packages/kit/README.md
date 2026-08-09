@@ -1,14 +1,8 @@
 # @elfui/kit
 
-ElfUI component library built with native Web Components and Material Design tokens.
+ElfUI component library built with native Custom Elements, Shadow DOM, and Material tokens.
 
 ## Install
-
-```bash
-npm install @elfui/kit
-```
-
-Or with pnpm:
 
 ```bash
 pnpm add @elfui/kit
@@ -16,11 +10,21 @@ pnpm add @elfui/kit
 
 ## Use
 
-Import the Kit once at your application entry. This registers every `elf-*`
-component as a Custom Element.
+Every component and public type is exported from one entry. Importing a constructor does not register it.
 
 ```ts
-import "@elfui/kit";
+import { registerComponents } from "@elfui/core";
+import { Button, Input } from "@elfui/kit";
+
+registerComponents(Button, Input);
+```
+
+Register the complete stable, AI, and Labs set when bundle size is not a concern:
+
+```ts
+import { registerAllComponents } from "@elfui/kit";
+
+registerAllComponents();
 ```
 
 ```html
@@ -28,23 +32,13 @@ import "@elfui/kit";
 <elf-input label="Project name" variant="outlined"></elf-input>
 ```
 
-Optional layout and typography utilities:
-
-```ts
-import "@elfui/kit/styles/utilities.css";
-```
-
-Labs components such as CodeCard, Video, and Heatmap use a separate entry:
-
-```ts
-import "@elfui/kit/labs";
-```
+Component styles stay inside their Shadow DOM. Customize them with ConfigProvider tokens, CSS custom properties, Core `theme()`, and documented `::part()` names. Derive a real custom tag with Core `useVariant()`.
 
 ## Requirements
 
 - Modern evergreen browsers with Custom Elements and Shadow DOM support.
 - Safari 16.4 or later as the minimum verified target.
-- `@elfui/core` is installed automatically as a dependency.
+- Install compatible `@elfui/core` explicitly when using its authoring or registration APIs.
 
 ## License
 

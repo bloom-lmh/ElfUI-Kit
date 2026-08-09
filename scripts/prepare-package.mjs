@@ -3,9 +3,7 @@ import { resolve } from "node:path";
 
 const workspaceRoot = resolve(import.meta.dirname, "..");
 const packageRoot = resolve(workspaceRoot, process.argv[2] ?? "packages/kit");
-const declarationPaths = ["library.d.ts", "labs.d.ts"].map((file) =>
-  resolve(packageRoot, "lib-dist", file),
-);
+const declarationPaths = ["library.d.ts"].map((file) => resolve(packageRoot, "lib-dist", file));
 
 await copyFile(
   resolve(packageRoot, "src/elements.generated.d.ts"),
@@ -14,6 +12,6 @@ await copyFile(
 
 for (const declarationPath of declarationPaths) {
   const declaration = await readFile(declarationPath, "utf8");
-  const source = `/// <reference path="./elements.generated.d.ts" />\n${declaration.replace('import "./styles/utilities.scss";\n', "")}`;
+  const source = `/// <reference path="./elements.generated.d.ts" />\n${declaration}`;
   await writeFile(declarationPath, source, "utf8");
 }

@@ -1,3 +1,4 @@
+import { registerAllComponents } from "@elfui/kit";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
 
 let groupsExampleTag = "";
@@ -6,6 +7,7 @@ let stateExampleTag = "";
 let boundaryExampleTag = "";
 
 beforeAll(async () => {
+  registerAllComponents();
   await import("../../../components");
   const { ensureCustomElement } = await import("@elfui/core");
   const { PageListEx1 } = await import("./ex1");

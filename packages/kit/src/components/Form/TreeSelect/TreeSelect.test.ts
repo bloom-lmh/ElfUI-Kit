@@ -4,7 +4,9 @@ import type { TreeNode } from "../../Data/Tree/types";
 import type { TreeSelectElement, TreeSelectModelValue, TreeSelectValue } from "./types";
 
 beforeAll(async () => {
-  await import("../../../components");
+  await import("../../../register-all").then(({ registerAllComponents }) =>
+    registerAllComponents(),
+  );
 });
 
 afterEach(() => {

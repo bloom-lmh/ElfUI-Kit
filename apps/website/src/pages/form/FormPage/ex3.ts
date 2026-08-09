@@ -1,7 +1,7 @@
 import { defineHtml, defineStyle, useHost, useReactive, useRef } from "@elfui/core";
 import { createDocsTranslator } from "../../docsLocale";
 
-import type { FormRules } from "@elfui/kit-src/components/Form";
+import type { FormRules } from "@elfui/kit";
 import demoStyles from "./demo.scss?inline";
 
 const t = createDocsTranslator({

@@ -1,5 +1,5 @@
 import { defineHtml, defineStyle, useRef } from "@elfui/core";
-import type { TableColumn, TableRow } from "@elfui/kit-src/components/Data/Table";
+import type { TableColumn, TableRow } from "@elfui/kit";
 import { createDocsPicker, createDocsTranslator } from "../../docsLocale";
 import demoStyles from "./demo.scss?inline";
 

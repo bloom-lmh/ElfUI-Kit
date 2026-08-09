@@ -1,4 +1,4 @@
-import type { CascaderOption } from "@elfui/kit-src/components/Form/Cascader";
+import type { CascaderOption } from "@elfui/kit";
 
 export type DocsPick = (zh: string, en: string) => string;
 

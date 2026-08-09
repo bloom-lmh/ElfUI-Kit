@@ -1,5 +1,5 @@
 import { defineHtml, useRef } from "@elfui/core";
-import type { TransferRenderContext } from "@elfui/kit-src/components/Data/Transfer";
+import type { TransferRenderContext } from "@elfui/kit";
 import { createDocsTranslator } from "../../docsLocale";
 
 const t = createDocsTranslator({

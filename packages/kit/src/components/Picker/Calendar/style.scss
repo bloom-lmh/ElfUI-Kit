@@ -4,7 +4,7 @@
   display: block;
   width: min(100%, 420px);
   min-width: 300px;
-  color: var(--elf-text-primary);
+  color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
 }
 
 :host([data-show-week-number]) {
@@ -13,9 +13,9 @@
 
 .calendar {
   overflow: hidden;
-  border: 1px solid var(--elf-divider);
+  border: 1px solid var(--elf-divider, rgba(0, 0, 0, 0.08));
   border-radius: 18px;
-  background: var(--elf-bg-paper);
+  background: var(--elf-bg-paper, #ffffff);
   box-shadow: 0 12px 36px rgb(0 0 0 / 7%);
 }
 
@@ -78,8 +78,8 @@
 .period-button:hover,
 .period-button:focus-visible {
   outline: none;
-  background: color-mix(in srgb, var(--elf-primary) 9%, transparent);
-  color: var(--elf-primary);
+  background: color-mix(in srgb, var(--elf-primary, #1976d2) 9%, transparent);
+  color: var(--elf-primary, #1976d2);
 }
 
 .nav {
@@ -89,7 +89,7 @@
   place-items: center;
   border-radius: 50%;
   background: transparent;
-  color: var(--elf-text-secondary);
+  color: var(--elf-text-secondary, rgba(0, 0, 0, 0.6));
   cursor: pointer;
   font-size: 22px;
   line-height: 1;
@@ -98,8 +98,8 @@
 .nav:hover,
 .nav:focus-visible {
   outline: none;
-  background: var(--elf-bg-overlay);
-  color: var(--elf-primary);
+  background: var(--elf-bg-overlay, rgba(0, 0, 0, 0.04));
+  color: var(--elf-primary, #1976d2);
 }
 
 .calendar-body {
@@ -124,14 +124,14 @@
 .week-number {
   display: grid;
   place-items: center;
-  color: var(--elf-text-disabled);
+  color: var(--elf-text-disabled, rgba(0, 0, 0, 0.38));
   font-size: 10px;
   font-variant-numeric: tabular-nums;
 }
 
 .week {
   margin-bottom: 4px;
-  color: var(--elf-text-disabled);
+  color: var(--elf-text-disabled, rgba(0, 0, 0, 0.38));
   font-size: 11px;
   font-weight: 700;
 }
@@ -165,8 +165,8 @@
 .day:hover:not(:disabled),
 .day:focus-visible {
   outline: none;
-  background: color-mix(in srgb, var(--elf-primary) 10%, transparent);
-  color: var(--elf-primary);
+  background: color-mix(in srgb, var(--elf-primary, #1976d2) 10%, transparent);
+  color: var(--elf-primary, #1976d2);
 }
 
 .day:active:not(:disabled) {
@@ -176,32 +176,32 @@
 .day.is-current,
 .day.is-range-start,
 .day.is-range-end {
-  background: var(--elf-primary);
+  background: var(--elf-primary, #1976d2);
   color: var(--elf-text-on-primary, #fff);
   font-weight: 750;
-  box-shadow: 0 5px 14px color-mix(in srgb, var(--elf-primary) 30%, transparent);
+  box-shadow: 0 5px 14px color-mix(in srgb, var(--elf-primary, #1976d2) 30%, transparent);
 }
 
 .day:is(.is-current, .is-range-start, .is-range-end):is(:hover, :focus-visible):not(:disabled) {
-  outline: 2px solid color-mix(in srgb, var(--elf-primary) 38%, transparent);
+  outline: 2px solid color-mix(in srgb, var(--elf-primary, #1976d2) 38%, transparent);
   outline-offset: 2px;
-  background: var(--elf-primary);
+  background: var(--elf-primary, #1976d2);
   color: var(--elf-text-on-primary, #fff);
 }
 
 .day.is-muted {
-  color: var(--elf-text-disabled);
+  color: var(--elf-text-disabled, rgba(0, 0, 0, 0.38));
   opacity: 0.58;
 }
 
 .day.is-in-range {
   border-radius: 10px;
-  background: color-mix(in srgb, var(--elf-primary) 13%, transparent);
-  color: var(--elf-primary);
+  background: color-mix(in srgb, var(--elf-primary, #1976d2) 13%, transparent);
+  color: var(--elf-primary, #1976d2);
 }
 
 .day:disabled {
-  color: var(--elf-text-disabled);
+  color: var(--elf-text-disabled, rgba(0, 0, 0, 0.38));
   cursor: not-allowed;
   opacity: 0.36;
   text-decoration: line-through;
@@ -220,7 +220,7 @@
   padding: 8px;
   border-radius: 12px;
   background: transparent;
-  color: var(--elf-text-secondary);
+  color: var(--elf-text-secondary, rgba(0, 0, 0, 0.6));
   cursor: pointer;
   font-weight: 650;
   transition:
@@ -232,8 +232,8 @@
 .choice:hover,
 .choice:focus-visible {
   outline: none;
-  background: var(--elf-bg-overlay);
-  color: var(--elf-primary);
+  background: var(--elf-bg-overlay, rgba(0, 0, 0, 0.04));
+  color: var(--elf-primary, #1976d2);
 }
 
 .choice:active {
@@ -241,9 +241,9 @@
 }
 
 .choice.is-active {
-  background: color-mix(in srgb, var(--elf-primary) 14%, var(--elf-bg-paper));
-  color: var(--elf-primary);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--elf-primary) 32%, transparent);
+  background: color-mix(in srgb, var(--elf-primary, #1976d2) 14%, var(--elf-bg-paper, #ffffff));
+  color: var(--elf-primary, #1976d2);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--elf-primary, #1976d2) 32%, transparent);
 }
 
 .calendar-footer {
@@ -252,7 +252,7 @@
   justify-content: space-between;
   min-height: 46px;
   padding: 4px 16px 10px;
-  color: var(--elf-text-disabled);
+  color: var(--elf-text-disabled, rgba(0, 0, 0, 0.38));
   font-size: 11px;
 }
 
@@ -261,13 +261,13 @@
   padding: 0 10px;
   border-radius: 9px;
   background: transparent;
-  color: var(--elf-primary);
+  color: var(--elf-primary, #1976d2);
   cursor: pointer;
   font-weight: 700;
 }
 
 .today-button:hover {
-  background: color-mix(in srgb, var(--elf-primary) 9%, transparent);
+  background: color-mix(in srgb, var(--elf-primary, #1976d2) 9%, transparent);
 }
 
 .month-title {

@@ -4,7 +4,9 @@ import { mdiViewDashboardOutline } from "@mdi/js";
 import { createOverlayInteractionController } from "../../Common/overlay/overlay-interaction-controller";
 
 beforeAll(async () => {
-  await import("../../../components");
+  await import("../../../register-all").then(({ registerAllComponents }) =>
+    registerAllComponents(),
+  );
 });
 
 afterEach(() => {

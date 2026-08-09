@@ -1,8 +1,8 @@
 @use "../../../styles/reset";
 
 :host {
-  --_progress-color: var(--elf-primary);
-  --_progress-track: var(--elf-bg-overlay);
+  --_progress-color: var(--elf-primary, #1976d2);
+  --_progress-track: var(--elf-bg-overlay, rgba(0, 0, 0, 0.04));
   --_progress-height: 8px;
   --_progress-percent: 0%;
   --_progress-size: 96px;
@@ -13,8 +13,8 @@
 
   display: inline-block;
   width: 100%;
-  color: var(--elf-text-primary);
-  font-size: var(--elf-font-size-sm);
+  color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
+  font-size: var(--elf-font-size-sm, 14px);
 }
 
 .progress {
@@ -32,13 +32,13 @@
   min-width: 0;
   align-items: baseline;
   justify-content: space-between;
-  gap: var(--elf-space-3);
+  gap: var(--elf-space-3, 12px);
 }
 
 .line-label {
   overflow: hidden;
   min-width: 0;
-  color: var(--elf-text-primary);
+  color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
   font-weight: 600;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -63,7 +63,7 @@
   min-width: 0;
   height: var(--_progress-height);
   overflow: hidden;
-  border-radius: var(--elf-radius-pill);
+  border-radius: var(--elf-radius-pill, 999px);
   background: var(--_progress-track);
 }
 
@@ -74,13 +74,13 @@
   background: var(--_progress-color);
   transition:
     width var(--_progress-transition-duration) cubic-bezier(0.4, 0, 0.2, 1),
-    background-color var(--elf-transition-base);
+    background-color var(--elf-transition-base, 250ms cubic-bezier(0.4, 0, 0.2, 1));
 }
 
 .line-text {
   flex: 0 0 auto;
   min-width: 36px;
-  color: var(--elf-text-secondary);
+  color: var(--elf-text-secondary, rgba(0, 0, 0, 0.6));
   font-variant-numeric: tabular-nums;
   text-align: right;
 }
@@ -93,7 +93,7 @@
   justify-content: flex-end;
   min-width: 0;
   color: #ffffff;
-  font-size: var(--elf-font-size-xs);
+  font-size: var(--elf-font-size-xs, 12px);
   pointer-events: none;
 }
 
@@ -125,7 +125,7 @@
   stroke: var(--_progress-color);
   transition:
     stroke-dashoffset var(--_progress-transition-duration) cubic-bezier(0.4, 0, 0.2, 1),
-    stroke var(--elf-transition-base);
+    stroke var(--elf-transition-base, 250ms cubic-bezier(0.4, 0, 0.2, 1));
 }
 
 .circle-text {
@@ -133,7 +133,7 @@
   inset: 0;
   display: grid;
   place-items: center;
-  color: var(--elf-text-primary);
+  color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
@@ -187,7 +187,7 @@
 }
 :host([data-type="line"][status="exception"]) .line-value,
 :host([data-type="line"][status="danger"]) .line-value {
-  background-color: var(--elf-danger);
+  background-color: var(--elf-danger, #d32f2f);
 }
 
 :host([data-type="line"]) .line-track:has(.line-value) {

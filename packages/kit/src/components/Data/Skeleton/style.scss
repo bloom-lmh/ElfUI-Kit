@@ -17,7 +17,7 @@
 }
 
 .placeholder {
-  gap: var(--elf-space-3);
+  gap: var(--elf-space-3, 12px);
   min-width: min(100%, 280px);
 }
 
@@ -25,13 +25,13 @@
   position: relative;
   overflow: hidden;
   flex-shrink: 0;
-  background: var(--elf-bg-overlay);
+  background: var(--elf-bg-overlay, rgba(0, 0, 0, 0.04));
 }
 
 :host([variant="text"]),
 :host(:not([variant])) {
   .skeleton {
-    border-radius: var(--elf-radius-pill);
+    border-radius: var(--elf-radius-pill, 999px);
   }
 }
 
@@ -42,14 +42,14 @@
 :host([variant="rect"]),
 :host([variant="image"]) {
   .skeleton {
-    border-radius: var(--elf-radius-sm);
+    border-radius: var(--elf-radius-sm, 4px);
   }
 }
 
 :host([animated]) .skeleton::after {
   position: absolute;
   inset: 0;
-  background: color-mix(in srgb, var(--elf-bg-paper) 42%, transparent);
+  background: color-mix(in srgb, var(--elf-bg-paper, #ffffff) 42%, transparent);
   content: "";
   animation: skeleton-pulse 1.35s ease-in-out infinite alternate;
 }

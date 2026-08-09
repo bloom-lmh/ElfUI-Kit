@@ -1,157 +1,19 @@
-// Navigation components
-import { registerComponents } from "@elfui/core";
-
-import { Anchor } from "./Anchor/index";
-import { AnchorLink } from "./AnchorLink/index";
-import { AppBar } from "./AppBar/index";
-import { BackTop } from "./BackTop/index";
-import { BottomNavigation } from "./BottomNavigation/index";
-import { Breadcrumb } from "./Breadcrumb/index";
-import { BreadcrumbItem } from "./BreadcrumbItem/index";
-import { Dropdown } from "./Dropdown/index";
-import { DropdownItem } from "./DropdownItem/index";
-import { DropdownMenu } from "./DropdownMenu/index";
-import { Menu } from "./Menu/index";
-import { MenuItem } from "./MenuItem/index";
-import { MenuItemGroup } from "./MenuItemGroup/index";
-import { PageHeader } from "./PageHeader/index";
-import { Step } from "./Step/index";
-import { Steps } from "./Steps/index";
-import { TabPane } from "./TabPane/index";
-import { Tabs } from "./Tabs/index";
-import { SubMenu } from "./SubMenu/index";
-
-registerComponents(
-  AppBar,
-  BottomNavigation,
-  Anchor,
-  AnchorLink,
-  BackTop,
-  Breadcrumb,
-  BreadcrumbItem,
-  Dropdown,
-  DropdownMenu,
-  DropdownItem,
-  Menu,
-  MenuItem,
-  MenuItemGroup,
-  SubMenu,
-  Steps,
-  Step,
-  Tabs,
-  TabPane,
-  PageHeader,
-);
-
-export { AppBar } from "./AppBar/index";
-export type {
-  AppBarDensity,
-  AppBarEmits,
-  AppBarProps,
-  AppBarScrollBehavior,
-  AppBarSlots,
-} from "./AppBar/types";
-export { BottomNavigation } from "./BottomNavigation/index";
-export type {
-  BottomNavigationEmits,
-  BottomNavigationItem,
-  BottomNavigationProps,
-  BottomNavigationSlots,
-  BottomNavigationValue,
-} from "./BottomNavigation/types";
-
-export type {
-  AnchorChangeDetail,
-  AnchorClickDetail,
-  AnchorElement,
-  AnchorFieldNames,
-  AnchorItem,
-  AnchorLinkProps,
-  AnchorLinkSlots,
-  AnchorProps,
-  AnchorSlots,
-} from "./Anchor/types";
-export type { BackTopElement, BackTopProps, BackTopShape } from "./BackTop/types";
-export type {
-  BreadcrumbFieldNames,
-  BreadcrumbItem,
-  BreadcrumbItemProps,
-  BreadcrumbItemSlots,
-  BreadcrumbProps,
-  BreadcrumbRouteLocation,
-  BreadcrumbSlots,
-} from "./Breadcrumb/types";
-export type {
-  DropdownButtonProps,
-  DropdownButtonType,
-  DropdownCommandDetail,
-  DropdownCommand,
-  DropdownEffect,
-  DropdownElement,
-  DropdownEmits,
-  DropdownExpose,
-  DropdownFieldNames,
-  DropdownItem,
-  DropdownItemProps,
-  DropdownItemSlots,
-  DropdownMenuProps,
-  DropdownMenuSlots,
-  DropdownPlacement,
-  DropdownPopperModifier,
-  DropdownPopperOptions,
-  DropdownProps,
-  DropdownSize,
-  DropdownSlots,
-  DropdownTrigger,
-  DropdownTriggerMode,
-  DropdownVirtualRef,
-} from "./Dropdown/types";
-export type {
-  MenuExpose,
-  MenuFieldNames,
-  MenuItem,
-  MenuItemClickDetail,
-  MenuItemGroupProps,
-  MenuItemGroupSlots,
-  MenuItemProps,
-  MenuItemSlots,
-  MenuMode,
-  MenuPopperStyle,
-  MenuProps,
-  MenuSlots,
-  MenuTheme,
-  MenuTogglePlacement,
-  MenuTrigger,
-  SubMenuProps,
-  SubMenuSlots,
-} from "./Menu/types";
-export type {
-  StepProps,
-  StepSlots,
-  StepItem,
-  StepsChangeDetail,
-  StepsDirection,
-  StepsProps,
-  StepsSize,
-  StepStatus,
-  StepsExpose,
-  StepsSlots,
-} from "./Steps/types";
-export type {
-  TabPaneName,
-  TabPaneProps,
-  TabPaneSlots,
-  TabsAlign,
-  TabsBeforeLeave,
-  TabsDensity,
-  TabsDirection,
-  TabsExpose,
-  TabsFieldNames,
-  TabsItem,
-  TabsPaneContext,
-  TabsPosition,
-  TabsProps,
-  TabsSlots,
-  TabsTransition,
-  TabsType,
-} from "./Tabs/types";
+export * from "./Anchor/index";
+export * from "./AnchorLink/index";
+export * from "./AppBar/index";
+export * from "./BackTop/index";
+export * from "./BottomNavigation/index";
+export * from "./Breadcrumb/index";
+export { BreadcrumbItem } from "./BreadcrumbItem/index";
+export * from "./Dropdown/index";
+export { DropdownItem } from "./DropdownItem/index";
+export * from "./DropdownMenu/index";
+export * from "./Menu/index";
+export { MenuItem } from "./MenuItem/index";
+export * from "./MenuItemGroup/index";
+export * from "./PageHeader/index";
+export * from "./Step/index";
+export * from "./Steps/index";
+export * from "./SubMenu/index";
+export * from "./TabPane/index";
+export * from "./Tabs/index";

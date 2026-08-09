@@ -1,5 +1,4 @@
 import { registerComponents } from "@elfui/core";
-import "@elfui/kit";
 
 import { ApiBuilder } from "./ApiBuilder";
 import { DocsHero } from "./DocsHero";

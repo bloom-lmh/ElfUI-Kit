@@ -1,6 +1,6 @@
 import { defineHtml, useRef } from "@elfui/core";
 
-import type { SelectOption } from "@elfui/kit-src/components/Form";
+import type { SelectOption } from "@elfui/kit";
 import { createDocsTranslator } from "../../docsLocale";
 import { opts } from "./shared";
 

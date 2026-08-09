@@ -7,7 +7,7 @@
   width: 100%;
   min-width: 0;
   max-width: 100%;
-  color: var(--elf-text-primary);
+  color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
 }
 
 .input-tag {
@@ -15,9 +15,9 @@
   width: 100%;
   min-height: var(--elf-field-control-height);
   align-items: center;
-  gap: var(--elf-space-2);
+  gap: var(--elf-space-2, 8px);
   position: relative;
-  padding: 7px var(--elf-space-3);
+  padding: 7px var(--elf-space-3, 12px);
 }
 
 @include field.surface(".input-tag");
@@ -52,7 +52,7 @@
   align-items: center;
   align-content: center;
   flex-wrap: wrap;
-  gap: var(--elf-space-2);
+  gap: var(--elf-space-2, 8px);
 }
 
 .tag-label {
@@ -74,7 +74,7 @@
   border: 0;
   border-radius: 999px;
   background: transparent;
-  color: var(--elf-text-secondary);
+  color: var(--elf-text-secondary, rgba(0, 0, 0, 0.6));
   cursor: pointer;
   font: inherit;
 }
@@ -89,8 +89,8 @@
 }
 
 .clear:hover {
-  background: var(--elf-bg-overlay);
-  color: var(--elf-danger);
+  background: var(--elf-bg-overlay, rgba(0, 0, 0, 0.04));
+  color: var(--elf-danger, #d32f2f);
 }
 
 input {
@@ -107,12 +107,12 @@ input {
 }
 
 input:disabled {
-  color: var(--elf-text-disabled);
+  color: var(--elf-text-disabled, rgba(0, 0, 0, 0.38));
   cursor: not-allowed;
 }
 
 :host([disabled]) .input-tag {
-  background: var(--elf-bg-muted);
+  background: var(--elf-bg-muted, var(--elf-bg-overlay, rgba(0, 0, 0, 0.04)));
 }
 
 :host([size="sm"]) .input-tag {

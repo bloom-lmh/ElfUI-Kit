@@ -3,7 +3,9 @@ import { afterEach, beforeAll, describe, expect, it } from "vitest";
 import { ThemeProviderProbe } from "./probe.test-component";
 
 beforeAll(async () => {
-  await import("../../index");
+  await import("../../../register-all").then(({ registerAllComponents }) =>
+    registerAllComponents(),
+  );
   registerComponents(ThemeProviderProbe);
 }, 30_000);
 

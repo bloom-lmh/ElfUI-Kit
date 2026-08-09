@@ -4,7 +4,9 @@ import { computeAnchoredPosition } from "../../Common/overlay/anchored-overlay";
 import type { DropdownElement, DropdownItem } from "./types";
 
 beforeAll(async () => {
-  await import("../../index");
+  await import("../../../register-all").then(({ registerAllComponents }) =>
+    registerAllComponents(),
+  );
 });
 
 afterEach(() => {

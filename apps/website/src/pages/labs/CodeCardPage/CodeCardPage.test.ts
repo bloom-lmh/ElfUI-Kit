@@ -4,7 +4,7 @@ import { afterEach, beforeAll, describe, expect, it } from "vitest";
 import { Playground } from "@elfui/website-components/Playground";
 import { PropsTable } from "@elfui/website-components/PropsTable";
 import { DocsHero } from "@elfui/website-components/DocsHero";
-import { Container } from "@elfui/kit-src/components/Layout/Container";
+import { Container, registerAllComponents } from "@elfui/kit";
 import { PageLabsCodeCard } from "./index";
 
 type TestSelect = HTMLElement & { modelValue: string };
@@ -12,6 +12,7 @@ type TestSelect = HTMLElement & { modelValue: string };
 let pageTag = "";
 
 beforeAll(() => {
+  registerAllComponents();
   registerComponents(Container, DocsHero, Playground, PropsTable);
   pageTag = ensureCustomElement(PageLabsCodeCard);
 });
@@ -69,7 +70,8 @@ describe("CodeCardPage", () => {
     expect(workbenchCard.language).toBe("html");
     expect(workbenchCard.code.split("\n")).toEqual([
       '<script type="module">',
-      'import "@elfui/kit";',
+      'import { registerAllComponents } from "@elfui/kit";',
+      "registerAllComponents();",
       "</script>",
       "",
       "<elf-button>Save</elf-button>",

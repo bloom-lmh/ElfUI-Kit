@@ -19,26 +19,27 @@
   justify-content: center;
   width: var(--backtop-size, 40px);
   height: var(--backtop-size, 40px);
-  border: 1px solid color-mix(in srgb, var(--elf-primary) 18%, var(--elf-border));
+  border: 1px solid
+    color-mix(in srgb, var(--elf-primary, #1976d2) 18%, var(--elf-border, rgba(0, 0, 0, 0.12)));
   border-radius: 999px;
-  background: var(--elf-bg-paper);
+  background: var(--elf-bg-paper, #ffffff);
   box-shadow: 0 8px 24px rgb(0 0 0 / 14%);
-  color: var(--elf-primary);
+  color: var(--elf-primary, #1976d2);
   cursor: pointer;
   font: inherit;
   pointer-events: auto;
   transition:
-    background var(--elf-transition-fast),
-    border-color var(--elf-transition-fast),
-    box-shadow var(--elf-transition-fast),
-    color var(--elf-transition-fast),
-    transform var(--elf-transition-fast);
+    background var(--elf-transition-fast, 150ms cubic-bezier(0.4, 0, 0.2, 1)),
+    border-color var(--elf-transition-fast, 150ms cubic-bezier(0.4, 0, 0.2, 1)),
+    box-shadow var(--elf-transition-fast, 150ms cubic-bezier(0.4, 0, 0.2, 1)),
+    color var(--elf-transition-fast, 150ms cubic-bezier(0.4, 0, 0.2, 1)),
+    transform var(--elf-transition-fast, 150ms cubic-bezier(0.4, 0, 0.2, 1));
 }
 
 .backtop:hover {
-  border-color: var(--elf-primary);
-  background: color-mix(in srgb, var(--elf-primary) 10%, var(--elf-bg-paper));
-  box-shadow: var(--elf-shadow-3);
+  border-color: var(--elf-primary, #1976d2);
+  background: color-mix(in srgb, var(--elf-primary, #1976d2) 10%, var(--elf-bg-paper, #ffffff));
+  box-shadow: var(--elf-shadow-3, 0 6px 12px rgba(0, 0, 0, 0.18));
   transform: translateY(-2px);
 }
 
@@ -47,12 +48,12 @@
 }
 
 .backtop:focus-visible {
-  outline: 2px solid var(--elf-primary);
+  outline: 2px solid var(--elf-primary, #1976d2);
   outline-offset: 2px;
 }
 
 :host([shape="square"]) .backtop {
-  border-radius: var(--elf-radius-md);
+  border-radius: var(--elf-radius-md, 8px);
 }
 
 .icon {

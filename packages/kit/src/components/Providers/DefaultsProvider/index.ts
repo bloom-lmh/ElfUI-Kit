@@ -35,6 +35,12 @@ export type { DefaultsProviderProps, DefaultsStrategy, ProviderDefaults } from "
 
 type LooseElement = HTMLElement & Record<string, unknown>;
 
+interface RuntimeComponentConstructor extends CustomElementConstructor {
+  __elfDefinition?: {
+    props?: Record<string, unknown>;
+  };
+}
+
 interface AppliedValue {
   key: string;
   propertyValue: unknown;
@@ -73,10 +79,30 @@ const readStrategy = (): DefaultsStrategy =>
 const assignedElements = (): Element[] =>
   slotRef.value?.assignedElements({ flatten: true }) ?? Array.from(host.children);
 
+const isReflectedRuntimeDefault = (element: Element, propKey: string): boolean => {
+  const constructor = element.constructor as RuntimeComponentConstructor;
+  const option = constructor.__elfDefinition?.props?.[propKey];
+  if (!option || typeof option !== "object" || !("default" in option)) return false;
+
+  const typedOption = option as { default?: unknown; type?: unknown };
+  let defaultValue = typedOption.default;
+  if (typeof defaultValue === "function" && typedOption.type !== Function) {
+    defaultValue = (defaultValue as () => unknown)();
+  }
+
+  return Object.is((element as LooseElement)[propKey], defaultValue);
+};
+
 const shouldSkip = (element: Element, propKey: string): boolean => {
   if (readStrategy() === "overwrite") return false;
   const attribute = toAttributeName(propKey);
-  return element.hasAttribute(attribute) || element.hasAttribute(propKey);
+  const hasAttribute = element.hasAttribute(attribute) || element.hasAttribute(propKey);
+  if (!hasAttribute) return false;
+
+  // A connected ElfUI component may reflect its own default to an attribute before
+  // a forwarded Provider slot can apply defaults. That reflection is not an
+  // explicit consumer value and must not block the Provider's "missing" strategy.
+  return !isReflectedRuntimeDefault(element, propKey);
 };
 
 const applyProp = (element: Element, propKey: string, value: unknown): void => {

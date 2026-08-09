@@ -26,8 +26,8 @@
   display: block;
   padding: 4px 8px;
   overflow: hidden;
-  border-radius: var(--elf-radius-sm);
-  color: var(--elf-text-secondary);
+  border-radius: var(--elf-radius-sm, 4px);
+  color: var(--elf-text-secondary, rgba(0, 0, 0, 0.6));
   font-size: 13px;
   line-height: 1.4;
   text-decoration: none;
@@ -36,24 +36,28 @@
 }
 
 .md-outline-link:hover {
-  background: color-mix(in srgb, var(--elf-text-primary) 5%, var(--elf-bg-paper));
-  color: var(--elf-text-primary);
+  background: color-mix(
+    in srgb,
+    var(--elf-text-primary, rgba(0, 0, 0, 0.87)) 5%,
+    var(--elf-bg-paper, #ffffff)
+  );
+  color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
 }
 
 .md-outline-link:focus-visible {
-  outline: 2px solid var(--elf-focus-ring, var(--elf-primary));
+  outline: 2px solid var(--elf-focus-ring, var(--elf-primary, #1976d2));
   outline-offset: 1px;
 }
 
 .md-outline-item.is-active .md-outline-link {
-  background: color-mix(in srgb, var(--elf-primary) 8%, var(--elf-bg-paper));
-  color: var(--elf-primary);
+  background: color-mix(in srgb, var(--elf-primary, #1976d2) 8%, var(--elf-bg-paper, #ffffff));
+  color: var(--elf-primary, #1976d2);
   font-weight: 600;
 }
 
 .md-outline-empty {
   margin: 0;
   padding: 4px 8px;
-  color: var(--elf-text-disabled);
+  color: var(--elf-text-disabled, rgba(0, 0, 0, 0.38));
   font-size: 12px;
 }

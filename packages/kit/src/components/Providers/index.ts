@@ -1,12 +1,3 @@
-// Providers
-import { registerComponents } from "@elfui/core";
-
-import { DefaultsProvider } from "./DefaultsProvider/index";
-import { ConfigProvider } from "./ConfigProvider/index";
-import { IconProvider } from "./IconProvider/index";
-import { LocaleProvider } from "./LocaleProvider/index";
-import { ThemeProvider } from "./ThemeProvider/index";
-
 export * from "./context";
 export * from "./config";
 export * from "./service-defaults";
@@ -28,5 +19,3 @@ export {
   getMaterialColorPalette,
 } from "./ThemeProvider/material-colors";
 export type { MaterialColorFamily, MaterialColorTone } from "./ThemeProvider/material-colors";
-
-registerComponents(ConfigProvider, DefaultsProvider, IconProvider, LocaleProvider, ThemeProvider);

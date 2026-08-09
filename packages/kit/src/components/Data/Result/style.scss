@@ -2,7 +2,7 @@
 
 :host {
   display: block;
-  color: var(--elf-text-primary);
+  color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
   text-align: center;
 }
 
@@ -25,7 +25,7 @@
   margin-bottom: 8px;
   border: 1px solid color-mix(in srgb, var(--_result-color) 20%, transparent);
   border-radius: 22px;
-  background: color-mix(in srgb, var(--_result-color) 10%, var(--elf-bg-paper));
+  background: color-mix(in srgb, var(--_result-color) 10%, var(--elf-bg-paper, #ffffff));
   box-shadow: 0 10px 24px color-mix(in srgb, var(--_result-color) 12%, transparent);
   color: var(--_result-color);
   font-size: 32px;
@@ -44,7 +44,7 @@
 }
 
 .title {
-  color: var(--elf-text-primary);
+  color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
   font-size: 22px;
   font-weight: 700;
   line-height: 1.35;
@@ -52,15 +52,15 @@
 
 .subtitle {
   max-width: 520px;
-  color: var(--elf-text-secondary);
-  font-size: var(--elf-font-size-md);
+  color: var(--elf-text-secondary, rgba(0, 0, 0, 0.6));
+  font-size: var(--elf-font-size-md, 16px);
   line-height: 1.6;
 }
 
 .extra {
   display: flex;
   justify-content: center;
-  gap: var(--elf-space-3);
+  gap: var(--elf-space-3, 12px);
   margin-top: 12px;
 }
 
@@ -69,18 +69,18 @@
 }
 
 :host([icon="success"]) {
-  --_result-color: var(--elf-success);
+  --_result-color: var(--elf-success, #2e7d32);
 }
 
 :host([icon="warning"]) {
-  --_result-color: var(--elf-warning);
+  --_result-color: var(--elf-warning, #ef6c00);
 }
 
 :host([icon="error"]) {
-  --_result-color: var(--elf-danger);
+  --_result-color: var(--elf-danger, #d32f2f);
 }
 
 :host,
 :host([icon="info"]) {
-  --_result-color: var(--elf-info);
+  --_result-color: var(--elf-info, #0288d1);
 }

@@ -1,6 +1,6 @@
 import { defineHtml } from "@elfui/core";
 
-import type { LoadingVariant } from "@elfui/kit-src/components/Feedback/Loading/types";
+import type { LoadingVariant } from "@elfui/kit";
 import { createDocsTranslator } from "../../docsLocale";
 
 const t = createDocsTranslator({

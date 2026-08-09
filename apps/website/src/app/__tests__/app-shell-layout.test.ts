@@ -4,7 +4,8 @@ import { describe, expect, it } from "vitest";
 const shellStyle = readFileSync("apps/website/src/app/AppShell/style.scss", "utf8");
 const shellSource = readFileSync("apps/website/src/app/AppShell/index.ts", "utf8");
 const kitManifest = JSON.parse(readFileSync("packages/kit/package.json", "utf8")) as {
-  sideEffects?: string[];
+  sideEffects?: boolean;
+  exports?: Record<string, unknown>;
 };
 
 describe("AppShell sidebar menu layout", () => {
@@ -41,20 +42,8 @@ describe("AppShell sidebar menu layout", () => {
     expect(shellSource).not.toContain("registerComponents(Button)");
   });
 
-  it("preserves source registration entrypoints in production builds", () => {
-    expect(kitManifest.sideEffects).toEqual(
-      expect.arrayContaining([
-        "./src/library.ts",
-        "./src/components/index.ts",
-        "./src/components/Basic/index.ts",
-        "./src/components/Data/index.ts",
-        "./src/components/Feedback/index.ts",
-        "./src/components/Form/register.ts",
-        "./src/components/Layout/index.ts",
-        "./src/components/Navigation/index.ts",
-        "./src/components/Picker/index.ts",
-        "./src/components/Providers/index.ts",
-      ]),
-    );
+  it("keeps the package root tree-shakeable and exposes no JavaScript subpaths", () => {
+    expect(kitManifest.sideEffects).toBe(false);
+    expect(Object.keys(kitManifest.exports ?? {})).toEqual(["."]);
   });
 });

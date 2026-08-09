@@ -7,7 +7,7 @@
 .group {
   display: inline-flex;
   flex-wrap: wrap;
-  gap: var(--elf-space-3);
+  gap: var(--elf-space-3, 12px);
   align-items: center;
 }
 

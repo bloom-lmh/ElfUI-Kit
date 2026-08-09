@@ -4,8 +4,6 @@
     "baseUrl": ".",
     "paths": {
       "@elfui/kit": ["../../packages/kit/src/library.ts"],
-      "@elfui/kit/labs": ["../../packages/kit/src/labs.ts"],
-      "@elfui/kit-src/*": ["../../packages/kit/src/*"],
       "@elfui/website-components/*": ["src/components/*"]
     }
   },

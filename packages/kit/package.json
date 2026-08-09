@@ -1,6 +1,6 @@
 {
   "name": "@elfui/kit",
-  "version": "0.0.2-beta.2",
+  "version": "0.0.2-beta.3",
   "private": false,
   "type": "module",
   "description": "Official ElfUI component library built with macro components.",
@@ -11,34 +11,14 @@
     ".": {
       "types": "./lib-dist/library.d.ts",
       "import": "./lib-dist/elfui-kit.js"
-    },
-    "./labs": {
-      "types": "./lib-dist/labs.d.ts",
-      "import": "./lib-dist/labs.js"
-    },
-    "./styles/utilities.css": "./lib-dist/utilities.css"
+    }
   },
   "files": [
     "lib-dist",
     "README.md",
     "LICENSE"
   ],
-  "sideEffects": [
-    "./lib-dist/elfui-kit.js",
-    "./lib-dist/labs.js",
-    "./lib-dist/utilities.css",
-    "./src/library.ts",
-    "./src/components/index.ts",
-    "./src/components/Basic/index.ts",
-    "./src/components/Data/index.ts",
-    "./src/components/Feedback/index.ts",
-    "./src/components/Form/register.ts",
-    "./src/components/Layout/index.ts",
-    "./src/components/Navigation/index.ts",
-    "./src/components/Picker/index.ts",
-    "./src/components/Providers/index.ts",
-    "./src/styles/utilities.scss"
-  ],
+  "sideEffects": false,
   "scripts": {
     "build": "pnpm typecheck && vite build && tsc -p tsconfig.lib.json && node ../../scripts/prepare-package.mjs packages/kit",
     "typecheck": "node ../../scripts/check-unsupported-macros.mjs src && node ../../scripts/typecheck-macros.mjs tsconfig.lib.json",

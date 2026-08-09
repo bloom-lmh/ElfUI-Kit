@@ -1,6 +1,5 @@
 import { defineHtml, defineStyle } from "@elfui/core";
 
-import "@elfui/kit/labs";
 import { createDocsTranslator } from "../../docsLocale";
 import articleStyles from "../../shared/article.scss?inline";
 
@@ -240,9 +239,7 @@ defineStyle(
 
   .case-neon {
     border: 1px solid #1c2333;
-    background:
-      radial-gradient(1200px 500px at 15% -10%, rgb(0 229 255 / 0.16), transparent 60%),
-      #0d0f14;
+    background: #0d0f14;
     --elf-bg-paper: rgb(20 24 33 / 0.86);
     --elf-bg-overlay: #151a24;
     --elf-border: #232b3d;
@@ -299,9 +296,7 @@ defineStyle(
 
   .case-midnight {
     border: 1px solid #232243;
-    background:
-      radial-gradient(900px 420px at 85% -10%, rgb(124 108 255 / 0.18), transparent 60%),
-      #0a0a12;
+    background: #0a0a12;
     --elf-bg-paper: #11111d;
     --elf-bg-overlay: #161625;
     --elf-border: #242440;
@@ -318,10 +313,8 @@ defineStyle(
   }
 
   .case-gradient {
-    border: 1px solid transparent;
-    background:
-      linear-gradient(#fbfbfc, #fbfbfc) padding-box,
-      linear-gradient(135deg, #f97316, #06b6d4 55%, #8b5cf6) border-box;
+    border: 1px solid #06b6d4;
+    background: #fbfbfc;
     --elf-primary: #ea580c;
     --elf-primary-hover: #f97316;
     --elf-success: #0d9488;

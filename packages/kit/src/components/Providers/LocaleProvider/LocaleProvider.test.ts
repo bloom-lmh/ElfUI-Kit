@@ -5,7 +5,9 @@ import { defineLocaleAdapter, type LocaleAdapter } from "../../../adapters";
 import { LocaleProviderFormatProbe, LocaleProviderProbe } from "./probe.test-component";
 
 beforeAll(async () => {
-  await import("../../index");
+  await import("../../../register-all").then(({ registerAllComponents }) =>
+    registerAllComponents(),
+  );
   registerComponents(LocaleProviderProbe, LocaleProviderFormatProbe);
 });
 

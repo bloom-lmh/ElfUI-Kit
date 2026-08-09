@@ -1,6 +1,5 @@
 import { defineHtml, defineStyle } from "@elfui/core";
 
-import "@elfui/kit/labs";
 import { createDocsTranslator } from "../../docsLocale";
 import articleStyles from "../../shared/article.scss?inline";
 
@@ -51,7 +50,9 @@ const code = `<elf-chat-tool-call
   :arguments='{"q":"elfui components"}'
   :result='{"count": 3}'
 />`;
-const script = `import "@elfui/kit/labs";`;
+const script = `import { registerAllComponents } from "@elfui/kit";
+
+registerAllComponents();`;
 
 const propRows = () => [
   { name: "name", type: "string", default: "''", desc: t("nameDesc") },

@@ -1,6 +1,5 @@
 import { defineHtml, defineStyle, useRef } from "@elfui/core";
 
-import "@elfui/kit/labs";
 import { createDocsTranslator } from "../../docsLocale";
 import articleStyles from "../../shared/article.scss?inline";
 
@@ -81,7 +80,9 @@ const code = `<elf-video
   :playback-rates="[0.75, 1, 1.25, 1.5, 2]"
   @time-update="onTimeUpdate"
 />`;
-const script = `import "@elfui/kit/labs";
+const script = `import { registerAllComponents } from "@elfui/kit";
+
+registerAllComponents();
 
 const onTimeUpdate = (event) => {
   const { currentTime, duration, progress } = event.detail;

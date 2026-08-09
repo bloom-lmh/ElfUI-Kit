@@ -5,8 +5,8 @@
   @include field.tokens;
   display: inline-block;
   position: relative;
-  color: var(--elf-text-primary);
-  font-size: var(--elf-font-size-sm);
+  color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
+  font-size: var(--elf-font-size-sm, 14px);
 }
 
 .dropdown {
@@ -25,14 +25,14 @@
   padding: 0 var(--elf-field-padding-end);
   border: 0;
   background: transparent;
-  color: var(--elf-text-primary);
+  color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
   font: inherit;
   cursor: pointer;
   user-select: none;
-  gap: var(--elf-space-2);
+  gap: var(--elf-space-2, 8px);
   transition:
-    color var(--elf-transition-fast),
-    opacity var(--elf-transition-fast);
+    color var(--elf-transition-fast, 150ms cubic-bezier(0.4, 0, 0.2, 1)),
+    opacity var(--elf-transition-fast, 150ms cubic-bezier(0.4, 0, 0.2, 1));
 
   &:focus-visible {
     outline: none;
@@ -70,57 +70,77 @@
   width: var(--elf-field-control-height);
   padding: 0;
   justify-content: center;
-  border-left: 1px solid var(--elf-divider);
+  border-left: 1px solid var(--elf-divider, rgba(0, 0, 0, 0.08));
 }
 
 :host([type="primary"]) :is(.trigger, .split-field) {
-  --elf-field-custom-bg: color-mix(in srgb, var(--elf-primary) 8%, var(--elf-bg-paper));
-  color: var(--elf-primary);
+  --elf-field-custom-bg: color-mix(
+    in srgb,
+    var(--elf-primary, #1976d2) 8%,
+    var(--elf-bg-paper, #ffffff)
+  );
+  color: var(--elf-primary, #1976d2);
 }
 
 :host([type="success"]) :is(.trigger, .split-field) {
-  --elf-field-custom-bg: color-mix(in srgb, var(--elf-success) 8%, var(--elf-bg-paper));
-  color: var(--elf-success);
+  --elf-field-custom-bg: color-mix(
+    in srgb,
+    var(--elf-success, #2e7d32) 8%,
+    var(--elf-bg-paper, #ffffff)
+  );
+  color: var(--elf-success, #2e7d32);
 }
 
 :host([type="warning"]) :is(.trigger, .split-field) {
-  --elf-field-custom-bg: color-mix(in srgb, var(--elf-warning) 9%, var(--elf-bg-paper));
-  color: var(--elf-warning);
+  --elf-field-custom-bg: color-mix(
+    in srgb,
+    var(--elf-warning, #ef6c00) 9%,
+    var(--elf-bg-paper, #ffffff)
+  );
+  color: var(--elf-warning, #ef6c00);
 }
 
 :host([type="danger"]) :is(.trigger, .split-field) {
-  --elf-field-custom-bg: color-mix(in srgb, var(--elf-danger) 8%, var(--elf-bg-paper));
-  color: var(--elf-danger);
+  --elf-field-custom-bg: color-mix(
+    in srgb,
+    var(--elf-danger, #d32f2f) 8%,
+    var(--elf-bg-paper, #ffffff)
+  );
+  color: var(--elf-danger, #d32f2f);
 }
 
 :host([type="info"]) :is(.trigger, .split-field) {
-  --elf-field-custom-bg: color-mix(in srgb, var(--elf-info, #607d8b) 8%, var(--elf-bg-paper));
+  --elf-field-custom-bg: color-mix(
+    in srgb,
+    var(--elf-info, #607d8b) 8%,
+    var(--elf-bg-paper, #ffffff)
+  );
   color: var(--elf-info, #607d8b);
 }
 
 :host([size="sm"]) :is(.trigger, .split-field) {
   --elf-field-control-height: 40px;
-  font-size: var(--elf-font-size-xs);
+  font-size: var(--elf-font-size-xs, 12px);
 }
 
 :host([size="sm"]) :is(.trigger, .split-main) {
-  padding-inline: var(--elf-space-3);
+  padding-inline: var(--elf-space-3, 12px);
 }
 
 :host([size="lg"]) :is(.trigger, .split-field) {
   --elf-field-control-height: 64px;
-  font-size: var(--elf-font-size-md);
+  font-size: var(--elf-font-size-md, 16px);
 }
 
 :host([size="lg"]) :is(.trigger, .split-main) {
-  padding-inline: var(--elf-space-5);
+  padding-inline: var(--elf-space-5, 20px);
 }
 
 :host([disabled]) .trigger,
 :host([disabled]) .split-main,
 :host([disabled]) .split-toggle {
   cursor: not-allowed;
-  color: var(--elf-text-disabled);
+  color: var(--elf-text-disabled, rgba(0, 0, 0, 0.38));
   pointer-events: none;
 }
 
@@ -133,7 +153,7 @@
   height: 18px;
   flex: 0 0 18px;
   fill: currentColor;
-  transition: transform var(--elf-transition-fast);
+  transition: transform var(--elf-transition-fast, 150ms cubic-bezier(0.4, 0, 0.2, 1));
 }
 
 :host([data-open]) .arrow {
@@ -149,10 +169,10 @@
   max-height: var(--dropdown-max-height, 280px);
   overflow-x: hidden;
   overflow-y: auto;
-  padding: var(--elf-space-1);
-  border: 1px solid color-mix(in srgb, var(--elf-border) 76%, transparent);
-  border-radius: var(--elf-radius-sm);
-  background: var(--elf-bg-paper);
+  padding: var(--elf-space-1, 4px);
+  border: 1px solid color-mix(in srgb, var(--elf-border, rgba(0, 0, 0, 0.12)) 76%, transparent);
+  border-radius: var(--elf-radius-sm, 4px);
+  background: var(--elf-bg-paper, #ffffff);
   box-shadow:
     0 5px 5px -3px rgb(0 0 0 / 20%),
     0 8px 10px 1px rgb(0 0 0 / 14%),
@@ -162,8 +182,8 @@
   transform-origin: top;
   pointer-events: none;
   transition:
-    opacity var(--elf-transition-fast),
-    transform var(--elf-transition-fast);
+    opacity var(--elf-transition-fast, 150ms cubic-bezier(0.4, 0, 0.2, 1)),
+    transform var(--elf-transition-fast, 150ms cubic-bezier(0.4, 0, 0.2, 1));
 }
 
 .menu.is-open {
@@ -173,7 +193,7 @@
 }
 
 .menu {
-  scrollbar-color: var(--elf-border-strong) transparent;
+  scrollbar-color: var(--elf-border-strong, rgba(0, 0, 0, 0.23)) transparent;
   scrollbar-width: thin;
 }
 
@@ -186,14 +206,14 @@
 .menu::-webkit-scrollbar-thumb {
   border: 2px solid transparent;
   border-radius: 999px;
-  background: var(--elf-border-strong);
+  background: var(--elf-border-strong, rgba(0, 0, 0, 0.23));
   background-clip: padding-box;
 }
 
 .menu.is-dark {
-  border-color: color-mix(in srgb, var(--elf-border) 72%, transparent);
-  background: var(--elf-bg-overlay);
-  color: var(--elf-text-primary);
+  border-color: color-mix(in srgb, var(--elf-border, rgba(0, 0, 0, 0.12)) 72%, transparent);
+  background: var(--elf-bg-overlay, rgba(0, 0, 0, 0.04));
+  color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
 }
 
 .menu.is-dark .item,
@@ -205,8 +225,8 @@
 .menu.is-dark .item:focus-visible,
 .menu.is-dark .sub-trigger:hover,
 .menu.is-dark .sub-trigger:focus-visible {
-  background: color-mix(in srgb, var(--elf-text-primary) 10%, transparent);
-  color: var(--elf-text-primary);
+  background: color-mix(in srgb, var(--elf-text-primary, rgba(0, 0, 0, 0.87)) 10%, transparent);
+  color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
 }
 
 .menu.is-bottom-start {
@@ -289,31 +309,31 @@
   width: 100%;
   box-sizing: border-box;
   min-height: 40px;
-  padding: 0 var(--elf-space-3);
+  padding: 0 var(--elf-space-3, 12px);
   border: 0;
   border-radius: 2px;
   background: transparent;
-  color: var(--elf-text-primary);
+  color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
   font: inherit;
   text-align: left;
   white-space: nowrap;
   cursor: pointer;
-  gap: var(--elf-space-2);
+  gap: var(--elf-space-2, 8px);
   transition:
-    background var(--elf-transition-fast),
-    color var(--elf-transition-fast);
+    background var(--elf-transition-fast, 150ms cubic-bezier(0.4, 0, 0.2, 1)),
+    color var(--elf-transition-fast, 150ms cubic-bezier(0.4, 0, 0.2, 1));
 
   &:hover,
   &:focus-visible {
-    background: var(--elf-bg-overlay);
-    color: var(--elf-primary);
+    background: var(--elf-bg-overlay, rgba(0, 0, 0, 0.04));
+    color: var(--elf-primary, #1976d2);
     outline: none;
   }
 }
 
 .item.is-disabled,
 .sub-trigger.is-disabled {
-  color: var(--elf-text-disabled);
+  color: var(--elf-text-disabled, rgba(0, 0, 0, 0.38));
   cursor: not-allowed;
 
   &:hover {
@@ -322,22 +342,22 @@
 }
 
 .item.is-selected {
-  background: color-mix(in srgb, var(--elf-primary) 10%, var(--elf-bg-paper));
-  color: var(--elf-primary);
+  background: color-mix(in srgb, var(--elf-primary, #1976d2) 10%, var(--elf-bg-paper, #ffffff));
+  color: var(--elf-primary, #1976d2);
   font-weight: 600;
 }
 
 .item.is-divided,
 .sub.is-divided {
-  border-top: 1px solid var(--elf-divider);
-  margin-top: var(--elf-space-1);
-  padding-top: var(--elf-space-1);
+  border-top: 1px solid var(--elf-divider, rgba(0, 0, 0, 0.08));
+  margin-top: var(--elf-space-1, 4px);
+  padding-top: var(--elf-space-1, 4px);
 }
 
 .icon {
   min-width: 18px;
   text-align: center;
-  color: var(--elf-text-secondary);
+  color: var(--elf-text-secondary, rgba(0, 0, 0, 0.6));
 }
 
 .item-label {
@@ -347,15 +367,15 @@
 }
 
 .chevron {
-  color: var(--elf-text-secondary);
+  color: var(--elf-text-secondary, rgba(0, 0, 0, 0.6));
   font-size: 14px;
   line-height: 1;
 }
 
 .shortcut {
-  color: var(--elf-text-disabled);
-  font-size: var(--elf-font-size-xs);
-  padding-left: var(--elf-space-4);
+  color: var(--elf-text-disabled, rgba(0, 0, 0, 0.38));
+  font-size: var(--elf-font-size-xs, 12px);
+  padding-left: var(--elf-space-4, 16px);
 }
 
 .sub {

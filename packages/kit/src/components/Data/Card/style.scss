@@ -11,17 +11,17 @@
   flex-direction: column;
   min-width: 0;
   overflow: hidden;
-  border: 1px solid color-mix(in srgb, var(--elf-divider) 58%, transparent);
-  border-radius: var(--elf-card-radius, var(--elf-radius-sm));
-  background: var(--elf-bg-paper);
-  color: var(--elf-text-primary);
+  border: 1px solid color-mix(in srgb, var(--elf-divider, rgba(0, 0, 0, 0.08)) 58%, transparent);
+  border-radius: var(--elf-card-radius, var(--elf-radius-sm, 4px));
+  background: var(--elf-bg-paper, #ffffff);
+  color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
   box-shadow:
     0 2px 8px rgb(15 23 42 / 8%),
     0 1px 2px rgb(15 23 42 / 5%);
   transition:
-    border-color var(--elf-transition-base),
-    background-color var(--elf-transition-base),
-    box-shadow var(--elf-transition-base);
+    border-color var(--elf-transition-base, 250ms cubic-bezier(0.4, 0, 0.2, 1)),
+    background-color var(--elf-transition-base, 250ms cubic-bezier(0.4, 0, 0.2, 1)),
+    box-shadow var(--elf-transition-base, 250ms cubic-bezier(0.4, 0, 0.2, 1));
 }
 
 :host([density="comfortable"]) {
@@ -39,26 +39,30 @@
 // Vuetify-inspired surface variants: shape and content stay stable while
 // elevation, border, and tint communicate hierarchy.
 :host([variant="outlined"]) {
-  border-color: var(--elf-divider);
-  background: var(--elf-bg-paper);
+  border-color: var(--elf-divider, rgba(0, 0, 0, 0.08));
+  background: var(--elf-bg-paper, #ffffff);
   box-shadow: none;
 }
 
 :host([variant="filled"]) {
   border-color: transparent;
-  background: color-mix(in srgb, var(--elf-text-primary) 5%, var(--elf-bg-paper));
+  background: color-mix(
+    in srgb,
+    var(--elf-text-primary, rgba(0, 0, 0, 0.87)) 5%,
+    var(--elf-bg-paper, #ffffff)
+  );
   box-shadow: none;
 }
 
 :host([variant="tonal"]) {
   border-color: transparent;
-  background: color-mix(in srgb, var(--elf-primary) 10%, var(--elf-bg-paper));
+  background: color-mix(in srgb, var(--elf-primary, #1976d2) 10%, var(--elf-bg-paper, #ffffff));
   box-shadow: none;
 }
 
 :host([variant="flat"]) {
   border-color: transparent;
-  background: var(--elf-bg-paper);
+  background: var(--elf-bg-paper, #ffffff);
   box-shadow: none;
 }
 
@@ -78,19 +82,23 @@
 }
 
 :host([clickable]:not([disabled]):not([loading]):hover) {
-  border-color: color-mix(in srgb, var(--elf-primary) 28%, var(--elf-divider));
+  border-color: color-mix(
+    in srgb,
+    var(--elf-primary, #1976d2) 28%,
+    var(--elf-divider, rgba(0, 0, 0, 0.08))
+  );
   box-shadow:
     0 10px 28px rgb(15 23 42 / 13%),
     0 2px 7px rgb(15 23 42 / 7%);
 }
 
 :host([clickable]:not([disabled]):not([loading]):active) {
-  background: color-mix(in srgb, var(--elf-primary) 4%, var(--elf-bg-paper));
+  background: color-mix(in srgb, var(--elf-primary, #1976d2) 4%, var(--elf-bg-paper, #ffffff));
   box-shadow: 0 3px 10px rgb(15 23 42 / 10%);
 }
 
 :host([disabled]) {
-  color: var(--elf-text-disabled);
+  color: var(--elf-text-disabled, rgba(0, 0, 0, 0.38));
   cursor: not-allowed;
   opacity: 0.62;
 }
@@ -114,7 +122,7 @@
   width: 38%;
   height: 100%;
   border-radius: inherit;
-  background: var(--elf-primary);
+  background: var(--elf-primary, #1976d2);
   animation: card-loading 1.1s ease-in-out infinite;
 }
 
@@ -136,7 +144,11 @@
   position: relative;
   flex: 0 0 auto;
   overflow: hidden;
-  background: color-mix(in srgb, var(--elf-text-secondary) 8%, var(--elf-bg-paper));
+  background: color-mix(
+    in srgb,
+    var(--elf-text-secondary, rgba(0, 0, 0, 0.6)) 8%,
+    var(--elf-bg-paper, #ffffff)
+  );
 }
 
 .card-image-wrap img,
@@ -195,18 +207,18 @@
   justify-items: center;
   gap: 8px;
   padding: 20px;
-  color: var(--elf-text-secondary);
+  color: var(--elf-text-secondary, rgba(0, 0, 0, 0.6));
   text-align: center;
 }
 
 .image-error > span {
-  color: var(--elf-primary);
+  color: var(--elf-primary, #1976d2);
   font-size: 30px;
   line-height: 1;
 }
 
 .image-error small {
-  font-size: var(--elf-font-size-xs);
+  font-size: var(--elf-font-size-xs, 12px);
 }
 
 ::slotted([slot="image-error"]) {
@@ -227,7 +239,7 @@
 }
 
 .card-content:focus-visible {
-  box-shadow: inset 0 0 0 2px var(--elf-primary);
+  box-shadow: inset 0 0 0 2px var(--elf-primary, #1976d2);
 }
 
 .header {
@@ -251,7 +263,7 @@
 
   .title {
     overflow-wrap: anywhere;
-    color: var(--elf-text-primary);
+    color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
     font-size: var(--_card-title-size);
     font-weight: 600;
     line-height: 1.35;
@@ -261,7 +273,7 @@
   .subtitle {
     margin-top: 3px;
     overflow-wrap: anywhere;
-    color: var(--elf-text-secondary);
+    color: var(--elf-text-secondary, rgba(0, 0, 0, 0.6));
     font-size: 13px;
     line-height: 1.45;
   }
@@ -275,7 +287,7 @@
 .body {
   flex: 1 1 auto;
   padding: var(--_card-padding-y) var(--_card-padding-x);
-  color: var(--elf-text-secondary);
+  color: var(--elf-text-secondary, rgba(0, 0, 0, 0.6));
   font-size: 14px;
   line-height: 1.6;
   overflow-wrap: anywhere;
@@ -292,7 +304,7 @@
   gap: 6px;
   min-height: 48px;
   padding: 6px 12px 12px;
-  color: var(--elf-text-secondary);
+  color: var(--elf-text-secondary, rgba(0, 0, 0, 0.6));
   font-size: 14px;
 }
 

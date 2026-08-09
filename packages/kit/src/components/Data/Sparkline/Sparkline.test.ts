@@ -1,7 +1,9 @@
 import { beforeAll, describe, expect, it } from "vitest";
 
 beforeAll(async () => {
-  await import("../../index");
+  await import("../../../register-all").then(({ registerAllComponents }) =>
+    registerAllComponents(),
+  );
 });
 
 const tick = (): Promise<void> => new Promise((resolve) => queueMicrotask(resolve));

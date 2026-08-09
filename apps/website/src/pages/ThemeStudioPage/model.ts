@@ -1,4 +1,4 @@
-import { THEME_TOKEN_VARS, type ThemeTokens } from "@elfui/kit-src/components/Providers/context";
+import { THEME_TOKEN_VARS, type ThemeTokens } from "@elfui/kit";
 
 export interface ThemeTokenField {
   key: keyof ThemeTokens;

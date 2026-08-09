@@ -1,6 +1,6 @@
 import { defineDirective, defineHtml, defineStyle, useRef } from "@elfui/core";
 
-import { infiniteScrollDirective } from "@elfui/kit-src/components/Data/InfiniteScroll/directive";
+import { infiniteScrollDirective } from "@elfui/kit";
 import { createDocsTranslator } from "../../docsLocale";
 import styles from "./demo.scss?inline";
 

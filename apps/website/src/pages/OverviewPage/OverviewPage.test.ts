@@ -1,7 +1,7 @@
 import { registerComponents } from "@elfui/core";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
 
-import { Breadcrumb } from "@elfui/kit-src/components/Navigation/Breadcrumb";
+import { Breadcrumb } from "@elfui/kit";
 import { OverviewCard } from "@elfui/website-components/OverviewCard";
 import { DocsHero } from "@elfui/website-components/DocsHero";
 import { resolveAppMenuIcon } from "../../app/menu-icons";

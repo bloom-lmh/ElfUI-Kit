@@ -1,3 +1,4 @@
+import { registerAllComponents } from "@elfui/kit";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
 
 let pageTag = "";
@@ -5,6 +6,7 @@ let providerTag = "";
 let keyboardTag = "";
 
 beforeAll(async () => {
+  registerAllComponents();
   await import("../../../components");
   const { ensureCustomElement } = await import("@elfui/core");
   const [{ PageCalendar }, { PageCalendarEx2 }, { PageCalendarEx4 }] = await Promise.all([

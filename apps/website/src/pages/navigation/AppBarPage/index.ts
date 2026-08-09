@@ -7,7 +7,7 @@ import {
   mdiMenu,
 } from "@mdi/js";
 
-import { createSvgIconSet } from "@elfui/kit-src/components/Basic/Icon";
+import { createSvgIconSet } from "@elfui/kit";
 import { createDocsPicker, createDocsTranslator } from "../../docsLocale";
 import articleStyles from "../../shared/article.scss?inline";
 

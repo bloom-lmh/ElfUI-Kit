@@ -118,7 +118,7 @@ defineStyle(
     display: block;
     height: 100%;
     border-radius: inherit;
-    background: linear-gradient(90deg, var(--elf-primary), var(--elf-success));
+    background: var(--elf-success);
     transition: width 90ms linear;
   }
 

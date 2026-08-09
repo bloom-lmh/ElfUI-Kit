@@ -3,7 +3,7 @@ import {
   defineHtml,
   defineProps,
   defineStyle,
-  registerComponents,
+  useComponents,
   useHostAttr,
   useHostCssVar,
   useHostFlag,
@@ -14,6 +14,7 @@ import {
 import { useFormControl } from "../../../composables";
 import { normalizeFieldVariant } from "../../../types/field";
 import { Tag } from "../../Basic/Tag";
+import type { TagColor, TagEffect } from "../../Basic/Tag/types";
 import styles from "./style.scss?inline";
 import type { InputTagProps, InputTagSize } from "./types";
 
@@ -25,7 +26,7 @@ interface TagItem {
   index: number;
 }
 
-registerComponents(Tag);
+useComponents(Tag);
 
 const props = defineProps<InputTagProps>({
   modelValue: { type: Array, default: () => [] },
@@ -167,7 +168,25 @@ const normalizedSize = (): InputTagSize => {
 
 const tagSize = (): "sm" | "md" | "lg" => normalizedSize() || "md";
 
-const tagColor = (): string => String(props.tagType || "primary");
+const TAG_COLORS: readonly TagColor[] = [
+  "primary",
+  "secondary",
+  "success",
+  "warning",
+  "danger",
+  "info",
+];
+const TAG_EFFECTS: readonly TagEffect[] = ["dark", "light", "plain"];
+
+const tagColor = (): TagColor => {
+  const value = String(props.tagType || "primary") as TagColor;
+  return TAG_COLORS.includes(value) ? value : "primary";
+};
+
+const tagEffect = (): TagEffect => {
+  const value = String(props.tagEffect || "light") as TagEffect;
+  return TAG_EFFECTS.includes(value) ? value : "light";
+};
 
 useHostAttr("size", normalizedSize);
 useHostAttr("variant", () => normalizeFieldVariant(props.variant));
@@ -186,25 +205,29 @@ const InputTag = defineHtml<InputTagProps>(`
         <span v-if=${props.label} class="field-label" part="label">${props.label}</span>
         <slot name="prefix"></slot>
         <span class="tag-strip" part="tag-strip">
-            <elf-tag
+            <span
                 v-for="tag in tags()"
                 :key="tag.key"
                 class="input-token"
                 :data-index="tag.index"
                 :draggable=${props.draggable}
+                @dragstart=${onDragStart}
+                @dragover=${(event: DragEvent) => props.draggable && event.preventDefault()}
+                @drop=${onDrop}
+            >
+              <elf-tag
+                :data-index="tag.index"
                 :type=${tagColor()}
-                :effect=${props.tagEffect}
+                :effect=${tagEffect()}
                 :size=${tagSize()}
                 :closable=${!props.disabled && !props.readonly}
                 round
                 part="tag"
                 @close=${onTagClose}
-                @dragstart=${onDragStart}
-                @dragover=${(event: DragEvent) => props.draggable && event.preventDefault()}
-                @drop=${onDrop}
-            >
+              >
                 <span class="tag-label">{{ tag.label }}</span>
-            </elf-tag>
+              </elf-tag>
+            </span>
             <input
                 part="input"
                 :value.prop=${text}

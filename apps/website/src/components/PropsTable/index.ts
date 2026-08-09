@@ -9,9 +9,9 @@ import {
   useHost,
   useRef,
 } from "@elfui/core";
-import { Table } from "@elfui/kit-src/components/Data/Table";
-import type { TableColumn } from "@elfui/kit-src/components/Data/Table/types";
-import { useLocaleProvider } from "@elfui/kit-src/components/Providers/context";
+import { Table } from "@elfui/kit";
+import type { TableColumn } from "@elfui/kit";
+import { useLocaleProvider } from "@elfui/kit";
 import { API_BUILDER_KEY, type ApiBuilderContext } from "../ApiBuilder/context";
 import type { ApiBuilderRole } from "../ApiBuilder/types";
 import styles from "./style.scss?inline";

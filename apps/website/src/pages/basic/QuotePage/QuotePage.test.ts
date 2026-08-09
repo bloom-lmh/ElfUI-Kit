@@ -1,11 +1,11 @@
 import { ensureCustomElement, registerComponents } from "@elfui/core";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
 
-import { Quote } from "@elfui/kit-src/components/Basic/Quote";
+import { Quote } from "@elfui/kit";
 import { Playground } from "@elfui/website-components/Playground";
 import { PropsTable } from "@elfui/website-components/PropsTable";
-import { Alert } from "@elfui/kit-src/components/Feedback/Alert";
-import { Container } from "@elfui/kit-src/components/Layout/Container";
+import { Alert } from "@elfui/kit";
+import { Container } from "@elfui/kit";
 import { PageQuote } from "./index";
 
 let pageTag = "";

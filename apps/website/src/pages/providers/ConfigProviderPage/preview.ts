@@ -1,5 +1,5 @@
 import { defineHtml, defineStyle } from "@elfui/core";
-import { useConfigProvider } from "@elfui/kit-src/components/Providers/config";
+import { useConfigProvider } from "@elfui/kit";
 import { createDocsTranslator } from "../../docsLocale";
 import styles from "./preview.scss?inline";
 

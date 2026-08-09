@@ -6,15 +6,17 @@
 // 4. 注册应用壳 elf-app
 // 5. 引入自动生成的类型增强（HTMLElementTagNameMap）
 
-import "@elfui/kit";
 import "./components";
 /* import "./elements.generated"; */
 
 import { createRouter } from "@elfui/router";
 import { registerComponents } from "@elfui/core";
+import { registerAllComponents } from "@elfui/kit";
 
 import { App } from "./app/AppShell/index";
 import { routes } from "./routes";
+
+registerAllComponents();
 
 // Create the router before upgrading the existing <elf-app> element so AppShell
 // can subscribe to the initial route and keep its menu state controlled.

@@ -1,3 +1,5 @@
+@use "../../../styles/reset";
+
 :host {
   display: block;
   color: var(--elf-text-primary, #1f2937);

@@ -1,6 +1,5 @@
 import { defineHtml, defineStyle } from "@elfui/core";
 
-import "@elfui/kit/labs";
 import { createDocsTranslator } from "../../docsLocale";
 import articleStyles from "../../shared/article.scss?inline";
 import { codeCard, MD_EMBED_STYLE } from "../../shared/md-embed";

@@ -10,8 +10,6 @@ export default defineConfig({
   plugins: [elfuiMacroPlugin()],
   resolve: {
     alias: {
-      "@elfui/kit/labs": path.join(workspaceRoot, "packages/kit/src/labs.ts"),
-      "@elfui/kit-src": path.join(workspaceRoot, "packages/kit/src"),
       "@elfui/website-components": path.join(workspaceRoot, "apps/website/src/components"),
       "@elfui/kit": path.join(workspaceRoot, "packages/kit/src/library.ts"),
       ...aliases,

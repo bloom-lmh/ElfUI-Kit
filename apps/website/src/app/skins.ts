@@ -1,5 +1,5 @@
-import type { ThemeTokens } from "@elfui/kit-src/components/Providers/context";
-import { THEME_PRESETS } from "@elfui/kit-src/components/Providers/ThemeProvider/presets";
+import type { ThemeTokens } from "@elfui/kit";
+import { THEME_PRESETS } from "@elfui/kit";
 
 export interface AppSkin {
   id: string;

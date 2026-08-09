@@ -1,13 +1,13 @@
 import { ensureCustomElement, registerComponents } from "@elfui/core";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
 
-import { Button } from "@elfui/kit-src/components/Basic/Button";
-import { Icon } from "@elfui/kit-src/components/Basic/Icon";
+import { Button } from "@elfui/kit";
+import { Icon } from "@elfui/kit";
 import { Playground } from "@elfui/website-components/Playground";
 import { PropsTable } from "@elfui/website-components/PropsTable";
-import { Container } from "@elfui/kit-src/components/Layout/Container";
-import { PageHeader } from "@elfui/kit-src/components/Navigation/PageHeader";
-import { IconProvider } from "@elfui/kit-src/components/Providers/IconProvider";
+import { Container } from "@elfui/kit";
+import { PageHeader } from "@elfui/kit";
+import { IconProvider } from "@elfui/kit";
 import { PagePageHeader } from "./index";
 
 let pageTag = "";

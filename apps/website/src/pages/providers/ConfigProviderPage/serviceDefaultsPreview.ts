@@ -1,11 +1,6 @@
 import { defineHtml } from "@elfui/core";
 
-import {
-  useLoading,
-  useMessage,
-  useMessageBox,
-  useNotification,
-} from "@elfui/kit-src/components/Feedback";
+import { useLoading, useMessage, useMessageBox, useNotification } from "@elfui/kit";
 import { createDocsTranslator } from "../../docsLocale";
 
 const t = createDocsTranslator({

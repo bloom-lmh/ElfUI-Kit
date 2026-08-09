@@ -9,9 +9,8 @@ import type {
   CodeCardLanguage,
   CodeCardTheme,
   CodeCardVariant,
-} from "@elfui/kit/labs";
-import "@elfui/kit/labs";
-import type { SelectOption } from "@elfui/kit-src/components/Form/Select";
+} from "@elfui/kit";
+import type { SelectOption } from "@elfui/kit";
 import { createDocsTranslator } from "../../docsLocale";
 import articleStyles from "../../shared/article.scss?inline";
 import styles from "./style.scss?inline";
@@ -194,7 +193,8 @@ const sourceLines = (...lines: string[]): string => lines.join("\n");
 
 const workbenchSource = sourceLines(
   '<script type="module">',
-  'import "@elfui/kit";',
+  'import { registerAllComponents } from "@elfui/kit";',
+  "registerAllComponents();",
   "</script>",
   "",
   "<elf-button>Save</elf-button>",
@@ -256,7 +256,8 @@ const workbenchCode = (): string =>
     "</elf-code-card>",
   );
 const workbenchScript = sourceLines(
-  'import "@elfui/kit/labs";',
+  'import { registerAllComponents } from "@elfui/kit";',
+  "registerAllComponents();",
   "",
   `const source = \`${workbenchSource.replace(/`/g, "\\`")}\`;`,
   "",

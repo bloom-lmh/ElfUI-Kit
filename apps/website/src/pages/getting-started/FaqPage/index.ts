@@ -1,6 +1,5 @@
 import { defineHtml, defineStyle } from "@elfui/core";
 
-import "@elfui/kit/labs";
 import { createDocsTranslator } from "../../docsLocale";
 import articleStyles from "../../shared/article.scss?inline";
 
@@ -36,8 +35,8 @@ const t = createDocsTranslator({
     en: "The page shows an unknown elf-* tag and the component does not render?",
   },
   registerA: {
-    zh: '确认应用入口已经执行 import "@elfui/kit"。Custom Element 注册发生在该入口加载时；按需构建则要确认目标组件入口没有被摇树移除。',
-    en: 'Make sure the application entry executes import "@elfui/kit". Custom Elements register when that entry loads; selective builds must also keep the target component entry from being tree-shaken.',
+    zh: "仅导入 @elfui/kit 不会注册 Custom Element。全量模式请在应用入口调用 registerAllComponents()；按需模式请从 @elfui/core 调用 registerComponents(Button, Input)。",
+    en: "Importing @elfui/kit does not register Custom Elements. Call registerAllComponents() at the application entry, or use registerComponents(Button, Input) from @elfui/core for on-demand registration.",
   },
   compilerQ: {
     zh: "defineHtml 能运行，但模板语法没有响应式更新？",

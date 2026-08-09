@@ -49,7 +49,7 @@ describe("elf-docs-hero", () => {
       source.indexOf(".is-hero.is-card"),
     );
 
-    expect(source).toContain("border-radius: var(--elf-radius-md);");
+    expect(source).toContain("border-radius: var(--elf-radius-md, 8px);");
     expect(heroBlock).not.toContain("box-shadow");
     expect(source).toContain("border-radius: inherit;");
   });

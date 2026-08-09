@@ -1,5 +1,5 @@
 import { defineHtml, useRef, useTemplateRef } from "@elfui/core";
-import type { VirtualListExpose } from "@elfui/kit-src/components/Data/VirtualList";
+import type { VirtualListExpose } from "@elfui/kit";
 import { createDocsPicker, createDocsTranslator } from "../../docsLocale";
 
 interface ActivityItem {

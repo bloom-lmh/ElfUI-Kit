@@ -4,7 +4,9 @@ import { computeAnchoredPosition } from "../../Common/overlay/anchored-overlay";
 import type { CascaderOption } from "./types";
 
 beforeAll(async () => {
-  await import("../../../components");
+  await import("../../../register-all").then(({ registerAllComponents }) =>
+    registerAllComponents(),
+  );
 });
 
 afterEach(() => {

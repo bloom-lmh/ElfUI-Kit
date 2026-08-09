@@ -17,19 +17,19 @@ import {
   useTemplateRef,
 } from "@elfui/core";
 
-import { Progress } from "@elfui/kit-src/components/Data/Progress";
-import { Loading } from "@elfui/kit-src/components/Feedback/Loading";
-import { Aside } from "@elfui/kit-src/components/Layout/Aside";
-import { Footer } from "@elfui/kit-src/components/Layout/Footer";
-import { Header } from "@elfui/kit-src/components/Layout/Header";
-import { Layout } from "@elfui/kit-src/components/Layout/Layout";
-import { Main } from "@elfui/kit-src/components/Layout/Main";
-import { Dropdown } from "@elfui/kit-src/components/Navigation/Dropdown";
-import { Menu } from "@elfui/kit-src/components/Navigation/Menu";
-import { ConfigProvider } from "@elfui/kit-src/components/Providers/ConfigProvider";
-import { LocaleProvider } from "@elfui/kit-src/components/Providers/LocaleProvider";
-import type { LocaleMessages } from "@elfui/kit-src/components/Providers/context";
-import type { ElfUIConfig } from "@elfui/kit-src/components/Providers/config";
+import { Progress } from "@elfui/kit";
+import { Loading } from "@elfui/kit";
+import { Aside } from "@elfui/kit";
+import { Footer } from "@elfui/kit";
+import { Header } from "@elfui/kit";
+import { Layout } from "@elfui/kit";
+import { Main } from "@elfui/kit";
+import { Dropdown } from "@elfui/kit";
+import { Menu } from "@elfui/kit";
+import { ConfigProvider } from "@elfui/kit";
+import { LocaleProvider } from "@elfui/kit";
+import type { LocaleMessages } from "@elfui/kit";
+import type { ElfUIConfig } from "@elfui/kit";
 import { DocsToc } from "../../components/DocsToc";
 import { navItems } from "../../routes";
 import { resolveAppMenuIcon, resolveAppMenuIconColor } from "../menu-icons";

@@ -1,3 +1,4 @@
+import { registerAllComponents } from "@elfui/kit";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
 
 let lazyTreeTag = "";
@@ -6,6 +7,7 @@ let dragTreeTag = "";
 let treePageTag = "";
 
 beforeAll(async () => {
+  registerAllComponents();
   await import("../../../components");
   const { ensureCustomElement } = await import("@elfui/core");
   const { PageTreeEx4 } = await import("./ex4");

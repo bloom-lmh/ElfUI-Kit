@@ -1,6 +1,6 @@
 import { defineHtml, defineStyle, useRef } from "@elfui/core";
 
-import type { UploadChunkRequestOptions } from "@elfui/kit-src/components/Form";
+import type { UploadChunkRequestOptions } from "@elfui/kit";
 import { createDocsTranslator } from "../../docsLocale";
 import styles from "./demo.scss?inline";
 

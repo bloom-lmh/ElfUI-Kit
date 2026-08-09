@@ -11,10 +11,10 @@ import {
   useRef,
 } from "@elfui/core";
 
-import { useLocaleProvider } from "@elfui/kit-src/components/Providers/context";
-import type { GoToTask } from "@elfui/kit-src/composables/goTo";
-import { findScrollContainer } from "@elfui/kit-src/composables/scroll";
-import { useGoTo } from "@elfui/kit-src/composables/useGoTo";
+import { useLocaleProvider } from "@elfui/kit";
+import type { GoToTask } from "@elfui/kit";
+import { findScrollContainer } from "@elfui/kit";
+import { useGoTo } from "@elfui/kit";
 import styles from "./style.scss?inline";
 import type { DocsTocEmits, DocsTocProps } from "./types";
 

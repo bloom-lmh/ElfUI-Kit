@@ -3,8 +3,16 @@
 :host {
   display: block;
   min-width: 0;
-  color: var(--elf-text-secondary);
-  font-family: var(--elf-font-family);
+  color: var(--elf-text-secondary, rgba(0, 0, 0, 0.6));
+  font-family: var(
+    --elf-font-family,
+    "Roboto",
+    "Helvetica Neue",
+    Arial,
+    "PingFang SC",
+    "Microsoft YaHei",
+    sans-serif
+  );
 }
 
 .step {
@@ -46,12 +54,12 @@
   cursor: pointer;
 }
 .step.is-clickable .step-button:hover {
-  background: color-mix(in srgb, var(--elf-primary) 7%, transparent);
+  background: color-mix(in srgb, var(--elf-primary, #1976d2) 7%, transparent);
   transform: translateY(-1px);
 }
 
 .step-button:focus-visible {
-  outline: 2px solid color-mix(in srgb, var(--elf-primary) 70%, transparent);
+  outline: 2px solid color-mix(in srgb, var(--elf-primary, #1976d2) 70%, transparent);
   outline-offset: 2px;
 }
 
@@ -64,10 +72,10 @@
   width: var(--step-icon-size);
   height: var(--step-icon-size);
   place-items: center;
-  border: 2px solid var(--elf-border);
+  border: 2px solid var(--elf-border, rgba(0, 0, 0, 0.12));
   border-radius: 50%;
-  background: var(--elf-bg-paper);
-  color: var(--elf-text-secondary);
+  background: var(--elf-bg-paper, #ffffff);
+  color: var(--elf-text-secondary, rgba(0, 0, 0, 0.6));
   font-size: 13px;
   font-weight: 800;
   line-height: 1;
@@ -81,13 +89,13 @@
   min-width: 0;
   gap: 4px;
   padding: 1px 8px 4px 0;
-  border-radius: var(--elf-radius-sm);
-  background: var(--elf-bg-paper);
+  border-radius: var(--elf-radius-sm, 4px);
+  background: var(--elf-bg-paper, #ffffff);
 }
 
 .step-title {
   overflow: hidden;
-  color: var(--elf-text-primary);
+  color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
   font-size: 15px;
   font-weight: 700;
   line-height: 1.45;
@@ -96,7 +104,7 @@
 }
 
 .step-description {
-  color: var(--elf-text-secondary);
+  color: var(--elf-text-secondary, rgba(0, 0, 0, 0.6));
   font-size: 13px;
   line-height: 1.5;
 }
@@ -119,10 +127,10 @@
 }
 
 .step-tail-track {
-  background: var(--elf-divider);
+  background: var(--elf-divider, rgba(0, 0, 0, 0.08));
 }
 .step-tail-progress {
-  background: var(--elf-success);
+  background: var(--elf-success, #2e7d32);
 }
 .step.is-finish .step-tail-progress {
   width: 100%;
@@ -130,28 +138,28 @@
 }
 
 .step.is-finish .step-icon {
-  border-color: var(--elf-success);
-  background: var(--elf-success);
+  border-color: var(--elf-success, #2e7d32);
+  background: var(--elf-success, #2e7d32);
   color: #fff;
 }
 
 .step.is-process .step-icon {
-  border-color: var(--elf-primary);
-  background: var(--elf-primary);
+  border-color: var(--elf-primary, #1976d2);
+  background: var(--elf-primary, #1976d2);
   color: var(--elf-text-on-primary, #fff);
-  box-shadow: 0 0 0 5px color-mix(in srgb, var(--elf-primary) 13%, transparent);
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--elf-primary, #1976d2) 13%, transparent);
 }
 
 .step.is-process .step-title {
-  color: var(--elf-primary);
+  color: var(--elf-primary, #1976d2);
 }
 .step.is-error .step-icon {
-  border-color: var(--elf-danger);
-  background: var(--elf-danger);
+  border-color: var(--elf-danger, #d32f2f);
+  background: var(--elf-danger, #d32f2f);
   color: #fff;
 }
 .step.is-error .step-title {
-  color: var(--elf-danger);
+  color: var(--elf-danger, #d32f2f);
 }
 .step.is-disabled {
   opacity: 0.48;

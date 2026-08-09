@@ -7,7 +7,7 @@
   display: inline-flex;
   width: min(320px, 100%);
   max-width: 100%;
-  color: var(--elf-text-primary);
+  color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
 }
 
 .mention {
@@ -52,12 +52,12 @@ textarea {
 }
 
 textarea::placeholder {
-  color: var(--elf-text-disabled);
+  color: var(--elf-text-disabled, rgba(0, 0, 0, 0.38));
   transition: opacity var(--elf-field-motion);
 }
 
 :host([disabled]) textarea {
-  color: var(--elf-text-disabled);
+  color: var(--elf-text-disabled, rgba(0, 0, 0, 0.38));
   cursor: not-allowed;
 }
 
@@ -68,48 +68,48 @@ textarea::placeholder {
   bottom: calc(100% - 1px);
   left: 0;
   overflow: hidden;
-  border: 1px solid var(--elf-border);
-  border-radius: var(--elf-radius-md);
+  border: 1px solid var(--elf-border, rgba(0, 0, 0, 0.12));
+  border-radius: var(--elf-radius-md, 8px);
   background: var(--elf-bg-paper, #fff);
-  color: var(--elf-text-primary);
-  box-shadow: var(--elf-shadow-3);
+  color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
+  box-shadow: var(--elf-shadow-3, 0 6px 12px rgba(0, 0, 0, 0.18));
 }
 
 .placement-top .panel {
   top: auto;
   bottom: calc(100% - 1px);
-  border-radius: var(--elf-radius-md) var(--elf-radius-md) 0 0;
+  border-radius: var(--elf-radius-md, 8px) var(--elf-radius-md, 8px) 0 0;
 }
 
 .placement-bottom .panel {
   top: calc(100% - 1px);
   bottom: auto;
-  border-radius: 0 0 var(--elf-radius-md) var(--elf-radius-md);
+  border-radius: 0 0 var(--elf-radius-md, 8px) var(--elf-radius-md, 8px);
 }
 
 .status {
-  padding: var(--elf-space-3);
-  color: var(--elf-text-secondary);
-  font-size: var(--elf-font-size-sm);
+  padding: var(--elf-space-3, 12px);
+  color: var(--elf-text-secondary, rgba(0, 0, 0, 0.6));
+  font-size: var(--elf-font-size-sm, 14px);
 }
 
 .option {
   display: block;
   width: 100%;
-  padding: var(--elf-space-3);
+  padding: var(--elf-space-3, 12px);
   border: 0;
   background: transparent;
-  color: var(--elf-text-primary);
+  color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
   cursor: pointer;
   font: inherit;
   text-align: left;
 }
 
 .option:hover:not(:disabled) {
-  background: var(--elf-bg-muted);
+  background: var(--elf-bg-muted, var(--elf-bg-overlay, rgba(0, 0, 0, 0.04)));
 }
 
 .option.active:not(:disabled) {
-  background: var(--elf-bg-muted);
-  color: var(--elf-primary);
+  background: var(--elf-bg-muted, var(--elf-bg-overlay, rgba(0, 0, 0, 0.04)));
+  color: var(--elf-primary, #1976d2);
 }

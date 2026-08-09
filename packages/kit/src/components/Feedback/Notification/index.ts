@@ -25,8 +25,6 @@ export type {
   NotificationType,
 } from "./types";
 
-registerComponents(NotificationElement);
-
 const STACK_GAP = 16;
 
 interface ActiveNotification {
@@ -87,6 +85,7 @@ const createNotification = (
   forcedType?: NotificationType,
   defaults?: Partial<NotificationOptions>,
 ): NotificationHandle => {
+  registerComponents(NotificationElement);
   const normalized: NotificationOptions =
     typeof options === "string" ? { message: options } : { ...options };
   const opts = resolveServiceOptions(defaults, normalized);

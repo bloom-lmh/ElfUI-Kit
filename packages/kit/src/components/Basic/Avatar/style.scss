@@ -17,13 +17,21 @@
   overflow: hidden;
   user-select: none;
 
-  font-family: var(--elf-font-family);
+  font-family: var(
+    --elf-font-family,
+    "Roboto",
+    "Helvetica Neue",
+    Arial,
+    "PingFang SC",
+    "Microsoft YaHei",
+    sans-serif
+  );
   font-weight: 500;
   line-height: 1;
   text-transform: uppercase;
 
-  background: var(--_bg, var(--elf-bg-overlay));
-  color: var(--_color, var(--elf-text-secondary));
+  background: var(--_bg, var(--elf-bg-overlay, rgba(0, 0, 0, 0.04)));
+  color: var(--_color, var(--elf-text-secondary, rgba(0, 0, 0, 0.6)));
 }
 
 // ───── 尺寸 ───────────────────────────────────
@@ -63,7 +71,7 @@
 }
 
 :host([shape="square"]) .avatar {
-  border-radius: var(--elf-radius-sm);
+  border-radius: var(--elf-radius-sm, 4px);
 }
 
 // ───── 图片模式 ───────────────────────────────
@@ -127,32 +135,32 @@ img {
 // ───── 颜色映射 ───────────────────────────────
 :host([color="#1976d2"]),
 :host([color="primary"]) {
-  --_bg: var(--elf-primary);
-  --_color: var(--elf-text-on-primary);
+  --_bg: var(--elf-primary, #1976d2);
+  --_color: var(--elf-text-on-primary, #ffffff);
 }
 
 :host([color="#2e7d32"]),
 :host([color="success"]) {
-  --_bg: var(--elf-success);
-  --_color: var(--elf-text-on-primary);
+  --_bg: var(--elf-success, #2e7d32);
+  --_color: var(--elf-text-on-primary, #ffffff);
 }
 
 :host([color="#ed6c02"]),
 :host([color="warning"]) {
-  --_bg: var(--elf-warning);
-  --_color: var(--elf-text-on-primary);
+  --_bg: var(--elf-warning, #ef6c00);
+  --_color: var(--elf-text-on-primary, #ffffff);
 }
 
 :host([color="#d32f2f"]),
 :host([color="danger"]) {
-  --_bg: var(--elf-danger);
-  --_color: var(--elf-text-on-primary);
+  --_bg: var(--elf-danger, #d32f2f);
+  --_color: var(--elf-text-on-primary, #ffffff);
 }
 
 :host([color="#0288d1"]),
 :host([color="info"]) {
-  --_bg: var(--elf-info);
-  --_color: var(--elf-text-on-primary);
+  --_bg: var(--elf-info, #0288d1);
+  --_color: var(--elf-text-on-primary, #ffffff);
 }
 
 // ───── 自定义颜色值（#hex）会自动作为背景色 ────

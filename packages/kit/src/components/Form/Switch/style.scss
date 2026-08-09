@@ -1,8 +1,8 @@
 @use "../../../styles/reset";
 
 :host {
-  --_switch-active: var(--elf-primary);
-  --_switch-inactive: var(--elf-border-strong);
+  --_switch-active: var(--elf-primary, #1976d2);
+  --_switch-inactive: var(--elf-border-strong, rgba(0, 0, 0, 0.23));
   --_switch-thumb: #ffffff;
   --_switch-width: var(--_switch-width-custom, 40px);
   --_switch-height: 22px;
@@ -11,8 +11,8 @@
 
   display: inline-flex;
   align-items: center;
-  gap: var(--elf-space-2);
-  color: var(--elf-text-primary);
+  gap: var(--elf-space-2, 8px);
+  color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
   cursor: pointer;
 }
 
@@ -24,7 +24,7 @@
 .body {
   display: inline-flex;
   align-items: center;
-  gap: var(--elf-space-2);
+  gap: var(--elf-space-2, 8px);
   min-width: 0;
 }
 
@@ -34,8 +34,8 @@
 
 .state-label,
 .main-label {
-  font-size: var(--elf-font-size-sm);
-  color: var(--elf-text-secondary);
+  font-size: var(--elf-font-size-sm, 14px);
+  color: var(--elf-text-secondary, rgba(0, 0, 0, 0.6));
   line-height: 1.4;
   user-select: none;
 }
@@ -46,7 +46,7 @@
 }
 
 .main-label {
-  color: var(--elf-text-primary);
+  color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
 }
 
 .track {
@@ -57,14 +57,14 @@
   height: var(--_switch-height);
   flex: 0 0 auto;
   border: 1px solid var(--_switch-border, transparent);
-  border-radius: var(--elf-radius-pill);
+  border-radius: var(--elf-radius-pill, 999px);
   background: var(--_switch-inactive, #90a4ae);
   box-sizing: border-box;
   outline: none;
   transition:
-    background-color var(--elf-transition-base),
-    border-color var(--elf-transition-base),
-    box-shadow var(--elf-transition-base);
+    background-color var(--elf-transition-base, 250ms cubic-bezier(0.4, 0, 0.2, 1)),
+    border-color var(--elf-transition-base, 250ms cubic-bezier(0.4, 0, 0.2, 1)),
+    box-shadow var(--elf-transition-base, 250ms cubic-bezier(0.4, 0, 0.2, 1));
 }
 
 .thumb {
@@ -79,11 +79,11 @@
   height: var(--_switch-thumb-size);
   border-radius: 50%;
   background: var(--_switch-thumb);
-  box-shadow: var(--elf-shadow-1);
+  box-shadow: var(--elf-shadow-1, 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24));
   transition:
-    transform var(--elf-transition-base),
-    width var(--elf-transition-base),
-    box-shadow var(--elf-transition-base);
+    transform var(--elf-transition-base, 250ms cubic-bezier(0.4, 0, 0.2, 1)),
+    width var(--elf-transition-base, 250ms cubic-bezier(0.4, 0, 0.2, 1)),
+    box-shadow var(--elf-transition-base, 250ms cubic-bezier(0.4, 0, 0.2, 1));
 }
 
 .inline-content {
@@ -127,7 +127,7 @@
 }
 
 :host([data-checked]) .track {
-  background: var(--_switch-active, var(--elf-primary));
+  background: var(--_switch-active, var(--elf-primary, #1976d2));
 }
 
 :host([data-checked]) .thumb {

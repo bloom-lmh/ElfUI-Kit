@@ -4,7 +4,9 @@ import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
 beforeAll(async () => {
   // 确保全局 Custom Elements 已经注册
-  await import("../../../components");
+  await import("../../../register-all").then(({ registerAllComponents }) =>
+    registerAllComponents(),
+  );
 });
 
 afterEach(async () => {

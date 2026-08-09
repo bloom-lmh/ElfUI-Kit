@@ -1,4 +1,5 @@
 import { ensureCustomElement } from "@elfui/core";
+import { registerAllComponents } from "@elfui/kit";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
 import "../../../components";
 import { PageDrawerEx3 } from "./ex3";
@@ -10,6 +11,7 @@ let resizeExampleTag = "";
 let pageTag = "";
 
 beforeAll(() => {
+  registerAllComponents();
   exampleTag = ensureCustomElement(PageDrawerEx3);
   resizeExampleTag = ensureCustomElement(PageDrawerEx4);
   pageTag = ensureCustomElement(PageDrawer);

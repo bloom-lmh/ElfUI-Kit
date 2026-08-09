@@ -1,7 +1,9 @@
+import { registerAllComponents } from "@elfui/kit";
 import { beforeAll, describe, expect, it } from "vitest";
 
 let pageTag = "";
 beforeAll(async () => {
+  registerAllComponents();
   await import("../../../components");
   const { ensureCustomElement } = await import("@elfui/core");
   const { PageSparkline } = await import("./index");

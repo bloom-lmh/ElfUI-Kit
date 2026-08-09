@@ -9,21 +9,21 @@ button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--elf-space-2);
+  gap: var(--elf-space-2, 8px);
   font-family: inherit;
   font-weight: 500;
   line-height: 1;
   border: 1px solid transparent;
-  border-radius: var(--elf-radius-sm);
+  border-radius: var(--elf-radius-sm, 4px);
   cursor: pointer;
   user-select: none;
   vertical-align: middle;
   transition:
-    background-color var(--elf-transition-fast),
-    color var(--elf-transition-fast),
-    box-shadow var(--elf-transition-fast),
-    border-color var(--elf-transition-fast),
-    transform var(--elf-transition-fast);
+    background-color var(--elf-transition-fast, 150ms cubic-bezier(0.4, 0, 0.2, 1)),
+    color var(--elf-transition-fast, 150ms cubic-bezier(0.4, 0, 0.2, 1)),
+    box-shadow var(--elf-transition-fast, 150ms cubic-bezier(0.4, 0, 0.2, 1)),
+    border-color var(--elf-transition-fast, 150ms cubic-bezier(0.4, 0, 0.2, 1)),
+    transform var(--elf-transition-fast, 150ms cubic-bezier(0.4, 0, 0.2, 1));
   width: 100%;
 
   &:active:not(:disabled) {
@@ -31,38 +31,38 @@ button {
   }
 
   &:focus-visible {
-    outline: 2px solid var(--_color, var(--elf-primary));
+    outline: 2px solid var(--_color, var(--elf-primary, #1976d2));
     outline-offset: 2px;
   }
 }
 
 /* 尺寸 */
 :host([size="sm"]) button {
-  padding: var(--elf-space-1) var(--elf-space-3);
-  font-size: var(--elf-font-size-xs);
+  padding: var(--elf-space-1, 4px) var(--elf-space-3, 12px);
+  font-size: var(--elf-font-size-xs, 12px);
   height: 28px;
 }
 
 :host([size="md"]) button,
 :host(:not([size])) button {
-  padding: var(--elf-space-2) var(--elf-space-4);
-  font-size: var(--elf-font-size-sm);
+  padding: var(--elf-space-2, 8px) var(--elf-space-4, 16px);
+  font-size: var(--elf-font-size-sm, 14px);
   height: 36px;
 }
 
 :host([size="lg"]) button {
-  padding: var(--elf-space-3) var(--elf-space-5);
-  font-size: var(--elf-font-size-md);
+  padding: var(--elf-space-3, 12px) var(--elf-space-5, 20px);
+  font-size: var(--elf-font-size-md, 16px);
   height: 44px;
 }
 
 /* 形状 */
 :host([shape="round"]) button {
-  border-radius: var(--elf-radius-pill);
+  border-radius: var(--elf-radius-pill, 999px);
 }
 
 :host([round]) button {
-  border-radius: var(--elf-radius-pill);
+  border-radius: var(--elf-radius-pill, 999px);
 }
 
 :host([shape="circle"]) button,
@@ -99,37 +99,37 @@ button {
 /* 颜色 */
 :host([color="primary"]),
 :host(:not([color])) {
-  --_color: var(--elf-primary);
-  --_hover: var(--elf-primary-hover);
-  --_active: var(--elf-primary-active);
+  --_color: var(--elf-primary, #1976d2);
+  --_hover: var(--elf-primary-hover, #1565c0);
+  --_active: var(--elf-primary-active, #0d47a1);
   --_overlay: rgba(25, 118, 210, 0.08);
 }
 :host([color="secondary"]) {
-  --_color: var(--elf-secondary);
+  --_color: var(--elf-secondary, #d81b60);
   --_hover: #c2185b;
   --_active: #ad1457;
   --_overlay: rgba(216, 27, 96, 0.08);
 }
 :host([color="success"]) {
-  --_color: var(--elf-success);
+  --_color: var(--elf-success, #2e7d32);
   --_hover: #1b5e20;
   --_active: #1b5e20;
   --_overlay: rgba(46, 125, 50, 0.08);
 }
 :host([color="warning"]) {
-  --_color: var(--elf-warning);
+  --_color: var(--elf-warning, #ef6c00);
   --_hover: #e65100;
   --_active: #c44900;
   --_overlay: rgba(237, 108, 2, 0.08);
 }
 :host([color="danger"]) {
-  --_color: var(--elf-danger);
+  --_color: var(--elf-danger, #d32f2f);
   --_hover: #b71c1c;
   --_active: #b71c1c;
   --_overlay: rgba(211, 47, 47, 0.08);
 }
 :host([color="info"]) {
-  --_color: var(--elf-info);
+  --_color: var(--elf-info, #0288d1);
   --_hover: #01579b;
   --_active: #01579b;
   --_overlay: rgba(2, 136, 209, 0.08);
@@ -139,12 +139,12 @@ button {
 :host([variant="contained"]) button,
 :host(:not([variant])) button {
   background: var(--_color);
-  color: var(--elf-text-on-primary);
-  box-shadow: var(--elf-shadow-1);
+  color: var(--elf-text-on-primary, #ffffff);
+  box-shadow: var(--elf-shadow-1, 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24));
 
   &:hover:not(:disabled) {
     background: var(--_hover);
-    box-shadow: var(--elf-shadow-2);
+    box-shadow: var(--elf-shadow-2, 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23));
   }
   &:active:not(:disabled) {
     background: var(--_active);
@@ -160,7 +160,7 @@ button {
 
   &:hover:not(:disabled) {
     background: var(--_color);
-    color: var(--elf-text-on-primary);
+    color: var(--elf-text-on-primary, #ffffff);
   }
 }
 
@@ -211,7 +211,7 @@ button {
 
 :host([dark][variant="text"]) button,
 :host([dark][text]) button {
-  color: var(--elf-text-on-primary);
+  color: var(--elf-text-on-primary, #ffffff);
 }
 
 :host([direction="vertical"]) button {
@@ -238,8 +238,8 @@ button:disabled {
 
 :host([no-hover][variant="contained"]):not([plain]) button:hover:not(:disabled) {
   background: var(--_color);
-  color: var(--elf-text-on-primary);
-  box-shadow: var(--elf-shadow-1);
+  color: var(--elf-text-on-primary, #ffffff);
+  box-shadow: var(--elf-shadow-1, 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24));
 }
 
 :host([no-hover][variant="contained"][plain]) button:hover:not(:disabled) {

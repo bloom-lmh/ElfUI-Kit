@@ -1,5 +1,5 @@
 import { defineHtml, useComputed, useRef } from "@elfui/core";
-import type { TreeNode } from "@elfui/kit-src/components/Data/Tree";
+import type { TreeNode } from "@elfui/kit";
 import { createDocsTranslator } from "../../docsLocale";
 
 const expanded = useRef<string[]>(["design", "engineering", "archive"]);

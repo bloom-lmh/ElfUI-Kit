@@ -1,7 +1,7 @@
 import { defineHtml, defineStyle, useRef } from "@elfui/core";
 import { mdiAccount, mdiAccountOutline, mdiAlert, mdiAlertOutline } from "@mdi/js";
 
-import { createSvgIconSet } from "@elfui/kit-src/components/Basic/Icon";
+import { createSvgIconSet } from "@elfui/kit";
 import { createDocsTranslator } from "../../docsLocale";
 import styles from "./demo.scss?inline";
 

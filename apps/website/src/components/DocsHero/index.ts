@@ -1,8 +1,8 @@
 import { defineHtml, defineProps, defineStyle, useComponents } from "@elfui/core";
 
-import { Breadcrumb } from "@elfui/kit-src/components/Navigation/Breadcrumb";
-import { PageHeader } from "@elfui/kit-src/components/Navigation/PageHeader";
-import { useLocaleProvider } from "@elfui/kit-src/components/Providers/context";
+import { Breadcrumb } from "@elfui/kit";
+import { PageHeader } from "@elfui/kit";
+import { useLocaleProvider } from "@elfui/kit";
 import { resolveAppMenuIcon, resolveAppMenuIconColor } from "../../app/menu-icons";
 import styles from "./style.scss?inline";
 import type { DocsHeroProps, DocsHeroSlots } from "./types";

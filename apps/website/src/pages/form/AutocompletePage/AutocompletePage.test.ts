@@ -1,3 +1,4 @@
+import { registerAllComponents } from "@elfui/kit";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
 
 let exampleTag = "";
@@ -7,6 +8,7 @@ let teleportExampleTag = "";
 let pageTag = "";
 
 beforeAll(async () => {
+  registerAllComponents();
   await import("../../../components");
   const { ensureCustomElement } = await import("@elfui/core");
   const { PageAutocompleteEx5 } = await import("./ex5");

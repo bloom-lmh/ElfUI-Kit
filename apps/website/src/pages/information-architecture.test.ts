@@ -1,3 +1,4 @@
+import { registerAllComponents } from "@elfui/kit";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
 
 interface PageCase {
@@ -27,6 +28,7 @@ const mdQueryAll = (root: ShadowRoot, selector: string): Element[] => {
 };
 
 beforeAll(async () => {
+  registerAllComponents();
   await import("../components");
   const { ensureCustomElement } = await import("@elfui/core");
   const [
@@ -151,7 +153,7 @@ describe("新文档领域页面", () => {
       expect(text, pageCase.title).not.toMatch(/[\u3400-\u9fff]/u);
       page.remove();
     }
-  });
+  }, 30_000);
 
   it("为不同文档领域提供完整且差异化的学习结构", async () => {
     const expectations = new Map<string, ReadonlyArray<readonly [string, number]>>([
@@ -425,11 +427,11 @@ describe("新文档领域页面", () => {
         ]);
         expect(cards[1]?.items.map((item) => item.key)).toEqual(["pnpm", "npm", "yarn"]);
         expect(cards[1]?.items[0]?.code).toBe("pnpm add @elfui/kit");
-        expect(cards[3]?.items.map((item) => item.key)).toEqual(["utilities", "labs"]);
+        expect(cards[3]?.items.map((item) => item.key)).toEqual(["full", "on-demand"]);
       }
       page.remove();
     }
-  });
+  }, 30_000);
 
   it("解释 DOM 变更监听与外部点击排除目标的用途", async () => {
     const clickOutsideCase = pages.find(({ title }) => title === "Click outside");

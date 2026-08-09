@@ -1,10 +1,10 @@
 import { ensureCustomElement } from "@elfui/core";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
-import { Button } from "@elfui/kit-src/components/Basic/Button";
+import { Button } from "@elfui/kit";
 import { Playground } from "@elfui/website-components/Playground";
 import { PropsTable } from "@elfui/website-components/PropsTable";
-import { Tour } from "@elfui/kit-src/components/Feedback/Tour";
-import { Container } from "@elfui/kit-src/components/Layout/Container";
+import { Tour } from "@elfui/kit";
+import { Container } from "@elfui/kit";
 import { PageTourEx3 } from "./ex3";
 import { PageTour } from "./index";
 

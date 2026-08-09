@@ -1,3 +1,5 @@
+@use "../../../styles/reset";
+
 // Dialog 全局样式 — 通过 globalStyle 注入 document，配合 Teleport to body 使用
 
 .elf-dialog-mask {

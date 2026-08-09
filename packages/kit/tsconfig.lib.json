@@ -12,7 +12,6 @@
   "include": [
     "src/env.d.ts",
     "src/library.ts",
-    "src/labs.ts",
     "src/elements.generated.d.ts",
     "src/components/**/*.ts",
     "src/composables/**/*.ts",

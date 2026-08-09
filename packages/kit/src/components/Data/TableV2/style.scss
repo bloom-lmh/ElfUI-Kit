@@ -11,7 +11,7 @@
   width: 100%;
   min-width: 0;
   overflow: hidden;
-  border-radius: var(--elf-radius-md);
+  border-radius: var(--elf-radius-md, 8px);
 }
 
 .fixed-table {
@@ -37,13 +37,13 @@ elf-table[data-scroll-table]::part(scroll) {
 
 .table-v2.has-fixed-data {
   .fixed-table::part(scroll) {
-    border-bottom: 1px solid var(--elf-divider);
-    border-radius: var(--elf-radius-md) var(--elf-radius-md) 0 0;
+    border-bottom: 1px solid var(--elf-divider, rgba(0, 0, 0, 0.08));
+    border-radius: var(--elf-radius-md, 8px) var(--elf-radius-md, 8px) 0 0;
   }
 
   elf-table[data-scroll-table]::part(scroll) {
     border-top: 0;
-    border-radius: 0 0 var(--elf-radius-md) var(--elf-radius-md);
+    border-radius: 0 0 var(--elf-radius-md, 8px) var(--elf-radius-md, 8px);
   }
 }
 
@@ -73,19 +73,19 @@ elf-table::part(table-v2-expand-spacer) {
 elf-table::part(table-v2-expand-toggle) {
   padding: 0;
   border: 0;
-  border-radius: var(--elf-radius-sm);
+  border-radius: var(--elf-radius-sm, 4px);
   background: transparent;
-  color: var(--elf-text-secondary);
+  color: var(--elf-text-secondary, rgba(0, 0, 0, 0.6));
   cursor: pointer;
 }
 
 elf-table::part(table-v2-expand-toggle):hover {
-  background: var(--elf-fill-color-light);
-  color: var(--elf-text-primary);
+  background: var(--elf-fill-color-light, var(--elf-bg-overlay, rgba(0, 0, 0, 0.04)));
+  color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
 }
 
 elf-table::part(table-v2-expand-toggle):focus-visible {
-  outline: 2px solid var(--elf-color-primary);
+  outline: 2px solid var(--elf-color-primary, var(--elf-primary, #1976d2));
   outline-offset: -2px;
 }
 
@@ -95,7 +95,7 @@ elf-table::part(table-v2-expand-icon) {
   border-right: 2px solid currentColor;
   border-bottom: 2px solid currentColor;
   transform: rotate(-45deg);
-  transition: transform var(--elf-transition-fast);
+  transition: transform var(--elf-transition-fast, 150ms cubic-bezier(0.4, 0, 0.2, 1));
 }
 
 .body-fill,
@@ -103,7 +103,7 @@ elf-table::part(table-v2-expand-icon) {
   display: grid;
   min-height: 120px;
   place-items: center;
-  color: var(--elf-text-secondary);
+  color: var(--elf-text-secondary, rgba(0, 0, 0, 0.6));
 }
 
 .overlay {
@@ -112,7 +112,7 @@ elf-table::part(table-v2-expand-icon) {
   inset: 0;
   display: grid;
   place-items: center;
-  background: color-mix(in srgb, var(--elf-bg-paper) 78%, transparent);
+  background: color-mix(in srgb, var(--elf-bg-paper, #ffffff) 78%, transparent);
   backdrop-filter: blur(4px);
 }
 
@@ -120,7 +120,7 @@ elf-table::part(table-v2-expand-icon) {
   box-sizing: border-box;
   display: flex;
   align-items: center;
-  border-top: 1px solid var(--elf-border-color);
-  background: var(--elf-bg-paper);
+  border-top: 1px solid var(--elf-border-color, var(--elf-border, rgba(0, 0, 0, 0.12)));
+  background: var(--elf-bg-paper, #ffffff);
   padding-inline: 16px;
 }

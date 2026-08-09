@@ -2,14 +2,14 @@
 
 :host {
   display: block;
-  color: var(--elf-text-primary);
-  font-size: var(--elf-font-size-sm);
+  color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
+  font-size: var(--elf-font-size-sm, 14px);
 }
 
 .tabs {
-  --tabs-color: var(--elf-primary);
+  --tabs-color: var(--elf-primary, #1976d2);
   --tabs-slider-color: var(--tabs-color);
-  --tabs-background-color: var(--elf-bg-paper);
+  --tabs-background-color: var(--elf-bg-paper, #ffffff);
   --tabs-transition-duration: 180ms;
   --tabs-panel-from-opacity: 0;
   --tabs-panel-from-transform: translateY(6px);
@@ -55,7 +55,7 @@
   gap: 4px;
   min-width: 0;
   flex: 1 1 auto;
-  border-bottom: 1px solid var(--elf-divider);
+  border-bottom: 1px solid var(--elf-divider, rgba(0, 0, 0, 0.08));
   overflow-x: auto;
   scrollbar-width: thin;
   scrollbar-color: transparent transparent;
@@ -76,10 +76,19 @@
   }
 
   &:hover {
-    scrollbar-color: color-mix(in srgb, var(--elf-text-secondary) 34%, transparent) transparent;
+    scrollbar-color: color-mix(
+        in srgb,
+        var(--elf-text-secondary, rgba(0, 0, 0, 0.6)) 34%,
+        transparent
+      )
+      transparent;
 
     &::-webkit-scrollbar-thumb {
-      background: color-mix(in srgb, var(--elf-text-secondary) 34%, transparent);
+      background: color-mix(
+        in srgb,
+        var(--elf-text-secondary, rgba(0, 0, 0, 0.6)) 34%,
+        transparent
+      );
       background-clip: padding-box;
     }
   }
@@ -88,14 +97,19 @@
 .tabs.is-card .tab-list,
 .tabs.is-border-card .tab-list,
 .tabs.is-closable .tab-list {
-  scrollbar-color: color-mix(in srgb, var(--elf-text-secondary) 30%, transparent) transparent;
+  scrollbar-color: color-mix(
+      in srgb,
+      var(--elf-text-secondary, rgba(0, 0, 0, 0.6)) 30%,
+      transparent
+    )
+    transparent;
 }
 
 .tabs.is-vertical .tab-list {
   flex: 1 1 auto;
   flex-direction: column;
   align-items: stretch;
-  border-right: 1px solid var(--elf-divider);
+  border-right: 1px solid var(--elf-divider, rgba(0, 0, 0, 0.08));
   border-bottom: 0;
   overflow-x: hidden;
   overflow-y: auto;
@@ -110,16 +124,16 @@
   min-width: 36px;
   padding: 0;
   border: 0;
-  border-bottom: 1px solid var(--elf-divider);
-  background: color-mix(in srgb, var(--tabs-background-color) 88%, var(--elf-bg-paper));
-  color: var(--elf-text-secondary);
+  border-bottom: 1px solid var(--elf-divider, rgba(0, 0, 0, 0.08));
+  background: color-mix(in srgb, var(--tabs-background-color) 88%, var(--elf-bg-paper, #ffffff));
+  color: var(--elf-text-secondary, rgba(0, 0, 0, 0.6));
   cursor: pointer;
 }
 
 .tab-scroll:hover,
 .tab-scroll:focus-visible {
   color: var(--tabs-color);
-  background: color-mix(in srgb, var(--tabs-color) 9%, var(--elf-bg-paper));
+  background: color-mix(in srgb, var(--tabs-color) 9%, var(--elf-bg-paper, #ffffff));
 }
 
 .tab-scroll:focus-visible {
@@ -142,7 +156,7 @@
   min-width: 0;
   min-height: 34px;
   flex-basis: 34px;
-  border-right: 1px solid var(--elf-divider);
+  border-right: 1px solid var(--elf-divider, rgba(0, 0, 0, 0.08));
   border-bottom: 0;
 }
 
@@ -189,20 +203,20 @@
   height: 48px;
   padding: 0 16px;
   border: 0;
-  border-radius: var(--elf-radius-sm) var(--elf-radius-sm) 0 0;
+  border-radius: var(--elf-radius-sm, 4px) var(--elf-radius-sm, 4px) 0 0;
   background: transparent;
-  color: var(--elf-text-secondary);
+  color: var(--elf-text-secondary, rgba(0, 0, 0, 0.6));
   font: inherit;
   font-weight: 600;
   white-space: nowrap;
   cursor: pointer;
   transition:
-    background var(--elf-transition-fast),
-    color var(--elf-transition-fast);
+    background var(--elf-transition-fast, 150ms cubic-bezier(0.4, 0, 0.2, 1)),
+    color var(--elf-transition-fast, 150ms cubic-bezier(0.4, 0, 0.2, 1));
 
   &:hover:not(.is-disabled) {
-    background: var(--elf-bg-overlay);
-    color: var(--elf-text-primary);
+    background: var(--elf-bg-overlay, rgba(0, 0, 0, 0.04));
+    color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
   }
 
   &:focus-visible {
@@ -223,7 +237,7 @@
 .tabs.is-vertical .tab {
   width: 100%;
   justify-content: flex-start;
-  border-radius: var(--elf-radius-sm) 0 0 var(--elf-radius-sm);
+  border-radius: var(--elf-radius-sm, 4px) 0 0 var(--elf-radius-sm, 4px);
 }
 
 .tabs.is-grow .tab {
@@ -242,27 +256,27 @@
 
 .tabs.is-card .tab,
 .tabs.is-border-card .tab {
-  border: 1px solid var(--elf-divider);
+  border: 1px solid var(--elf-divider, rgba(0, 0, 0, 0.08));
   border-bottom-color: transparent;
-  background: var(--elf-bg-paper);
+  background: var(--elf-bg-paper, #ffffff);
 }
 
 .tabs.is-card .tab.is-active,
 .tabs.is-border-card .tab.is-active {
   border-color: var(--tabs-color);
-  background: color-mix(in srgb, var(--tabs-color) 8%, var(--elf-bg-paper));
+  background: color-mix(in srgb, var(--tabs-color) 8%, var(--elf-bg-paper, #ffffff));
 }
 
 .tabs.is-border-card {
   gap: 0;
-  border: 1px solid var(--elf-divider);
-  border-radius: var(--elf-radius-sm);
+  border: 1px solid var(--elf-divider, rgba(0, 0, 0, 0.08));
+  border-radius: var(--elf-radius-sm, 4px);
   overflow: hidden;
 }
 
 .tabs.is-border-card .tab-list {
   padding: 0 8px;
-  background: var(--elf-bg-overlay);
+  background: var(--elf-bg-overlay, rgba(0, 0, 0, 0.04));
 }
 
 .tabs.is-border-card.is-vertical .tab-list {
@@ -271,17 +285,17 @@
 
 .tabs.is-border-card.is-vertical .tab-navigation {
   flex-basis: 196px;
-  background: var(--elf-bg-overlay);
+  background: var(--elf-bg-overlay, rgba(0, 0, 0, 0.04));
 }
 
 .tabs.is-border-card.is-vertical .tab {
   min-height: 42px;
   border-color: transparent;
-  border-radius: var(--elf-radius-sm);
+  border-radius: var(--elf-radius-sm, 4px);
 }
 
 .tabs.is-border-card.is-vertical .tab.is-active {
-  border-color: color-mix(in srgb, var(--tabs-color) 45%, var(--elf-divider));
+  border-color: color-mix(in srgb, var(--tabs-color) 45%, var(--elf-divider, rgba(0, 0, 0, 0.08)));
 }
 
 .tabs.is-border-card .tab-panels {
@@ -348,7 +362,7 @@
   height: 18px;
   padding: 0 5px;
   border-radius: 999px;
-  background: var(--elf-danger);
+  background: var(--elf-danger, #d32f2f);
   color: #fff;
   font-size: 10px;
   font-weight: 700;
@@ -363,11 +377,11 @@
   height: 22px;
   margin-inline-end: -5px;
   border-radius: 50%;
-  color: var(--elf-text-secondary);
+  color: var(--elf-text-secondary, rgba(0, 0, 0, 0.6));
   border: 1px solid transparent;
   transition:
-    background var(--elf-transition-fast),
-    color var(--elf-transition-fast);
+    background var(--elf-transition-fast, 150ms cubic-bezier(0.4, 0, 0.2, 1)),
+    color var(--elf-transition-fast, 150ms cubic-bezier(0.4, 0, 0.2, 1));
 }
 
 .tab-close svg,
@@ -381,9 +395,9 @@
 }
 
 .tab-close:hover {
-  border-color: color-mix(in srgb, var(--elf-danger) 28%, transparent);
-  background: color-mix(in srgb, var(--elf-danger) 10%, transparent);
-  color: var(--elf-danger);
+  border-color: color-mix(in srgb, var(--elf-danger, #d32f2f) 28%, transparent);
+  background: color-mix(in srgb, var(--elf-danger, #d32f2f) 10%, transparent);
+  color: var(--elf-danger, #d32f2f);
 }
 
 .tab-add {
@@ -396,17 +410,17 @@
   height: 34px;
   padding: 0 9px;
   margin-inline: 8px 4px;
-  border: 1px solid var(--elf-divider);
-  border-radius: var(--elf-radius-sm);
-  background: color-mix(in srgb, var(--tabs-color) 7%, var(--elf-bg-paper));
-  color: var(--elf-text-secondary);
+  border: 1px solid var(--elf-divider, rgba(0, 0, 0, 0.08));
+  border-radius: var(--elf-radius-sm, 4px);
+  background: color-mix(in srgb, var(--tabs-color) 7%, var(--elf-bg-paper, #ffffff));
+  color: var(--elf-text-secondary, rgba(0, 0, 0, 0.6));
   font: inherit;
   cursor: pointer;
   transition:
-    border-color var(--elf-transition-fast),
-    background var(--elf-transition-fast),
-    color var(--elf-transition-fast),
-    transform var(--elf-transition-fast);
+    border-color var(--elf-transition-fast, 150ms cubic-bezier(0.4, 0, 0.2, 1)),
+    background var(--elf-transition-fast, 150ms cubic-bezier(0.4, 0, 0.2, 1)),
+    color var(--elf-transition-fast, 150ms cubic-bezier(0.4, 0, 0.2, 1)),
+    transform var(--elf-transition-fast, 150ms cubic-bezier(0.4, 0, 0.2, 1));
 }
 
 .tab-add slot::slotted(*) {
@@ -418,7 +432,7 @@
 
 .tab-add:hover {
   border-color: var(--tabs-color);
-  background: color-mix(in srgb, var(--tabs-color) 13%, var(--elf-bg-paper));
+  background: color-mix(in srgb, var(--tabs-color) 13%, var(--elf-bg-paper, #ffffff));
   color: var(--tabs-color);
   transform: translateY(-1px);
 }
@@ -439,7 +453,7 @@
   transition:
     width var(--tabs-transition-duration) cubic-bezier(0.2, 0, 0, 1),
     height var(--tabs-transition-duration) cubic-bezier(0.2, 0, 0, 1),
-    opacity var(--elf-transition-fast),
+    opacity var(--elf-transition-fast, 150ms cubic-bezier(0.4, 0, 0.2, 1)),
     transform var(--tabs-transition-duration) cubic-bezier(0.2, 0, 0, 1);
   will-change: width, height, transform;
 }
@@ -466,14 +480,14 @@
     overflow-x: auto;
     overflow-y: hidden;
     border-right: 0;
-    border-bottom: 1px solid var(--elf-divider);
+    border-bottom: 1px solid var(--elf-divider, rgba(0, 0, 0, 0.08));
   }
 
   .tabs.is-vertical .tab {
     width: auto;
     min-width: 112px;
     justify-content: center;
-    border-radius: var(--elf-radius-sm) var(--elf-radius-sm) 0 0;
+    border-radius: var(--elf-radius-sm, 4px) var(--elf-radius-sm, 4px) 0 0;
   }
 
   .tabs.is-vertical .tab-slider {
@@ -488,7 +502,7 @@
     min-width: 34px;
     min-height: 0;
     border-right: 0;
-    border-bottom: 1px solid var(--elf-divider);
+    border-bottom: 1px solid var(--elf-divider, rgba(0, 0, 0, 0.08));
   }
 
   .tabs.is-vertical .tab-scroll svg {
@@ -518,9 +532,9 @@
 .tab-panel {
   min-width: 0;
   padding: 16px;
-  border-radius: var(--elf-radius-sm);
-  background: var(--elf-bg-paper);
-  color: var(--elf-text-secondary);
+  border-radius: var(--elf-radius-sm, 4px);
+  background: var(--elf-bg-paper, #ffffff);
+  color: var(--elf-text-secondary, rgba(0, 0, 0, 0.6));
   line-height: 1.7;
 }
 

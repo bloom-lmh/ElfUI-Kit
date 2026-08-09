@@ -7,7 +7,7 @@ import {
   mdiStarOutline,
 } from "@mdi/js";
 
-import { createSvgIconSet } from "@elfui/kit-src/components/Basic/Icon";
+import { createSvgIconSet } from "@elfui/kit";
 import { createDocsTranslator } from "../../docsLocale";
 import styles from "./hero.scss?inline";
 

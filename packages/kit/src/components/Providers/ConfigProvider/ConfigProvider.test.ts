@@ -7,7 +7,9 @@ import { LocaleProviderProbe } from "../LocaleProvider/probe.test-component";
 import { ConfigProviderProbe } from "./probe.test-component";
 
 beforeAll(async () => {
-  await import("../index");
+  await import("../../../register-all").then(({ registerAllComponents }) =>
+    registerAllComponents(),
+  );
   registerComponents(ConfigProviderProbe, LocaleProviderProbe);
 });
 

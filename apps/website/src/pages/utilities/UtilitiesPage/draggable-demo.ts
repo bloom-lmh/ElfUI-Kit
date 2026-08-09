@@ -1,10 +1,6 @@
 import { defineDirective, defineHtml, defineStyle, useRef } from "@elfui/core";
 
-import {
-  draggableDirective,
-  type DraggableDropDetail,
-  type DraggableOptions,
-} from "@elfui/kit-src/directives/draggable";
+import { draggableDirective, type DraggableDropDetail, type DraggableOptions } from "@elfui/kit";
 import { createDocsTranslator } from "../../docsLocale";
 import styles from "./draggable-demo.scss?inline";
 

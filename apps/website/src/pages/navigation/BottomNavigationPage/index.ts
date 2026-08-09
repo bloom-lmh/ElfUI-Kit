@@ -9,7 +9,7 @@ import {
   mdiPlayCircleOutline,
 } from "@mdi/js";
 
-import { createSvgIconSet } from "@elfui/kit-src/components/Basic/Icon";
+import { createSvgIconSet } from "@elfui/kit";
 import { createDocsPicker, createDocsTranslator } from "../../docsLocale";
 import articleStyles from "../../shared/article.scss?inline";
 
@@ -102,10 +102,10 @@ const mediaAccents: Record<string, string> = {
   photos: "#5e35b1",
 };
 const mediaBackdrops: Record<string, string> = {
-  video: "linear-gradient(135deg, #0d47a1, #64b5f6)",
-  music: "linear-gradient(135deg, #00695c, #4db6ac)",
-  books: "linear-gradient(135deg, #4e342e, #bcaaa4)",
-  photos: "linear-gradient(135deg, #4527a0, #9575cd)",
+  video: "#1565c0",
+  music: "#00897b",
+  books: "#6d4c41",
+  photos: "#5e35b1",
 };
 const mediaCopy = (): Record<string, { title: string; summary: string }> => ({
   video: { title: t("videoTitle"), summary: t("videoSummary") },

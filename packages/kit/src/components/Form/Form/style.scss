@@ -3,7 +3,7 @@
 :host {
   display: block;
   width: 100%;
-  font-size: var(--elf-font-size-sm);
+  font-size: var(--elf-font-size-sm, 14px);
 }
 
 form {
@@ -16,5 +16,5 @@ form {
   display: flex;
   align-items: flex-start;
   flex-wrap: wrap;
-  gap: var(--elf-space-4);
+  gap: var(--elf-space-4, 16px);
 }

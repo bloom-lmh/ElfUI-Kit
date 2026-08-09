@@ -1,7 +1,4 @@
-import {
-  DEFAULT_LOCALE_CONTEXT,
-  useLocaleProvider,
-} from "@elfui/kit-src/components/Providers/context";
+import { DEFAULT_LOCALE_CONTEXT, useLocaleProvider } from "@elfui/kit";
 
 export type DocsMessage = Readonly<{ zh: string; en: string }>;
 export type DocsMessages<Key extends string> = Readonly<Record<Key, DocsMessage>>;

@@ -1,3 +1,5 @@
+@use "../../../styles/reset";
+
 :host {
   --sticky-offset: 0px;
   --sticky-z-index: 100;

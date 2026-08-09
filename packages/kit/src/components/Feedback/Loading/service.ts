@@ -61,8 +61,6 @@ const applyBodyTargetGeometry = (el: HTMLElement, target: HTMLElement): (() => v
   };
 };
 
-registerComponents(Loading);
-
 /**
  * Creates an imperative Loading host around the public component contract.
  *
@@ -73,6 +71,7 @@ const createLoading = (
   input: LoadingOptions = {},
   defaults?: Partial<LoadingOptions>,
 ): LoadingInstance => {
+  registerComponents(Loading);
   const options = resolveServiceOptions(defaults, input);
   const target = resolveTarget(options.target);
   const fullscreen = options.fullscreen ?? options.target == null;

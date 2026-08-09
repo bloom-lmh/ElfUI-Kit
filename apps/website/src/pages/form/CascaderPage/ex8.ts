@@ -1,7 +1,7 @@
 import { defineHtml, useHost, useReactive, useRef } from "@elfui/core";
 
-import type { CascaderOption, CascaderPathValue } from "@elfui/kit-src/components/Form/Cascader";
-import type { FormRules } from "@elfui/kit-src/components/Form";
+import type { CascaderOption, CascaderPathValue } from "@elfui/kit";
+import type { FormRules } from "@elfui/kit";
 import { createDocsPicker, createDocsTranslator } from "../../docsLocale";
 
 interface FormHost extends HTMLElement {

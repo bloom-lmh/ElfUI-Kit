@@ -1,7 +1,8 @@
+import { registerAllComponents } from "@elfui/kit";
 import { registerComponents } from "@elfui/core";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
 
-import type { LocaleMessages } from "@elfui/kit-src/components/Providers/context";
+import type { LocaleMessages } from "@elfui/kit";
 import { PageHome } from "./index";
 
 const MESSAGES: LocaleMessages = {
@@ -87,6 +88,7 @@ const ZH_MESSAGES: LocaleMessages = {
 };
 
 beforeAll(async () => {
+  registerAllComponents();
   await import("../../components");
   registerComponents(PageHome);
 });

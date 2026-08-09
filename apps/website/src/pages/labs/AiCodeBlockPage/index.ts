@@ -1,7 +1,6 @@
 import { defineHtml, defineStyle, useRef, useTemplateRef } from "@elfui/core";
 
-import "@elfui/kit/labs";
-import type { AiCodeBlockElement } from "@elfui/kit/labs";
+import type { AiCodeBlockElement } from "@elfui/kit";
 import { createDocsTranslator } from "../../docsLocale";
 import articleStyles from "../../shared/article.scss?inline";
 

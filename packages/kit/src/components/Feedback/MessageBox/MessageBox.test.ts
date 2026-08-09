@@ -5,7 +5,9 @@ import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import type { MessageBoxElement } from "./types";
 
 beforeAll(async () => {
-  await import("../../../components");
+  await import("../../../register-all").then(({ registerAllComponents }) =>
+    registerAllComponents(),
+  );
 });
 
 const tick = (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 20));

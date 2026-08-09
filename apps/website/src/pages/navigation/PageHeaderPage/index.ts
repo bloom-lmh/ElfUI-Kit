@@ -1,7 +1,7 @@
 import { defineHtml, defineStyle, useComponents } from "@elfui/core";
 import { mdiCogOutline, mdiContentCopy, mdiLockOutline, mdiStarOutline } from "@mdi/js";
 
-import { createSvgIconSet } from "@elfui/kit-src/components/Basic/Icon";
+import { createSvgIconSet } from "@elfui/kit";
 import { createDocsPicker, createDocsTranslator } from "../../docsLocale";
 
 import { PagePageHeaderEx1 } from "./ex1";

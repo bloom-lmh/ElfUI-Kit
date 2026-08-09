@@ -16,8 +16,7 @@ export default defineConfig(({ command }) => ({
   build: { target: "es2022" },
   resolve: {
     alias: {
-      "@elfui/kit/labs": path.join(workspaceRoot, "packages/kit/src/labs.ts"),
-      "@elfui/kit-src": path.join(workspaceRoot, "packages/kit/src"),
+      "@elfui/website-styles": path.join(workspaceRoot, "apps/website/src/styles"),
       "@elfui/website-components": path.join(workspaceRoot, "apps/website/src/components"),
       "@elfui/kit": path.join(workspaceRoot, "packages/kit/src/library.ts"),
       ...aliases,

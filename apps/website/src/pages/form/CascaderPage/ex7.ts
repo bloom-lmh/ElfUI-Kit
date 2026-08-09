@@ -1,6 +1,6 @@
 import { defineHtml, useRef } from "@elfui/core";
 
-import type { CascaderOption } from "@elfui/kit-src/components/Form/Cascader";
+import type { CascaderOption } from "@elfui/kit";
 import { createDocsPicker, createDocsTranslator } from "../../docsLocale";
 
 const pick = createDocsPicker();

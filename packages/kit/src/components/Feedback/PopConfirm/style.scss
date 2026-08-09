@@ -2,7 +2,15 @@
 
 :host {
   display: inline-flex;
-  font-family: var(--elf-font-family);
+  font-family: var(
+    --elf-font-family,
+    "Roboto",
+    "Helvetica Neue",
+    Arial,
+    "PingFang SC",
+    "Microsoft YaHei",
+    sans-serif
+  );
   vertical-align: middle;
 }
 

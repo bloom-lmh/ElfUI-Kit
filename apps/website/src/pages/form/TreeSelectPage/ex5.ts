@@ -1,7 +1,7 @@
 import { defineHtml, defineStyle, useReactive, useRef, useTemplateRef } from "@elfui/core";
 
-import type { FormRules } from "@elfui/kit-src/components/Form";
-import type { TreeNode } from "@elfui/kit-src/components/Data/Tree/types";
+import type { FormRules } from "@elfui/kit";
+import type { TreeNode } from "@elfui/kit";
 import { createDocsTranslator } from "../../docsLocale";
 import demoStyles from "./demo.scss?inline";
 

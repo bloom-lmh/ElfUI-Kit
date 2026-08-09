@@ -8,18 +8,15 @@ import {
   useTemplateRef,
 } from "@elfui/core";
 
-import type { ThemeTokens } from "@elfui/kit-src/components/Providers/context";
+import type { ThemeTokens } from "@elfui/kit";
 import {
   MATERIAL_COLOR_PALETTES,
   MATERIAL_COLOR_TONES,
   getMaterialColorPalette,
   type MaterialColorFamily,
   type MaterialColorTone,
-} from "@elfui/kit-src/components/Providers/ThemeProvider/material-colors";
-import {
-  THEME_PRESETS,
-  getThemePreset,
-} from "@elfui/kit-src/components/Providers/ThemeProvider/presets";
+} from "@elfui/kit";
+import { THEME_PRESETS, getThemePreset } from "@elfui/kit";
 import { createDocsPicker, createDocsTranslator } from "../docsLocale";
 import { resolveAppMenuIcon, resolveAppMenuIconColor } from "../../app/menu-icons";
 import {

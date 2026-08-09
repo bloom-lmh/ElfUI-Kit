@@ -3,7 +3,7 @@
 :host {
   display: inline-flex;
   max-width: 100%;
-  color: var(--elf-text-primary);
+  color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
 }
 
 :host([block]) {
@@ -19,7 +19,7 @@
   padding: 3px;
   overflow-x: auto;
   border-radius: 6px;
-  background: var(--elf-bg-muted);
+  background: var(--elf-bg-muted, var(--elf-bg-overlay, rgba(0, 0, 0, 0.04)));
   scrollbar-width: none;
 }
 
@@ -32,14 +32,14 @@
   min-width: 0;
   flex: 1 0 auto;
   min-width: 64px;
-  padding: 0 var(--elf-space-3);
+  padding: 0 var(--elf-space-3, 12px);
   border: 0;
   border-radius: 4px;
   background: transparent;
-  color: var(--elf-text-secondary);
+  color: var(--elf-text-secondary, rgba(0, 0, 0, 0.6));
   cursor: pointer;
   font: inherit;
-  font-size: var(--elf-font-size-sm);
+  font-size: var(--elf-font-size-sm, 14px);
   font-weight: 500;
   height: 36px;
   transition:
@@ -55,40 +55,40 @@
 :host([size="sm"]) .option {
   min-width: 56px;
   height: 30px;
-  padding: 0 var(--elf-space-3);
-  font-size: var(--elf-font-size-xs);
+  padding: 0 var(--elf-space-3, 12px);
+  font-size: var(--elf-font-size-xs, 12px);
 }
 
 :host([size="lg"]) .option {
   min-width: 72px;
   height: 44px;
-  padding: 0 var(--elf-space-5);
-  font-size: var(--elf-font-size-md);
+  padding: 0 var(--elf-space-5, 20px);
+  font-size: var(--elf-font-size-md, 16px);
 }
 
 .option:hover:not(:disabled) {
-  color: var(--elf-text-primary);
-  background: color-mix(in srgb, var(--elf-primary) 8%, transparent);
+  color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
+  background: color-mix(in srgb, var(--elf-primary, #1976d2) 8%, transparent);
 }
 
 .option.is-active {
-  background: var(--elf-primary);
+  background: var(--elf-primary, #1976d2);
   color: var(--elf-on-primary, #fff);
-  box-shadow: 0 1px 3px color-mix(in srgb, var(--elf-primary) 30%, transparent);
+  box-shadow: 0 1px 3px color-mix(in srgb, var(--elf-primary, #1976d2) 30%, transparent);
 }
 
 .option.is-active:hover:not(:disabled) {
-  background: var(--elf-primary);
+  background: var(--elf-primary, #1976d2);
   color: var(--elf-on-primary, #fff);
 }
 
 .option:focus-visible {
   z-index: 1;
-  outline: 2px solid color-mix(in srgb, var(--elf-primary) 55%, transparent);
+  outline: 2px solid color-mix(in srgb, var(--elf-primary, #1976d2) 55%, transparent);
   outline-offset: 1px;
 }
 
 .option:disabled {
-  color: var(--elf-text-disabled);
+  color: var(--elf-text-disabled, rgba(0, 0, 0, 0.38));
   cursor: not-allowed;
 }

@@ -1,3 +1,4 @@
+import { registerAllComponents } from "@elfui/kit";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
 
 let localeMatrixTag = "";
@@ -10,6 +11,7 @@ let localeProviderTag = "";
 let themeProviderTag = "";
 
 beforeAll(async () => {
+  registerAllComponents();
   await import("../../components");
   const { ensureCustomElement } = await import("@elfui/core");
   const { PageLocaleProviderEx2 } = await import("./LocaleProviderPage/ex2");
@@ -31,7 +33,7 @@ beforeAll(async () => {
 }, 60_000);
 
 afterEach(async () => {
-  const { ElfMessage } = await import("@elfui/kit-src/components/Feedback/Message");
+  const { ElfMessage } = await import("@elfui/kit");
   ElfMessage.closeAll();
   document.body.innerHTML = "";
   document.documentElement.lang = "zh-CN";

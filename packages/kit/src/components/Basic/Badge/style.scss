@@ -31,7 +31,15 @@
   align-items: center;
   justify-content: center;
 
-  font-family: var(--elf-font-family);
+  font-family: var(
+    --elf-font-family,
+    "Roboto",
+    "Helvetica Neue",
+    Arial,
+    "PingFang SC",
+    "Microsoft YaHei",
+    sans-serif
+  );
   font-weight: 600;
   line-height: 1;
   white-space: nowrap;
@@ -39,16 +47,16 @@
   overflow: hidden;
   text-overflow: ellipsis;
 
-  border-radius: var(--elf-radius-pill);
+  border-radius: var(--elf-radius-pill, 999px);
   transform: translate(var(--_badge-translate-x), calc(-50% + var(--_badge-offset-y, 0px)));
   transform-origin: 100% 0%;
 
   transition:
-    transform var(--elf-transition-base),
-    opacity var(--elf-transition-base);
+    transform var(--elf-transition-base, 250ms cubic-bezier(0.4, 0, 0.2, 1)),
+    opacity var(--elf-transition-base, 250ms cubic-bezier(0.4, 0, 0.2, 1));
 
   // 入场动画
-  animation: badge-enter var(--elf-transition-base);
+  animation: badge-enter var(--elf-transition-base, 250ms cubic-bezier(0.4, 0, 0.2, 1));
 }
 
 :host-context([dir="rtl"]) .badge {
@@ -83,37 +91,37 @@
 // ───── 颜色：primary ─────────────────────────────────────
 :host([type="primary"]),
 :host(:not([type])) {
-  --_badge-bg: var(--elf-primary);
-  --_badge-color: var(--elf-text-on-primary);
+  --_badge-bg: var(--elf-primary, #1976d2);
+  --_badge-color: var(--elf-text-on-primary, #ffffff);
 }
 
 // ───── 颜色：success ─────────────────────────────────────
 :host([type="success"]) {
-  --_badge-bg: var(--elf-success);
-  --_badge-color: var(--elf-text-on-primary);
+  --_badge-bg: var(--elf-success, #2e7d32);
+  --_badge-color: var(--elf-text-on-primary, #ffffff);
 }
 
 // ───── 颜色：warning ─────────────────────────────────────
 :host([type="warning"]) {
-  --_badge-bg: var(--elf-warning);
-  --_badge-color: var(--elf-text-on-primary);
+  --_badge-bg: var(--elf-warning, #ef6c00);
+  --_badge-color: var(--elf-text-on-primary, #ffffff);
 }
 
 // ───── 颜色：danger ──────────────────────────────────────
 :host([type="danger"]) {
-  --_badge-bg: var(--elf-danger);
-  --_badge-color: var(--elf-text-on-primary);
+  --_badge-bg: var(--elf-danger, #d32f2f);
+  --_badge-color: var(--elf-text-on-primary, #ffffff);
 }
 
 // ───── 颜色：info ────────────────────────────────────────
 :host([type="info"]) {
-  --_badge-bg: var(--elf-info);
-  --_badge-color: var(--elf-text-on-primary);
+  --_badge-bg: var(--elf-info, #0288d1);
+  --_badge-color: var(--elf-text-on-primary, #ffffff);
 }
 
 // ───── 自定义颜色覆盖 ────────────────────────────────────
 :host([color]) {
-  --_badge-bg: var(--elf-custom-badge-bg);
+  --_badge-bg: var(--elf-custom-badge-bg, var(--elf-danger, #d32f2f));
 }
 
 // ───── 应用颜色变量 ──────────────────────────────────────

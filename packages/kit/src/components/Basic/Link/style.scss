@@ -6,33 +6,33 @@
   max-width: 100%;
   vertical-align: middle;
   color: var(--_link-color);
-  --_link-color: var(--elf-text-primary);
-  --_link-hover: var(--elf-primary);
+  --_link-color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
+  --_link-hover: var(--elf-primary, #1976d2);
 }
 
 :host([type="primary"]) {
-  --_link-color: var(--elf-primary);
-  --_link-hover: var(--elf-primary-hover, var(--elf-primary));
+  --_link-color: var(--elf-primary, #1976d2);
+  --_link-hover: var(--elf-primary-hover, var(--elf-primary, #1976d2));
 }
 
 :host([type="success"]) {
-  --_link-color: var(--elf-success);
-  --_link-hover: var(--elf-success);
+  --_link-color: var(--elf-success, #2e7d32);
+  --_link-hover: var(--elf-success, #2e7d32);
 }
 
 :host([type="warning"]) {
-  --_link-color: var(--elf-warning);
-  --_link-hover: var(--elf-warning);
+  --_link-color: var(--elf-warning, #ef6c00);
+  --_link-hover: var(--elf-warning, #ef6c00);
 }
 
 :host([type="danger"]) {
-  --_link-color: var(--elf-danger);
-  --_link-hover: var(--elf-danger);
+  --_link-color: var(--elf-danger, #d32f2f);
+  --_link-hover: var(--elf-danger, #d32f2f);
 }
 
 :host([type="info"]) {
-  --_link-color: var(--elf-info);
-  --_link-hover: var(--elf-info);
+  --_link-color: var(--elf-info, #0288d1);
+  --_link-hover: var(--elf-info, #0288d1);
 }
 
 .link {
@@ -70,7 +70,7 @@
 }
 
 :host([disabled]) {
-  color: var(--elf-text-disabled);
+  color: var(--elf-text-disabled, rgba(0, 0, 0, 0.38));
 }
 
 :host([disabled]) .link {
@@ -88,5 +88,5 @@
 
 .prop-icon,
 slot[name="icon"]::slotted(*) {
-  margin-inline-end: var(--elf-space-1);
+  margin-inline-end: var(--elf-space-1, 4px);
 }

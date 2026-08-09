@@ -4,7 +4,9 @@ let outlineTag = "";
 let pageTag = "";
 
 beforeAll(async () => {
-  await import("../../../components");
+  await import("../../../register-all").then(({ registerAllComponents }) =>
+    registerAllComponents(),
+  );
   const { ensureCustomElement } = await import("@elfui/core");
   const { MdOutline } = await import("./index");
   const { MdPage } = await import("../MdPage/index");

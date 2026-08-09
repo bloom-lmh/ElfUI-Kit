@@ -4,7 +4,8 @@
 
 > 状态：Active / 唯一计划事实源
 > 建立日期：2026-08-08（Asia/Shanghai）
-> 当前基线：`@elfui/kit@0.0.2-beta.2`、ElfUI Core/Compiler/Vite Plugin `0.1.0-beta.20`
+> 更新日期：2026-08-09（Asia/Shanghai）
+> 当前基线：`@elfui/kit@0.0.2-beta.3`、ElfUI Core/Compiler/Vite Plugin `0.1.0-beta.21`
 > 对标快照：Element Plus `2.14.4`、Vuetify `4.1.8`（均以 2026-08-07 官方 release 为准）
 
 本文件取代仓库中此前 11 份日期计划和 133 份组件/页面级 `plan.md`；其中 192 个未完成勾选项已归并到下方批次。旧文件不再保留在工作树；需要追溯历史时使用 Git。今后不得再建立第二份平行总计划，也不得在组件目录重新维护完成度清单。
@@ -16,7 +17,7 @@ ElfUI Kit 的下一代版本必须同时达到以下结果：
 1. 对齐 Element Plus 的高频公开契约与交互语义，包括 props、默认值、events、slots、exposes、受控优先级、表单、键盘和 ARIA；不机械复制 Vue 实现。
 2. 对齐 Vuetify 的跨组件系统能力，包括 Defaults、Theme、Locale、Icons、Display、Platform、Application Layout、Date、GoTo、Overlay、Aliases、Blueprint/Presets、Tokens 和 SSR/Hydration。
 3. 保持 ElfUI 的 Custom Elements、Shadow DOM、Provider、Teleport 和宏编译优势；框架已有能力必须优先使用。
-4. 同时支持完整导入、手动单组件导入、自动 resolver、真实 tree-shaking 和稳定类型提示。
+4. 所有组件、类型和 Kit 公共 API 只从 `@elfui/kit` 根入口命名导入；同时支持手动按需注册、`registerAllComponents()` 全量注册、真实 tree-shaking 和稳定类型提示。
 5. 用户能够通过语义 token、组件 CSS 自定义属性和 `::part()` 完成稳定样式覆盖，不依赖 Shadow DOM 内部结构。
 6. 所有公开能力都有模型测试、组件测试、真实消费者测试和适用的浏览器证据；测试绿色不能靠跳过、放宽断言或任意等待。
 7. 达到可发布 `1.0` 的稳定性：没有未解释循环依赖、外部输入原地修改、资源泄漏、异步陈旧写回和未声明破坏性差异。
@@ -39,7 +40,9 @@ ElfUI Kit 的下一代版本必须同时达到以下结果：
 
 ### 3.1 已有优势
 
-- Kit 全量测试当前为 159 个文件、1552 项通过；宏类型检查扫描 517 个源码文件和 141 个宏组件，0 错误。
+- Kit 全量测试当前为 161 个文件、1555 项通过；宏类型检查扫描 519 个源码文件和 141 个宏组件，0 错误。
+- Website 全量测试当前为 117 个文件、412 项通过；宏类型检查扫描 724 个源码文件和 582 个宏组件，0 错误。
+- `@elfui/kit` 已收敛为 side-effect-free 单根入口；显式全量注册、组件自带默认样式、可选 utilities 安装和 Button/Input consumer tree-shaking 已有自动门禁。
 - Overlay stack/lifecycle、focus scope、date adapter、virtual window、Provider defaults 已有可复用基础。
 - 双语文档严格审计当前为 567/567。
 - TableV2、TreeSelect、DateTimePicker、TimeSelect、MessageBox、主题与服务默认值等功能已落地。
@@ -51,11 +54,12 @@ ElfUI Kit 的下一代版本必须同时达到以下结果：
 - Upload 存在 data/beforeUpload rejection、同步完成 request handle、chunk abort 和陈旧异步写回风险。
 - Table 选择同时维护响应式状态和手工 DOM 状态；快速虚拟路径监听器密度高。
 - Input/Textarea/Switch 手工覆写 host 原生方法，没有使用 `defineExpose(..., { overrideNative })`。
-- 根入口隐式注册全部稳定组件；发布包没有单组件 subpath、resolver 和真实 consumer tree-shaking 门禁。
-- 当前 root JS 加共享 field chunk 约 988 KB raw、178 KB gzip，尚未计算 `@elfui/core`。
+- Metadata、类型、根导出、注册 manifest 与文档表格仍未由同一生成器产出，存在后续漂移风险。
+- Website 为保证全部文档示例可用，当前启动时调用 `registerAllComponents()`；生产主 chunk 约 2.85 MB raw、612 KB gzip，需改为路由级显式注册并建立首屏预算。
+- Tarball 的 Vite、TypeScript NodeNext、纯浏览器 ESM、SSR 与 CDN consumer matrix 尚未闭合；当前只有 Rollup Button/Input 按需门禁。
 - 113 个带样式的稳定组件中有 45 个没有公开 `part`；复杂组件的组件级 CSS 变量和 Style API 文档不完整。
 - Form/FormItem 和 Table 模型存在类型或模块环；低层 `composables/form.ts` 反向依赖组件层类型。
-- 7 个架构/契约测试文件中 1 个因宏组件数量硬编码为 119 而失败，实际为 141；发布前脚本不会运行全部架构测试。
+- Style API metadata、稳定 parts、组件 token 和覆盖示例仍未达到全组件 100%。
 
 ## 4. 目标架构
 
@@ -152,9 +156,9 @@ flowchart LR
 
 退出门禁：适用表单控件原生矩阵全绿；冻结输入测试全绿；非测试源码无手工 host `focus/blur` 覆写；Upload/Cascader/Tree 的 abort、换 props、卸载和 rejection 不产生陈旧写回或未处理 Promise。
 
-## Batch 2 — P0 Metadata、单组件入口与真实按需导入
+## Batch 2 — P0 Metadata、单根入口与真实按需导入
 
-目标：让发布包像成熟组件库一样可预测消费，同时保持完整导入兼容路径。
+目标：让发布包只有一个可预测的 JS/TS 公共入口，通过命名导出和显式注册同时满足按需与全量消费。
 
 ### 2A. Metadata 单一数据源
 
@@ -165,21 +169,23 @@ flowchart LR
 
 ### 2B. 包入口设计
 
-- [ ] **NG-210 单组件 subpath。** 提供 `@elfui/kit/components/<name>`，导出构造器、严格类型和显式 `register<Name>()`；不得引入无关类别。
-- [ ] **NG-211 完整注册迁移。** beta 阶段保留 `@elfui/kit` 兼容入口并新增 `@elfui/kit/all`；发布 1.0 前决定根入口是否 side-effect-free，并提供清晰迁移期，绝不静默改变注册行为。
-- [ ] **NG-212 Resolver。** 提供基于 manifest 的 Vite/通用 resolver，按 tag 自动导入精确组件及其必要依赖；支持 tagPrefix 和 application-scoped aliases。
-- [ ] **NG-213 Labs 隔离。** Labs 只从 `@elfui/kit/labs` 或单独 labs subpath 进入，稳定入口不得拉入 Shiki、TypeScript、Markdown 等重依赖。
-- [ ] **NG-214 样式副作用。** 明确组件 Shadow CSS、共享 token、utilities.css 的副作用边界；单组件导入不得隐式引入全量 utilities。
-- [ ] **NG-215 公共导出一致性。** Basic/Data/Form/Feedback/Layout/Navigation/Picker/Providers 全部由生成器统一导出；消除 Navigation 等“已注册但根类型/构造器缺失”的不一致。
+- [x] **NG-210 唯一根入口。** `package.json#exports` 只公开 `.`；Basic、Data、Form、Feedback、Layout、Navigation、Picker、Providers、AI 与 Labs 的构造器和类型全部从 `@elfui/kit` 命名导出，禁止 `/labs`、`/utils`、`/components/*` 和 CSS subpath。
+- [x] **NG-211 显式注册。** 根入口必须 side-effect-free，不得因 `import { Button } from "@elfui/kit"` 自动注册任何标签；按需注册直接使用 `@elfui/core` 的 `registerComponents()`/`useComponents()`，Kit 不重复包装或重导出框架 API。
+- [x] **NG-212 全量注册。** 根入口导出幂等的 `registerAllComponents()`，只有调用时才注册稳定、AI 与 Labs 全集；同标签同构造器重复调用成功，不同构造器保持 Core 冲突诊断。
+- [ ] **NG-213 组件派生与命名。** 用户通过 Core `useVariant()`/`useExtend()` 派生新构造器和真实自定义标签；普通外观继续使用组件 `variant` prop，Kit 不建立第二套 aliases/rename registry。
+- [x] **NG-214 样式副作用。** 组件结构样式只通过 `defineStyle()` 随组件进入 Shadow DOM，不发布或要求额外 CSS；可选工具类只通过根入口的 `installUtilityStyles(target?)` 显式安装且可释放，不得随 import 自动注入；并以 `var(--component-token, var(--semantic-token, fallback))` 保证无全局样式也有默认外观。
+- [ ] **NG-215 主题覆盖契约。** 复用 Core `theme()` 做按 tag 的 CSS Variables/`::part()` 注入，ConfigProvider/ThemeProvider 负责可嵌套上下文；每个组件公开并记录稳定 tokens、parts 和 fallback，禁止依赖私有 `--_*` 变量。
+- [ ] **NG-216 公共导出一致性。** 全类别由生成器统一导出和生成注册 manifest；消除“已注册但根类型/构造器缺失”以及 Website 源码深路径 alias。
 
 ### 2C. 真实消费者门禁
 
 - [ ] **NG-220 Tarball matrix。** 对 `pnpm pack` 产物建立 Vite、Rollup、TypeScript NodeNext、纯浏览器 ESM 四类 fixture，禁止直接 alias 到 `packages/kit/src`。
-- [ ] **NG-221 Tree-shaking 断言。** 单 Button/Input 消费产物不得包含 Table、Picker、Labs 或注册其 custom element；自动 resolver 与手动入口结果一致。
+- [x] **NG-221 Tree-shaking 断言。** 从根入口只导入 Button/Input 的消费产物不得包含 Table、Picker、AI、Labs 或注册任何未请求标签；调用 `registerAllComponents()` 时才允许进入全量组件和样式。
 - [ ] **NG-222 Bundle budgets。** 固定 external/core 口径，记录 full、单组件、典型表单、典型后台页；任一五次中位数 gzip 增长超过 10% 必须阻断并调查。
 - [ ] **NG-223 Package verifier。** 校验 exports 可解析、声明路径存在、sideEffects 正确、无源码别名/本地绝对路径、CDN 可用、重复注册有明确诊断。
+- [ ] **NG-224 Website 路由级注册。** 文档站不得在首屏同步调用全量注册；由路由 metadata 声明组件依赖并在页面 chunk 内注册，AI/Labs/稳定组件均可直达显示，首屏主 chunk gzip 建立预算且不得因新增组件线性增长。
 
-退出门禁：发布 tarball 同时通过完整导入、手动按需和 resolver；单组件消费者 0 个无关注册；website 至少有一套测试使用打包产物而非源码 alias。
+退出门禁：发布 tarball 只暴露根入口并同时通过命名按需、显式全量注册和 SSR 导入；单组件消费者 0 个无关注册；Website 无 `@elfui/kit-src` 或 Kit subpath，并至少有一套测试使用打包产物而非源码 alias。
 
 ## Batch 3 — P1 共享能力与分层收敛
 
@@ -268,7 +274,7 @@ flowchart LR
 - [ ] **NG-605 自动 Style API 文档。** metadata 生成每个组件的 CSS Properties、Parts、host states、token 默认值和示例；FAQ 不再是唯一说明。
 - [ ] **NG-606 局部覆盖测试。** 验证单实例变量、ThemeProvider 子树、part、service overlay、Teleport 和 nested Shadow DOM；全局主题不得意外污染局部 scope。
 - [ ] **NG-607 Material 视觉系统。** 统一 typography、4/8px spacing、shape、density、state layer、elevation、motion 和 reduced motion；有意变化保存前后截图和设计理由。
-- [ ] **NG-608 Utilities。** utilities.css 独立、可按需、打印/断点/RTL/暗色冲突有测试；不得泄漏影响组件 Shadow DOM 或宿主应用全局。
+- [ ] **NG-608 Utilities。** 工具类只通过根入口 `installUtilityStyles(target?)` 显式安装到指定 Document/ShadowRoot；打印、断点、RTL、暗色和释放行为有测试，不得自动注入或泄漏到非目标作用域。
 
 退出门禁：稳定组件 Style API 覆盖率 100%；复杂组件的关键内部区域可通过 parts/变量定制；浏览器测试证明主题、局部覆盖和服务弹层一致。
 
@@ -302,7 +308,7 @@ flowchart LR
 
 目标：让外部用户能正确安装、按需使用、定制、迁移和排障。
 
-- [ ] **NG-800 安装文档。** 完整导入、`@elfui/kit/all`、单组件、resolver、utilities、Labs、CDN、SSR 示例全部使用真实 tarball 验证。
+- [ ] **NG-800 安装文档。** 根入口命名导入、Core 按需注册、`registerAllComponents()`、Core `theme()`/`useVariant()`、CDN 与 SSR 示例全部使用真实 tarball 验证；不得展示已删除 subpath 或额外样式入口。
 - [ ] **NG-801 组件文档。** 每个稳定组件至少有 basic、controlled、disabled/readonly、empty/loading/error、clear/reset、keyboard/a11y、style override 和边界案例；Template/Script 可复制运行。
 - [ ] **NG-802 自动 API。** props/events/slots/exposes/form/parts/CSS properties/host states 由 metadata 生成，公开 TypeScript 与页面表格不可漂移。
 - [ ] **NG-803 Quality 章节。** 完成 Testing、Performance、SSR & Hydration、Compatibility & Release、CSP、Accessibility、Theming 和 On-demand Import 双语文档。
@@ -331,7 +337,7 @@ flowchart LR
 - [ ] 原生 FormData/reset/validation/fieldset/restore 契约覆盖全部适用控件。
 - [ ] 非测试源码 0 个外部 props/data/options/fileList 原地修改。
 - [ ] 全依赖图 0 个 type/runtime cycle，低层 0 个组件层反向依赖。
-- [ ] 完整导入、单组件导入、resolver、CDN 和 SSR consumer 全部基于 tarball 通过。
+- [ ] 根入口命名导入、按需注册、`registerAllComponents()`、CDN 和 SSR consumer 全部基于 tarball 通过。
 - [ ] 单组件 bundle 0 个无关组件注册；Labs/重依赖不进入稳定入口。
 - [ ] 稳定组件 metadata、types、docs、exports、parts/CSS properties 100% 同源。
 - [ ] 关键 10k 数据性能、DOM 上限、资源释放和三浏览器矩阵达到预算。

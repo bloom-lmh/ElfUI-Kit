@@ -1,49 +1,49 @@
 @use "../../../styles/reset";
 
 :host {
-  --_quote-color: var(--elf-text-secondary);
-  --_quote-bg: var(--elf-bg-overlay);
+  --_quote-color: var(--elf-text-secondary, rgba(0, 0, 0, 0.6));
+  --_quote-bg: var(--elf-bg-overlay, rgba(0, 0, 0, 0.04));
   display: block;
   width: 100%;
-  color: var(--elf-text-primary);
+  color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
 }
 
 :host([type="primary"]) {
-  --_quote-color: var(--elf-primary);
-  --_quote-bg: color-mix(in srgb, var(--elf-primary) 9%, var(--elf-bg-paper));
+  --_quote-color: var(--elf-primary, #1976d2);
+  --_quote-bg: color-mix(in srgb, var(--elf-primary, #1976d2) 9%, var(--elf-bg-paper, #ffffff));
 }
 
 :host([type="success"]) {
-  --_quote-color: var(--elf-success);
-  --_quote-bg: color-mix(in srgb, var(--elf-success) 9%, var(--elf-bg-paper));
+  --_quote-color: var(--elf-success, #2e7d32);
+  --_quote-bg: color-mix(in srgb, var(--elf-success, #2e7d32) 9%, var(--elf-bg-paper, #ffffff));
 }
 
 :host([type="warning"]) {
-  --_quote-color: var(--elf-warning);
-  --_quote-bg: color-mix(in srgb, var(--elf-warning) 11%, var(--elf-bg-paper));
+  --_quote-color: var(--elf-warning, #ef6c00);
+  --_quote-bg: color-mix(in srgb, var(--elf-warning, #ef6c00) 11%, var(--elf-bg-paper, #ffffff));
 }
 
 :host([type="danger"]) {
-  --_quote-color: var(--elf-danger);
-  --_quote-bg: color-mix(in srgb, var(--elf-danger) 9%, var(--elf-bg-paper));
+  --_quote-color: var(--elf-danger, #d32f2f);
+  --_quote-bg: color-mix(in srgb, var(--elf-danger, #d32f2f) 9%, var(--elf-bg-paper, #ffffff));
 }
 
 :host([type="info"]) {
-  --_quote-color: var(--elf-info);
-  --_quote-bg: color-mix(in srgb, var(--elf-info) 9%, var(--elf-bg-paper));
+  --_quote-color: var(--elf-info, #0288d1);
+  --_quote-bg: color-mix(in srgb, var(--elf-info, #0288d1) 9%, var(--elf-bg-paper, #ffffff));
 }
 
 .quote {
   position: relative;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
-  gap: var(--elf-space-3);
+  gap: var(--elf-space-3, 12px);
   box-sizing: border-box;
   width: 100%;
   margin: 0;
   padding: 16px 18px 16px 20px;
   border: 0;
-  border-radius: var(--elf-radius-sm);
+  border-radius: var(--elf-radius-sm, 4px);
   background: var(--_quote-bg);
 }
 
@@ -51,7 +51,7 @@
   position: absolute;
   inset: 0 auto 0 0;
   width: 3px;
-  border-radius: var(--elf-radius-sm) 0 0 var(--elf-radius-sm);
+  border-radius: var(--elf-radius-sm, 4px) 0 0 var(--elf-radius-sm, 4px);
   background: var(--_quote-color);
 }
 
@@ -72,8 +72,8 @@
 
 .title {
   margin-bottom: 4px;
-  color: var(--elf-text-primary);
-  font-size: var(--elf-font-size-sm);
+  color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
+  font-size: var(--elf-font-size-sm, 14px);
   font-weight: 700;
   line-height: 1.5;
 }
@@ -83,15 +83,15 @@
 }
 
 .body {
-  color: var(--elf-text-secondary);
-  font-size: var(--elf-font-size-sm);
+  color: var(--elf-text-secondary, rgba(0, 0, 0, 0.6));
+  font-size: var(--elf-font-size-sm, 14px);
   line-height: 1.75;
 }
 
 .cite {
   margin-top: 8px;
   color: var(--_quote-color);
-  font-size: var(--elf-font-size-xs);
+  font-size: var(--elf-font-size-xs, 12px);
   font-weight: 600;
 }
 
@@ -100,8 +100,9 @@
 }
 
 :host([variant="outlined"]) .quote {
-  border: 1px solid color-mix(in srgb, var(--_quote-color) 42%, var(--elf-border));
-  background: var(--elf-bg-paper);
+  border: 1px solid
+    color-mix(in srgb, var(--_quote-color) 42%, var(--elf-border, rgba(0, 0, 0, 0.12)));
+  background: var(--elf-bg-paper, #ffffff);
 }
 
 :host([variant="filled"]) .quote {
@@ -120,6 +121,6 @@
 }
 
 :host([compact]) .quote {
-  gap: var(--elf-space-2);
+  gap: var(--elf-space-2, 8px);
   padding: 10px 14px 10px 16px;
 }

@@ -9,7 +9,7 @@ const t = createDocsTranslator({
   title: { zh: "构建与样式", en: "Build and styles" },
   description: {
     zh: "本页只说明构建入口、全局样式边界和层级策略。主题 token 归入主题与定制，具体工具类归入工具类页面，避免同一能力在多个章节重复维护。",
-    en: "This page focuses on package entries, global style boundaries, and layer strategy. Theme tokens belong to Theme and customization, while concrete utility classes belong to Utilities, so each capability has one documentation owner.",
+    en: "This page documents the single package entry, Shadow DOM style boundary, tree-shaking contract, and framework-native customization APIs.",
   },
   contractHeading: { zh: "公开契约", en: "Public contract" },
   contract: { zh: "构建契约", en: "Build contract" },
@@ -27,12 +27,12 @@ const buildRows = [
     ),
   },
   {
-    name: "@elfui/kit/styles/utilities.css",
-    type: "CSS",
-    default: "optional",
+    name: "Component styles",
+    type: "Shadow DOM / defineStyle()",
+    default: "embedded",
     desc: pick(
-      "工具类样式入口；未使用时无需引入",
-      "Optional utility-class stylesheet; omit it when utilities are unused.",
+      "结构样式随组件定义进入 Shadow DOM，不要求额外 CSS 入口",
+      "Structural styles travel with the component definition; no extra CSS entry is required.",
     ),
   },
   {

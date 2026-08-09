@@ -1,3 +1,5 @@
+@use "../../../styles/reset";
+
 // ───── 水平模式 ──────────────────────────────────
 .menu.is-horizontal {
   width: 100%;
@@ -24,7 +26,7 @@
   min-width: 0;
   padding: 4px;
   border-radius: inherit;
-  background: var(--elf-bg-paper);
+  background: var(--elf-bg-paper, #ffffff);
   overflow-x: auto;
   &::-webkit-scrollbar {
     display: none;
@@ -46,10 +48,10 @@
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: transparent transparent;
-  border: 1px solid var(--elf-divider);
-  border-radius: var(--elf-radius-md);
-  background: var(--m-bg, var(--elf-bg-paper));
-  box-shadow: var(--elf-shadow-2);
+  border: 1px solid var(--elf-divider, rgba(0, 0, 0, 0.08));
+  border-radius: var(--elf-radius-md, 8px);
+  background: var(--m-bg, var(--elf-bg-paper, #ffffff));
+  box-shadow: var(--elf-shadow-2, 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23));
 
   &::-webkit-scrollbar {
     width: 4px;
@@ -62,9 +64,9 @@
     border-radius: 2px;
   }
   &:hover {
-    scrollbar-color: var(--elf-border) transparent;
+    scrollbar-color: var(--elf-border, rgba(0, 0, 0, 0.12)) transparent;
     &::-webkit-scrollbar-thumb {
-      background: var(--elf-border);
+      background: var(--elf-border, rgba(0, 0, 0, 0.12));
     }
   }
 }
@@ -74,7 +76,7 @@
   width: auto;
   min-width: 92px;
   justify-content: center;
-  border-radius: var(--elf-radius-sm);
+  border-radius: var(--elf-radius-sm, 4px);
 
   &::before {
     inset: auto 12px 4px;
@@ -83,7 +85,7 @@
   }
   &.is-open {
     background: var(--m-active-bg, rgba(25, 118, 210, 0.08));
-    color: var(--elf-text-primary);
+    color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
   }
 }
 
@@ -158,11 +160,11 @@
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: transparent transparent;
-  background: var(--m-bg, var(--elf-bg-paper));
-  color: var(--elf-text-primary);
-  border: 1px solid var(--elf-divider);
-  border-radius: var(--elf-radius-md);
-  box-shadow: var(--elf-shadow-2);
+  background: var(--m-bg, var(--elf-bg-paper, #ffffff));
+  color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
+  border: 1px solid var(--elf-divider, rgba(0, 0, 0, 0.08));
+  border-radius: var(--elf-radius-md, 8px);
+  box-shadow: var(--elf-shadow-2, 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23));
 
   &::-webkit-scrollbar {
     width: 4px;
@@ -175,9 +177,9 @@
     border-radius: 2px;
   }
   &:hover {
-    scrollbar-color: var(--elf-border) transparent;
+    scrollbar-color: var(--elf-border, rgba(0, 0, 0, 0.12)) transparent;
     &::-webkit-scrollbar-thumb {
-      background: var(--elf-border);
+      background: var(--elf-border, rgba(0, 0, 0, 0.12));
     }
   }
 }
@@ -189,18 +191,18 @@
 .menu.is-collapsed .collapse-popup .menu-item {
   justify-content: flex-start !important;
   padding: 0 16px 0 20px !important;
-  color: var(--elf-text-primary) !important;
+  color: var(--elf-text-primary, rgba(0, 0, 0, 0.87)) !important;
 
   &::before {
     left: 8px !important;
   }
   &:hover:not(.is-disabled) {
-    color: var(--elf-text-primary) !important;
+    color: var(--elf-text-primary, rgba(0, 0, 0, 0.87)) !important;
   }
 
   &.is-active,
   &.is-active:hover {
-    color: var(--m-active-c, var(--elf-primary)) !important;
+    color: var(--m-active-c, var(--elf-primary, #1976d2)) !important;
   }
 }
 

@@ -6,9 +6,9 @@
   flex-shrink: 0;
   width: 100%;
   height: var(--_height, 60px);
-  padding: 0 var(--elf-space-6);
-  border-bottom: 1px solid var(--elf-layout-divider, var(--elf-divider));
-  background: var(--elf-layout-header-bg, var(--elf-bg-paper));
+  padding: 0 var(--elf-space-6, 24px);
+  border-bottom: 1px solid var(--elf-layout-divider, var(--elf-divider, rgba(0, 0, 0, 0.08)));
+  background: var(--elf-layout-header-bg, var(--elf-bg-paper, #ffffff));
   box-sizing: border-box;
   z-index: 10;
 }

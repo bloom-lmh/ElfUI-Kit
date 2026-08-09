@@ -1,46 +1,37 @@
 # ELFUI-KIT
 
-ELFUI-KIT is a Web Components library built on ElfUI. Components register as Custom Elements and work with native HTML or any framework.
+ELFUI-KIT is a Web Components library built on ElfUI. Components work with native HTML and framework applications through standard Custom Elements.
 
-## Monorepo
+## Workspace
 
 - `packages/kit` contains the publishable `@elfui/kit` package.
 - `apps/website` contains the private documentation website deployed to Vercel.
-- `docs` retains architecture records, implementation plans, maintenance handoff notes, and visual evidence.
-
-The website is never included in the npm package.
+- `docs/NEXT_GENERATION_PLAN.md` is the single active implementation plan.
 
 ## Install
 
 ```bash
-npm install @elfui/kit@beta
+pnpm add @elfui/kit
 ```
 
 ## Use
 
-Import the package once at the application entry to register all `elf-*` elements:
+```ts
+import { registerAllComponents } from "@elfui/kit";
+
+registerAllComponents();
+```
+
+For an on-demand build, import constructors from the same root and register them with ElfUI Core:
 
 ```ts
-import "@elfui/kit";
+import { registerComponents } from "@elfui/core";
+import { Button, Input } from "@elfui/kit";
+
+registerComponents(Button, Input);
 ```
 
-```html
-<elf-button color="primary">Create project</elf-button>
-<elf-input label="Project name" variant="outlined"></elf-input>
-```
-
-Optional layout and typography utilities are published separately:
-
-```ts
-import "@elfui/kit/styles/utilities.css";
-```
-
-ELFUI-KIT includes TypeScript declarations for its Custom Elements, component services, Providers, form composables, and utility APIs.
-
-## Requirements
-
-- Modern browsers with Custom Elements and Shadow DOM support.
-- `@elfui/core` is the single direct ElfUI runtime dependency. Internal runtime and reactivity packages are resolved transitively; applications do not install or import them directly.
+Component styles are bundled with their Shadow DOM definitions; no separate stylesheet is required.
 
 ## License
 

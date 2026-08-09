@@ -1,3 +1,4 @@
+import { registerAllComponents } from "@elfui/kit";
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 
 interface PlaygroundElement extends HTMLElement {
@@ -18,6 +19,7 @@ const exampleTags: string[] = [];
 
 beforeAll(async () => {
   document.documentElement.lang = "en-US";
+  registerAllComponents();
   await import("../../../components");
   const { ensureCustomElement } = await import("@elfui/core");
   const [pageModule, propsModule, ...exampleModules] = await Promise.all([

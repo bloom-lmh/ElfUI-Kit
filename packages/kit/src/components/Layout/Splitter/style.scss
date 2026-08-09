@@ -3,7 +3,7 @@
 :host {
   display: block;
   min-height: 160px;
-  color: var(--elf-text-primary);
+  color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
 }
 
 :host([vertical]) {
@@ -15,9 +15,9 @@
   width: 100%;
   height: 100%;
   min-height: inherit;
-  border: 1px solid var(--elf-border);
-  border-radius: var(--elf-radius-md);
-  background: var(--elf-bg-paper);
+  border: 1px solid var(--elf-border, rgba(0, 0, 0, 0.12));
+  border-radius: var(--elf-radius-md, 8px);
+  background: var(--elf-bg-paper, #ffffff);
   overflow: hidden;
 }
 
@@ -32,7 +32,7 @@
   // Splitter only owns sizing. Consumers can place elf-scrollbar or an
   // explicit overflow container inside a pane when scrolling is required.
   overflow: hidden;
-  padding: var(--elf-space-4);
+  padding: var(--elf-space-4, 16px);
 }
 
 .first {
@@ -51,11 +51,11 @@
 .bar {
   flex: 0 0 6px;
   position: relative;
-  background: var(--elf-border);
+  background: var(--elf-border, rgba(0, 0, 0, 0.12));
   cursor: col-resize;
   touch-action: none;
   user-select: none;
-  transition: background var(--elf-transition-fast);
+  transition: background var(--elf-transition-fast, 150ms cubic-bezier(0.4, 0, 0.2, 1));
 
   &::after {
     position: absolute;
@@ -65,7 +65,7 @@
 
   &:hover,
   &:active {
-    background: var(--elf-primary);
+    background: var(--elf-primary, #1976d2);
   }
 }
 
@@ -83,11 +83,11 @@
   width: 22px;
   height: 34px;
   padding: 0;
-  border: 1px solid var(--elf-border);
-  border-radius: var(--elf-radius-sm);
-  background: var(--elf-bg-paper);
-  color: var(--elf-text-secondary);
-  box-shadow: var(--elf-shadow-1);
+  border: 1px solid var(--elf-border, rgba(0, 0, 0, 0.12));
+  border-radius: var(--elf-radius-sm, 4px);
+  background: var(--elf-bg-paper, #ffffff);
+  color: var(--elf-text-secondary, rgba(0, 0, 0, 0.6));
+  box-shadow: var(--elf-shadow-1, 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24));
   cursor: pointer;
   transform: translate(-50%, -50%);
   font: inherit;
@@ -95,12 +95,12 @@
 
   &:hover,
   &:focus-visible {
-    border-color: var(--elf-primary);
-    color: var(--elf-primary);
+    border-color: var(--elf-primary, #1976d2);
+    color: var(--elf-primary, #1976d2);
   }
 
   &:focus-visible {
-    outline: 2px solid color-mix(in srgb, var(--elf-primary) 32%, transparent);
+    outline: 2px solid color-mix(in srgb, var(--elf-primary, #1976d2) 32%, transparent);
     outline-offset: 2px;
   }
 }

@@ -1,6 +1,5 @@
 import { defineHtml, defineStyle, useRef } from "@elfui/core";
 
-import "@elfui/kit/labs";
 import { createDocsTranslator } from "../../docsLocale";
 import articleStyles from "../../shared/article.scss?inline";
 
@@ -498,7 +497,9 @@ pnpm publish
 
 <elf-md-outline target="md-demo" :max-depth="3"></elf-md-outline>`;
 
-const script = `import "@elfui/kit/labs";
+const script = `import { registerAllComponents } from "@elfui/kit";
+
+registerAllComponents();
 
 const onTocChange = (event) => {
   // event.detail: [{ id, text, depth }]

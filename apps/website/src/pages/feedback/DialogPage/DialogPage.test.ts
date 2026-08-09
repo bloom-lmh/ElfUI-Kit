@@ -6,23 +6,16 @@ let mixedOverlayExampleTag = "";
 let pageTag = "";
 
 beforeAll(async () => {
-  const { ensureCustomElement } = await import("@elfui/core");
   const [
-    { Button },
+    { ensureCustomElement },
+    { Button, Container, Dialog, Drawer, PopConfirm },
     { Playground },
     { PropsTable },
-    { Container },
-    { Dialog },
-    { Drawer },
-    { PopConfirm },
   ] = await Promise.all([
-    import("@elfui/kit-src/components/Basic/Button/index"),
+    import("@elfui/core"),
+    import("@elfui/kit"),
     import("@elfui/website-components/Playground/index"),
     import("@elfui/website-components/PropsTable/index"),
-    import("@elfui/kit-src/components/Layout/Container/index"),
-    import("@elfui/kit-src/components/Feedback/Dialog/index"),
-    import("@elfui/kit-src/components/Feedback/Drawer/index"),
-    import("@elfui/kit-src/components/Feedback/PopConfirm/index"),
   ]);
   [Button, Playground, PropsTable, Container, Dialog, Drawer, PopConfirm].forEach((component) => {
     ensureCustomElement(component);

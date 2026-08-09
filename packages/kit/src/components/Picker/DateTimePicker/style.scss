@@ -4,8 +4,8 @@
   display: inline-block;
   width: 100%;
   max-width: 760px;
-  color: var(--elf-text-primary);
-  font-size: var(--elf-font-size-sm);
+  color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
+  font-size: var(--elf-font-size-sm, 14px);
 }
 
 .date-time-picker {
@@ -40,16 +40,16 @@ elf-time-picker {
   padding: 0;
   border: 0;
   border-radius: 50%;
-  background: color-mix(in srgb, var(--elf-bg-paper) 88%, transparent);
-  color: var(--elf-text-secondary);
+  background: color-mix(in srgb, var(--elf-bg-paper, #ffffff) 88%, transparent);
+  color: var(--elf-text-secondary, rgba(0, 0, 0, 0.6));
   font: inherit;
   cursor: pointer;
 }
 
 .clear:hover,
 .clear:focus-visible {
-  background: color-mix(in srgb, var(--elf-primary) 12%, var(--elf-bg-paper));
-  color: var(--elf-primary);
+  background: color-mix(in srgb, var(--elf-primary, #1976d2) 12%, var(--elf-bg-paper, #ffffff));
+  color: var(--elf-primary, #1976d2);
   outline: none;
 }
 

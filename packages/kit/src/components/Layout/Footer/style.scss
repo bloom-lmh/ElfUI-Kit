@@ -6,8 +6,8 @@
   width: var(--_width, 100%);
   max-width: var(--_max-width, none);
   height: var(--_height, 60px);
-  color: var(--_footer-color, var(--elf-text-secondary));
-  font-size: var(--elf-font-size-sm);
+  color: var(--_footer-color, var(--elf-text-secondary, rgba(0, 0, 0, 0.6)));
+  font-size: var(--elf-font-size-sm, 14px);
   box-sizing: border-box;
 }
 
@@ -17,27 +17,27 @@
   min-height: 100%;
   align-items: center;
   flex-wrap: wrap;
-  gap: var(--elf-space-3);
+  gap: var(--elf-space-3, 12px);
   box-sizing: border-box;
-  padding: var(--elf-space-3) var(--elf-space-6);
-  border-top: 1px solid var(--elf-layout-divider, var(--elf-divider));
+  padding: var(--elf-space-3, 12px) var(--elf-space-6, 24px);
+  border-top: 1px solid var(--elf-layout-divider, var(--elf-divider, rgba(0, 0, 0, 0.08)));
   border-radius: inherit;
-  background: var(--_footer-bg, var(--elf-layout-footer-bg, var(--elf-bg-paper)));
+  background: var(--_footer-bg, var(--elf-layout-footer-bg, var(--elf-bg-paper, #ffffff)));
   box-shadow: var(--_footer-shadow, none);
 }
 
 :host([border]) .footer {
-  border: 1px solid var(--elf-border);
+  border: 1px solid var(--elf-border, rgba(0, 0, 0, 0.12));
 }
 :host([rounded]) {
-  border-radius: var(--elf-radius-md);
+  border-radius: var(--elf-radius-md, 8px);
 }
 :host([padless]) .footer {
   padding: 0;
 }
 :host([fixed]) {
   position: fixed;
-  z-index: var(--elf-z-index-dropdown);
+  z-index: var(--elf-z-index-dropdown, 1000);
   right: 0;
   bottom: 0;
   left: 0;

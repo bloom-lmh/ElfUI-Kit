@@ -4,47 +4,40 @@ import { createDocsTranslator } from "../../docsLocale";
 import pageStyles from "./style.scss?inline";
 
 const t = createDocsTranslator({
-  title: { zh: "入口与摇树边界", en: "Entries and tree-shaking boundaries" },
+  title: { zh: "唯一入口与摇树边界", en: "Single entry and tree-shaking boundary" },
   componentEntry: {
-    zh: "组件、Provider 与公共类型",
-    en: "Components, Providers, and public types",
+    zh: "全部组件、AI、Labs、Provider、服务与公共类型",
+    en: "All components, AI, Labs, Providers, services, and public types",
   },
-  utilityEntry: { zh: "可选工具类样式", en: "Optional utility-class styles" },
-  stable: { zh: "稳定", en: "Stable" },
-  optional: { zh: "按需", en: "Optional" },
+  stable: { zh: "唯一公开入口", en: "Only public entry" },
   appEntry: {
-    zh: "应用入口：注册组件与 Provider",
-    en: "Application entry: register components and Providers",
-  },
-  optionalEntry: {
-    zh: "可选入口：只在使用工具类时引入",
-    en: "Optional entry: import only when using utility classes",
+    zh: "全量注册：只有调用时才注册全部 Custom Elements",
+    en: "Full registration: register every Custom Element only when called",
   },
   scriptComment: {
-    zh: "当前发布包公开两个稳定入口：组件入口与工具类样式。不要使用不存在的单组件深层导入；后续新增入口时会同步更新 exports。",
-    en: "The package currently exposes two stable entries: the component entry and utility styles. Do not use nonexistent per-component deep imports; future entries will be reflected in exports.",
+    zh: "按需模式仍从同一根入口命名导入；未使用组件由打包器摇树删除。useComponents/registerComponents 来自 @elfui/core，Kit 不重复包装。",
+    en: "On-demand mode uses named imports from the same root. Bundlers remove unused components; useComponents/registerComponents stay owned by @elfui/core.",
   },
 });
+
 defineStyle(pageStyles);
 
 const templateCode = `// ${t("appEntry")}
-import "@elfui/kit";
+import { registerAllComponents } from "@elfui/kit";
 
-// ${t("optionalEntry")}
-import "@elfui/kit/styles/utilities.css";`;
+registerAllComponents();`;
 
-const scriptCode = `// ${t("scriptComment")}`;
+const scriptCode = `// ${t("scriptComment")}
+import { registerComponents } from "@elfui/core";
+import { Button, Input } from "@elfui/kit";
+
+registerComponents(Button, Input);`;
 
 const entryRows = [
   {
     entry: "@elfui/kit",
     role: t("componentEntry"),
     status: t("stable"),
-  },
-  {
-    entry: "@elfui/kit/styles/utilities.css",
-    role: t("utilityEntry"),
-    status: t("optional"),
   },
 ];
 

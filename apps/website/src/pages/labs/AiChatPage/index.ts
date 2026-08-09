@@ -1,7 +1,6 @@
 import { defineHtml, defineStyle, useRef } from "@elfui/core";
 
-import type { AIChatMessageItem } from "@elfui/kit/labs";
-import "@elfui/kit/labs";
+import type { AIChatMessageItem } from "@elfui/kit";
 import { createDocsTranslator } from "../../docsLocale";
 import articleStyles from "../../shared/article.scss?inline";
 

@@ -1,6 +1,5 @@
 import { defineHtml, defineStyle } from "@elfui/core";
 
-import "@elfui/kit/labs";
 import { createDocsTranslator } from "../../docsLocale";
 import articleStyles from "../../shared/article.scss?inline";
 import { codeCard, codeTabs, MD_EMBED_STYLE, quote, table } from "../../shared/md-embed";
@@ -128,21 +127,21 @@ const t = createDocsTranslator({
   bareLabel: { zh: "最小项目", en: "Minimal" },
   installTitle: { zh: "安装组件库", en: "Install the Kit" },
   installLead: {
-    zh: "通过包管理器安装 @elfui/kit。普通应用不需要单独安装 @elfui/core。",
-    en: "Install @elfui/kit with your package manager. Normal applications do not need @elfui/core separately.",
+    zh: "通过包管理器安装 @elfui/kit。使用按需注册、theme() 或 useVariant() 时，同时安装兼容版本的 @elfui/core。",
+    en: "Install @elfui/kit with your package manager. Add a compatible @elfui/core when using on-demand registration, theme(), or useVariant().",
   },
   installFooter: { zh: "在项目根目录的终端中执行", en: "Run in the project root" },
   registerTitle: { zh: "注册组件库", en: "Register the Kit" },
   registerLead: {
-    zh: "在应用入口导入一次 @elfui/kit，所有 elf-* 组件会自动注册为 Custom Elements。",
-    en: "Import @elfui/kit once in the application entry; every elf-* component registers automatically.",
+    zh: "导入包本身不会注册标签。调用 registerAllComponents() 全量注册，或者使用 @elfui/core 按需注册命名导出的构造器。",
+    en: "Importing the package does not register tags. Call registerAllComponents() for the full set, or register named constructors on demand with @elfui/core.",
   },
   entryTitle: { zh: "应用入口", en: "Application entry" },
-  entryFooter: { zh: "应用入口，只需导入一次", en: "Application entry; import once" },
-  optionalTitle: { zh: "可选入口", en: "Optional entries" },
+  entryFooter: { zh: "应用入口，显式执行一次", en: "Application entry; invoke once" },
+  optionalTitle: { zh: "注册模式", en: "Registration modes" },
   optionalLead: {
-    zh: "工具类样式和 Labs 组件按需引入。",
-    en: "Import utility styles and Labs components only when needed.",
+    zh: "全量和按需模式使用同一个 @elfui/kit 根入口，不提供 Labs、组件或样式 subpath。",
+    en: "Full and on-demand modes use the same @elfui/kit root; there are no Labs, component, or style subpaths.",
   },
   entriesTitle: { zh: "公开入口", en: "Public entries" },
   entriesLead: {
@@ -154,13 +153,13 @@ const t = createDocsTranslator({
   entryDesc: { zh: "说明", en: "Description" },
   useTitle: { zh: "使用组件", en: "Use a component" },
   useLead: {
-    zh: "导入完成后，普通 HTML 和 Macro 组件模板都可以直接使用 elf-* 标签。",
-    en: "Once imported, plain HTML and Macro templates can use elf-* tags directly.",
+    zh: "组件完成显式注册后，普通 HTML 和 Macro 组件模板都可以使用 elf-* 标签。",
+    en: "After explicit registration, plain HTML and Macro templates can use elf-* tags.",
   },
   htmlTitle: { zh: "普通 HTML 页面", en: "Plain HTML page" },
   htmlBody: {
-    zh: "模块脚本加载完成后，页面中的 elf-* 标签会正常渲染。",
-    en: "After the module script loads, elf-* tags render normally.",
+    zh: "模块脚本调用全量注册后，页面中的 elf-* 标签会正常升级并渲染。",
+    en: "After the module invokes full registration, elf-* tags upgrade and render normally.",
   },
   macroTitle: { zh: "Macro 组件模板", en: "Macro component template" },
   macroBody: {
@@ -229,18 +228,26 @@ const routerCode = [
 const bareCode = ["pnpm create elfui@beta my-app --bare --install", "cd my-app", "pnpm dev"].join(
   "\n",
 );
-const entryCode = 'import "@elfui/kit";';
-const utilitiesCode = 'import "@elfui/kit/styles/utilities.css";';
-const labsCode = 'import "@elfui/kit/labs";';
+const entryCode = `import { registerAllComponents } from "@elfui/kit";
+
+registerAllComponents();`;
+const onDemandCode = `import { registerComponents } from "@elfui/core";
+import { Button, Input } from "@elfui/kit";
+
+registerComponents(Button, Input);`;
 const htmlCode = [
   '<script type="module">',
-  '  import "@elfui/kit";',
+  '  import { registerAllComponents } from "@elfui/kit";',
+  "  registerAllComponents();",
   "</script>",
   "",
   '<elf-button color="primary">Create project</elf-button>',
 ].join("\n");
 const macroCode = [
-  'import { defineHtml } from "@elfui/core";',
+  'import { defineHtml, useComponents } from "@elfui/core";',
+  'import { Button } from "@elfui/kit";',
+  "",
+  "useComponents(Button);",
   "",
   "export const App = defineHtml(`",
   '  <elf-button color="primary">Create project</elf-button>',
@@ -407,13 +414,19 @@ ${t("optionalLead")}
 
 ${codeTabs([
   {
-    key: "utilities",
-    label: "utilities.css",
+    key: "full",
+    label: "registerAllComponents",
     filename: "src/main.ts",
     language: "typescript",
-    code: utilitiesCode,
+    code: entryCode,
   },
-  { key: "labs", label: "labs", filename: "src/main.ts", language: "typescript", code: labsCode },
+  {
+    key: "on-demand",
+    label: t("optionalTitle"),
+    filename: "src/main.ts",
+    language: "typescript",
+    code: onDemandCode,
+  },
 ])}
 
 ## ${t("entriesTitle")}
@@ -426,11 +439,7 @@ ${table(
     { prop: "type", label: t("entryType") },
     { prop: "desc", label: t("entryDesc") },
   ],
-  [
-    { entry: "@elfui/kit", type: "JavaScript + types", desc: "required" },
-    { entry: "@elfui/kit/labs", type: "JavaScript + types", desc: "optional" },
-    { entry: "@elfui/kit/styles/utilities.css", type: "CSS", desc: "optional" },
-  ],
+  [{ entry: "@elfui/kit", type: "JavaScript + types", desc: "required" }],
   "entry",
 )}
 

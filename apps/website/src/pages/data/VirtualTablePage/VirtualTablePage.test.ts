@@ -1,3 +1,4 @@
+import { registerAllComponents } from "@elfui/kit";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
 
 let virtualTableTag = "";
@@ -5,6 +6,7 @@ let virtualTableAdvancedTag = "";
 let virtualTableExpansionTag = "";
 
 beforeAll(async () => {
+  registerAllComponents();
   await import("../../../components");
   const { ensureCustomElement } = await import("@elfui/core");
   const { PageVirtualTableEx1 } = await import("./ex1");
@@ -102,7 +104,7 @@ describe("VirtualTablePage", () => {
 
   it("英文模式覆盖表头、状态、案例源码与固定数据", async () => {
     document.documentElement.lang = "en-US";
-    const { EN_LOCALE_MESSAGES } = await import("@elfui/kit-src/components/Providers/context");
+    const { EN_LOCALE_MESSAGES } = await import("@elfui/kit");
     const provider = document.createElement("elf-locale-provider") as HTMLElement & {
       name?: string;
       messages?: Record<string, unknown>;

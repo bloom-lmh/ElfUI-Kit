@@ -16,7 +16,12 @@
 
 /* native=true（默认）：启用美化滚动条 */
 :host([native]) .wrap {
-  scrollbar-color: color-mix(in srgb, var(--elf-text-secondary) 38%, transparent) transparent;
+  scrollbar-color: color-mix(
+      in srgb,
+      var(--elf-text-secondary, rgba(0, 0, 0, 0.6)) 38%,
+      transparent
+    )
+    transparent;
   scrollbar-width: thin;
 
   &::-webkit-scrollbar {
@@ -29,16 +34,16 @@
   &::-webkit-scrollbar-thumb {
     border: 3px solid transparent;
     border-radius: 999px;
-    background: color-mix(in srgb, var(--elf-text-secondary) 38%, transparent);
+    background: color-mix(in srgb, var(--elf-text-secondary, rgba(0, 0, 0, 0.6)) 38%, transparent);
     background-clip: padding-box;
-    transition: background-color var(--elf-transition-fast);
+    transition: background-color var(--elf-transition-fast, 150ms cubic-bezier(0.4, 0, 0.2, 1));
   }
   &::-webkit-scrollbar-thumb:hover {
-    background: color-mix(in srgb, var(--elf-text-secondary) 60%, transparent);
+    background: color-mix(in srgb, var(--elf-text-secondary, rgba(0, 0, 0, 0.6)) 60%, transparent);
     background-clip: padding-box;
   }
   &::-webkit-scrollbar-thumb:active {
-    background: color-mix(in srgb, var(--elf-primary) 55%, transparent);
+    background: color-mix(in srgb, var(--elf-primary, #1976d2) 55%, transparent);
     background-clip: padding-box;
   }
 }

@@ -4,50 +4,54 @@ import { createDocsTranslator } from "../../docsLocale";
 import pageStyles from "./style.scss?inline";
 
 const t = createDocsTranslator({
-  title: { zh: "重置与 CSS 层", en: "Reset and CSS Layers" },
+  title: { zh: "组件内样式与主题覆盖", en: "Embedded styles and theme overrides" },
   sourceComment: {
-    zh: "应用全局样式：明确层级，不穿透组件 Shadow DOM",
-    en: "Application global styles: define explicit layers without piercing component Shadow DOM",
+    zh: "CSS Variables 会继承进 Shadow DOM；公开 part 用于精确覆盖",
+    en: "CSS variables inherit into Shadow DOM; public parts provide precise overrides",
   },
   scriptComment: {
-    zh: "主题颜色、圆角和阴影请在主题与定制中配置 token。这里仅处理应用级 reset、CSS layer 顺序和可选工具类入口。",
-    en: "Configure theme colors, radii, and elevations through tokens in Theme and customization. This example only covers the application reset, CSS layer order, and the optional utility entry.",
+    zh: "Core theme() 按组件 tag 注入变量和 ::part 规则；它只能在浏览器中调用",
+    en: "Core theme() injects variables and ::part rules for one component tag; call it only in the browser",
   },
-  resetDescription: {
-    zh: "应用级归一化，不覆盖组件内部语义",
-    en: "Application-level normalization that does not override component internals.",
+  tokenDescription: {
+    zh: "ConfigProvider、ThemeProvider 或普通 CSS 设置语义 token",
+    en: "Set semantic tokens through ConfigProvider, ThemeProvider, or ordinary CSS.",
   },
-  utilityDescription: {
-    zh: "显式引入时才进入全局层",
-    en: "Included in the global layer only when explicitly imported.",
+  themeDescription: {
+    zh: "theme() 适合动态安装、替换和销毁组件级品牌覆盖",
+    en: "theme() installs, replaces, and disposes component-scoped brand overrides.",
   },
-  appDescription: {
-    zh: "业务样式拥有最后的全局覆盖权",
-    en: "Application styles own the final global override layer.",
+  partDescription: {
+    zh: "::part() 只依赖文档公开的稳定内部节点",
+    en: "::part() targets only documented stable internal nodes.",
   },
 });
 
 defineStyle(pageStyles);
 
 const templateCode = `/* ${t("sourceComment")} */
-@layer reset, elfui-utilities, app;
-
-@import "@elfui/kit/styles/utilities.css" layer(elfui-utilities);
-
-@layer reset {
-  *, *::before, *::after { box-sizing: border-box; }
+elf-button.brand {
+  --elf-primary: #6750a4;
+  --elf-primary-hover: #4f378b;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
+elf-button.brand::part(button) {
+  border-radius: 999px;
 }`;
 
-const scriptCode = `// ${t("scriptComment")}`;
+const scriptCode = `// ${t("scriptComment")}
+import { theme } from "@elfui/core";
+import { Button } from "@elfui/kit";
+
+const dispose = theme(Button, \`
+  --elf-primary: #6750a4;
+  &::part(button) { border-radius: 999px; }
+\`, { id: "brand-button" });`;
 
 const layerRows = [
-  { order: "01", label: "reset", description: t("resetDescription") },
-  { order: "02", label: "elfui-utilities", description: t("utilityDescription") },
-  { order: "03", label: "app", description: t("appDescription") },
+  { order: "01", label: "tokens", description: t("tokenDescription") },
+  { order: "02", label: "theme()", description: t("themeDescription") },
+  { order: "03", label: "::part()", description: t("partDescription") },
 ];
 
 const PageBuildStylesEx2 = defineHtml(`

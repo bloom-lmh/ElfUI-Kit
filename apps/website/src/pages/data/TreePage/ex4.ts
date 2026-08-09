@@ -1,5 +1,5 @@
 import { defineHtml, useEffect, useRef, useTemplateRef } from "@elfui/core";
-import type { TreeExpose, TreeNode } from "@elfui/kit-src/components/Data/Tree";
+import type { TreeExpose, TreeNode } from "@elfui/kit";
 import { createDocsTranslator } from "../../docsLocale";
 
 const selected = useRef("services");

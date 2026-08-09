@@ -5,7 +5,7 @@
   display: inline;
   min-width: 0;
   vertical-align: baseline;
-  color: var(--_text-color, var(--elf-text-primary));
+  color: var(--_text-color, var(--elf-text-primary, rgba(0, 0, 0, 0.87)));
   font-size: var(--_text-size, inherit);
   line-height: 1.5;
   --_line-clamp: 1;
@@ -23,38 +23,38 @@
 }
 
 :host([type="primary"]) {
-  --_text-color: var(--elf-primary);
+  --_text-color: var(--elf-primary, #1976d2);
 }
 
 :host([type="success"]) {
-  --_text-color: var(--elf-success);
+  --_text-color: var(--elf-success, #2e7d32);
 }
 
 :host([type="warning"]) {
-  --_text-color: var(--elf-warning);
+  --_text-color: var(--elf-warning, #ef6c00);
 }
 
 :host([type="danger"]) {
-  --_text-color: var(--elf-danger);
+  --_text-color: var(--elf-danger, #d32f2f);
 }
 
 :host([type="info"]) {
-  --_text-color: var(--elf-info);
+  --_text-color: var(--elf-info, #0288d1);
 }
 
 :host([size="small"]),
 :host([size="sm"]) {
-  --_text-size: var(--elf-font-size-sm);
+  --_text-size: var(--elf-font-size-sm, 14px);
 }
 
 :host([size="default"]),
 :host([size="md"]) {
-  --_text-size: var(--elf-font-size-md);
+  --_text-size: var(--elf-font-size-md, 16px);
 }
 
 :host([size="large"]),
 :host([size="lg"]) {
-  --_text-size: var(--elf-font-size-lg);
+  --_text-size: var(--elf-font-size-lg, 18px);
 }
 
 .text {
@@ -75,7 +75,7 @@
 
 :host([mark]) .text {
   border-radius: 2px;
-  background: color-mix(in srgb, var(--elf-warning) 24%, transparent);
+  background: color-mix(in srgb, var(--elf-warning, #ef6c00) 24%, transparent);
   color: inherit;
 }
 
@@ -85,7 +85,7 @@
 
 :host([inserted]) .text {
   text-decoration: underline;
-  text-decoration-color: var(--elf-success);
+  text-decoration-color: var(--elf-success, #2e7d32);
   text-underline-offset: 3px;
 }
 

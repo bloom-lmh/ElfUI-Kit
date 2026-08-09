@@ -1,3 +1,4 @@
+import { registerAllComponents } from "@elfui/kit";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
 
 let exampleTag = "";
@@ -6,6 +7,7 @@ let messagePageTag = "";
 let notificationPageTag = "";
 
 beforeAll(async () => {
+  registerAllComponents();
   await import("../../../components");
   const { ensureCustomElement } = await import("@elfui/core");
   const { PageMessageEx4 } = await import("./ex4");
@@ -19,7 +21,7 @@ beforeAll(async () => {
 });
 
 afterEach(async () => {
-  const { ElfMessage, ElfNotification } = await import("@elfui/kit-src/components/Feedback");
+  const { ElfMessage, ElfNotification } = await import("@elfui/kit");
   ElfMessage.closeAll();
   ElfNotification.closeAll();
   document.body.innerHTML = "";

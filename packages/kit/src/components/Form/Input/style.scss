@@ -19,7 +19,7 @@
   display: inline-flex;
   width: 100%;
   min-width: 0;
-  color: var(--elf-text-primary);
+  color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
 }
 
 :host([size="sm"]) {
@@ -61,7 +61,7 @@
   height: var(--input-control-height);
   overflow: hidden;
   border: 0;
-  border-bottom: 1px solid var(--elf-border-strong);
+  border-bottom: 1px solid var(--elf-border-strong, rgba(0, 0, 0, 0.23));
   border-radius: 4px 4px 0 0;
   background: var(--elf-input-custom-bg, var(--input-filled-bg));
   color: inherit;
@@ -80,7 +80,7 @@
   bottom: -1px;
   left: 0;
   height: 2px;
-  background: var(--elf-primary);
+  background: var(--elf-primary, #1976d2);
   content: "";
   pointer-events: none;
   transform: scaleX(0);
@@ -107,8 +107,8 @@
   left: var(--input-padding-start);
   max-width: calc(100% - var(--input-padding-start) - var(--input-padding-end));
   overflow: hidden;
-  color: var(--elf-text-secondary);
-  font-size: var(--elf-font-size-sm);
+  color: var(--elf-text-secondary, rgba(0, 0, 0, 0.6));
+  font-size: var(--elf-font-size-sm, 14px);
   line-height: 1;
   pointer-events: auto;
   text-overflow: ellipsis;
@@ -133,7 +133,7 @@
 }
 
 .wrapper:focus-within .label {
-  color: var(--elf-primary);
+  color: var(--elf-primary, #1976d2);
 }
 
 .outline {
@@ -167,9 +167,9 @@
   margin: 0;
   padding: 0;
   overflow: hidden;
-  border: 1px solid var(--elf-border);
+  border: 1px solid var(--elf-border, rgba(0, 0, 0, 0.12));
   border-radius: inherit;
-  color: var(--elf-border);
+  color: var(--elf-border, rgba(0, 0, 0, 0.12));
   pointer-events: none;
   transition:
     border-color var(--input-motion),
@@ -203,12 +203,12 @@
 }
 
 :host([variant="outlined"]) .wrapper:hover .outline {
-  border-color: var(--elf-text-primary);
+  border-color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
 }
 
 :host([variant="outlined"]) .wrapper:focus-within .outline {
   border-width: 2px;
-  border-color: var(--elf-primary);
+  border-color: var(--elf-primary, #1976d2);
 }
 
 :host([variant="outlined"][data-dirty]) .label,
@@ -258,7 +258,7 @@
 }
 
 :host([variant="solo"]) .wrapper {
-  background: var(--elf-input-custom-bg, var(--elf-bg-paper));
+  background: var(--elf-input-custom-bg, var(--elf-bg-paper, #ffffff));
 }
 
 :host([variant="solo-filled"]) .wrapper {
@@ -271,12 +271,12 @@
 }
 
 :host([variant="solo-inverted"]) .wrapper {
-  background: var(--elf-input-custom-bg, var(--elf-bg-paper));
+  background: var(--elf-input-custom-bg, var(--elf-bg-paper, #ffffff));
 }
 
 :host([variant="solo-inverted"]) .wrapper:focus-within {
-  background: var(--elf-text-primary);
-  color: var(--elf-bg-paper);
+  background: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
+  color: var(--elf-bg-paper, #ffffff);
 }
 
 :host([variant="solo"]) .wrapper::after,
@@ -288,7 +288,7 @@
 :host([variant="solo-inverted"]) .wrapper:focus-within .label,
 :host([variant="solo-inverted"]) .wrapper:focus-within .prefix,
 :host([variant="solo-inverted"]) .wrapper:focus-within .suffix {
-  color: var(--elf-bg-paper);
+  color: var(--elf-bg-paper, #ffffff);
 }
 
 input {
@@ -306,7 +306,7 @@ input {
   background: transparent;
   color: inherit;
   font: inherit;
-  font-size: var(--elf-font-size-md);
+  font-size: var(--elf-font-size-md, 16px);
   line-height: 1.5;
   letter-spacing: 0.009375em;
   transition: color var(--input-motion);
@@ -341,7 +341,7 @@ input {
 }
 
 input::placeholder {
-  color: var(--elf-text-disabled);
+  color: var(--elf-text-disabled, rgba(0, 0, 0, 0.38));
   opacity: 1;
   transition: opacity var(--input-motion);
 }
@@ -352,7 +352,7 @@ input::placeholder {
 
 input:disabled {
   cursor: not-allowed;
-  color: var(--elf-text-disabled);
+  color: var(--elf-text-disabled, rgba(0, 0, 0, 0.38));
 }
 
 .prefix,
@@ -366,8 +366,8 @@ input:disabled {
   min-width: var(--input-icon-size);
   min-height: var(--input-icon-size);
   gap: 4px;
-  color: var(--elf-text-secondary);
-  font-size: var(--elf-font-size-xs);
+  color: var(--elf-text-secondary, rgba(0, 0, 0, 0.6));
+  font-size: var(--elf-font-size-xs, 12px);
   line-height: 1;
   transition:
     color var(--input-motion),
@@ -402,8 +402,8 @@ input:disabled {
   flex: 0 0 auto;
   min-width: var(--input-icon-size);
   min-height: var(--input-icon-size);
-  color: var(--elf-text-secondary);
-  font-size: var(--elf-font-size-sm);
+  color: var(--elf-text-secondary, rgba(0, 0, 0, 0.6));
+  font-size: var(--elf-font-size-sm, 14px);
   white-space: nowrap;
 }
 
@@ -424,7 +424,7 @@ input:disabled {
   color: currentColor;
   cursor: pointer;
   font: inherit;
-  font-size: var(--elf-font-size-xs);
+  font-size: var(--elf-font-size-xs, 12px);
   opacity: 0.64;
   transition:
     background-color var(--input-motion),
@@ -447,9 +447,9 @@ input:disabled {
 }
 
 .count {
-  color: var(--elf-text-disabled);
+  color: var(--elf-text-disabled, rgba(0, 0, 0, 0.38));
   white-space: nowrap;
-  font-size: var(--elf-font-size-xs);
+  font-size: var(--elf-font-size-xs, 12px);
 }
 
 .outside {
@@ -459,16 +459,16 @@ input:disabled {
 
 :host([data-state="error"]) .label,
 :host([data-state="error"]) .wrapper:focus-within .label {
-  color: var(--elf-danger);
+  color: var(--elf-danger, #d32f2f);
 }
 
 :host([data-state="error"]) .wrapper,
 :host([variant="outlined"][data-state="error"]) .outline {
-  border-color: var(--elf-danger);
+  border-color: var(--elf-danger, #d32f2f);
 }
 
 :host([data-state="error"]) .wrapper::after {
-  background: var(--elf-danger);
+  background: var(--elf-danger, #d32f2f);
 }
 
 :host([disabled]) {

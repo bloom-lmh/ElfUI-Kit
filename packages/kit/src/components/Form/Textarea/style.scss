@@ -34,10 +34,10 @@
   align-items: center;
   justify-content: space-between;
   min-height: 28px;
-  padding: var(--elf-space-2) 44px 0 var(--elf-space-3);
-  gap: var(--elf-space-2);
-  color: var(--elf-text-secondary);
-  font-size: var(--elf-font-size-xs);
+  padding: var(--elf-space-2, 8px) 44px 0 var(--elf-space-3, 12px);
+  gap: var(--elf-space-2, 8px);
+  color: var(--elf-text-secondary, rgba(0, 0, 0, 0.6));
+  font-size: var(--elf-font-size-xs, 12px);
 }
 
 .prefix,
@@ -51,30 +51,30 @@
 .append {
   display: inline-flex;
   align-items: center;
-  padding: 0 var(--elf-space-3);
-  border: 1px solid var(--elf-border);
-  background: var(--elf-bg-muted);
-  color: var(--elf-text-secondary);
-  font-size: var(--elf-font-size-sm);
+  padding: 0 var(--elf-space-3, 12px);
+  border: 1px solid var(--elf-border, rgba(0, 0, 0, 0.12));
+  background: var(--elf-bg-muted, var(--elf-bg-overlay, rgba(0, 0, 0, 0.04)));
+  color: var(--elf-text-secondary, rgba(0, 0, 0, 0.6));
+  font-size: var(--elf-font-size-sm, 14px);
   white-space: nowrap;
 }
 
 .prepend {
   border-right: 0;
-  border-radius: var(--elf-radius-sm) 0 0 var(--elf-radius-sm);
+  border-radius: var(--elf-radius-sm, 4px) 0 0 var(--elf-radius-sm, 4px);
 }
 
 .append {
   border-left: 0;
-  border-radius: 0 var(--elf-radius-sm) var(--elf-radius-sm) 0;
+  border-radius: 0 var(--elf-radius-sm, 4px) var(--elf-radius-sm, 4px) 0;
 }
 
 .has-prepend .wrapper {
-  border-radius: 0 var(--elf-radius-sm) var(--elf-radius-sm) 0;
+  border-radius: 0 var(--elf-radius-sm, 4px) var(--elf-radius-sm, 4px) 0;
 }
 
 .has-append .wrapper {
-  border-radius: var(--elf-radius-sm) 0 0 var(--elf-radius-sm);
+  border-radius: var(--elf-radius-sm, 4px) 0 0 var(--elf-radius-sm, 4px);
 }
 
 .has-prepend.has-append .wrapper {
@@ -88,21 +88,21 @@ textarea {
   width: 100%;
   border: none;
   outline: none;
-  padding: var(--elf-space-2) var(--elf-space-3);
+  padding: var(--elf-space-2, 8px) var(--elf-space-3, 12px);
   font-family: inherit;
-  font-size: var(--elf-font-size-sm);
+  font-size: var(--elf-font-size-sm, 14px);
   line-height: 1.5;
-  color: var(--elf-text-primary);
+  color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
   background: transparent;
   resize: vertical;
 
   &::placeholder {
-    color: var(--elf-text-disabled);
+    color: var(--elf-text-disabled, rgba(0, 0, 0, 0.38));
   }
 
   &:disabled {
     cursor: not-allowed;
-    color: var(--elf-text-disabled);
+    color: var(--elf-text-disabled, rgba(0, 0, 0, 0.38));
   }
 }
 
@@ -140,8 +140,8 @@ textarea {
   position: absolute;
   bottom: 4px;
   right: 8px;
-  font-size: var(--elf-font-size-xs);
-  color: var(--elf-text-disabled);
+  font-size: var(--elf-font-size-xs, 12px);
+  color: var(--elf-text-disabled, rgba(0, 0, 0, 0.38));
   pointer-events: none;
   user-select: none;
 }
@@ -149,14 +149,14 @@ textarea {
 .outside {
   position: static;
   display: block;
-  margin-top: var(--elf-space-1);
+  margin-top: var(--elf-space-1, 4px);
   text-align: right;
 }
 
 .clear {
   position: absolute;
-  top: var(--elf-space-2);
-  right: var(--elf-space-2);
+  top: var(--elf-space-2, 8px);
+  right: var(--elf-space-2, 8px);
   display: inline-flex;
   width: 24px;
   height: 24px;
@@ -165,14 +165,14 @@ textarea {
   padding: 0;
   border: 0;
   border-radius: 50%;
-  background: var(--elf-bg-muted);
-  color: var(--elf-text-secondary);
+  background: var(--elf-bg-muted, var(--elf-bg-overlay, rgba(0, 0, 0, 0.04)));
+  color: var(--elf-text-secondary, rgba(0, 0, 0, 0.6));
   cursor: pointer;
   font: inherit;
 
   &:hover {
-    background: var(--elf-border);
-    color: var(--elf-text-primary);
+    background: var(--elf-border, rgba(0, 0, 0, 0.12));
+    color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
   }
 }
 
@@ -186,11 +186,11 @@ textarea {
 }
 
 :host([size="sm"]) textarea {
-  padding: var(--elf-space-1) var(--elf-space-2);
-  font-size: var(--elf-font-size-xs);
+  padding: var(--elf-space-1, 4px) var(--elf-space-2, 8px);
+  font-size: var(--elf-font-size-xs, 12px);
 }
 
 :host([size="lg"]) textarea {
-  padding: var(--elf-space-3) var(--elf-space-4);
-  font-size: var(--elf-font-size-md);
+  padding: var(--elf-space-3, 12px) var(--elf-space-4, 16px);
+  font-size: var(--elf-font-size-md, 16px);
 }

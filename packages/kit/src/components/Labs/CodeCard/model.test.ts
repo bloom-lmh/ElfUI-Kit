@@ -49,10 +49,13 @@ describe("CodeCard model", () => {
     expect(
       normalizeCodeCardSource(`
         <script type="module">
-          import "@elfui/kit";
+          import { registerAllComponents } from "@elfui/kit";
+          registerAllComponents();
         </script>
       `),
-    ).toBe('<script type="module">\n  import "@elfui/kit";\n</script>');
+    ).toBe(
+      '<script type="module">\n  import { registerAllComponents } from "@elfui/kit";\n  registerAllComponents();\n</script>',
+    );
   });
 
   it("normalizes single lines, tuple ranges, and object ranges", () => {

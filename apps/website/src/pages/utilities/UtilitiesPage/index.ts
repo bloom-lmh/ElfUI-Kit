@@ -1,6 +1,6 @@
-import { defineHtml, defineStyle, useComponents, useRef } from "@elfui/core";
+import { defineHtml, defineStyle, onMounted, useComponents, useHost, useRef } from "@elfui/core";
 
-import utilityStyles from "@elfui/kit-src/styles/utilities.scss?inline";
+import { installUtilityStyles } from "@elfui/kit";
 import { createDocsPicker, createDocsTranslator } from "../../docsLocale";
 import pageStyles from "./style.scss?inline";
 import { createUtilityCatalog, type UtilityCategory, type UtilityKey } from "./catalog";
@@ -83,6 +83,7 @@ const t = createDocsTranslator({
 });
 const pick = createDocsPicker();
 const CATALOG = createUtilityCatalog(pick);
+const host = useHost();
 
 useComponents({
   "page-utilities-draggable": PageUtilitiesDraggable,
@@ -344,7 +345,9 @@ const generatedCode = (key: UtilityKey): string => {
   return code[key];
 };
 
-defineStyle(`${utilityStyles}\n${pageStyles}`);
+onMounted(() => (host.shadowRoot ? installUtilityStyles(host.shadowRoot) : undefined));
+
+defineStyle(pageStyles);
 
 const PageUtilities = defineHtml(`
   <elf-container>

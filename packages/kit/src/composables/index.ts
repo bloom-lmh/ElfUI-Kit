@@ -22,5 +22,18 @@ export {
   type GoToTask,
 } from "./goTo";
 export { useGoTo } from "./useGoTo";
-export type { ScrollAxis, ScrollContainer, ScrollContainerTarget, ScrollTarget } from "./scroll";
+export {
+  findScrollContainer,
+  getMaxScrollPosition,
+  getScrollPosition,
+  isWindowContainer,
+  resolveScrollContainer,
+  resolveScrollTarget,
+  setScrollPosition,
+  type ScrollAxis,
+  type ScrollContainer,
+  type ScrollContainerTarget,
+  type ScrollRoot,
+  type ScrollTarget,
+} from "./scroll";
 export { useDateAdapter, type DateAdapterService } from "./date";

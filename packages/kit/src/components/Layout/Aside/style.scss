@@ -4,12 +4,16 @@
   display: block;
   flex-shrink: 0;
   width: var(--_width, 300px);
-  border-inline-end: 1px solid var(--elf-layout-divider, var(--elf-divider));
+  border-inline-end: 1px solid var(--elf-layout-divider, var(--elf-divider, rgba(0, 0, 0, 0.08)));
   background: var(
     --elf-layout-aside-bg,
-    color-mix(in srgb, var(--elf-text-primary) 2%, var(--elf-bg-paper))
+    color-mix(
+      in srgb,
+      var(--elf-text-primary, rgba(0, 0, 0, 0.87)) 2%,
+      var(--elf-bg-paper, #ffffff)
+    )
   );
   overflow-y: auto;
   box-sizing: border-box;
-  transition: width var(--elf-transition-base);
+  transition: width var(--elf-transition-base, 250ms cubic-bezier(0.4, 0, 0.2, 1));
 }

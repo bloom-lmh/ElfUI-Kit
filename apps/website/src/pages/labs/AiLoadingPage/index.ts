@@ -1,7 +1,6 @@
 import { defineHtml, defineStyle, useRef, useTemplateRef } from "@elfui/core";
 
-import "@elfui/kit/labs";
-import type { AiLoadingElement } from "@elfui/kit/labs";
+import type { AiLoadingElement } from "@elfui/kit";
 import { createDocsTranslator } from "../../docsLocale";
 import articleStyles from "../../shared/article.scss?inline";
 
@@ -45,7 +44,9 @@ const variantClass = (name: string): Record<string, boolean> => ({
 });
 
 const code = `<elf-ai-loading label="Churning" variant="orbit" />`;
-const script = `import "@elfui/kit/labs";
+const script = `import { registerAllComponents } from "@elfui/kit";
+
+registerAllComponents();
 
 const loadingEl = ref(null);
 // 切换 variant 即可更换动画，resetTimer() 可重置计时

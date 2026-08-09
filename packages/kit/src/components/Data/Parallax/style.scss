@@ -3,9 +3,9 @@
 :host {
   display: block;
   overflow: hidden;
-  border-radius: var(--elf-radius-md);
-  background: var(--elf-bg-muted);
-  color: var(--elf-text-primary);
+  border-radius: var(--elf-radius-md, 8px);
+  background: var(--elf-bg-muted, var(--elf-bg-overlay, rgba(0, 0, 0, 0.04)));
+  color: var(--elf-text-primary, rgba(0, 0, 0, 0.87));
 }
 
 .parallax {

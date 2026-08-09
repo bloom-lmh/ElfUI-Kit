@@ -1,6 +1,6 @@
 import { defineHtml, defineStyle, useRef } from "@elfui/core";
 
-import type { SelectOption, SelectValue } from "@elfui/kit-src/components/Form";
+import type { SelectOption, SelectValue } from "@elfui/kit";
 import { createDocsTranslator } from "../../docsLocale";
 
 const selected = useRef<SelectValue>(2048);

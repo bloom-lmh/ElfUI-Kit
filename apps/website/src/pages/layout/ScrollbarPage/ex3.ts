@@ -1,5 +1,5 @@
 import { defineHtml, defineStyle, useHost, useRef } from "@elfui/core";
-import type { ScrollbarExpose } from "@elfui/kit-src/components/Layout/Scrollbar/types";
+import type { ScrollbarExpose } from "@elfui/kit";
 import { createDocsTranslator } from "../../docsLocale";
 import styles from "./style.scss?inline";
 const t = createDocsTranslator({
