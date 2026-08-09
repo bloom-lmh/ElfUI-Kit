@@ -47,12 +47,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bloom-lmh/elfui-kit.git",
+    "url": "git+https://github.com/bloom-lmh/ElfUI-Kit.git",
     "directory": "packages/kit"
   },
-  "homepage": "https://github.com/bloom-lmh/elfui-kit",
+  "homepage": "https://github.com/bloom-lmh/ElfUI-Kit",
   "bugs": {
-    "url": "https://github.com/bloom-lmh/elfui-kit/issues"
+    "url": "https://github.com/bloom-lmh/ElfUI-Kit/issues"
   },
   "publishConfig": {
     "access": "public",
