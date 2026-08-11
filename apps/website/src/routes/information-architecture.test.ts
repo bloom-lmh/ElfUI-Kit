@@ -84,6 +84,9 @@ describe("文档信息架构", () => {
     expect(groupItems("AI 组件")).toHaveLength(21);
     expect(navItems[0]).toEqual({ to: "/overview", text: "Overview 组件总览" });
     expect(navItems[1]?.group).toBe("AI 组件");
+    expect(navItems.findIndex((item) => item.group === "AI 组件")).toBeLessThan(
+      navItems.findIndex((item) => item.group === "Labs 实验室"),
+    );
     expect(paths).toEqual(
       expect.arrayContaining([
         "/labs/video",

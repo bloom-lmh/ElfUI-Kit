@@ -23,8 +23,7 @@ const resolveDocsLocaleName = (): string => {
  * AppShell's locale when that async boundary cannot observe the injected context.
  */
 export const createDocsTranslator = <Key extends string>(messages: DocsMessages<Key>) => {
-  const localeName = resolveDocsLocaleName();
-  const isEnglish = (): boolean => localeName.toLowerCase().startsWith("en");
+  const isEnglish = (): boolean => resolveDocsLocaleName().toLowerCase().startsWith("en");
 
   return (key: Key): string => {
     const message = messages[key];
@@ -41,8 +40,7 @@ export const createDocsTranslator = <Key extends string>(messages: DocsMessages<
  * Keep structured rows as functions so locale changes are reflected at render time.
  */
 export const createDocsPicker = () => {
-  const localeName = resolveDocsLocaleName();
-  const isEnglish = (): boolean => localeName.toLowerCase().startsWith("en");
+  const isEnglish = (): boolean => resolveDocsLocaleName().toLowerCase().startsWith("en");
 
   return (zh: string, en: string): string => (isEnglish() ? en : zh);
 };
