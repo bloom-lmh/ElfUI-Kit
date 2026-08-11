@@ -4,8 +4,8 @@
 
 > 状态：Active / 唯一计划事实源
 > 建立日期：2026-08-08（Asia/Shanghai）
-> 更新日期：2026-08-09（Asia/Shanghai）
-> 当前基线：`@elfui/kit@0.0.2-beta.3`、ElfUI Core/Compiler/Vite Plugin `0.1.0-beta.21`
+> 更新日期：2026-08-11（Asia/Shanghai）
+> 当前基线：`@elfui/kit@0.0.2-beta.5`、ElfUI Core/Compiler/Vite Plugin `0.1.0-beta.21`
 > 对标快照：Element Plus `2.14.4`、Vuetify `4.1.8`（均以 2026-08-07 官方 release 为准）
 
 本文件取代仓库中此前 11 份日期计划和 133 份组件/页面级 `plan.md`；其中 192 个未完成勾选项已归并到下方批次。旧文件不再保留在工作树；需要追溯历史时使用 Git。今后不得再建立第二份平行总计划，也不得在组件目录重新维护完成度清单。
