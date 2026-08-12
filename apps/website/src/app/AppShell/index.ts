@@ -230,9 +230,6 @@ const mobileMenuOpen = useRef(false);
 const active = useRef(readCurrentPath());
 const routeLoading = useRef(false);
 const languageTrigger = useTemplateRef<HTMLElement>("languageTrigger");
-const languageDropdown = useTemplateRef<HTMLElement & { virtualRef?: HTMLElement | null }>(
-  "languageDropdown",
-);
 let removeHashListener = (): void => {};
 let removeViewportListener = (): void => {};
 let routeHookRouter: Router | null = null;
@@ -414,9 +411,6 @@ onMounted(() => {
   applyDocumentSkin();
   active.set(readCurrentPath());
   registerRouteLoadingHooks();
-  if (languageDropdown.value && languageTrigger.value) {
-    languageDropdown.value.virtualRef = languageTrigger.value;
-  }
   if (typeof window === "undefined") return;
   const syncFromHash = () => active.set(readHashPath());
   window.addEventListener("hashchange", syncFromHash);
@@ -487,11 +481,11 @@ const App = defineHtml(`
             <svg class="language-icon" viewBox="0 0 24 24" aria-hidden="true"><path :d=${mdiTranslate}></path></svg>
           </elf-button>
           <elf-dropdown
-            ref="languageDropdown"
             class="language-dropdown"
             virtual-triggering
             trigger="click"
             placement="bottom-end"
+            :virtualRef.prop=${languageTrigger.value}
             :items.prop=${languageItems()}
             :showArrow.prop=${false}
             @command=${onLanguageCommand}

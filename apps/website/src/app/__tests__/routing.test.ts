@@ -265,10 +265,14 @@ describe("路由跳转", () => {
   });
 
   it("切换英文后同步更新侧栏菜单项", async () => {
-    await enterComponentDocs();
     localStorage.setItem("elfui-ui-locale", "zh-CN");
     const app = document.createElement("elf-app");
     document.body.appendChild(app);
+    await tick();
+    await tick();
+    await wait(20);
+
+    await enterComponentDocs();
     await tick();
     await tick();
     await wait(20);
@@ -278,11 +282,11 @@ describe("路由跳转", () => {
 
     const routerView = app.shadowRoot?.querySelector("elf-router-view");
     const routePageBefore = routerView?.firstElementChild;
-    const languageDropdown = app.shadowRoot?.querySelector<HTMLElement & { openMenu: () => void }>(
-      ".language-dropdown",
-    );
-    languageDropdown?.openMenu();
+    const languageTrigger = app.shadowRoot?.querySelector<HTMLElement>(".language-action");
+    const languageDropdown = app.shadowRoot?.querySelector<HTMLElement>(".language-dropdown");
+    languageTrigger?.click();
     await tick();
+    expect(languageDropdown?.hasAttribute("data-open")).toBe(true);
     const englishItem = Array.from(
       languageDropdown?.shadowRoot?.querySelectorAll<HTMLElement>(".item") ?? [],
     ).find((item) => item.textContent?.includes("English"));

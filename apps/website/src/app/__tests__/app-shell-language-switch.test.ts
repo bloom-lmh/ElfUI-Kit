@@ -8,7 +8,8 @@ describe("AppShell language switch", () => {
     expect(shellSource).toContain('ref="languageTrigger"');
     expect(shellSource).toContain('class="header-action language-action"');
     expect(shellSource).toContain("virtual-triggering");
-    expect(shellSource).toContain("languageDropdown.value.virtualRef = languageTrigger.value");
+    expect(shellSource).toContain(":virtualRef.prop=${languageTrigger.value}");
+    expect(shellSource).not.toContain("languageDropdown.value.virtualRef = languageTrigger.value");
     expect(shellSource).not.toContain('class="language-toggle"');
   });
 });
