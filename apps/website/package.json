@@ -11,7 +11,7 @@
   "dependencies": {
     "@elfui/core": "0.1.0-beta.21",
     "@elfui/kit": "workspace:*",
-    "@elfui/router": "0.1.0-beta.10",
+    "@elfui/router": "0.1.0-beta.11",
     "@mdi/js": "^7.4.47"
   },
   "devDependencies": {
