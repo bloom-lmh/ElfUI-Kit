@@ -9,7 +9,7 @@
 // - fields: 多字段联动（如两次密码一致），传入 model 做跨字段比较
 // - validator 支持返回 Promise<string|true|undefined>
 
-import type { FormRule, RuleTrigger } from "../components/Form/Form/types";
+import type { FormRule, RuleTrigger } from "../types/form";
 
 // ── 空值判断 ──
 const isEmpty = (v: unknown): boolean => {

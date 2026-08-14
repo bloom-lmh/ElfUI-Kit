@@ -1,8 +1,8 @@
 # ElfUI Kit current repository baseline
 
-Captured at: 2026-08-14T00:35:05.659Z.
+Captured at: 2026-08-14T01:03:50.909Z.
 
-Generation base: `main` at `967ca4e79879897506a584f74cd5fdfcf6b49496`, plus the current working tree.
+Generation base: `main` at `21a80803fa6dc62d364af3b195bc92796b96107b`, plus the current working tree.
 
 This report is generated from the current checkout. It does not reuse counts or timing from an older plan. Regenerate it with `pnpm baseline:collect`.
 
@@ -10,12 +10,12 @@ This report is generated from the current checkout. It does not reuse counts or 
 
 | Area    | Production TS | Production lines | Test files | Test lines |
 | ------- | ------------- | ---------------- | ---------- | ---------- |
-| kit     | 355           | 58126            | 164        | 32009      |
+| kit     | 357           | 58115            | 164        | 32009      |
 | website | 603           | 66932            | 122        | 12001      |
-| scripts | 2             | 562              | 8          | 1346       |
+| scripts | 2             | 562              | 9          | 1399       |
 
 - Macro component definitions: 141 in 141 files.
-- Test files: 294; direct `it()/test()` declarations: 1895; source-annotated skipped: 0; source-annotated todo: 0.
+- Test files: 295; direct `it()/test()` declarations: 1898; source-annotated skipped: 0; source-annotated todo: 0.
 
 ## Public package and bundle
 
@@ -25,9 +25,9 @@ This report is generated from the current checkout. It does not reuse counts or 
 
 | Bundle                      | Raw        | Gzip       | Brotli     | Internal modules |
 | --------------------------- | ---------- | ---------- | ---------- | ---------------- |
-| Button + Input named import | 66.4 KiB   | 10.9 KiB   | 9.1 KiB    | 8                |
-| registerAllComponents       | 3900.2 KiB | 611.0 KiB  | 363.9 KiB  | 339              |
-| Website JavaScript total    | 9737.3 KiB | 2067.6 KiB | 1560.8 KiB | 151              |
+| Button + Input named import | 66.3 KiB   | 10.9 KiB   | 9.1 KiB    | 8                |
+| registerAllComponents       | 3900.2 KiB | 611.0 KiB  | 364.1 KiB  | 340              |
+| Website JavaScript total    | 9737.3 KiB | 2067.5 KiB | 1560.6 KiB | 151              |
 
 ## Style API
 
@@ -38,13 +38,10 @@ This report is generated from the current checkout. It does not reuse counts or 
 
 ## Dependency graph
 
-- Nodes: 355; internal edges: 861; type-only edges: 403; dynamic edges: 1.
-- Strongly connected components: 2; unresolved relative TypeScript imports: 0.
+- Nodes: 357; internal edges: 865; type-only edges: 406; dynamic edges: 1.
+- Strongly connected components: 0; unresolved relative TypeScript imports: 0.
 
-| SCC | Members                                                                                                                                                          |
-| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | packages/kit/src/components/Data/Table/row-model.ts → packages/kit/src/components/Data/Table/selection-model.ts → packages/kit/src/components/Data/Table/tree.ts |
-| 2   | packages/kit/src/components/Form/Form/types.ts → packages/kit/src/components/Form/FormItem/types.ts                                                              |
+No source SCC was found by the current full non-test TypeScript scan.
 
 ## Critical-page performance
 

@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "capturedAt": "2026-08-14T00:35:05.659Z",
+  "capturedAt": "2026-08-14T01:03:50.909Z",
   "repository": {
-    "baseCommit": "967ca4e79879897506a584f74cd5fdfcf6b49496",
+    "baseCommit": "21a80803fa6dc62d364af3b195bc92796b96107b",
     "branch": "main",
     "workingTreeIncluded": true
   },
@@ -19,10 +19,10 @@
   "source": {
     "areas": {
       "kit": {
-        "files": 519,
-        "productionFiles": 355,
+        "files": 521,
+        "productionFiles": 357,
         "testFiles": 164,
-        "productionLines": 58126,
+        "productionLines": 58115,
         "testLines": 32009
       },
       "website": {
@@ -33,11 +33,11 @@
         "testLines": 12001
       },
       "scripts": {
-        "files": 10,
+        "files": 11,
         "productionFiles": 2,
-        "testFiles": 8,
+        "testFiles": 9,
         "productionLines": 562,
-        "testLines": 1346
+        "testLines": 1399
       }
     },
     "macroComponents": {
@@ -188,8 +188,8 @@
       ]
     },
     "tests": {
-      "files": 294,
-      "declarations": 1895,
+      "files": 295,
+      "declarations": 1898,
       "skippedAnnotations": 0,
       "todoAnnotations": 0
     }
@@ -1731,25 +1731,15 @@
     }
   },
   "dependencyGraph": {
-    "nodes": 355,
-    "edges": 861,
-    "typeOnlyEdges": 403,
+    "nodes": 357,
+    "edges": 865,
+    "typeOnlyEdges": 406,
     "dynamicEdges": 1,
-    "stronglyConnectedComponents": [
-      [
-        "packages/kit/src/components/Data/Table/row-model.ts",
-        "packages/kit/src/components/Data/Table/selection-model.ts",
-        "packages/kit/src/components/Data/Table/tree.ts"
-      ],
-      [
-        "packages/kit/src/components/Form/Form/types.ts",
-        "packages/kit/src/components/Form/FormItem/types.ts"
-      ]
-    ],
-    "cycleCount": 2,
+    "stronglyConnectedComponents": [],
+    "cycleCount": 0,
     "unresolvedRelativeImports": [],
     "externalPackages": {
-      "@elfui/core": 166,
+      "@elfui/core": 167,
       "@elfui/router": 2,
       "@mdi/js": 3,
       "dompurify": 1,
@@ -1780,10 +1770,10 @@
       "components/Form -> components/Basic": 2,
       "components/Form -> components/Common": 4,
       "components/Form -> components/Data": 5,
-      "components/Form -> components/Form": 80,
+      "components/Form -> components/Form": 77,
       "components/Form -> components/Providers": 7,
-      "components/Form -> composables": 27,
-      "components/Form -> types": 19,
+      "components/Form -> composables": 28,
+      "components/Form -> types": 25,
       "components/Form -> utils": 4,
       "components/Labs -> components/Form": 2,
       "components/Labs -> components/Labs": 97,
@@ -1821,9 +1811,9 @@
       "components/index.ts -> components/Providers": 1,
       "composables -> adapters": 2,
       "composables -> components/Common": 5,
-      "composables -> components/Form": 2,
       "composables -> components/Providers": 4,
-      "composables -> composables": 7,
+      "composables -> composables": 8,
+      "composables -> types": 2,
       "directives -> composables": 1,
       "directives -> directives": 11,
       "library.ts -> adapters": 1,
@@ -1844,32 +1834,31 @@
       "register-all.ts -> components/Picker": 1,
       "register-all.ts -> components/Providers": 1,
       "register-all.ts -> utilities.ts": 1,
-      "types -> components/Form": 2,
-      "types -> types": 3,
-      "utils -> components/Form": 1
+      "types -> types": 4,
+      "utils -> types": 1
     }
   },
   "bundles": {
     "excludesExternalDependencies": true,
     "consumers": {
       "namedButtonInput": {
-        "rawBytes": 68001,
-        "gzipBytes": 11158,
-        "brotliBytes": 9333,
+        "rawBytes": 67916,
+        "gzipBytes": 11140,
+        "brotliBytes": 9304,
         "modules": 8
       },
       "registerAllComponents": {
-        "rawBytes": 3993819,
-        "gzipBytes": 625660,
-        "brotliBytes": 372667,
-        "modules": 339
+        "rawBytes": 3993834,
+        "gzipBytes": 625685,
+        "brotliBytes": 372788,
+        "modules": 340
       }
     },
     "publishedJavaScript": {
-      "files": 350,
-      "rawBytes": 3954670,
-      "gzipBytes": 817317,
-      "brotliBytes": 665166,
+      "files": 351,
+      "rawBytes": 3955069,
+      "gzipBytes": 817515,
+      "brotliBytes": 665275,
       "largestFiles": [
         {
           "path": "packages/kit/lib-dist/styles/utilities.scss.js",
@@ -1891,9 +1880,9 @@
         },
         {
           "path": "packages/kit/lib-dist/components/Form/Cascader/index.js",
-          "rawBytes": 109958,
-          "gzipBytes": 19447,
-          "brotliBytes": 14795
+          "rawBytes": 109981,
+          "gzipBytes": 19449,
+          "brotliBytes": 14782
         },
         {
           "path": "packages/kit/lib-dist/components/Picker/DatePicker/index.js",
@@ -1906,14 +1895,14 @@
     "websiteJavaScript": {
       "files": 151,
       "rawBytes": 9970950,
-      "gzipBytes": 2117189,
-      "brotliBytes": 1598213,
+      "gzipBytes": 2117169,
+      "brotliBytes": 1598056,
       "largestFiles": [
         {
           "path": "apps/website/dist/assets/index-content-hash.js",
           "rawBytes": 3064177,
-          "gzipBytes": 636945,
-          "brotliBytes": 412033
+          "gzipBytes": 636936,
+          "brotliBytes": 411922
         },
         {
           "path": "apps/website/dist/assets/highlighter-content-hash.js",

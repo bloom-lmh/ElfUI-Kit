@@ -23,7 +23,7 @@ import {
 } from "@elfui/core";
 
 import { FORM_ITEM_KEY, FORM_KEY, type FormItemContext } from "../context";
-import type { FormRule, RuleTrigger } from "../Form/types";
+import type { FormRule, RuleTrigger } from "../../../types/form";
 import { getPath, setPath } from "../../../utils/path";
 import { validateFieldAsync } from "../../../utils/validator";
 import styles from "./style.scss?inline";

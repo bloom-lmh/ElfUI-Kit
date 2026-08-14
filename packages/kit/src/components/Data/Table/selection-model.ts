@@ -1,5 +1,5 @@
 import type { TableRow } from "./types";
-import type { TableTreeRow } from "./tree";
+import type { TableTreeRow } from "../table-tree-model";
 import { resolveTableRow } from "./row-model";
 
 export type TableRowSelectable = (row: TableTreeRow) => boolean;

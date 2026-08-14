@@ -58,7 +58,6 @@ ElfUI Kit 的下一代版本必须同时达到以下结果：
 - Website 为保证全部文档示例可用，当前启动时调用 `registerAllComponents()`；[当前 bundle 数据](./baselines/current-repository-baseline.md#public-package-and-bundle)显示其仍需改为路由级显式注册并建立首屏预算。
 - Tarball 的 Vite、TypeScript NodeNext、纯浏览器 ESM、SSR 与 CDN consumer matrix 尚未闭合；当前只有 Rollup Button/Input 按需门禁。
 - [当前 Style API 基线](./baselines/current-repository-baseline.md#style-api)仍显示 parts、组件级 CSS 变量和覆盖文档未闭合。
-- Form/FormItem 和 Table 模型存在类型或模块环；低层 `composables/form.ts` 反向依赖组件层类型。
 - Style API metadata、稳定 parts、组件 token 和覆盖示例仍未达到全组件 100%。
 
 ## 4. 目标架构
@@ -120,7 +119,7 @@ flowchart LR
 - [x] **NG-001 锁定对标矩阵。** 以 Element Plus 2.14.4 和 Vuetify 4.1.8 建立机器可读 capability/contract matrix；每项包含上游链接、ElfUI owner、状态、差异、测试和文档入口。
 - [x] **NG-002 重新生成仓库基线。** 记录源码/宏组件/测试数量、bundle、公开 entries、Style API、依赖图、10k 数据性能、listener/observer/timer 和浏览器矩阵，不复制旧计划中的历史数字。证据：[可读报告](./baselines/current-repository-baseline.md)、[机器数据](./baselines/current-repository-baseline.json)、[浏览器原始数据](./baselines/current-critical-pages.json)。
 - [x] **NG-003 修复能力清单门禁。** 删除 `toHaveLength(119)` 等硬编码计数，由源码扫描生成期望集合；缺失 owner 时输出具体文件。证据：[源码集合门禁](../scripts/capability-ownership.test.ts)、[当前 owner inventory](./architecture/2026-07-31-capability-ownership-and-reuse-inventory.md)。
-- [ ] **NG-004 建立全图循环依赖门禁。** 扫描全部非测试 TS，包括 type-only import；禁止跨层反向依赖和 SCC，先消除 Form/FormItem、Table 模型环。
+- [x] **NG-004 建立全图循环依赖门禁。** 扫描全部非测试 TS，包括 type-only import；禁止跨层反向依赖和 SCC，先消除 Form/FormItem、Table 模型环。证据：[全图架构门禁](../scripts/architecture-boundaries.test.ts)、[扫描器回归测试](../scripts/dependency-graph.test.ts)、[当前依赖基线](./baselines/current-repository-baseline.md#dependency-graph)。
 - [ ] **NG-005 建立唯一 release gate。** 新增 `pnpm release:check`，至少串行包含 format ratchet、ESLint、CSpell、全量 typecheck、全量 tests、strict locale audit、website build、library build、tarball consumer、SSR 和 architecture tests。
 - [ ] **NG-006 收紧 prepublish。** `prepublishOnly` 和 release workflow 只调用 `release:check`；任何一步失败不得发布或通过“只跑 Kit 测试”绕过。
 - [ ] **NG-007 测试纪律。** 记录并消除 skipped/flaky/任意等待；大入口冷加载超时通过拆分注册入口和测试 setup 解决，不提高全局 timeout 掩盖。

@@ -3,6 +3,7 @@
 # Layering and State Ownership
 
 - Date: 2026-07-31
+- Last verified: 2026-08-14
 - ElfUI Kit: `0.0.2-beta.1`
 - ElfUI Core / Compiler / Vite Plugin: `0.1.0-beta.20`
 - Work package: `OP-02`
@@ -81,8 +82,9 @@ Resolved `OP-03` boundary: Core `useScrollLock` owns both declarative and servic
 ### Dependency direction
 
 ```text
-path + validation rules
-  -> Form/FormItem context and validation controller
+shared Form protocols + path + validation rules
+  -> injection keys and context bridge
+    -> Form/FormItem registration and validation owners
     -> form composables + field-value defaults
       -> field components
         -> forms and pages
@@ -101,7 +103,7 @@ path + validation rules
 
 Component explicit props override Provider field defaults. The Provider stores policy only and does not interpret Select, number, date, or range values.
 
-Current type-layer debt is explicit: `src/utils/validator.ts`, `src/composables/form.ts`, and `src/types/form-context.ts` import Form component contract types. The behavioral owner is stable, but the shared rule/context types must move below the component layer during `EP-01` / `OP-03`; new lower layers may not add further component-type imports.
+Resolved `NG-004` boundary: `src/types/form.ts` owns shared rule, size, validation-state and context protocols; `src/composables/form-context.ts` owns the runtime injection keys. Existing component-level type and context entries are compatibility re-exports. `src/utils/validator.ts`, `src/composables/form.ts`, and `src/types/form-context.ts` no longer import Form component implementations.
 
 Core native form association is complementary, not a replacement for Form/FormItem validation. Adoption requires reset, state restore, disabled fieldset, serialization, required, and validation interaction tests.
 
@@ -242,11 +244,12 @@ Detached services may create component hosts because they are facades over those
 
 1. all eight domains, five admitted patterns, owners, and known gaps remain documented;
 2. lower layers cannot import documentation pages;
-3. the selected foundation graph remains acyclic;
-4. the virtual-window and date pure owners do not gain upward dependencies;
-5. Common focus/overlay foundations import only within their shared domain;
-6. service-default policy remains free of DOM instances, listeners, timers, and request resources;
-7. no lower-layer module writes body overflow or introduces a Loading-specific lock counter; service instances delegate locking to Core through the public component prop.
+3. the complete non-test Kit TypeScript graph, including type-only and dynamic imports, remains acyclic and has no unresolved relative imports;
+4. adapters, composables, directives, types and utilities do not depend on public component categories; Common controllers and Providers are classified as foundation/context layers;
+5. the virtual-window and date pure owners do not gain upward dependencies;
+6. Common focus/overlay foundations import only within their shared domain;
+7. service-default policy remains free of DOM instances, listeners, timers, and request resources;
+8. no lower-layer module writes body overflow or introduces a Loading-specific lock counter; service instances delegate locking to Core through the public component prop.
 
 The test is a boundary guard, not proof that every future extraction is implemented. Component behavior, browser cleanup, SSR, performance, and screenshots remain the responsibility of the named follow-up work package.
 
@@ -254,7 +257,7 @@ The test is a boundary guard, not proof that every future extraction is implemen
 
 | Current gap                                                                  | Owning work package | Closure evidence                                                                                      |
 | ---------------------------------------------------------------------------- | ------------------- | ----------------------------------------------------------------------------------------------------- |
-| Form contract types point upward and native form association is absent       | `EP-01` / `OP-03`   | Lower-layer contract extraction plus native submit/reset/restore/disabled and validation tests        |
+| Native form association is absent from the higher-level Form contract        | `EP-01` / `OP-03`   | Native submit/reset/restore/disabled, serialization and validation interaction tests                  |
 | Anchored overlay container, z-index and scaled coordinates remain incomplete | `OP-07`             | Controller tests and real Visual Viewport/container browser matrix                                    |
 | Upload is a mixed component/resource/request owner                           | `EP-04`             | State machine, request Strategy, resource Controller, focused tests, performance and browser evidence |
 | Application Layout owner does not exist                                      | `VU-02`             | Registration/context implementation and desktop/mobile LTR/RTL/SSR screenshots                        |

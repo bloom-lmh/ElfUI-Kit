@@ -9,7 +9,7 @@ import {
   toggleAllTableSelection,
   toggleTableRowSelection,
 } from "./selection-model";
-import type { TableTreeRow } from "./tree";
+import type { TableTreeRow } from "../table-tree-model";
 
 const row = (key: string, options: Partial<TableTreeRow> = {}): TableTreeRow => ({
   key,

@@ -5,7 +5,7 @@ import {
   resolveTableRowKey,
   tableKeySignature,
 } from "./row-model";
-import type { TableTreeRow } from "./tree";
+import type { TableTreeRow } from "../table-tree-model";
 
 const rowView = (key: string, raw: Record<string, unknown>): TableTreeRow => ({
   key,

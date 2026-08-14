@@ -1,7 +1,15 @@
-import { existsSync, readFileSync, readdirSync } from "node:fs";
-import { dirname, join, relative, resolve } from "node:path";
+import { readFileSync, readdirSync } from "node:fs";
+import { join, relative, resolve } from "node:path";
 
 import { describe, expect, it } from "vitest";
+
+import {
+  analyzeTypeScriptDependencies,
+  isTypeScriptSource,
+  isTypeScriptTestSource,
+  readTypeScriptModuleSpecifiers,
+  resolveTypeScriptModule,
+} from "./dependency-graph.mjs";
 
 const repositoryRoot = resolve(".");
 const kitSourceRoot = join(repositoryRoot, "packages", "kit", "src");
@@ -19,7 +27,7 @@ const collectTypeScriptFiles = (directory: string): string[] =>
   readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
     const path = join(directory, entry.name);
     if (entry.isDirectory()) return collectTypeScriptFiles(path);
-    return path.endsWith(".ts") && !path.includes(".test.") ? [path] : [];
+    return isTypeScriptSource(path) && !isTypeScriptTestSource(path) ? [path] : [];
   });
 
 /** Converts an absolute path to the stable slash-separated repository path. */
@@ -28,51 +36,14 @@ const toRepositoryPath = (path: string): string =>
 
 /** Extracts static import and re-export specifiers from a TypeScript module. */
 const readModuleSpecifiers = (path: string): string[] => {
-  const source = readFileSync(path, "utf8");
-  const matches = source.matchAll(
-    /\b(?:import|export)\s+(?:type\s+)?(?:[^"'`;]*?\s+from\s+)?["']([^"']+)["']/g,
-  );
-  return [...matches].map((match) => match[1] as string);
+  return readTypeScriptModuleSpecifiers(path).map(({ specifier }) => specifier);
 };
 
 /** Resolves a relative TypeScript import while ignoring style and package imports. */
-const resolveTypeScriptImport = (source: string, specifier: string): string | null => {
-  if (!specifier.startsWith(".")) return null;
-  const base = resolve(dirname(source), specifier.split("?")[0] as string);
-  const candidates = [base, `${base}.ts`, join(base, "index.ts")];
-  return candidates.find((candidate) => existsSync(candidate)) ?? null;
-};
+const resolveTypeScriptImport = resolveTypeScriptModule;
 
-/** Returns a cycle from a directed graph, or an empty list when it is acyclic. */
-const findCycle = (graph: Map<string, string[]>): string[] => {
-  const visited = new Set<string>();
-  const active = new Set<string>();
-  const path: string[] = [];
-
-  const visit = (node: string): string[] => {
-    if (active.has(node)) return [...path.slice(path.indexOf(node)), node];
-    if (visited.has(node)) return [];
-    visited.add(node);
-    active.add(node);
-    path.push(node);
-    for (const dependency of graph.get(node) ?? []) {
-      const cycle = visit(dependency);
-      if (cycle.length > 0) return cycle;
-    }
-    path.pop();
-    active.delete(node);
-    return [];
-  };
-
-  for (const node of graph.keys()) {
-    const cycle = visit(node);
-    if (cycle.length > 0) return cycle;
-  }
-  return [];
-};
-
-const sourceRoots = ["components", "composables", "utils", "adapters"].map(kitSourcePath);
-const lowerLayerSources = sourceRoots.flatMap(collectTypeScriptFiles);
+const allKitSources = collectTypeScriptFiles(kitSourceRoot);
+const lowerLayerSources = allKitSources;
 
 const foundationPaths = [
   "utils/virtual-window.ts",
@@ -92,6 +63,17 @@ const foundationPaths = [
   "components/Providers/config.ts",
   "components/Providers/service-defaults.ts",
 ].map(kitSourcePath);
+
+const dependencyAnalysis = analyzeTypeScriptDependencies({
+  files: allKitSources,
+  repositoryRoot,
+  sourceRoot: kitSourceRoot,
+});
+
+const lowerLayerNames = new Set(["adapters", "composables", "directives", "types", "utils"]);
+const componentFoundationNames = new Set(["Common", "Providers"]);
+const kitPathSegments = (path: string): string[] =>
+  relative(kitSourceRoot, path).replaceAll("\\", "/").split("/");
 
 describe("architecture boundaries", () => {
   it("documents all domain owners, admitted patterns and explicit migration gaps", () => {
@@ -115,7 +97,7 @@ describe("architecture boundaries", () => {
     expect(architecture).toContain("does not mean `EP-04` is complete");
   });
 
-  it("keeps lower layers independent from pages and the foundation graph acyclic", () => {
+  it("keeps lower layers independent from pages", () => {
     const pageImports = lowerLayerSources.flatMap((source) =>
       readModuleSpecifiers(source)
         .map((specifier) => resolveTypeScriptImport(source, specifier))
@@ -124,17 +106,32 @@ describe("architecture boundaries", () => {
         .map((path) => `${toRepositoryPath(source)} -> ${toRepositoryPath(path)}`),
     );
     expect(pageImports).toEqual([]);
+  });
 
-    const foundation = new Set(foundationPaths);
-    const graph = new Map(
-      foundationPaths.map((source) => [
-        source,
-        readModuleSpecifiers(source)
-          .map((specifier) => resolveTypeScriptImport(source, specifier))
-          .filter((path): path is string => Boolean(path) && foundation.has(path)),
-      ]),
+  it("keeps the full non-test TypeScript graph acyclic and lower layers below components", () => {
+    const cycles = dependencyAnalysis.cycles.map((component) =>
+      component.map(toRepositoryPath).sort(),
     );
-    expect(findCycle(graph).map(toRepositoryPath)).toEqual([]);
+    const reverseComponentImports = dependencyAnalysis.edges
+      .filter(({ source, target }) => {
+        const sourceSegments = kitPathSegments(source);
+        const targetSegments = kitPathSegments(target);
+        return (
+          lowerLayerNames.has(sourceSegments[0] ?? "") &&
+          targetSegments[0] === "components" &&
+          !componentFoundationNames.has(targetSegments[1] ?? "")
+        );
+      })
+      .map(
+        ({ source, target, typeOnly, dynamic }) =>
+          `${toRepositoryPath(source)} -> ${toRepositoryPath(target)}` +
+          `${typeOnly ? " [type-only]" : ""}${dynamic ? " [dynamic]" : ""}`,
+      )
+      .sort();
+
+    expect(dependencyAnalysis.unresolvedRelativeImports).toEqual([]);
+    expect(cycles).toEqual([]);
+    expect(reverseComponentImports).toEqual([]);
   });
 
   it("keeps pure and Common foundation owners below component implementations", () => {

@@ -8,8 +8,8 @@
 import { inject } from "@elfui/core";
 import { useModel, type ModelRef } from "@elfui/core";
 
-import { FORM_ITEM_KEY, FORM_KEY } from "../components/Form/context";
-import type { RuleTrigger } from "../components/Form/Form/types";
+import { FORM_ITEM_KEY, FORM_KEY } from "./form-context";
+import type { RuleTrigger } from "../types/form";
 
 // ── useFormControl ────────────────────────────────────────
 

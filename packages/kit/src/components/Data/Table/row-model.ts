@@ -1,6 +1,6 @@
 import { getTableValueAtPath } from "./sort-filter";
 import type { TableRow, TableRowKey } from "./types";
-import type { TableTreeRow } from "./tree";
+import type { TableTreeRow } from "../table-tree-model";
 
 export const normalizeTableKeys = (value: unknown): string[] => {
   if (!Array.isArray(value)) return [];

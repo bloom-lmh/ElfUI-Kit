@@ -1,9 +1,11 @@
-// elf-form-item 类型
+import type {
+  FormItemSize,
+  FormItemValidateState,
+  FormRule,
+  RuleTrigger,
+} from "../../../types/form";
 
-import type { FormRule, RuleTrigger } from "../Form/types";
-
-export type FormItemValidateState = "" | "validating" | "success" | "error";
-export type FormItemSize = "sm" | "md" | "lg";
+export type { FormItemSize, FormItemValidateState } from "../../../types/form";
 
 export interface FormItemProps {
   prop: string;
@@ -13,14 +15,14 @@ export interface FormItemProps {
   rules: FormRule[];
   required: boolean;
   size: FormItemSize | "";
-  /** 手动设置错误信息（覆盖校验结果） */
+  /** Overrides the current validation result with an external error message. */
   error: string;
   for: string;
   validateStatus: FormItemValidateState;
   trigger: RuleTrigger | "";
-  /** 错误信息显示模式：底部（默认）或行内 */
+  /** Places feedback beside the control instead of below it. */
   inlineMessage?: boolean;
-  /** 是否显示错误信息 */
+  /** Controls whether validation feedback is rendered. */
   showMessage?: boolean;
 }
 

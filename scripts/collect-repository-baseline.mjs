@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { cpus, platform, release, totalmem } from "node:os";
 import { basename, dirname, extname, join, relative, resolve } from "node:path";
 import { brotliCompressSync, gzipSync } from "node:zlib";
@@ -7,6 +7,11 @@ import { brotliCompressSync, gzipSync } from "node:zlib";
 import prettier from "prettier";
 import { rollup } from "rollup";
 import ts from "typescript";
+
+import {
+  analyzeTypeScriptDependencies,
+  summarizeTypeScriptDependencies,
+} from "./dependency-graph.mjs";
 
 const repositoryRoot = resolve(import.meta.dirname, "..");
 const kitSourceRoot = join(repositoryRoot, "packages", "kit", "src");
@@ -217,166 +222,15 @@ const styleApi = {
   ),
 };
 
-const readModuleSpecifiers = (path) => {
-  const sourceFile = ts.createSourceFile(path, readText(path), ts.ScriptTarget.Latest, true);
-  const specifiers = [];
-  const visit = (node) => {
-    if (ts.isImportDeclaration(node) && ts.isStringLiteral(node.moduleSpecifier)) {
-      specifiers.push({
-        specifier: node.moduleSpecifier.text,
-        typeOnly: Boolean(node.importClause?.isTypeOnly),
-        dynamic: false,
-      });
-    } else if (ts.isExportDeclaration(node) && node.moduleSpecifier) {
-      specifiers.push({
-        specifier: node.moduleSpecifier.text,
-        typeOnly: Boolean(node.isTypeOnly),
-        dynamic: false,
-      });
-    } else if (
-      ts.isCallExpression(node) &&
-      node.expression.kind === ts.SyntaxKind.ImportKeyword &&
-      node.arguments.length > 0 &&
-      ts.isStringLiteral(node.arguments[0])
-    ) {
-      specifiers.push({
-        specifier: node.arguments[0].text,
-        typeOnly: false,
-        dynamic: true,
-      });
-    }
-    ts.forEachChild(node, visit);
-  };
-  visit(sourceFile);
-  return specifiers;
-};
-
-const resolveTypeScriptImport = (source, specifier) => {
-  if (!specifier.startsWith(".")) return null;
-  const cleanSpecifier = specifier.split("?")[0];
-  const base = resolve(dirname(source), cleanSpecifier);
-  const importBase = /\.[cm]?js$/.test(base) ? base.replace(/\.[cm]?js$/, "") : base;
-  const candidates = [
-    base,
-    importBase,
-    `${importBase}.ts`,
-    `${importBase}.tsx`,
-    `${importBase}.mts`,
-    `${importBase}.cts`,
-    `${importBase}.d.ts`,
-    join(importBase, "index.ts"),
-    join(importBase, "index.tsx"),
-  ];
-  return (
-    candidates.find(
-      (candidate) =>
-        existsSync(candidate) && statSync(candidate).isFile() && isTypeScript(candidate),
-    ) ?? null
-  );
-};
-
-const packageName = (specifier) => {
-  const segments = specifier.split("/");
-  return specifier.startsWith("@") ? segments.slice(0, 2).join("/") : segments[0];
-};
-
 const dependencyFiles = collectFiles(kitSourceRoot).filter(
   (path) => isTypeScript(path) && !isTestSource(path),
 );
-const dependencyNodes = new Set(dependencyFiles);
-const dependencyEdges = [];
-const unresolvedRelativeImports = [];
-const externalUsage = new Map();
-for (const source of dependencyFiles) {
-  for (const dependency of readModuleSpecifiers(source)) {
-    if (!dependency.specifier.startsWith(".")) {
-      const name = packageName(dependency.specifier);
-      externalUsage.set(name, (externalUsage.get(name) ?? 0) + 1);
-      continue;
-    }
-    const target = resolveTypeScriptImport(source, dependency.specifier);
-    if (!target) {
-      if (!/\.(?:css|scss|sass|less|svg|png|jpg|json)(?:\?|$)/.test(dependency.specifier)) {
-        unresolvedRelativeImports.push(`${toRepositoryPath(source)} -> ${dependency.specifier}`);
-      }
-      continue;
-    }
-    if (dependencyNodes.has(target)) {
-      dependencyEdges.push({ source, target, ...dependency });
-    }
-  }
-}
-
-const stronglyConnectedComponents = (nodes, edges) => {
-  const graph = new Map([...nodes].map((node) => [node, []]));
-  for (const edge of edges) graph.get(edge.source)?.push(edge.target);
-  const indexes = new Map();
-  const lowLinks = new Map();
-  const active = new Set();
-  const stack = [];
-  const components = [];
-  let currentIndex = 0;
-
-  const visit = (node) => {
-    indexes.set(node, currentIndex);
-    lowLinks.set(node, currentIndex);
-    currentIndex += 1;
-    stack.push(node);
-    active.add(node);
-
-    for (const target of graph.get(node) ?? []) {
-      if (!indexes.has(target)) {
-        visit(target);
-        lowLinks.set(node, Math.min(lowLinks.get(node), lowLinks.get(target)));
-      } else if (active.has(target)) {
-        lowLinks.set(node, Math.min(lowLinks.get(node), indexes.get(target)));
-      }
-    }
-
-    if (lowLinks.get(node) !== indexes.get(node)) return;
-    const component = [];
-    let member;
-    do {
-      member = stack.pop();
-      active.delete(member);
-      component.push(member);
-    } while (member !== node);
-    components.push(component);
-  };
-
-  for (const node of nodes) if (!indexes.has(node)) visit(node);
-  return components;
-};
-
-const dependencyLayer = (path) => {
-  const local = toRepositoryPath(path).replace("packages/kit/src/", "");
-  const segments = local.split("/");
-  return segments[0] === "components" ? `components/${segments[1] ?? "root"}` : segments[0];
-};
-const layerEdges = new Map();
-for (const edge of dependencyEdges) {
-  const key = `${dependencyLayer(edge.source)} -> ${dependencyLayer(edge.target)}`;
-  layerEdges.set(key, (layerEdges.get(key) ?? 0) + 1);
-}
-const cycles = stronglyConnectedComponents(dependencyNodes, dependencyEdges)
-  .filter(
-    (component) =>
-      component.length > 1 ||
-      dependencyEdges.some((edge) => edge.source === component[0] && edge.target === component[0]),
-  )
-  .map((component) => component.map(toRepositoryPath).sort())
-  .sort((left, right) => left[0].localeCompare(right[0]));
-const dependencyGraph = {
-  nodes: dependencyNodes.size,
-  edges: dependencyEdges.length,
-  typeOnlyEdges: dependencyEdges.filter((edge) => edge.typeOnly).length,
-  dynamicEdges: dependencyEdges.filter((edge) => edge.dynamic).length,
-  stronglyConnectedComponents: cycles,
-  cycleCount: cycles.length,
-  unresolvedRelativeImports: [...new Set(unresolvedRelativeImports)].sort(),
-  externalPackages: Object.fromEntries([...externalUsage.entries()].sort()),
-  layerEdges: Object.fromEntries([...layerEdges.entries()].sort()),
-};
+const dependencyAnalysis = analyzeTypeScriptDependencies({
+  files: dependencyFiles,
+  repositoryRoot,
+  sourceRoot: kitSourceRoot,
+});
+const dependencyGraph = summarizeTypeScriptDependencies(dependencyAnalysis, toRepositoryPath);
 
 const resourcePatterns = {
   addEventListener: /\.addEventListener\s*\(/g,
