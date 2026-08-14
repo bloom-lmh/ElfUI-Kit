@@ -31,7 +31,7 @@
       },
       "status": "equivalent",
       "difference": "Explicit field props override inherited Form/FormItem state. Kit additionally exposes a native submit event boundary. Native form association gap tracked by NG-101; must not replace Form validation.",
-      "tests": ["packages/kit/src/components/Form/__tests__/Form.test.ts"],
+      "tests": ["packages/kit/src/components/Form/Form/Form.test.ts"],
       "docs": ["apps/website/src/pages/form/FormPage/index.ts"]
     },
     {

@@ -4,8 +4,8 @@
 
 - Date: 2026-07-31
 - Last verified: 2026-08-14
-- ElfUI Kit: `0.0.2-beta.1`
-- ElfUI Core / Compiler / Vite Plugin: `0.1.0-beta.20`
+- ElfUI Kit: `0.0.2-beta.5`
+- ElfUI Core / Compiler / Vite Plugin: `0.1.0-beta.21`
 - Work package: `OP-02`
 - Status: authoritative design boundary for the current repository
 
@@ -40,7 +40,7 @@ An arrow means that the layer on the right may consume the stable contract on th
 | ------------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
 | State Machine | A finite set of states has guarded transitions, cancellation, or terminal cleanup  | Overlay `inactive -> active -> closing -> inactive`; planned Upload task transitions  | Boolean aliases that can represent contradictory states                                           |
 | Strategy      | A caller selects one replaceable algorithm behind a stable contract                | `DateAdapter`; Upload request and chunk strategies                                    | A wrapper around one fixed function with no variation                                             |
-| Adapter       | External or framework semantics must be translated without leaking into the domain | `useDateAdapter`; planned native form association; overlay lifecycle composables      | Renaming parameters while preserving the same concrete dependency                                 |
+| Adapter       | External or framework semantics must be translated without leaking into the domain | `useDateAdapter`; native form association; overlay lifecycle composables              | Renaming parameters while preserving the same concrete dependency                                 |
 | Controller    | One owner must coordinate resources, ordering, cancellation, or cleanup            | Overlay interaction/focus controllers; service stacks; planned Upload task controller | Pure calculations or view-only formatting                                                         |
 | Facade        | A stable public entry point composes smaller owners without copying their state    | ConfigProvider context, Form expose API, `ElfMessage*` and `useMessage*` service APIs | A universal object that merges unrelated collection, overlay, form, layout, and service semantics |
 
@@ -90,22 +90,24 @@ shared Form protocols + path + validation rules
         -> forms and pages
 ```
 
-| State or side effect                                | Sole owner                                                                                          |
-| --------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| Path read/write and rule evaluation                 | `src/utils/path.ts` and `src/utils/validator.ts`                                                    |
-| Field registration and aggregate validate/reset     | Form                                                                                                |
-| Initial value, validation run, message and status   | FormItem                                                                                            |
-| Model/event/validation-trigger bridge               | `useFormControl()`                                                                                  |
-| Disabled and size inheritance                       | `useDisabled()`, `useSize()`, and the Form/FormItem injection context                               |
-| Empty values and clear-value precedence             | `field-values.ts` plus `ConfigProvider.config.field`                                                |
-| Field-specific parsing, formatting and clear result | The concrete field component                                                                        |
-| Native form submission/reset/restore/disabled       | Planned adapter over Core `useFormControlContext`; it must sit below the Kit Form/FormItem contract |
+| State or side effect                                | Sole owner                                                                                                       |
+| --------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| Path read/write and rule evaluation                 | `src/utils/path.ts` and `src/utils/validator.ts`                                                                 |
+| Field registration and aggregate validate/reset     | Form                                                                                                             |
+| Initial value, validation run, message and status   | FormItem                                                                                                         |
+| Model/event/validation-trigger bridge               | `useFormControl()`                                                                                               |
+| Disabled and size inheritance                       | `useDisabled()`, `useSize()`, and the Form/FormItem injection context                                            |
+| Empty values and clear-value precedence             | `field-values.ts` plus `ConfigProvider.config.field`                                                             |
+| Field-specific parsing, formatting and clear result | The concrete field component                                                                                     |
+| Native form submission/reset/restore/disabled       | `src/composables/native-form.ts` over Core `useFormControlContext`; it sits below the Kit Form/FormItem contract |
 
 Component explicit props override Provider field defaults. The Provider stores policy only and does not interpret Select, number, date, or range values.
 
 Resolved `NG-004` boundary: `src/types/form.ts` owns shared rule, size, validation-state and context protocols; `src/composables/form-context.ts` owns the runtime injection keys. Existing component-level type and context entries are compatibility re-exports. `src/utils/validator.ts`, `src/composables/form.ts`, and `src/types/form-context.ts` no longer import Form component implementations.
 
 Core native form association is complementary, not a replacement for Form/FormItem validation. Adoption requires reset, state restore, disabled fieldset, serialization, required, and validation interaction tests.
+
+Resolved `NG-100`–`NG-104` boundary: 24 value-owning Form and Picker controls compose `src/composables/native-form.ts`. Kit owns typed model synchronization, serialization and FormItem rules, while Core remains the only `ElementInternals`, native callback, form-value and native-validity owner. The serialization and migration contract is recorded in [Native Form Control Contract](./2026-08-14-native-form-control-contract.md) and enforced across Chromium, Firefox and WebKit.
 
 ## 3. Collection
 
@@ -257,7 +259,7 @@ The test is a boundary guard, not proof that every future extraction is implemen
 
 | Current gap                                                                  | Owning work package | Closure evidence                                                                                      |
 | ---------------------------------------------------------------------------- | ------------------- | ----------------------------------------------------------------------------------------------------- |
-| Native form association is absent from the higher-level Form contract        | `EP-01` / `OP-03`   | Native submit/reset/restore/disabled, serialization and validation interaction tests                  |
+| Native form association is implemented through the higher-level adapter      | `NG-100`–`NG-104`   | 24 controls, contract guards, focused tests and three-browser submit/reset/restore/validation matrix  |
 | Anchored overlay container, z-index and scaled coordinates remain incomplete | `OP-07`             | Controller tests and real Visual Viewport/container browser matrix                                    |
 | Upload is a mixed component/resource/request owner                           | `EP-04`             | State machine, request Strategy, resource Controller, focused tests, performance and browser evidence |
 | Application Layout owner does not exist                                      | `VU-02`             | Registration/context implementation and desktop/mobile LTR/RTL/SSR screenshots                        |

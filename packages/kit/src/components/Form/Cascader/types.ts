@@ -81,6 +81,7 @@ export interface CascaderProps {
   label: string;
   placeholder: string;
   disabled: boolean;
+  required: boolean;
   clearable: boolean;
   clearIcon: string;
   multiple: boolean;
@@ -123,6 +124,8 @@ export interface CascaderProps {
   virtualScroll: boolean;
   itemSize: number;
   height: number;
+  name: string;
+  form: string;
 }
 
 export interface CascaderNodeSnapshot {

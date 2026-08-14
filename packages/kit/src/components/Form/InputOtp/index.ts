@@ -1,6 +1,7 @@
 import {
   defineEmits,
   defineHtml,
+  defineOptions,
   defineProps,
   defineStyle,
   useHost,
@@ -24,6 +25,7 @@ const props = defineProps<InputOtpProps>({
   type: { type: String, default: "text" },
   size: { type: String, default: "" },
   disabled: { type: Boolean, default: false },
+  required: { type: Boolean, default: false },
   readonly: { type: Boolean, default: false },
   placeholder: { type: String, default: "" },
   separator: { type: String, default: "" },
@@ -31,11 +33,16 @@ const props = defineProps<InputOtpProps>({
   parser: { type: Function, default: undefined },
   mask: { type: Boolean, default: false },
   validateEvent: { type: Boolean, default: true },
+  name: { type: String, default: "" },
+  form: { type: String, default: "" },
 });
+
+defineOptions({ formControl: true });
 
 const emit = defineEmits(["update:modelValue", "input", "change", "focus", "blur"]);
 const host = useHost();
 const ctl = useFormControl<string>(props, emit, {
+  native: true,
   ...(props.validateEvent === false
     ? { triggers: { input: false, change: false, blur: false } }
     : {}),
@@ -44,8 +51,8 @@ const ctl = useFormControl<string>(props, emit, {
 const length = (): number => Math.min(12, Math.max(1, Number(props.length) || 6));
 const formattedValue = (): string =>
   typeof props.formatter === "function"
-    ? String(props.formatter(String(props.modelValue || "")))
-    : String(props.modelValue || "");
+    ? String(props.formatter(String(ctl.model.value || "")))
+    : String(ctl.model.value || "");
 const chars = (): string[] => formattedValue().split("").slice(0, length());
 const displayChar = (value: string): string => (props.mask && value ? "•" : value);
 const cells = (): OtpCell[] =>

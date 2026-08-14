@@ -1,6 +1,7 @@
 import {
   defineEmits,
   defineExpose,
+  defineOptions,
   defineProps,
   defineStyle,
   useComputed,
@@ -38,6 +39,7 @@ const props = defineProps({
   previewOnHover: { type: Boolean, default: false },
   clearable: { type: Boolean, default: true },
   disabled: { type: Boolean, default: false },
+  required: { type: Boolean, default: false },
   readonly: { type: Boolean, default: false },
   size: { type: String, default: "" },
   color: { type: String, default: "" },
@@ -61,12 +63,17 @@ const props = defineProps({
   ariaLabel: { type: String, default: "" },
   label: { type: String, default: "" },
   validateEvent: { type: Boolean, default: true },
+  name: { type: String, default: "" },
+  form: { type: String, default: "" },
 });
+
+defineOptions({ formControl: true });
 
 const locale = useLocaleProvider();
 
 const emit = defineEmits(["update:modelValue", "change", "hover-change", "clear"]);
 const ctl = useFormControl<number>(props, emit, {
+  native: true,
   triggers:
     props.validateEvent === false
       ? { input: false, change: false, blur: false }
@@ -75,14 +82,15 @@ const ctl = useFormControl<number>(props, emit, {
 
 const fi = useFormItem(() => props.size as string);
 
-const isDisabled = useDisabled(() => Boolean(props.disabled));
+const inheritedDisabled = useDisabled(() => Boolean(props.disabled));
+const isDisabled = (): boolean => inheritedDisabled() || Boolean(ctl.native?.disabled);
 
-const innerValue = useRef(readNumber(props.modelValue));
+const innerValue = useRef(readNumber(ctl.model.value));
 
 const hoverValue = useRef(0);
 
 useEffect(() => {
-  innerValue.set(readNumber(props.modelValue));
+  innerValue.set(readNumber(ctl.model.value));
 });
 
 useHostFlag("disabled", isDisabled);

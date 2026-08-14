@@ -33,6 +33,21 @@ export type ValidateField = (prop: string | string[], trigger?: RuleTrigger) => 
 export type FormItemValidateState = "" | "validating" | "success" | "error";
 export type FormItemSize = "sm" | "md" | "lg";
 
+/** Public attributes shared by form-associated Kit fields. */
+export interface NativeFormAssociatedProps {
+  name: string;
+  form: string;
+  required: boolean;
+  disabled: boolean;
+}
+
+/** Native-like validity commands exposed by every form-associated Kit field. */
+export interface NativeFormControlMethods {
+  checkValidity(): boolean;
+  reportValidity(): boolean;
+  setCustomValidity(message: string): void;
+}
+
 /** Stable field commands exposed by Form and implemented by FormItem. */
 export interface FormField {
   readonly prop: string;

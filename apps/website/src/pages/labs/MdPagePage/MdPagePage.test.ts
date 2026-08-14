@@ -1,5 +1,7 @@
 import { registerAllComponents } from "@elfui/kit";
-import { afterEach, beforeAll, describe, expect, it } from "vitest";
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+
+import { stubMdPageDemoFetch } from "../../test-helpers";
 
 let pageTag = "";
 
@@ -11,8 +13,11 @@ beforeAll(async () => {
   pageTag = ensureCustomElement(PageLabsMdPage);
 });
 
+beforeEach(stubMdPageDemoFetch);
+
 afterEach(() => {
   document.body.innerHTML = "";
+  vi.unstubAllGlobals();
 });
 
 const tick = async (): Promise<void> => {

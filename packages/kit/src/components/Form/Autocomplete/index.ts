@@ -2,6 +2,7 @@ import {
   defineEmits,
   defineExpose,
   defineHtml,
+  defineOptions,
   defineProps,
   defineStyle,
   onBeforeUnmount,
@@ -61,6 +62,7 @@ const props = defineProps<AutocompleteProps>({
   variant: { type: String, default: "filled" },
   backgroundColor: { type: String, default: "" },
   disabled: { type: Boolean, default: false },
+  required: { type: Boolean, default: false },
   clearable: { type: Boolean, default: false },
   triggerOnFocus: { type: Boolean, default: true },
   debounce: { type: Number, default: 300 },
@@ -84,9 +86,12 @@ const props = defineProps<AutocompleteProps>({
   fitInputWidth: { type: Boolean, default: false },
   id: { type: String, default: "" },
   name: { type: String, default: "" },
+  form: { type: String, default: "" },
   ariaLabel: { type: String, default: "" },
   validateEvent: { type: Boolean, default: true },
 });
+
+defineOptions({ formControl: true });
 
 const emit = defineEmits<{
   "update:modelValue": [value: string];
@@ -101,12 +106,14 @@ const emit = defineEmits<{
 }>();
 
 const ctl = useFormControl<string>(props, emit, {
+  native: true,
   ...(props.validateEvent === false
     ? { triggers: { input: false, change: false, blur: false } }
     : {}),
 });
 const fi = useFormItem(() => "");
-const isDisabled = useDisabled(() => Boolean(props.disabled));
+const inheritedDisabled = useDisabled(() => Boolean(props.disabled));
+const isDisabled = (): boolean => inheritedDisabled() || Boolean(ctl.native?.disabled);
 const host = useHost();
 const open = useRef(false);
 const suggestions = useRef<AutocompleteOption[] | null>(null);

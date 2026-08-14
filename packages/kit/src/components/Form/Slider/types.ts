@@ -28,6 +28,7 @@ export interface SliderProps {
   step: number;
   range: boolean;
   disabled: boolean;
+  required: boolean;
   readonly: boolean;
   vertical: boolean;
   showTooltip: boolean;
@@ -51,4 +52,6 @@ export interface SliderProps {
   persistent: boolean;
   label: string;
   validateEvent: boolean;
+  name: string;
+  form: string;
 }

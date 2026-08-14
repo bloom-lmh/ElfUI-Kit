@@ -2,6 +2,7 @@ import {
   defineEmits,
   defineExpose,
   defineHtml,
+  defineOptions,
   defineProps,
   defineStyle,
   useHost,
@@ -40,6 +41,7 @@ const props = defineProps<TimeSelectProps>({
   includeEndTime: { type: Boolean, default: false },
   editable: { type: Boolean, default: true },
   disabled: { type: Boolean, default: false },
+  required: { type: Boolean, default: false },
   clearable: { type: Boolean, default: true },
   size: { type: String, default: "" },
   variant: { type: String, default: "filled" },
@@ -47,6 +49,7 @@ const props = defineProps<TimeSelectProps>({
   label: { type: String, default: "" },
   placeholder: { type: String, default: "" },
   name: { type: String, default: "" },
+  form: { type: String, default: "" },
   id: { type: String, default: "" },
   tabindex: { type: null, default: 0 },
   effect: { type: String, default: "light" },
@@ -59,11 +62,15 @@ const props = defineProps<TimeSelectProps>({
   validateEvent: { type: Boolean, default: true },
 });
 
+defineOptions({ formControl: true });
+
 const emit = defineEmits<TimeSelectEmits>();
 const control = useFormControl<string>(props, emit, {
+  native: true,
   ...(props.validateEvent === false ? { triggers: { change: false, blur: false } } : {}),
 });
-const isDisabled = useDisabled(() => Boolean(props.disabled));
+const inheritedDisabled = useDisabled(() => Boolean(props.disabled));
+const isDisabled = (): boolean => inheritedDisabled() || Boolean(control.native?.disabled);
 const resolvedSize = useSize(() => props.size);
 const host = useHost();
 
@@ -111,7 +118,7 @@ const TimeSelect = defineHtml<TimeSelectProps>(`
   <div class="time-select">
     <elf-select
       :options.prop=${options()}
-      :modelValue.prop=${props.modelValue}
+      :modelValue.prop=${control.model.value}
       :size=${resolvedSize()}
       :variant=${normalizeFieldVariant(props.variant)}
       :backgroundColor=${props.backgroundColor}

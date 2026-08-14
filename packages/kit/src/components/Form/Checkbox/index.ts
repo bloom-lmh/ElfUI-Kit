@@ -2,6 +2,8 @@
 
 import {
   defineEmits,
+  defineHtml,
+  defineOptions,
   defineProps,
   defineStyle,
   inject,
@@ -9,11 +11,10 @@ import {
   useHost,
   useHostAttr,
   useHostFlag,
-  defineHtml,
 } from "@elfui/core";
 
 import { CHECKBOX_GROUP_KEY } from "../context";
-import { useDisabled } from "../../../composables";
+import { serializeNativeFormValue, useDisabled, useFormControl } from "../../../composables";
 import styles from "./style.scss?inline";
 
 export type { CheckboxProps, CheckboxSize } from "./types";
@@ -25,6 +26,7 @@ const props = defineProps({
   falseValue: { type: null, default: false },
   label: { type: String, default: "" },
   disabled: { type: Boolean, default: false },
+  required: { type: Boolean, default: false },
   size: { type: String, default: "" },
   indeterminate: { type: Boolean, default: false },
   border: { type: Boolean, default: false },
@@ -35,23 +37,42 @@ const props = defineProps({
   ariaControls: { type: String, default: "" },
   trueLabel: { type: String, default: "" },
   falseLabel: { type: String, default: "" },
+  name: { type: String, default: "" },
+  form: { type: String, default: "" },
 });
+
+defineOptions({ formControl: true });
 
 const emit = defineEmits(["update:modelValue", "change"]);
 
 const group = inject(CHECKBOX_GROUP_KEY);
 
-const isDisabled = useDisabled(() => Boolean(props.disabled) || (group?.disabled ?? false));
-
 const checkboxValue = (): unknown => group?.resolveValue(props.value) ?? props.value;
 
-const checked = (): boolean => {
+const isModelChecked = (model: unknown): boolean => {
   if (group) return group.modelValue.includes(checkboxValue());
-  const mv = props.modelValue;
-  if (Array.isArray(mv)) return mv.includes(props.value);
+  if (Array.isArray(model)) return model.includes(props.value);
   if (props.checked !== undefined) return Boolean(props.checked);
-  return Object.is(mv, props.trueValue);
+  return Object.is(model, props.trueValue);
 };
+
+const ctl = useFormControl<unknown>(props, emit, {
+  native: {
+    enabled: () => !group,
+    isEmpty: (model) => !isModelChecked(model),
+    serialize: (model, options) =>
+      serializeNativeFormValue(isModelChecked(model) ? (props.value ?? props.trueValue) : false, {
+        ...options,
+        omitFalse: true,
+      }),
+  },
+  triggers: { input: false, blur: false },
+});
+
+const inheritedDisabled = useDisabled(() => Boolean(props.disabled) || (group?.disabled ?? false));
+const isDisabled = (): boolean => inheritedDisabled() || Boolean(ctl.native?.disabled);
+
+const checked = (): boolean => isModelChecked(ctl.model.value);
 
 const ariaChecked = (): "true" | "false" | "mixed" => {
   if (props.indeterminate) return "mixed";
@@ -96,16 +117,16 @@ const toggle = (e?: Event): void => {
     return;
   }
 
-  const mv = props.modelValue;
+  const mv = ctl.model.value;
   if (Array.isArray(mv)) {
     const idx = mv.indexOf(props.value);
     const next = idx >= 0 ? mv.filter((_, i) => i !== idx) : [...mv, props.value];
-    emit("update:modelValue", next);
-    emit("change", next);
+    ctl.setValue(next);
+    ctl.dispatchChange(next);
   } else {
     const next = checked() ? props.falseValue : props.trueValue;
-    emit("update:modelValue", next);
-    emit("change", next);
+    ctl.setValue(next);
+    ctl.dispatchChange(next);
   }
 };
 

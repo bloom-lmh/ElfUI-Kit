@@ -7,6 +7,7 @@ export interface InputOtpProps {
   type: InputOtpType;
   size: InputOtpSize;
   disabled: boolean;
+  required: boolean;
   readonly: boolean;
   placeholder: string;
   separator: string;
@@ -14,4 +15,6 @@ export interface InputOtpProps {
   parser?: (value: string) => string;
   mask: boolean;
   validateEvent: boolean;
+  name: string;
+  form: string;
 }

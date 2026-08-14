@@ -1,5 +1,7 @@
 import {
   defineEmits,
+  defineHtml,
+  defineOptions,
   defineProps,
   defineStyle,
   onMounted,
@@ -10,7 +12,6 @@ import {
   useHostFlag,
   useRef,
   useTemplateRef,
-  defineHtml,
 } from "@elfui/core";
 
 import { useDisabled, useFormControl, useFormItem } from "../../../composables";
@@ -29,6 +30,7 @@ export type {
 const props = defineProps<SwitchProps>({
   modelValue: { type: null, default: false },
   disabled: { type: Boolean, default: false },
+  required: { type: Boolean, default: false },
   size: { type: String, default: "md" },
   variant: { type: String, default: "default" },
   width: { type: null, default: undefined },
@@ -55,20 +57,26 @@ const props = defineProps<SwitchProps>({
   id: { type: String, default: "" },
   tabindex: { type: Number, default: 0 },
   ariaLabel: { type: String, default: "" },
+  name: { type: String, default: "" },
+  form: { type: String, default: "" },
 });
+
+defineOptions({ formControl: true });
 
 const emit = defineEmits<{
   "update:modelValue": [value: SwitchValue];
   change: [value: SwitchValue];
 }>();
 const ctl = useFormControl<SwitchValue>(props, emit, {
+  native: true,
   triggers:
     props.validateEvent === false
       ? { input: false, blur: false, change: false }
       : { input: false, blur: false, change: "change" },
 });
 const fi = useFormItem(() => props.size as string);
-const isDisabled = useDisabled(() => Boolean(props.disabled || props.loading));
+const inheritedDisabled = useDisabled(() => Boolean(props.disabled || props.loading));
+const isDisabled = (): boolean => inheritedDisabled() || Boolean(ctl.native?.disabled);
 const host = useHost();
 const trackRef = useTemplateRef<HTMLElement>("track");
 

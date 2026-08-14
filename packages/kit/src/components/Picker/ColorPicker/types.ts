@@ -18,11 +18,13 @@ export interface ColorPickerProps {
   predefine: Array<string | ColorPreset>;
   showAlpha: boolean;
   disabled: boolean;
+  required: boolean;
   clearable: boolean;
   size: "small" | "default" | "large" | "sm" | "md" | "lg" | "";
   tabindex: string | number;
   id: string;
   name: string;
+  form: string;
   ariaLabel: string;
   valueOnClear?: string | (() => string);
   emptyValues?: unknown[];

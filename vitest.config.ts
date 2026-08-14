@@ -18,6 +18,18 @@ export default defineConfig({
   },
   test: {
     environment: "happy-dom",
+    environmentOptions: {
+      happyDOM: {
+        settings: {
+          disableCSSFileLoading: true,
+          disableJavaScriptFileLoading: true,
+          enableImageFileLoading: false,
+          navigation: {
+            disableChildFrameNavigation: true,
+          },
+        },
+      },
+    },
     define: {
       __DEV__: "true",
     },

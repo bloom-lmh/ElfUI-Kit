@@ -5,6 +5,7 @@ export interface RadioProps {
   value: string | number | boolean;
   label: string;
   disabled: boolean;
+  required: boolean;
   size: RadioSize;
   border: boolean;
   id: string;
@@ -12,4 +13,5 @@ export interface RadioProps {
   ariaLabel: string;
   tabindex: number;
   validateEvent: boolean;
+  form: string;
 }

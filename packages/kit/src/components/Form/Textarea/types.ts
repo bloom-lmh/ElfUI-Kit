@@ -32,6 +32,7 @@ export interface TextareaProps {
   backgroundColor: string;
   placeholder: string;
   disabled: boolean;
+  required: boolean;
   readonly: boolean;
   minlength: number | undefined;
   maxlength: number | undefined;

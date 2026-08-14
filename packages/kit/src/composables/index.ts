@@ -9,6 +9,16 @@ export {
   type FormItemInfo,
   type UseFormControlOptions,
 } from "./form";
+export {
+  deserializeNativeFormValue,
+  isNativeFormValueEmpty,
+  serializeNativeFormValue,
+  useNativeFormControl,
+  type NativeFormControlBehavior,
+  type NativeFormControlBridge,
+  type NativeFormSerializable,
+  type NativeFormSerializeOptions,
+} from "./native-form";
 
 export {
   goTo,

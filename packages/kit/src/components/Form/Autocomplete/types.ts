@@ -41,6 +41,7 @@ export interface AutocompleteProps {
   variant: AutocompleteVariant;
   backgroundColor: string;
   disabled: boolean;
+  required: boolean;
   clearable: boolean;
   triggerOnFocus: boolean;
   debounce: number;
@@ -70,6 +71,7 @@ export interface AutocompleteProps {
   fitInputWidth: boolean;
   id: string;
   name: string;
+  form: string;
   ariaLabel: string;
   validateEvent: boolean;
 }

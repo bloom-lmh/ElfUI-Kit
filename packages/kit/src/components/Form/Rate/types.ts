@@ -8,6 +8,7 @@ export interface RateProps {
   previewOnHover: boolean;
   clearable: boolean;
   disabled: boolean;
+  required: boolean;
   readonly: boolean;
   size: RateSize;
   color: string;
@@ -31,4 +32,6 @@ export interface RateProps {
   ariaLabel: string;
   label: string;
   validateEvent: boolean;
+  name: string;
+  form: string;
 }

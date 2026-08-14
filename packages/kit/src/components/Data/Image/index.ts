@@ -4,7 +4,6 @@ import {
   defineHtml,
   defineProps,
   defineStyle,
-  globalStyle,
   onMounted,
   useComputed,
   useEffect,
@@ -18,6 +17,7 @@ import {
 
 import { collectFocusable, deepActiveElement } from "../../Common/focus/focus-scope";
 import { useLocaleProvider } from "../../Providers/context";
+import { useGlobalStyle } from "../../../composables/useGlobalStyle";
 import previewStyles from "./preview.scss?inline";
 import styles from "./style.scss?inline";
 import type { ImageEmits, ImageExposes, ImageFit, ImageProps, ImageSlots } from "./types";
@@ -344,7 +344,7 @@ onMounted(() => {
 defineExpose<ImageExposes>({ openPreview, closePreview, retry });
 
 defineStyle(styles, previewStyles);
-globalStyle(previewStyles);
+useGlobalStyle("kit-image-preview", previewStyles);
 
 const Image = defineHtml<ImageProps, ImageEmits, ImageSlots>(`
   <div

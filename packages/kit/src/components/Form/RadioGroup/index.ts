@@ -1,6 +1,7 @@
 import {
   defineEmits,
   defineHtml,
+  defineOptions,
   defineProps,
   defineStyle,
   provide,
@@ -28,12 +29,14 @@ interface RadioOptionView {
 const props = defineProps<RadioGroupProps>({
   modelValue: { type: null, default: "" },
   disabled: { type: Boolean, default: false },
+  required: { type: Boolean, default: false },
   size: { type: String, default: "md" },
   variant: { type: String, default: "default" },
   fill: { type: String, default: "" },
   textColor: { type: String, default: "" },
   id: { type: String, default: "" },
   name: { type: String, default: "" },
+  form: { type: String, default: "" },
   ariaLabel: { type: String, default: "" },
   label: { type: String, default: "" },
   validateEvent: { type: Boolean, default: true },
@@ -41,17 +44,21 @@ const props = defineProps<RadioGroupProps>({
   props: { type: Object, default: () => ({}) },
 });
 
+defineOptions({ formControl: true });
+
 const emit = defineEmits<{
   "update:modelValue": [value: unknown];
   change: [value: unknown];
 }>();
 const ctl = useFormControl<unknown>(props, emit, {
+  native: true,
   triggers:
     props.validateEvent === false
       ? { input: false, change: false, blur: false }
       : { input: false, blur: false },
 });
-const isDisabled = useDisabled(() => Boolean(props.disabled));
+const inheritedDisabled = useDisabled(() => Boolean(props.disabled));
+const isDisabled = (): boolean => inheritedDisabled() || Boolean(ctl.native?.disabled);
 const host = useHost();
 
 const optionItems = (): RadioOptionView[] => {

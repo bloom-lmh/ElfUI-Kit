@@ -6,7 +6,6 @@ import {
   defineHtml,
   defineProps,
   defineStyle,
-  globalStyle,
   onBeforeUnmount,
   onMounted,
   projectLightDom,
@@ -19,6 +18,7 @@ import {
 } from "@elfui/core";
 
 import styles from "./style.scss?inline";
+import { useGlobalStyle } from "../../../composables/useGlobalStyle";
 import type {
   StickyExpose,
   StickyPosition,
@@ -386,7 +386,7 @@ onBeforeUnmount(() => {
 
 defineExpose<StickyExpose>({ update, updateRoot });
 defineStyle(styles);
-globalStyle(styles);
+useGlobalStyle("kit-sticky", styles);
 
 const Sticky = defineHtml<StickyProps, Record<string, never>, StickySlots>(`
   <div v-if=${!props.teleported} class="sticky" part="root"><slot></slot></div>

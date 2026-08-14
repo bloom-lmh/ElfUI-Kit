@@ -69,6 +69,7 @@ export interface UploadProps {
   directory: boolean;
   drag: boolean;
   disabled: boolean;
+  required: boolean;
   validateEvent: boolean;
   autoUpload: boolean;
   limit: number;
@@ -91,6 +92,7 @@ export interface UploadProps {
   onProgress?: (percentage: number, file: UploadFileItem, files: UploadFileItem[]) => void;
   onChange?: (file: UploadFileItem | null, files: UploadFileItem[]) => void;
   onExceed?: (files: File[], uploadFiles: UploadFileItem[]) => void;
+  form: string;
 }
 
 export interface UploadEmits {

@@ -2,17 +2,18 @@
 
 import {
   defineEmits,
+  defineHtml,
+  defineOptions,
   defineProps,
   defineStyle,
   inject,
   useHost,
   useHostAttr,
   useHostFlag,
-  defineHtml,
 } from "@elfui/core";
 
-import { FORM_ITEM_KEY, RADIO_GROUP_KEY } from "../context";
-import { useDisabled } from "../../../composables";
+import { RADIO_GROUP_KEY } from "../context";
+import { serializeNativeFormValue, useDisabled, useFormControl } from "../../../composables";
 import styles from "./style.scss?inline";
 
 export type { RadioProps, RadioSize } from "./types";
@@ -22,6 +23,7 @@ const props = defineProps({
   value: { type: null, default: "" },
   label: { type: String, default: "" },
   disabled: { type: Boolean, default: false },
+  required: { type: Boolean, default: false },
   size: { type: String, default: "" },
   border: { type: Boolean, default: false },
   id: { type: String, default: "" },
@@ -29,23 +31,38 @@ const props = defineProps({
   ariaLabel: { type: String, default: "" },
   tabindex: { type: Number, default: undefined },
   validateEvent: { type: Boolean, default: true },
+  form: { type: String, default: "" },
 });
+
+defineOptions({ formControl: true });
 
 const emit = defineEmits(["update:modelValue", "change"]);
 
 const group = inject(RADIO_GROUP_KEY);
-const formItem = inject(FORM_ITEM_KEY);
+
+const radioValue = (): unknown => group?.resolveValue(props.value) ?? props.value;
+const isModelChecked = (model: unknown): boolean =>
+  group ? Object.is(group.modelValue, radioValue()) : Object.is(model, props.value);
+
+const ctl = useFormControl<unknown>(props, emit, {
+  native: {
+    enabled: () => !group,
+    isEmpty: (model) => !isModelChecked(model),
+    serialize: (model, options) =>
+      isModelChecked(model) ? serializeNativeFormValue(props.value, options) : null,
+  },
+  triggers:
+    props.validateEvent === false
+      ? { input: false, change: false, blur: false }
+      : { input: false, blur: false },
+});
 
 const host = useHost();
 
-const radioValue = (): unknown => group?.resolveValue(props.value) ?? props.value;
+const inheritedDisabled = useDisabled(() => Boolean(props.disabled) || (group?.disabled ?? false));
+const isDisabled = (): boolean => inheritedDisabled() || Boolean(ctl.native?.disabled);
 
-const isDisabled = useDisabled(() => Boolean(props.disabled) || (group?.disabled ?? false));
-
-const checked = (): boolean => {
-  if (group) return Object.is(group.modelValue, radioValue());
-  return props.modelValue === props.value;
-};
+const checked = (): boolean => isModelChecked(ctl.model.value);
 
 const tabIndex = (): number => {
   if (props.tabindex !== undefined) return Number(props.tabindex);
@@ -77,9 +94,8 @@ const select = (e?: Event): void => {
   if (group) {
     group.changeEvent(radioValue());
   } else {
-    emit("update:modelValue", props.value);
-    emit("change", props.value);
-    if (props.validateEvent) formItem?.validateTrigger("change");
+    ctl.setValue(props.value);
+    ctl.dispatchChange(props.value);
   }
 };
 

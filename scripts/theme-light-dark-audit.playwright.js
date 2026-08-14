@@ -86,7 +86,12 @@ async (page) => {
     } catch {
       // Fall through and read whatever is present; anomalies get flagged in results.
     }
-    await page.waitForTimeout(200);
+    await page.evaluate(
+      () =>
+        new Promise((resolve) =>
+          requestAnimationFrame(() => requestAnimationFrame(() => resolve(undefined))),
+        ),
+    );
   };
 
   const results = [];
@@ -148,7 +153,11 @@ async (page) => {
         theme: document.documentElement.getAttribute("data-theme") || "",
       }));
       routeResults.toggleFound = await findAndClickSkinAction();
-      await page.waitForTimeout(250);
+      await page.waitForFunction(
+        (skin) => document.documentElement.getAttribute("data-skin") !== skin,
+        beforeToggle.skin,
+        { timeout: 12000 },
+      );
       const afterToggle = await page.evaluate(() => ({
         skin: document.documentElement.getAttribute("data-skin") || "",
         theme: document.documentElement.getAttribute("data-theme") || "",

@@ -31,8 +31,7 @@ jobs:
       - name: Upgrade npm for trusted publishing
         run: npm install --global npm@11.5.1
       - run: pnpm install --frozen-lockfile
-      - run: pnpm docs:locale-audit
-      - run: pnpm prepublishOnly
+      - run: pnpm release:check
       - name: Resolve release metadata
         id: release
         env:

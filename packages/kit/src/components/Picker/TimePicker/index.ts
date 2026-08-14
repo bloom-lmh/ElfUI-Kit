@@ -2,6 +2,7 @@ import {
   defineEmits,
   defineExpose,
   defineHtml,
+  defineOptions,
   defineProps,
   defineStyle,
   onBeforeUnmount,
@@ -73,9 +74,11 @@ const props = defineProps<TimePickerProps>({
   endPlaceholder: { type: String, default: "" },
   rangeSeparator: { type: String, default: "" },
   disabled: { type: Boolean, default: false },
+  required: { type: Boolean, default: false },
   clearable: { type: Boolean, default: true },
   id: { type: null, default: "" },
   name: { type: String, default: "" },
+  form: { type: String, default: "" },
   tabindex: { type: null, default: 0 },
   valueOnClear: { type: null, default: undefined },
   emptyValues: { type: Array, default: undefined },
@@ -95,6 +98,8 @@ const props = defineProps<TimePickerProps>({
   validateEvent: { type: Boolean, default: true },
 });
 
+defineOptions({ formControl: true });
+
 const emit = defineEmits<{
   "update:modelValue": [value: TimePickerModelValue];
   "update:endValue": [value: string];
@@ -107,9 +112,11 @@ const emit = defineEmits<{
 const fieldValues = useFieldValueDefaults();
 
 const ctl = useFormControl<TimePickerModelValue>(props, emit, {
+  native: true,
   ...(props.validateEvent === false ? { triggers: { change: false, blur: false } } : {}),
 });
-const isDisabled = useDisabled(() => Boolean(props.disabled));
+const inheritedDisabled = useDisabled(() => Boolean(props.disabled));
+const isDisabled = (): boolean => inheritedDisabled() || Boolean(ctl.native?.disabled);
 const resolvedSize = useSize(() => props.size);
 
 const locale = useLocaleProvider();
@@ -177,22 +184,22 @@ const rangeSeparatorText = (): string =>
   props.rangeSeparator || locale.t("timePicker.rangeSeparator");
 
 useEffect(() => {
-  if (isEmptyValue(props.modelValue)) {
+  if (isEmptyValue(ctl.model.value)) {
     start.set("");
     end.set("");
     return;
   }
-  if (Array.isArray(props.modelValue)) {
-    start.set(props.modelValue[0] ? normalizeTime(String(props.modelValue[0])) : "");
-    end.set(props.modelValue[1] ? normalizeTime(String(props.modelValue[1])) : "");
+  if (Array.isArray(ctl.model.value)) {
+    start.set(ctl.model.value[0] ? normalizeTime(String(ctl.model.value[0])) : "");
+    end.set(ctl.model.value[1] ? normalizeTime(String(ctl.model.value[1])) : "");
     return;
   }
-  start.set(props.modelValue ? normalizeTime(String(props.modelValue)) : "");
+  start.set(ctl.model.value ? normalizeTime(String(ctl.model.value)) : "");
   end.set(props.endValue ? normalizeTime(String(props.endValue)) : "");
 });
 
 const rangeMode = (): boolean =>
-  Boolean(props.range || props.isRange || Array.isArray(props.modelValue));
+  Boolean(props.range || props.isRange || Array.isArray(ctl.model.value));
 
 const currentValue = (): TimePickerModelValue =>
   rangeMode()

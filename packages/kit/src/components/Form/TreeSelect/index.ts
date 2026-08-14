@@ -2,6 +2,7 @@ import {
   defineEmits,
   defineExpose,
   defineHtml,
+  defineOptions,
   defineProps,
   defineStyle,
   onMounted,
@@ -91,6 +92,7 @@ const props = defineProps<TreeSelectProps>({
   maxCollapseTags: { type: Number, default: 1 },
   multipleLimit: { type: Number, default: 0 },
   disabled: { type: Boolean, default: false },
+  required: { type: Boolean, default: false },
   size: { type: String, default: "" },
   variant: { type: String, default: "filled" },
   backgroundColor: { type: String, default: "" },
@@ -114,16 +116,21 @@ const props = defineProps<TreeSelectProps>({
   tabindex: { type: null, default: 0 },
   id: { type: String, default: "" },
   name: { type: String, default: "" },
+  form: { type: String, default: "" },
 });
+
+defineOptions({ formControl: true });
 
 const emit = defineEmits<TreeSelectEmits>();
 const locale = useLocaleProvider();
 const fieldValues = useFieldValueDefaults();
 const host = useHost();
 const ctl = useFormControl<TreeSelectModelValue>(props, emit, {
+  native: true,
   ...(props.validateEvent === false ? { triggers: { change: false, blur: false } } : {}),
 });
-const isDisabled = useDisabled(() => Boolean(props.disabled));
+const inheritedDisabled = useDisabled(() => Boolean(props.disabled));
+const isDisabled = (): boolean => inheritedDisabled() || Boolean(ctl.native?.disabled);
 const normalizedOwnSize = (): "sm" | "md" | "lg" | "" =>
   props.size === "small" || props.size === "sm"
     ? "sm"

@@ -2,6 +2,7 @@ import {
   defineEmits,
   defineExpose,
   defineHtml,
+  defineOptions,
   defineProps,
   defineStyle,
   useComponents,
@@ -67,6 +68,7 @@ const props = defineProps<DateTimePickerProps>({
   variant: { type: String, default: "filled" },
   size: { type: String, default: "" },
   disabled: { type: Boolean, default: false },
+  required: { type: Boolean, default: false },
   readonly: { type: Boolean, default: false },
   editable: { type: Boolean, default: true },
   clearable: { type: Boolean, default: true },
@@ -78,6 +80,7 @@ const props = defineProps<DateTimePickerProps>({
   popperStyle: { type: Object, default: () => ({}) },
   id: { type: String, default: "" },
   name: { type: String, default: "" },
+  form: { type: String, default: "" },
   tabindex: { type: null, default: 0 },
   ariaLabel: { type: String, default: "" },
   valueOnClear: { type: null, default: undefined },
@@ -85,14 +88,18 @@ const props = defineProps<DateTimePickerProps>({
   validateEvent: { type: Boolean, default: true },
 });
 
+defineOptions({ formControl: true });
+
 const emit = defineEmits<DateTimePickerEmits>();
 const form = useFormControl<DateTimePickerValue>(props, emit, {
+  native: true,
   ...(props.validateEvent === false ? { triggers: { change: false, blur: false } } : {}),
 });
 const fieldValues = useFieldValueDefaults();
 const dateService = useDateAdapter();
 const locale = useLocaleProvider();
-const isDisabled = useDisabled(() => Boolean(props.disabled));
+const inheritedDisabled = useDisabled(() => Boolean(props.disabled));
+const isDisabled = (): boolean => inheritedDisabled() || Boolean(form.native?.disabled);
 const resolvedSize = useSize(() => props.size);
 
 useComponents({
@@ -106,7 +113,7 @@ const startTime = useRef("");
 const endTime = useRef("");
 const host = useHost();
 
-const rangeMode = (): boolean => Boolean(props.range || Array.isArray(props.modelValue));
+const rangeMode = (): boolean => Boolean(props.range || Array.isArray(form.model.value));
 const formatParts = (): [date: string, time: string] => {
   const format = String(props.format || "");
   const timeStart = format.search(/HH|mm|ss/);
@@ -136,10 +143,10 @@ const parsePart = (value: unknown, target: "start" | "end"): { date: string; tim
 
 let externalSignature = "";
 const syncExternalValue = (): void => {
-  const signature = JSON.stringify([props.modelValue, props.valueFormat, rangeMode()]);
+  const signature = JSON.stringify([form.model.value, props.valueFormat, rangeMode()]);
   if (signature === externalSignature) return;
   externalSignature = signature;
-  const values = Array.isArray(props.modelValue) ? props.modelValue : [props.modelValue, ""];
+  const values = Array.isArray(form.model.value) ? form.model.value : [form.model.value, ""];
   const start = parsePart(values[0], "start");
   const end = parsePart(values[1], "end");
   startDate.set(start.date);
@@ -233,9 +240,9 @@ const timeMax = (): string =>
   props.max && startDate.value === dateMax() ? parsePart(props.max, "end").time : "";
 
 const hasValue = (): boolean =>
-  Array.isArray(props.modelValue)
-    ? props.modelValue.some((value) => !isEmptyValue(value))
-    : !isEmptyValue(props.modelValue);
+  Array.isArray(form.model.value)
+    ? form.model.value.some((value) => !isEmptyValue(value))
+    : !isEmptyValue(form.model.value);
 
 const clear = (): void => {
   if (isDisabled() || props.readonly) return;

@@ -9,12 +9,14 @@ export type RadioGroupOption = string | number | boolean | Record<string, unknow
 export interface RadioGroupProps {
   modelValue: unknown;
   disabled: boolean;
+  required: boolean;
   size: "sm" | "md" | "lg";
   variant: "default" | "button";
   fill: string;
   textColor: string;
   id: string;
   name: string;
+  form: string;
   ariaLabel: string;
   label: string;
   validateEvent: boolean;

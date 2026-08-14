@@ -48,6 +48,7 @@ export interface InputProps {
   variant: InputVariant;
   placeholder: string;
   disabled: boolean;
+  required: boolean;
   readonly: boolean;
   clearable: boolean;
   maxlength: number | undefined;

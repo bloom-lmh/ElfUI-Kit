@@ -13,6 +13,7 @@ export interface InputNumberProps {
   stepStrictly: boolean;
   precision?: number;
   disabled: boolean;
+  required: boolean;
   readonly: boolean;
   controls: boolean;
   controlsPosition: InputNumberControlsPosition;
@@ -27,6 +28,7 @@ export interface InputNumberProps {
   backgroundColor: string;
   placeholder: string;
   name: string;
+  form: string;
   valueOnClear?: number | null;
   validateEvent: boolean;
 }

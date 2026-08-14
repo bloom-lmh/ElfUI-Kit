@@ -120,6 +120,9 @@ importers:
       '@mdi/js':
         specifier: ^7.4.47
         version: 7.4.47
+      '@types/markdown-it':
+        specifier: 14.1.2
+        version: 14.1.2
       dompurify:
         specifier: ^3.2.4
         version: 3.4.13
@@ -148,9 +151,6 @@ importers:
       '@elfui/vite-plugin':
         specifier: 0.1.0-beta.21
         version: 0.1.0-beta.21
-      '@types/markdown-it':
-        specifier: ^14.1.2
-        version: 14.1.2
       sass-embedded:
         specifier: ^1.83.0
         version: 1.100.0

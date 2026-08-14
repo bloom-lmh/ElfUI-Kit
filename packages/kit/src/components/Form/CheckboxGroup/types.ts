@@ -11,6 +11,7 @@ export type CheckboxGroupOption = string | number | boolean | Record<string, unk
 export interface CheckboxGroupProps {
   modelValue: unknown[];
   disabled: boolean;
+  required: boolean;
   size: "sm" | "md" | "lg";
   min: number;
   max: number;
@@ -20,4 +21,7 @@ export interface CheckboxGroupProps {
   textColor: string;
   options: CheckboxGroupOption[];
   props: CheckboxGroupOptionProps;
+  name: string;
+  form: string;
+  validateEvent: boolean;
 }

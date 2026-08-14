@@ -35,7 +35,22 @@ async (page) => {
   for (let index = 0; index < routes.length; index += 1) {
     currentRoute = routes[index];
     await page.goto(`${baseUrl}/#${currentRoute}`, { waitUntil: "domcontentloaded" });
-    await page.waitForTimeout(index === 0 ? 800 : 350);
+    await page.waitForFunction(
+      () => {
+        const deepQueryAll = (root, selector) => {
+          const found = Array.from(root.querySelectorAll(selector));
+          for (const element of Array.from(root.querySelectorAll("*"))) {
+            if (element.shadowRoot) found.push(...deepQueryAll(element.shadowRoot, selector));
+          }
+          return found;
+        };
+        return (
+          deepQueryAll(document, "h1").some((element) => element.getClientRects().length > 0) &&
+          deepQueryAll(document, "elf-docs-toc").length > 0
+        );
+      },
+      { timeout: 12000 },
+    );
 
     const audit = await page.evaluate(async () => {
       const deepQueryAll = (root, selector) => {

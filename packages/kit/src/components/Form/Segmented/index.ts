@@ -1,6 +1,7 @@
 import {
   defineEmits,
   defineHtml,
+  defineOptions,
   defineProps,
   defineStyle,
   useHostAttr,
@@ -32,8 +33,10 @@ const props = defineProps<SegmentedProps>({
   options: { type: Array, default: () => [] },
   size: { type: String, default: "" },
   disabled: { type: Boolean, default: false },
+  required: { type: Boolean, default: false },
   block: { type: Boolean, default: false },
   name: { type: String, default: "" },
+  form: { type: String, default: "" },
   id: { type: String, default: "" },
   ariaLabel: { type: String, default: "" },
   label: { type: String, default: "" },
@@ -44,8 +47,11 @@ const props = defineProps<SegmentedProps>({
   },
 });
 
+defineOptions({ formControl: true });
+
 const emit = defineEmits(["update:modelValue", "change"]);
 const ctl = useFormControl<SegmentedValue>(props, emit, {
+  native: true,
   triggers:
     props.validateEvent === false
       ? { change: false, input: false, blur: false }

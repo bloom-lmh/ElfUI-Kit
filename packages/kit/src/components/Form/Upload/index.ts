@@ -1,6 +1,8 @@
 import {
   defineEmits,
   defineExpose,
+  defineHtml,
+  defineOptions,
   defineProps,
   defineStyle,
   inject,
@@ -10,11 +12,10 @@ import {
   useHostFlag,
   useRef,
   useTemplateRef,
-  defineHtml,
 } from "@elfui/core";
 
 import styles from "./style.scss?inline";
-import { useDisabled } from "../../../composables";
+import { serializeNativeFormValue, useDisabled, useNativeFormControl } from "../../../composables";
 import { FORM_ITEM_KEY } from "../context";
 import type {
   UploadChunkRequestOptions,
@@ -64,6 +65,7 @@ const props = defineProps({
   directory: { type: Boolean, default: false },
   drag: { type: Boolean, default: false },
   disabled: { type: Boolean, default: false },
+  required: { type: Boolean, default: false },
   validateEvent: { type: Boolean, default: true },
   autoUpload: { type: Boolean, default: true },
   limit: { type: Number, default: 0 },
@@ -86,7 +88,10 @@ const props = defineProps({
   onChange: { type: Function, default: undefined },
   onExceed: { type: Function, default: undefined },
   chunkRequest: { type: Function, default: undefined },
+  form: { type: String, default: "" },
 });
+
+defineOptions({ formControl: true });
 
 const locale = useLocaleProvider();
 
@@ -134,6 +139,23 @@ const notifyChange = (file: UploadFileItem | null): void => {
 useEffect(() => {
   const controlled = Array.isArray(props.fileList) ? props.fileList : props.modelValue;
   if (Array.isArray(controlled)) files.set([...(controlled as UploadFileItem[])]);
+});
+
+useNativeFormControl<UploadFileItem[]>({
+  props,
+  value: () => files.value,
+  setValue: (value) => {
+    const next = [...value];
+    files.set(next);
+    emit("update:modelValue", next);
+    emit("update:fileList", next);
+  },
+  isEmpty: (value) => value.length === 0,
+  serialize: (value, options) =>
+    serializeNativeFormValue(
+      value.flatMap((item) => (item.raw instanceof File ? [item.raw] : [])),
+      options,
+    ),
 });
 
 const createItem = (file: File): UploadFileItem => {

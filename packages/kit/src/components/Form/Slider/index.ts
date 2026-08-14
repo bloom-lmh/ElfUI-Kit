@@ -1,5 +1,7 @@
 import {
   defineEmits,
+  defineHtml,
+  defineOptions,
   inject,
   defineExpose,
   defineProps,
@@ -10,10 +12,9 @@ import {
   useHostAttr,
   useHostFlag,
   useRef,
-  defineHtml,
 } from "@elfui/core";
 
-import { useDisabled, useFormItem } from "../../../composables";
+import { useDisabled, useFormItem, useNativeFormControl } from "../../../composables";
 import { FORM_ITEM_KEY } from "../context";
 import styles from "./style.scss?inline";
 import type {
@@ -67,6 +68,7 @@ const props = defineProps({
   step: { type: Number, default: 1 },
   range: { type: Boolean, default: false },
   disabled: { type: Boolean, default: false },
+  required: { type: Boolean, default: false },
   readonly: { type: Boolean, default: false },
   vertical: { type: Boolean, default: false },
   showTooltip: { type: Boolean, default: true },
@@ -90,7 +92,11 @@ const props = defineProps({
   persistent: { type: Boolean, default: true },
   label: { type: String, default: "" },
   validateEvent: { type: Boolean, default: true },
+  name: { type: String, default: "" },
+  form: { type: String, default: "" },
 });
+
+defineOptions({ formControl: true });
 
 const emit = defineEmits<SliderEmits>();
 
@@ -149,6 +155,16 @@ const normalizeValue = (value: unknown): SliderValue => {
 
 useEffect(() => {
   innerValue.set(normalizeValue(props.modelValue));
+});
+
+useNativeFormControl<SliderModelValue>({
+  props,
+  value: () => innerValue.value,
+  setValue: (value) => {
+    const next = normalizeValue(value);
+    innerValue.set(next);
+    emit("update:modelValue", next);
+  },
 });
 
 useHostFlag("disabled", isDisabled);

@@ -1,6 +1,7 @@
 import {
   defineEmits,
   defineHtml,
+  defineOptions,
   defineProps,
   defineStyle,
   useComponents,
@@ -32,6 +33,7 @@ const props = defineProps<InputTagProps>({
   modelValue: { type: Array, default: () => [] },
   placeholder: { type: String, default: "" },
   disabled: { type: Boolean, default: false },
+  required: { type: Boolean, default: false },
   readonly: { type: Boolean, default: false },
   clearable: { type: Boolean, default: false },
   max: { type: Number, default: undefined },
@@ -46,7 +48,11 @@ const props = defineProps<InputTagProps>({
   tagEffect: { type: String, default: "light" },
   draggable: { type: Boolean, default: false },
   validateEvent: { type: Boolean, default: true },
+  name: { type: String, default: "" },
+  form: { type: String, default: "" },
 });
+
+defineOptions({ formControl: true });
 
 const emit = defineEmits([
   "update:modelValue",
@@ -62,6 +68,7 @@ const hasTags = (): boolean => value.value.length > 0;
 const text = useRef("");
 const dragIndex = useRef<number | null>(null);
 const ctl = useFormControl<string[]>(props, emit, {
+  native: true,
   ...(props.validateEvent === false
     ? { triggers: { input: false, change: false, blur: false } }
     : {}),

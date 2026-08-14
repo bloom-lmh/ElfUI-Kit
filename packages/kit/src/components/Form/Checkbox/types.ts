@@ -10,6 +10,7 @@ export interface CheckboxProps {
   falseValue: unknown;
   label: string;
   disabled: boolean;
+  required: boolean;
   size: CheckboxSize;
   /** 半选状态（仅 boolean 模式） */
   indeterminate: boolean;
@@ -21,4 +22,6 @@ export interface CheckboxProps {
   ariaControls: string;
   trueLabel: string;
   falseLabel: string;
+  name: string;
+  form: string;
 }

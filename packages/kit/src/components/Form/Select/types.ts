@@ -32,6 +32,7 @@ export interface SelectProps {
   label: string;
   placeholder: string;
   disabled: boolean;
+  required: boolean;
   valueKey: string;
   clearable: boolean;
   multiple: boolean;
@@ -76,6 +77,7 @@ export interface SelectProps {
   tabindex: string | number;
   id: string;
   name: string;
+  form: string;
 }
 
 export interface SelectEmits {

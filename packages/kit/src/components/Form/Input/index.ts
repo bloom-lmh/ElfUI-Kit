@@ -4,6 +4,7 @@ import {
   defineEmits,
   defineExpose,
   defineHtml,
+  defineOptions,
   defineProps,
   defineStyle,
   onMounted,
@@ -58,6 +59,7 @@ const props = defineProps<InputProps>({
   variant: { type: String, default: "filled" },
   placeholder: { type: String, default: "" },
   disabled: { type: Boolean, default: false },
+  required: { type: Boolean, default: false },
   readonly: { type: Boolean, default: false },
   clearable: { type: Boolean, default: false },
   showPassword: { type: Boolean, default: false },
@@ -90,6 +92,8 @@ const props = defineProps<InputProps>({
   name: { type: String, default: "" },
 });
 
+defineOptions({ formControl: true });
+
 const emit = defineEmits<{
   "update:modelValue": [value: InputNativeValue];
   input: [value: InputNativeValue];
@@ -106,13 +110,15 @@ const emit = defineEmits<{
 }>();
 
 const ctl = useFormControl<InputNativeValue>(props, emit, {
+  native: true,
   ...(props.validateEvent === false
     ? { triggers: { input: false, change: false, blur: false } }
     : {}),
 });
 
 const fi = useFormItem(() => normalizeSize(props.size as InputSize));
-const isDisabled = useDisabled(() => Boolean(props.disabled));
+const inheritedDisabled = useDisabled(() => Boolean(props.disabled));
+const isDisabled = (): boolean => inheritedDisabled() || Boolean(ctl.native?.disabled);
 const inputRef = useTemplateRef<HTMLInputElement>("inputEl");
 const host = useHost();
 const pwdVisible = useRef(false);
@@ -385,6 +391,7 @@ const Input = defineHtml(`
         :type=${inputType()}
         :placeholder=${inputPlaceholder()}
         :disabled=${isDisabled()}
+        :required=${props.required}
         :readonly=${props.readonly}
         :maxlength=${nullable(props.maxlength)}
         :minlength=${nullable(props.minlength)}

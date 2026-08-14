@@ -2,6 +2,7 @@ import {
   defineEmits,
   defineExpose,
   defineHtml,
+  defineOptions,
   defineProps,
   defineStyle,
   onBeforeUnmount,
@@ -51,11 +52,13 @@ const props = defineProps<ColorPickerProps>({
   predefine: { type: Array, default: () => [] },
   showAlpha: { type: Boolean, default: false },
   disabled: { type: Boolean, default: false },
+  required: { type: Boolean, default: false },
   clearable: { type: Boolean, default: false },
   size: { type: String, default: "" },
   tabindex: { type: null, default: 0 },
   id: { type: String, default: "" },
   name: { type: String, default: "" },
+  form: { type: String, default: "" },
   ariaLabel: { type: String, default: "Select color" },
   valueOnClear: { type: null, default: undefined },
   emptyValues: { type: Array, default: undefined },
@@ -70,6 +73,8 @@ const props = defineProps<ColorPickerProps>({
   border: { type: Boolean, default: true },
 });
 
+defineOptions({ formControl: true });
+
 const emit = defineEmits<{
   "update:modelValue": [value: string];
   input: [value: string];
@@ -83,11 +88,13 @@ const emit = defineEmits<{
 const fieldValues = useFieldValueDefaults();
 
 const ctl = useFormControl<string>(props, emit, {
+  native: true,
   ...(props.validateEvent === false
     ? { triggers: { input: false, change: false, blur: false } }
     : {}),
 });
-const isDisabled = useDisabled(() => Boolean(props.disabled));
+const inheritedDisabled = useDisabled(() => Boolean(props.disabled));
+const isDisabled = (): boolean => inheritedDisabled() || Boolean(ctl.native?.disabled);
 const resolvedSize = useSize(() => props.size);
 const host = useHost();
 const locale = useLocaleProvider();
@@ -129,7 +136,7 @@ const outputValue = (): string =>
   });
 
 useEffect(() => {
-  const raw = isEmptyValue(props.modelValue) ? "" : String(props.modelValue ?? "").trim();
+  const raw = isEmptyValue(ctl.model.value) ? "" : String(ctl.model.value ?? "").trim();
   if (!raw) {
     color.set("");
     return;

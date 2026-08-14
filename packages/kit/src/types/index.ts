@@ -4,6 +4,8 @@ export type {
   CheckboxGroupContext,
   FormContext,
   FormItemContext,
+  NativeFormAssociatedProps,
+  NativeFormControlMethods,
   RadioGroupContext,
 } from "./form-context";
 

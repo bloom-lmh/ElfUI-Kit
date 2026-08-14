@@ -2,6 +2,7 @@ import {
   defineEmits,
   defineExpose,
   defineHtml,
+  defineOptions,
   defineProps,
   defineStyle,
   onMounted,
@@ -50,6 +51,7 @@ const props = defineProps<TextareaProps>({
   backgroundColor: { type: String, default: "" },
   placeholder: { type: String, default: "" },
   disabled: { type: Boolean, default: false },
+  required: { type: Boolean, default: false },
   readonly: { type: Boolean, default: false },
   minlength: { type: Number, default: undefined },
   maxlength: { type: Number, default: undefined },
@@ -79,6 +81,8 @@ const props = defineProps<TextareaProps>({
   name: { type: String, default: "" },
 });
 
+defineOptions({ formControl: true });
+
 const emit = defineEmits<{
   "update:modelValue": [value: string];
   input: [value: string];
@@ -95,12 +99,14 @@ const emit = defineEmits<{
 }>();
 
 const ctl = useFormControl<string>(props, emit, {
+  native: true,
   ...(props.validateEvent === false
     ? { triggers: { input: false, change: false, blur: false } }
     : {}),
 });
 const formItem = useFormItem(() => normalizeSize(props.size));
-const isDisabled = useDisabled(() => Boolean(props.disabled));
+const inheritedDisabled = useDisabled(() => Boolean(props.disabled));
+const isDisabled = (): boolean => inheritedDisabled() || Boolean(ctl.native?.disabled);
 const host = useHost();
 const textareaRef = useTemplateRef<HTMLTextAreaElement>("textareaEl");
 
@@ -337,6 +343,7 @@ const Textarea = defineHtml(`
 
         <textarea ref="textareaEl" part="textarea" :id=${nullable(props.id)} :name=${nullable(props.name)}
           :value.prop=${displayValue()} :placeholder=${props.placeholder} :disabled=${isDisabled()}
+          :required=${props.required}
           :readonly=${props.readonly} :minlength=${nullable(props.minlength)} :maxlength=${nullable(props.maxlength)}
           :rows=${props.rows} :autocomplete=${nullable(props.autocomplete)} :autofocus=${props.autofocus}
           :form=${nullable(props.form)} :aria-label=${ariaText()} :tabindex=${nullable(props.tabindex)}

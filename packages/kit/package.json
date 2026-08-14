@@ -22,12 +22,13 @@
   "scripts": {
     "build": "pnpm typecheck && vite build && tsc -p tsconfig.lib.json && node ../../scripts/prepare-package.mjs packages/kit",
     "typecheck": "node ../../scripts/check-unsupported-macros.mjs src && node ../../scripts/typecheck-macros.mjs tsconfig.lib.json",
-    "prepublishOnly": "pnpm --dir ../.. test:kit && pnpm build"
+    "prepublishOnly": "pnpm --dir ../.. release:check"
   },
   "dependencies": {
     "@elfui/core": "0.1.0-beta.21",
     "@elfui/router": "0.1.0-beta.11",
     "@mdi/js": "^7.4.47",
+    "@types/markdown-it": "14.1.2",
     "dompurify": "^3.2.4",
     "markdown-it": "^14.1.0",
     "markdown-it-container": "^4.0.0",
@@ -37,7 +38,6 @@
     "shiki": "^4.4.1"
   },
   "devDependencies": {
-    "@types/markdown-it": "^14.1.2",
     "@elfui/compiler": "0.1.0-beta.21",
     "@elfui/vite-plugin": "0.1.0-beta.21",
     "sass-embedded": "^1.83.0",

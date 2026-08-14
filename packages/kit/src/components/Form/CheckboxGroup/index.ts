@@ -2,6 +2,8 @@
 
 import {
   defineEmits,
+  defineHtml,
+  defineOptions,
   defineProps,
   defineStyle,
   inject,
@@ -9,11 +11,11 @@ import {
   useEffect,
   useHostCssVar,
   useRef,
-  defineHtml,
 } from "@elfui/core";
 
 import { CHECKBOX_GROUP_KEY, FORM_KEY } from "../context";
 import type { CheckboxGroupContext } from "../context";
+import { useFormControl } from "../../../composables";
 import styles from "./style.scss?inline";
 import type { CheckboxGroupOption, CheckboxGroupProps } from "./types";
 
@@ -30,6 +32,7 @@ interface CheckboxOptionView {
 const props = defineProps<CheckboxGroupProps>({
   modelValue: { type: Array, default: () => [] },
   disabled: { type: Boolean, default: false },
+  required: { type: Boolean, default: false },
   size: { type: String, default: "md" },
   min: { type: Number, default: 0 },
   max: { type: Number, default: Infinity },
@@ -39,13 +42,25 @@ const props = defineProps<CheckboxGroupProps>({
   textColor: { type: String, default: "" },
   options: { type: Array, default: () => [] },
   props: { type: Object, default: () => ({}) },
+  name: { type: String, default: "" },
+  form: { type: String, default: "" },
+  validateEvent: { type: Boolean, default: true },
 });
 
+defineOptions({ formControl: true });
+
 const emit = defineEmits(["update:modelValue", "change"]);
+const ctl = useFormControl<unknown[]>(props, emit, {
+  native: true,
+  triggers:
+    props.validateEvent === false
+      ? { input: false, change: false, blur: false }
+      : { input: false, blur: false },
+});
 
 const form = inject(FORM_KEY);
 
-const inner = useRef<unknown[]>((props.modelValue as unknown[]) ?? []);
+const inner = useRef<unknown[]>(ctl.model.value ?? []);
 
 const optionItems = (): CheckboxOptionView[] => {
   const mapping = props.props || {};
@@ -87,7 +102,7 @@ const resolveValue = (value: unknown): unknown => {
 };
 
 useEffect(() => {
-  const pv = (props.modelValue as unknown[]) ?? [];
+  const pv = ctl.model.value ?? [];
   if (pv !== inner.peek()) inner.set([...pv]);
 });
 
@@ -96,7 +111,7 @@ provide<CheckboxGroupContext>(CHECKBOX_GROUP_KEY, {
     return inner.value;
   },
   get disabled() {
-    return Boolean(props.disabled) || (form?.disabled ?? false);
+    return Boolean(props.disabled) || (form?.disabled ?? false) || Boolean(ctl.native?.disabled);
   },
   get size() {
     return props.size as "sm" | "md" | "lg";
@@ -113,8 +128,8 @@ provide<CheckboxGroupContext>(CHECKBOX_GROUP_KEY, {
   resolveValue,
   changeEvent(v: unknown[]) {
     inner.set(v);
-    emit("update:modelValue", v);
-    emit("change", v);
+    ctl.setValue(v);
+    ctl.dispatchChange(v);
   },
 });
 

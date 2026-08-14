@@ -22,6 +22,7 @@ export interface MentionProps {
   variant: FieldVariant;
   backgroundColor: string;
   disabled: boolean;
+  required: boolean;
   rows: number;
   split: string;
   filterOption?: MentionFilterOption;
@@ -32,6 +33,7 @@ export interface MentionProps {
   placement: MentionPlacement;
   id: string;
   name: string;
+  form: string;
   ariaLabel: string;
   validateEvent: boolean;
 }

@@ -44,6 +44,7 @@ export interface DateTimePickerProps {
   variant: DateTimePickerVariant;
   size: DateTimePickerSize;
   disabled: boolean;
+  required: boolean;
   readonly: boolean;
   editable: boolean;
   clearable: boolean;
@@ -55,6 +56,7 @@ export interface DateTimePickerProps {
   popperStyle: Record<string, string>;
   id: string;
   name: string;
+  form: string;
   tabindex: string | number;
   ariaLabel: string;
   valueOnClear?: DateTimePickerValue | (() => DateTimePickerValue);

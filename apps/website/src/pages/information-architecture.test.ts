@@ -1,5 +1,7 @@
 import { registerAllComponents } from "@elfui/kit";
-import { afterEach, beforeAll, describe, expect, it } from "vitest";
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+
+import { stubMdPageDemoFetch } from "./test-helpers";
 
 interface PageCase {
   tag: string;
@@ -135,9 +137,12 @@ beforeAll(async () => {
   );
 }, 30_000);
 
+beforeEach(stubMdPageDemoFetch);
+
 afterEach(() => {
   document.body.innerHTML = "";
   document.documentElement.lang = "zh-CN";
+  vi.unstubAllGlobals();
 });
 
 describe("新文档领域页面", () => {

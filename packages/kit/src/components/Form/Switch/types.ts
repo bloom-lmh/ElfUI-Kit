@@ -7,6 +7,7 @@ export type SwitchValue = string | number | boolean;
 export interface SwitchProps {
   modelValue: SwitchValue;
   disabled: boolean;
+  required: boolean;
   size: SwitchSize;
   variant: SwitchVariant;
   width: string | number;
@@ -33,4 +34,6 @@ export interface SwitchProps {
   id: string;
   tabindex: number;
   ariaLabel: string;
+  name: string;
+  form: string;
 }

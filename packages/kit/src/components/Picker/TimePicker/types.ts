@@ -46,9 +46,11 @@ export interface TimePickerProps {
   endPlaceholder: string;
   rangeSeparator: string;
   disabled: boolean;
+  required: boolean;
   clearable: boolean;
   id: string | [string, string];
   name: string;
+  form: string;
   tabindex: string | number;
   valueOnClear?: string | [string, string] | (() => string | [string, string]);
   emptyValues?: unknown[];

@@ -53,11 +53,13 @@ export interface DatePickerProps {
   cellClassName?: (date: Date) => string;
   showWeekNumber: boolean;
   disabled: boolean;
+  required: boolean;
   readonly: boolean;
   editable: boolean;
   clearable: boolean;
   id: string;
   name: string;
+  form: string;
   tabindex: string | number;
   ariaLabel: string;
   valueOnClear?: DatePickerValue | (() => DatePickerValue);

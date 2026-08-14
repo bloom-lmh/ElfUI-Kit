@@ -45,6 +45,7 @@ export interface TreeSelectProps {
   maxCollapseTags: number;
   multipleLimit: number;
   disabled: boolean;
+  required: boolean;
   size: TreeSelectSize;
   variant: TreeSelectVariant;
   backgroundColor: string;
@@ -68,6 +69,7 @@ export interface TreeSelectProps {
   tabindex: string | number;
   id: string;
   name: string;
+  form: string;
 }
 
 export interface TreeSelectEmits {

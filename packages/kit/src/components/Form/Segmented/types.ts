@@ -20,9 +20,11 @@ export interface SegmentedProps {
   options: SegmentedOption[];
   size: SegmentedSize;
   disabled: boolean;
+  required: boolean;
   block: boolean;
   props: SegmentedFieldNames;
   name: string;
+  form: string;
   id: string;
   ariaLabel: string;
   label: string;

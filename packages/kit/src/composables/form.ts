@@ -10,20 +10,27 @@ import { useModel, type ModelRef } from "@elfui/core";
 
 import { FORM_ITEM_KEY, FORM_KEY } from "./form-context";
 import type { RuleTrigger } from "../types/form";
+import {
+  useNativeFormControl,
+  type NativeFormControlBehavior,
+  type NativeFormControlBridge,
+} from "./native-form";
 
 // ── useFormControl ────────────────────────────────────────
 
-export interface UseFormControlOptions {
+export interface UseFormControlOptions<T = unknown> {
   prop?: string;
   triggers?: {
     input?: RuleTrigger | false;
     change?: RuleTrigger | false;
     blur?: RuleTrigger | false;
   };
+  native?: true | NativeFormControlBehavior<T>;
 }
 
 export interface FormControl<T> {
   model: ModelRef<T>;
+  native: NativeFormControlBridge<T> | null;
   setValue(v: T): void;
   dispatchInput(v: T): void;
   dispatchChange(v: T): void;
@@ -47,17 +54,17 @@ const DEFAULT_TRIGGERS: Required<NonNullable<UseFormControlOptions["triggers"]>>
 export function useFormControl<T = unknown>(
   props: Record<string, unknown>,
   ctx: MinimalCtx,
-  options?: UseFormControlOptions,
+  options?: UseFormControlOptions<T>,
 ): FormControl<T>;
 export function useFormControl<T = unknown, TEmit extends AnyEmitFn = AnyEmitFn>(
   props: Record<string, unknown>,
   emit: TEmit,
-  options?: UseFormControlOptions,
+  options?: UseFormControlOptions<T>,
 ): FormControl<T>;
 export function useFormControl<T = unknown>(
   props: Record<string, unknown>,
   ctxOrEmit: MinimalCtx | AnyEmitFn,
-  options: UseFormControlOptions = {},
+  options: UseFormControlOptions<T> = {},
 ): FormControl<T> {
   const ctx: MinimalCtx =
     typeof ctxOrEmit === "function" ? { emit: ctxOrEmit as EmitFn } : ctxOrEmit;
@@ -65,6 +72,15 @@ export function useFormControl<T = unknown>(
   const triggers = { ...DEFAULT_TRIGGERS, ...(options.triggers ?? {}) };
   const model = useModel<T>(props, ctx, propName);
   const formItem = inject(FORM_ITEM_KEY);
+  const nativeOptions = options.native === true ? {} : options.native;
+  const native = options.native
+    ? useNativeFormControl<T>({
+        props,
+        value: () => model.value,
+        setValue: (value) => model.set(value),
+        ...nativeOptions,
+      })
+    : null;
 
   const fireTrigger = (kind: keyof typeof DEFAULT_TRIGGERS): void => {
     const trigger = triggers[kind];
@@ -74,6 +90,7 @@ export function useFormControl<T = unknown>(
 
   return {
     model,
+    native,
     setValue(v) {
       model.set(v);
     },

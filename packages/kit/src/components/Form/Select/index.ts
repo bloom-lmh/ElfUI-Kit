@@ -4,6 +4,7 @@ import {
   defineExpose,
   defineEmits,
   defineHtml,
+  defineOptions,
   defineProps,
   defineStyle,
   inject,
@@ -18,7 +19,7 @@ import {
   useRef,
 } from "@elfui/core";
 
-import { useDisabled, useFormItem } from "../../../composables";
+import { useDisabled, useFormItem, useNativeFormControl } from "../../../composables";
 import { computeVirtualWindow } from "../../../utils/virtual-window";
 import { FORM_ITEM_KEY } from "../context";
 import { listenForExternalOverlayMotion } from "../../Common/overlay/anchored-overlay";
@@ -70,6 +71,7 @@ const props = defineProps<SelectProps>({
   label: { type: String, default: "" },
   placeholder: { type: String, default: "" },
   disabled: { type: Boolean, default: false },
+  required: { type: Boolean, default: false },
   valueKey: { type: String, default: "value" },
   clearable: { type: Boolean, default: false },
   multiple: { type: Boolean, default: false },
@@ -114,7 +116,10 @@ const props = defineProps<SelectProps>({
   tabindex: { type: null, default: 0 },
   id: { type: String, default: "" },
   name: { type: String, default: "" },
+  form: { type: String, default: "" },
 });
+
+defineOptions({ formControl: true });
 
 const emit = defineEmits<SelectEmits>();
 const fieldValues = useFieldValueDefaults();
@@ -139,6 +144,15 @@ const activeIndex = useRef(-1);
 const virtualScrollTop = useRef(0);
 
 const innerValue = useRef<unknown>(props.modelValue);
+
+useNativeFormControl<SelectValue | SelectValue[]>({
+  props,
+  value: () => innerValue.value as SelectValue | SelectValue[],
+  setValue: (value) => {
+    innerValue.set(value);
+    emit("update:modelValue", value);
+  },
+});
 
 let remoteTimer: ReturnType<typeof setTimeout> | null = null;
 

@@ -2,6 +2,7 @@ import {
   defineEmits,
   defineExpose,
   defineHtml,
+  defineOptions,
   defineProps,
   defineStyle,
   onBeforeUnmount,
@@ -79,11 +80,13 @@ const props = defineProps<DatePickerProps>({
   cellClassName: { type: Function, default: undefined },
   showWeekNumber: { type: Boolean, default: false },
   disabled: { type: Boolean, default: false },
+  required: { type: Boolean, default: false },
   readonly: { type: Boolean, default: false },
   editable: { type: Boolean, default: true },
   clearable: { type: Boolean, default: false },
   id: { type: String, default: "" },
   name: { type: String, default: "" },
+  form: { type: String, default: "" },
   tabindex: { type: null, default: 0 },
   ariaLabel: { type: String, default: "" },
   valueOnClear: { type: null, default: undefined },
@@ -103,13 +106,17 @@ const props = defineProps<DatePickerProps>({
   showConfirm: { type: Boolean, default: false },
 });
 
+defineOptions({ formControl: true });
+
 const emit = defineEmits<DatePickerEmits>();
 const fieldValues = useFieldValueDefaults();
 
 const ctl = useFormControl<DatePickerValue>(props, emit, {
+  native: true,
   ...(props.validateEvent === false ? { triggers: { change: false, blur: false } } : {}),
 });
-const isDisabled = useDisabled(() => Boolean(props.disabled));
+const inheritedDisabled = useDisabled(() => Boolean(props.disabled));
+const isDisabled = (): boolean => inheritedDisabled() || Boolean(ctl.native?.disabled);
 const resolvedSize = useSize(() => props.size);
 
 useComponents({ "date-picker-calendar": Calendar });
@@ -166,11 +173,7 @@ const resolvedPanelStyle = useComputed((): Record<string, string> => ({
 
 const isEmptyValue = (value: unknown): boolean => fieldValues.isEmpty(value, props.emptyValues);
 const readModelValue = (): DatePickerValue =>
-  isEmptyValue(props.modelValue)
-    ? props.multiple
-      ? []
-      : ""
-    : (props.modelValue as DatePickerValue);
+  isEmptyValue(ctl.model.value) ? (props.multiple ? [] : "") : ctl.model.value;
 
 const toValues = (value: DatePickerValue): string[] => {
   if (Array.isArray(value)) return value.map(String).filter(Boolean);
@@ -199,7 +202,7 @@ let expectedDraftSignature = "";
 let expectedDraftToken = 0;
 
 const draftSignature = (): string =>
-  JSON.stringify([props.modelValue, props.endValue, Boolean(props.multiple), Boolean(props.range)]);
+  JSON.stringify([ctl.model.value, props.endValue, Boolean(props.multiple), Boolean(props.range)]);
 
 const resetDraft = (force = false): void => {
   const signature = draftSignature();

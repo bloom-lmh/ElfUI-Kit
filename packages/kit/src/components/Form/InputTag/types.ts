@@ -6,6 +6,7 @@ export interface InputTagProps {
   modelValue: string[];
   placeholder: string;
   disabled: boolean;
+  required: boolean;
   readonly: boolean;
   clearable: boolean;
   max?: number;
@@ -22,4 +23,6 @@ export interface InputTagProps {
   tagEffect: string;
   draggable: boolean;
   validateEvent: boolean;
+  name: string;
+  form: string;
 }

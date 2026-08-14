@@ -4,6 +4,7 @@ import {
   defineEmits,
   defineExpose,
   defineHtml,
+  defineOptions,
   defineProps,
   defineStyle,
   inject,
@@ -19,7 +20,7 @@ import {
   useRef,
 } from "@elfui/core";
 
-import { useDisabled, useFormItem } from "../../../composables";
+import { useDisabled, useFormItem, useNativeFormControl } from "../../../composables";
 import {
   computeAnchoredPosition,
   connectAnchoredOverlayLifecycle,
@@ -134,6 +135,7 @@ const props = defineProps<CascaderProps>({
   label: { type: String, default: "" },
   placeholder: { type: String, default: "" },
   disabled: { type: Boolean, default: false },
+  required: { type: Boolean, default: false },
   clearable: { type: Boolean, default: false },
   clearIcon: { type: String, default: "" },
   multiple: { type: Boolean, default: false },
@@ -195,7 +197,11 @@ const props = defineProps<CascaderProps>({
       showPrefix: true,
     }),
   },
+  name: { type: String, default: "" },
+  form: { type: String, default: "" },
 });
+
+defineOptions({ formControl: true });
 
 const emit = defineEmits<CascaderEmits>();
 const fieldValues = useFieldValueDefaults();
@@ -1391,6 +1397,16 @@ useEffect(() => {
   const next = toValuePaths(props.modelValue);
   selectedValues.set(isMultiple() ? next : next.slice(0, 1));
   if (!open.peek()) activePath.set(findPathByValues(next[0] ?? []));
+});
+
+useNativeFormControl<CascaderModelValue>({
+  props,
+  value: () => modelValueFromPaths(selectedValues.value),
+  setValue: (value) => {
+    const next = toValuePaths(value);
+    selectedValues.set(isMultiple() ? next : next.slice(0, 1));
+    emit("update:modelValue", modelValueFromPaths(selectedValues.value));
+  },
 });
 
 useEffect(() => {

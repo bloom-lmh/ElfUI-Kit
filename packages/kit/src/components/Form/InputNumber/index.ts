@@ -2,6 +2,7 @@ import {
   defineEmits,
   defineExpose,
   defineHtml,
+  defineOptions,
   defineProps,
   defineStyle,
   useHostAttr,
@@ -39,6 +40,7 @@ const props = defineProps<InputNumberProps>({
   stepStrictly: { type: Boolean, default: false },
   precision: { type: Number, default: undefined },
   disabled: { type: Boolean, default: false },
+  required: { type: Boolean, default: false },
   readonly: { type: Boolean, default: false },
   controls: { type: Boolean, default: true },
   controlsPosition: { type: String, default: "" },
@@ -53,13 +55,17 @@ const props = defineProps<InputNumberProps>({
   backgroundColor: { type: String, default: "" },
   placeholder: { type: String, default: "" },
   name: { type: String, default: "" },
+  form: { type: String, default: "" },
   valueOnClear: { type: Number, default: undefined },
   validateEvent: { type: Boolean, default: true },
 });
 
+defineOptions({ formControl: true });
+
 const emit = defineEmits(["update:modelValue", "change", "input", "focus", "blur"]);
 const fieldValues = useFieldValueDefaults();
 const ctl = useFormControl<number | null>(props, emit, {
+  native: true,
   ...(props.validateEvent === false
     ? { triggers: { input: false, change: false, blur: false } }
     : {}),
@@ -115,7 +121,7 @@ const normalize = (value: number | null): number | null => {
 };
 
 useEffect(() => {
-  const raw = numberOrNull(props.modelValue);
+  const raw = numberOrNull(ctl.model.value);
   const key = raw === null ? "" : String(raw);
   if (lastModel.peek() === key) return;
   lastModel.set(key);

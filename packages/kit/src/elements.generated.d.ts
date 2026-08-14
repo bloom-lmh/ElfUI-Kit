@@ -155,7 +155,9 @@ declare global {
       open: (...args: unknown[]) => void;
       close: (...args: unknown[]) => void;
       togglePopperVisible: (...args: unknown[]) => void;
-      getCheckedNodes: (...args: unknown[]) => CascaderNodeSnapshot[];
+      getCheckedNodes: (
+        ...args: unknown[]
+      ) => import("./components/Form/Cascader/types").CascaderNodeSnapshot[];
       presentText: (...args: unknown[]) => string;
     };
     "elf-checkbox": HTMLElement & {
@@ -441,7 +443,6 @@ declare global {
       tabindex: unknown;
       validateEvent: boolean;
       inputStyle: unknown;
-      label: string;
       inputmode: string;
       countGraphemes: unknown;
       id: string;

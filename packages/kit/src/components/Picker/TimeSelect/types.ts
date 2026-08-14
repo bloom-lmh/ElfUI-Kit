@@ -15,6 +15,7 @@ export interface TimeSelectProps {
   includeEndTime: boolean;
   editable: boolean;
   disabled: boolean;
+  required: boolean;
   clearable: boolean;
   size: TimeSelectSize;
   variant: TimeSelectVariant;
@@ -22,6 +23,7 @@ export interface TimeSelectProps {
   label: string;
   placeholder: string;
   name: string;
+  form: string;
   id: string;
   tabindex: string | number;
   effect: string;

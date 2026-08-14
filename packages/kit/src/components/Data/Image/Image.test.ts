@@ -50,6 +50,25 @@ const mountLoadedPreview = async (teleported = false): Promise<ImageEl> => {
 };
 
 describe("elf-image", () => {
+  it("installs shared preview styles only while image instances are mounted", async () => {
+    const first = document.createElement("elf-image");
+    const second = document.createElement("elf-image");
+    const styleId = "__elfui_global__kit-image-preview";
+
+    document.body.append(first, second);
+    await tick();
+
+    expect(document.querySelectorAll(`#${styleId}`)).toHaveLength(1);
+
+    first.remove();
+    await tick();
+    expect(document.getElementById(styleId)).not.toBeNull();
+
+    second.remove();
+    await tick();
+    expect(document.getElementById(styleId)).toBeNull();
+  });
+
   it("renders responsive source metadata and normalized size", async () => {
     const el = document.createElement("elf-image") as ImageEl;
     el.src = "small.png";

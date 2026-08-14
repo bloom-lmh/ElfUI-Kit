@@ -1,6 +1,7 @@
 import {
   defineEmits,
   defineHtml,
+  defineOptions,
   defineProps,
   defineStyle,
   useHostAttr,
@@ -49,6 +50,7 @@ const props = defineProps<MentionProps>({
   variant: { type: String, default: "filled" },
   backgroundColor: { type: String, default: "" },
   disabled: { type: Boolean, default: false },
+  required: { type: Boolean, default: false },
   rows: { type: Number, default: 3 },
   split: { type: String, default: " " },
   filterOption: { type: Function, default: undefined },
@@ -59,9 +61,12 @@ const props = defineProps<MentionProps>({
   placement: { type: String, default: "bottom" },
   id: { type: String, default: "" },
   name: { type: String, default: "" },
+  form: { type: String, default: "" },
   ariaLabel: { type: String, default: "" },
   validateEvent: { type: Boolean, default: true },
 });
+
+defineOptions({ formControl: true });
 
 const emit = defineEmits<{
   "update:modelValue": [value: string];
@@ -72,12 +77,14 @@ const emit = defineEmits<{
 }>();
 
 const ctl = useFormControl<string>(props, emit, {
+  native: true,
   ...(props.validateEvent === false
     ? { triggers: { input: false, change: false, blur: false } }
     : {}),
 });
 const fi = useFormItem(() => "");
-const isDisabled = useDisabled(() => Boolean(props.disabled));
+const inheritedDisabled = useDisabled(() => Boolean(props.disabled));
+const isDisabled = (): boolean => inheritedDisabled() || Boolean(ctl.native?.disabled);
 const textareaRef = useTemplateRef<HTMLTextAreaElement>("textareaEl");
 const open = useRef(false);
 const query = useRef("");
