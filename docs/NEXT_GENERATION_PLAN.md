@@ -4,7 +4,7 @@
 
 > 状态：Active / 唯一计划事实源
 > 建立日期：2026-08-08（Asia/Shanghai）
-> 更新日期：2026-08-11（Asia/Shanghai）
+> 更新日期：2026-08-14（Asia/Shanghai）
 > 当前基线：`@elfui/kit@0.0.2-beta.5`、ElfUI Core/Compiler/Vite Plugin `0.1.0-beta.21`
 > 对标快照：Element Plus `2.14.4`、Vuetify `4.1.8`（均以 2026-08-07 官方 release 为准）
 
@@ -40,8 +40,8 @@ ElfUI Kit 的下一代版本必须同时达到以下结果：
 
 ### 3.1 已有优势
 
-- Kit 全量测试当前为 161 个文件、1555 项通过；宏类型检查扫描 519 个源码文件和 141 个宏组件，0 错误。
-- Website 全量测试当前为 117 个文件、412 项通过；宏类型检查扫描 724 个源码文件和 582 个宏组件，0 错误。
+- 源码、宏组件、测试、公开入口、包体、Style API、依赖、资源和浏览器数据以[当前机器生成基线](./baselines/current-repository-baseline.md)为准；通过 `pnpm baseline:collect` 从源码和构建产物重新采集。
+- Kit、Website 与架构脚本均有独立测试入口；默认高并发冷加载 `register-all` 的超时已由本轮验证暴露，必须在 `NG-007` 拆分测试注册 setup，不以提高 timeout 掩盖。
 - `@elfui/kit` 已收敛为 side-effect-free 单根入口；显式全量注册、组件自带默认样式、可选 utilities 安装和 Button/Input consumer tree-shaking 已有自动门禁。
 - Overlay stack/lifecycle、focus scope、date adapter、virtual window、Provider defaults 已有可复用基础。
 - 双语文档严格审计当前为 567/567。
@@ -55,9 +55,9 @@ ElfUI Kit 的下一代版本必须同时达到以下结果：
 - Table 选择同时维护响应式状态和手工 DOM 状态；快速虚拟路径监听器密度高。
 - Input/Textarea/Switch 手工覆写 host 原生方法，没有使用 `defineExpose(..., { overrideNative })`。
 - Metadata、类型、根导出、注册 manifest 与文档表格仍未由同一生成器产出，存在后续漂移风险。
-- Website 为保证全部文档示例可用，当前启动时调用 `registerAllComponents()`；生产主 chunk 约 2.85 MB raw、612 KB gzip，需改为路由级显式注册并建立首屏预算。
+- Website 为保证全部文档示例可用，当前启动时调用 `registerAllComponents()`；[当前 bundle 数据](./baselines/current-repository-baseline.md#public-package-and-bundle)显示其仍需改为路由级显式注册并建立首屏预算。
 - Tarball 的 Vite、TypeScript NodeNext、纯浏览器 ESM、SSR 与 CDN consumer matrix 尚未闭合；当前只有 Rollup Button/Input 按需门禁。
-- 113 个带样式的稳定组件中有 45 个没有公开 `part`；复杂组件的组件级 CSS 变量和 Style API 文档不完整。
+- [当前 Style API 基线](./baselines/current-repository-baseline.md#style-api)仍显示 parts、组件级 CSS 变量和覆盖文档未闭合。
 - Form/FormItem 和 Table 模型存在类型或模块环；低层 `composables/form.ts` 反向依赖组件层类型。
 - Style API metadata、稳定 parts、组件 token 和覆盖示例仍未达到全组件 100%。
 
@@ -118,8 +118,8 @@ flowchart LR
 
 - [x] **NG-000 旧计划收敛。** 删除 144 份日期与组件/page 旧计划，归并其中 192 个未完成项，建立本文件为唯一事实源；Git 保留历史。
 - [x] **NG-001 锁定对标矩阵。** 以 Element Plus 2.14.4 和 Vuetify 4.1.8 建立机器可读 capability/contract matrix；每项包含上游链接、ElfUI owner、状态、差异、测试和文档入口。
-- [ ] **NG-002 重新生成仓库基线。** 记录源码/宏组件/测试数量、bundle、公开 entries、Style API、依赖图、10k 数据性能、listener/observer/timer 和浏览器矩阵，不复制旧计划中的历史数字。
-- [ ] **NG-003 修复能力清单门禁。** 删除 `toHaveLength(119)` 等硬编码计数，由源码扫描生成期望集合；缺失 owner 时输出具体文件。
+- [x] **NG-002 重新生成仓库基线。** 记录源码/宏组件/测试数量、bundle、公开 entries、Style API、依赖图、10k 数据性能、listener/observer/timer 和浏览器矩阵，不复制旧计划中的历史数字。证据：[可读报告](./baselines/current-repository-baseline.md)、[机器数据](./baselines/current-repository-baseline.json)、[浏览器原始数据](./baselines/current-critical-pages.json)。
+- [x] **NG-003 修复能力清单门禁。** 删除 `toHaveLength(119)` 等硬编码计数，由源码扫描生成期望集合；缺失 owner 时输出具体文件。证据：[源码集合门禁](../scripts/capability-ownership.test.ts)、[当前 owner inventory](./architecture/2026-07-31-capability-ownership-and-reuse-inventory.md)。
 - [ ] **NG-004 建立全图循环依赖门禁。** 扫描全部非测试 TS，包括 type-only import；禁止跨层反向依赖和 SCC，先消除 Form/FormItem、Table 模型环。
 - [ ] **NG-005 建立唯一 release gate。** 新增 `pnpm release:check`，至少串行包含 format ratchet、ESLint、CSpell、全量 typecheck、全量 tests、strict locale audit、website build、library build、tarball consumer、SSR 和 architecture tests。
 - [ ] **NG-006 收紧 prepublish。** `prepublishOnly` 和 release workflow 只调用 `release:check`；任何一步失败不得发布或通过“只跑 Kit 测试”绕过。

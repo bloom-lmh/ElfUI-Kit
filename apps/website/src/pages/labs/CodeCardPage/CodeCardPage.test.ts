@@ -142,6 +142,8 @@ describe("CodeCardPage", () => {
 
     group.querySelector<HTMLButtonElement>('[aria-label="折叠代码"]')!.click();
     await settle();
+    group.querySelector(".card-body")?.dispatchEvent(new Event("transitionend", { bubbles: true }));
+    await settle();
     expect(group.querySelector(".card-body")).toBeNull();
     expect(group.querySelector(".card-title")).toBeNull();
     expect(group.querySelectorAll(".card-header")).toHaveLength(1);

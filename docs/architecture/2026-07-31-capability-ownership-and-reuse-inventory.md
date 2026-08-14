@@ -125,7 +125,7 @@ src/components/Providers/ThemeProvider/presets.ts
 src/components/Providers/ThemeProvider/types.ts
 ```
 
-## Macro Component Inventory (123)
+## Macro Component Inventory
 
 The inventory includes public components and internal macro components that own rendering, such as service bodies and panel renderers. Test probes are excluded.
 
@@ -139,10 +139,6 @@ src/components/Basic/Link/index.ts
 src/components/Basic/Quote/index.ts
 src/components/Basic/Tag/index.ts
 src/components/Basic/Text/index.ts
-src/components/Common/DocsToc/index.ts
-src/components/Common/OverviewCard/index.ts
-src/components/Common/Playground/index.ts
-src/components/Common/PropsTable/index.ts
 src/components/Data/Card/index.ts
 src/components/Data/Carousel/index.ts
 src/components/Data/CarouselItem/index.ts
@@ -203,8 +199,30 @@ src/components/Form/Switch/index.ts
 src/components/Form/Textarea/index.ts
 src/components/Form/TreeSelect/index.ts
 src/components/Form/Upload/index.ts
+src/components/Labs/AIChat/index.ts
+src/components/Labs/AiApprovalCard/index.ts
+src/components/Labs/AiCodeBlock/index.ts
+src/components/Labs/AiCommandSearch/index.ts
+src/components/Labs/AiContextCard/index.ts
+src/components/Labs/AiDiffTable/index.ts
+src/components/Labs/AiFilterTable/index.ts
+src/components/Labs/AiFineTuneCard/index.ts
+src/components/Labs/AiInsightCard/index.ts
+src/components/Labs/AiLoading/index.ts
+src/components/Labs/AiRecommendationCard/index.ts
+src/components/Labs/AiRecordsTable/index.ts
+src/components/Labs/AiSidebarNav/index.ts
+src/components/Labs/AiStreamingText/index.ts
+src/components/Labs/AiTaskRow/index.ts
+src/components/Labs/AiThinking/index.ts
+src/components/Labs/AiToolChips/index.ts
+src/components/Labs/ChatComposer/index.ts
+src/components/Labs/ChatMessage/index.ts
+src/components/Labs/ChatToolCall/index.ts
 src/components/Labs/CodeCard/index.ts
 src/components/Labs/Heatmap/index.ts
+src/components/Labs/MdOutline/index.ts
+src/components/Labs/MdPage/index.ts
 src/components/Labs/Video/index.ts
 src/components/Layout/Aside/index.ts
 src/components/Layout/Container/index.ts

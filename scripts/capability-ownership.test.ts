@@ -60,6 +60,14 @@ const providerSources = collectFiles(join(kitSourceRoot, "components", "Provider
   .filter(isNonTestTypeScript)
   .filter((path) => !basename(path).startsWith("probe."))
   .map(toRepositoryPath);
+const macroInventoryBlock = inventory.match(
+  /## Macro Component Inventory[^\n]*[\s\S]*?```text\r?\n([\s\S]*?)\r?\n```/,
+)?.[1];
+const documentedMacroComponents = (macroInventoryBlock ?? "")
+  .split(/\r?\n/)
+  .map((path) => path.trim())
+  .filter(Boolean)
+  .sort();
 
 const coreApis = [
   "defineHtml",
@@ -140,17 +148,42 @@ const coreApis = [
 
 describe("capability ownership inventory", () => {
   it("tracks every current component and shared capability source", () => {
-    const trackedSources = [
-      ...macroComponents,
+    const sharedSources = [
       ...composableSources,
       ...directiveSources,
       ...commonControllers,
       ...providerSources,
     ];
-    const missing = [...new Set(trackedSources)].filter((path) => !inventory.includes(path));
+    const missingSharedSources = [...new Set(sharedSources)].filter(
+      (path) => !inventory.includes(path),
+    );
+    const macroComponentSet = new Set(macroComponents);
+    const documentedMacroComponentSet = new Set(documentedMacroComponents);
+    const missingMacroComponents = macroComponents.filter(
+      (path) => !documentedMacroComponentSet.has(path),
+    );
+    const staleMacroComponents = documentedMacroComponents.filter(
+      (path) => !macroComponentSet.has(path),
+    );
 
-    expect(macroComponents).toHaveLength(119);
-    expect(missing).toEqual([]);
+    expect(macroComponents.length, "source scan must discover macro components").toBeGreaterThan(0);
+    expect(
+      documentedMacroComponents.length,
+      "macro inventory code block must be readable",
+    ).toBeGreaterThan(0);
+    expect(
+      { missingMacroComponents, staleMacroComponents, missingSharedSources },
+      [
+        "Capability inventory drifted from source owners.",
+        `Missing macro owners:\n${missingMacroComponents.join("\n")}`,
+        `Stale macro owners:\n${staleMacroComponents.join("\n")}`,
+        `Missing shared owners:\n${missingSharedSources.join("\n")}`,
+      ].join("\n\n"),
+    ).toEqual({
+      missingMacroComponents: [],
+      staleMacroComponents: [],
+      missingSharedSources: [],
+    });
   });
 
   it("tracks the current public Core authoring surface", () => {

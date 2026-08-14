@@ -1,4 +1,9 @@
-async (page) => {
+/**
+ * Collects repeatable critical-page metrics from an already-open website page.
+ * The caller owns browser and server lifecycle so the same collector can be
+ * reused by the checked-in Playwright baseline and future release gates.
+ */
+export const collectCriticalPageBenchmark = async (page) => {
   const runCount = 5;
   const scenarios = [
     {

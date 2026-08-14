@@ -48,9 +48,7 @@ export const installUtilityStyles = (target?: Document | ShadowRoot): (() => voi
   const container = resolveStyleContainer(resolvedTarget);
   const existing = container.querySelector<HTMLStyleElement>(utilityStyleSelector);
   const style =
-    existing ??
-    container.ownerDocument?.createElement("style") ??
-    document.createElement("style");
+    existing ?? container.ownerDocument?.createElement("style") ?? document.createElement("style");
   const installation: UtilityStyleInstallation = {
     count: 1,
     owned: !existing,
